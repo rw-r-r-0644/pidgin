@@ -32,9 +32,9 @@ struct _IrcXfer {
 	guint remote_port;
 
 	/* send properties */
-	PurpleNetworkListenData *listen_data;
+	GSocketService *service;
+	GSocketConnection *conn;
 	gint inpa;
-	gint fd;
 	guchar *rxqueue;
 	guint rxlen;
 };
@@ -218,124 +218,93 @@ static gssize irc_dccsend_send_write(PurpleXfer *xfer, const guchar *buffer, siz
 	return ret;
 }
 
-static void irc_dccsend_send_connected(gpointer data, int source, PurpleInputCondition cond) {
-	PurpleXfer *xfer = PURPLE_XFER(data);
-	IrcXfer *xd = IRC_XFER(xfer);
-	int conn;
-
-	conn = accept(xd->fd, NULL, 0);
-	if (conn == -1) {
-		/* Accepting the connection failed. This could just be related
-		 * to the nonblocking nature of the listening socket, so we'll
-		 * just try again next time */
-		/* Let's print an error message anyway */
-		purple_debug_warning("irc", "accept: %s\n", g_strerror(errno));
-		return;
-	}
-
-	purple_input_remove(purple_xfer_get_watcher(xfer));
-	purple_xfer_set_watcher(xfer, 0);
-	close(xd->fd);
-	xd->fd = -1;
-
-	_purple_network_set_common_socket_flags(conn);
-
-	xd->inpa = purple_input_add(conn, PURPLE_INPUT_READ, irc_dccsend_send_read, xfer);
-	/* Start the transfer */
-	purple_xfer_start(xfer, conn, NULL, 0);
-}
-
 static void
-irc_dccsend_network_listen_cb(int sock, gpointer data)
+irc_dccsend_send_connected(GSocketService *service,
+                           GSocketConnection *connection,
+                           GObject *source_object, G_GNUC_UNUSED gpointer data)
 {
-	PurpleXfer *xfer = PURPLE_XFER(data);
+	PurpleXfer *xfer = PURPLE_XFER(source_object);
 	IrcXfer *xd = IRC_XFER(xfer);
-	PurpleConnection *gc;
-	struct irc_conn *irc;
-	GSocket *gsock;
+	GSocket *sock;
 	int fd = -1;
-	const char *arg[2];
-	char *tmp;
-	struct in_addr addr;
-	unsigned short int port;
 
-	/* not sure what the deal is here, but it needs to be here.. gk 20190626 */
-	xd->listen_data = NULL;
+	xd->conn = g_object_ref(connection);
+	g_socket_service_stop(xd->service);
+	g_clear_object(&xd->service);
 
-	if (purple_xfer_get_status(xfer) == PURPLE_XFER_STATUS_CANCEL_LOCAL
-			|| purple_xfer_get_status(xfer) == PURPLE_XFER_STATUS_CANCEL_REMOTE) {
-		g_object_unref(xfer);
-		return;
-	}
+	sock = g_socket_connection_get_socket(connection);
+	fd = g_socket_get_fd(sock);
+	_purple_network_set_common_socket_flags(fd);
 
-	gc = purple_account_get_connection(purple_xfer_get_account(xfer));
-	irc = purple_connection_get_protocol_data(gc);
-
-	if (sock < 0) {
-		purple_notify_error(gc, NULL, _("File Transfer Failed"),
-			_("Unable to open a listening port."),
-			purple_request_cpar_from_connection(gc));
-		purple_xfer_cancel_local(xfer);
-		return;
-	}
-
-	xd->fd = sock;
-
-	port = purple_network_get_port_from_fd(sock);
-	purple_debug_misc("irc", "port is %hu\n", port);
-	/* Monitor the listening socket */
-	purple_xfer_set_watcher(
-		xfer,
-		purple_input_add(sock, PURPLE_INPUT_READ, irc_dccsend_send_connected, xfer)
-	);
-
-	/* Send the intended recipient the DCC request */
-	arg[0] = purple_xfer_get_remote_user(xfer);
-
-	/* Fetching this fd here assumes it won't be modified */
-	gsock = g_socket_connection_get_socket(irc->conn);
-	if (gsock != NULL) {
-		fd = g_socket_get_fd(gsock);
-	}
-
-	inet_aton(purple_network_get_my_ip(fd), &addr);
-	arg[1] = tmp = g_strdup_printf(
-		"\001DCC SEND \"%s\" %u %hu %" G_GOFFSET_FORMAT "\001",
-    	purple_xfer_get_filename(xfer),
-    	ntohl(addr.s_addr),
-    	port,
-    	purple_xfer_get_size(xfer)
-    );
-
-	irc_cmd_privmsg(purple_connection_get_protocol_data(gc), "msg", NULL, arg);
-	g_free(tmp);
+	xd->inpa = purple_input_add(fd, PURPLE_INPUT_READ, irc_dccsend_send_read,
+	                            xfer);
+	/* Start the transfer */
+	purple_xfer_start(xfer, fd, NULL, 0);
 }
 
 /*
  * This function is called after the user has selected a file to send.
  */
-static void irc_dccsend_send_init(PurpleXfer *xfer) {
+static void
+irc_dccsend_send_init(PurpleXfer *xfer)
+{
 	IrcXfer *xd = IRC_XFER(xfer);
-	PurpleConnection *gc = purple_account_get_connection(purple_xfer_get_account(xfer));
+	PurpleConnection *gc =
+	        purple_account_get_connection(purple_xfer_get_account(xfer));
+	struct irc_conn *irc;
+	const char *arg[2];
+	char *tmp;
+	struct in_addr addr;
+	guint16 port;
+	GError *error = NULL;
 
-	purple_xfer_set_filename(xfer, g_path_get_basename(purple_xfer_get_local_filename(xfer)));
+	purple_xfer_set_filename(
+	        xfer, g_path_get_basename(purple_xfer_get_local_filename(xfer)));
 
 	/* Create a listening socket */
-	xd->listen_data = purple_network_listen_range(
-		0,
-		0,
-		AF_UNSPEC,
-		SOCK_STREAM,
-		TRUE,
-		irc_dccsend_network_listen_cb,
-		xfer
-	);
-	if (xd->listen_data == NULL) {
+	xd->service = g_socket_service_new();
+	if (xd->service == NULL) {
+		purple_notify_error(gc, NULL, _("File Transfer Failed"),
+		                    _("Unable to open a listening port."),
+		                    purple_request_cpar_from_connection(gc));
+		purple_xfer_cancel_local(xfer);
+		return;
+	}
+
+	/* Monitor the listening socket */
+	g_signal_connect(xd->service, "incoming",
+	                 G_CALLBACK(irc_dccsend_send_connected), NULL);
+
+	port = purple_socket_listener_add_any_inet_port(
+	        G_SOCKET_LISTENER(xd->service), G_OBJECT(xfer), &error);
+	if (port != 0) {
+		purple_xfer_set_local_port(xfer, port);
+	} else {
 		purple_notify_error(gc, NULL, _("File Transfer Failed"),
 			_("Unable to open a listening port."),
 			purple_request_cpar_from_connection(gc));
+		g_error_free(error);
+		g_clear_object(&xd->service);
 		purple_xfer_cancel_local(xfer);
+		return;
 	}
+
+	irc = purple_connection_get_protocol_data(gc);
+
+	purple_debug_misc("irc", "port is %hu\n", port);
+
+	/* Send the intended recipient the DCC request */
+	arg[0] = purple_xfer_get_remote_user(xfer);
+	tmp = purple_network_get_my_ip_from_gio(irc->conn);
+	inet_aton(tmp, &addr);
+	g_free(tmp);
+	arg[1] = tmp = g_strdup_printf(
+	        "\001DCC SEND \"%s\" %u %hu %" G_GOFFSET_FORMAT "\001",
+	        purple_xfer_get_filename(xfer), ntohl(addr.s_addr), port,
+	        purple_xfer_get_size(xfer));
+
+	irc_cmd_privmsg(purple_connection_get_protocol_data(gc), "msg", NULL, arg);
+	g_free(tmp);
 }
 
 PurpleXfer *irc_dccsend_new_xfer(PurpleProtocolXfer *prplxfer, PurpleConnection *gc, const char *who) {
@@ -381,8 +350,8 @@ irc_dccsend_init(PurpleXfer *xfer) {
  * GObject Implementation
  *****************************************************************************/
 static void
-irc_xfer_init(IrcXfer *xfer) {
-	xfer->fd = -1;
+irc_xfer_init(IrcXfer *xfer)
+{
 }
 
 static void
@@ -394,13 +363,14 @@ irc_xfer_finalize(GObject *obj) {
 	g_free(xfer->rxqueue);
 
 	/* clean up the sending properties */
-	g_clear_pointer(&xfer->listen_data, purple_network_listen_cancel);
+	if (xfer->service) {
+		g_socket_service_stop(xfer->service);
+	}
+	g_clear_object(&xfer->service);
 	if(xfer->inpa > 0) {
 		purple_input_remove(xfer->inpa);
 	}
-	if(xfer->fd != -1) {
-		close(xfer->fd);
-	}
+	g_clear_object(&xfer->conn);
 
 	G_OBJECT_CLASS(irc_xfer_parent_class)->finalize(obj);
 }
