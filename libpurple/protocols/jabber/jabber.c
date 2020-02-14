@@ -345,11 +345,11 @@ void jabber_process_packet(JabberStream *js, PurpleXmlNode **packet)
 	name = (*packet)->name;
 	xmlns = purple_xmlnode_get_namespace(*packet);
 
-	if(purple_strequal((*packet)->name, "iq")) {
+	if (purple_strequal(name, "iq")) {
 		jabber_iq_parse(js, *packet);
-	} else if(purple_strequal((*packet)->name, "presence")) {
+	} else if (purple_strequal(name, "presence")) {
 		jabber_presence_parse(js, *packet);
-	} else if(purple_strequal((*packet)->name, "message")) {
+	} else if (purple_strequal(name, "message")) {
 		jabber_message_parse(js, *packet);
 	} else if (purple_strequal(xmlns, NS_XMPP_STREAMS)) {
 		if (purple_strequal(name, "features"))
@@ -377,7 +377,7 @@ void jabber_process_packet(JabberStream *js, PurpleXmlNode **packet)
 			/* TODO: Handle <failure/>, I guess? */
 		}
 	} else {
-		purple_debug_warning("jabber", "Unknown packet: %s\n", (*packet)->name);
+		purple_debug_warning("jabber", "Unknown packet: %s\n", name);
 	}
 }
 
@@ -2574,7 +2574,7 @@ GList *jabber_get_actions(PurpleConnection *gc)
 	                             jabber_user_search_begin);
 	m = g_list_append(m, act);
 
-	purple_debug_info("jabber", "jabber_get_actions: have pep: %s\n", js->pep?"YES":"NO");
+	purple_debug_info("jabber", "jabber_get_actions: have pep: %s\n", js->pep ? "YES" : "NO");
 
 	if(js->pep)
 		jabber_pep_init_actions(&m);
@@ -3706,7 +3706,7 @@ jabber_register_commands(PurpleProtocol *protocol)
 	id = purple_cmd_register("buzz", "w", PURPLE_CMD_P_PROTOCOL,
 		PURPLE_CMD_FLAG_IM | PURPLE_CMD_FLAG_PROTOCOL_ONLY |
 		PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS, proto_id, jabber_cmd_buzz,
-		_("buzz: Buzz a user to get their attention"), NULL);
+		_("buzz: Buzz a user to get their attention."), NULL);
 	commands = g_slist_prepend(commands, GUINT_TO_POINTER(id));
 
 	id = purple_cmd_register("mood", "ws", PURPLE_CMD_P_PROTOCOL,
