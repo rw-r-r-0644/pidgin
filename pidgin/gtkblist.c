@@ -45,18 +45,15 @@
 #include "gtkdialogs.h"
 #include "gtkxfer.h"
 #include "gtkpounce.h"
-#include "gtkprefs.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
 #include "gtkstatusbox.h"
 #include "gtkscrollbook.h"
-#include "gtksmiley-manager.h"
 #include "gtkstyle.h"
 #include "gtkblist-theme.h"
 #include "gtkblist-theme-loader.h"
 #include "gtkutils.h"
 #include "pidgin/minidialog.h"
-#include "pidgin/pidginabout.h"
 #include "pidgin/pidginaccountchooser.h"
 #include "pidgin/pidginactiongroup.h"
 #include "pidgin/pidginbuddylistmenu.h"
@@ -64,7 +61,6 @@
 #include "pidgin/pidgingdkpixbuf.h"
 #include "pidgin/pidginlog.h"
 #include "pidgin/pidginplugininfo.h"
-#include "pidgin/pidginpluginsdialog.h"
 #include "pidgin/pidgintooltip.h"
 #include "pidginmenutray.h"
 
@@ -792,11 +788,6 @@ static void gtk_blist_menu_showoffline_cb(GtkWidget *w, PurpleBlistNode *node)
 			}
 		}
 	}
-}
-
-static void gtk_blist_show_systemlog_cb(void)
-{
-	pidgin_syslog_show();
 }
 
 static void gtk_blist_show_onlinehelp_cb(void)
@@ -2021,11 +2012,6 @@ pidgin_blist_popup_menu_cb(GtkWidget *tv, void *user_data)
 	handled = pidgin_blist_show_context_menu(tv, node, NULL);
 
 	return handled;
-}
-
-static void gtk_blist_show_xfer_dialog_cb(GtkAction *item, gpointer data)
-{
-	pidgin_xfer_dialog_show(NULL);
 }
 
 static void pidgin_blist_buddy_details_cb(GtkToggleAction *item, gpointer data)
@@ -3345,13 +3331,6 @@ static gboolean pidgin_blist_leave_cb (GtkWidget *w, GdkEventCrossing *e, gpoint
 	return FALSE;
 }
 
-static void
-toggle_debug(void)
-{
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/debug/enabled",
-			!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled"));
-}
-
 static char *get_mood_icon_path(const char *mood)
 {
 	char *path;
@@ -3618,24 +3597,6 @@ set_mood_show(void)
 /***************************************************
  *            Crap                                 *
  ***************************************************/
-static void
-pidgin_blist_plugins_dialog_cb(GtkAction *action, GtkWidget *window) {
-	GtkWidget *dialog = pidgin_plugins_dialog_new();
-
-	gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
-
-	gtk_widget_show_all(dialog);
-}
-
-static void
-_pidgin_about_cb(GtkAction *action, GtkWidget *window) {
-	GtkWidget *about = pidgin_about_dialog_new();
-
-	gtk_window_set_transient_for(GTK_WINDOW(about), GTK_WINDOW(window));
-
-	gtk_widget_show_all(about);
-}
-
 /* TODO: fill out tooltips... */
 static const GtkActionEntry blist_menu_entries[] = {
 /* NOTE: Do not set any accelerator to Control+O. It is mapped by
@@ -3643,35 +3604,17 @@ static const GtkActionEntry blist_menu_entries[] = {
 	/* Buddies menu */
 	{ "BuddiesMenu", NULL, N_("_Buddies"), NULL, NULL, NULL },
 	{ "JoinAChat", PIDGIN_STOCK_CHAT, N_("Join a _Chat..."), "<control>C", NULL, pidgin_blist_joinchat_show },
-	{ "GetUserInfo", PIDGIN_STOCK_TOOLBAR_USER_INFO, N_("Get User _Info..."), "<control>I", NULL, pidgin_dialogs_info },
-	{ "ViewUserLog", NULL, N_("View User _Log..."), "<control>L", NULL, pidgin_dialogs_log },
 	{ "ShowMenu", NULL, N_("Sh_ow"), NULL, NULL, NULL },
 	{ "SortMenu", NULL, N_("_Sort Buddies"), NULL, NULL, NULL },
 	{ "AddBuddy", GTK_STOCK_ADD, N_("_Add Buddy..."), "<control>B", NULL, pidgin_blist_add_buddy_cb },
 	{ "AddChat", GTK_STOCK_ADD, N_("Add C_hat..."), NULL, NULL, pidgin_blist_add_chat_cb },
-	{ "AddGroup", GTK_STOCK_ADD, N_("Add _Group..."), NULL, NULL, purple_blist_request_add_group },
-	{ "Quit", GTK_STOCK_QUIT, N_("_Quit"), "<control>Q", NULL, purple_core_quit },
 
 	/* Accounts menu */
 	{ "AccountsMenu", NULL, N_("_Accounts"), NULL, NULL, NULL },
-	{ "ManageAccounts", NULL, N_("Manage Accounts"), "<control>A", NULL, pidgin_accounts_window_show },
 
 	/* Tools */
 	{ "ToolsMenu", NULL, N_("_Tools"), NULL, NULL, NULL },
-	{ "BuddyPounces", NULL, N_("Buddy _Pounces"), NULL, NULL, pidgin_pounces_manager_show },
-	{ "CustomSmileys", PIDGIN_STOCK_TOOLBAR_SMILEY, N_("Custom Smile_ys"), "<control>Y", NULL, pidgin_smiley_manager_show },
-	{ "Plugins", PIDGIN_STOCK_TOOLBAR_PLUGINS, N_("Plu_gins"), "<control>U", NULL, pidgin_blist_plugins_dialog_cb },
-	{ "Preferences", GTK_STOCK_PREFERENCES, N_("Pr_eferences"), "<control>P", NULL, pidgin_prefs_show },
-	{ "Privacy", NULL, N_("Pr_ivacy"), NULL, NULL, pidgin_privacy_dialog_show },
 	{ "SetMood", NULL, N_("Set _Mood"), "<control>D", NULL, set_mood_show },
-	{ "FileTransfers", PIDGIN_STOCK_TOOLBAR_TRANSFER, N_("_File Transfers"), "<control>T", NULL, G_CALLBACK(gtk_blist_show_xfer_dialog_cb) },
-	{ "RoomList", NULL, N_("R_oom List"), NULL, NULL, pidgin_roomlist_dialog_show },
-	{ "SystemLog", NULL, N_("System _Log"), NULL, NULL, gtk_blist_show_systemlog_cb },
-
-	/* Help */
-	{ "HelpMenu", NULL, N_("_Help"), NULL, NULL, NULL },
-	{ "DebugWindow", NULL, N_("_Debug Window"), NULL, NULL, toggle_debug },
-	{ "About", GTK_STOCK_ABOUT, N_("_About"), NULL, NULL, G_CALLBACK(_pidgin_about_cb) },
 };
 
 /* Toggle items */
@@ -3692,8 +3635,6 @@ static const char *blist_menu =
 	"<menubar name='BList'>"
 		"<menu action='BuddiesMenu'>"
 			"<menuitem action='JoinAChat'/>"
-			"<menuitem action='GetUserInfo'/>"
-			"<menuitem action='ViewUserLog'/>"
 			"<separator/>"
 			"<menu action='ShowMenu'>"
 				"<menuitem action='ShowOffline'/>"
@@ -3706,32 +3647,15 @@ static const char *blist_menu =
 			"<separator/>"
 			"<menuitem action='AddBuddy'/>"
 			"<menuitem action='AddChat'/>"
-			"<menuitem action='AddGroup'/>"
 			"<separator/>"
-			"<menuitem action='Quit'/>"
 		"</menu>"
 		"<menu action='AccountsMenu'>"
-			"<menuitem action='ManageAccounts'/>"
 		"</menu>"
 		"<menu action='ToolsMenu'>"
-			"<menuitem action='BuddyPounces'/>"
-			"<menuitem action='CustomSmileys'/>"
-			"<menuitem action='Plugins'/>"
-			"<menuitem action='Preferences'/>"
-			"<menuitem action='Privacy'/>"
 			"<menuitem action='SetMood'/>"
-			"<separator/>"
-			"<menuitem action='FileTransfers'/>"
-			"<menuitem action='RoomList'/>"
-			"<menuitem action='SystemLog'/>"
 			"<separator/>"
 			"<menuitem action='MuteSounds'/>"
 			"<placeholder name='PluginActions'/>"
-		"</menu>"
-		"<menu action='HelpMenu'>"
-			"<menuitem action='DebugWindow'/>"
-			"<separator/>"
-			"<menuitem action='About'/>"
 		"</menu>"
 	"</menubar>"
 "</ui>";

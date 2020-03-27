@@ -22,8 +22,21 @@
 
 #include "pidginactiongroup.h"
 
+#include <purple.h>
+
 #include "internal.h"
-#include "gtkdialogs.h"
+
+#include "pidgin/gtkaccount.h"
+#include "pidgin/gtkdialogs.h"
+#include "pidgin/gtkpounce.h"
+#include "pidgin/gtkprefs.h"
+#include "pidgin/gtkprivacy.h"
+#include "pidgin/gtkroomlist.h"
+#include "pidgin/gtksmiley-manager.h"
+#include "pidgin/gtkxfer.h"
+#include "pidgin/pidginabout.h"
+#include "pidgin/pidginlog.h"
+#include "pidgin/pidginpluginsdialog.h"
 
 struct _PidginActionGroup {
 	GSimpleActionGroup parent;
@@ -32,6 +45,70 @@ struct _PidginActionGroup {
 /******************************************************************************
  * Action Callbacks
  *****************************************************************************/
+static void
+pidgin_action_group_about(GSimpleAction *simple, GVariant *parameter,
+                          gpointer data)
+{
+	GtkWidget *about = pidgin_about_dialog_new();
+
+	/* fix me? */
+#if 0
+	gtk_window_set_transient_for(GTK_WINDOW(about), GTK_WINDOW(window));
+#endif
+
+	gtk_widget_show_all(about);
+}
+
+static void
+pidgin_action_group_add_group(GSimpleAction *simple, GVariant *parameter,
+                              gpointer data)
+{
+	purple_blist_request_add_group();
+}
+
+static void
+pidgin_action_group_buddy_pounces(GSimpleAction *simple, GVariant *parameter,
+                                  gpointer data)
+{
+	pidgin_pounces_manager_show();
+}
+
+static void
+pidgin_action_group_custom_smiley(GSimpleAction *simple, GVariant *parameter,
+                                  gpointer data)
+{
+	pidgin_smiley_manager_show();
+}
+
+static void
+pidgin_action_group_debug(GSimpleAction *simple, GVariant *parameter,
+                          gpointer data)
+{
+	gboolean old = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled");
+	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/debug/enabled", !old);
+}
+
+static void
+pidgin_action_group_file_transfers(GSimpleAction *simple, GVariant *parameter,
+                                   gpointer data)
+{
+	pidgin_xfer_dialog_show(NULL);
+}
+
+static void
+pidgin_action_group_get_user_info(GSimpleAction *simple, GVariant *parameter,
+                                  gpointer data)
+{
+	pidgin_dialogs_info();
+}
+
+static void
+pidgin_action_group_manage_accounts(GSimpleAction *simple, GVariant *parameter,
+                                    gpointer data)
+{
+	pidgin_accounts_window_show();
+}
+
 static void
 pidgin_action_group_new_message(GSimpleAction *simple, GVariant *parameter,
                                 gpointer data)
@@ -46,6 +123,62 @@ pidgin_action_group_online_help(GSimpleAction *simple, GVariant *parameter,
 	purple_notify_uri(NULL, PURPLE_WEBSITE "documentation");
 }
 
+static void
+pidgin_action_group_plugins(GSimpleAction *simple, GVariant *parameter,
+                            gpointer data)
+{
+	GtkWidget *dialog = pidgin_plugins_dialog_new();
+
+	/* fixme? */
+#if 0
+	gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
+#endif
+
+	gtk_widget_show_all(dialog);
+}
+
+static void
+pidgin_action_group_preferences(GSimpleAction *simple, GVariant *parameter,
+                                gpointer data)
+{
+	pidgin_prefs_show();
+}
+
+static void
+pidgin_action_group_privacy(GSimpleAction *simple, GVariant *parameter,
+                            gpointer data)
+{
+	pidgin_privacy_dialog_show();
+}
+
+static void
+pidgin_action_group_quit(GSimpleAction *simple, GVariant *parameter,
+                         gpointer data)
+{
+	purple_core_quit();
+}
+
+static void
+pidgin_action_group_room_list(GSimpleAction *simple, GVariant *parameter,
+                              gpointer data)
+{
+	pidgin_roomlist_dialog_show();
+}
+
+static void
+pidgin_action_group_system_log(GSimpleAction *simple, GVariant *parameter,
+                               gpointer data)
+{
+	pidgin_syslog_show();
+}
+
+static void
+pidgin_action_group_view_user_log(GSimpleAction *simple, GVariant *parameter,
+                                  gpointer data)
+{
+	pidgin_dialogs_log();
+}
+
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
@@ -56,11 +189,56 @@ static void
 pidgin_action_group_init(PidginActionGroup *group) {
 	GActionEntry entries[] = {
 		{
+			.name = PIDGIN_ACTION_ABOUT,
+			.activate = pidgin_action_group_about,
+		}, {
+			.name = PIDGIN_ACTION_ADD_GROUP,
+			.activate = pidgin_action_group_add_group,
+		}, {
+			.name = PIDGIN_ACTION_BUDDY_POUNCES,
+			.activate = pidgin_action_group_buddy_pounces,
+		}, {
+			.name = PIDGIN_ACTION_CUSTOM_SMILEY,
+			.activate = pidgin_action_group_custom_smiley,
+		}, {
+			.name = PIDGIN_ACTION_DEBUG,
+			.activate = pidgin_action_group_debug,
+		}, {
+			.name = PIDGIN_ACTION_FILE_TRANSFERS,
+			.activate = pidgin_action_group_file_transfers,
+		}, {
+			.name = PIDGIN_ACTION_GET_USER_INFO,
+			.activate = pidgin_action_group_get_user_info,
+		}, {
+			.name = PIDGIN_ACTION_MANAGE_ACCOUNTS,
+			.activate = pidgin_action_group_manage_accounts,
+		}, {
 			.name = PIDGIN_ACTION_NEW_MESSAGE,
 			.activate = pidgin_action_group_new_message,
 		}, {
 			.name = PIDGIN_ACTION_ONLINE_HELP,
 			.activate = pidgin_action_group_online_help,
+		}, {
+			.name = PIDGIN_ACTION_PLUGINS,
+			.activate = pidgin_action_group_plugins,
+		}, {
+			.name = PIDGIN_ACTION_PREFERENCES,
+			.activate = pidgin_action_group_preferences,
+		}, {
+			.name = PIDGIN_ACTION_PRIVACY,
+			.activate = pidgin_action_group_privacy,
+		}, {
+			.name = PIDGIN_ACTION_QUIT,
+			.activate = pidgin_action_group_quit,
+		}, {
+			.name = PIDGIN_ACTION_ROOM_LIST,
+			.activate = pidgin_action_group_room_list,
+		}, {
+			.name = PIDGIN_ACTION_SYSTEM_LOG,
+			.activate = pidgin_action_group_system_log,
+		}, {
+			.name = PIDGIN_ACTION_VIEW_USER_LOG,
+			.activate = pidgin_action_group_view_user_log,
 		},
 	};
 
