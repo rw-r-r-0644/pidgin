@@ -67,6 +67,57 @@
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Sh_ow</property>
                 <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_offline_buddies">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-offline-buddies</property>
+                        <property name="label" translatable="yes">_Offline Buddies</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_empty_groups">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-empty-groups</property>
+                        <property name="label" translatable="yes">_Empty Groups</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_buddy_details">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-buddy-details</property>
+                        <property name="label" translatable="yes">Buddy _Details</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_idle_times">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-idle-times</property>
+                        <property name="label" translatable="yes">Idle _Times</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_protocol_icons">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-protocol-icons</property>
+                        <property name="label" translatable="yes">_Protocol Icons</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
             <child>
@@ -261,6 +312,15 @@
               <object class="GtkSeparatorMenuItem">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckMenuItem" id="mute_sounds">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.mute-sounds</property>
+                <property name="label" translatable="yes">Mute _Sounds</property>
+                <property name="use_underline">True</property>
               </object>
             </child>
           </object>
