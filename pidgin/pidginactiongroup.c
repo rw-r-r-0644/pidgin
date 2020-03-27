@@ -43,6 +43,88 @@ struct _PidginActionGroup {
 };
 
 /******************************************************************************
+ * Helpers
+ *****************************************************************************/
+
+/*<private>
+ * pidgin_action_group_bool_pref_handler:
+ * @group: The #PidginActionGroup instance.
+ * @action_name: The name of the action to update.
+ * @value: The value of the preference.
+ *
+ * Changes the state of the action named @action_name to match @value.
+ *
+ * This function is meant to be called from a #PurplePrefCallback function as
+ * there isn't a good way to have a #PurplePrefCallback with multiple items in
+ * the data parameter without leaking them forever.
+ */
+static void
+pidgin_action_group_bool_pref_handler(PidginActionGroup *group,
+                                      const gchar *action_name,
+                                      gboolean value)
+{
+	GAction *action = NULL;
+
+	action = g_action_map_lookup_action(G_ACTION_MAP(group), action_name);
+	if(action != NULL) {
+		g_simple_action_set_state(G_SIMPLE_ACTION(action),
+		                          g_variant_new_boolean(value));
+	}
+}
+
+/*<private
+ * pidgin_action_group_setup_bool:
+ * @group: The #PidginActionGroup instance.
+ * @action_name: The name of the action to setup.
+ * @pref_name: The name of the preference that @action_name is tied to.
+ * @callback: (scope call): A #PurplePrefCallback to call when the preference
+ *            is changed.
+ *
+ * Initializes the boolean action named @action_name to the value of @pref_name
+ * and setups up a preference change callback to @callback to maintain the
+ * state of the action.
+ */
+static void
+pidgin_action_group_setup_bool(PidginActionGroup *group,
+                               const gchar *action_name,
+                               const gchar *pref_name,
+                               PurplePrefCallback callback)
+{
+	GAction *action = NULL;
+	gboolean value = FALSE;
+
+	/* find the action, if we can't find it, bail */
+	action = g_action_map_lookup_action(G_ACTION_MAP(group), action_name);
+	g_return_if_fail(action != NULL);
+
+	/* get the value of the preference */
+	value = purple_prefs_get_bool(pref_name);
+
+	/* change the state of the action to match the preference value. */
+	g_action_change_state(action, g_variant_new_boolean(value));
+
+	/* finally add a preference callback to update the state based on the
+	 * preference.
+	 */
+	purple_prefs_connect_callback(group, pref_name, callback, group);
+}
+
+/******************************************************************************
+ * Preference Callbacks
+ *****************************************************************************/
+static void
+pidgin_action_group_mute_sounds_callback(const gchar *name,
+                                         PurplePrefType type,
+                                         gconstpointer value,
+                                         gpointer data)
+{
+	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
+
+	pidgin_action_group_bool_pref_handler(group, PIDGIN_ACTION_MUTE_SOUNDS,
+	                                      (gboolean)GPOINTER_TO_INT(value));
+}
+
+/******************************************************************************
  * Action Callbacks
  *****************************************************************************/
 static void
@@ -107,6 +189,14 @@ pidgin_action_group_manage_accounts(GSimpleAction *simple, GVariant *parameter,
                                     gpointer data)
 {
 	pidgin_accounts_window_show();
+}
+
+static void
+pidgin_action_group_mute_sounds(GSimpleAction *action, GVariant *value,
+                                gpointer data)
+{
+	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/sound/mute",
+	                      g_variant_get_boolean(value));
 }
 
 static void
@@ -213,6 +303,10 @@ pidgin_action_group_init(PidginActionGroup *group) {
 			.name = PIDGIN_ACTION_MANAGE_ACCOUNTS,
 			.activate = pidgin_action_group_manage_accounts,
 		}, {
+			.name = PIDGIN_ACTION_MUTE_SOUNDS,
+			.state = "false",
+			.change_state = pidgin_action_group_mute_sounds,
+		}, {
 			.name = PIDGIN_ACTION_NEW_MESSAGE,
 			.activate = pidgin_action_group_new_message,
 		}, {
@@ -244,6 +338,13 @@ pidgin_action_group_init(PidginActionGroup *group) {
 
 	g_action_map_add_action_entries(G_ACTION_MAP(group), entries,
 	                                G_N_ELEMENTS(entries), NULL);
+
+	/* now add some handlers for preference changes and set actions to the
+	 * correct value.
+	 */
+	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_MUTE_SOUNDS,
+	                               PIDGIN_PREFS_ROOT "/sound/mute",
+	                               pidgin_action_group_mute_sounds_callback);
 };
 
 static void

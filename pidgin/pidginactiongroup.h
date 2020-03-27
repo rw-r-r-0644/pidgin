@@ -82,10 +82,17 @@
 /**
  * PIDGIN_ACTION_MANAGE_ACCOUNTS:
  *
- * A constatnt that preresents the manage-accounts action to displays the
+ * A constatnt that represents the manage-accounts action to displays the
  * manage accounts window.
  */
 #define PIDGIN_ACTION_MANAGE_ACCOUNTS ("manage-accounts")
+
+/**
+ * PIDGIN_ACTION_MUTE_SOUNDS:
+ *
+ * A constatnt that represents the mute-sounds action.
+ */
+#define PIDGIN_ACTION_MUTE_SOUNDS ("mute-sounds")
 
 /**
  * PIDGIN_ACTION_NEW_MESSAGE:

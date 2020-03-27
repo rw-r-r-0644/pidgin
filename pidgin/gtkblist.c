@@ -790,11 +790,6 @@ static void gtk_blist_menu_showoffline_cb(GtkWidget *w, PurpleBlistNode *node)
 	}
 }
 
-static void gtk_blist_show_onlinehelp_cb(void)
-{
-	purple_notify_uri(NULL, PURPLE_WEBSITE "documentation");
-}
-
 static void
 do_join_chat(PidginChatData *data)
 {
@@ -2058,21 +2053,6 @@ static void pidgin_blist_edit_mode_cb(GtkToggleAction *checkitem, gpointer data)
 			gtk_toggle_action_get_active(checkitem));
 
 	pidgin_clear_cursor(gtkblist->window);
-}
-
-static void pidgin_blist_mute_sounds_cb(GtkToggleAction *item, gpointer data)
-{
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/sound/mute",
-			gtk_toggle_action_get_active(item));
-}
-
-
-static void
-pidgin_blist_mute_pref_cb(const char *name, PurplePrefType type,
-							gconstpointer value, gpointer data)
-{
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui,
-						"/BList/ToolsMenu/MuteSounds")), (gboolean)GPOINTER_TO_INT(value));
 }
 
 static void
@@ -3625,9 +3605,6 @@ static const GtkToggleActionEntry blist_menu_toggle_entries[] = {
 	{ "ShowBuddyDetails", NULL, N_("Buddy _Details"), NULL, NULL, G_CALLBACK(pidgin_blist_buddy_details_cb), FALSE },
 	{ "ShowIdleTimes", NULL, N_("Idle _Times"), NULL, NULL, G_CALLBACK(pidgin_blist_show_idle_time_cb), FALSE },
 	{ "ShowProtocolIcons", NULL, N_("_Protocol Icons"), NULL, NULL, G_CALLBACK(pidgin_blist_show_protocol_icons_cb), FALSE },
-
-	/* Tools menu */
-	{ "MuteSounds", NULL, N_("Mute _Sounds"), NULL, NULL, G_CALLBACK(pidgin_blist_mute_sounds_cb), FALSE },
 };
 
 static const char *blist_menu =
@@ -3654,7 +3631,6 @@ static const char *blist_menu =
 		"<menu action='ToolsMenu'>"
 			"<menuitem action='SetMood'/>"
 			"<separator/>"
-			"<menuitem action='MuteSounds'/>"
 			"<placeholder name='PluginActions'/>"
 		"</menu>"
 	"</menubar>"
@@ -5909,9 +5885,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/ShowMenu/ShowEmptyGroups")),
 			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_empty_groups"));
 
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui, "/BList/ToolsMenu/MuteSounds")),
-			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/sound/mute"));
-
 	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/ShowMenu/ShowBuddyDetails")),
 			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons"));
 
@@ -5958,8 +5931,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 			_prefs_change_sort_method, NULL);
 
 	/* menus */
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/sound/mute",
-			pidgin_blist_mute_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/sound/method",
 			pidgin_blist_sound_method_pref_cb, NULL);
 
