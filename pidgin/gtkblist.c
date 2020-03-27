@@ -58,6 +58,8 @@
 #include "pidgin/minidialog.h"
 #include "pidgin/pidginabout.h"
 #include "pidgin/pidginaccountchooser.h"
+#include "pidgin/pidginactiongroup.h"
+#include "pidgin/pidginbuddylistmenu.h"
 #include "pidgin/pidgindebug.h"
 #include "pidgin/pidgingdkpixbuf.h"
 #include "pidgin/pidginlog.h"
@@ -3640,7 +3642,6 @@ static const GtkActionEntry blist_menu_entries[] = {
    gtk_blist_key_press_cb to "Get User Info" on the selected buddy. */
 	/* Buddies menu */
 	{ "BuddiesMenu", NULL, N_("_Buddies"), NULL, NULL, NULL },
-	{ "NewInstantMessage", PIDGIN_STOCK_TOOLBAR_MESSAGE_NEW, N_("New Instant _Message..."), "<control>M", NULL, pidgin_dialogs_im },
 	{ "JoinAChat", PIDGIN_STOCK_CHAT, N_("Join a _Chat..."), "<control>C", NULL, pidgin_blist_joinchat_show },
 	{ "GetUserInfo", PIDGIN_STOCK_TOOLBAR_USER_INFO, N_("Get User _Info..."), "<control>I", NULL, pidgin_dialogs_info },
 	{ "ViewUserLog", NULL, N_("View User _Log..."), "<control>L", NULL, pidgin_dialogs_log },
@@ -3669,7 +3670,6 @@ static const GtkActionEntry blist_menu_entries[] = {
 
 	/* Help */
 	{ "HelpMenu", NULL, N_("_Help"), NULL, NULL, NULL },
-	{ "OnlineHelp", GTK_STOCK_HELP, N_("Online _Help"), "F1", NULL, gtk_blist_show_onlinehelp_cb },
 	{ "DebugWindow", NULL, N_("_Debug Window"), NULL, NULL, toggle_debug },
 	{ "About", GTK_STOCK_ABOUT, N_("_About"), NULL, NULL, G_CALLBACK(_pidgin_about_cb) },
 };
@@ -3691,7 +3691,6 @@ static const char *blist_menu =
 "<ui>"
 	"<menubar name='BList'>"
 		"<menu action='BuddiesMenu'>"
-			"<menuitem action='NewInstantMessage'/>"
 			"<menuitem action='JoinAChat'/>"
 			"<menuitem action='GetUserInfo'/>"
 			"<menuitem action='ViewUserLog'/>"
@@ -3730,8 +3729,6 @@ static const char *blist_menu =
 			"<placeholder name='PluginActions'/>"
 		"</menu>"
 		"<menu action='HelpMenu'>"
-			"<menuitem action='OnlineHelp'/>"
-			"<separator/>"
 			"<menuitem action='DebugWindow'/>"
 			"<separator/>"
 			"<menuitem action='About'/>"
@@ -5704,6 +5701,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 {
 	PidginBuddyListPrivate *priv;
 	void *handle;
+	GSimpleActionGroup *actions;
 	GtkTreeViewColumn *column;
 	GtkWidget *menu;
 	GtkWidget *sep;
@@ -5768,6 +5766,9 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtk_widget_add_events(gtkblist->window, GDK_VISIBILITY_NOTIFY_MASK);
 
 	/******************************* Menu bar *************************************/
+	actions = pidgin_action_group_new();
+	gtk_widget_insert_action_group(gtkblist->window, "blist", actions);
+
 	action_group = gtk_action_group_new("BListActions");
 	gtk_action_group_set_translation_domain(action_group, PACKAGE);
 	gtk_action_group_add_actions(action_group,
@@ -5804,6 +5805,9 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 
 	menu = gtk_ui_manager_get_widget(gtkblist->ui, "/BList/AccountsMenu");
 	accountmenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu));
+
+	menu = pidgin_buddy_list_menu_new();
+	gtk_box_pack_start(GTK_BOX(gtkblist->main_vbox), menu, FALSE, FALSE, 0);
 
 	/****************************** Notebook *************************************/
 	gtkblist->notebook = gtk_notebook_new();

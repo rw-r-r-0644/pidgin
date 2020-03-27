@@ -6,6 +6,7 @@
     <file compressed="true">About/about.md</file>
     <file compressed="true">About/credits.json</file>
     <file compressed="true">Accounts/chooser.ui</file>
+    <file compressed="true">BuddyList/menu.ui</file>
     <file compressed="true">Conversations/invite_dialog.ui</file>
     <file compressed="true">Debug/debug.ui</file>
     <file compressed="true">Debug/plugininfo.ui</file>
