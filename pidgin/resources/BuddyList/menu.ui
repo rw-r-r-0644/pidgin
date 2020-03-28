@@ -90,11 +90,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkCheckMenuItem" id="show_buddy_details">
+                      <object class="GtkCheckMenuItem" id="show_buddy_icons">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="action_name">blist.show-buddy-details</property>
-                        <property name="label" translatable="yes">Buddy _Details</property>
+                        <property name="action_name">blist.show-buddy-icons</property>
+                        <property name="label" translatable="yes">Buddy _Icons</property>
                         <property name="use_underline">True</property>
                       </object>
                     </child>

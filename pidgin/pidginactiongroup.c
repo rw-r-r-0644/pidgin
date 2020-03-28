@@ -101,7 +101,8 @@ pidgin_action_group_setup_bool(PidginActionGroup *group,
 	value = purple_prefs_get_bool(pref_name);
 
 	/* change the state of the action to match the preference value. */
-	g_action_change_state(action, g_variant_new_boolean(value));
+	g_simple_action_set_state(G_SIMPLE_ACTION(action),
+	                          g_variant_new_boolean(value));
 
 	/* finally add a preference callback to update the state based on the
 	 * preference.
@@ -121,6 +122,71 @@ pidgin_action_group_mute_sounds_callback(const gchar *name,
 	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
 
 	pidgin_action_group_bool_pref_handler(group, PIDGIN_ACTION_MUTE_SOUNDS,
+	                                      (gboolean)GPOINTER_TO_INT(value));
+}
+
+static void
+pidgin_action_group_show_buddy_icons_callback(const gchar *name,
+                                              PurplePrefType type,
+                                              gconstpointer value,
+                                              gpointer data)
+{
+	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
+
+	pidgin_action_group_bool_pref_handler(group,
+	                                      PIDGIN_ACTION_SHOW_BUDDY_ICONS,
+	                                      (gboolean)GPOINTER_TO_INT(value));
+}
+
+static void
+pidgin_action_group_show_empty_groups_callback(const gchar *name,
+                                               PurplePrefType type,
+                                               gconstpointer value,
+                                               gpointer data)
+{
+	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
+
+	pidgin_action_group_bool_pref_handler(group,
+	                                      PIDGIN_ACTION_SHOW_EMPTY_GROUPS,
+	                                      (gboolean)GPOINTER_TO_INT(value));
+}
+
+static void
+pidgin_action_group_show_idle_times_callback(const gchar *name,
+                                             PurplePrefType type,
+                                             gconstpointer value,
+                                             gpointer data)
+{
+	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
+
+	pidgin_action_group_bool_pref_handler(group,
+	                                      PIDGIN_ACTION_SHOW_IDLE_TIMES,
+	                                      (gboolean)GPOINTER_TO_INT(value));
+}
+
+static void
+pidgin_action_group_show_offline_buddies_callback(const gchar *name,
+                                                  PurplePrefType type,
+                                                  gconstpointer value,
+                                                  gpointer data)
+{
+	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
+
+	pidgin_action_group_bool_pref_handler(group,
+	                                      PIDGIN_ACTION_SHOW_OFFLINE_BUDDIES,
+	                                      (gboolean)GPOINTER_TO_INT(value));
+}
+
+static void
+pidgin_action_group_show_protocol_icons_callback(const gchar *name,
+                                                 PurplePrefType type,
+                                                 gconstpointer value,
+                                                 gpointer data)
+{
+	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
+
+	pidgin_action_group_bool_pref_handler(group,
+	                                      PIDGIN_ACTION_SHOW_PROTOCOL_ICONS,
 	                                      (gboolean)GPOINTER_TO_INT(value));
 }
 
@@ -256,6 +322,49 @@ pidgin_action_group_room_list(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
+pidgin_action_group_show_buddy_icons(GSimpleAction *action, GVariant *value,
+                                     gpointer data)
+{
+	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons",
+	                      g_variant_get_boolean(value));
+}
+
+static void
+pidgin_action_group_show_empty_groups(GSimpleAction *action, GVariant *value,
+                                      gpointer data)
+{
+	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_empty_groups",
+	                      g_variant_get_boolean(value));
+}
+
+static void
+pidgin_action_group_show_idle_times(GSimpleAction *action,
+                                    GVariant *value,
+                                    gpointer data)
+{
+	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_idle_time",
+	                      g_variant_get_boolean(value));
+}
+
+static void
+pidgin_action_group_show_offline_buddies(GSimpleAction *action,
+                                         GVariant *value,
+                                         gpointer data)
+{
+	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_offline_buddies",
+	                      g_variant_get_boolean(value));
+}
+
+static void
+pidgin_action_group_show_protocol_icons(GSimpleAction *action,
+                                        GVariant *value,
+                                        gpointer data)
+{
+	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_protocol_icons",
+	                      g_variant_get_boolean(value));
+}
+
+static void
 pidgin_action_group_system_log(GSimpleAction *simple, GVariant *parameter,
                                gpointer data)
 {
@@ -328,6 +437,26 @@ pidgin_action_group_init(PidginActionGroup *group) {
 			.name = PIDGIN_ACTION_ROOM_LIST,
 			.activate = pidgin_action_group_room_list,
 		}, {
+			.name = PIDGIN_ACTION_SHOW_BUDDY_ICONS,
+			.state = "false",
+			.change_state = pidgin_action_group_show_buddy_icons,
+		}, {
+			.name = PIDGIN_ACTION_SHOW_EMPTY_GROUPS,
+			.state = "false",
+			.change_state = pidgin_action_group_show_empty_groups,
+		}, {
+			.name = PIDGIN_ACTION_SHOW_IDLE_TIMES,
+			.state = "false",
+			.change_state = pidgin_action_group_show_idle_times,
+		}, {
+			.name = PIDGIN_ACTION_SHOW_OFFLINE_BUDDIES,
+			.state = "false",
+			.change_state = pidgin_action_group_show_offline_buddies,
+		}, {
+			.name = PIDGIN_ACTION_SHOW_PROTOCOL_ICONS,
+			.state = "false",
+			.change_state = pidgin_action_group_show_protocol_icons,
+		}, {
 			.name = PIDGIN_ACTION_SYSTEM_LOG,
 			.activate = pidgin_action_group_system_log,
 		}, {
@@ -345,6 +474,21 @@ pidgin_action_group_init(PidginActionGroup *group) {
 	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_MUTE_SOUNDS,
 	                               PIDGIN_PREFS_ROOT "/sound/mute",
 	                               pidgin_action_group_mute_sounds_callback);
+	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_BUDDY_ICONS,
+	                               PIDGIN_PREFS_ROOT "/blist/show_buddy_icons",
+	                               pidgin_action_group_show_buddy_icons_callback);
+	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_EMPTY_GROUPS,
+	                               PIDGIN_PREFS_ROOT "/blist/show_empty_groups",
+	                               pidgin_action_group_show_empty_groups_callback);
+	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_IDLE_TIMES,
+	                               PIDGIN_PREFS_ROOT "/blist/show_idle_time",
+	                               pidgin_action_group_show_idle_times_callback);
+	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_OFFLINE_BUDDIES,
+	                               PIDGIN_PREFS_ROOT "/blist/show_offline_buddies",
+	                               pidgin_action_group_show_offline_buddies_callback);
+	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_PROTOCOL_ICONS,
+	                               PIDGIN_PREFS_ROOT "/blist/show_protocol_icons",
+	                               pidgin_action_group_show_protocol_icons_callback);
 };
 
 static void
