@@ -2009,62 +2009,10 @@ pidgin_blist_popup_menu_cb(GtkWidget *tv, void *user_data)
 	return handled;
 }
 
-static void pidgin_blist_buddy_details_cb(GtkToggleAction *item, gpointer data)
-{
-	pidgin_set_cursor(gtkblist->window, GDK_WATCH);
-
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons",
-			gtk_toggle_action_get_active(item));
-
-	pidgin_clear_cursor(gtkblist->window);
-}
-
-static void pidgin_blist_show_idle_time_cb(GtkToggleAction *item, gpointer data)
-{
-	pidgin_set_cursor(gtkblist->window, GDK_WATCH);
-
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_idle_time",
-			gtk_toggle_action_get_active(item));
-
-	pidgin_clear_cursor(gtkblist->window);
-}
-
 static void pidgin_blist_show_protocol_icons_cb(GtkToggleAction *item, gpointer data)
 {
 	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_protocol_icons",
 			gtk_toggle_action_get_active(item));
-}
-
-static void pidgin_blist_show_empty_groups_cb(GtkToggleAction *item, gpointer data)
-{
-	pidgin_set_cursor(gtkblist->window, GDK_WATCH);
-
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_empty_groups",
-			gtk_toggle_action_get_active(item));
-
-	pidgin_clear_cursor(gtkblist->window);
-}
-
-static void pidgin_blist_edit_mode_cb(GtkToggleAction *checkitem, gpointer data)
-{
-	pidgin_set_cursor(gtkblist->window, GDK_WATCH);
-
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_offline_buddies",
-			gtk_toggle_action_get_active(checkitem));
-
-	pidgin_clear_cursor(gtkblist->window);
-}
-
-static void
-pidgin_blist_sound_method_pref_cb(const char *name, PurplePrefType type,
-									gconstpointer value, gpointer data)
-{
-	gboolean sensitive = TRUE;
-
-	if(purple_strequal(value, "none"))
-		sensitive = FALSE;
-
-	gtk_action_set_sensitive(gtk_ui_manager_get_action(gtkblist->ui, "/BList/ToolsMenu/MuteSounds"), sensitive);
 }
 
 static void
@@ -3584,7 +3532,6 @@ static const GtkActionEntry blist_menu_entries[] = {
 	/* Buddies menu */
 	{ "BuddiesMenu", NULL, N_("_Buddies"), NULL, NULL, NULL },
 	{ "JoinAChat", PIDGIN_STOCK_CHAT, N_("Join a _Chat..."), "<control>C", NULL, pidgin_blist_joinchat_show },
-	{ "ShowMenu", NULL, N_("Sh_ow"), NULL, NULL, NULL },
 	{ "SortMenu", NULL, N_("_Sort Buddies"), NULL, NULL, NULL },
 	{ "AddBuddy", GTK_STOCK_ADD, N_("_Add Buddy..."), "<control>B", NULL, pidgin_blist_add_buddy_cb },
 	{ "AddChat", GTK_STOCK_ADD, N_("Add C_hat..."), NULL, NULL, pidgin_blist_add_chat_cb },
@@ -3597,29 +3544,12 @@ static const GtkActionEntry blist_menu_entries[] = {
 	{ "SetMood", NULL, N_("Set _Mood"), "<control>D", NULL, set_mood_show },
 };
 
-/* Toggle items */
-static const GtkToggleActionEntry blist_menu_toggle_entries[] = {
-	/* Buddies->Show menu */
-	{ "ShowOffline", NULL, N_("_Offline Buddies"), NULL, NULL, G_CALLBACK(pidgin_blist_edit_mode_cb), FALSE },
-	{ "ShowEmptyGroups", NULL, N_("_Empty Groups"), NULL, NULL, G_CALLBACK(pidgin_blist_show_empty_groups_cb), FALSE },
-	{ "ShowBuddyDetails", NULL, N_("Buddy _Details"), NULL, NULL, G_CALLBACK(pidgin_blist_buddy_details_cb), FALSE },
-	{ "ShowIdleTimes", NULL, N_("Idle _Times"), NULL, NULL, G_CALLBACK(pidgin_blist_show_idle_time_cb), FALSE },
-	{ "ShowProtocolIcons", NULL, N_("_Protocol Icons"), NULL, NULL, G_CALLBACK(pidgin_blist_show_protocol_icons_cb), FALSE },
-};
-
 static const char *blist_menu =
 "<ui>"
 	"<menubar name='BList'>"
 		"<menu action='BuddiesMenu'>"
 			"<menuitem action='JoinAChat'/>"
 			"<separator/>"
-			"<menu action='ShowMenu'>"
-				"<menuitem action='ShowOffline'/>"
-				"<menuitem action='ShowEmptyGroups'/>"
-				"<menuitem action='ShowBuddyDetails'/>"
-				"<menuitem action='ShowIdleTimes'/>"
-				"<menuitem action='ShowProtocolIcons'/>"
-			"</menu>"
 			"<menu action='SortMenu'/>"
 			"<separator/>"
 			"<menuitem action='AddBuddy'/>"
@@ -5675,10 +5605,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	                             blist_menu_entries,
 	                             G_N_ELEMENTS(blist_menu_entries),
 	                             GTK_WINDOW(gtkblist->window));
-	gtk_action_group_add_toggle_actions(action_group,
-	                                    blist_menu_toggle_entries,
-	                                    G_N_ELEMENTS(blist_menu_toggle_entries),
-	                                    GTK_WINDOW(gtkblist->window));
 
 	gtkblist->ui = gtk_ui_manager_new();
 	gtk_ui_manager_insert_action_group(gtkblist->ui, action_group, 0);
@@ -5876,27 +5802,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtk_widget_set_name(gtkblist->statusbox, "pidgin_blist_statusbox");
 	gtk_widget_show(gtkblist->statusbox);
 
-	/* set the Show Offline Buddies option. must be done
-	 * after the treeview or faceprint gets mad. -Robot101
-	 */
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/ShowMenu/ShowOffline")),
-			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_offline_buddies"));
-
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/ShowMenu/ShowEmptyGroups")),
-			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_empty_groups"));
-
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/ShowMenu/ShowBuddyDetails")),
-			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons"));
-
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/ShowMenu/ShowIdleTimes")),
-			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_idle_time"));
-
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/ShowMenu/ShowProtocolIcons")),
-			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_protocol_icons"));
-
-	if(purple_strequal(purple_prefs_get_string(PIDGIN_PREFS_ROOT "/sound/method"), "none"))
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(gtkblist->ui, "/BList/ToolsMenu/MuteSounds"), FALSE);
-
 	/* Update some dynamic things */
 	update_menu_bar(gtkblist);
 	pidgin_blist_update_plugin_actions();
@@ -5929,10 +5834,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	/* sorting */
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/blist/sort_type",
 			_prefs_change_sort_method, NULL);
-
-	/* menus */
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/sound/method",
-			pidgin_blist_sound_method_pref_cb, NULL);
 
 	/* Setup some purple signal handlers. */
 
