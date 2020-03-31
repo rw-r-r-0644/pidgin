@@ -151,8 +151,6 @@ static void sort_method_none(PurpleBlistNode *node, PurpleBuddyList *blist, GtkT
 static void sort_method_alphabetical(PurpleBlistNode *node, PurpleBuddyList *blist, GtkTreeIter groupiter, GtkTreeIter *cur, GtkTreeIter *iter);
 static void sort_method_status(PurpleBlistNode *node, PurpleBuddyList *blist, GtkTreeIter groupiter, GtkTreeIter *cur, GtkTreeIter *iter);
 static void sort_method_log_activity(PurpleBlistNode *node, PurpleBuddyList *blist, GtkTreeIter groupiter, GtkTreeIter *cur, GtkTreeIter *iter);
-static guint sort_merge_id;
-static GtkActionGroup *sort_action_group = NULL;
 
 static PidginBuddyList *gtkblist = NULL;
 
@@ -2007,12 +2005,6 @@ pidgin_blist_popup_menu_cb(GtkWidget *tv, void *user_data)
 	handled = pidgin_blist_show_context_menu(tv, node, NULL);
 
 	return handled;
-}
-
-static void pidgin_blist_show_protocol_icons_cb(GtkToggleAction *item, gpointer data)
-{
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_protocol_icons",
-			gtk_toggle_action_get_active(item));
 }
 
 static void
@@ -5632,8 +5624,9 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	menu = gtk_ui_manager_get_widget(gtkblist->ui, "/BList/AccountsMenu");
 	accountmenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu));
 
-	menu = pidgin_buddy_list_menu_new();
-	gtk_box_pack_start(GTK_BOX(gtkblist->main_vbox), menu, FALSE, FALSE, 0);
+	gtkblist->menu = pidgin_buddy_list_menu_new();
+	gtk_box_pack_start(GTK_BOX(gtkblist->main_vbox), gtkblist->menu, FALSE,
+	                   FALSE, 0);
 
 	/****************************** Notebook *************************************/
 	gtkblist->notebook = gtk_notebook_new();
@@ -8052,74 +8045,38 @@ pidgin_blist_update_plugin_actions(void)
 	g_object_unref(action_group);
 }
 
-static void
-sortmethod_act(GtkRadioAction *action, GtkRadioAction *current, char *id)
-{
-	if (action == current)
-	{
-		pidgin_set_cursor(gtkblist->window, GDK_WATCH);
-		/* This is redundant. I think. */
-		/* pidgin_blist_sort_method_set(id); */
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/blist/sort_type", id);
-
-		pidgin_clear_cursor(gtkblist->window);
-	}
-}
-
 void
 pidgin_blist_update_sort_methods(void)
 {
-	PidginBlistSortMethod *method = NULL;
+	GtkWidget *sort_item = NULL;
+	GMenu *menu = NULL;
 	GList *l;
-	GSList *sl = NULL;
-	const char *m = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/blist/sort_type");
-
-	GtkRadioAction *action;
-	GString *ui_string;
 
 	if ((gtkblist == NULL) || (gtkblist->ui == NULL))
 		return;
 
-	/* Clear the old menu */
-	if (sort_action_group) {
-		gtk_ui_manager_remove_ui(gtkblist->ui, sort_merge_id);
-		gtk_ui_manager_remove_action_group(gtkblist->ui, sort_action_group);
-		g_object_unref(G_OBJECT(sort_action_group));
-	}
+	/* create the gmenu */
+	menu = g_menu_new();
 
-	sort_action_group = gtk_action_group_new("SortMethods");
-	gtk_action_group_set_translation_domain(sort_action_group, PACKAGE);
-
-	ui_string = g_string_new("<ui><menubar name='BList'>"
-	                         "<menu action='BuddiesMenu'><menu action='SortMenu'>");
-
+	/* walk through the sort methods and update all the things */
 	for (l = pidgin_blist_sort_methods; l; l = l->next) {
+		PidginBlistSortMethod *method = NULL;
+		GMenuItem *item = NULL;
+		gchar *action = NULL;
+
 		method = (PidginBlistSortMethod *)l->data;
 
-		g_string_append_printf(ui_string, "<menuitem action='%s'/>", method->id);
-		action = gtk_radio_action_new(method->id,
-		                              method->name,
-		                              NULL,
-		                              NULL,
-		                              0);
-		gtk_action_group_add_action_with_accel(sort_action_group, GTK_ACTION(action), NULL);
+		action = g_action_print_detailed_name("blist.sort-method",
+		                                      g_variant_new_string(method->id));
+		item = g_menu_item_new(method->name, action);
+		g_free(action);
 
-		gtk_radio_action_set_group(action, sl);
-		sl = gtk_radio_action_get_group(action);
-
-		if (purple_strequal(m, method->id))
-			gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(action), TRUE);
-		else
-			gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(action), FALSE);
-
-		g_signal_connect(G_OBJECT(action), "changed",
-		                 G_CALLBACK(sortmethod_act), method->id);
+		g_menu_append_item(menu, item);
 	}
 
-	g_string_append(ui_string, "</menu></menu></menubar></ui>");
-	gtk_ui_manager_insert_action_group(gtkblist->ui, sort_action_group, 1);
-	sort_merge_id = gtk_ui_manager_add_ui_from_string(gtkblist->ui, ui_string->str, -1, NULL);
-
-	g_string_free(ui_string, TRUE);
+	/* replace the old submenu with a new one */
+	sort_item = pidgin_buddy_list_menu_get_sort_item(PIDGIN_BUDDY_LIST_MENU(gtkblist->menu));
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(sort_item),
+	                          gtk_menu_new_from_model(menu));
+	g_object_unref(G_OBJECT(menu));
 }
-

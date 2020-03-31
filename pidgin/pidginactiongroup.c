@@ -46,7 +46,7 @@ struct _PidginActionGroup {
  * Helpers
  *****************************************************************************/
 
-/*<private>
+/*< private >
  * pidgin_action_group_bool_pref_handler:
  * @group: The #PidginActionGroup instance.
  * @action_name: The name of the action to update.
@@ -72,7 +72,7 @@ pidgin_action_group_bool_pref_handler(PidginActionGroup *group,
 	}
 }
 
-/*<private
+/*< private >
  * pidgin_action_group_setup_bool:
  * @group: The #PidginActionGroup instance.
  * @action_name: The name of the action to setup.
@@ -103,6 +103,68 @@ pidgin_action_group_setup_bool(PidginActionGroup *group,
 	/* change the state of the action to match the preference value. */
 	g_simple_action_set_state(G_SIMPLE_ACTION(action),
 	                          g_variant_new_boolean(value));
+
+	/* finally add a preference callback to update the state based on the
+	 * preference.
+	 */
+	purple_prefs_connect_callback(group, pref_name, callback, group);
+}
+
+/*< private >
+ * pidgin_action_group_string_pref_handler:
+ * @group: The #PidginActionGroup instance.
+ * @action_name: The name of the action to update.
+ * @value: The value of the preference.
+ *
+ * Changes the state of the action named @action_name to match @value.
+ *
+ * This function is meant to be called from a #PurplePrefCallback function as
+ * there isn't a good way to have a #PurplePrefCallback with multiple items in
+ * the data parameter without leaking them forever.
+ */
+static void
+pidgin_action_group_string_pref_handler(PidginActionGroup *group,
+                                        const gchar *action_name,
+                                        const gchar *value)
+{
+	GAction *action = NULL;
+
+	action = g_action_map_lookup_action(G_ACTION_MAP(group), action_name);
+	if(action != NULL) {
+		g_simple_action_set_state(G_SIMPLE_ACTION(action),
+		                          g_variant_new_string(value));
+	}
+}
+
+/*< private >
+ * pidgin_action_group_setup_string:
+ * @group: The #PidginActionGroup instance.
+ * @action_name: The name of the action to setup.
+ * @pref_name: The name of the preference that @action_name is tied to.
+ * @callback: (scope call): A #PurplePrefCallback to call when the preference
+ *            is changed.
+ *
+ * Initializes the string action named @action_name to the value of @pref_name
+ * and setups up a preference change callback to @callback to maintain the
+ * state of the action.
+ */
+static void
+pidgin_action_group_setup_string(PidginActionGroup *group,
+                                 const gchar *action_name,
+                                 const gchar *pref_name,
+                                 PurplePrefCallback callback)
+{
+	GAction *action = NULL;
+	const gchar *value = NULL;
+
+	/* find the action, if we can't find it, bail */
+	action = g_action_map_lookup_action(G_ACTION_MAP(group), action_name);
+	g_return_if_fail(action != NULL);
+
+	/* change the state of the action to match the preference value. */
+	value = purple_prefs_get_string(pref_name);
+	g_simple_action_set_state(G_SIMPLE_ACTION(action),
+	                          g_variant_new_string(value));
 
 	/* finally add a preference callback to update the state based on the
 	 * preference.
@@ -188,6 +250,19 @@ pidgin_action_group_show_protocol_icons_callback(const gchar *name,
 	pidgin_action_group_bool_pref_handler(group,
 	                                      PIDGIN_ACTION_SHOW_PROTOCOL_ICONS,
 	                                      (gboolean)GPOINTER_TO_INT(value));
+}
+
+static void
+pidgin_action_group_sort_method_callback(const gchar *name,
+                                         PurplePrefType type,
+                                         gconstpointer value,
+                                         gpointer data)
+{
+	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
+
+	pidgin_action_group_string_pref_handler(group,
+	                                        PIDGIN_ACTION_SORT_METHOD,
+	                                        value);
 }
 
 /******************************************************************************
@@ -365,6 +440,14 @@ pidgin_action_group_show_protocol_icons(GSimpleAction *action,
 }
 
 static void
+pidgin_action_group_sort_method(GSimpleAction *action, GVariant *value,
+                                gpointer data)
+{
+	purple_prefs_set_string(PIDGIN_PREFS_ROOT "/blist/sort_type",
+	                        g_variant_get_string(value, NULL));
+}
+
+static void
 pidgin_action_group_system_log(GSimpleAction *simple, GVariant *parameter,
                                gpointer data)
 {
@@ -457,6 +540,11 @@ pidgin_action_group_init(PidginActionGroup *group) {
 			.state = "false",
 			.change_state = pidgin_action_group_show_protocol_icons,
 		}, {
+			.name = PIDGIN_ACTION_SORT_METHOD,
+			.parameter_type = "s",
+			.state = "'none'",
+			.change_state = pidgin_action_group_sort_method,
+		}, {
 			.name = PIDGIN_ACTION_SYSTEM_LOG,
 			.activate = pidgin_action_group_system_log,
 		}, {
@@ -489,6 +577,10 @@ pidgin_action_group_init(PidginActionGroup *group) {
 	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_PROTOCOL_ICONS,
 	                               PIDGIN_PREFS_ROOT "/blist/show_protocol_icons",
 	                               pidgin_action_group_show_protocol_icons_callback);
+
+	pidgin_action_group_setup_string(group, PIDGIN_ACTION_SORT_METHOD,
+	                                 PIDGIN_PREFS_ROOT "/blist/sort_type",
+	                                 pidgin_action_group_sort_method_callback);
 };
 
 static void

@@ -24,6 +24,8 @@
 
 struct _PidginBuddyListMenu {
 	GtkMenuBar parent;
+
+	GtkWidget *sort_buddies;
 };
 
 /******************************************************************************
@@ -38,10 +40,15 @@ pidgin_buddy_list_menu_init(PidginBuddyListMenu *menu) {
 
 static void
 pidgin_buddy_list_menu_class_init(PidginBuddyListMenuClass *klass) {
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+
     gtk_widget_class_set_template_from_resource(
-        GTK_WIDGET_CLASS(klass),
+        widget_class,
         "/im/pidgin/Pidgin/BuddyList/menu.ui"
     );
+
+   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+   	                                     sort_buddies);
 }
 
 /******************************************************************************
@@ -50,4 +57,11 @@ pidgin_buddy_list_menu_class_init(PidginBuddyListMenuClass *klass) {
 GtkWidget *
 pidgin_buddy_list_menu_new(void) {
 	return GTK_WIDGET(g_object_new(PIDGIN_TYPE_BUDDY_LIST_MENU, NULL));
+}
+
+GtkWidget *
+pidgin_buddy_list_menu_get_sort_item(PidginBuddyListMenu *menu) {
+	g_return_val_if_fail(PIDGIN_IS_BUDDY_LIST_MENU(menu), NULL);
+
+	return menu->sort_buddies;
 }
