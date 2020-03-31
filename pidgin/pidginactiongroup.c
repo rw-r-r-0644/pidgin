@@ -55,8 +55,8 @@ static const gchar *pidgin_action_group_online_actions[] = {
 	PIDGIN_ACTION_NEW_MESSAGE,
 	// PIDGIN_ACTION_JOIN_CHAT,
 	PIDGIN_ACTION_GET_USER_INFO,
-	// PIDGIN_ACTION_ADD_BUDDY,
-	// PIDGIN_ACTION_ADD_CHAT,
+	PIDGIN_ACTION_ADD_BUDDY,
+	PIDGIN_ACTION_ADD_CHAT,
 	PIDGIN_ACTION_ADD_GROUP,
 	PIDGIN_ACTION_PRIVACY,
 };
@@ -344,6 +344,20 @@ pidgin_action_group_about(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
+pidgin_action_group_add_buddy(GSimpleAction *simple, GVariant *parameter,
+                              gpointer data)
+{
+	purple_blist_request_add_buddy(NULL, NULL, NULL, NULL);
+}
+
+static void
+pidgin_action_group_add_chat(GSimpleAction *simple, GVariant *parameter,
+                             gpointer data)
+{
+	purple_blist_request_add_chat(NULL, NULL, NULL, NULL);
+}
+
+static void
 pidgin_action_group_add_group(GSimpleAction *simple, GVariant *parameter,
                               gpointer data)
 {
@@ -535,6 +549,12 @@ pidgin_action_group_init(PidginActionGroup *group) {
 		{
 			.name = PIDGIN_ACTION_ABOUT,
 			.activate = pidgin_action_group_about,
+		}, {
+			.name = PIDGIN_ACTION_ADD_BUDDY,
+			.activate = pidgin_action_group_add_buddy,
+		}, {
+			.name = PIDGIN_ACTION_ADD_CHAT,
+			.activate = pidgin_action_group_add_chat,
 		}, {
 			.name = PIDGIN_ACTION_ADD_GROUP,
 			.activate = pidgin_action_group_add_group,

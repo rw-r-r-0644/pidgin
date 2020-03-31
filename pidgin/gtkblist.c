@@ -3524,9 +3524,6 @@ static const GtkActionEntry blist_menu_entries[] = {
 	/* Buddies menu */
 	{ "BuddiesMenu", NULL, N_("_Buddies"), NULL, NULL, NULL },
 	{ "JoinAChat", PIDGIN_STOCK_CHAT, N_("Join a _Chat..."), "<control>C", NULL, pidgin_blist_joinchat_show },
-	{ "SortMenu", NULL, N_("_Sort Buddies"), NULL, NULL, NULL },
-	{ "AddBuddy", GTK_STOCK_ADD, N_("_Add Buddy..."), "<control>B", NULL, pidgin_blist_add_buddy_cb },
-	{ "AddChat", GTK_STOCK_ADD, N_("Add C_hat..."), NULL, NULL, pidgin_blist_add_chat_cb },
 
 	/* Accounts menu */
 	{ "AccountsMenu", NULL, N_("_Accounts"), NULL, NULL, NULL },
@@ -3541,12 +3538,6 @@ static const char *blist_menu =
 	"<menubar name='BList'>"
 		"<menu action='BuddiesMenu'>"
 			"<menuitem action='JoinAChat'/>"
-			"<separator/>"
-			"<menu action='SortMenu'/>"
-			"<separator/>"
-			"<menuitem action='AddBuddy'/>"
-			"<menuitem action='AddChat'/>"
-			"<separator/>"
 		"</menu>"
 		"<menu action='AccountsMenu'>"
 		"</menu>"
