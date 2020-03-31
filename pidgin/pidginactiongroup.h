@@ -34,6 +34,22 @@
 #define PIDGIN_ACTION_ABOUT ("about")
 
 /**
+ * PIDGIN_ACTION_ADD_BUDDY:
+ *
+ * A constant that represents the add-buddy action to add a buddy to the
+ * contact list.
+ */
+#define PIDGIN_ACTION_ADD_BUDDY ("add-buddy")
+
+/**
+ * PIDGIN_ACTION_ADD_CHAT:
+ *
+ * A constant that represents the add-chat action to add a chat to the
+ * contact list.
+ */
+#define PIDGIN_ACTION_ADD_CHAT ("add-chat")
+
+/**
  * PIDGIN_ACTION_ADD_GROUP:
  *
  * A constant that represents the add-group action to add a group to the
