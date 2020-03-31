@@ -41,6 +41,16 @@ G_DECLARE_FINAL_TYPE(PidginBuddyListMenu, pidgin_buddy_list_menu, PIDGIN,
  */
 GtkWidget *pidgin_buddy_list_menu_new(void);
 
+/**
+ * pidgin_buddy_list_menu_get_sort_item:
+ * @menu: The #PidginBuddyList instance.
+ *
+ * Returns the sort menu item from the buddies menu.
+ *
+ * Returns: (transfer none): The sort menu item from the buddies menu.
+ */
+GtkWidget *pidgin_buddy_list_menu_get_sort_item(PidginBuddyListMenu *menu);
+
 G_END_DECLS
 
 #endif /* PIDGIN_BUDDY_LIST_MENU_H */

@@ -179,6 +179,14 @@
 #define PIDGIN_ACTION_SHOW_PROTOCOL_ICONS ("show-protocol-icons")
 
 /**
+ * PIDGIN_ACTION_SORT_METHOD:
+ *
+ * A constant that represents the sort-method action to change the sorting
+ * method of the buddy list.
+ */
+#define PIDGIN_ACTION_SORT_METHOD ("sort-method")
+
+/**
  * PIDGIN_ACTION_SYSTEM_LOG:
  *
  * A constant that represents the system-log action.
