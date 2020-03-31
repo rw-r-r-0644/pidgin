@@ -613,6 +613,15 @@ GList *purple_connections_get_all(void);
  */
 GList *purple_connections_get_connecting(void);
 
+/**
+ * purple_connections_is_online:
+ *
+ * Checks if at least one account is online.
+ *
+ * Returns: %TRUE if at least one account is online.
+ */
+gboolean purple_connections_is_online(void);
+
 /**************************************************************************/
 /* UI Registration Functions                                              */
 /**************************************************************************/
