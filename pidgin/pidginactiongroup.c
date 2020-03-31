@@ -43,6 +43,25 @@ struct _PidginActionGroup {
 };
 
 /******************************************************************************
+ * Globals
+ *****************************************************************************/
+
+/**< private >
+ * online_actions:
+ *
+ * This list keeps track of which actions should only be enabled while online.
+ */
+static const gchar *pidgin_action_group_online_actions[] = {
+	PIDGIN_ACTION_NEW_MESSAGE,
+	// PIDGIN_ACTION_JOIN_CHAT,
+	PIDGIN_ACTION_GET_USER_INFO,
+	// PIDGIN_ACTION_ADD_BUDDY,
+	// PIDGIN_ACTION_ADD_CHAT,
+	PIDGIN_ACTION_ADD_GROUP,
+	PIDGIN_ACTION_PRIVACY,
+};
+
+/******************************************************************************
  * Helpers
  *****************************************************************************/
 
@@ -170,6 +189,48 @@ pidgin_action_group_setup_string(PidginActionGroup *group,
 	 * preference.
 	 */
 	purple_prefs_connect_callback(group, pref_name, callback, group);
+}
+
+/**< private >
+ * pidgin_action_group_online_actions_set_enable:
+ * @group: The #PidginActionGroup instance.
+ * @enabled: %TRUE to enable the actions, %FALSE to disable them.
+ *
+ * Enables/disables the actions that require being online to use.
+ */
+static void
+pidgin_action_group_online_actions_set_enable(PidginActionGroup *group,
+                                              gboolean enabled)
+{
+	gint i = 0;
+
+	for(i = 0; i < G_N_ELEMENTS(pidgin_action_group_online_actions); i++) {
+		GAction *action = NULL;
+		const gchar *name = pidgin_action_group_online_actions[i];
+
+		action = g_action_map_lookup_action(G_ACTION_MAP(group), name);
+
+		if(action != NULL) {
+			g_simple_action_set_enabled(G_SIMPLE_ACTION(action), enabled);
+		} else {
+			g_warning("Failed to find action named %s", name);
+		}
+	}
+}
+
+/******************************************************************************
+ * Purple Signal Callbacks
+ *****************************************************************************/
+static void
+pidgin_action_group_online_cb(gpointer data) {
+	pidgin_action_group_online_actions_set_enable(PIDGIN_ACTION_GROUP(data),
+	                                              TRUE);
+}
+
+static void
+pidgin_action_group_offline_cb(gpointer data) {
+	pidgin_action_group_online_actions_set_enable(PIDGIN_ACTION_GROUP(data),
+	                                              TRUE);
 }
 
 /******************************************************************************
@@ -469,6 +530,7 @@ G_DEFINE_TYPE(PidginActionGroup, pidgin_action_group,
 
 static void
 pidgin_action_group_init(PidginActionGroup *group) {
+	gpointer connections_handle = NULL;
 	GActionEntry entries[] = {
 		{
 			.name = PIDGIN_ACTION_ABOUT,
@@ -581,10 +643,36 @@ pidgin_action_group_init(PidginActionGroup *group) {
 	pidgin_action_group_setup_string(group, PIDGIN_ACTION_SORT_METHOD,
 	                                 PIDGIN_PREFS_ROOT "/blist/sort_type",
 	                                 pidgin_action_group_sort_method_callback);
+
+	/* assume we are offline and disable all of the actions that require us to
+	 * be online.
+	 */
+	pidgin_action_group_online_actions_set_enable(group, FALSE);
+
+	/* connect to the online and offline signals in purple connections.  This
+	 * is used to toggle states of actions that require being online.
+	 */
+	connections_handle = purple_connections_get_handle();
+	purple_signal_connect(connections_handle, "online", group,
+	                      PURPLE_CALLBACK(pidgin_action_group_online_cb),
+	                      group);
+	purple_signal_connect(connections_handle, "offline", group,
+	                      PURPLE_CALLBACK(pidgin_action_group_offline_cb),
+	                      group);
 };
 
 static void
+pidgin_action_group_finalize(GObject *obj) {
+	purple_signals_disconnect_by_handle(obj);
+
+	G_OBJECT_CLASS(pidgin_action_group_parent_class)->finalize(obj);
+}
+
+static void
 pidgin_action_group_class_init(PidginActionGroupClass *klass) {
+	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+
+	obj_class->finalize = pidgin_action_group_finalize;
 }
 
 /******************************************************************************
@@ -594,3 +682,4 @@ GSimpleActionGroup *
 pidgin_action_group_new(void) {
 	return G_SIMPLE_ACTION_GROUP(g_object_new(PIDGIN_TYPE_ACTION_GROUP, NULL));
 }
+
