@@ -102,6 +102,7 @@ static GParamSpec *properties[PROP_LAST];
 
 static GList *connections = NULL;
 static GList *connections_connecting = NULL;
+static GList *connections_connected = NULL;
 static PurpleConnectionUiOps *connection_ui_ops = NULL;
 
 static int connections_handle;
@@ -185,9 +186,12 @@ purple_connection_set_state(PurpleConnection *gc, PurpleConnectionState state)
 	if (priv->state == PURPLE_CONNECTION_CONNECTED) {
 		PurpleAccount *account;
 		PurplePresence *presence;
+		gboolean emit_online = FALSE;
+		gpointer handle = NULL;
 
 		account = purple_connection_get_account(gc);
 		presence = purple_account_get_presence(account);
+		handle = purple_connections_get_handle();
 
 		/* Set the time the account came online */
 		purple_presence_set_login_time(presence, time(NULL));
@@ -214,12 +218,25 @@ purple_connection_set_state(PurpleConnection *gc, PurpleConnectionState state)
 
 		purple_blist_add_account(account);
 
-		purple_signal_emit(purple_connections_get_handle(), "signed-on", gc);
-		purple_signal_emit_return_1(purple_connections_get_handle(), "autojoin", gc);
+		purple_signal_emit(handle, "signed-on", gc);
+		purple_signal_emit_return_1(handle, "autojoin", gc);
 
 		purple_serv_set_permit_deny(gc);
 
 		update_keepalive(gc, TRUE);
+
+		/* check if connections_connected is NULL, if so we need to emit the
+		 * online signal.
+		 */
+		if(connections_connected == NULL) {
+			emit_online = TRUE;
+		}
+
+		connections_connected = g_list_append(connections_connected, gc);
+
+		if(emit_online) {
+			purple_signal_emit(handle, "online");
+		}
 	}
 	else if (priv->state == PURPLE_CONNECTION_DISCONNECTED) {
 		PurpleAccount *account = purple_connection_get_account(gc);
@@ -846,17 +863,19 @@ purple_connection_finalize(GObject *object)
 	PurpleAccount *account;
 	GSList *buddies;
 	gboolean remove = FALSE;
+	gpointer handle;
 
 	priv->is_finalizing = TRUE;
 
 	account = purple_connection_get_account(gc);
+	handle = purple_connections_get_handle();
 
 	purple_debug_info("connection", "Disconnecting connection %p\n", gc);
 
 	if (purple_connection_get_state(gc) != PURPLE_CONNECTION_CONNECTING)
 		remove = TRUE;
 
-	purple_signal_emit(purple_connections_get_handle(), "signing-off", gc);
+	purple_signal_emit(handle, "signing-off", gc);
 
 	g_slist_free_full(priv->active_chats, (GDestroyNotify)purple_chat_conversation_leave);
 
@@ -881,11 +900,16 @@ purple_connection_finalize(GObject *object)
 	if (remove)
 		purple_blist_remove_account(account);
 
-	purple_signal_emit(purple_connections_get_handle(), "signed-off", gc);
+	purple_signal_emit(handle, "signed-off", gc);
 
 	purple_account_request_close_with_account(account);
 	purple_request_close_with_handle(gc);
 	purple_notify_close_with_handle(gc);
+
+	connections_connected = g_list_remove(connections_connected, gc);
+	if(connections_connected == NULL) {
+		purple_signal_emit(handle, "offline");
+	}
 
 	purple_debug_info("connection", "Destroying connection %p\n", gc);
 
@@ -1122,6 +1146,11 @@ purple_connections_get_connecting(void)
 	return connections_connecting;
 }
 
+gboolean
+purple_connections_is_online(void) {
+	return (connections_connected != NULL);
+}
+
 void
 purple_connections_set_ui_ops(PurpleConnectionUiOps *ops)
 {
@@ -1138,6 +1167,12 @@ void
 purple_connections_init(void)
 {
 	void *handle = purple_connections_get_handle();
+
+	purple_signal_register(handle, "online", purple_marshal_VOID, G_TYPE_NONE,
+	                       0);
+
+	purple_signal_register(handle, "offline", purple_marshal_VOID, G_TYPE_NONE,
+	                       0);
 
 	purple_signal_register(handle, "signing-on",
 						 purple_marshal_VOID__POINTER, G_TYPE_NONE, 1,
