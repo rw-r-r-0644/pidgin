@@ -3543,8 +3543,6 @@ static const char *blist_menu =
 		"</menu>"
 		"<menu action='ToolsMenu'>"
 			"<menuitem action='SetMood'/>"
-			"<separator/>"
-			"<placeholder name='PluginActions'/>"
 		"</menu>"
 	"</menubar>"
 "</ui>";
@@ -4399,12 +4397,6 @@ sign_on_off_cb(PurpleConnection *gc, PurpleBuddyList *blist)
 	PidginBuddyList *gtkblist = PIDGIN_BUDDY_LIST(blist);
 
 	update_menu_bar(gtkblist);
-}
-
-static void
-plugin_changed_cb(PurplePlugin *p, gpointer data)
-{
-	pidgin_blist_update_plugin_actions();
 }
 
 static void
@@ -5580,7 +5572,8 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 
 	/******************************* Menu bar *************************************/
 	actions = pidgin_action_group_new();
-	gtk_widget_insert_action_group(gtkblist->window, "blist", actions);
+	gtk_widget_insert_action_group(gtkblist->window, "blist",
+	                               G_ACTION_GROUP(actions));
 
 	action_group = gtk_action_group_new("BListActions");
 	gtk_action_group_set_translation_domain(action_group, PACKAGE);
@@ -5788,7 +5781,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 
 	/* Update some dynamic things */
 	update_menu_bar(gtkblist);
-	pidgin_blist_update_plugin_actions();
 	pidgin_blist_update_sort_methods();
 
 	/* OK... let's show this bad boy. */
@@ -5846,12 +5838,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	                      PURPLE_CALLBACK(sign_on_off_cb), list);
 	purple_signal_connect(handle, "signed-off", gtkblist,
 	                      PURPLE_CALLBACK(sign_on_off_cb), list);
-
-	handle = purple_plugins_get_handle();
-	purple_signal_connect(handle, "plugin-load", gtkblist,
-	                      PURPLE_CALLBACK(plugin_changed_cb), NULL);
-	purple_signal_connect(handle, "plugin-unload", gtkblist,
-	                      PURPLE_CALLBACK(plugin_changed_cb), NULL);
 
 	handle = purple_conversations_get_handle();
 	purple_signal_connect(handle, "conversation-updated", gtkblist,
@@ -7673,86 +7659,6 @@ static void sort_method_log_activity(PurpleBlistNode *node, PurpleBuddyList *bli
 }
 
 static void
-plugin_act(GSimpleAction *action, GVariant *param, PurplePluginAction *pam)
-{
-	if (pam && pam->callback)
-		pam->callback(pam);
-}
-
-static GtkWidget *
-build_plugin_actions(GActionMap *action_map, const gchar *parent,
-		PurplePlugin *plugin)
-{
-	GMenu *menu = NULL;
-	GMenu *section = NULL;
-	PurplePluginActionsCb actions_cb;
-	PurplePluginAction *action = NULL;
-	GList *actions, *l;
-	char *name;
-	int count = 0;
-	GtkWidget *ret;
-
-	actions_cb =
-		purple_plugin_info_get_actions_cb(purple_plugin_get_info(plugin));
-
-	actions = actions_cb(plugin);
-
-	if (actions == NULL) {
-		return NULL;
-	}
-
-	menu = g_menu_new();
-
-	for (l = actions; l != NULL; l = l->next) {
-		GAction *menuaction;
-
-		action = (PurplePluginAction *)l->data;
-
-		if (action == NULL) {
-			if (section != NULL) {
-				/* Close and append section if any */
-				g_menu_append_section(menu, NULL,
-						G_MENU_MODEL(section));
-				g_clear_object(&section);
-			}
-
-			continue;
-		}
-
-		action->plugin = plugin;
-
-		name = g_strdup_printf("plugin.%s-action-%d", parent, count++);
-		/* +7 to skip "plugin." prefix */
-		menuaction = G_ACTION(g_simple_action_new(name + 7, NULL));
-		g_signal_connect_data(G_OBJECT(menuaction), "activate",
-				G_CALLBACK(plugin_act), action,
-				(GClosureNotify)purple_plugin_action_free, 0);
-		g_action_map_add_action(action_map, menuaction);
-		g_object_unref(menuaction);
-
-		if (section == NULL) {
-			section = g_menu_new();
-		}
-
-		g_menu_append(section, action->label, name);
-		g_free(name);
-	}
-
-	if (section != NULL) {
-		/* Close and append final section if any */
-		g_menu_append_section(menu, NULL, G_MENU_MODEL(section));
-		g_clear_object(&section);
-	}
-
-	g_list_free(actions);
-
-	ret = gtk_menu_new_from_model(G_MENU_MODEL(menu));
-	g_object_unref(menu);
-	return ret;
-}
-
-
-static void
 modify_account_cb(GtkWidget *widget, gpointer data)
 {
 	pidgin_account_dialog_show(PIDGIN_MODIFY_ACCOUNT_DIALOG, data);
@@ -7968,72 +7874,6 @@ pidgin_blist_update_accounts_menu(void)
 	}
 
 	gtk_widget_show_all(accountmenu);
-}
-
-static GSList *plugin_menu_items;
-
-void
-pidgin_blist_update_plugin_actions(void)
-{
-	GtkWidget *toolsmenu;
-	GSimpleActionGroup *action_group;
-	PurplePlugin *plugin = NULL;
-	PurplePluginInfo *info;
-	GList *l;
-
-	int count = 0;
-
-	if ((gtkblist == NULL) || (gtkblist->ui == NULL))
-		return;
-
-	/* Clear the old menu */
-	g_slist_free_full(plugin_menu_items,
-			(GDestroyNotify)gtk_widget_destroy);
-	plugin_menu_items = NULL;
-
-	toolsmenu = gtk_ui_manager_get_widget(gtkblist->ui,
-			"/BList/ToolsMenu");
-	toolsmenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(toolsmenu));
-
-	action_group = g_simple_action_group_new();
-
-	/* Add a submenu for each plugin with custom actions */
-	for (l = purple_plugins_get_loaded(); l; l = l->next) {
-		char *name;
-		GtkWidget *submenu;
-		GtkWidget *menuitem;
-
-		plugin = (PurplePlugin *)l->data;
-		info = purple_plugin_get_info(plugin);
-
-		if (!purple_plugin_info_get_actions_cb(info))
-			continue;
-
-		name = g_strdup_printf("plugin%d", count);
-		submenu = build_plugin_actions(G_ACTION_MAP(action_group),
-				name, plugin);
-		g_free(name);
-
-		if (submenu == NULL) {
-			continue;
-		}
-
-		menuitem = gtk_menu_item_new_with_mnemonic(
-		        _(gplugin_plugin_info_get_name(
-		                GPLUGIN_PLUGIN_INFO(info))));
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), submenu);
-		gtk_widget_show(menuitem);
-		plugin_menu_items = g_slist_prepend(plugin_menu_items,
-				menuitem);
-		gtk_menu_shell_append(GTK_MENU_SHELL(toolsmenu), menuitem);
-
-		count++;
-	}
-
-	/* Replaces existing "plugin" group if any */
-	gtk_widget_insert_action_group(toolsmenu, "plugin",
-			G_ACTION_GROUP(action_group));
-	g_object_unref(action_group);
 }
 
 void
