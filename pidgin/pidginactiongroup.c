@@ -36,7 +36,6 @@
 #include "pidgin/gtkxfer.h"
 #include "pidgin/pidginabout.h"
 #include "pidgin/pidginlog.h"
-#include "pidgin/pidginpluginsdialog.h"
 
 struct _PidginActionGroup {
 	GSimpleActionGroup parent;
@@ -430,20 +429,6 @@ pidgin_action_group_online_help(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
-pidgin_action_group_plugins(GSimpleAction *simple, GVariant *parameter,
-                            gpointer data)
-{
-	GtkWidget *dialog = pidgin_plugins_dialog_new();
-
-	/* fixme? */
-#if 0
-	gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
-#endif
-
-	gtk_widget_show_all(dialog);
-}
-
-static void
 pidgin_action_group_preferences(GSimpleAction *simple, GVariant *parameter,
                                 gpointer data)
 {
@@ -586,9 +571,6 @@ pidgin_action_group_init(PidginActionGroup *group) {
 		}, {
 			.name = PIDGIN_ACTION_ONLINE_HELP,
 			.activate = pidgin_action_group_online_help,
-		}, {
-			.name = PIDGIN_ACTION_PLUGINS,
-			.activate = pidgin_action_group_plugins,
 		}, {
 			.name = PIDGIN_ACTION_PREFERENCES,
 			.activate = pidgin_action_group_preferences,

@@ -125,13 +125,6 @@
 #define PIDGIN_ACTION_ONLINE_HELP ("online-help")
 
 /**
- * PIDGIN_ACTION_PLUGINS:
- *
- * A constant that represents the plugins action.
- */
-#define PIDGIN_ACTION_PLUGINS ("plugins")
-
-/**
  * PIDGIN_ACTION_PREFERENCES:
  *
  * A constant that represents the preferences action.
