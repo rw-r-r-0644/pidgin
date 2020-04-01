@@ -22,6 +22,16 @@
 #ifndef PIDGIN_BUDDY_LIST_MENU_H
 #define PIDGIN_BUDDY_LIST_MENU_H
 
+/**
+ * SECTION:pidginbuddylistmenu
+ * @section_id: pidgin-buddylist-menu
+ * @short_description: A widget to display the menubar in the buddy list window.
+ * @title: Buddylist Menu
+ *
+ * #PidginBuddyListMenu is a transitional widget as we slowly migrate the
+ * buddylist window to glade.
+ */
+
 #include <glib.h>
 
 #include <gtk/gtk.h>
