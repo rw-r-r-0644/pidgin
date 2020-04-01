@@ -22,13 +22,12 @@
 
 #include "pidginbuddylistmenu.h"
 
-#include <pidgin/pidginpluginsmenu.h>
-
 struct _PidginBuddyListMenu {
 	GtkMenuBar parent;
 
 	GtkWidget *sort_buddies;
 	GtkWidget *plugins;
+	GtkWidget *plugins_menu;
 };
 
 /******************************************************************************
@@ -41,7 +40,7 @@ pidgin_buddy_list_menu_init(PidginBuddyListMenu *menu) {
 	gtk_widget_init_template(GTK_WIDGET(menu));
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->plugins),
-	                          pidgin_plugins_menu_new());
+	                          menu->plugins_menu);
 }
 
 static void
@@ -57,6 +56,8 @@ pidgin_buddy_list_menu_class_init(PidginBuddyListMenuClass *klass) {
    	                                     sort_buddies);
    	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
    	                                     plugins);
+   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+   	                                     plugins_menu);
 }
 
 /******************************************************************************

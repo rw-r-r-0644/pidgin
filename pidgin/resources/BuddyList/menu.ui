@@ -2,6 +2,7 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <requires lib="pidgin" version="3.0"/>
   <template class="PidginBuddyListMenu" parent="GtkMenuBar">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -368,4 +369,8 @@
       </object>
     </child>
   </template>
+  <object class="PidginPluginsMenu" id="plugins_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+  </object>
 </interface>
