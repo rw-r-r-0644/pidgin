@@ -27,6 +27,7 @@
 #include "internal.h"
 
 #include "pidgin/gtkaccount.h"
+#include "pidgin/gtkblist.h"
 #include "pidgin/gtkdialogs.h"
 #include "pidgin/gtkpounce.h"
 #include "pidgin/gtkprefs.h"
@@ -52,7 +53,7 @@ struct _PidginActionGroup {
  */
 static const gchar *pidgin_action_group_online_actions[] = {
 	PIDGIN_ACTION_NEW_MESSAGE,
-	// PIDGIN_ACTION_JOIN_CHAT,
+	PIDGIN_ACTION_JOIN_CHAT,
 	PIDGIN_ACTION_GET_USER_INFO,
 	PIDGIN_ACTION_ADD_BUDDY,
 	PIDGIN_ACTION_ADD_CHAT,
@@ -400,6 +401,13 @@ pidgin_action_group_get_user_info(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
+pidgin_action_group_join_chat(GSimpleAction *simple, GVariant *parameter,
+                              gpointer data)
+{
+	pidgin_blist_joinchat_show();
+}
+
+static void
 pidgin_action_group_manage_accounts(GSimpleAction *simple, GVariant *parameter,
                                     gpointer data)
 {
@@ -558,6 +566,9 @@ pidgin_action_group_init(PidginActionGroup *group) {
 		}, {
 			.name = PIDGIN_ACTION_GET_USER_INFO,
 			.activate = pidgin_action_group_get_user_info,
+		}, {
+			.name = PIDGIN_ACTION_JOIN_CHAT,
+			.activate = pidgin_action_group_join_chat,
 		}, {
 			.name = PIDGIN_ACTION_MANAGE_ACCOUNTS,
 			.activate = pidgin_action_group_manage_accounts,

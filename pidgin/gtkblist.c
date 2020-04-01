@@ -3521,10 +3521,6 @@ set_mood_show(void)
 static const GtkActionEntry blist_menu_entries[] = {
 /* NOTE: Do not set any accelerator to Control+O. It is mapped by
    gtk_blist_key_press_cb to "Get User Info" on the selected buddy. */
-	/* Buddies menu */
-	{ "BuddiesMenu", NULL, N_("_Buddies"), NULL, NULL, NULL },
-	{ "JoinAChat", PIDGIN_STOCK_CHAT, N_("Join a _Chat..."), "<control>C", NULL, pidgin_blist_joinchat_show },
-
 	/* Accounts menu */
 	{ "AccountsMenu", NULL, N_("_Accounts"), NULL, NULL, NULL },
 
@@ -3536,9 +3532,6 @@ static const GtkActionEntry blist_menu_entries[] = {
 static const char *blist_menu =
 "<ui>"
 	"<menubar name='BList'>"
-		"<menu action='BuddiesMenu'>"
-			"<menuitem action='JoinAChat'/>"
-		"</menu>"
 		"<menu action='AccountsMenu'>"
 		"</menu>"
 		"<menu action='ToolsMenu'>"
@@ -4346,13 +4339,7 @@ static void pidgin_blist_hide_node(PurpleBuddyList *list, PurpleBlistNode *node,
 
 static const char *require_connection[] =
 {
-	"/BList/BuddiesMenu/NewInstantMessage",
 	"/BList/BuddiesMenu/JoinAChat",
-	"/BList/BuddiesMenu/GetUserInfo",
-	"/BList/BuddiesMenu/AddBuddy",
-	"/BList/BuddiesMenu/AddChat",
-	"/BList/BuddiesMenu/AddGroup",
-	"/BList/ToolsMenu/Privacy",
 };
 
 static const int require_connection_size = sizeof(require_connection)

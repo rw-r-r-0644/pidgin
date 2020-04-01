@@ -91,9 +91,16 @@
 /**
  * PIDGIN_ACTION_GET_USER_INFO:
  *
- * A constant that represents the get-user info action.
+ * A constant that represents the get-user-info action.
  */
 #define PIDGIN_ACTION_GET_USER_INFO ("get-user-info")
+
+/**
+ * PIDGIN_ACTION_JOIN_CHAT:
+ *
+ * A constant that represents the join-chat action.
+ */
+#define PIDGIN_ACTION_JOIN_CHAT ("join-chat")
 
 /**
  * PIDGIN_ACTION_MANAGE_ACCOUNTS:
