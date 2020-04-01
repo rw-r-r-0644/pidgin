@@ -7811,34 +7811,46 @@ plugin_changed_cb(PurplePlugin *p, gpointer data)
 }
 
 static gboolean gtk_conv_configure_cb(GtkWidget *w, GdkEventConfigure *event, gpointer data) {
-	int x, y;
+	GdkMonitor *monitor = NULL;
+	GdkRectangle geo, window_geo, intersect_geo;
 
-	if (gtk_widget_get_visible(w))
-		gtk_window_get_position(GTK_WINDOW(w), &x, &y);
-	else
+	if(!gtk_widget_get_visible(w)) {
 		return FALSE; /* carry on normally */
+	}
+
+	gtk_window_get_position(GTK_WINDOW(w), &window_geo.x, &window_geo.y);
+	window_geo.width = event->width;
+	window_geo.height = event->height;
 
 	/* Workaround for GTK+ bug # 169811 - "configure_event" is fired
 	* when the window is being maximized */
 	if (gdk_window_get_state(gtk_widget_get_window(w)) & GDK_WINDOW_STATE_MAXIMIZED)
 		return FALSE;
 
-	/* don't save off-screen positioning */
-	if (x + event->width < 0 ||
-	    y + event->height < 0 ||
-	    x > gdk_screen_width() ||
-	    y > gdk_screen_height())
+	monitor = gdk_display_get_monitor_at_window(gdk_display_get_default(),
+	                                            event->window);
+	gdk_monitor_get_geometry(monitor, &geo);
+
+	/* now make sure that the window is entirely within the monitor.  We do
+	 * this by finding the intersection of the window on the monitor, if that
+	 * is equal to the window's geometry, then the window is fully contained on
+	 * the given monitor.
+	 */
+	gdk_rectangle_intersect(&geo, &window_geo, &intersect_geo);
+	if(!gdk_rectangle_equal(&window_geo, &intersect_geo)) {
 		return FALSE; /* carry on normally */
+	}
 
 	/* store the position */
-	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/x", x);
-	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/y", y);
-	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/width",  event->width);
-	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/height", event->height);
+	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/x", window_geo.x);
+	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/y", window_geo.y);
+	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/width",
+	                     window_geo.width);
+	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/height",
+	                     window_geo.height);
 
 	/* continue to handle event normally */
 	return FALSE;
-
 }
 
 static void
@@ -8574,6 +8586,8 @@ static gboolean
 conv_placement_last_created_win_type_configured_cb(GtkWidget *w,
 		GdkEventConfigure *event, PidginConversation *conv)
 {
+	GdkMonitor *monitor = NULL;
+	GdkRectangle geo;
 	int x, y;
 	GList *all;
 
@@ -8587,12 +8601,17 @@ conv_placement_last_created_win_type_configured_cb(GtkWidget *w,
 	if (gdk_window_get_state(gtk_widget_get_window(w)) & GDK_WINDOW_STATE_MAXIMIZED)
 		return FALSE;
 
+	monitor = gdk_display_get_monitor_at_window(gdk_display_get_default(),
+	                                            event->window);
+	gdk_monitor_get_geometry(monitor, &geo);
+
 	/* don't save off-screen positioning */
-	if (x + event->width < 0 ||
-	    y + event->height < 0 ||
-	    x > gdk_screen_width() ||
-	    y > gdk_screen_height())
+	if (x + event->width < geo.x ||
+	    y + event->height < geo.y ||
+	    x > geo.width ||
+	    y > geo.height) {
 		return FALSE; /* carry on normally */
+	}
 
 	for (all = conv->convs; all != NULL; all = all->next) {
 		if (PURPLE_IS_IM_CONVERSATION(conv->active_conv) != PURPLE_IS_IM_CONVERSATION(all->data)) {
