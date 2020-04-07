@@ -224,18 +224,18 @@ pidgin_accounts_menu_class_init(PidginAccountsMenuClass *klass) {
 
 	obj_class->finalize = pidgin_accounts_menu_finalize;
 
-    gtk_widget_class_set_template_from_resource(
-        widget_class,
-        "/im/pidgin/Pidgin/Accounts/menu.ui"
-    );
+	gtk_widget_class_set_template_from_resource(
+	    widget_class,
+	    "/im/pidgin/Pidgin/Accounts/menu.ui"
+	);
 
-   	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,
-   	                                     disabled_menu);
-   	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,
-   	                                     separator);
+	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,
+	                                     disabled_menu);
+	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,
+	                                     separator);
 
-   	gtk_widget_class_bind_template_callback(widget_class,
-   	                                        pidgin_accounts_menu_open_manager_cb);
+	gtk_widget_class_bind_template_callback(widget_class,
+	                                        pidgin_accounts_menu_open_manager_cb);
 }
 
 /******************************************************************************

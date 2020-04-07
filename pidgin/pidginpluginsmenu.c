@@ -284,13 +284,13 @@ pidgin_plugins_menu_class_init(PidginPluginsMenuClass *klass) {
 
 	obj_class->finalize = pidgin_plugins_menu_finalize;
 
-    gtk_widget_class_set_template_from_resource(
-        widget_class,
-        "/im/pidgin/Pidgin/Plugins/menu.ui"
-    );
+	gtk_widget_class_set_template_from_resource(
+	    widget_class,
+	    "/im/pidgin/Pidgin/Plugins/menu.ui"
+	);
 
-   	gtk_widget_class_bind_template_child(widget_class, PidginPluginsMenu,
-   	                                     separator);
+	gtk_widget_class_bind_template_child(widget_class, PidginPluginsMenu,
+	                                     separator);
 }
 
 /******************************************************************************

@@ -88,7 +88,7 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 {
 	PurpleConnection *connection = NULL;
 	PurpleProtocol *protocol = NULL;
-	GList *children = NULL, *l = NULL;
+	GList *children = NULL;
 	gboolean show_separator = FALSE;
 	gint position = 0;
 
@@ -111,20 +111,11 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 
 	/* we're pretty sure we're going to insert some items into the menu, so we
 	 * need to figure out where to put them.  GtkMenu stores its children in
-	 * order, so we just need to walk them to find the proper position.
+	 * order, so we just need to get the index of the set_mood item to find the
+	 * proper position.
 	 */
 	children = gtk_container_get_children(GTK_CONTAINER(menu));
-	for(l = children, position = 0; l != NULL; l = l->next, position++) {
-		/* check if the widget is the `set_mood` item and if so, bail out of the
-		 * loop.
-		 */
-		if(l->data == menu->set_mood) {
-			/* and push position past the set_mood item */
-			position++;
-
-			break;
-		}
-	}
+	position = g_list_index(children, menu->set_mood) + 1;
 	g_list_free(children);
 
 	protocol = purple_connection_get_protocol(connection);
@@ -244,10 +235,10 @@ pidgin_account_actions_menu_class_init(PidginAccountActionsMenuClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-    gtk_widget_class_set_template_from_resource(
-        widget_class,
-        "/im/pidgin/Pidgin/Accounts/actionsmenu.ui"
-    );
+	gtk_widget_class_set_template_from_resource(
+	    widget_class,
+	    "/im/pidgin/Pidgin/Accounts/actionsmenu.ui"
+	);
 
 	obj_class->get_property = pidgin_account_actions_menu_get_property;
 	obj_class->set_property = pidgin_account_actions_menu_set_property;
@@ -272,12 +263,12 @@ pidgin_account_actions_menu_class_init(PidginAccountActionsMenuClass *klass) {
 	gtk_widget_class_bind_template_child(widget_class, PidginAccountActionsMenu,
 	                                     set_mood);
 
-   	gtk_widget_class_bind_template_callback(widget_class,
-   	                                        pidgin_account_actions_menu_edit_cb);
-   	gtk_widget_class_bind_template_callback(widget_class,
-   	                                        pidgin_account_actions_menu_disable_cb);
-   	gtk_widget_class_bind_template_callback(widget_class,
-   	                                        pidgin_account_actions_menu_set_mood_cb);
+	gtk_widget_class_bind_template_callback(widget_class,
+	                                        pidgin_account_actions_menu_edit_cb);
+	gtk_widget_class_bind_template_callback(widget_class,
+	                                        pidgin_account_actions_menu_disable_cb);
+	gtk_widget_class_bind_template_callback(widget_class,
+	                                        pidgin_account_actions_menu_set_mood_cb);
 }
 
 /******************************************************************************
