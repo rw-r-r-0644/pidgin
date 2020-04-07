@@ -43,6 +43,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       </object>
     </child>
     <child>
+      <object class="GtkMenuItem" id="set_mood">
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Set _Mood...</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="pidgin_account_actions_menu_set_mood_cb" object="PidginAccountActionsMenu" swapped="no"/>
+      </object>
+    </child>
+    <child>
       <object class="GtkSeparatorMenuItem">
         <property name="visible">True</property>
         <property name="can_focus">False</property>

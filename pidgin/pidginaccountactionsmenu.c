@@ -33,6 +33,7 @@ struct _PidginAccountActionsMenu {
 	GtkMenu parent;
 
 	GtkWidget *separator;
+	GtkWidget *set_mood;
 
 	PurpleAccount *account;
 };
@@ -62,6 +63,11 @@ pidgin_account_actions_menu_disable_cb(GtkMenuItem *item, gpointer data) {
 }
 
 static void
+pidgin_account_actions_menu_set_mood_cb(GtkMenuItem *item, gpointer data) {
+	g_warning("open the mood dialog");
+}
+
+static void
 pidgin_account_actions_menu_action(GtkMenuItem *item, gpointer data) {
 	PurpleProtocolAction *action = (PurpleProtocolAction *)data;
 
@@ -80,7 +86,7 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 	PurpleConnection *connection = NULL;
 	PurpleProtocol *protocol = NULL;
 	GList *children = NULL, *l = NULL;
-	gboolean items_added = FALSE;
+	gboolean show_separator = FALSE;
 	gint position = 0;
 
 	g_clear_object(&menu->account);
@@ -106,11 +112,11 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 	 */
 	children = gtk_container_get_children(GTK_CONTAINER(menu));
 	for(l = children, position = 0; l != NULL; l = l->next, position++) {
-		/* check if the widget is our separator and if so, bail out of the
+		/* check if the widget is the `set_mood` item and if so, bail out of the
 		 * loop.
 		 */
-		if(l->data == menu->separator) {
-			/* and push position past the separator */
+		if(l->data == menu->set_mood) {
+			/* and push position past the set_mood item */
 			position++;
 
 			break;
@@ -119,6 +125,13 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 	g_list_free(children);
 
 	protocol = purple_connection_get_protocol(connection);
+
+	if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, get_moods)) {
+		gtk_widget_show(menu->set_mood);
+
+		show_separator = TRUE;
+	}
+
 	if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, get_actions)) {
 		GtkWidget *item = NULL;
 		GList *actions = NULL, *l = NULL;
@@ -154,14 +167,14 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 			gtk_widget_show(item);
 
 			/* since we added an item, make sure items_added is true */
-			items_added = TRUE;
+			show_separator = TRUE;
 		}
 
 		g_list_free(actions);
 	}
 
 	/* if we added any items, make our separator visible. */
-	if(items_added) {
+	if(show_separator) {
 		gtk_widget_show(menu->separator);
 	}
 }
@@ -253,11 +266,15 @@ pidgin_account_actions_menu_class_init(PidginAccountActionsMenuClass *klass) {
 
 	gtk_widget_class_bind_template_child(widget_class, PidginAccountActionsMenu,
 	                                     separator);
+	gtk_widget_class_bind_template_child(widget_class, PidginAccountActionsMenu,
+	                                     set_mood);
 
    	gtk_widget_class_bind_template_callback(widget_class,
    	                                        pidgin_account_actions_menu_edit_cb);
    	gtk_widget_class_bind_template_callback(widget_class,
    	                                        pidgin_account_actions_menu_disable_cb);
+   	gtk_widget_class_bind_template_callback(widget_class,
+   	                                        pidgin_account_actions_menu_set_mood_cb);
 }
 
 /******************************************************************************
