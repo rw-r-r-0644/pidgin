@@ -52,12 +52,15 @@ struct _PidginActionGroup {
  */
 static const gchar *pidgin_action_group_online_actions[] = {
 	PIDGIN_ACTION_ADD_BUDDY,
-	PIDGIN_ACTION_ADD_CHAT,
 	PIDGIN_ACTION_ADD_GROUP,
 	PIDGIN_ACTION_GET_USER_INFO,
-	PIDGIN_ACTION_JOIN_CHAT,
 	PIDGIN_ACTION_NEW_MESSAGE,
 	PIDGIN_ACTION_PRIVACY,
+};
+
+static const gchar *pidgin_action_group_chat_actions[] = {
+	PIDGIN_ACTION_ADD_CHAT,
+	PIDGIN_ACTION_JOIN_CHAT,
 	PIDGIN_ACTION_ROOM_LIST,
 };
 
@@ -218,6 +221,33 @@ pidgin_action_group_online_actions_set_enable(PidginActionGroup *group,
 	}
 }
 
+/*< private >
+ * pidgin_action_group_chat_actions_set_enable:
+ * @group: The #PidginActionGroup instance.
+ * @enabled: Whether or not to enable/disable the actions.
+ *
+ * Sets the enabled state of the chat specific actions to the value of @enabled.
+ */
+static void
+pidgin_action_group_chat_actions_set_enable(PidginActionGroup *group,
+                                            gboolean enabled)
+{
+	gint i = 0;
+
+	for(i = 0; i < G_N_ELEMENTS(pidgin_action_group_chat_actions); i++) {
+		GAction *action = NULL;
+		const gchar *name = pidgin_action_group_chat_actions[i];
+
+		action = g_action_map_lookup_action(G_ACTION_MAP(group), name);
+
+		if(action != NULL) {
+			g_simple_action_set_enabled(G_SIMPLE_ACTION(action), enabled);
+		} else {
+			g_warning("Failed to find action named %s", name);
+		}
+	}
+}
+
 /******************************************************************************
  * Purple Signal Callbacks
  *****************************************************************************/
@@ -230,7 +260,63 @@ pidgin_action_group_online_cb(gpointer data) {
 static void
 pidgin_action_group_offline_cb(gpointer data) {
 	pidgin_action_group_online_actions_set_enable(PIDGIN_ACTION_GROUP(data),
-	                                              TRUE);
+	                                              FALSE);
+}
+
+static void
+pidgin_action_group_signed_on_cb(PurpleAccount *account, gpointer data) {
+	PurpleProtocol *protocol = NULL;
+	const gchar *protocol_id = NULL;
+	gboolean should_enable = FALSE;
+
+	protocol_id = purple_account_get_protocol_id(account);
+	protocol = purple_protocols_find(protocol_id);
+
+	/* We assume that the current state is correct, so we don't bother changing
+	 * state unless the newly connected account implements the chat interface,
+	 * which would cause a state change.
+	 */
+	should_enable = PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info);
+	if(should_enable) {
+		pidgin_action_group_chat_actions_set_enable(PIDGIN_ACTION_GROUP(data),
+		                                            TRUE);
+	}
+}
+
+static void
+pidgin_action_group_signed_off_cb(PurpleAccount *account, gpointer data) {
+	gboolean should_disable = TRUE;
+	GList *connections = NULL, *l = NULL;
+
+	/* walk through all the connections, looking for online ones that implement
+	 * the chat interface.  We don't bother checking the account that this
+	 * signal was emitted for, because it's already offline and will be
+	 * filtered out by the online check.
+	 */
+	connections = purple_connections_get_all();
+	for(l = connections; l != NULL; l = l->next) {
+		PurpleConnection *connection = PURPLE_CONNECTION(l->data);
+		PurpleProtocol *protocol = NULL;
+
+		/* if the connection isn't online, we don't care about it */
+		if(!PURPLE_CONNECTION_IS_CONNECTED(connection)) {
+			continue;
+		}
+
+		protocol = purple_connection_get_protocol(connection);
+		if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info)) {
+			/* if the protocol implements the chat interface, we know we need
+			 * to keep it enabled, so we can bail about at this point.
+			 */
+			should_disable = FALSE;
+			break;
+		}
+	}
+
+	if(should_disable) {
+		pidgin_action_group_chat_actions_set_enable(PIDGIN_ACTION_GROUP(data),
+		                                            FALSE);
+	}
 }
 
 /******************************************************************************
@@ -530,7 +616,7 @@ G_DEFINE_TYPE(PidginActionGroup, pidgin_action_group,
 
 static void
 pidgin_action_group_init(PidginActionGroup *group) {
-	gpointer connections_handle = NULL;
+	gpointer handle = NULL;
 	GActionEntry entries[] = {
 		{
 			.name = PIDGIN_ACTION_ABOUT,
@@ -651,16 +737,28 @@ pidgin_action_group_init(PidginActionGroup *group) {
 	 * be online.
 	 */
 	pidgin_action_group_online_actions_set_enable(group, FALSE);
+	pidgin_action_group_chat_actions_set_enable(group, FALSE);
 
 	/* connect to the online and offline signals in purple connections.  This
 	 * is used to toggle states of actions that require being online.
 	 */
-	connections_handle = purple_connections_get_handle();
-	purple_signal_connect(connections_handle, "online", group,
+	handle = purple_connections_get_handle();
+	purple_signal_connect(handle, "online", group,
 	                      PURPLE_CALLBACK(pidgin_action_group_online_cb),
 	                      group);
-	purple_signal_connect(connections_handle, "offline", group,
+	purple_signal_connect(handle, "offline", group,
 	                      PURPLE_CALLBACK(pidgin_action_group_offline_cb),
+	                      group);
+
+	/* connect to account-signed-on and account-signed-off to toggle actions
+	 * that depend on specific interfaces in accounts.
+	 */
+	handle = purple_accounts_get_handle();
+	purple_signal_connect(handle, "account-signed-on", group,
+	                      PURPLE_CALLBACK(pidgin_action_group_signed_on_cb),
+	                      group);
+	purple_signal_connect(handle, "account-signed-off", group,
+	                      PURPLE_CALLBACK(pidgin_action_group_signed_off_cb),
 	                      group);
 };
 
