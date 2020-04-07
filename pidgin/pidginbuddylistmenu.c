@@ -32,6 +32,8 @@ struct _PidginBuddyListMenu {
 
 	GtkWidget *plugins;
 	GtkWidget *plugins_menu;
+
+	GtkWidget *menu_tray;
 };
 
 /******************************************************************************
@@ -47,6 +49,8 @@ pidgin_buddy_list_menu_init(PidginBuddyListMenu *menu) {
 	                          menu->accounts_menu);
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->plugins),
 	                          menu->plugins_menu);
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu->menu_tray);
 }
 
 static void
@@ -68,6 +72,8 @@ pidgin_buddy_list_menu_class_init(PidginBuddyListMenuClass *klass) {
    	                                     plugins);
    	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
    	                                     plugins_menu);
+   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+   	                                     menu_tray);
 }
 
 /******************************************************************************
@@ -83,4 +89,11 @@ pidgin_buddy_list_menu_get_sort_item(PidginBuddyListMenu *menu) {
 	g_return_val_if_fail(PIDGIN_IS_BUDDY_LIST_MENU(menu), NULL);
 
 	return menu->sort_buddies;
+}
+
+GtkWidget *
+pidgin_buddy_list_menu_get_menu_tray(PidginBuddyListMenu *menu) {
+	g_return_val_if_fail(PIDGIN_IS_BUDDY_LIST_MENU(menu), NULL);
+
+	return menu->menu_tray;
 }
