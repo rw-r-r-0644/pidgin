@@ -61,6 +61,9 @@ static const gchar *pidgin_action_group_online_actions[] = {
 static const gchar *pidgin_action_group_chat_actions[] = {
 	PIDGIN_ACTION_ADD_CHAT,
 	PIDGIN_ACTION_JOIN_CHAT,
+};
+
+static const gchar *pidgin_action_group_room_list_actions[] = {
 	PIDGIN_ACTION_ROOM_LIST,
 };
 
@@ -194,7 +197,38 @@ pidgin_action_group_setup_string(PidginActionGroup *group,
 	purple_prefs_connect_callback(group, pref_name, callback, group);
 }
 
-/**< private >
+/*< private >
+ * pidgin_action_group_actions_set_enable:
+ * @group: The #PidginActionGroup instance.
+ * @actions: The action names.
+ * @n_actions: The number of @actions.
+ * @enabled: Whether or not to enable the actions.
+ *
+ * Sets the enabled property of the the named actions to @enabled.
+ */
+static void
+pidgin_action_group_actions_set_enable(PidginActionGroup *group,
+                                       const gchar *const *actions,
+                                       gint n_actions,
+                                       gboolean enabled)
+{
+	gint i = 0;
+
+	for(i = 0; i < n_actions; i++) {
+		GAction *action = NULL;
+		const gchar *name = actions[i];
+
+		action = g_action_map_lookup_action(G_ACTION_MAP(group), name);
+
+		if(action != NULL) {
+			g_simple_action_set_enabled(G_SIMPLE_ACTION(action), enabled);
+		} else {
+			g_warning("Failed to find action named %s", name);
+		}
+	}
+}
+
+/*< private >
  * pidgin_action_group_online_actions_set_enable:
  * @group: The #PidginActionGroup instance.
  * @enabled: %TRUE to enable the actions, %FALSE to disable them.
@@ -205,20 +239,12 @@ static void
 pidgin_action_group_online_actions_set_enable(PidginActionGroup *group,
                                               gboolean enabled)
 {
-	gint i = 0;
+	gint n_actions = G_N_ELEMENTS(pidgin_action_group_online_actions);
 
-	for(i = 0; i < G_N_ELEMENTS(pidgin_action_group_online_actions); i++) {
-		GAction *action = NULL;
-		const gchar *name = pidgin_action_group_online_actions[i];
-
-		action = g_action_map_lookup_action(G_ACTION_MAP(group), name);
-
-		if(action != NULL) {
-			g_simple_action_set_enabled(G_SIMPLE_ACTION(action), enabled);
-		} else {
-			g_warning("Failed to find action named %s", name);
-		}
-	}
+	pidgin_action_group_actions_set_enable(group,
+	                                       pidgin_action_group_online_actions,
+	                                       n_actions,
+	                                       enabled);
 }
 
 /*< private >
@@ -232,20 +258,32 @@ static void
 pidgin_action_group_chat_actions_set_enable(PidginActionGroup *group,
                                             gboolean enabled)
 {
-	gint i = 0;
+	gint n_actions = G_N_ELEMENTS(pidgin_action_group_chat_actions);
 
-	for(i = 0; i < G_N_ELEMENTS(pidgin_action_group_chat_actions); i++) {
-		GAction *action = NULL;
-		const gchar *name = pidgin_action_group_chat_actions[i];
+	pidgin_action_group_actions_set_enable(group,
+	                                       pidgin_action_group_chat_actions,
+	                                       n_actions,
+	                                       enabled);
+}
 
-		action = g_action_map_lookup_action(G_ACTION_MAP(group), name);
+/*< private >
+ * pidgin_action_group_room_list_actions_set_enable:
+ * @group: The #PidginActionGroup instance.
+ * @enabled: Whether or not to enable/disable the actions.
+ *
+ * Sets the enabled state of the room list specific actions to the value of
+ * @enabled.
+ */
+static void
+pidgin_action_group_room_list_actions_set_enable(PidginActionGroup *group,
+                                                 gboolean enabled)
+{
+	gint n_actions = G_N_ELEMENTS(pidgin_action_group_room_list_actions);
 
-		if(action != NULL) {
-			g_simple_action_set_enabled(G_SIMPLE_ACTION(action), enabled);
-		} else {
-			g_warning("Failed to find action named %s", name);
-		}
-	}
+	pidgin_action_group_actions_set_enable(group,
+	                                       pidgin_action_group_room_list_actions,
+	                                       n_actions,
+	                                       enabled);
 }
 
 /******************************************************************************
@@ -265,9 +303,10 @@ pidgin_action_group_offline_cb(gpointer data) {
 
 static void
 pidgin_action_group_signed_on_cb(PurpleAccount *account, gpointer data) {
+	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
 	PurpleProtocol *protocol = NULL;
 	const gchar *protocol_id = NULL;
-	gboolean should_enable = FALSE;
+	gboolean should_enable_chat = FALSE, should_enable_room_list = FALSE;
 
 	protocol_id = purple_account_get_protocol_id(account);
 	protocol = purple_protocols_find(protocol_id);
@@ -276,16 +315,24 @@ pidgin_action_group_signed_on_cb(PurpleAccount *account, gpointer data) {
 	 * state unless the newly connected account implements the chat interface,
 	 * which would cause a state change.
 	 */
-	should_enable = PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info);
-	if(should_enable) {
-		pidgin_action_group_chat_actions_set_enable(PIDGIN_ACTION_GROUP(data),
-		                                            TRUE);
+	should_enable_chat = PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info);
+	if(should_enable_chat) {
+		pidgin_action_group_chat_actions_set_enable(group, TRUE);
+	}
+
+	/* likewise, for the room list, we only care about enabling in this
+	 * handler.
+	 */
+	should_enable_room_list = PURPLE_PROTOCOL_IMPLEMENTS(protocol, ROOMLIST,
+	                                                     get_list);
+	if(should_enable_room_list) {
+		pidgin_action_group_room_list_actions_set_enable(group, TRUE);
 	}
 }
 
 static void
 pidgin_action_group_signed_off_cb(PurpleAccount *account, gpointer data) {
-	gboolean should_disable = TRUE;
+	gboolean should_disable_chat = TRUE, should_disable_room_list = TRUE;
 	GList *connections = NULL, *l = NULL;
 
 	/* walk through all the connections, looking for online ones that implement
@@ -304,18 +351,31 @@ pidgin_action_group_signed_off_cb(PurpleAccount *account, gpointer data) {
 		}
 
 		protocol = purple_connection_get_protocol(connection);
+
+		/* check if the protocol implements the chat interface */
 		if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info)) {
-			/* if the protocol implements the chat interface, we know we need
-			 * to keep it enabled, so we can bail about at this point.
-			 */
-			should_disable = FALSE;
+			should_disable_chat = FALSE;
+		}
+
+		/* check if the protocol implement the room list interface */
+		if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, ROOMLIST, get_list)) {
+			should_disable_room_list = FALSE;
+		}
+
+		/* if we can't disable both, we can bail out of the loop */
+		if(!should_disable_chat && !should_disable_room_list) {
 			break;
 		}
 	}
 
-	if(should_disable) {
+	if(should_disable_chat) {
 		pidgin_action_group_chat_actions_set_enable(PIDGIN_ACTION_GROUP(data),
 		                                            FALSE);
+	}
+
+	if(should_disable_room_list) {
+		pidgin_action_group_room_list_actions_set_enable(PIDGIN_ACTION_GROUP(data),
+		                                                 FALSE);
 	}
 }
 
@@ -738,6 +798,7 @@ pidgin_action_group_init(PidginActionGroup *group) {
 	 */
 	pidgin_action_group_online_actions_set_enable(group, FALSE);
 	pidgin_action_group_chat_actions_set_enable(group, FALSE);
+	pidgin_action_group_room_list_actions_set_enable(group, FALSE);
 
 	/* connect to the online and offline signals in purple connections.  This
 	 * is used to toggle states of actions that require being online.
