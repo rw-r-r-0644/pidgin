@@ -51,13 +51,14 @@ struct _PidginActionGroup {
  * This list keeps track of which actions should only be enabled while online.
  */
 static const gchar *pidgin_action_group_online_actions[] = {
-	PIDGIN_ACTION_NEW_MESSAGE,
-	PIDGIN_ACTION_JOIN_CHAT,
-	PIDGIN_ACTION_GET_USER_INFO,
 	PIDGIN_ACTION_ADD_BUDDY,
 	PIDGIN_ACTION_ADD_CHAT,
 	PIDGIN_ACTION_ADD_GROUP,
+	PIDGIN_ACTION_GET_USER_INFO,
+	PIDGIN_ACTION_JOIN_CHAT,
+	PIDGIN_ACTION_NEW_MESSAGE,
 	PIDGIN_ACTION_PRIVACY,
+	PIDGIN_ACTION_ROOM_LIST,
 };
 
 /******************************************************************************
