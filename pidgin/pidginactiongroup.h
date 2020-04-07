@@ -22,6 +22,17 @@
 #ifndef PIDGIN_ACTION_GROUP_H
 #define PIDGIN_ACTION_GROUP_H
 
+/**
+ * SECTION:pidginactiongroup
+ * @section_id: pidgin-action-group
+ * @short_description: An action group for Pidgin
+ * @title: Action Group
+ *
+ * A #GSimpleActionGroup containing most of our actions.  A lot of this will
+ * need to be added to the #GtkApplication, but I didn't want to do that part
+ * quite yet, so I created this instead.
+ */
+
 #include <glib.h>
 
 #include <gio/gio.h>
