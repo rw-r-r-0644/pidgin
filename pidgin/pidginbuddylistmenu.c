@@ -26,6 +26,10 @@ struct _PidginBuddyListMenu {
 	GtkMenuBar parent;
 
 	GtkWidget *sort_buddies;
+
+	GtkWidget *accounts;
+	GtkWidget *accounts_menu;
+
 	GtkWidget *plugins;
 	GtkWidget *plugins_menu;
 };
@@ -39,6 +43,8 @@ static void
 pidgin_buddy_list_menu_init(PidginBuddyListMenu *menu) {
 	gtk_widget_init_template(GTK_WIDGET(menu));
 
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->accounts),
+	                          menu->accounts_menu);
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->plugins),
 	                          menu->plugins_menu);
 }
@@ -54,6 +60,10 @@ pidgin_buddy_list_menu_class_init(PidginBuddyListMenuClass *klass) {
 
    	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
    	                                     sort_buddies);
+   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+   	                                     accounts);
+   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+   	                                     accounts_menu);
    	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
    	                                     plugins);
    	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
