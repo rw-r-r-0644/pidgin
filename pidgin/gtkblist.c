@@ -4327,53 +4327,6 @@ static void pidgin_blist_hide_node(PurpleBuddyList *list, PurpleBlistNode *node,
 	gtknode->row = NULL;
 }
 
-static const char *require_connection[] =
-{
-	"/BList/BuddiesMenu/JoinAChat",
-};
-
-static const int require_connection_size = sizeof(require_connection)
-											/ sizeof(*require_connection);
-
-/*
- * Rebuild dynamic menus and make menu items sensitive/insensitive
- * where appropriate.
- */
-static void
-update_menu_bar(PidginBuddyList *gtkblist)
-{
-	GtkAction *action;
-	gboolean sensitive;
-	int i;
-
-	g_return_if_fail(gtkblist != NULL);
-
-	sensitive = (purple_connections_get_all() != NULL);
-
-	for (i = 0; i < require_connection_size; i++)
-	{
-		action = gtk_ui_manager_get_action(gtkblist->ui, require_connection[i]);
-		gtk_action_set_sensitive(action, sensitive);
-	}
-
-	action = gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/JoinAChat");
-	gtk_action_set_sensitive(action, pidgin_blist_joinchat_is_showable());
-
-	action = gtk_ui_manager_get_action(gtkblist->ui, "/BList/BuddiesMenu/AddChat");
-	gtk_action_set_sensitive(action, pidgin_blist_joinchat_is_showable());
-
-	action = gtk_ui_manager_get_action(gtkblist->ui, "/BList/ToolsMenu/RoomList");
-	gtk_action_set_sensitive(action, pidgin_roomlist_is_showable());
-}
-
-static void
-sign_on_off_cb(PurpleConnection *gc, PurpleBuddyList *blist)
-{
-	PidginBuddyList *gtkblist = PIDGIN_BUDDY_LIST(blist);
-
-	update_menu_bar(gtkblist);
-}
-
 static void
 unseen_conv_menu(GdkEvent *event)
 {
@@ -4719,7 +4672,6 @@ static void account_modified(PurpleAccount *account, PidginBuddyList *gtkblist)
 		return;
 
 	pidgin_blist_select_notebook_page(gtkblist);
-	update_menu_bar(gtkblist);
 }
 
 static void
@@ -5746,7 +5698,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtk_widget_show(gtkblist->statusbox);
 
 	/* Update some dynamic things */
-	update_menu_bar(gtkblist);
 	pidgin_blist_update_sort_methods();
 
 	/* OK... let's show this bad boy. */
@@ -5796,12 +5747,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	handle = pidgin_accounts_get_handle();
 	purple_signal_connect(handle, "account-modified", gtkblist,
 	                      PURPLE_CALLBACK(account_modified), gtkblist);
-
-	handle = purple_connections_get_handle();
-	purple_signal_connect(handle, "signed-on", gtkblist,
-	                      PURPLE_CALLBACK(sign_on_off_cb), list);
-	purple_signal_connect(handle, "signed-off", gtkblist,
-	                      PURPLE_CALLBACK(sign_on_off_cb), list);
 
 	handle = purple_conversations_get_handle();
 	purple_signal_connect(handle, "conversation-updated", gtkblist,
