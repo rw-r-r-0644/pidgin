@@ -152,6 +152,13 @@
 #define PIDGIN_ACTION_ROOM_LIST ("room-list")
 
 /**
+ * PIDGIN_ACTION_SET_MOOD:
+ *
+ * A constant that represents the set-mood action.
+ */
+#define PIDGIN_ACTION_SET_MOOD ("set-mood")
+
+/**
  * PIDGIN_ACTION_SHOW_BUDDY_ICONS:
  *
  * A constant that represents the show-buddy-icons action.

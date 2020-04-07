@@ -26,8 +26,9 @@
 
 #include "internal.h"
 
-#include "pidgin/pidgin.h"
 #include "pidgin/gtkaccount.h"
+#include "pidgin/pidgin.h"
+#include "pidgin/pidginmooddialog.h"
 
 struct _PidginAccountActionsMenu {
 	GtkMenu parent;
@@ -64,7 +65,9 @@ pidgin_account_actions_menu_disable_cb(GtkMenuItem *item, gpointer data) {
 
 static void
 pidgin_account_actions_menu_set_mood_cb(GtkMenuItem *item, gpointer data) {
-	g_warning("open the mood dialog");
+	PidginAccountActionsMenu *menu = PIDGIN_ACCOUNT_ACTIONS_MENU(data);
+
+	pidgin_mood_dialog_show(menu->account);
 }
 
 static void
