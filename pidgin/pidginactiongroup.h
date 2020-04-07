@@ -103,14 +103,6 @@
 #define PIDGIN_ACTION_JOIN_CHAT ("join-chat")
 
 /**
- * PIDGIN_ACTION_MANAGE_ACCOUNTS:
- *
- * A constatnt that represents the manage-accounts action to displays the
- * manage accounts window.
- */
-#define PIDGIN_ACTION_MANAGE_ACCOUNTS ("manage-accounts")
-
-/**
  * PIDGIN_ACTION_MUTE_SOUNDS:
  *
  * A constatnt that represents the mute-sounds action.

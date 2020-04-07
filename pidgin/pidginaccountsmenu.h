@@ -19,39 +19,39 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-#ifndef PIDGIN_PLUGINS_MENU_H
-#define PIDGIN_PLUGINS_MENU_H
+#ifndef PIDGIN_ACCOUNTS_MENU_H
+#define PIDGIN_ACCOUNTS_MENU_H
 
 /**
- * SECTION:pidginpluginsmenu
- * @section_id: pidgin-plugins-menu
- * @short_description: A menu for managing plugins and their actions
- * @title: Plugins Menu
+ * SECTION:pidginaccountsmenu
+ * @section_id: pidgin-accounts-menu
+ * @short_description: A menu for managing accounts and their actions
+ * @title: Accounts Menu
  *
- * #PidginPluginsMenu is a #GtkMenu that provides an interface to users to open
- * the plugin manager as well as activate plugin actions.
+ * #PidginAccountMenu is a #GtkMenu that provides an interface to users to open
+ * the account manager as well as activate account actions.
  *
- * It manages itself as plugins are loaded and unloaded and can be added as a
- * submenu to any #GtkMenuItem.
+ * It manages itself as accounts are created/deleted and enabled/disabled and
+ * can be added as a submenu to any #GtkMenuItem.
  */
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-#define PIDGIN_TYPE_PLUGINS_MENU (pidgin_plugins_menu_get_type())
-G_DECLARE_FINAL_TYPE(PidginPluginsMenu, pidgin_plugins_menu, PIDGIN,
-                     PLUGINS_MENU, GtkMenu)
+#define PIDGIN_TYPE_ACCOUNTS_MENU (pidgin_accounts_menu_get_type())
+G_DECLARE_FINAL_TYPE(PidginAccountsMenu, pidgin_accounts_menu, PIDGIN,
+                     ACCOUNTS_MENU, GtkMenu)
 
 /**
- * pidgin_plugins_menu_new:
+ * pidgin_accounts_menu_new:
  *
- * Creates a new #PidginPluginsMenu instance that keeps itself up to date.
+ * Creates a new #PidginAccountsMenu instance that keeps itself up to date.
  *
- * Returns: (transfer full): The new #PidginPluginsMenu instance.
+ * Returns: (transfer full): The new #PidginAccountsMenu instance.
  */
-GtkWidget *pidgin_plugins_menu_new(void);
+GtkWidget *pidgin_accounts_menu_new(void);
 
 G_END_DECLS
 
-#endif /* PIDGIN_PLUGINS_MENU_H */
+#endif /* PIDGIN_ACCOUNTS_MENU_H */

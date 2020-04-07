@@ -26,7 +26,6 @@
 
 #include "internal.h"
 
-#include "pidgin/gtkaccount.h"
 #include "pidgin/gtkblist.h"
 #include "pidgin/gtkdialogs.h"
 #include "pidgin/gtkpounce.h"
@@ -408,13 +407,6 @@ pidgin_action_group_join_chat(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
-pidgin_action_group_manage_accounts(GSimpleAction *simple, GVariant *parameter,
-                                    gpointer data)
-{
-	pidgin_accounts_window_show();
-}
-
-static void
 pidgin_action_group_mute_sounds(GSimpleAction *action, GVariant *value,
                                 gpointer data)
 {
@@ -569,9 +561,6 @@ pidgin_action_group_init(PidginActionGroup *group) {
 		}, {
 			.name = PIDGIN_ACTION_JOIN_CHAT,
 			.activate = pidgin_action_group_join_chat,
-		}, {
-			.name = PIDGIN_ACTION_MANAGE_ACCOUNTS,
-			.activate = pidgin_action_group_manage_accounts,
 		}, {
 			.name = PIDGIN_ACTION_MUTE_SOUNDS,
 			.state = "false",
