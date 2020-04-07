@@ -357,6 +357,11 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
   </object>
+  <object class="PidginMenuTray" id="menu_tray">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="right_justified">True</property>
+  </object>
   <object class="PidginPluginsMenu" id="plugins_menu">
     <property name="visible">True</property>
     <property name="can_focus">False</property>

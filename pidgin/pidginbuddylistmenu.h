@@ -61,6 +61,14 @@ GtkWidget *pidgin_buddy_list_menu_new(void);
  */
 GtkWidget *pidgin_buddy_list_menu_get_sort_item(PidginBuddyListMenu *menu);
 
+/**
+ * pidgin_buddy_list_menu_get_menu_tray:
+ * @menu: The #PidginBuddyList instance.
+ *
+ * Gets the #PidginMenuTray instance from @menu.
+ */
+GtkWidget *pidgin_buddy_list_menu_get_menu_tray(PidginBuddyListMenu *menu);
+
 G_END_DECLS
 
 #endif /* PIDGIN_BUDDY_LIST_MENU_H */

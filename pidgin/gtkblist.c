@@ -5520,15 +5520,14 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	}
 
 	menu = gtk_ui_manager_get_widget(gtkblist->ui, "/BList");
-	gtkblist->menutray = pidgin_menu_tray_new();
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), gtkblist->menutray);
-	gtk_widget_show(gtkblist->menutray);
 	gtk_widget_show(menu);
 	gtk_box_pack_start(GTK_BOX(gtkblist->main_vbox), menu, FALSE, FALSE, 0);
 
 	gtkblist->menu = pidgin_buddy_list_menu_new();
 	gtk_box_pack_start(GTK_BOX(gtkblist->main_vbox), gtkblist->menu, FALSE,
 	                   FALSE, 0);
+
+	gtkblist->menutray = pidgin_buddy_list_menu_get_menu_tray(gtkblist->menu);
 
 	/****************************** Notebook *************************************/
 	gtkblist->notebook = gtk_notebook_new();
