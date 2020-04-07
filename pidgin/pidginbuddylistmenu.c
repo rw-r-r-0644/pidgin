@@ -57,23 +57,23 @@ static void
 pidgin_buddy_list_menu_class_init(PidginBuddyListMenuClass *klass) {
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-    gtk_widget_class_set_template_from_resource(
-        widget_class,
-        "/im/pidgin/Pidgin/BuddyList/menu.ui"
-    );
+	gtk_widget_class_set_template_from_resource(
+	    widget_class,
+	    "/im/pidgin/Pidgin/BuddyList/menu.ui"
+	);
 
-   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
-   	                                     sort_buddies);
-   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
-   	                                     accounts);
-   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
-   	                                     accounts_menu);
-   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
-   	                                     plugins);
-   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
-   	                                     plugins_menu);
-   	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
-   	                                     menu_tray);
+	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+	                                     sort_buddies);
+	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+	                                     accounts);
+	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+	                                     accounts_menu);
+	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+	                                     plugins);
+	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+	                                     plugins_menu);
+	gtk_widget_class_bind_template_child(widget_class, PidginBuddyListMenu,
+	                                     menu_tray);
 }
 
 /******************************************************************************
