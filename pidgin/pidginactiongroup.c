@@ -36,6 +36,7 @@
 #include "pidgin/gtkxfer.h"
 #include "pidgin/pidginabout.h"
 #include "pidgin/pidginlog.h"
+#include "pidgin/pidginmooddialog.h"
 
 struct _PidginActionGroup {
 	GSimpleActionGroup parent;
@@ -56,6 +57,7 @@ static const gchar *pidgin_action_group_online_actions[] = {
 	PIDGIN_ACTION_GET_USER_INFO,
 	PIDGIN_ACTION_NEW_MESSAGE,
 	PIDGIN_ACTION_PRIVACY,
+	PIDGIN_ACTION_SET_MOOD,
 };
 
 static const gchar *pidgin_action_group_chat_actions[] = {
@@ -604,6 +606,13 @@ pidgin_action_group_room_list(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
+pidgin_action_group_set_mood(GSimpleAction *simple, GVariant *parameter,
+                             gpointer data)
+{
+	pidgin_mood_dialog_show(NULL);
+}
+
+static void
 pidgin_action_group_show_buddy_icons(GSimpleAction *action, GVariant *value,
                                      gpointer data)
 {
@@ -730,6 +739,9 @@ pidgin_action_group_init(PidginActionGroup *group) {
 		}, {
 			.name = PIDGIN_ACTION_ROOM_LIST,
 			.activate = pidgin_action_group_room_list,
+		}, {
+			.name = PIDGIN_ACTION_SET_MOOD,
+			.activate = pidgin_action_group_set_mood,
 		}, {
 			.name = PIDGIN_ACTION_SHOW_BUDDY_ICONS,
 			.state = "false",

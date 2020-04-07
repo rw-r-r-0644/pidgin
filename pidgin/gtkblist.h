@@ -119,7 +119,6 @@ struct _PidginBuddyList {
 
 	GtkCellRenderer *text_rend;
 
-	GtkUIManager *ui;
 	GtkWidget *menu;
 	GtkWidget *menutray;
 	GtkWidget *menutrayicon;
