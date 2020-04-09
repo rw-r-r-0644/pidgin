@@ -702,7 +702,7 @@ status_set_attr_string(PurpleStatus *status, const char *id,
 void
 purple_status_set_active(PurpleStatus *status, gboolean active)
 {
-	purple_status_set_active_with_attrs_list(status, active, NULL);
+	purple_status_set_active_with_attrs_dict(status, active, NULL);
 }
 
 /*
@@ -714,31 +714,27 @@ purple_status_set_active(PurpleStatus *status, gboolean active)
 void
 purple_status_set_active_with_attrs(PurpleStatus *status, gboolean active, va_list args)
 {
-	GList *attrs = NULL;
-	const gchar *id;
-	gpointer data;
+	GHashTable *attrs = purple_attrs_from_vargs(args);
 
-	while ((id = va_arg(args, const char *)) != NULL)
-	{
-		attrs = g_list_append(attrs, (char *)id);
-		data = va_arg(args, void *);
-		attrs = g_list_append(attrs, data);
-	}
-	purple_status_set_active_with_attrs_list(status, active, attrs);
-	g_list_free(attrs);
+	purple_status_set_active_with_attrs_dict(status, active, attrs);
+	g_hash_table_destroy(attrs);
 }
 
 void
-purple_status_set_active_with_attrs_list(PurpleStatus *status, gboolean active,
-									   GList *attrs)
+purple_status_set_active_with_attrs_dict(PurpleStatus *status, gboolean active,
+									   GHashTable *attrs)
 {
 	PurpleStatusPrivate *priv = NULL;
 	gboolean changed = FALSE;
+	GHashTableIter iter;
+	gchar *id;
+	gpointer data;
 	GList *l;
 	GList *specified_attr_ids = NULL;
 	PurpleStatusType *status_type;
 
 	g_return_if_fail(PURPLE_IS_STATUS(status));
+	g_return_if_fail(attrs != NULL);
 
 	priv = purple_status_get_instance_private(status);
 
@@ -758,21 +754,16 @@ purple_status_set_active_with_attrs_list(PurpleStatus *status, gboolean active,
 	priv->active = active;
 
 	/* Set any attributes */
-	l = attrs;
-	while (l != NULL)
-	{
-		const gchar *id;
+	g_hash_table_iter_init(&iter, attrs);
+	while (g_hash_table_iter_next(&iter, (gpointer *)&id, (gpointer *)&data)) {
 		GValue *value;
 
-		id = l->data;
-		l = l->next;
 		value = purple_status_get_attr_value(status, id);
 		if (value == NULL)
 		{
 			purple_debug_warning("status", "The attribute \"%s\" on the status \"%s\" is "
 							   "not supported.\n", id, priv->status_type->name);
 			/* Skip over the data and move on to the next attribute */
-			l = l->next;
 			continue;
 		}
 
@@ -780,8 +771,7 @@ purple_status_set_active_with_attrs_list(PurpleStatus *status, gboolean active,
 
 		if (G_VALUE_TYPE(value) == G_TYPE_STRING)
 		{
-			const gchar *string_data = l->data;
-			l = l->next;
+			const gchar *string_data = data;
 			if (purple_strequal(string_data, g_value_get_string(value)))
 				continue;
 			status_set_attr_string(status, id, string_data);
@@ -789,8 +779,7 @@ purple_status_set_active_with_attrs_list(PurpleStatus *status, gboolean active,
 		}
 		else if (G_VALUE_TYPE(value) == G_TYPE_INT)
 		{
-			int int_data = GPOINTER_TO_INT(l->data);
-			l = l->next;
+			int int_data = GPOINTER_TO_INT(data);
 			if (int_data == g_value_get_int(value))
 				continue;
 			status_set_attr_int(status, id, int_data);
@@ -798,17 +787,11 @@ purple_status_set_active_with_attrs_list(PurpleStatus *status, gboolean active,
 		}
 		else if (G_VALUE_TYPE(value) == G_TYPE_BOOLEAN)
 		{
-			gboolean boolean_data = GPOINTER_TO_INT(l->data);
-			l = l->next;
+			gboolean boolean_data = GPOINTER_TO_INT(data);
 			if (boolean_data == g_value_get_boolean(value))
 				continue;
 			status_set_attr_boolean(status, id, boolean_data);
 			changed = TRUE;
-		}
-		else
-		{
-			/* We don't know what the data is--skip over it */
-			l = l->next;
 		}
 	}
 
@@ -1368,4 +1351,23 @@ void
 purple_statuses_uninit(void)
 {
 	purple_prefs_disconnect_by_handle(purple_prefs_get_handle());
+}
+
+/**************************************************************************/
+/* Helpers                                                                */
+/**************************************************************************/
+GHashTable *
+purple_attrs_from_vargs(va_list args)
+{
+	GHashTable *attrs = g_hash_table_new(g_str_hash, g_str_equal);
+	gchar *id;
+
+	while ((id = va_arg(args, gchar *)) != NULL)
+	{
+		gpointer data = va_arg(args, gpointer);
+
+		g_hash_table_insert(attrs, id, data);
+	}
+
+	return attrs;
 }

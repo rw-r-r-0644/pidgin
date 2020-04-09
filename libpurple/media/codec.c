@@ -267,9 +267,7 @@ purple_media_codec_add_optional_parameter(PurpleMediaCodec *codec,
 
 	priv = purple_media_codec_get_instance_private(codec);
 
-	new_param = g_new0(PurpleKeyValuePair, 1);
-	new_param->key = g_strdup(name);
-	new_param->value = g_strdup(value);
+	new_param = purple_key_value_pair_new_full(name, g_strdup(value), g_free);
 	priv->optional_params = g_list_append(
 			priv->optional_params, new_param);
 
@@ -286,12 +284,9 @@ purple_media_codec_remove_optional_parameter(PurpleMediaCodec *codec,
 
 	priv = purple_media_codec_get_instance_private(codec);
 
-	g_free(param->key);
-	g_free(param->value);
-
 	priv->optional_params =
 			g_list_remove(priv->optional_params, param);
-	g_free(param);
+	purple_key_value_pair_free(param);
 
 	g_object_notify_by_pspec(G_OBJECT(codec), properties[PROP_OPTIONAL_PARAMS]);
 }
