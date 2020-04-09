@@ -200,10 +200,10 @@ parse_settings(PurpleXmlNode *node, PurpleAccount *account)
 	migrate_xmpp_encryption(account);
 }
 
-static GList *
+static GHashTable *
 parse_status_attrs(PurpleXmlNode *node, PurpleStatus *status)
 {
-	GList *list = NULL;
+	GHashTable *attrs = g_hash_table_new(g_str_hash, g_str_equal);
 	PurpleXmlNode *child;
 	GValue *attr_value;
 
@@ -220,21 +220,18 @@ parse_status_attrs(PurpleXmlNode *node, PurpleStatus *status)
 		if (!attr_value)
 			continue;
 
-		list = g_list_append(list, (char *)id);
-
 		switch (G_VALUE_TYPE(attr_value))
 		{
 			case G_TYPE_STRING:
-				list = g_list_append(list, (char *)value);
+				g_hash_table_insert(attrs, id, (char *)value);
 				break;
 			case G_TYPE_INT:
 			case G_TYPE_BOOLEAN:
 			{
 				int v;
-				if (sscanf(value, "%d", &v) == 1)
-					list = g_list_append(list, GINT_TO_POINTER(v));
-				else
-					list = g_list_remove(list, id);
+				if (sscanf(value, "%d", &v) == 1) {
+					g_hash_table_insert(attrs, id, GINT_TO_POINTER(v));
+				}
 				break;
 			}
 			default:
@@ -242,7 +239,7 @@ parse_status_attrs(PurpleXmlNode *node, PurpleStatus *status)
 		}
 	}
 
-	return list;
+	return attrs;
 }
 
 static void
@@ -252,7 +249,7 @@ parse_status(PurpleXmlNode *node, PurpleAccount *account)
 	const char *data;
 	const char *type;
 	PurpleXmlNode *child;
-	GList *attrs = NULL;
+	GHashTable *attrs = NULL;
 
 	/* Get the active/inactive state */
 	data = purple_xmlnode_get_attrib(node, "active");
@@ -278,9 +275,9 @@ parse_status(PurpleXmlNode *node, PurpleAccount *account)
 						purple_account_get_status(account, type));
 	}
 
-	purple_account_set_status_list(account, type, active, attrs);
+	purple_account_set_status_attrs(account, type, active, attrs);
 
-	g_list_free(attrs);
+	g_hash_table_destroy(attrs);
 }
 
 static void

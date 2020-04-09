@@ -58,7 +58,7 @@ struct _PurpleKeyValuePair
 {
 	gchar *key;
 	void *value;
-
+	GDestroyNotify value_destroy_func;
 };
 
 G_BEGIN_DECLS
@@ -89,10 +89,41 @@ char * purple_util_format_song_info(const char *title, const char *artist,
 		const char *album, gpointer unused);
 
 /**
+ * purple_key_value_pair_new:
+ * @key:  The key part of PurpleKeyValuePair
+ * @value:  The value part of PurpleKeyValuePair
+ *
+ * Creates a new PurpleKeyValuePair allocating memory for @key,
+ * free value function is NULL.
+ *
+ * Returns:  The created PurpleKeyValuePair
+ *
+ * Since: 3.0.0
+ */
+PurpleKeyValuePair *purple_key_value_pair_new(const char *key, gpointer value);
+
+/**
+ * purple_key_value_pair_new_full:
+ * @key:  The key part of PurpleKeyValuePair
+ * @value:  The value part of PurpleKeyValuePair
+ * @value_destroy_func: a function to free the memory for the @value
+ *
+ * Creates a new PurpleKeyValuePair allocating memory for @key,
+ * set free value function to @value_destroy_func.
+ *
+ * Returns:  The created PurpleKeyValuePair
+ *
+ * Since: 3.0.0
+ */
+PurpleKeyValuePair *purple_key_value_pair_new_full(const char *key, gpointer value, GDestroyNotify value_destroy_func);
+
+/**
  * purple_key_value_pair_free:
  * @kvp:  The PurpleKeyValuePair to free.
  *
- * Frees a PurpleKeyValuePair.
+ * Frees @kvp.
+ *
+ * Since: 3.0.0
  */
 void purple_key_value_pair_free(PurpleKeyValuePair *kvp);
 

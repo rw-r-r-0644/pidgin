@@ -495,17 +495,18 @@ void purple_status_set_active_with_attrs(PurpleStatus *status, gboolean active,
  * purple_status_set_active_with_attrs_list:
  * @status: The status.
  * @active: The active state.
- * @attrs: (element-type void): A list of attributes to set on the status.  This list is
- *               composed of key/value pairs, where each key is a valid
- *               attribute name for this PurpleStatusType.  The list is
- *               not modified or freed by this function.
+ * @attrs: (element-type utf8 gpointer): A hash table of attributes to set on the status.
+ *               This hash table's keys are valid attribute names for this PurpleStatusType.
+ *               The hash table is not modified or freed by this function.
  *
  * Sets whether or not a status is active.
  *
  * This should only be called by the account, conversation, and buddy APIs.
+ *
+ * Since: 3.0.0
  */
-void purple_status_set_active_with_attrs_list(PurpleStatus *status, gboolean active,
-											GList *attrs);
+void purple_status_set_active_with_attrs_dict(PurpleStatus *status, gboolean active,
+											GHashTable *attrs);
 
 /**
  * purple_status_get_status_type:
@@ -699,6 +700,25 @@ void purple_statuses_init(void);
  * Uninitializes the status subsystem.
  */
 void purple_statuses_uninit(void);
+
+/**************************************************************************/
+/* Helpers                                                                */
+/**************************************************************************/
+
+/**
+ * purple_attrs_from_vargs:
+ * @args:   A list of attributes to parse.  This list is
+ *               composed of key/value pairs, where each key is a valid
+ *               attribute name for this PurpleStatusType.  The list should
+ *               be NULL terminated.
+ *
+ * Returns a hash table of attributes constructed from args.
+ *
+ * Returns: (element-type utf8 gpointer) (transfer container): The hash table of attributes.
+ *
+ * Since: 3.0.0
+ */
+GHashTable *purple_attrs_from_vargs(va_list args);
 
 G_END_DECLS
 
