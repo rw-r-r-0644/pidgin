@@ -372,6 +372,7 @@ _send_data(PurpleBuddy *pb, char *message)
 			                      (GSourceFunc)_send_data_write_cb,
 			                      pb, NULL);
 			bconv->tx_handler = g_source_attach(source, NULL);
+			g_source_unref(source);
 		}
 		purple_circular_buffer_append(bconv->tx_buf, message + ret, len - ret);
 	}
@@ -604,6 +605,7 @@ bonjour_xmpp_send_stream_init(BonjourXMPPConversation *bconv,
 		g_source_set_callback(source, (GSourceFunc)_start_stream, bconv,
 		                      NULL);
 		bconv->tx_handler = g_source_attach(source, NULL);
+		g_source_unref(source);
 	} else {
 		bconv->sent_stream_start = FULLY_SENT;
 	}
@@ -669,6 +671,7 @@ bonjour_xmpp_stream_started(BonjourXMPPConversation *bconv)
 		g_source_set_callback(source, (GSourceFunc)_send_data_write_cb,
 		                      bconv->pb, NULL);
 		bconv->tx_handler = g_source_attach(source, NULL);
+		g_source_unref(source);
 		/* We can probably write the data right now. */
 		_send_data_write_cb(G_OBJECT(bconv->output), bconv->pb);
 	}
@@ -745,6 +748,7 @@ _server_socket_handler(GSocketService *service, GSocketConnection *connection,
 	g_source_set_callback(source, (GSourceFunc)_client_socket_handler,
 	                      bconv, NULL);
 	bconv->rx_handler = g_source_attach(source, NULL);
+	g_source_unref(source);
 	g_free(address_text);
 }
 
@@ -901,6 +905,7 @@ _connected_to_buddy(GObject *source, GAsyncResult *res, gpointer user_data)
 	g_source_set_callback(rx_source, (GSourceFunc)_client_socket_handler,
 	                      bb->conversation, NULL);
 	bb->conversation->rx_handler = g_source_attach(rx_source, NULL);
+	g_source_unref(rx_source);
 }
 
 void

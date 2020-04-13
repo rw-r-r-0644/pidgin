@@ -739,6 +739,7 @@ jabber_stream_connect_finish(JabberStream *js, GIOStream *stream)
 	        G_POLLABLE_INPUT_STREAM(js->input), js->cancellable);
 	g_source_set_callback(source, (GSourceFunc)jabber_recv_cb, js->gc, NULL);
 	js->inpa = g_source_attach(source, NULL);
+	g_source_unref(source);
 }
 
 static void
