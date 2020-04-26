@@ -104,8 +104,8 @@ pidgin_action_group_bool_pref_handler(PidginActionGroup *group,
  * @group: The #PidginActionGroup instance.
  * @action_name: The name of the action to setup.
  * @pref_name: The name of the preference that @action_name is tied to.
- * @callback: (scope call): A #PurplePrefCallback to call when the preference
- *            is changed.
+ * @callback: (scope notified): A #PurplePrefCallback to call when the
+ *            preference is changed.
  *
  * Initializes the boolean action named @action_name to the value of @pref_name
  * and setups up a preference change callback to @callback to maintain the
@@ -168,8 +168,8 @@ pidgin_action_group_string_pref_handler(PidginActionGroup *group,
  * @group: The #PidginActionGroup instance.
  * @action_name: The name of the action to setup.
  * @pref_name: The name of the preference that @action_name is tied to.
- * @callback: (scope call): A #PurplePrefCallback to call when the preference
- *            is changed.
+ * @callback: (scope notified): A #PurplePrefCallback to call when the
+ *            preference is changed.
  *
  * Initializes the string action named @action_name to the value of @pref_name
  * and setups up a preference change callback to @callback to maintain the
@@ -206,7 +206,7 @@ pidgin_action_group_setup_string(PidginActionGroup *group,
  * @n_actions: The number of @actions.
  * @enabled: Whether or not to enable the actions.
  *
- * Sets the enabled property of the the named actions to @enabled.
+ * Sets the enabled property of the named actions to @enabled.
  */
 static void
 pidgin_action_group_actions_set_enable(PidginActionGroup *group,
@@ -574,7 +574,7 @@ static void
 pidgin_action_group_online_help(GSimpleAction *simple, GVariant *parameter,
                                 gpointer data)
 {
-	purple_notify_uri(NULL, PURPLE_WEBSITE "documentation");
+	purple_notify_uri(NULL, PURPLE_WEBSITE "help");
 }
 
 static void

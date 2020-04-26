@@ -92,13 +92,11 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 	gboolean show_separator = FALSE;
 	gint position = 0;
 
-	g_clear_object(&menu->account);
-
-	if(!PURPLE_IS_ACCOUNT(account)) {
-		return;
+	if(g_set_object(&menu->account, account)) {
+		if(!PURPLE_IS_ACCOUNT(menu->account)) {
+			return;
+		}
 	}
-
-	menu->account = PURPLE_ACCOUNT(g_object_ref(G_OBJECT(account)));
 
 	connection = purple_account_get_connection(account);
 	if(connection == NULL) {

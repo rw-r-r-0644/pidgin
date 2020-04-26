@@ -54,15 +54,17 @@ update_status_with_mood(PurpleAccount *account, const gchar *mood,
 
 /*< private
  * pidgin_mood_edit_cb:
- * @gc: The #PurpleConnection instance.
+ * @connection: The #PurpleConnection instance.
  * @fields: The #PurpleRequestFields
  *
  * This a callback function for when the request dialog has been accepted.
  */
 static void
-pidgin_mood_dialog_edit_cb(PurpleConnection *gc, PurpleRequestFields *fields) {
-	PurpleRequestField *mood_field;
-	GList *l;
+pidgin_mood_dialog_edit_cb(PurpleConnection *connection,
+                           PurpleRequestFields *fields)
+{
+	PurpleRequestField *mood_field = NULL;
+	GList *l = NULL;
 	const gchar *mood = NULL;
 
 	mood_field = purple_request_fields_get_field(fields, "mood");
@@ -74,12 +76,15 @@ pidgin_mood_dialog_edit_cb(PurpleConnection *gc, PurpleRequestFields *fields) {
 
 	mood = purple_request_field_list_get_data(mood_field, l->data);
 
-	if (gc) {
-		const gchar *text;
-		PurpleAccount *account = purple_connection_get_account(gc);
+	if(connection != NULL) {
+		PurpleAccount *account = purple_connection_get_account(connection);
+		PurpleConnectionFlags flags;
+		const gchar *text = NULL;
 
-		if (purple_connection_get_flags(gc) & PURPLE_CONNECTION_FLAG_SUPPORT_MOOD_MESSAGES) {
-			PurpleRequestField *text_field;
+		flags = purple_connection_get_flags(connection);
+		if (flags & PURPLE_CONNECTION_FLAG_SUPPORT_MOOD_MESSAGES) {
+			PurpleRequestField *text_field = NULL;
+
 			text_field = purple_request_fields_get_field(fields, "text");
 			text = purple_request_field_string_get_value(text_field);
 		} else {
@@ -92,10 +97,15 @@ pidgin_mood_dialog_edit_cb(PurpleConnection *gc, PurpleRequestFields *fields) {
 
 		for (; accounts ; accounts = g_list_delete_link(accounts, accounts)) {
 			PurpleAccount *account = (PurpleAccount *) accounts->data;
-			PurpleConnection *gc = purple_account_get_connection(account);
 
-			if (gc && (purple_connection_get_flags(gc) & PURPLE_CONNECTION_FLAG_SUPPORT_MOODS)) {
-				update_status_with_mood(account, mood, NULL);
+			connection = purple_account_get_connection(account);
+			if(PURPLE_IS_CONNECTION(connection)) {
+				PurpleConnectionFlags flags;
+
+				flags = purple_connection_get_flags(connection);
+				if(flags & PURPLE_CONNECTION_FLAG_SUPPORT_MOODS) {
+					update_status_with_mood(account, mood, NULL);
+				}
 			}
 		}
 	}
@@ -110,11 +120,11 @@ pidgin_mood_dialog_edit_cb(PurpleConnection *gc, PurpleRequestFields *fields) {
  * should probably also be returning a GList of moods as that's easier to deal
  * with.
  *
- * Also, there is non-deterministic behavior here that the return mood depends
- * purely on the order that the accounts where connected in.  This is probably
- * okay, but we should look at fixing that somehow.
+ * Also, there is non-deterministic behavior here that the order of the
+ * returned moods depends purely on the order that the accounts where connected
+ * in.  This is probably okay, but we should look at fixing that somehow.
  *
- * Returns: (transfer container): A list of all global moods.
+ * Returns: (transfer full): A list of all global moods.
  */
 static PurpleMood *
 pidgin_mood_get_global_moods(void) {
@@ -144,7 +154,7 @@ pidgin_mood_get_global_moods(void) {
 					int mood_count =
 							GPOINTER_TO_INT(g_hash_table_lookup(mood_counts, mood->mood));
 
-					if (!g_hash_table_lookup(global_moods, mood->mood)) {
+					if (!g_hash_table_contains(global_moods, mood->mood)) {
 						g_hash_table_insert(global_moods, (gpointer)mood->mood, mood);
 					}
 					g_hash_table_insert(mood_counts, (gpointer)mood->mood,

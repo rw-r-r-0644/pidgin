@@ -28,8 +28,8 @@
  * @short_description: A menu for managing account actions
  * @title: Accounts Actions Menu
  *
- * #PidginAccountActionsMenu is a #GtkMenu that provides an interface to users
- * edit accounts and activate its actions.
+ * #PidginAccountActionsMenu is a #GtkMenu that provides an interface for users
+ * to edit accounts and activate the account's actions.
  */
 
 #include <gtk/gtk.h>
