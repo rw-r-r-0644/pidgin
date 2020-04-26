@@ -610,7 +610,12 @@ jabber_recv_cb(GObject *stream, gpointer data)
 		len = g_pollable_input_stream_read_nonblocking(
 		        G_POLLABLE_INPUT_STREAM(stream), buf, sizeof(buf) - 1,
 		        js->cancellable, &error);
-		if (len < 0) {
+		if (len == 0) {
+			purple_connection_error(js->gc,
+			                        PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+			                        _("Server closed the connection"));
+			return G_SOURCE_REMOVE;
+		} else if (len < 0) {
 			if (error->code == G_IO_ERROR_WOULD_BLOCK) {
 				g_error_free(error);
 				return G_SOURCE_CONTINUE;
@@ -623,6 +628,7 @@ jabber_recv_cb(GObject *stream, gpointer data)
 			}
 			return G_SOURCE_REMOVE;
 		}
+
 		purple_connection_update_last_received(gc);
 #ifdef HAVE_CYRUS_SASL
 		if (js->sasl_maxbuf > 0) {
