@@ -28,7 +28,7 @@
  * @short_description: A menu for managing accounts and their actions
  * @title: Accounts Menu
  *
- * #PidginAccountMenu is a #GtkMenu that provides an interface to users to open
+ * #PidginAccountsMenu is a #GtkMenu that provides an interface to users to open
  * the account manager as well as activate account actions.
  *
  * It manages itself as accounts are created/deleted and enabled/disabled and

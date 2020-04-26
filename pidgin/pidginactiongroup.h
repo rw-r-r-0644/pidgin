@@ -38,7 +38,7 @@
 #include <gio/gio.h>
 
 /**
- * PIDGIN_ACTION_ADD_ABOUT:
+ * PIDGIN_ACTION_ABOUT:
  *
  * A constant that represents the about action that shows the about window.
  */
@@ -78,7 +78,7 @@
 /**
  * PIDGIN_ACTION_CUSTOM_SMILEY:
  *
- * A constant that represents the smiley-action action to toggle the visibility
+ * A constant that represents the custom-smiley action to toggle the visibility
  * of the smiley manager.
  */
 #define PIDGIN_ACTION_CUSTOM_SMILEY ("custom-smiley")
@@ -116,7 +116,7 @@
 /**
  * PIDGIN_ACTION_MUTE_SOUNDS:
  *
- * A constatnt that represents the mute-sounds action.
+ * A constant that represents the mute-sounds action.
  */
 #define PIDGIN_ACTION_MUTE_SOUNDS ("mute-sounds")
 

@@ -29,7 +29,7 @@ void                user_function                      (gpointer user_data)
 </programlisting>
   <para>
 Emitted when the first connection has connected when all connections were
-previsously not connected.
+previously not connected.
   </para>
   <variablelist role="params">
   <varlistentry>

@@ -79,13 +79,9 @@ pidgin_accounts_menu_add_enabled_account(PidginAccountsMenu *menu,
                                          PurpleAccount *account)
 {
 	GtkWidget *item = NULL, *submenu = NULL;
-	gpointer data = NULL;
 
 	/* if the account is in the disabled list, delete its widget */
-	data = g_hash_table_lookup(menu->disabled_items, account);
-	if(data != NULL) {
-		gtk_widget_destroy(GTK_WIDGET(data));
-	}
+	g_hash_table_remove(menu->disabled_items, account);
 
 	item = pidgin_accounts_menu_create_account_menu_item(menu, account);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
@@ -105,13 +101,9 @@ pidgin_accounts_menu_add_disabled_account(PidginAccountsMenu *menu,
                                           PurpleAccount *account)
 {
 	GtkWidget *item = NULL;
-	gpointer data = NULL;
 
 	/* if the account is in the enabled list, delete its widget */
-	data = g_hash_table_lookup(menu->account_items, account);
-	if(data != NULL) {
-		gtk_widget_destroy(GTK_WIDGET(data));
-	}
+	g_hash_table_remove(menu->account_items, account);
 
 	item = pidgin_accounts_menu_create_account_menu_item(menu, account);
 	g_signal_connect(G_OBJECT(item), "activate",
@@ -212,7 +204,12 @@ pidgin_accounts_menu_init(PidginAccountsMenu *menu) {
 
 static void
 pidgin_accounts_menu_finalize(GObject *obj) {
+	PidginAccountsMenu *menu = PIDGIN_ACCOUNTS_MENU(obj);
+
 	purple_signals_disconnect_by_handle(obj);
+
+	g_hash_table_destroy(menu->account_items);
+	g_hash_table_destroy(menu->disabled_items);
 
 	G_OBJECT_CLASS(pidgin_accounts_menu_parent_class)->finalize(obj);
 }

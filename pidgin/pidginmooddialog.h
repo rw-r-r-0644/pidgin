@@ -42,7 +42,7 @@ G_BEGIN_DECLS
 
 /**
  * pidgin_mood_dialog_show:
- * @account: (nullable): The #PurpleAccount who's mood to set, or %NULL for the
+ * @account: (nullable): The #PurpleAccount whose mood to set, or %NULL for the
  *           global mood.
  *
  * Presents a dialog to select the mood for @account or the global mood if
@@ -53,7 +53,7 @@ void pidgin_mood_dialog_show(PurpleAccount *account);
 /**
  * pidgin_mood_get_icon_path:
  * @mood: The id of the mood.
- *``
+ *
  * Gets the path to the icon for @mood.
  *
  * Returns: (transfer full): The location of the icon for @mood.

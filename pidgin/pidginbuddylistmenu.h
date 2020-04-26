@@ -66,6 +66,8 @@ GtkWidget *pidgin_buddy_list_menu_get_sort_item(PidginBuddyListMenu *menu);
  * @menu: The #PidginBuddyList instance.
  *
  * Gets the #PidginMenuTray instance from @menu.
+ *
+ * Returns: (transfer none): The #PidginMenuTray from @menu.
  */
 GtkWidget *pidgin_buddy_list_menu_get_menu_tray(PidginBuddyListMenu *menu);
 
