@@ -42,7 +42,6 @@
 #include "smiley-theme.h"
 #include "sound.h"
 #include "sound-theme-loader.h"
-#include "sslconn.h"
 #include "status.h"
 #include "stun.h"
 #include "theme-manager.h"

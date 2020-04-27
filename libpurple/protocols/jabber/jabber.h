@@ -69,7 +69,6 @@ typedef struct _JabberStream JabberStream;
 #include "protocol.h"
 #include "queuedoutputstream.h"
 #include "roomlist.h"
-#include "sslconn.h"
 
 #include "namespaces.h"
 

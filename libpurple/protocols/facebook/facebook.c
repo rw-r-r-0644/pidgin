@@ -45,7 +45,6 @@
 #include "roomlist.h"
 #include "server.h"
 #include "signals.h"
-#include "sslconn.h"
 #include "status.h"
 #include "util.h"
 #include "version.h"
