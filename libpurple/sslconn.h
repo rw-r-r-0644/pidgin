@@ -28,21 +28,6 @@
  * @title: SSL API
  */
 
-/**
- * PurpleSslErrorType:
- * @PURPLE_SSL_HANDSHAKE_FAILED: The handshake failed
- * @PURPLE_SSL_CONNECT_FAILED: The connection failed
- * @PURPLE_SSL_CERTIFICATE_INVALID: The certificated is invalid
- *
- * Possible SSL errors.
- */
-typedef enum
-{
-	PURPLE_SSL_HANDSHAKE_FAILED = 1,
-	PURPLE_SSL_CONNECT_FAILED = 2,
-	PURPLE_SSL_CERTIFICATE_INVALID = 3
-} PurpleSslErrorType;
-
 #include <gio/gio.h>
 #include "proxy.h"
 
@@ -99,16 +84,6 @@ G_BEGIN_DECLS
 /**************************************************************************/
 /* SSL API                                                                */
 /**************************************************************************/
-
-/**
- * purple_ssl_strerror:
- * @error:      Error code
- *
- * Returns a human-readable string for an SSL error.
- *
- * Returns: Human-readable error explanation
- */
-const gchar * purple_ssl_strerror(PurpleSslErrorType error);
 
 /**
  * purple_ssl_connect: (skip)

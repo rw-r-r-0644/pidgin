@@ -195,6 +195,21 @@ struct _PurpleConnectionErrorInfo
 	char *description;
 };
 
+/**
+ * PurpleSslErrorType:
+ * @PURPLE_SSL_HANDSHAKE_FAILED: The handshake failed
+ * @PURPLE_SSL_CONNECT_FAILED: The connection failed
+ * @PURPLE_SSL_CERTIFICATE_INVALID: The certificated is invalid
+ *
+ * Possible SSL errors.
+ */
+typedef enum
+{
+	PURPLE_SSL_HANDSHAKE_FAILED = 1,
+	PURPLE_SSL_CONNECT_FAILED = 2,
+	PURPLE_SSL_CERTIFICATE_INVALID = 3
+} PurpleSslErrorType;
+
 #include <time.h>
 
 #include "account.h"
