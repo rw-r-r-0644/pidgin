@@ -27,7 +27,6 @@
 #include "core.h"
 #include "conversation.h"
 #include "request.h"
-#include "sslconn.h"
 #include "util.h"
 #include "xmlnode.h"
 

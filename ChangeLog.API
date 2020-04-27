@@ -327,6 +327,7 @@ version 3.0.0 (??/??/????):
 		* _PurplePrefType
 		* _PurplePrivacyType
 		* _PurpleSoundEventID
+		* _PurpleSslConnection
 		* _XMLNodeType
 		* account-authorization-requested-with-message signal
 		* file-recv-accept, file-recv-cancel, file-recv-complete,
@@ -451,8 +452,23 @@ version 3.0.0 (??/??/????):
 		* purple_srv_cancel
 		* purple_srv_resolve_account
 		* purple_srv_txt_query_destroy
+		* PURPLE_SSL_DEFAULT_PORT
+		* PurpleSslConnection
+		* PurpleSslErrorFunction
+		* PurpleSslInputFunction
+		* purple_ssl_close
+		* purple_ssl_connect
 		* purple_ssl_connect_fd
+		* purple_ssl_connect_with_host_fd
+		* purple_ssl_connect_with_ssl_cn
+		* purple_ssl_get_peer_certificates
+		* purple_ssl_init
+		* purple_ssl_input_add
+		* purple_ssl_input_remove
+		* purple_ssl_read
 		* purple_ssl_strerror
+		* purple_ssl_uninit
+		* purple_ssl_write
 		* purple_status_set_attr_boolean
 		* purple_status_set_attr_int
 		* purple_status_set_attr_string

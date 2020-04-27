@@ -215,7 +215,6 @@ typedef enum
 #include "account.h"
 #include "protocol.h"
 #include "status.h"
-#include "sslconn.h"
 
 /**
  * PurpleConnectionUiOps:
