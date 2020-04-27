@@ -129,3 +129,29 @@ purple_gio_socket_client_new(PurpleAccount *account, GError **error)
 	return client;
 }
 
+guint16
+purple_socket_listener_add_any_inet_port(GSocketListener *listener,
+                                         GObject *source_object, GError **error)
+{
+	GError *internal_error = NULL;
+	guint16 port, start, end;
+
+	if (!purple_prefs_get_bool("/purple/network/ports_range_use")) {
+		return g_socket_listener_add_any_inet_port(listener, source_object,
+		                                           error);
+	}
+
+	start = purple_prefs_get_int("/purple/network/ports_range_start");
+	end = purple_prefs_get_int("/purple/network/ports_range_end");
+	for (port = start; port <= end; port++) {
+		if (g_socket_listener_add_inet_port(listener, port, source_object,
+		                                    &internal_error)) {
+			return port;
+		} else if (port != end) {
+			g_error_free(internal_error);
+		}
+	}
+
+	g_propagate_error(error, internal_error);
+	return 0;
+}
