@@ -452,6 +452,7 @@ version 3.0.0 (??/??/????):
 		* purple_srv_resolve_account
 		* purple_srv_txt_query_destroy
 		* purple_ssl_connect_fd
+		* purple_ssl_strerror
 		* purple_status_set_attr_boolean
 		* purple_status_set_attr_int
 		* purple_status_set_attr_string
