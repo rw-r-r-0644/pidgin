@@ -71,6 +71,23 @@ purple_gio_graceful_close(GIOStream *stream,
 GSocketClient *
 purple_gio_socket_client_new(PurpleAccount *account, GError **error);
 
+/**
+ * purple_socket_listener_add_any_inet_port:
+ * @listener: A #GSocketListener.
+ * @source_object: (nullable): Optional GObject identifying this source.
+ * @error: A #GError location to store the error occurring, or %NULL to ignore.
+ *
+ * Listens for TCP connections on any available port number for both IPv6 and
+ * IPv4 (if each is available). This is a simple wrapper around
+ * g_socket_listener_add_any_inet_port(), except if the user specified a port
+ * range in the settings, than a port will be chosen from that range.
+ *
+ * Returns: The port number, or 0 in case of failure.
+ */
+guint16 purple_socket_listener_add_any_inet_port(GSocketListener *listener,
+                                                 GObject *source_object,
+                                                 GError **error);
+
 G_END_DECLS
 
 #endif /* PURPLE_GIO_H */
