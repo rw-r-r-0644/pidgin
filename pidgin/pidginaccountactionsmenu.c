@@ -164,7 +164,7 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 			/* Iterate to the next item while deleting the one we just
 			 * processed.
 			 */
-			actions = g_list_remove(actions, actions->data);
+			actions = g_list_delete_link(actions, actions);
 		}
 	}
 
