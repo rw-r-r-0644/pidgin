@@ -22,18 +22,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "account.h"
-#include "core.h"
-#include "debug.h"
-#include "notify.h"
-#include "plugins.h"
-#include "prefs.h"
-#include "protocol.h"
-#include "purpleaccountoption.h"
-#include "request.h"
-#include "savedstatuses.h"
-#include "signals.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkaccount.h"
 #include "gtkblist.h"

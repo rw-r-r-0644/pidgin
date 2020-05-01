@@ -32,9 +32,7 @@
 
 #include "finch.h"
 
-#include "debug.h"
-#include "notify.h"
-#include "request.h"
+#include <purple.h>
 
 #include "gntplugin.h"
 #include "gntrequest.h"

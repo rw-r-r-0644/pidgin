@@ -37,7 +37,7 @@
  */
 typedef struct _PurpleMediaCodec PurpleMediaCodec;
 
-#include "../util.h"
+#include <purplekeyvaluepair.h>
 
 #include <glib-object.h>
 

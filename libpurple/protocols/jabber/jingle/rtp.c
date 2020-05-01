@@ -26,16 +26,15 @@
 
 #ifdef USE_VV
 
+#include <purple.h>
+
 #include "jabber.h"
 #include "jingle.h"
 #include "google/google_p2p.h"
-#include "media.h"
-#include "mediamanager.h"
 #include "iceudp.h"
 #include "rawudp.h"
 #include "rtp.h"
 #include "session.h"
-#include "debug.h"
 
 #include <string.h>
 

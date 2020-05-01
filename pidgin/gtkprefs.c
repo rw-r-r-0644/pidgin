@@ -24,22 +24,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "debug.h"
-#include "nat-pmp.h"
-#include "notify.h"
-#include "prefs.h"
-#include "proxy.h"
-#include "protocol.h"
-#include "request.h"
-#include "savedstatuses.h"
-#include "sound.h"
-#include "sound-theme.h"
-#include "stun.h"
-#include "theme-manager.h"
-#include "upnp.h"
-#include "util.h"
-#include "network.h"
-#include "keyring.h"
+#include <purple.h>
 
 #include "gtkblist.h"
 #include "gtkconv.h"

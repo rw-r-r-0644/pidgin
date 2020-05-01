@@ -20,9 +20,9 @@
  */
 #include "internal.h"
 
-#include "purpleaccountoption.h"
 #include "prefs.h"
-#include "util.h"
+#include "purpleaccountoption.h"
+#include "purplekeyvaluepair.h"
 
 /*
  * An option for an account.
