@@ -29,6 +29,9 @@
  * @title: Key Value Pairs
  */
 
+#include <glib.h>
+#include <glib-object.h>
+
 #define PURPLE_TYPE_KEY_VALUE_PAIR (purple_key_value_pair_get_type())
 
 /**
@@ -44,9 +47,6 @@
  * a list of key-value pairs so it can display a user-friendly value.
  */
 typedef struct _PurpleKeyValuePair PurpleKeyValuePair;
-
-#include <glib.h>
-#include <glib-object.h>
 
 G_BEGIN_DECLS
 
@@ -110,8 +110,8 @@ void purple_key_value_pair_free(PurpleKeyValuePair *kvp);
  *
  * Creates a copy of @kvp.
  *
- * If @kvp has a %value_destroy_func, %NULL will be returned as we this
- * function has no way to know how to allocate a new copy of the value.
+ * If @kvp has a %value_destroy_func, %NULL will be returned as this function
+ * has no way to know how to allocate a new copy of the value.
  *
  * Returns: (transfer full): A new copy of @kvp.
  */
