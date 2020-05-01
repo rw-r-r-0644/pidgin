@@ -28,7 +28,7 @@
  * @title: File Transfer UI
  */
 
-#include "xfer.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

@@ -20,10 +20,10 @@
  */
 
 #include "internal.h"
-#include "prefs.h"
+#include <purple.h>
+
 #include "pidgin.h"
 #include "pidgintooltip.h"
-#include "debug.h"
 
 static gboolean enable_tooltips;
 static int tooltip_delay = -1;

@@ -24,7 +24,6 @@
 #include "pidgin.h"
 #include "gtkutils.h"
 
-#include "debug.h"
 #include "gevolution.h"
 
 GtkTreeModel *

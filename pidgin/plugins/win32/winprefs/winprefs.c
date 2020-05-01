@@ -24,11 +24,7 @@
 
 #include "pidgin.h"
 
-#include "core.h"
-#include "debug.h"
-#include "prefs.h"
-#include "signals.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkappbar.h"
 #include "gtkblist.h"

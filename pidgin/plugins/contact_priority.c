@@ -22,10 +22,10 @@
 #include "pidgin.h"
 #include "gtkutils.h"
 #include "pidginplugininfo.h"
-#include "prefs.h"
-#include "version.h"
-
 #include "pidginaccountchooser.h"
+
+#include <purple.h>
+
 
 #define CONTACT_PRIORITY_PLUGIN_ID "gtk-contact-priority"
 

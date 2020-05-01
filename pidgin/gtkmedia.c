@@ -20,13 +20,9 @@
  */
 
 #include "internal.h"
-#include "debug.h"
-#include "connection.h"
-#include "media.h"
-#include "mediamanager.h"
-#include "pidgin.h"
-#include "request.h"
+#include <purple.h>
 
+#include "pidgin.h"
 #include "gtkmedia.h"
 #include "gtkutils.h"
 #include "pidginstock.h"

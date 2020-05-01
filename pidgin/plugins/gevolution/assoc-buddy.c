@@ -24,8 +24,6 @@
 
 #include "gtkutils.h"
 
-#include "debug.h"
-
 #include "gevolution.h"
 
 #include <stdlib.h>

@@ -22,10 +22,7 @@
  */
 
 #include "internal.h"
-#include "buddylist.h"
-#include "debug.h"
-#include "pidgin.h"
-#include "whiteboard.h"
+#include <purple.h>
 
 #include "gtkwhiteboard.h"
 #include "gtkutils.h"

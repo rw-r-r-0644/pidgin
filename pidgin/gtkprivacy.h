@@ -28,7 +28,7 @@
  * @title: Privacy UI
  */
 
-#include "account.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

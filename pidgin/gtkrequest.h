@@ -28,7 +28,7 @@
  * @title: Request API
  */
 
-#include "request.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

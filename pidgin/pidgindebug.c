@@ -21,10 +21,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "notify.h"
-#include "prefs.h"
-#include "request.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkdialogs.h"
 #include "gtkutils.h"

@@ -23,12 +23,7 @@
 
 #include "internal.h"
 
-#include "account.h"
-#include "notify.h"
-#include "request.h"
-#include "savedstatuses.h"
-#include "status.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkblist.h"
 #include "pidgin.h"

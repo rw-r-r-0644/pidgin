@@ -32,7 +32,7 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 
-#include "theme.h"
+#include <purple.h>
 
 #define PIDGIN_TYPE_BLIST_THEME            (pidgin_blist_theme_get_type ())
 

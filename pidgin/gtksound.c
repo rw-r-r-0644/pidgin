@@ -31,13 +31,7 @@
 # include <gst/gst.h>
 #endif /* USE_GSTREAMER */
 
-#include "debug.h"
-#include "notify.h"
-#include "prefs.h"
-#include "sound.h"
-#include "sound-theme.h"
-#include "theme-manager.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkconv.h"
 #include "gtksound.h"

@@ -39,9 +39,7 @@ disco#info:
 #include "internal.h"
 #include "pidgin.h"
 
-#include "debug.h"
-#include "signals.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkconv.h"
 #include "pidginplugininfo.h"

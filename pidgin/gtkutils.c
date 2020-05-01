@@ -32,15 +32,7 @@
 
 #include <talkatu.h>
 
-#include "conversation.h"
-#include "debug.h"
-#include "notify.h"
-#include "prefs.h"
-#include "protocol.h"
-#include "request.h"
-#include "signals.h"
-#include "sound.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkaccount.h"
 #include "gtkprefs.h"

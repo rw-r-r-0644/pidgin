@@ -28,8 +28,7 @@
  * @title: Saved Status Editor UI
  */
 
-#include "savedstatuses.h"
-#include "status.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

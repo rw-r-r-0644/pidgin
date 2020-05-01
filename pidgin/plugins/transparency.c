@@ -23,9 +23,7 @@
  */
 #include "internal.h"
 
-#include "core.h"
-#include "prefs.h"
-#include "debug.h"
+#include <purple.h>
 
 #include "gtkconv.h"
 #include "gtkplugin.h"

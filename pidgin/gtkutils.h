@@ -30,9 +30,8 @@
 
 #include "gtkconv.h"
 #include "pidgin.h"
-#include "action.h"
-#include "protocol.h"
-#include "util.h"
+
+#include <purple.h>
 
 typedef enum
 {

@@ -28,7 +28,7 @@
  * @title: Room List UI
  */
 
-#include "roomlist.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

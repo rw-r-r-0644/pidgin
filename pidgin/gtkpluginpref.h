@@ -29,7 +29,7 @@
  * @title: Plugin Preferences
  */
 
-#include "pluginpref.h"
+#include <purple.h>
 
 #include "pidgin.h"
 

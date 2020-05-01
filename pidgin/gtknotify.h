@@ -28,8 +28,7 @@
  * @title: Notification API
  */
 
-#include "notify.h"
-#include "pounce.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

@@ -26,10 +26,7 @@
 #include "pidginstock.h"
 #include "pidgintooltip.h"
 
-#include "debug.h"
-#include "account.h"
-#include "connection.h"
-#include "notify.h"
+#include <purple.h>
 
 #include "gtkroomlist.h"
 

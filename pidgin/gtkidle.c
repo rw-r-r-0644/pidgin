@@ -40,7 +40,7 @@
 # include "win32/gtkwin32dep.h"
 #endif
 
-#include "idle.h"
+#include <purple.h>
 
 #if !defined(HAVE_IOKIT) && !defined(_WIN32)
 typedef struct {
