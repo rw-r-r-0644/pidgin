@@ -30,10 +30,7 @@
 #include "gntbox.h"
 #include "gntlabel.h"
 
-#include "cmds.h"
-#include "conversation.h"
-#include "debug.h"
-#include "mediamanager.h"
+#include <purple.h>
 
 /* An incredibly large part of the following is from gtkmedia.c */
 #ifdef USE_VV

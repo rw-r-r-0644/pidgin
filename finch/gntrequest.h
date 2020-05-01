@@ -30,7 +30,8 @@
  * @title: Request API
  */
 
-#include "request.h"
+#include <purple.h>
+
 #include "gnt.h"
 
 /**********************************************************************

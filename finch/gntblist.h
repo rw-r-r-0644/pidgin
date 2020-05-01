@@ -30,7 +30,8 @@
  * @title: Buddy List API
  */
 
-#include "buddylist.h"
+#include <purple.h>
+
 #include "gnt.h"
 #include "gnttree.h"
 

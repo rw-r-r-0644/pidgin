@@ -30,7 +30,7 @@
  * @title: Menu Utility functions
  */
 
-#include <action.h>
+#include <purple.h>
 
 #include <gnt.h>
 #include <gntmenu.h>

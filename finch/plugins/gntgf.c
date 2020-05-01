@@ -41,13 +41,7 @@
 
 #include <glib.h>
 
-#include <plugins.h>
-#include <version.h>
-#include <buddylist.h>
-#include <conversation.h>
-#include <debug.h>
-#include <eventloop.h>
-#include <util.h>
+#include <purple.h>
 
 #include <gnt.h>
 #include <gntbox.h>

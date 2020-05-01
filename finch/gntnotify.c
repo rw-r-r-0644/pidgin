@@ -32,10 +32,9 @@
 
 #include "finch.h"
 
-#include <util.h>
+#include <purple.h>
 
 #include "gntnotify.h"
-#include "debug.h"
 
 static struct
 {
