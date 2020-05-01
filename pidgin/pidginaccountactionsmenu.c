@@ -126,13 +126,13 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 
 	if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, get_actions)) {
 		GtkWidget *item = NULL;
-		GList *actions = NULL, *l = NULL;
+		GList *actions = NULL;
 
 		actions = purple_protocol_client_iface_get_actions(protocol,
 		                                                   connection);
 
-		for(l = actions; l; l = l->next) {
-			PurpleProtocolAction *action = (PurpleProtocolAction *)l->data;
+		while(actions != NULL) {
+			PurpleProtocolAction *action = (PurpleProtocolAction *)actions->data;
 
 			if(action == NULL) {
 				item = gtk_separator_menu_item_new();
@@ -160,9 +160,12 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 
 			/* since we added an item, make sure items_added is true */
 			show_separator = TRUE;
-		}
 
-		g_list_free(actions);
+			/* Iterate to the next item while deleting the one we just
+			 * processed.
+			 */
+			actions = g_list_remove(actions, actions->data);
+		}
 	}
 
 	/* if we added any items, make our separator visible. */
