@@ -24,6 +24,7 @@
 #include "notify.h"
 #include "request.h"
 #include "debug.h"
+#include "purplekeyvaluepair.h"
 
 static PurpleRequestUiOps *request_ui_ops = NULL;
 static GList *handles = NULL;

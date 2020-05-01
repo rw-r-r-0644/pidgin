@@ -28,17 +28,7 @@
 
 #include <internal.h>
 
-#include "action.h"
-#include "plugins.h"
-#include "version.h"
-#include "notify.h"
-#include "buddylist.h"
-#include "purpleaccountoption.h"
-#include "core.h"
-#include "debug.h"
-#include "util.h"
-#include "request.h"
-#include "xmlnode.h"
+#include <purple.h>
 
 #include "gg.h"
 #include "chat.h"

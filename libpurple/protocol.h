@@ -46,7 +46,6 @@ typedef struct _PurpleProtocolClass PurpleProtocolClass;
 #include "debug.h"
 #include "xfer.h"
 #include "image.h"
-#include "media.h"
 #include "message.h"
 #include "notify.h"
 #include "plugins.h"

@@ -18,13 +18,13 @@
 */
 
 #include "internal.h"
-#include "plugins.h"
+#include <purple.h>
+
 PURPLE_BEGIN_IGNORE_CAST_ALIGN
 #include "silc.h"
 PURPLE_END_IGNORE_CAST_ALIGN
 #include "silcclient.h"
 #include "silcpurple.h"
-#include "version.h"
 #include "wb.h"
 #include "core.h"
 

@@ -35,8 +35,8 @@
 
 #include "finch.h"
 #include "gntrequest.h"
-#include "debug.h"
-#include "util.h"
+
+#include <purple.h>
 
 typedef struct
 {

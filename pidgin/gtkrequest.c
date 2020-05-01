@@ -24,9 +24,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "debug.h"
-#include "prefs.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkrequest.h"
 #include "gtkutils.h"

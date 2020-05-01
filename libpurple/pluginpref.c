@@ -29,6 +29,7 @@
 #include "internal.h"
 #include "pluginpref.h"
 #include "prefs.h"
+#include "purplekeyvaluepair.h"
 
 struct _PurplePluginPrefFrame
 {

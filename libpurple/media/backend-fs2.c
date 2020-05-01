@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "network.h"
 #include "media-gst.h"
+#include <purplekeyvaluepair.h>
 
 #include <farstream/fs-conference.h>
 #include <farstream/fs-element-added-notifier.h>

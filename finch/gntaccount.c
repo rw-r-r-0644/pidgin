@@ -36,13 +36,7 @@
 
 #include "finch.h"
 
-#include <account.h>
-#include <connection.h>
-#include <notify.h>
-#include <plugins.h>
-#include <purpleaccountoption.h>
-#include <request.h>
-#include <savedstatuses.h>
+#include <purple.h>
 
 #include "gntaccount.h"
 #include "gntblist.h"
