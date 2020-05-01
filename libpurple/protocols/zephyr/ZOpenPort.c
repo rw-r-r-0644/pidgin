@@ -9,7 +9,7 @@
  */
 
 #include "internal.h"
-#include "debug.h"
+#include <purple.h>
 #ifdef WIN32
 #include <winsock2.h>
 #else
