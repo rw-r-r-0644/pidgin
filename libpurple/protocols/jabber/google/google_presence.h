@@ -21,9 +21,10 @@
 #ifndef PURPLE_JABBER_GOOGLE_PRESENCE_H_
 #define PURPLE_JABBER_GOOGLE_PRESENCE_H_
 
+#include <purple.h>
+
 #include "jabber.h"
 #include "buddy.h"
-#include "status.h"
 
 void jabber_google_presence_incoming(JabberStream *js, const char *who, JabberBuddyResource *jbr);
 char *jabber_google_presence_outgoing(PurpleStatus *tune);

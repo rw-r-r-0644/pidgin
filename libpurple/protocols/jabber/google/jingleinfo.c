@@ -19,7 +19,8 @@
  */
 
 #include "internal.h"
-#include "debug.h"
+#include <purple.h>
+
 #include "jingleinfo.h"
 
 #include <gio/gio.h>

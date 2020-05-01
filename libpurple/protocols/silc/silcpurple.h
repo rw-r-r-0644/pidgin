@@ -24,18 +24,7 @@
 
 /* Purple includes */
 #include "internal.h"
-#include "account.h"
-#include "accountopt.h"
-#include "cmds.h"
-#include "conversation.h"
-#include "debug.h"
-#include "xfer.h"
-#include "notify.h"
-#include "protocol.h"
-#include "request.h"
-#include "roomlist.h"
-#include "server.h"
-#include "util.h"
+#include <purple.h>
 
 #define SILCPURPLE_TYPE_PROTOCOL             (silcpurple_protocol_get_type())
 #define SILCPURPLE_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), SILCPURPLE_TYPE_PROTOCOL, SilcProtocol))

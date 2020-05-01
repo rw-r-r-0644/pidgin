@@ -21,10 +21,7 @@
  *
  */
 #include "internal.h"
-
-#include "debug.h"
-#include "util.h"
-#include "xmlnode.h"
+#include <purple.h>
 
 #include "auth_digest_md5.h"
 #include "auth.h"

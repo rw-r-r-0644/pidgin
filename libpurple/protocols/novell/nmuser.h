@@ -47,7 +47,8 @@ typedef enum
 
 } NMRequestType;
 
-#include "debug.h"
+#include <purple.h>
+
 #include "nmmessage.h"
 #include "nmconference.h"
 #include "nmcontact.h"

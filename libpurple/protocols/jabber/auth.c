@@ -21,14 +21,7 @@
  *
  */
 #include "internal.h"
-
-#include "account.h"
-#include "debug.h"
-#include "core.h"
-#include "conversation.h"
-#include "request.h"
-#include "util.h"
-#include "xmlnode.h"
+#include <purple.h>
 
 #include "auth.h"
 #include "disco.h"

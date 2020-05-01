@@ -30,8 +30,6 @@
 #include "status.h"
 
 #include <libgadu.h>
-#include <debug.h>
-#include <request.h>
 
 #include "gg.h"
 #include "utils.h"

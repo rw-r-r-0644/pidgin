@@ -22,13 +22,12 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
 #include "adhoccommands.h"
 #include <string.h>
-#include "internal.h"
 #include "xdata.h"
 #include "iq.h"
-#include "request.h"
 
 static void do_adhoc_ignoreme(JabberStream *js, ...) {
 	/* we don't have to do anything */

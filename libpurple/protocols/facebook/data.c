@@ -22,7 +22,7 @@
 #include <libsoup/soup.h>
 #include <string.h>
 
-#include "account.h"
+#include <purple.h>
 
 #include "api.h"
 #include "data.h"

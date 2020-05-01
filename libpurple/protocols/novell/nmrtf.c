@@ -28,9 +28,8 @@
 #include <stddef.h>
 #include <ctype.h>
 #include <string.h>
+#include <purple.h>
 #include "nmrtf.h"
-#include "debug.h"
-#include "util.h"
 
 /* Internal RTF parser error codes */
 #define NMRTF_OK 0                      /* Everything's fine! */

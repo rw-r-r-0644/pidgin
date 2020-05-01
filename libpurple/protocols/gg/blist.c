@@ -22,7 +22,6 @@
 
 
 #include <libgadu.h>
-#include <debug.h>
 
 #include "gg.h"
 #include "utils.h"

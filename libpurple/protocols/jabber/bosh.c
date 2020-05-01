@@ -21,8 +21,7 @@
  *
  */
 #include "internal.h"
-#include "core.h"
-#include "debug.h"
+#include <purple.h>
 
 #include <libsoup/soup.h>
 

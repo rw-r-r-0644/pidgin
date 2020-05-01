@@ -31,7 +31,7 @@
 #define PURPLE_GG_SERVCONN_H
 
 #include <internal.h>
-#include <purpleaccountoption.h>
+#include <purple.h>
 
 void ggp_servconn_setup(PurpleAccountOption *server_option);
 void ggp_servconn_cleanup(void);

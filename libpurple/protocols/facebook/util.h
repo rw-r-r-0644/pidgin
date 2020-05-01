@@ -33,13 +33,7 @@
 
 #include <glib.h>
 
-#include <libpurple/util.h>
-
-#include "account.h"
-#include "conversationtypes.h"
-#include "debug.h"
-#include "connection.h"
-#include "conversation.h"
+#include <purple.h>
 
 /**
  * FB_UTIL_DEBUG_INFO:

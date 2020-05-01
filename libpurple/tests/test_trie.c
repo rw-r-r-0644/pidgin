@@ -22,7 +22,7 @@
 
 #include <glib.h>
 
-#include "../trie.h"
+#include <purple.h>
 
 static gint find_sum;
 

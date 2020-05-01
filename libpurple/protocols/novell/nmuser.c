@@ -20,12 +20,12 @@
 
 #include "internal.h"
 #include <string.h>
+#include <purple.h>
 #include "nmfield.h"
 #include "nmuser.h"
 #include "nmconn.h"
 #include "nmcontact.h"
 #include "nmuserrecord.h"
-#include "util.h"
 
 /* This is the template that we wrap outgoing messages in, since the other
  * GW Messenger clients expect messages to be in RTF.

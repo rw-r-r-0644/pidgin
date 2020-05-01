@@ -21,9 +21,7 @@
  *
  */
 #include "internal.h"
-#include "core.h"
-#include "debug.h"
-#include "request.h"
+#include <purple.h>
 
 #include "auth.h"
 #include "jabber.h"

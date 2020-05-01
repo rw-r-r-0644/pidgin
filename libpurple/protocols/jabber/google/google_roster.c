@@ -19,11 +19,11 @@
  */
 
 #include "internal.h"
+#include <purple.h>
+
 #include "google_roster.h"
 #include "jabber.h"
 #include "presence.h"
-#include "debug.h"
-#include "xmlnode.h"
 #include "roster.h"
 
 void jabber_google_roster_outgoing(JabberStream *js, PurpleXmlNode *query, PurpleXmlNode *item)

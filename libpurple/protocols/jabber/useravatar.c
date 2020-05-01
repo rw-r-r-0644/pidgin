@@ -22,12 +22,12 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
 #include <libsoup/soup.h>
 
 #include "useravatar.h"
 #include "pep.h"
-#include "debug.h"
 
 #define MAX_HTTP_BUDDYICON_BYTES (200 * 1024)
 

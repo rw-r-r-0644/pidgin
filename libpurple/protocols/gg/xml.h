@@ -31,7 +31,7 @@
 #define PURPLE_GG_XML_H
 
 #include <internal.h>
-#include <xmlnode.h>
+#include <purple.h>
 
 gboolean ggp_xml_get_string(const PurpleXmlNode *xml, gchar *childName, gchar **var);
 gboolean ggp_xml_get_bool(const PurpleXmlNode *xml, gchar *childName, gboolean *var);

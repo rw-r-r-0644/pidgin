@@ -22,13 +22,11 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
 #include "usertune.h"
 #include "pep.h"
 #include <string.h>
-#include "internal.h"
-#include "request.h"
-#include "status.h"
 
 static void jabber_tune_cb(JabberStream *js, const char *from, PurpleXmlNode *items) {
 	/* it doesn't make sense to have more than one item here, so let's just pick the first one */

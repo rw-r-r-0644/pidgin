@@ -25,9 +25,7 @@
 #include <gmime/gmime.h>
 #include <string.h>
 
-#include "image.h"
-#include "image-store.h"
-#include "util.h"
+#include <purple.h>
 
 #include "protocols/sametime/im_mime.h"
 

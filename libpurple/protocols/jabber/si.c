@@ -23,13 +23,7 @@
  */
 
 #include "internal.h"
-
-#include "buddylist.h"
-#include "debug.h"
-#include "xfer.h"
-#include "request.h"
-#include "network.h"
-#include "notify.h"
+#include <purple.h>
 
 #include "buddy.h"
 #include "data.h"

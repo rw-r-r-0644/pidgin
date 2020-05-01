@@ -26,7 +26,6 @@ PURPLE_END_IGNORE_CAST_ALIGN
 #include "silcclient.h"
 #include "silcpurple.h"
 #include "wb.h"
-#include "core.h"
 
 extern SilcClientOperations ops;
 
