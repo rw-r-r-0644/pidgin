@@ -30,7 +30,8 @@
 
 #include <windows.h>
 #include <gtk/gtk.h>
-#include "conversation.h"
+
+#include <purple.h>
 
 HINSTANCE winpidgin_dll_hinstance(void);
 HINSTANCE winpidgin_exe_hinstance(void);

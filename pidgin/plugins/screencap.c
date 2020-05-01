@@ -23,8 +23,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
-#include "debug.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkconv.h"
 #include "gtkplugin.h"

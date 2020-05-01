@@ -22,7 +22,7 @@
 #ifndef _CAP_STATISTICS_H_
 #define _CAP_STATISTICS_H_
 
-#include "buddylist.h"
+#include <purple.h>
 #include <gdk/gdk.h>
 #include <glib.h>
 #include <time.h>

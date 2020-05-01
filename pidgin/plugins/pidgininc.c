@@ -2,8 +2,6 @@
  * included below. This file is for internal libpurple use only. We're including
  * it here for our own convenience. */
 #include "internal.h"
-
-/* This file includes all the libpurple headers */
 #include <purple.h>
 
 /* include UI for pidgin_dialogs_about() */

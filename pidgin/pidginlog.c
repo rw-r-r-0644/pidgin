@@ -23,12 +23,7 @@
 
 #include <talkatu.h>
 
-#include "account.h"
-#include "debug.h"
-#include "log.h"
-#include "notify.h"
-#include "request.h"
-#include "util.h"
+#include <purple.h>
 
 #include "pidginstock.h"
 #include "gtkblist.h"

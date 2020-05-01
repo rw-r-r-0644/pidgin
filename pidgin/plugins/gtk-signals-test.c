@@ -24,8 +24,7 @@
 
 #include <gtk/gtk.h>
 
-#include "debug.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkaccount.h"
 #include "gtkblist.h"

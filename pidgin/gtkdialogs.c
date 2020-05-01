@@ -28,13 +28,7 @@
 #include "meson-config.h"
 #endif
 
-#include "debug.h"
-#include "notify.h"
-#include "plugins.h"
-#include "protocol.h"
-#include "request.h"
-#include "util.h"
-#include "core.h"
+#include <purple.h>
 
 #include "gtkblist.h"
 #include "gtkdialogs.h"

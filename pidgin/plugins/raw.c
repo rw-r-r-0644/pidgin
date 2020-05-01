@@ -24,10 +24,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "conversation.h"
-#include "debug.h"
-#include "protocol.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkplugin.h"
 #include "gtkutils.h"

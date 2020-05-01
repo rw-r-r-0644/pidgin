@@ -25,10 +25,10 @@
  */
 
 #include "internal.h"
-#include "debug.h"
+#include <purple.h>
+
 #include "gtkutils.h"
 #include "pidgin.h"
-#include "request.h"
 #include "pidginaccountchooser.h"
 #include "pidgintooltip.h"
 

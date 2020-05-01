@@ -29,7 +29,7 @@
  * @see_also: <link linkend="chapter-signals-gtkaccount">Account signals</link>
  */
 
-#include "accounts.h"
+#include <purple.h>
 
 typedef enum
 {

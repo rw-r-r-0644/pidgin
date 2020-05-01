@@ -30,8 +30,7 @@
 
 #include "pidgin.h"
 
-#include "account.h"
-#include "conversation.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

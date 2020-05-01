@@ -27,12 +27,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "buddylist.h"
-#include "conversation.h"
-#include "debug.h"
-#include "protocol.h"
-#include "signals.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkblist.h"
 #include "gtkutils.h"
