@@ -15,8 +15,11 @@
  * 02111-1301, USA.
  */
 
-#include "internal.h"
+#include <glib.h>
+#include <glib/gstdio.h>
+#include <glib/gi18n-lib.h>
 
+#include <ctype.h>
 #include <stdio.h>
 
 #include <purple.h>

@@ -35,9 +35,9 @@
  *     and the "New..." and "Saved..." options.
  */
 
-#include <gdk/gdkkeysyms.h>
+#include <glib/gi18n-lib.h>
 
-#include "internal.h"
+#include <gdk/gdkkeysyms.h>
 
 #include <purple.h>
 

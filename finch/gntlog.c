@@ -20,7 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include <internal.h>
+#include <purple.h>
+
 #include "finch.h"
 
 #include <gnt.h>
@@ -31,8 +32,6 @@
 #include <gnttextview.h>
 #include <gnttree.h>
 #include <gntwindow.h>
-
-#include <purple.h>
 
 #include "gntlog.h"
 

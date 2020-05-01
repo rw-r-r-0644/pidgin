@@ -18,7 +18,10 @@
  *
  */
 
-#include "internal.h"
+#ifndef _WIN32
+# include <sys/utsname.h>
+#endif
+
 #include <purple.h>
 
 #include "nmuser.h"

@@ -21,6 +21,7 @@
 #include "internal.h"
 #include "debug.h"
 #include "presence.h"
+#include "purpleprivate.h"
 
 /**************************************************************************
  * PurplePresence

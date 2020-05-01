@@ -30,7 +30,7 @@
 #ifndef PURPLE_GG_PUBDIR_PRPL_H
 #define PURPLE_GG_PUBDIR_PRPL_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 typedef enum

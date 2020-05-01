@@ -20,8 +20,6 @@
  *
  */
 
-#include "internal.h"
-
 #include <glib.h>
 
 /* plugin includes */

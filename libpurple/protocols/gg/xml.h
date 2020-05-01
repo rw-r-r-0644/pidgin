@@ -30,7 +30,6 @@
 #ifndef PURPLE_GG_XML_H
 #define PURPLE_GG_XML_H
 
-#include <internal.h>
 #include <purple.h>
 
 gboolean ggp_xml_get_string(const PurpleXmlNode *xml, gchar *childName, gchar **var);

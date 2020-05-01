@@ -18,10 +18,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-#include "internal.h"
-#include "pidgin.h"
+#include <glib/gi18n-lib.h>
 
 #include <purple.h>
+
+#include "pidgin.h"
 
 #include "gtkconv.h"
 #include "pidginplugininfo.h"

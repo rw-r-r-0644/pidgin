@@ -22,6 +22,8 @@
 #include "internal.h"
 #include "glibcompat.h" /* for purple_g_stat on win32 */
 
+#include <glib/gstdio.h>
+
 #include "enums.h"
 #include "image-store.h"
 #include "xfer.h"

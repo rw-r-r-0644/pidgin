@@ -23,6 +23,7 @@
 
 #include "contact.h"
 #include "internal.h" /* TODO: this needs to die */
+#include "purpleprivate.h"
 #include "util.h"
 
 typedef struct _PurpleContactPrivate    PurpleContactPrivate;

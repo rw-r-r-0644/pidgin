@@ -27,6 +27,7 @@
 #include "notify.h"
 #include "pounce.h"
 #include "prefs.h"
+#include "purpleprivate.h"
 #include "request.h"
 #include "server.h"
 #include "signals.h"

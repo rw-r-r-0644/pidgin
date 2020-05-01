@@ -33,6 +33,10 @@
 
 #include <json-glib/json-glib.h>
 
+#include <glib/gi18n-lib.h>
+
+#include "purpleprivate.h"
+
 #define GGP_EDISC_OS "WINNT x86-msvc"
 #define GGP_EDISC_TYPE "desktop"
 #define GGP_EDISC_API "6"

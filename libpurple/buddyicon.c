@@ -24,6 +24,7 @@
 #include "conversation.h"
 #include "debug.h"
 #include "image.h"
+#include "purpleprivate.h"
 #include "util.h"
 
 /* NOTE: Instances of this struct are allocated without zeroing the memory, so

@@ -18,8 +18,6 @@
 
 /* Ripped from gtk/plugins/history.c */
 
-#include "internal.h"
-
 #include <purple.h>
 
 #include "gntconv.h"

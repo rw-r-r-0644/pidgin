@@ -18,7 +18,6 @@
  *
  */
 
-#include "internal.h"
 #include <string.h>
 #include <purple.h>
 #include "nmfield.h"

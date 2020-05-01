@@ -31,6 +31,19 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#ifndef _WIN32
+# include <netinet/in.h>
+# include <sys/socket.h>
+#endif
+
+typedef union
+{
+	struct sockaddr sa;
+	struct sockaddr_in in;
+	struct sockaddr_in6 in6;
+	struct sockaddr_storage storage;
+} common_sockaddr_t;
+
 G_BEGIN_DECLS
 
 /**************************************************************************/

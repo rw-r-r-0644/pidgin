@@ -21,8 +21,14 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+#include <glib/gstdio.h>
+
 #include <locale.h>
-#include "internal.h"
 #include "pidgin.h"
 
 #include <purple.h>
@@ -387,7 +393,7 @@ pidgin_setup_error_handler(void)
 			"and post the backtrace from the core file.  If you do not know\n"
 			"how to get the backtrace, please read the instructions at\n"
 			"%swiki/GetABacktrace\n"),
-			PIDGIN_NAME, DISPLAY_VERSION, PURPLE_DEVEL_WEBSITE, PURPLE_DEVEL_WEBSITE
+			PIDGIN_NAME, DISPLAY_VERSION, PURPLE_WEBSITE, PURPLE_WEBSITE
 		);
 
 		/* we have to convert the message (UTF-8 to console

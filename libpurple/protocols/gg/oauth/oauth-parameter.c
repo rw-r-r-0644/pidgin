@@ -25,6 +25,8 @@
 
 #include "oauth-parameter.h"
 
+#include <glib.h>
+
 struct gg_oauth_parameter {
 	char *key;
 	char *value;

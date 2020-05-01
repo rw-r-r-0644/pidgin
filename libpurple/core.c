@@ -35,6 +35,7 @@
 #include "pounce.h"
 #include "prefs.h"
 #include "proxy.h"
+#include "purpleprivate.h"
 #include "savedstatuses.h"
 #include "signals.h"
 #include "smiley-custom.h"

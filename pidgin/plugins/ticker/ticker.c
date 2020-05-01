@@ -24,7 +24,9 @@
  * ticker.c -- Syd Logan, Summer 2000
  * pluginized- Sean Egan, Summer 2002
  */
-#include "internal.h"
+
+#include <glib/gi18n-lib.h>
+
 #include "pidgin.h"
 
 #include <purple.h>

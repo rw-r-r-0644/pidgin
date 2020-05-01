@@ -23,6 +23,7 @@
 #include "conversationtypes.h"
 #include "debug.h"
 #include "enums.h"
+#include "purpleprivate.h"
 
 #define SEND_TYPED_TIMEOUT_SECONDS 5
 

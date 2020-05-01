@@ -19,9 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301 USA
  */
 
-#include "gtksmiley-theme.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
-#include "internal.h"
+#include "gtksmiley-theme.h"
 
 #include <purple.h>
 

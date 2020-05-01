@@ -33,6 +33,8 @@
 #include "utils.h"
 #include "oauth/oauth-purple.h"
 
+#include "purpleprivate.h"
+
 /* Common */
 
 #define GGP_AVATAR_USERAGENT "GG Client build 11.0.0.7562"

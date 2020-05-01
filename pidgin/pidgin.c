@@ -21,7 +21,6 @@
  *
  */
 
-#include "internal.h"
 #include "pidgin.h"
 
 #ifdef _WIN32

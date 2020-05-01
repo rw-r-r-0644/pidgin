@@ -23,7 +23,9 @@
 
 #include "options.h"
 
+#include "debug.h"
 #include "network.h"
+#include "util.h"
 
 /******************************************************************************
  * Callbacks

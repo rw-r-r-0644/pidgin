@@ -19,9 +19,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
-#include "internal.h"
-#include "pidgin.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
+
+#include "pidgin.h"
 
 #include "gtkicon-theme-loader.h"
 #include "theme-manager.h"

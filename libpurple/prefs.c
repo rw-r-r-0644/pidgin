@@ -21,16 +21,15 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+
 #include <glib.h>
+
 #include "internal.h"
+
 #include "prefs.h"
 #include "debug.h"
 #include "util.h"

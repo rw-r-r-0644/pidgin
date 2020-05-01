@@ -28,6 +28,7 @@
 #include "pounce.h"
 #include "prefs.h"
 #include "protocol.h"
+#include "purpleprivate.h"
 #include "server.h"
 #include "signals.h"
 #include "util.h"

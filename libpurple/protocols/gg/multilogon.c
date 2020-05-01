@@ -29,6 +29,8 @@
 
 #include "multilogon.h"
 
+#include <glib/gi18n-lib.h>
+
 #include "gg.h"
 #include "keymapper.h"
 #include "utils.h"

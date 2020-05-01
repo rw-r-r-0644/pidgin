@@ -21,7 +21,16 @@
  *
  */
 
-#include "internal.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#ifndef _WIN32
+# include <arpa/inet.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include <libsoup/soup.h>

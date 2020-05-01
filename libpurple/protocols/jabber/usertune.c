@@ -21,7 +21,6 @@
  *
  */
 
-#include "internal.h"
 #include <purple.h>
 
 #include "usertune.h"

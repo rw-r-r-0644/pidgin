@@ -30,6 +30,7 @@
 #include "notify.h"
 #include "prefs.h"
 #include "proxy.h"
+#include "purpleprivate.h"
 #include "purpleprotocolfactory.h"
 #include "request.h"
 #include "server.h"
