@@ -29,8 +29,6 @@
 
 #include "libgaduw.h"
 
-#include <debug.h>
-
 #include "purplew.h"
 #include "gg.h"
 

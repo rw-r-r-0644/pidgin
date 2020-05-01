@@ -23,7 +23,7 @@
 #ifndef PURPLE_GG_BLIST_H
 #define PURPLE_GG_BLIST_H
 
-#include "connection.h"
+#include <purple.h>
 
 void
 ggp_buddylist_send(PurpleConnection *gc);

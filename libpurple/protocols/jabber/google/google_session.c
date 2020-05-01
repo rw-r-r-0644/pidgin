@@ -19,7 +19,8 @@
  */
 
 #include "internal.h"
-#include "debug.h"
+#include <purple.h>
+
 #include "google_session.h"
 #include "relay.h"
 

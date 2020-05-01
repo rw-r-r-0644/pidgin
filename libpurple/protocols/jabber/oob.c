@@ -21,9 +21,7 @@
  *
  */
 #include "internal.h"
-#include "debug.h"
-#include "xfer.h"
-#include "util.h"
+#include <purple.h>
 
 #include "jabber.h"
 #include "iq.h"

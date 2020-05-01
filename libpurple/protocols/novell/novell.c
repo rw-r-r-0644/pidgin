@@ -19,21 +19,10 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
-#include "action.h"
-#include "debug.h"
-#include "plugins.h"
-#include "server.h"
 #include "nmuser.h"
-#include "notify.h"
 #include "novell.h"
-#include "purple-gio.h"
-#include "purpleaccountoption.h"
-#include "util.h"
-#include "request.h"
-#include "network.h"
-#include "status.h"
-#include "version.h"
 
 #define DEFAULT_PORT			8300
 #define NOVELL_CONNECT_STEPS	4

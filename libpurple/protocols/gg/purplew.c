@@ -29,9 +29,6 @@
 
 #include "purplew.h"
 
-#include <request.h>
-#include <debug.h>
-
 #include "tcpsocket.h"
 
 guint ggp_purplew_http_input_add(struct gg_http *http_req,

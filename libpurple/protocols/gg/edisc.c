@@ -27,8 +27,6 @@
  */
 #include "edisc.h"
 
-#include <debug.h>
-
 #include "gg.h"
 #include "libgaduw.h"
 #include "utils.h"

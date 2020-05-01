@@ -29,8 +29,6 @@
 
 #include "multilogon.h"
 
-#include <debug.h>
-
 #include "gg.h"
 #include "keymapper.h"
 #include "utils.h"

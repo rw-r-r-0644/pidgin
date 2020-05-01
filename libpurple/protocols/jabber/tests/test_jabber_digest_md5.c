@@ -1,6 +1,7 @@
 #include <glib.h>
 
-#include "util.h"
+#include <purple.h>
+
 #include "protocols/jabber/auth_digest_md5.h"
 #include "protocols/jabber/jutil.h"
 

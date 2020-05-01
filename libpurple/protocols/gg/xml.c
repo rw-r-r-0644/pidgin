@@ -29,8 +29,6 @@
 
 #include "xml.h"
 
-#include "debug.h"
-
 gboolean ggp_xml_get_string(const PurpleXmlNode *xml, gchar *childName, gchar **var)
 {
 	char *str;

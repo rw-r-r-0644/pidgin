@@ -22,7 +22,7 @@
  */
 #include <glib.h>
 
-#include "../xmlnode.h"
+#include <purple.h>
 
 /*
  * If we really wanted to test the billion laughs attack we would

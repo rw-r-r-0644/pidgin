@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include "tests.h"
-#include "util.h"
+#include <purple.h>
+
 #include "protocols/jabber/auth_scram.h"
 #include "protocols/jabber/jutil.h"
 

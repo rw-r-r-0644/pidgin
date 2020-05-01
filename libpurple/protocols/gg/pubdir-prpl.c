@@ -30,9 +30,6 @@
 #include "pubdir-prpl.h"
 #include "gg.h"
 
-#include <debug.h>
-#include <request.h>
-
 #include "oauth/oauth-purple.h"
 #include "xml.h"
 #include "utils.h"

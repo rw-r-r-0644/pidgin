@@ -21,27 +21,7 @@
  *
  */
 #include "internal.h"
-
-#include "account.h"
-#include "buddylist.h"
-#include "core.h"
-#include "cmds.h"
-#include "connection.h"
-#include "conversation.h"
-#include "debug.h"
-#include "message.h"
-#include "notify.h"
-#include "pluginpref.h"
-#include "proxy.h"
-#include "protocol.h"
-#include "purpleaccountoption.h"
-#include "purple-gio.h"
-#include "request.h"
-#include "server.h"
-#include "status.h"
-#include "util.h"
-#include "version.h"
-#include "xmlnode.h"
+#include <purple.h>
 
 #include "auth.h"
 #include "buddy.h"

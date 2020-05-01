@@ -24,10 +24,9 @@
  */
 
 #include "internal.h"
-#include "network.h"
+#include <purple.h>
 
 #include "content.h"
-#include "debug.h"
 #include "jingle.h"
 #include "google/google_p2p.h"
 #include "session.h"

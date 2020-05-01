@@ -25,10 +25,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "account.h"
-#include "eventloop.h"
-#include "purple-gio.h"
-#include "queuedoutputstream.h"
+#include <purple.h>
 
 #include "mqtt.h"
 #include "util.h"

@@ -35,7 +35,7 @@
 
 #include <glib.h>
 
-#include "connection.h"
+#include <purple.h>
 
 #include "http.h"
 #include "id.h"

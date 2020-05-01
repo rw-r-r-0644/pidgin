@@ -21,11 +21,10 @@
  *
  */
 #include "internal.h"
+#include <purple.h>
 
 #include "auth.h"
 #include "auth_scram.h"
-
-#include "debug.h"
 
 static const JabberScramHash hashes[] = {
 	{ "-SHA-1", G_CHECKSUM_SHA1 },

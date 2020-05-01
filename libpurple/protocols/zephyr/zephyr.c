@@ -28,15 +28,7 @@
 */
 #include "libpurple/internal.h"
 
-#include "purpleaccountoption.h"
-#include "action.h"
-#include "debug.h"
-#include "notify.h"
-#include "plugins.h"
-#include "server.h"
-#include "util.h"
-#include "cmds.h"
-#include "version.h"
+#include <purple.h>
 
 #include "internal.h"
 #include "zephyr.h"

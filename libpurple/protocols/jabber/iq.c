@@ -21,10 +21,7 @@
  *
  */
 #include "internal.h"
-#include "core.h"
-#include "debug.h"
-#include "prefs.h"
-#include "util.h"
+#include <purple.h>
 
 #include "buddy.h"
 #include "disco.h"

@@ -34,8 +34,6 @@
 #include "utils.h"
 #include "purplew.h"
 
-#include <debug.h>
-
 #define GGP_ROSTER_SYNC_SETT "gg-synchronized"
 #define GGP_ROSTER_DEBUG 0
 #define GGP_ROSTER_GROUPID_DEFAULT "00000000-0000-0000-0000-000000000000"

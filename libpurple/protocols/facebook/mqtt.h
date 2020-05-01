@@ -34,7 +34,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include "connection.h"
+#include <purple.h>
 
 #define FB_TYPE_MQTT  fb_mqtt_get_type()
 #define FB_TYPE_MQTT_MESSAGE  fb_mqtt_message_get_type()

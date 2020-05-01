@@ -27,10 +27,9 @@
 #include <glib.h>
 #include <string.h>
 
+#include <purple.h>
+
 #include "data.h"
-#include "debug.h"
-#include "xmlnode.h"
-#include "util.h"
 #include "iq.h"
 
 static GHashTable *local_data_by_alt = NULL;

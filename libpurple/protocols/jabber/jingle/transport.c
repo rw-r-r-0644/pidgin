@@ -23,10 +23,10 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
 #include "transport.h"
 #include "jingle.h"
-#include "debug.h"
 
 #include <string.h>
 
