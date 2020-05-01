@@ -35,7 +35,7 @@ purple_key_value_pair_new_full(const gchar *key, gpointer value,
 {
 	PurpleKeyValuePair *kvp;
 
-	kvp = g_new0(PurpleKeyValuePair, 1);
+	kvp = g_new(PurpleKeyValuePair, 1);
 	kvp->key = g_strdup(key);
 	kvp->value = value;
 	kvp->value_destroy_func = value_destroy_func;
@@ -59,7 +59,7 @@ purple_key_value_pair_free(PurpleKeyValuePair *kvp) {
 PurpleKeyValuePair *
 purple_key_value_pair_copy(PurpleKeyValuePair *kvp) {
 	g_return_val_if_fail(kvp != NULL, NULL);
+	g_return_val_if_fail(kvp->value_destroy_func == NULL, NULL);
 
-	return purple_key_value_pair_new_full(kvp->key, kvp->value,
-	                                      kvp->value_destroy_func);
+	return purple_key_value_pair_new(kvp->key, kvp->value);
 }

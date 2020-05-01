@@ -110,6 +110,9 @@ void purple_key_value_pair_free(PurpleKeyValuePair *kvp);
  *
  * Creates a copy of @kvp.
  *
+ * If @kvp has a %value_destroy_func, %NULL will be returned as we this
+ * function has no way to know how to allocate a new copy of the value.
+ *
  * Returns: (transfer full): A new copy of @kvp.
  */
 PurpleKeyValuePair *purple_key_value_pair_copy(PurpleKeyValuePair *kvp);

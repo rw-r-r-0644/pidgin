@@ -3,6 +3,7 @@ PROGS = [
     'attention_type',
     'circular_buffer',
     'image',
+    'keyvaluepair',
     'protocol_action',
     'protocol_attention',
     'protocol_xfer',
