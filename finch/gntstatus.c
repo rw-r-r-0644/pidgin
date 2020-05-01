@@ -34,8 +34,7 @@
 
 #include "finch.h"
 
-#include <notify.h>
-#include <request.h>
+#include <purple.h>
 
 #include "gntstatus.h"
 

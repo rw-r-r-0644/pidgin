@@ -19,11 +19,7 @@
 #define PLUGIN_STATIC_NAME	GntLastlog
 
 #include "internal.h"
-
-#include <plugins.h>
-#include <version.h>
-
-#include <cmds.h>
+#include <purple.h>
 
 #include <gnt.h>
 #include <gnttextview.h>

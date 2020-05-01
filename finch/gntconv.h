@@ -34,7 +34,7 @@
 #include <gntwidget.h>
 #include <gntmenuitem.h>
 
-#include "conversation.h"
+#include <purple.h>
 
 /* Grabs the conv out of a PurpleConverstation */
 #define FINCH_CONV(conv) ((FinchConv *)purple_conversation_get_ui_data(conv))

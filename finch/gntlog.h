@@ -30,8 +30,8 @@
  * @title: Log Viewer
  */
 
-#include "log.h"
-#include "account.h"
+#include <purple.h>
+
 #include "gntwidget.h"
 
 typedef struct _FinchLogViewer FinchLogViewer;

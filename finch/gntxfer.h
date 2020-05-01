@@ -30,8 +30,7 @@
  * @title: File Transfer UI
  */
 
-#include "xfer.h"
-
+#include <purple.h>
 
 /**************************************************************************/
 /* GNT File Transfer Dialog API                                           */

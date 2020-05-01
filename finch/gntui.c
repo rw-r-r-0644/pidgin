@@ -42,7 +42,7 @@
 #include "gntstatus.h"
 #include "gntsound.h"
 
-#include <prefs.h>
+#include <purple.h>
 
 void finch_ui_init()
 {

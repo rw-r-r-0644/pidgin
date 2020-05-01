@@ -21,13 +21,12 @@
  */
 
 #include <internal.h>
+#include <purple.h>
 
 #include "finch.h"
 #include "gntidle.h"
 #include "gnt.h"
 #include "gntwm.h"
-
-#include "idle.h"
 
 static time_t
 finch_get_idle_time(void)

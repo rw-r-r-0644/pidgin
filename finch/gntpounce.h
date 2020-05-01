@@ -30,7 +30,7 @@
  * @title: Buddy Pounce API
  */
 
-#include "pounce.h"
+#include <purple.h>
 
 /**
  * finch_pounce_editor_show:

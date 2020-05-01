@@ -25,11 +25,7 @@
 
 #include NCURSES_HEADER
 
-#include <cmds.h>
-#include <core.h>
-#include <idle.h>
-#include <prefs.h>
-#include <util.h>
+#include <purple.h>
 
 #include "gntaccount.h"
 #include "gntblist.h"

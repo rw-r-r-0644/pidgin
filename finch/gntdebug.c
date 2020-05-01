@@ -21,6 +21,7 @@
  */
 
 #include <internal.h>
+#include <purple.h>
 
 #include <gnt.h>
 #include <gntbox.h>
@@ -34,8 +35,6 @@
 
 #include "gntdebug.h"
 #include "finch.h"
-#include "notify.h"
-#include "util.h"
 
 #include <stdio.h>
 #include <string.h>
