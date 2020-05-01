@@ -30,7 +30,7 @@
 #ifndef PURPLE_GG_MULTILOGON_H
 #define PURPLE_GG_MULTILOGON_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 typedef struct _ggp_multilogon_session_data ggp_multilogon_session_data;

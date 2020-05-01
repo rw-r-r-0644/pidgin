@@ -30,7 +30,6 @@
 #include "dns_sd_proxy.h"
 #endif
 
-#include "internal.h"
 #include <purple.h>
 
 #include "bonjour.h"

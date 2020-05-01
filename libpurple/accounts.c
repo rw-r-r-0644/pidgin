@@ -25,6 +25,7 @@
 #include "enums.h"
 #include "network.h"
 #include "pounce.h"
+#include "purpleprivate.h"
 
 static PurpleAccountUiOps *account_ui_ops = NULL;
 
@@ -223,14 +224,14 @@ parse_status_attrs(PurpleXmlNode *node, PurpleStatus *status)
 		switch (G_VALUE_TYPE(attr_value))
 		{
 			case G_TYPE_STRING:
-				g_hash_table_insert(attrs, id, (char *)value);
+				g_hash_table_insert(attrs, (char *)id, (char *)value);
 				break;
 			case G_TYPE_INT:
 			case G_TYPE_BOOLEAN:
 			{
 				int v;
 				if (sscanf(value, "%d", &v) == 1) {
-					g_hash_table_insert(attrs, id, GINT_TO_POINTER(v));
+					g_hash_table_insert(attrs, (char *)id, GINT_TO_POINTER(v));
 				}
 				break;
 			}

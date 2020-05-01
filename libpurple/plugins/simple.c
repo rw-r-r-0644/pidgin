@@ -15,7 +15,8 @@
  * 02111-1301, USA.
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 /** Plugin id : type-author-name (to guarantee uniqueness) */

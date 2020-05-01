@@ -21,7 +21,10 @@
  *
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
+#include <math.h>
+
 #include <purple.h>
 
 #include "gtkwhiteboard.h"

@@ -20,7 +20,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include <internal.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+
+#include <purple.h>
+
 #include "finch.h"
 #include "gntconv.h"
 #include "gntmedia.h"
@@ -29,8 +36,6 @@
 #include "gntbutton.h"
 #include "gntbox.h"
 #include "gntlabel.h"
-
-#include <purple.h>
 
 /* An incredibly large part of the following is from gtkmedia.c */
 #ifdef USE_VV

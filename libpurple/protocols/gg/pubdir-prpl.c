@@ -27,6 +27,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <glib/gi18n-lib.h>
+
 #include "pubdir-prpl.h"
 #include "gg.h"
 
@@ -34,6 +36,8 @@
 #include "xml.h"
 #include "utils.h"
 #include "status.h"
+
+#include "purpleprivate.h"
 
 typedef struct
 {

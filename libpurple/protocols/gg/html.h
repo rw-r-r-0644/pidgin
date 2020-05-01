@@ -29,7 +29,7 @@
 #ifndef PURPLE_GG_HTML_H
 #define PURPLE_GG_HTML_H
 
-#include <internal.h>
+#include <purple.h>
 
 typedef enum
 {

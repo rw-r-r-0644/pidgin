@@ -25,6 +25,8 @@
 #include "debug.h"
 #include "enums.h"
 #include "plugins.h"
+#include "signals.h"
+#include "util.h"
 
 typedef struct _PurplePluginInfoPrivate  PurplePluginInfoPrivate;
 

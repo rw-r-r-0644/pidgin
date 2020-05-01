@@ -18,7 +18,6 @@
 
 #define PLUGIN_STATIC_NAME	GntLastlog
 
-#include "internal.h"
 #include <purple.h>
 
 #include <gnt.h>

@@ -22,6 +22,8 @@
 #ifndef PURPLE_BUDDY_LIST_H
 #define PURPLE_BUDDY_LIST_H
 
+#include <glib/gi18n-lib.h>
+
 /**
  * SECTION:buddylist
  * @section_id: libpurple-buddylist
@@ -40,6 +42,7 @@ typedef struct _PurpleBuddyList PurpleBuddyList;
 #define PURPLE_BLIST_DEFAULT_GROUP_NAME _("Buddies")
 
 #include "chat.h"
+#include "contact.h"
 
 /**
  * PurpleBlistWalkFunc:

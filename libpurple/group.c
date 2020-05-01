@@ -23,6 +23,7 @@
 
 #include "group.h"
 #include "internal.h" /* TODO: we need to kill this */
+#include "purpleprivate.h"
 
 typedef struct _PurpleGroupPrivate      PurpleGroupPrivate;
 

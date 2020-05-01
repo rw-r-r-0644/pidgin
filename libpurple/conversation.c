@@ -29,6 +29,7 @@
 #include "notify.h"
 #include "prefs.h"
 #include "protocol.h"
+#include "purpleprivate.h"
 #include "request.h"
 #include "signals.h"
 #include "smiley-list.h"

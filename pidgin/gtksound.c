@@ -19,7 +19,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
-#include "internal.h"
+
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <sys/types.h>
+#ifndef _WIN32
+# include <sys/wait.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+
 #include "pidgin.h"
 
 #ifdef _WIN32

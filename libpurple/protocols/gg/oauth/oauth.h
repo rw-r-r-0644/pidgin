@@ -26,7 +26,6 @@
 #ifndef _GGP_OAUTH_H
 #define _GGP_OAUTH_H
 
-#include <internal.h>
 #include <libgadu.h>
 
 char * gg_oauth_generate_header(const char *method, const char *url,

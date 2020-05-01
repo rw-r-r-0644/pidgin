@@ -22,6 +22,9 @@
  */
 #include "internal.h"
 
+#include "blistnode.h"
+#include "buddy.h"
+
 typedef struct _PurpleBlistNodePrivate  PurpleBlistNodePrivate;
 
 /* Private data of a buddy list node */

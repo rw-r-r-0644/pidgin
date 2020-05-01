@@ -21,7 +21,8 @@
   USA.
 */
 
-#include "internal.h"
+#define BUF_LEN (2048)
+#define BUF_LONG (BUF_LEN * 2)
 
 /* system includes */
 #include <stdlib.h>
@@ -29,6 +30,7 @@
 
 /* glib includes */
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <gmime/gmime.h>
 
 /* purple includes */

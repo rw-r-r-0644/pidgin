@@ -30,7 +30,7 @@
 #ifndef PURPLE_GG_LIBGADU_EVENTS_H
 #define PURPLE_GG_LIBGADU_EVENTS_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 #include "gg.h"

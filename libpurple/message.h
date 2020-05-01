@@ -46,6 +46,11 @@ G_BEGIN_DECLS
  */
 G_DECLARE_FINAL_TYPE(PurpleMessage, purple_message, PURPLE, MESSAGE, GObject)
 
+/* conversations.h depends on PurpleMessage and currently PurpleMessageFlag is
+ * in conversations.h.
+ */
+#include <conversation.h>
+
 /**
  * purple_message_new_outgoing:
  * @who: Message's recipient.

@@ -27,12 +27,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <glib/gi18n-lib.h>
+
 #include "image-prpl.h"
 
 #include "gg.h"
 #include "utils.h"
 
-#include <image-store.h>
+#include <purple.h>
 
 struct _ggp_image_session_data
 {

@@ -19,8 +19,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA
  */
-#include "internal.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <sys/types.h>
+#ifndef _WIN32
+# include <arpa/inet.h>
+# include <netdb.h>
+# include <sys/socket.h>
+#endif
+
 #include <purple.h>
+
+#include "purpleprivate.h"
 
 #include "bonjour.h"
 #include "bonjour_ft.h"

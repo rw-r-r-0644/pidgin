@@ -20,6 +20,7 @@
  */
 
 #include "internal.h"
+#include "purpleprivate.h"
 
 #include <gio/gio.h>
 

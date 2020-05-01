@@ -19,9 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301, USA.
  */
 
-#include "gtkdnd-hints.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
-#include "internal.h"
+#include "gtkdnd-hints.h"
 
 #include <gdk/gdk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>

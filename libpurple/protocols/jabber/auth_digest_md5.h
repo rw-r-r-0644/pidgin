@@ -25,8 +25,6 @@
 #ifndef PURPLE_JABBER_AUTH_DIGEST_MD5_H
 #define PURPLE_JABBER_AUTH_DIGEST_MD5_H
 
-#include "internal.h"
-
 /*
  * Every function in this file is ONLY exposed for tests.
  * DO NOT USE ANYTHING HERE OR YOU WILL BE SENT TO THE PIT OF DESPAIR.

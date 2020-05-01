@@ -31,6 +31,8 @@
 
 #include "tcpsocket.h"
 
+#include <glib/gi18n-lib.h>
+
 guint ggp_purplew_http_input_add(struct gg_http *http_req,
 	PurpleInputFunction func, gpointer user_data)
 {

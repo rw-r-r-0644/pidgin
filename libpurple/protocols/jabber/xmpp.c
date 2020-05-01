@@ -20,7 +20,6 @@
  *
  */
 
-#include "internal.h"
 #include <purple.h>
 
 #include "xmpp.h"

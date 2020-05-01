@@ -28,7 +28,6 @@
 
 #include <gmodule.h>
 
-#include "internal.h"
 #include <purple.h>
 
 #include "mdns_common.h"

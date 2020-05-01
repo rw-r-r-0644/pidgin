@@ -21,8 +21,6 @@
  *
  */
 
-#include "internal.h"
-
 #include <glib.h>
 #include <gmime/gmime.h>
 

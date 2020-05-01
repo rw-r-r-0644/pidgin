@@ -32,6 +32,8 @@
 #include "purplew.h"
 #include "gg.h"
 
+#include <ctype.h>
+
 static void ggp_libgaduw_debug_handler(int level, const char * format,
 	va_list args);
 
