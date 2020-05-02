@@ -88,7 +88,7 @@ option('console-logging', type : 'boolean', value : false,
 option('gestures', type : 'boolean', value : true,
        description : 'compile with the gestures plugin')
 
-option('gevolution', type : 'feature',
+option('gevolution', type : 'feature', value : 'disabled',
        description : 'compile with the Evolution plugin')
 
 option('unity-integration', type : 'feature',
