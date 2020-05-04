@@ -622,7 +622,7 @@ endif
 gplugin_dep = dependency('gplugin', version : '>= 0.29.0', required : false)
 if gplugin_dep.found()
 	if enable_introspection
-		gplugin_gir = 'GPlugin-0.0'
+		gplugin_gir = 'GPlugin-1.0'
 		gplugin_include_directories = include_directories(
 		    join_paths(gplugin_dep.get_pkgconfig_variable('prefix'),
 		               'share/gir-1.0'))
@@ -634,7 +634,7 @@ if gplugin_dep.found()
 		gplugin_gtk_dep = dependency('gplugin-gtk', required : true)
 
 		if enable_introspection
-			gplugin_gtk_gir = 'GPluginGtk-0.0'
+			gplugin_gtk_gir = 'GPluginGtk-1.0'
 			gplugin_gtk_include_directories = include_directories(
 				join_paths(gplugin_gtk_dep.get_pkgconfig_variable('prefix'),
 				           'share/gir-1.0'))
