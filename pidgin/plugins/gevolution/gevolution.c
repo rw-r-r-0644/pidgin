@@ -31,8 +31,8 @@
 
 #include "gtkblist.h"
 #include "gtkconv.h"
-#include "gtkplugin.h"
 #include "gtkutils.h"
+#include "pidginplugininfo.h"
 
 #include "gevolution.h"
 

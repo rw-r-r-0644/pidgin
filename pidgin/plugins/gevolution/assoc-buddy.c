@@ -441,7 +441,7 @@ gevo_associate_buddy_dialog_new(PurpleBuddy *buddy)
 					 G_CALLBACK(cancel_cb), dialog);
 
 	/* "Associate Buddy" button */
-	button = gtk_button_new_with_mnemonic(_("_Associate Buddy"));,
+	button = gtk_button_new_with_mnemonic(_("_Associate Buddy"));
 	dialog->assoc_button = button;
 	gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(button, FALSE);
