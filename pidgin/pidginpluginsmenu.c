@@ -62,7 +62,7 @@ pidgin_plugins_menu_add_plugin_actions(PidginPluginsMenu *menu,
 {
 	GPluginPluginInfo *info = NULL;
 	PurplePluginActionsCb actions_cb = NULL;
-	GList *actions = NULL, *l = NULL;
+	GList *actions = NULL;
 	GtkWidget *submenu = NULL, *item = NULL;
 	gint i = 0;
 
@@ -84,8 +84,8 @@ pidgin_plugins_menu_add_plugin_actions(PidginPluginsMenu *menu,
 
 	submenu = gtk_menu_new();
 
-	for(l = actions, i = 0; l != NULL; l = l->next, i++) {
-		PurplePluginAction *action = (PurplePluginAction *)l->data;
+	for(i = 0; actions != NULL; i++) {
+		PurplePluginAction *action = (PurplePluginAction *)actions->data;
 		GSimpleAction *gaction = NULL;
 		GtkWidget *action_item = NULL;
 		gchar *action_base_name = NULL;
@@ -112,12 +112,12 @@ pidgin_plugins_menu_add_plugin_actions(PidginPluginsMenu *menu,
 		/* add our action item to the menu */
 		gtk_menu_shell_append(GTK_MENU_SHELL(submenu), action_item);
 
-		/* now Creation the gaction with the base name */
+		/* now create the gaction with the base name */
 		gaction = g_simple_action_new(action_base_name, NULL);
 		g_free(action_base_name);
 
 		/* now connect to the activate signal of the action using
-		 * g_signal_connect_data with a destory notify to free the plugin action
+		 * g_signal_connect_data with a destroy notify to free the plugin action
 		 * when the signal handler is removed.
 		 */
 		g_signal_connect_data(G_OBJECT(gaction), "activate",
@@ -130,6 +130,8 @@ pidgin_plugins_menu_add_plugin_actions(PidginPluginsMenu *menu,
 		g_action_map_add_action(G_ACTION_MAP(menu->action_group),
 		                        G_ACTION(gaction));
 		g_object_unref(G_OBJECT(gaction));
+
+		actions = g_list_delete_link(actions, actions);
 	}
 
 	item = gtk_menu_item_new_with_label(gplugin_plugin_info_get_name(info));
@@ -154,7 +156,7 @@ pidgin_plugins_menu_remove_plugin_actions(PidginPluginsMenu *menu,
 {
 	GPluginPluginInfo *info = NULL;
 	PurplePluginActionsCb actions_cb = NULL;
-	GList *actions = NULL, *l = NULL;
+	GList *actions = NULL;
 	gint i = 0;
 
 	/* try remove the menu item from plugin from the hash table.  If we didn't
@@ -181,13 +183,15 @@ pidgin_plugins_menu_remove_plugin_actions(PidginPluginsMenu *menu,
 	}
 
 	/* now walk through the actions and remove them from the action group. */
-	for(l = actions, i = 0; l != NULL; l = l->next, i++) {
+	for(i = 0; actions != NULL; i++) {
 		gchar *name = NULL;
 
 		name = g_strdup_printf("%s-%d", gplugin_plugin_info_get_id(info), i);
 
 		g_action_map_remove_action(G_ACTION_MAP(menu->action_group), name);
 		g_free(name);
+
+		actions = g_list_delete_link(actions, actions);
 	}
 
 	g_object_unref(G_OBJECT(info));
