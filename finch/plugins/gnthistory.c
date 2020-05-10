@@ -20,14 +20,7 @@
 
 #include "internal.h"
 
-#include "conversation.h"
-#include "debug.h"
-#include "log.h"
-#include "request.h"
-#include "prefs.h"
-#include "signals.h"
-#include "util.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gntconv.h"
 #include "gntplugin.h"

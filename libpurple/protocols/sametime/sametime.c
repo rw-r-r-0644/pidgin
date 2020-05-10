@@ -32,20 +32,7 @@
 #include <gmime/gmime.h>
 
 /* purple includes */
-#include "account.h"
-#include "action.h"
-#include "circularbuffer.h"
-#include "conversation.h"
-#include "debug.h"
-#include "image-store.h"
-#include "xfer.h"
-#include "notify.h"
-#include "plugins.h"
-#include "protocol.h"
-#include "purpleaccountoption.h"
-#include "purpleaccountusersplit.h"
-#include "request.h"
-#include "version.h"
+#include <purple.h>
 
 /* meanwhile includes */
 #include <mw_cipher.h>

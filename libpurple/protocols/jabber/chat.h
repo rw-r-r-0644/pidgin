@@ -26,10 +26,7 @@
 #define PURPLE_JABBER_CHAT_H
 
 #include "internal.h"
-#include "connection.h"
-#include "conversation.h"
-#include "request.h"
-#include "roomlist.h"
+#include <purple.h>
 
 #include "jabber.h"
 

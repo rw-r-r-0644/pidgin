@@ -19,8 +19,6 @@
  */
 #include "internal.h"
 
-#include "debug.h"
-
 #include "pidginmenutray.h"
 
 struct _PidginMenuTray {

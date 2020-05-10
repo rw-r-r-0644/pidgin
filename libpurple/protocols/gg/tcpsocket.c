@@ -29,9 +29,6 @@
 
 #include "gg.h"
 
-#include "debug.h"
-#include "purple-gio.h"
-
 typedef struct {
 	GSocketConnection *conn;
 	GCancellable *cancellable;

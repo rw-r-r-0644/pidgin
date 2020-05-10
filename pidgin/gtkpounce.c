@@ -24,14 +24,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "account.h"
-#include "conversation.h"
-#include "debug.h"
-#include "protocol.h"
-#include "request.h"
-#include "server.h"
-#include "sound.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkblist.h"
 #include "gtkdialogs.h"

@@ -27,8 +27,6 @@
  */
 #include "html.h"
 
-#include <debug.h>
-
 typedef struct
 {
 	GRegex *re_html_attr;

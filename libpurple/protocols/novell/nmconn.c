@@ -23,7 +23,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "purple-gio.h"
+#include <purple.h>
 
 #include "nmconn.h"
 

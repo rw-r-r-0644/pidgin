@@ -17,9 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 #include "internal.h"
-#include "account.h"
-#include "savedstatuses.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkplugin.h"
 #include "gtkconv.h"

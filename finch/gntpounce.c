@@ -37,14 +37,7 @@
 
 #include "finch.h"
 
-#include "account.h"
-#include "conversation.h"
-#include "debug.h"
-#include "notify.h"
-#include "protocol.h"
-#include "request.h"
-#include "server.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gntpounce.h"
 

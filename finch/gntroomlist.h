@@ -30,7 +30,7 @@
  * @title: Room List API
  */
 
-#include "roomlist.h"
+#include <purple.h>
 
 /**********************************************************************
  * GNT Room List API

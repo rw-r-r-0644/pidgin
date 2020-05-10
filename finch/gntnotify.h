@@ -30,7 +30,7 @@
  * @title: Notify API
  */
 
-#include "notify.h"
+#include <purple.h>
 
 /**********************************************************************
  * GNT Notify API

@@ -33,11 +33,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "debug.h"
-#include "notify.h"
-#include "signals.h"
-#include "util.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkplugin.h"
 #include "gtkprefs.h"

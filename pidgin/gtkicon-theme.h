@@ -30,7 +30,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "theme.h"
+
+#include <purple.h>
 
 #define PIDGIN_TYPE_ICON_THEME  pidgin_icon_theme_get_type()
 

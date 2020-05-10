@@ -21,22 +21,15 @@
  *
  */
 #include "internal.h"
+#include <purple.h>
 
-#include "debug.h"
-#include "notify.h"
-#include "smiley-custom.h"
-#include "smiley-parser.h"
-#include "server.h"
-#include "util.h"
 #include "adhoccommands.h"
 #include "buddy.h"
 #include "chat.h"
 #include "data.h"
 #include "google/google.h"
 #include "message.h"
-#include "xmlnode.h"
 #include "pep.h"
-#include "smiley.h"
 #include "iq.h"
 
 #include <string.h>

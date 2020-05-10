@@ -24,11 +24,7 @@
 # include <config.h>
 #endif
 
-#include "debug.h"
-#include "internal.h"
-#include "pidgin.h"
-#include "pluginpref.h"
-#include "prefs.h"
+#include <purple.h>
 
 #include "gtkpluginpref.h"
 #include "gtkprefs.h"

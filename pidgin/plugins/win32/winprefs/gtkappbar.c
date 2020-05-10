@@ -33,7 +33,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkwin32.h>
 #include "gtkappbar.h"
-#include "debug.h"
 
 #define APPBAR_CALLBACK 	WM_USER + 1010
 

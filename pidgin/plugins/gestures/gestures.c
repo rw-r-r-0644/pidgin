@@ -21,10 +21,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "debug.h"
-#include "prefs.h"
-#include "signals.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkconv.h"
 #include "gtkplugin.h"

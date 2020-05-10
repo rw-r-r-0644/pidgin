@@ -24,8 +24,6 @@
 #include "gtkutils.h"
 #include "pidginaccountchooser.h"
 
-#include "debug.h"
-
 #include "gevolution.h"
 
 static GtkWidget *

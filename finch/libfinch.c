@@ -24,22 +24,7 @@
 #include <locale.h>
 #include "finch.h"
 
-#include "account.h"
-#include "conversation.h"
-#include "core.h"
-#include "debug.h"
-#include "log.h"
-#include "notify.h"
-#include "options.h"
-#include "plugins.h"
-#include "protocol.h"
-#include "pounce.h"
-#include "savedstatuses.h"
-#include "sound.h"
-#include "status.h"
-#include "util.h"
-#include "whiteboard.h"
-#include "xfer.h"
+#include <purple.h>
 
 #include "gntdebug.h"
 #include "gntprefs.h"

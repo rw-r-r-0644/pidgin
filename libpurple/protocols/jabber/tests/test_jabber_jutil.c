@@ -1,9 +1,7 @@
 #include <glib.h>
 
-#include "account.h"
-#include "conversation.h"
-#include "tests.h"
-#include "xmlnode.h"
+#include <purple.h>
+
 #include "protocols/jabber/jutil.h"
 
 PurpleTestStringData test_jabber_util_get_resource_exists_data[] = {

@@ -23,8 +23,7 @@
  */
 
 #include "internal.h"
-
-#include "debug.h"
+#include <purple.h>
 
 #include "jabber.h"
 #include "ping.h"

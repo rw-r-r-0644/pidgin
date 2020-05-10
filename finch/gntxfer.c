@@ -30,14 +30,9 @@
 #include <gntlabel.h>
 #include <gnttree.h>
 
-#include "debug.h"
-#include "notify.h"
-#include "xfer.h"
-#include "protocol.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gntxfer.h"
-#include "prefs.h"
 
 typedef struct
 {

@@ -22,8 +22,8 @@
 
 #include "internal.h"
 #include "pidgin.h"
-#include "conversation.h"
-#include "version.h"
+#include <purple.h>
+
 #include "pidginplugininfo.h"
 #include "gtkconv.h"
 #include "gtkconvwin.h"

@@ -25,7 +25,8 @@
 #define PURPLE_JABBER_USERAVATAR_H
 
 #include "jabber.h"
-#include "image.h"
+
+#include <purple.h>
 
 /* Implementation of XEP-0084 */
 

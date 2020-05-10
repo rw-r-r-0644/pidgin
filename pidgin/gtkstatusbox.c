@@ -39,14 +39,7 @@
 
 #include "internal.h"
 
-#include "account.h"
-#include "buddyicon.h"
-#include "core.h"
-#include "network.h"
-#include "request.h"
-#include "savedstatuses.h"
-#include "status.h"
-#include "debug.h"
+#include <purple.h>
 
 #include "pidgin.h"
 #include "gtksavedstatuses.h"

@@ -21,10 +21,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "connection.h"
-#include "debug.h"
-#include "request.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkaccount.h"
 #include "gtkblist.h"

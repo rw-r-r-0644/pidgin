@@ -25,15 +25,9 @@
 #define PREF_LENGTH  PREFS_BASE "/length"
 #define PREF_URL  PREFS_BASE "/url"
 
-#include <conversation.h>
-#include <signals.h>
+#include <purple.h>
 
 #include <glib.h>
-
-#include <plugins.h>
-#include <version.h>
-#include <debug.h>
-#include <notify.h>
 
 #include <gntconv.h>
 

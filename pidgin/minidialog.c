@@ -23,7 +23,7 @@
 
 #include <gtk/gtk.h>
 
-#include "libpurple/prefs.h"
+#include <purple.h>
 
 #include "pidgin/minidialog.h"
 #include "pidgin/pidgin.h"

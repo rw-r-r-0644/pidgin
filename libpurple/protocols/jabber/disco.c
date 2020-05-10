@@ -22,10 +22,7 @@
  */
 
 #include "internal.h"
-#include "network.h"
-#include "prefs.h"
-#include "debug.h"
-#include "request.h"
+#include <purple.h>
 
 #include "adhoccommands.h"
 #include "buddy.h"

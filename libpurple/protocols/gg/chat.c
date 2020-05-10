@@ -27,8 +27,6 @@
  */
 #include "chat.h"
 
-#include <debug.h>
-
 #include "gg.h"
 #include "utils.h"
 #include "message-prpl.h"

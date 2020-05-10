@@ -30,7 +30,7 @@
  * @title: Idle API
  */
 
-#include "idle.h"
+#include <purple.h>
 
 /**************************************************************************/
 /* GNT Idle API                                                           */

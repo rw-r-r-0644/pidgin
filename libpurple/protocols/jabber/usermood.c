@@ -22,13 +22,11 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
 #include "usermood.h"
 #include "pep.h"
 #include <string.h>
-#include "internal.h"
-#include "request.h"
-#include "debug.h"
 
 static PurpleMood moods[] = {
 	{"afraid", N_("Afraid"), NULL},

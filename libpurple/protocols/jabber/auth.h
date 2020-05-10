@@ -27,8 +27,9 @@
 
 typedef struct _JabberSaslMech JabberSaslMech;
 
+#include <purple.h>
+
 #include "jabber.h"
-#include "xmlnode.h"
 
 typedef enum {
 	JABBER_SASL_STATE_FAIL = -1,    /* Abort, Retry, Fail? */

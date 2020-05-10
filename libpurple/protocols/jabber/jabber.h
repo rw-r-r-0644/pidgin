@@ -61,14 +61,7 @@ typedef struct _JabberStream JabberStream;
 #include <gio/gio.h>
 #include <libsoup/soup.h>
 
-#include "attention.h"
-#include "circularbuffer.h"
-#include "connection.h"
-#include "media.h"
-#include "mediamanager.h"
-#include "protocol.h"
-#include "queuedoutputstream.h"
-#include "roomlist.h"
+#include <purple.h>
 
 #include "namespaces.h"
 

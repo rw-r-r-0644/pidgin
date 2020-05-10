@@ -22,21 +22,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "account.h"
-#include "action.h"
-#include "connection.h"
-#include "core.h"
-#include "debug.h"
-#include "notify.h"
-#include "protocol.h"
-#include "prefs.h"
-#include "plugins.h"
-#include "request.h"
-#include "signals.h"
-#include "pidginstock.h"
-#include "theme-loader.h"
-#include "theme-manager.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkaccount.h"
 #include "gtkblist.h"
@@ -65,6 +51,7 @@
 #include "pidgin/pidginpluginsdialog.h"
 #include "pidgin/pidgintooltip.h"
 #include "pidginmenutray.h"
+#include "pidginstock.h"
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>

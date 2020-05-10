@@ -26,7 +26,8 @@
 #define PURPLE_JABBER_XDATA_H
 
 #include "jabber.h"
-#include "xmlnode.h"
+
+#include <purple.h>
 
 typedef struct {
 	char *name;

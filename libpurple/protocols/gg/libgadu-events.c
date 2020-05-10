@@ -29,8 +29,6 @@
 
 #include "libgadu-events.h"
 
-#include <debug.h>
-
 #include "avatar.h"
 #include "edisc.h"
 

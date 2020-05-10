@@ -28,7 +28,7 @@
  * @title: Idle API
  */
 
-#include "idle.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

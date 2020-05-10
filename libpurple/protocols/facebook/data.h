@@ -33,8 +33,7 @@
 
 #include <glib.h>
 
-#include "connection.h"
-#include "roomlist.h"
+#include <purple.h>
 
 #include "api.h"
 #include "http.h"

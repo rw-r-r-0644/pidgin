@@ -19,7 +19,8 @@
  */
 
 #include "internal.h"
-#include "debug.h"
+#include <purple.h>
+
 #include "google_presence.h"
 
 void jabber_google_presence_incoming(JabberStream *js, const char *user, JabberBuddyResource *jbr)

@@ -34,7 +34,7 @@
 #include "../utils.h"
 #include "../xml.h"
 
-#include <debug.h>
+#include <purple.h>
 
 #define GGP_OAUTH_RESPONSE_MAX 10240
 

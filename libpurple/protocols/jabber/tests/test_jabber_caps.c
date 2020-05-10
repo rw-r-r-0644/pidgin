@@ -1,6 +1,7 @@
 #include <glib.h>
 
-#include "xmlnode.h"
+#include <purple.h>
+
 #include "protocols/jabber/caps.h"
 
 static void

@@ -25,7 +25,7 @@
 
 #include <gmodule.h>
 
-#include "protocol.h"
+#include <purple.h>
 
 #define NOVELL_TYPE_PROTOCOL             (novell_protocol_get_type())
 #define NOVELL_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), NOVELL_TYPE_PROTOCOL, NovellProtocol))

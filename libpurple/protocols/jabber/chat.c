@@ -21,12 +21,7 @@
  *
  */
 #include "internal.h"
-#include "debug.h"
-#include "protocol.h" /* for PurpleProtocolChatEntry */
-#include "notify.h"
-#include "request.h"
-#include "roomlist.h"
-#include "util.h"
+#include <purple.h>
 
 #include "chat.h"
 #include "iq.h"

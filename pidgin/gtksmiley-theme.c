@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "debug.h"
+#include <purple.h>
 
 #include "gtkutils.h"
 

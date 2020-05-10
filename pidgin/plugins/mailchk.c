@@ -1,8 +1,6 @@
 #include "internal.h"
 
-#include "debug.h"
-#include "sound.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkblist.h"
 #include "gtkplugin.h"

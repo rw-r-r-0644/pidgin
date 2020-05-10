@@ -23,10 +23,10 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
 #include "iceudp.h"
 #include "jingle.h"
-#include "debug.h"
 
 #include <string.h>
 

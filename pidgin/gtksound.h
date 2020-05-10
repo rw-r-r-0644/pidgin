@@ -28,7 +28,7 @@
  * @title: Sound API
  */
 
-#include "sound.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

@@ -25,9 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "xmlnode.h"
-#include "debug.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkblist-theme-loader.h"
 #include "gtkblist-theme.h"

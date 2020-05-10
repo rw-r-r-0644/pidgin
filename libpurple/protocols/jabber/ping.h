@@ -25,9 +25,10 @@
 #ifndef PURPLE_JABBER_PING_H
 #define PURPLE_JABBER_PING_H
 
+#include <purple.h>
+
 #include "jabber.h"
 #include "iq.h"
-#include "xmlnode.h"
 
 void jabber_ping_parse(JabberStream *js, const char *from,
                        JabberIqType, const char *id, PurpleXmlNode *child);

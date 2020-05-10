@@ -39,11 +39,12 @@ typedef enum {
 typedef struct _JabberPresenceChatInfo JabberPresenceChatInfo;
 typedef struct _JabberPresence JabberPresence;
 
+#include <purple.h>
+
 #include "buddy.h"
 #include "chat.h"
 #include "jabber.h"
 #include "jutil.h"
-#include "xmlnode.h"
 
 struct _JabberPresenceChatInfo {
 	GSList *codes;

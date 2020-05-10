@@ -22,11 +22,7 @@
 
 #include "internal.h"
 
-#include "debug.h"
-#include "notify.h"
-#include "smiley.h"
-#include "smiley-custom.h"
-#include "smiley-list.h"
+#include <purple.h>
 
 #include "gtksmiley-manager.h"
 #include "gtkutils.h"
