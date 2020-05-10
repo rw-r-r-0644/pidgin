@@ -32,8 +32,7 @@
 
 #include <gnt.h>
 
-#include <plugins.h>
-#include <pluginpref.h>
+#include <purple.h>
 
 #include <string.h>
 

@@ -21,17 +21,14 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "account.h"
-#include "debug.h"
-#include "notify.h"
-#include "prefs.h"
+#include <purple.h>
+
 #include "gtkblist.h"
 #include "gtkconn.h"
 #include "gtkdialogs.h"
 #include "gtkstatusbox.h"
 #include "pidginstock.h"
 #include "gtkutils.h"
-#include "util.h"
 
 #define INITIAL_RECON_DELAY_MIN  8000
 #define INITIAL_RECON_DELAY_MAX 60000

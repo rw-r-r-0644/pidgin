@@ -34,7 +34,8 @@
 #include <glib-object.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-#include "conversation.h"
+#include <purple.h>
+
 #include "smiley-theme.h"
 
 G_BEGIN_DECLS

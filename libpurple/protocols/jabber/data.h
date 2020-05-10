@@ -24,7 +24,8 @@
 #ifndef PURPLE_JABBER_DATA_H
 #define PURPLE_JABBER_DATA_H
 
-#include "xmlnode.h"
+#include <purple.h>
+
 #include "jabber.h"
 
 #include <glib.h>

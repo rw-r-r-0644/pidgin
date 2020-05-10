@@ -29,7 +29,7 @@
  * @title: Preferences
  */
 
-#include "prefs.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

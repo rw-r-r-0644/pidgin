@@ -30,8 +30,7 @@
  * @title: Status API
  */
 
-#include <status.h>
-#include <savedstatuses.h>
+#include <purple.h>
 
 /**********************************************************************
  * GNT BuddyList API

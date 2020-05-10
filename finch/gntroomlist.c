@@ -33,8 +33,6 @@
 #include "gnttree.h"
 #include "gntwindow.h"
 
-#include "debug.h"
-
 #define PREF_ROOT "/finch/roomlist"
 
 

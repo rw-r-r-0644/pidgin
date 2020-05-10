@@ -23,7 +23,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include <queuedoutputstream.h>
+#include <purple.h>
 
 static const gsize test_bytes_data_len = 5;
 static const guint8 test_bytes_data[] = "12345";

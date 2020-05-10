@@ -32,9 +32,7 @@
 
 #include <talkatu.h>
 
-#include "account.h"
-#include "savedstatuses.h"
-#include "status.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

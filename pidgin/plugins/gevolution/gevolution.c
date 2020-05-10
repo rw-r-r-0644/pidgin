@@ -21,13 +21,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "connection.h"
-#include "debug.h"
-#include "prefs.h"
-#include "notify.h"
-#include "signals.h"
-#include "util.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkblist.h"
 #include "gtkconv.h"

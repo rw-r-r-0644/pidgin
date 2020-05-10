@@ -35,7 +35,7 @@ typedef struct _XmppDiscoService XmppDiscoService;
 #define PLUGIN_ID      "gtk-xmppdisco"
 #define PLUGIN_DOMAIN  (g_quark_from_static_string(PLUGIN_ID))
 
-#include "plugins.h"
+#include <purple.h>
 extern PurplePlugin *my_plugin;
 
 /**

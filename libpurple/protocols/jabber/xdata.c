@@ -21,8 +21,7 @@
  *
  */
 #include "internal.h"
-#include "request.h"
-#include "server.h"
+#include <purple.h>
 
 #include "xdata.h"
 

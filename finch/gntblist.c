@@ -25,19 +25,7 @@
 
 #include NCURSES_HEADER
 
-#include <account.h>
-#include <action.h>
-#include <buddylist.h>
-#include <log.h>
-#include <notify.h>
-#include <request.h>
-#include <plugins.h>
-#include <savedstatuses.h>
-#include <server.h>
-#include <signal.h>
-#include <status.h>
-#include <util.h>
-#include "debug.h"
+#include <purple.h>
 
 #include "gntbox.h"
 #include "gntcolors.h"

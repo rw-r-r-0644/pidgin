@@ -23,8 +23,7 @@
 #include "finch.h"
 #include <internal.h>
 
-#include <prefs.h>
-#include <savedstatuses.h>
+#include <purple.h>
 
 #include "gntprefs.h"
 #include "gntrequest.h"

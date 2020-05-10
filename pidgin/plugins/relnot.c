@@ -28,17 +28,12 @@
 #include <libsoup/soup.h>
 #include <string.h>
 
-#include "connection.h"
-#include "core.h"
-#include "debug.h"
+#include <purple.h>
+
 #include "gtkblist.h"
 #include "gtkutils.h"
-#include "notify.h"
 #include "pidginicon.h"
 #include "pidginplugininfo.h"
-#include "prefs.h"
-#include "util.h"
-#include "version.h"
 
 #include "pidgin.h"
 

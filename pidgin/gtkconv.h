@@ -73,8 +73,9 @@ enum {
 	(purple_conversation_get_ui_ops(conv) == \
 	 pidgin_conversations_get_conv_ui_ops())
 
+#include <purple.h>
+
 #include "pidgin.h"
-#include "conversation.h"
 #include "gtkconvwin.h"
 
 /**************************************************************************

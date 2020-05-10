@@ -30,7 +30,6 @@
 #include "account.h"
 
 #include <libgadu.h>
-#include <debug.h>
 
 #include "purplew.h"
 #include "utils.h"

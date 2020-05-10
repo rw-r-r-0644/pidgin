@@ -29,8 +29,6 @@
 
 #include "avatar.h"
 
-#include <debug.h>
-
 #include "gg.h"
 #include "utils.h"
 #include "oauth/oauth-purple.h"

@@ -30,9 +30,8 @@
  */
 
 #include "pidgin.h"
-#include "log.h"
 
-#include "account.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

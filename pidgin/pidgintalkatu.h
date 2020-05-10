@@ -33,7 +33,7 @@
 
 #include <talkatu.h>
 
-#include "connection.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

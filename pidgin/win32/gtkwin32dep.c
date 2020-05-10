@@ -31,9 +31,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkwin32.h>
 
-#include "debug.h"
-#include "notify.h"
-#include "network.h"
+#include <purple.h>
 
 #include "resource.h"
 #include "untar.h"
@@ -42,7 +40,6 @@
 #include "gtkblist.h"
 #include "gtkconv.h"
 #include "gtkconn.h"
-#include "util.h"
 
 /*
  *  GLOBALS

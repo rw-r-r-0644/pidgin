@@ -31,22 +31,7 @@
 
 #include <talkatu.h>
 
-#include "account.h"
-#include "attention.h"
-#include "action.h"
-#include "cmds.h"
-#include "core.h"
-#include "debug.h"
-#include "idle.h"
-#include "image-store.h"
-#include "log.h"
-#include "notify.h"
-#include "plugins.h"
-#include "protocol.h"
-#include "request.h"
-#include "smiley-parser.h"
-#include "util.h"
-#include "version.h"
+#include <purple.h>
 
 #include "gtkinternal.h"
 #include "gtkdnd-hints.h"
@@ -6803,14 +6788,7 @@ pidgin_conversation_get_type(void)
 
 #include <gdk/gdkkeysyms.h>
 
-#include "account.h"
-#include "cmds.h"
-#include "debug.h"
-#include "log.h"
-#include "notify.h"
-#include "protocol.h"
-#include "request.h"
-#include "util.h"
+#include <purple.h>
 
 #include "gtkdnd-hints.h"
 #include "gtkblist.h"

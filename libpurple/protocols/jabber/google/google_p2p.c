@@ -23,12 +23,12 @@
  */
 
 #include "internal.h"
+#include <purple.h>
+
+#include <string.h>
 
 #include "google_p2p.h"
 #include "jingle/jingle.h"
-#include "debug.h"
-
-#include <string.h>
 
 struct _JingleGoogleP2P
 {

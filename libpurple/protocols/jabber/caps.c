@@ -22,12 +22,11 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
-#include "debug.h"
 #include "caps.h"
 #include "iq.h"
 #include "presence.h"
-#include "util.h"
 #include "xdata.h"
 
 #define JABBER_CAPS_FILENAME "xmpp-caps.xml"

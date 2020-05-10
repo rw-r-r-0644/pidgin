@@ -21,9 +21,7 @@
  *
  */
 #include "internal.h"
-#include "debug.h"
-#include "server.h"
-#include "util.h"
+#include <purple.h>
 
 #include "buddy.h"
 #include "chat.h"

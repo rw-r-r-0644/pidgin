@@ -31,8 +31,6 @@
 
 #include "gg.h"
 
-#include <debug.h>
-
 uin_t ggp_str_to_uin(const char *str)
 {
 	char *endptr;

@@ -31,7 +31,8 @@
 
 #include "internal.h"
 #include "search.h"
-#include "connection.h"
+
+#include <purple.h>
 
 #include "image-prpl.h"
 #include "avatar.h"

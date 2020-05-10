@@ -30,7 +30,7 @@
  * @title: Sound API
  */
 
-#include "sound.h"
+#include <purple.h>
 
 /**********************************************************************/
 /* GNT Sound API                                                      */

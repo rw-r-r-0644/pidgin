@@ -31,7 +31,7 @@
 #define PURPLE_GG_VALIDATOR_H
 
 #include <internal.h>
-#include <request.h>
+#include <purple.h>
 
 gboolean ggp_validator_password(PurpleRequestField *field, gchar **errmsg,
 	void *user_data);

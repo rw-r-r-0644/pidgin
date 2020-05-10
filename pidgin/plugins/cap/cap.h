@@ -25,19 +25,12 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "conversation.h"
+#include <purple.h>
 
 #include "gtkconv.h"
 #include "gtkblist.h"
 #include "gtkplugin.h"
 #include "gtkutils.h"
-
-#include "buddylist.h"
-#include "notify.h"
-#include "version.h"
-#include "debug.h"
-
-#include "util.h"
 
 #include <glib.h>
 #include <time.h>

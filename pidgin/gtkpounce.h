@@ -28,7 +28,7 @@
  * @title: Buddy Pounce API
  */
 
-#include "pounce.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

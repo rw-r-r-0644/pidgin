@@ -61,8 +61,9 @@ typedef enum {
 
 } PidginStatusIconSize;
 
+#include <purple.h>
+
 #include "pidgin.h"
-#include "buddylist.h"
 #include "gtkblist-theme.h"
 
 /**************************************************************************

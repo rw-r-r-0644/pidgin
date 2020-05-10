@@ -21,13 +21,7 @@
  *
  */
 #include "internal.h"
-#include "debug.h"
-#include "image-store.h"
-#include "protocol.h"
-#include "notify.h"
-#include "request.h"
-#include "util.h"
-#include "xmlnode.h"
+#include <purple.h>
 
 #include "action.h"
 #include "buddy.h"

@@ -26,8 +26,7 @@
 #include <glib.h>
 #include <gmime/gmime.h>
 
-/* purple includes */
-#include "image-store.h"
+#include <purple.h>
 
 /* plugin includes */
 #include "sametime.h"

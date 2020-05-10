@@ -22,12 +22,10 @@
  */
 
 #include "internal.h"
-#include "pidginplugininfo.h"
-#include "version.h"
-#include "protocol.h"
-#include "xmlnode.h"
+#include <purple.h>
 
 #include "gtkutils.h"
+#include "pidginplugininfo.h"
 
 #include <gdk/gdkkeysyms.h>
 

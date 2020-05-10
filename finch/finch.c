@@ -21,7 +21,7 @@
  */
 
 #include "internal.h"
-#include "core.h"
+#include <purple.h>
 
 #include "finch.h"
 #include "gnt.h"

@@ -30,7 +30,7 @@
  * @title: Connection API
  */
 
-#include "connection.h"
+#include <purple.h>
 
 /**********************************************************************
  * GNT Connection API

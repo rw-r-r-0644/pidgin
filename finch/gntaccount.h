@@ -30,7 +30,7 @@
  * @title: Account API
  */
 
-#include "account.h"
+#include <purple.h>
 
 /**********************************************************************
  * GNT Account API

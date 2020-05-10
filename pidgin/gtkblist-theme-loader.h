@@ -30,7 +30,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "theme-loader.h"
+
+#include <purple.h>
 
 #define PIDGIN_TYPE_BLIST_THEME_LOADER  pidgin_blist_theme_loader_get_type()
 

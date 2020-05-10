@@ -24,12 +24,10 @@
 
 #include <libxml/parser.h>
 
-#include "connection.h"
-#include "debug.h"
+#include <purple.h>
+
 #include "jabber.h"
 #include "parser.h"
-#include "util.h"
-#include "xmlnode.h"
 
 static void
 jabber_parser_element_start_libxml(void *user_data,

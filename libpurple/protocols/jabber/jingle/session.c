@@ -23,9 +23,9 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
 #include "content.h"
-#include "debug.h"
 #include "session.h"
 #include "jingle.h"
 

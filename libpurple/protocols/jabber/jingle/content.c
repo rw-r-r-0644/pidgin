@@ -23,8 +23,8 @@
  */
 
 #include "internal.h"
+#include <purple.h>
 
-#include "debug.h"
 #include "content.h"
 #include "jingle.h"
 

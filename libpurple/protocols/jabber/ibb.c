@@ -22,9 +22,9 @@
  */
 
 #include "internal.h"
+#include <purple.h>
+
 #include "ibb.h"
-#include "debug.h"
-#include "xmlnode.h"
 
 #define JABBER_IBB_SESSION_DEFAULT_BLOCK_SIZE 4096
 

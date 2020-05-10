@@ -23,11 +23,7 @@
 #include <internal.h>
 #include "finch.h"
 
-#include "account.h"
-#include "core.h"
-#include "connection.h"
-#include "debug.h"
-#include "request.h"
+#include <purple.h>
 
 #include "gntaccount.h"
 #include "gntconn.h"

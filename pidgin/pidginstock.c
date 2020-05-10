@@ -21,7 +21,7 @@
  */
 #include "internal.h"
 #include "pidgin.h"
-#include "prefs.h"
+#include <purple.h>
 
 #include "gtkicon-theme-loader.h"
 #include "theme-manager.h"

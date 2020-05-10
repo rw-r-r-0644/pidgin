@@ -23,8 +23,7 @@
 #include "gtkicon-theme-loader.h"
 #include "gtkstatus-icon-theme.h"
 
-#include "xmlnode.h"
-#include "debug.h"
+#include <purple.h>
 
 /**
  * PidginIconThemeLoader:

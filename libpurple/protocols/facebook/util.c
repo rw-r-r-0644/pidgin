@@ -25,11 +25,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "buddylist.h"
-#include "conversations.h"
-#include "message.h"
-#include "request.h"
-#include "server.h"
+#include <purple.h>
 
 #include "util.h"
 

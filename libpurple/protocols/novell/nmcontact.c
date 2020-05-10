@@ -20,10 +20,10 @@
 
 #include <glib.h>
 #include <string.h>
+#include <purple.h>
 #include "nmcontact.h"
 #include "nmfield.h"
 #include "nmuser.h"
-#include "util.h"
 
 struct _NMContact
 {

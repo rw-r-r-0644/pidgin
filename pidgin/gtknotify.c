@@ -24,14 +24,9 @@
 #include "internal.h"
 #include "pidgin.h"
 
+#include <purple.h>
 
-#include "account.h"
-#include "connection.h"
-#include "debug.h"
-#include "prefs.h"
 #include "pidginstock.h"
-#include "util.h"
-
 #include "gtkblist.h"
 #include "gtknotify.h"
 #include "gtkpounce.h"

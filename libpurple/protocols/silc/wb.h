@@ -21,7 +21,6 @@
 #define PURPLE_SILC_WB_H
 
 #include "silcpurple.h"
-#include "whiteboard.h"
 
 PurpleWhiteboard *
 silcpurple_wb_init(SilcPurple sg, SilcClientEntry client_entry);

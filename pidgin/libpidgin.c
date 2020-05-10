@@ -25,23 +25,7 @@
 #include "internal.h"
 #include "pidgin.h"
 
-#include "account.h"
-#include "conversation.h"
-#include "core.h"
-#include "debug.h"
-#include "glibcompat.h" /* for purple_g_stat on win32 */
-#include "log.h"
-#include "network.h"
-#include "notify.h"
-#include "options.h"
-#include "prefs.h"
-#include "protocol.h"
-#include "pounce.h"
-#include "sound.h"
-#include "status.h"
-#include "util.h"
-#include "whiteboard.h"
-#include "xfer.h"
+#include <purple.h>
 
 #include "gtkaccount.h"
 #include "gtkblist.h"

@@ -87,11 +87,7 @@
 #include "pidgin.h"
 #include "gtkprefs.h"
 
-#include "conversation.h"
-#include "prefs.h"
-#include "signals.h"
-#include "version.h"
-#include "debug.h"
+#include <purple.h>
 
 #include "gtkplugin.h"
 #include "gtkutils.h"

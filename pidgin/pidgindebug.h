@@ -28,7 +28,7 @@
  * @title: Debug API
  */
 
-#include "debug.h"
+#include <purple.h>
 
 G_BEGIN_DECLS
 

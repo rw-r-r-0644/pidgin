@@ -76,7 +76,6 @@
 #  include <unistd.h>
 # endif
 #endif
-#include "debug.h"
 #include "untar.h"
 #include <glib.h>
 

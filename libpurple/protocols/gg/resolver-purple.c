@@ -28,7 +28,6 @@
  */
 
 #include <internal.h>
-#include <debug.h>
 
 #include <libgadu.h>
 #include "resolver-purple.h"

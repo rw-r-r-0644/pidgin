@@ -21,12 +21,7 @@
  *
  */
 #include "internal.h"
-#include "account.h"
-#include "conversation.h"
-#include "debug.h"
-#include "server.h"
-#include "util.h"
-#include "xmlnode.h"
+#include <purple.h>
 
 #include "chat.h"
 #include "presence.h"

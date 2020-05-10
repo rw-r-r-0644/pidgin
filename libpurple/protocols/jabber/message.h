@@ -25,9 +25,9 @@
 #ifndef PURPLE_JABBER_MESSAGE_H
 #define PURPLE_JABBER_MESSAGE_H
 
-#include "buddy.h"
+#include <purple.h>
+
 #include "jabber.h"
-#include "xmlnode.h"
 
 typedef struct {
 	JabberStream *js;

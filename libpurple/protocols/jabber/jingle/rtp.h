@@ -32,9 +32,9 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include <purple.h>
+
 #include "content.h"
-#include "media.h"
-#include "xmlnode.h"
 
 G_BEGIN_DECLS
 
