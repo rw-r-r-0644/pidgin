@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <requires lib="pidgin" version="3.0"/>
+  <template class="PidginBuddyListMenu" parent="GtkMenuBar">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">_Buddies</property>
+        <property name="use_underline">True</property>
+        <child type="submenu">
+          <object class="GtkMenu">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkMenuItem" id="new_message">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.new-message</property>
+                <property name="label" translatable="yes">New Instant _Message...</property>
+                <property name="use_underline">True</property>
+                <accelerator key="m" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="join_chat">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.join-chat</property>
+                <property name="label" translatable="yes">Join a _Chat...</property>
+                <property name="use_underline">True</property>
+                <accelerator key="c" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="get_user_info">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.get-user-info</property>
+                <property name="label" translatable="yes">Get User _Info...</property>
+                <property name="use_underline">True</property>
+                <accelerator key="i" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="view_user_log">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.view-user-log</property>
+                <property name="label" translatable="yes">View User _Log...</property>
+                <property name="use_underline">True</property>
+                <accelerator key="l" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparatorMenuItem">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Sh_ow</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_offline_buddies">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-offline-buddies</property>
+                        <property name="label" translatable="yes">_Offline Buddies</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_empty_groups">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-empty-groups</property>
+                        <property name="label" translatable="yes">_Empty Groups</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_buddy_icons">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-buddy-icons</property>
+                        <property name="label" translatable="yes">Buddy _Icons</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_idle_times">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-idle-times</property>
+                        <property name="label" translatable="yes">Idle _Times</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="show_protocol_icons">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">blist.show-protocol-icons</property>
+                        <property name="label" translatable="yes">_Protocol Icons</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="sort_buddies">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_Sort Buddies</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparatorMenuItem">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="add_buddy">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.add-buddy</property>
+                <property name="label" translatable="yes">_Add Buddy...</property>
+                <property name="use_underline">True</property>
+                <accelerator key="b" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="add_chat">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.add-chat</property>
+                <property name="label" translatable="yes">Add C_hat...</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="add_group">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.add-group</property>
+                <property name="label" translatable="yes">Add _Group...</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparatorMenuItem">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="quit">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.quit</property>
+                <property name="label" translatable="yes">_Quit</property>
+                <property name="use_underline">True</property>
+                <accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="accounts">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">_Accounts</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">_Tools</property>
+        <property name="use_underline">True</property>
+        <child type="submenu">
+          <object class="GtkMenu">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkMenuItem" id="buddy_pounces">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.buddy-pounces</property>
+                <property name="label" translatable="yes">Buddy _Pounces</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="custom_smileys">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.custom-smiley</property>
+                <property name="label" translatable="yes">Custom Smile_ys</property>
+                <property name="use_underline">True</property>
+                <accelerator key="y" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="preferences">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.preferences</property>
+                <property name="label" translatable="yes">Pr_eferences</property>
+                <property name="use_underline">True</property>
+                <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="privacy">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.privacy</property>
+                <property name="label" translatable="yes">Pr_ivacy</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="set_mood">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.set-mood</property>
+                <property name="label" translatable="yes">Set _Mood</property>
+                <property name="use_underline">True</property>
+                <accelerator key="d" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparatorMenuItem">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="file_transfers">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.file-transfers</property>
+                <property name="label" translatable="yes">_File Transfers</property>
+                <property name="use_underline">True</property>
+                <accelerator key="t" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="room_list">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.room-list</property>
+                <property name="label" translatable="yes">R_oom List</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="system_log">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.system-log</property>
+                <property name="label" translatable="yes">System _Log</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparatorMenuItem">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckMenuItem" id="mute_sounds">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.mute-sounds</property>
+                <property name="label" translatable="yes">Mute _Sounds</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="plugins">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">_Plugins</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">_Help</property>
+        <property name="use_underline">True</property>
+        <child type="submenu">
+          <object class="GtkMenu">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkMenuItem" id="online_help">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.online-help</property>
+                <property name="label" translatable="yes">Online _Help</property>
+                <property name="use_underline">True</property>
+                <accelerator key="F1" signal="activate"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="debug">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.debug</property>
+                <property name="label" translatable="yes">_Debug Window</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="about">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">blist.about</property>
+                <property name="label" translatable="yes">_About</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+  <object class="PidginAccountsMenu" id="accounts_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+  </object>
+  <object class="PidginMenuTray" id="menu_tray">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="right_justified">True</property>
+  </object>
+  <object class="PidginPluginsMenu" id="plugins_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+  </object>
+</interface>
