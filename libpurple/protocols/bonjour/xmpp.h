@@ -105,7 +105,6 @@ typedef struct {
 
 XepIq *xep_iq_new(void *data, XepIqType type, const char *to, const char *from, const char *id);
 int xep_iq_send_and_free(XepIq *iq);
-GSList * bonjour_xmpp_get_local_ips(int fd);
 
 void append_iface_if_linklocal(char *ip, guint32 interface_param);
 

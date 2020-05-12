@@ -887,7 +887,7 @@ bonjour_bytestreams_listen(int sock, gpointer data)
 	XepIq *iq;
 	PurpleXmlNode *query, *streamhost;
 	gchar *port;
-	GSList *local_ips;
+	GList *local_ips;
 	BonjourData *bd;
 
 	purple_debug_info("bonjour", "Bonjour-bytestreams-listen. sock=%d.\n", sock);
@@ -912,7 +912,7 @@ bonjour_bytestreams_listen(int sock, gpointer data)
 
 	purple_xfer_set_local_port(xfer, purple_network_get_port_from_fd(sock));
 
-	local_ips = bonjour_xmpp_get_local_ips(sock);
+	local_ips = purple_network_get_all_local_system_ips();
 
 	port = g_strdup_printf("%hu", purple_xfer_get_local_port(xfer));
 	while(local_ips) {
@@ -921,7 +921,7 @@ bonjour_bytestreams_listen(int sock, gpointer data)
 		purple_xmlnode_set_attrib(streamhost, "host", local_ips->data);
 		purple_xmlnode_set_attrib(streamhost, "port", port);
 		g_free(local_ips->data);
-		local_ips = g_slist_delete_link(local_ips, local_ips);
+		local_ips = g_list_delete_link(local_ips, local_ips);
 	}
 	g_free(port);
 
