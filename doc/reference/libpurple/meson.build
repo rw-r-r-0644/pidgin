@@ -9,6 +9,7 @@ ignore_hfiles = [
     'win32',
     'backend-fs2.h',
     'internal.h',
+    'purpleprivate.h',
 ]
 
 # Extra options to supply to gtkdoc-scan.
