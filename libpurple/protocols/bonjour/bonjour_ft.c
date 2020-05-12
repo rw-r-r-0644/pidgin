@@ -50,7 +50,8 @@ struct _XepXfer
 	char *recv_id;
 	char *buddy_ip;
 	int mode;
-	PurpleNetworkListenData *listen_data;
+	GSocketService *service;
+	GSocketConnection *conn;
 	int sock5_req_state;
 	int rxlen;
 	char rx_buf[0x500];
@@ -771,7 +772,6 @@ bonjour_sock5_request_cb(gpointer data, gint source, PurpleInputCondition cond)
 {
 	PurpleXfer *xfer = data;
 	XepXfer *xf = XEP_XFER(xfer);
-	int acceptfd;
 	int len = 0;
 
 	if(xf == NULL)
@@ -780,29 +780,6 @@ bonjour_sock5_request_cb(gpointer data, gint source, PurpleInputCondition cond)
 	purple_debug_info("bonjour", "bonjour_sock5_request_cb - req_state = 0x%x\n", xf->sock5_req_state);
 
 	switch(xf->sock5_req_state){
-	case 0x00:
-		acceptfd = accept(source, NULL, 0);
-		if(acceptfd == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-
-		} else if(acceptfd == -1) {
-			/* This should cancel the ft */
-			purple_debug_error("bonjour", "Error accepting incoming SOCKS5 connection. (%d)\n", errno);
-
-			close(source);
-			purple_xfer_cancel_remote(xfer);
-			return;
-		} else {
-			purple_debug_info("bonjour", "Accepted SOCKS5 ft connection - fd=%d\n", acceptfd);
-
-			_purple_network_set_common_socket_flags(acceptfd);
-			purple_input_remove(purple_xfer_get_watcher(xfer));
-			close(source);
-			purple_xfer_set_watcher(xfer, purple_input_add(acceptfd, PURPLE_INPUT_READ,
-							 bonjour_sock5_request_cb, xfer));
-			xf->sock5_req_state++;
-			xf->rxlen = 0;
-		}
-		break;
 	case 0x01:
 		purple_xfer_set_fd(xfer, source);
 		len = read(source, xf->rx_buf + xf->rxlen, 3);
@@ -880,26 +857,78 @@ bonjour_sock5_request_cb(gpointer data, gint source, PurpleInputCondition cond)
 }
 
 static void
-bonjour_bytestreams_listen(int sock, gpointer data)
+bonjour_sock5_incoming_cb(GSocketService *service,
+                          GSocketConnection *connection, GObject *source_object,
+                          G_GNUC_UNUSED gpointer data)
 {
-	PurpleXfer *xfer = data;
-	XepXfer *xf;
-	XepIq *iq;
-	PurpleXmlNode *query, *streamhost;
-	gchar *port;
-	GList *local_ips;
-	BonjourData *bd;
+	PurpleXfer *xfer = PURPLE_XFER(source_object);
+	XepXfer *xf = XEP_XFER(xfer);
+	GSocket *sock;
+	int fd;
 
-	purple_debug_info("bonjour", "Bonjour-bytestreams-listen. sock=%d.\n", sock);
-	if (sock < 0 || xfer == NULL) {
-		/*purple_xfer_cancel_local(xfer);*/
+	if (xf == NULL) {
 		return;
 	}
 
-	purple_xfer_set_watcher(xfer, purple_input_add(sock, PURPLE_INPUT_READ,
-					 bonjour_sock5_request_cb, xfer));
+	purple_debug_info("bonjour", "bonjour_sock5_incoming_cb - req_state = 0x%x",
+	                  xf->sock5_req_state);
+
+	if (G_UNLIKELY(xf->sock5_req_state != 0x0)) {
+		purple_debug_error("bonjour", "bonjour_sock5_incoming_cb - socks5 "
+		                              "proxy is in invalid state.");
+		purple_xfer_cancel_local(xfer);
+		return;
+	}
+
+	xf->conn = g_object_ref(connection);
+	g_socket_service_stop(xf->service);
+	g_clear_object(&xf->service);
+
+	sock = g_socket_connection_get_socket(connection);
+	fd = g_socket_get_fd(sock);
+	purple_debug_info("bonjour", "Accepted SOCKS5 ft connection - fd=%d", fd);
+
+	_purple_network_set_common_socket_flags(fd);
+	purple_xfer_set_watcher(xfer,
+	                        purple_input_add(fd, PURPLE_INPUT_READ,
+	                                         bonjour_sock5_request_cb, xfer));
+	xf->sock5_req_state++;
+	xf->rxlen = 0;
+}
+
+static void
+bonjour_bytestreams_init(PurpleXfer *xfer)
+{
+	XepXfer *xf;
+	XepIq *iq;
+	PurpleXmlNode *query, *streamhost;
+	guint16 port;
+	gchar *port_str;
+	GList *local_ips;
+	BonjourData *bd;
+	GError *error = NULL;
+
+	if (xfer == NULL) {
+		return;
+	}
+
+	purple_debug_info("bonjour", "Bonjour-bytestreams-init.\n");
 	xf = XEP_XFER(xfer);
-	xf->listen_data = NULL;
+
+	xf->service = g_socket_service_new();
+	port = purple_socket_listener_add_any_inet_port(
+	        G_SOCKET_LISTENER(xf->service), G_OBJECT(xfer), &error);
+	if (port == 0) {
+		purple_debug_error("bonjour",
+		                   "Unable to open port for file transfer: %s",
+		                   error->message);
+		purple_xfer_cancel_local(xfer);
+		g_error_free(error);
+		return;
+	}
+
+	g_signal_connect(xf->service, "incoming",
+	                 G_CALLBACK(bonjour_sock5_incoming_cb), NULL);
 
 	bd = xf->data;
 
@@ -910,38 +939,22 @@ bonjour_bytestreams_listen(int sock, gpointer data)
 	purple_xmlnode_set_attrib(query, "sid", xf->sid);
 	purple_xmlnode_set_attrib(query, "mode", "tcp");
 
-	purple_xfer_set_local_port(xfer, purple_network_get_port_from_fd(sock));
+	purple_xfer_set_local_port(xfer, port);
 
 	local_ips = purple_network_get_all_local_system_ips();
 
-	port = g_strdup_printf("%hu", purple_xfer_get_local_port(xfer));
+	port_str = g_strdup_printf("%hu", port);
 	while(local_ips) {
 		streamhost = purple_xmlnode_new_child(query, "streamhost");
 		purple_xmlnode_set_attrib(streamhost, "jid", xf->sid);
 		purple_xmlnode_set_attrib(streamhost, "host", local_ips->data);
-		purple_xmlnode_set_attrib(streamhost, "port", port);
+		purple_xmlnode_set_attrib(streamhost, "port", port_str);
 		g_free(local_ips->data);
 		local_ips = g_list_delete_link(local_ips, local_ips);
 	}
-	g_free(port);
+	g_free(port_str);
 
 	xep_iq_send_and_free(iq);
-}
-
-static void
-bonjour_bytestreams_init(PurpleXfer *xfer)
-{
-	XepXfer *xf;
-	if(xfer == NULL)
-		return;
-
-	purple_debug_info("bonjour", "Bonjour-bytestreams-init.\n");
-	xf = XEP_XFER(xfer);
-
-	xf->listen_data = purple_network_listen_range(0, 0, AF_UNSPEC, SOCK_STREAM, FALSE,
-						      bonjour_bytestreams_listen, xfer);
-	if (xf->listen_data == NULL)
-		purple_xfer_cancel_local(xfer);
 }
 
 static void
@@ -1054,8 +1067,8 @@ xep_xfer_init(XepXfer *xfer) {
 static void
 xep_xfer_finalize(GObject *obj) {
 	XepXfer *xf = XEP_XFER(obj);
-
 	BonjourData *bd = (BonjourData*)xf->data;
+
 	if(bd != NULL) {
 		bd->xfer_lists = g_slist_remove(bd->xfer_lists, PURPLE_XFER(xf));
 		purple_debug_misc("bonjour", "B free xfer from lists(%p).\n", bd->xfer_lists);
@@ -1066,9 +1079,11 @@ xep_xfer_finalize(GObject *obj) {
 	if (xf->proxy_info != NULL) {
 		purple_proxy_info_destroy(xf->proxy_info);
 	}
-	if (xf->listen_data != NULL) {
-		purple_network_listen_cancel(xf->listen_data);
+	if (xf->service) {
+		g_socket_service_stop(xf->service);
 	}
+	g_clear_object(&xf->service);
+	g_clear_object(&xf->conn);
 
 	g_free(xf->iq_id);
 	g_free(xf->jid);
