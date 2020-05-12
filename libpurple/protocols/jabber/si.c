@@ -850,16 +850,14 @@ jabber_si_xfer_bytestreams_send_local_info(PurpleXfer *xfer, GList *local_ips)
 
 		/* TODO: deal with zeroconf proxies */
 
-		if (!(sh->jid && sh->host && sh->port > 0))
+		if (!sh->jid) {
 			continue;
-
-		purple_debug_info(
-		        "jabber",
-		        "jabber_si_xfer_bytestreams_send_local_info() will be looking "
-		        "at jsx %p: jsx->streamhosts %p and sh->jid %p\n",
-		        jsx, jsx->streamhosts, sh->jid);
-		if (g_list_find_custom(jsx->streamhosts, sh->jid,
-		                       jabber_si_compare_jid) != NULL) {
+		} else if (!sh->host) {
+			continue;
+		} else if (sh->port <= 0) {
+			continue;
+		} else if (g_list_find_custom(jsx->streamhosts, sh->jid,
+		                              jabber_si_compare_jid) != NULL) {
 			continue;
 		}
 
@@ -946,25 +944,20 @@ jabber_si_xfer_bytestreams_send_init(PurpleXfer *xfer)
 	}
 
 	if (jsx->service) {
-		GList *l = NULL;
 		gchar *public_ip;
-		gboolean has_public_ip = FALSE;
-
-		public_ip = purple_network_get_my_ip_from_gio(
-		        G_SOCKET_CONNECTION(jsx->js->stream));
 
 		/* Include the localhost's IPs (for in-network transfers) */
 		local_ips = purple_network_get_all_local_system_ips();
-		for (l = local_ips; l; l = l->next) {
-			gchar *local_ip = l->data;
-			if (purple_strequal(local_ip, public_ip)) {
-				has_public_ip = TRUE;
-			}
-		}
 
 		/* Include the public IP (assuming there is a port mapped somehow) */
-		if (!has_public_ip && !purple_strequal(public_ip, "0.0.0.0")) {
+		public_ip = purple_network_get_my_ip_from_gio(
+		        G_SOCKET_CONNECTION(jsx->js->stream));
+		if (!purple_strequal(public_ip, "0.0.0.0") &&
+		    g_list_find_custom(local_ips, public_ip, (GCompareFunc)g_strcmp0) ==
+		            NULL) {
 			local_ips = g_list_append(local_ips, public_ip);
+		} else {
+			g_free(public_ip);
 		}
 
 		g_signal_connect(
