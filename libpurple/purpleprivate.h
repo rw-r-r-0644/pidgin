@@ -38,6 +38,14 @@
 #define PURPLE_ASSERT_CONNECTION_IS_VALID(gc) \
 	_purple_assert_connection_is_valid(gc, __FILE__, __LINE__)
 
+typedef union
+{
+	struct sockaddr sa;
+	struct sockaddr_in in;
+	struct sockaddr_in6 in6;
+	struct sockaddr_storage storage;
+} common_sockaddr_t;
+
 G_BEGIN_DECLS
 
 /**

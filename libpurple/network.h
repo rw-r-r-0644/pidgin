@@ -36,14 +36,6 @@
 # include <sys/socket.h>
 #endif
 
-typedef union
-{
-	struct sockaddr sa;
-	struct sockaddr_in in;
-	struct sockaddr_in6 in6;
-	struct sockaddr_storage storage;
-} common_sockaddr_t;
-
 G_BEGIN_DECLS
 
 /**************************************************************************/
