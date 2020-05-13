@@ -42,7 +42,7 @@ struct _JabberSIXfer {
 	JabberStream *js;
 
 	PurpleProxyConnectData *connect_data;
-	PurpleNetworkListenData *listen_data;
+	GSocketService *service;
 	guint connect_timeout;
 
 	gboolean accepted;
@@ -63,7 +63,7 @@ struct _JabberSIXfer {
 	char *rxqueue;
 	size_t rxlen;
 	gsize rxmaxlen;
-	int local_streamhost_fd;
+	GSocketConnection *local_streamhost_conn;
 
 	JabberIBBSession *ibb_session;
 	guint ibb_timeout_handle;
@@ -659,32 +659,30 @@ jabber_si_compare_jid(gconstpointer a, gconstpointer b)
 }
 
 static void
-jabber_si_xfer_bytestreams_send_connected_cb(gpointer data, gint source,
-		PurpleInputCondition cond)
+jabber_si_xfer_bytestreams_send_connected_cb(GSocketService *service,
+                                             GSocketConnection *connection,
+                                             GObject *source_object,
+                                             G_GNUC_UNUSED gpointer data)
 {
-	PurpleXfer *xfer = data;
+	PurpleXfer *xfer = PURPLE_XFER(source_object);
 	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
-	int acceptfd;
+	GSocket *sock;
+	int fd;
 
 	purple_debug_info("jabber", "in jabber_si_xfer_bytestreams_send_connected_cb\n");
 
-	acceptfd = accept(source, NULL, 0);
-	if(acceptfd == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
-		return;
-	else if(acceptfd == -1) {
-		purple_debug_warning("jabber", "accept: %s\n", g_strerror(errno));
-		/* Don't cancel the ft - allow it to fall to the next streamhost.*/
-		return;
-	}
+	jsx->local_streamhost_conn = g_object_ref(connection);
+	g_socket_service_stop(jsx->service);
+	g_clear_object(&jsx->service);
 
-	purple_input_remove(purple_xfer_get_watcher(xfer));
-	close(source);
-	jsx->local_streamhost_fd = -1;
+	sock = g_socket_connection_get_socket(connection);
+	fd = g_socket_get_fd(sock);
+	_purple_network_set_common_socket_flags(fd);
 
-	_purple_network_set_common_socket_flags(acceptfd);
-
-	purple_xfer_set_watcher(xfer, purple_input_add(acceptfd, PURPLE_INPUT_READ,
-					 jabber_si_xfer_bytestreams_send_read_cb, xfer));
+	purple_xfer_set_watcher(
+	        xfer,
+	        purple_input_add(fd, PURPLE_INPUT_READ,
+	                         jabber_si_xfer_bytestreams_send_read_cb, xfer));
 }
 
 static void
@@ -793,13 +791,10 @@ jabber_si_connect_proxy_cb(JabberStream *js, const char *from,
 	}
 
 	/* Clean up the local streamhost - it isn't going to be used.*/
-	if (purple_xfer_get_watcher(xfer) > 0) {
-		purple_input_remove(purple_xfer_get_watcher(xfer));
-		purple_xfer_set_watcher(xfer, 0);
-	}
-	if (jsx->local_streamhost_fd >= 0) {
-		close(jsx->local_streamhost_fd);
-		jsx->local_streamhost_fd = -1;
+	g_clear_object(&jsx->local_streamhost_conn);
+	if (jsx->service) {
+		g_socket_service_stop(jsx->service);
+		g_clear_object(&jsx->service);
 	}
 
 	jsx->streamhosts = g_list_remove_link(jsx->streamhosts, matched);
@@ -811,28 +806,15 @@ jabber_si_connect_proxy_cb(JabberStream *js, const char *from,
 }
 
 static void
-jabber_si_xfer_bytestreams_listen_cb(int sock, gpointer data)
+jabber_si_xfer_bytestreams_send_local_info(PurpleXfer *xfer, GList *local_ips)
 {
-	PurpleXfer *xfer = data;
-	JabberSIXfer *jsx;
+	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
 	JabberIq *iq;
 	PurpleXmlNode *query, *streamhost;
 	char port[6];
 	GList *tmp;
 	JabberBytestreamsStreamhost *sh, *sh2;
 	int streamhost_count = 0;
-
-	jsx = JABBER_SI_XFER(xfer);
-	jsx->listen_data = NULL;
-
-	/* I'm not sure under which conditions this can happen
-	 * (it seems like it shouldn't be possible */
-	if (purple_xfer_get_status(xfer) == PURPLE_XFER_STATUS_CANCEL_LOCAL) {
-		g_object_unref(xfer);
-		return;
-	}
-
-	g_object_unref(xfer);
 
 	iq = jabber_iq_new_query(jsx->js, JABBER_IQ_SET, NS_BYTESTREAMS);
 	purple_xmlnode_set_attrib(iq->node, "to", purple_xfer_get_remote_user(xfer));
@@ -841,22 +823,12 @@ jabber_si_xfer_bytestreams_listen_cb(int sock, gpointer data)
 	purple_xmlnode_set_attrib(query, "sid", jsx->stream_id);
 
 	/* If we successfully started listening locally */
-	if (sock >= 0) {
+	if (local_ips) {
 		gchar *jid;
-		GList *local_ips =
-			purple_network_get_all_local_system_ips();
-		gchar *public_ip;
-		gboolean has_public_ip = FALSE;
-
-		jsx->local_streamhost_fd = sock;
 
 		jid = g_strdup_printf("%s@%s/%s", jsx->js->user->node,
 			jsx->js->user->domain, jsx->js->user->resource);
-		purple_xfer_set_local_port(xfer, purple_network_get_port_from_fd(sock));
 		g_snprintf(port, sizeof(port), "%hu", purple_xfer_get_local_port(xfer));
-
-		public_ip = purple_network_get_my_ip_from_gio(
-		        G_SOCKET_CONNECTION(jsx->js->stream));
 
 		/* Include the localhost's IPs (for in-network transfers) */
 		while (local_ips) {
@@ -866,27 +838,11 @@ jabber_si_xfer_bytestreams_listen_cb(int sock, gpointer data)
 			purple_xmlnode_set_attrib(streamhost, "jid", jid);
 			purple_xmlnode_set_attrib(streamhost, "host", local_ip);
 			purple_xmlnode_set_attrib(streamhost, "port", port);
-			if (purple_strequal(local_ip, public_ip))
-				has_public_ip = TRUE;
 			g_free(local_ip);
 			local_ips = g_list_delete_link(local_ips, local_ips);
 		}
 
-		/* Include the public IP (assuming that there is a port mapped somehow) */
-		if (!has_public_ip && !purple_strequal(public_ip, "0.0.0.0")) {
-			streamhost_count++;
-			streamhost = purple_xmlnode_new_child(query, "streamhost");
-			purple_xmlnode_set_attrib(streamhost, "jid", jid);
-			purple_xmlnode_set_attrib(streamhost, "host", public_ip);
-			purple_xmlnode_set_attrib(streamhost, "port", port);
-		}
-
 		g_free(jid);
-		g_free(public_ip);
-
-		/* The listener for the local proxy */
-		purple_xfer_set_watcher(xfer, purple_input_add(sock, PURPLE_INPUT_READ,
-				jabber_si_xfer_bytestreams_send_connected_cb, xfer));
 	}
 
 	for (tmp = jsx->js->bs_proxies; tmp; tmp = tmp->next) {
@@ -894,13 +850,16 @@ jabber_si_xfer_bytestreams_listen_cb(int sock, gpointer data)
 
 		/* TODO: deal with zeroconf proxies */
 
-		if (!(sh->jid && sh->host && sh->port > 0))
+		if (!sh->jid) {
 			continue;
-
-		purple_debug_info("jabber", "jabber_si_xfer_bytestreams_listen_cb() will be looking at jsx %p: jsx->streamhosts %p and sh->jid %p\n",
-						  jsx, jsx->streamhosts, sh->jid);
-		if(g_list_find_custom(jsx->streamhosts, sh->jid, jabber_si_compare_jid) != NULL)
+		} else if (!sh->host) {
 			continue;
+		} else if (sh->port <= 0) {
+			continue;
+		} else if (g_list_find_custom(jsx->streamhosts, sh->jid,
+		                              jabber_si_compare_jid) != NULL) {
+			continue;
+		}
 
 		streamhost_count++;
 		streamhost = purple_xmlnode_new_child(query, "streamhost");
@@ -927,8 +886,8 @@ jabber_si_xfer_bytestreams_listen_cb(int sock, gpointer data)
 			if(jsx->stream_method & STREAM_METHOD_BYTESTREAMS) {
 				jsx->stream_method &= ~STREAM_METHOD_BYTESTREAMS;
 			}
-			purple_debug_info("jabber",
-				"jabber_si_xfer_bytestreams_listen_cb: trying to revert to IBB\n");
+			purple_debug_info("jabber", "jabber_si_xfer_bytestreams_send_local_"
+			                            "info: trying to revert to IBB\n");
 			if (purple_xfer_get_xfer_type(xfer) == PURPLE_XFER_TYPE_SEND) {
 				/* if we are the sender, init the IBB session... */
 				jabber_si_xfer_ibb_send_init(jsx->js, xfer);
@@ -950,35 +909,63 @@ jabber_si_xfer_bytestreams_listen_cb(int sock, gpointer data)
 	jabber_iq_set_callback(iq, jabber_si_connect_proxy_cb, xfer);
 
 	jabber_iq_send(iq);
-
 }
 
 static void
 jabber_si_xfer_bytestreams_send_init(PurpleXfer *xfer)
 {
-	JabberSIXfer *jsx;
+	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
 	PurpleProxyType proxy_type;
-
-	g_object_ref(xfer);
-
-	jsx = JABBER_SI_XFER(xfer);
+	GList *local_ips = NULL;
 
 	/* TODO: This should probably be done with an account option instead of
 	 *       piggy-backing on the TOR proxy type. */
 	proxy_type = purple_proxy_info_get_proxy_type(
-		purple_proxy_get_setup(purple_connection_get_account(jsx->js->gc)));
+	        purple_proxy_get_setup(purple_connection_get_account(jsx->js->gc)));
 	if (proxy_type == PURPLE_PROXY_TOR) {
 		purple_debug_info("jabber", "Skipping attempting local streamhost.\n");
-		jsx->listen_data = NULL;
-	} else
-		jsx->listen_data = purple_network_listen_range(0, 0, AF_UNSPEC, SOCK_STREAM, TRUE,
-				jabber_si_xfer_bytestreams_listen_cb, xfer);
-
-	if (jsx->listen_data == NULL) {
-		/* We couldn't open a local port.  Perhaps we can use a proxy. */
-		jabber_si_xfer_bytestreams_listen_cb(-1, xfer);
+		jsx->service = NULL;
+	} else {
+		guint16 port = 0;
+		GError *error = NULL;
+		jsx->service = g_socket_service_new();
+		port = purple_socket_listener_add_any_inet_port(
+		        G_SOCKET_LISTENER(jsx->service), G_OBJECT(xfer), &error);
+		if (port != 0) {
+			purple_xfer_set_local_port(xfer, port);
+		} else {
+			purple_debug_error("jabber",
+			                   "Unable to create streamhost socket listener: "
+			                   "%s. Trying proxy instead.",
+			                   error->message);
+			g_error_free(error);
+			g_clear_object(&jsx->service);
+		}
 	}
 
+	if (jsx->service) {
+		gchar *public_ip;
+
+		/* Include the localhost's IPs (for in-network transfers) */
+		local_ips = purple_network_get_all_local_system_ips();
+
+		/* Include the public IP (assuming there is a port mapped somehow) */
+		public_ip = purple_network_get_my_ip_from_gio(
+		        G_SOCKET_CONNECTION(jsx->js->stream));
+		if (!purple_strequal(public_ip, "0.0.0.0") &&
+		    g_list_find_custom(local_ips, public_ip, (GCompareFunc)g_strcmp0) ==
+		            NULL) {
+			local_ips = g_list_append(local_ips, public_ip);
+		} else {
+			g_free(public_ip);
+		}
+
+		g_signal_connect(
+		        G_OBJECT(jsx->service), "incoming",
+		        G_CALLBACK(jabber_si_xfer_bytestreams_send_connected_cb), NULL);
+	}
+
+	jabber_si_xfer_bytestreams_send_local_info(xfer, local_ips);
 }
 
 static void
@@ -1729,7 +1716,6 @@ void jabber_si_parse(JabberStream *js, const char *from, JabberIqType type,
  *****************************************************************************/
 static void
 jabber_si_xfer_init(JabberSIXfer *xfer) {
-	xfer->local_streamhost_fd = -1;
 	xfer->ibb_session = NULL;
 }
 
@@ -1744,16 +1730,14 @@ jabber_si_xfer_finalize(GObject *obj) {
 		purple_proxy_connect_cancel(jsx->connect_data);
 	}
 
-	if (jsx->listen_data != NULL) {
-		purple_network_listen_cancel(jsx->listen_data);
+	g_clear_object(&jsx->local_streamhost_conn);
+	if (jsx->service) {
+		g_socket_service_stop(jsx->service);
 	}
+	g_clear_object(&jsx->service);
 
 	if (jsx->iq_id != NULL) {
 		jabber_iq_remove_callback_by_id(js, jsx->iq_id);
-	}
-
-	if (jsx->local_streamhost_fd >= 0) {
-		close(jsx->local_streamhost_fd);
 	}
 
 	if (purple_xfer_get_xfer_type(PURPLE_XFER(jsx)) == PURPLE_XFER_TYPE_SEND && purple_xfer_get_fd(PURPLE_XFER(jsx)) >= 0) {
