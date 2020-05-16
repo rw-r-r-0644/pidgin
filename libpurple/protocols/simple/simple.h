@@ -126,6 +126,7 @@ struct simple_account_data {
 };
 
 struct sip_connection {
+	GSocketConnection *sockconn;
 	int fd;
 	gchar *inbuf;
 	int inbuflen;
