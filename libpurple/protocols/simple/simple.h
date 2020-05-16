@@ -94,6 +94,7 @@ struct simple_account_data {
 	gchar *username;
 	gchar *password;
 	GCancellable *cancellable;
+	GSocketService *service;
 	PurpleNetworkListenData *listen_data;
 	int fd;
 	int cseq;
