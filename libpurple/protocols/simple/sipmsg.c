@@ -191,21 +191,32 @@ void sipmsg_free(struct sipmsg *msg) {
 	g_free(msg);
 }
 
-void sipmsg_remove_header(struct sipmsg *msg, const gchar *name) {
-	GSList *tmp = g_slist_find_custom(msg->headers, name, (GCompareFunc)g_ascii_strcasecmp);
-	if(tmp) {
+static gint
+compare_header_names(gconstpointer a, gconstpointer b)
+{
+	const PurpleKeyValuePair *kvpa = a;
+	const gchar *name = b;
+	return g_ascii_strcasecmp(kvpa->key, name);
+}
+
+void
+sipmsg_remove_header(struct sipmsg *msg, const gchar *name)
+{
+	GSList *tmp = g_slist_find_custom(msg->headers, name, compare_header_names);
+	if (tmp) {
 		PurpleKeyValuePair *elem = tmp->data;
 		msg->headers = g_slist_delete_link(msg->headers, tmp);
 		purple_key_value_pair_free(elem);
 	}
 }
 
-const gchar *sipmsg_find_header(struct sipmsg *msg, const gchar *name) {
-	GSList *tmp = g_slist_find_custom(msg->headers, name, (GCompareFunc)g_ascii_strcasecmp);
-	if(tmp) {
+const gchar *
+sipmsg_find_header(struct sipmsg *msg, const gchar *name)
+{
+	GSList *tmp = g_slist_find_custom(msg->headers, name, compare_header_names);
+	if (tmp) {
 		PurpleKeyValuePair *elem = tmp->data;
 		return elem->value;
 	}
 	return NULL;
 }
-
