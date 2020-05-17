@@ -32,11 +32,6 @@ struct sipmsg {
 	gchar *body;
 };
 
-struct siphdrelement {
-	gchar *name;
-	gchar *value;
-};
-
 struct sipmsg *sipmsg_parse_msg(const gchar *msg);
 struct sipmsg *sipmsg_parse_header(const gchar *header);
 void sipmsg_add_header(struct sipmsg *msg, const gchar *name, const gchar *value);

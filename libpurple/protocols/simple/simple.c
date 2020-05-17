@@ -607,14 +607,12 @@ static int simple_send_raw(PurpleConnection *gc, const char *buf, int len)
 
 static void sendout_sipmsg(struct simple_account_data *sip, struct sipmsg *msg) {
 	GSList *tmp = msg->headers;
-	gchar *name;
-	gchar *value;
 	GString *outstr = g_string_new("");
 	g_string_append_printf(outstr, "%s %s SIP/2.0\r\n", msg->method, msg->target);
 	while(tmp) {
-		name = ((struct siphdrelement*) (tmp->data))->name;
-		value = ((struct siphdrelement*) (tmp->data))->value;
-		g_string_append_printf(outstr, "%s: %s\r\n", name, value);
+		PurpleKeyValuePair *pair = tmp->data;
+		g_string_append_printf(outstr, "%s: %s\r\n", pair->key,
+		                       (gchar *)pair->value);
 		tmp = g_slist_next(tmp);
 	}
 	g_string_append_printf(outstr, "\r\n%s", msg->body ? msg->body : "");
@@ -625,8 +623,6 @@ static void sendout_sipmsg(struct simple_account_data *sip, struct sipmsg *msg) 
 static void send_sip_response(PurpleConnection *gc, struct sipmsg *msg, int code,
 		const char *text, const char *body) {
 	GSList *tmp = msg->headers;
-	gchar *name;
-	gchar *value;
 	GString *outstr = g_string_new("");
 
 	/* When sending the acknowlegements and errors, the content length from the original
@@ -642,10 +638,9 @@ static void send_sip_response(PurpleConnection *gc, struct sipmsg *msg, int code
 		sipmsg_add_header(msg, "Content-Length", "0");
 	g_string_append_printf(outstr, "SIP/2.0 %d %s\r\n", code, text);
 	while(tmp) {
-		name = ((struct siphdrelement*) (tmp->data))->name;
-		value = ((struct siphdrelement*) (tmp->data))->value;
-
-		g_string_append_printf(outstr, "%s: %s\r\n", name, value);
+		PurpleKeyValuePair *pair = tmp->data;
+		g_string_append_printf(outstr, "%s: %s\r\n", pair->key,
+		                       (gchar *)pair->value);
 		tmp = g_slist_next(tmp);
 	}
 	g_string_append_printf(outstr, "\r\n%s", body ? body : "");

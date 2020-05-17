@@ -134,14 +134,18 @@ struct sipmsg *sipmsg_parse_header(const gchar *header) {
 
 void sipmsg_print(const struct sipmsg *msg) {
 	GSList *cur;
-	struct siphdrelement *elem;
-	purple_debug(PURPLE_DEBUG_MISC, "simple", "SIP MSG\n");
-	purple_debug(PURPLE_DEBUG_MISC, "simple", "response: %d\nmethod: %s\nbodylen: %d\n",msg->response,msg->method,msg->bodylen);
-	if(msg->target) purple_debug(PURPLE_DEBUG_MISC, "simple", "target: %s\n",msg->target);
+	PurpleKeyValuePair *elem;
+	purple_debug_misc("simple", "SIP MSG");
+	purple_debug_misc("simple", "response: %d\nmethod: %s\nbodylen: %d",
+	                  msg->response, msg->method, msg->bodylen);
+	if (msg->target) {
+		purple_debug_misc("simple", "target: %s", msg->target);
+	}
 	cur = msg->headers;
 	while(cur) {
 		elem = cur->data;
-		purple_debug(PURPLE_DEBUG_MISC, "simple", "name: %s value: %s\n",elem->name, elem->value);
+		purple_debug_misc("simple", "name: %s value: %s", elem->key,
+		                  (gchar *)elem->value);
 		cur = g_slist_next(cur);
 	}
 }
@@ -149,7 +153,7 @@ void sipmsg_print(const struct sipmsg *msg) {
 char *sipmsg_to_string(const struct sipmsg *msg) {
 	GSList *cur;
 	GString *outstr = g_string_new("");
-	struct siphdrelement *elem;
+	PurpleKeyValuePair *elem;
 
 	if(msg->response)
 		g_string_append_printf(outstr, "SIP/2.0 %d Unknown\r\n",
@@ -161,8 +165,8 @@ char *sipmsg_to_string(const struct sipmsg *msg) {
 	cur = msg->headers;
 	while(cur) {
 		elem = cur->data;
-		g_string_append_printf(outstr, "%s: %s\r\n", elem->name,
-			elem->value);
+		g_string_append_printf(outstr, "%s: %s\r\n", elem->key,
+		                       (gchar *)elem->value);
 		cur = g_slist_next(cur);
 	}
 
@@ -170,23 +174,17 @@ char *sipmsg_to_string(const struct sipmsg *msg) {
 
 	return g_string_free(outstr, FALSE);
 }
-void sipmsg_add_header(struct sipmsg *msg, const gchar *name, const gchar *value) {
-	struct siphdrelement *element = g_new(struct siphdrelement,1);
-	element->name = g_strdup(name);
-	element->value = g_strdup(value);
+
+void
+sipmsg_add_header(struct sipmsg *msg, const gchar *name, const gchar *value)
+{
+	PurpleKeyValuePair *element =
+	        purple_key_value_pair_new_full(name, g_strdup(value), g_free);
 	msg->headers = g_slist_append(msg->headers, element);
 }
 
-static void
-sipmsg_free_header(struct siphdrelement *elem)
-{
-	g_free(elem->name);
-	g_free(elem->value);
-	g_free(elem);
-}
-
 void sipmsg_free(struct sipmsg *msg) {
-	g_slist_free_full(msg->headers, (GDestroyNotify)sipmsg_free_header);
+	g_slist_free_full(msg->headers, (GDestroyNotify)purple_key_value_pair_free);
 	g_free(msg->method);
 	g_free(msg->target);
 	g_free(msg->body);
@@ -196,16 +194,16 @@ void sipmsg_free(struct sipmsg *msg) {
 void sipmsg_remove_header(struct sipmsg *msg, const gchar *name) {
 	GSList *tmp = g_slist_find_custom(msg->headers, name, (GCompareFunc)g_ascii_strcasecmp);
 	if(tmp) {
-		struct siphdrelement *elem = tmp->data;
+		PurpleKeyValuePair *elem = tmp->data;
 		msg->headers = g_slist_delete_link(msg->headers, tmp);
-		sipmsg_free_header(elem);
+		purple_key_value_pair_free(elem);
 	}
 }
 
 const gchar *sipmsg_find_header(struct sipmsg *msg, const gchar *name) {
 	GSList *tmp = g_slist_find_custom(msg->headers, name, (GCompareFunc)g_ascii_strcasecmp);
 	if(tmp) {
-		struct siphdrelement *elem = tmp->data;
+		PurpleKeyValuePair *elem = tmp->data;
 		return elem->value;
 	}
 	return NULL;
