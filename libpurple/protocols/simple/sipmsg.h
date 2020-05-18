@@ -39,6 +39,6 @@ void sipmsg_free(struct sipmsg *msg);
 const gchar *sipmsg_find_header(struct sipmsg *msg, const gchar *name);
 void sipmsg_remove_header(struct sipmsg *msg, const gchar *name);
 void sipmsg_print(const struct sipmsg *msg);
-char *sipmsg_to_string(const struct sipmsg *msg);
+gchar *sipmsg_to_string(const struct sipmsg *msg, const gchar *status_text);
 
 #endif /* PURPLE_SIMPLE_SIPMSG_H */

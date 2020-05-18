@@ -150,17 +150,20 @@ void sipmsg_print(const struct sipmsg *msg) {
 	}
 }
 
-char *sipmsg_to_string(const struct sipmsg *msg) {
+gchar *
+sipmsg_to_string(const struct sipmsg *msg, const gchar *status_text)
+{
 	GSList *cur;
 	GString *outstr = g_string_new("");
 	PurpleKeyValuePair *elem;
 
-	if(msg->response)
-		g_string_append_printf(outstr, "SIP/2.0 %d Unknown\r\n",
-			msg->response);
-	else
+	if (msg->response) {
+		g_string_append_printf(outstr, "SIP/2.0 %d %s\r\n", msg->response,
+		                       status_text ? status_text : "Unknown");
+	} else {
 		g_string_append_printf(outstr, "%s %s SIP/2.0\r\n",
 			msg->method, msg->target);
+	}
 
 	cur = msg->headers;
 	while(cur) {
