@@ -179,7 +179,7 @@ static void buddy_ticker_add_buddy(PurpleBuddy *b) {
 	 * Update the icon in a few seconds (after the open door icon has
 	 * changed).  This is somewhat ugly.
 	 */
-	td->timeout = g_timeout_add(11000, buddy_ticker_set_pixmap_cb, td);
+	td->timeout = g_timeout_add_seconds(11, buddy_ticker_set_pixmap_cb, td);
 }
 
 static void ticker_data_free(TickerData *td) {

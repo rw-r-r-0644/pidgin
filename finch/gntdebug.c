@@ -263,7 +263,7 @@ for_real(gpointer entry)
 static void
 update_filter_string(GntEntry *entry, gpointer null)
 {
-	int id = g_timeout_add(1000, for_real, entry);
+	int id = g_timeout_add_seconds(1, for_real, entry);
 	g_object_set_data_full(G_OBJECT(entry), "update-filter", GINT_TO_POINTER(id),
 					(GDestroyNotify)g_source_remove);
 }

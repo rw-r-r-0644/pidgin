@@ -38,7 +38,7 @@
 ****************************************************************/
 #define HTTP_OK "200 OK"
 #define DEFAULT_HTTP_PORT 80
-#define DISCOVERY_TIMEOUT 1000
+#define DISCOVERY_TIMEOUT 1
 /* limit UPnP-triggered http downloads to 128k */
 #define MAX_UPNP_DOWNLOAD (128 * 1024)
 
@@ -583,8 +583,8 @@ purple_upnp_discover_send_broadcast(UPnPDiscoveryData *dd)
 		g_free(sendMessage);
 
 		if(sentSuccess) {
-			dd->tima = g_timeout_add(DISCOVERY_TIMEOUT,
-				purple_upnp_discover_timeout, dd);
+			dd->tima = g_timeout_add_seconds(DISCOVERY_TIMEOUT,
+			                                 purple_upnp_discover_timeout, dd);
 			dd->inpa = purple_input_add(dd->fd, PURPLE_INPUT_READ,
 				purple_upnp_discover_udp_read, dd);
 
