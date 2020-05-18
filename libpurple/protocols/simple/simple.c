@@ -474,38 +474,26 @@ static void fill_auth(struct simple_account_data *sip, const gchar *hdr, struct 
 
 }
 
-static void simple_canwrite_cb(gpointer data, gint source, PurpleInputCondition cond) {
-	PurpleConnection *gc = data;
-	struct simple_account_data *sip = purple_connection_get_protocol_data(gc);
-	gsize max_write;
-	gssize written;
-	const gchar *output = NULL;
+static void
+simple_push_bytes_cb(GObject *sender, GAsyncResult *res, gpointer data)
+{
+	PurpleQueuedOutputStream *stream = PURPLE_QUEUED_OUTPUT_STREAM(sender);
+	struct simple_account_data *sip = data;
+	gboolean result;
+	GError *error = NULL;
 
-	max_write = purple_circular_buffer_get_max_read(sip->txbuf);
+	result = purple_queued_output_stream_push_bytes_finish(stream, res, &error);
 
-	if(max_write == 0) {
-		purple_input_remove(sip->tx_handler);
-		sip->tx_handler = 0;
-		return;
+	if (!result) {
+		purple_queued_output_stream_clear_queue(stream);
+
+		if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			g_error_free(error);
+		} else {
+			g_prefix_error(&error, "%s", _("Lost connection with server: "));
+			purple_connection_take_error(sip->gc, error);
+		}
 	}
-
-	output = purple_circular_buffer_get_output(sip->txbuf);
-
-	written = write(sip->fd, output, max_write);
-
-	if(written < 0 && errno == EAGAIN)
-		written = 0;
-	else if (written <= 0) {
-		/*TODO: do we really want to disconnect on a failure to write?*/
-		gchar *tmp = g_strdup_printf(_("Lost connection with server: %s"),
-				g_strerror(errno));
-		purple_connection_error(gc,
-			PURPLE_CONNECTION_ERROR_NETWORK_ERROR, tmp);
-		g_free(tmp);
-		return;
-	}
-
-	purple_circular_buffer_mark_read(sip->txbuf, written);
 }
 
 static void simple_input_cb(gpointer data, gint source, PurpleInputCondition cond);
@@ -519,6 +507,7 @@ send_later_cb(GObject *sender, GAsyncResult *res, gpointer data)
 	GSocketConnection *sockconn;
 	GSocket *socket;
 	gint fd;
+	gsize writelen;
 	GError *error = NULL;
 
 	sockconn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(sender),
@@ -538,14 +527,25 @@ send_later_cb(GObject *sender, GAsyncResult *res, gpointer data)
 
 	sip = purple_connection_get_protocol_data(gc);
 	sip->fd = fd;
+	sip->output = purple_queued_output_stream_new(
+	        g_io_stream_get_output_stream(G_IO_STREAM(sockconn)));
 	sip->connecting = FALSE;
 
-	simple_canwrite_cb(gc, sip->fd, PURPLE_INPUT_WRITE);
+	writelen = purple_circular_buffer_get_max_read(sip->txbuf);
+	if (writelen != 0) {
+		const gchar *buf;
+		GBytes *output;
 
-	/* If there is more to write now, we need to register a handler */
-	if(purple_circular_buffer_get_used(sip->txbuf) > 0)
-		sip->tx_handler = purple_input_add(sip->fd, PURPLE_INPUT_WRITE,
-			simple_canwrite_cb, gc);
+		buf = purple_circular_buffer_get_output(sip->txbuf);
+
+		output = g_bytes_new(buf, writelen);
+		purple_queued_output_stream_push_bytes_async(
+		        sip->output, output, G_PRIORITY_DEFAULT, sip->cancellable,
+		        simple_push_bytes_cb, sip);
+		g_bytes_unref(output);
+
+		purple_circular_buffer_mark_read(sip->txbuf, writelen);
+	}
 
 	conn = connection_create(sip, sockconn, fd);
 	conn->inputhandler = purple_input_add(sip->fd, PURPLE_INPUT_READ, simple_input_cb, gc);
@@ -591,39 +591,18 @@ static void sendout_pkt(PurpleConnection *gc, const char *buf) {
 			purple_debug_info("simple", "could not send packet\n");
 		}
 	} else {
-		int ret;
-		if(sip->fd < 0) {
+		GBytes *output;
+
+		if (sip->output == NULL) {
 			sendlater(gc, buf);
 			return;
 		}
 
-		if(sip->tx_handler) {
-			ret = -1;
-			errno = EAGAIN;
-		} else
-			ret = write(sip->fd, buf, writelen);
-
-		if (ret < 0 && errno == EAGAIN)
-			ret = 0;
-		else if(ret <= 0) { /* XXX: When does this happen legitimately? */
-			sendlater(gc, buf);
-			return;
-		}
-
-		if (ret < writelen) {
-			if(!sip->tx_handler)
-				sip->tx_handler = purple_input_add(sip->fd,
-					PURPLE_INPUT_WRITE, simple_canwrite_cb,
-					gc);
-
-			/* XXX: is it OK to do this? You might get part of a request sent
-			   with part of another. */
-			if(purple_circular_buffer_get_used(sip->txbuf) > 0)
-				purple_circular_buffer_append(sip->txbuf, "\r\n", 2);
-
-			purple_circular_buffer_append(sip->txbuf, buf + ret,
-				writelen - ret);
-		}
+		output = g_bytes_new(buf, writelen);
+		purple_queued_output_stream_push_bytes_async(
+		        sip->output, output, G_PRIORITY_DEFAULT, sip->cancellable,
+		        simple_push_bytes_cb, sip);
+		g_bytes_unref(output);
 	}
 }
 
@@ -1792,8 +1771,11 @@ static void simple_input_cb(gpointer data, gint source, PurpleInputCondition con
 		return;
 	else if(len <= 0) {
 		purple_debug_info("simple", "simple_input_cb: read error\n");
+		if (sip->fd == source) {
+			sip->fd = -1;
+			g_clear_object(&sip->output);
+		}
 		connection_remove(sip, source);
-		if(sip->fd == source) sip->fd = -1;
 		return;
 	}
 	purple_connection_update_last_received(gc);
@@ -1855,6 +1837,8 @@ login_cb(GObject *sender, GAsyncResult *res, gpointer data)
 
 	sip = purple_connection_get_protocol_data(gc);
 	sip->fd = fd;
+	sip->output = purple_queued_output_stream_new(
+	        g_io_stream_get_output_stream(G_IO_STREAM(sockconn)));
 
 	conn = connection_create(sip, sockconn, fd);
 
@@ -2128,8 +2112,6 @@ static void simple_close(PurpleConnection *gc)
 
 	if (sip->listenpa)
 		purple_input_remove(sip->listenpa);
-	if (sip->tx_handler)
-		purple_input_remove(sip->tx_handler);
 	if (sip->resendtimeout)
 		g_source_remove(sip->resendtimeout);
 	if (sip->registertimeout)
@@ -2146,6 +2128,7 @@ static void simple_close(PurpleConnection *gc)
 	if (sip->listen_data != NULL)
 		purple_network_listen_cancel(sip->listen_data);
 
+	g_clear_object(&sip->output);
 	if (sip->fd >= 0)
 		close(sip->fd);
 
