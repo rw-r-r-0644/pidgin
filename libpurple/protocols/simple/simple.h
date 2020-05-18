@@ -103,7 +103,6 @@ struct simple_account_data {
 	int registerstatus; /* 0 nothing, 1 first registration send, 2 auth received, 3 registered */
 	struct sip_auth registrar;
 	struct sip_auth proxy;
-	int listenfd;
 	int listenport;
 	int listenpa;
 	gchar *status;

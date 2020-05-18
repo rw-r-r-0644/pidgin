@@ -2059,7 +2059,6 @@ static void simple_login(PurpleAccount *account)
 	purple_connection_set_protocol_data(gc, sip);
 	sip->gc = gc;
 	sip->fd = -1;
-	sip->listenfd = -1;
 	sip->account = account;
 	sip->registerexpire = 900;
 	sip->udp = purple_account_get_bool(account, "udp", FALSE);
@@ -2149,8 +2148,6 @@ static void simple_close(PurpleConnection *gc)
 
 	if (sip->fd >= 0)
 		close(sip->fd);
-	if (sip->listenfd >= 0)
-		close(sip->listenfd);
 
 	g_free(sip->servername);
 	g_free(sip->username);
