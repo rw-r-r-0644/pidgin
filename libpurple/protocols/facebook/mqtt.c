@@ -338,8 +338,8 @@ fb_mqtt_timeout(FbMqtt *mqtt)
 	FbMqttPrivate *priv = mqtt->priv;
 
 	fb_mqtt_timeout_clear(mqtt);
-	priv->tev = g_timeout_add(FB_MQTT_TIMEOUT_CONN,
-	                               fb_mqtt_cb_timeout, mqtt);
+	priv->tev = g_timeout_add_seconds(FB_MQTT_TIMEOUT_CONN, fb_mqtt_cb_timeout,
+	                                  mqtt);
 }
 
 static gboolean
@@ -364,8 +364,8 @@ fb_mqtt_ping(FbMqtt *mqtt)
 	FbMqttPrivate *priv = mqtt->priv;
 
 	fb_mqtt_timeout_clear(mqtt);
-	priv->tev = g_timeout_add(FB_MQTT_TIMEOUT_PING,
-	                               fb_mqtt_cb_ping, mqtt);
+	priv->tev =
+	        g_timeout_add_seconds(FB_MQTT_TIMEOUT_PING, fb_mqtt_cb_ping, mqtt);
 }
 
 static void

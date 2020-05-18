@@ -77,17 +77,16 @@
 /**
  * FB_MQTT_TIMEOUT_CONN:
  *
- * The timeout, in milliseconds, to wait for a PING back from the
- * server.
+ * The timeout, in seconds, to wait for a PING back from the server.
  */
-#define FB_MQTT_TIMEOUT_CONN  (FB_MQTT_KA * 1500)
+#define FB_MQTT_TIMEOUT_CONN ((guint)(FB_MQTT_KA * 1.5))
 
 /**
  * FB_MQTT_TIMEOUT_PING:
  *
- * The timeout, in milliseconds, to send a PING to the server.
+ * The timeout, in seconds, to send a PING to the server.
  */
-#define FB_MQTT_TIMEOUT_PING  (FB_MQTT_KA * 1000)
+#define FB_MQTT_TIMEOUT_PING (FB_MQTT_KA)
 
 /**
  * FB_MQTT_ERROR:

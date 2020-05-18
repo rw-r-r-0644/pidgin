@@ -28,10 +28,10 @@
 #include "gntaccount.h"
 #include "gntconn.h"
 
-#define INITIAL_RECON_DELAY_MIN  8000
-#define INITIAL_RECON_DELAY_MAX 60000
+#define INITIAL_RECON_DELAY_MIN 8
+#define INITIAL_RECON_DELAY_MAX 60
 
-#define MAX_RECON_DELAY 600000
+#define MAX_RECON_DELAY 600
 
 typedef struct {
 	int delay;
@@ -113,7 +113,7 @@ finch_connection_report_disconnect(PurpleConnection *gc, PurpleConnectionError r
 			if (info->timeout != 0)
 				g_source_remove(info->timeout);
 		}
-		info->timeout = g_timeout_add(info->delay, do_signon, account);
+		info->timeout = g_timeout_add_seconds(info->delay, do_signon, account);
 	} else {
 		char *act, *primary, *secondary;
 		act = g_strdup_printf(_("%s (%s)"), purple_account_get_username(account),

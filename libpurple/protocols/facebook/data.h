@@ -115,7 +115,7 @@ fb_data_save(FbData *fata);
  * fb_data_add_timeout:
  * @fata: The #FbData.
  * @name: The name of the timeout.
- * @interval: The time, in milliseconds, between calls to @func.
+ * @interval: The time, in seconds, between calls to @func.
  * @func: The #GSourceFunc.
  * @data: The data passed to @func.
  *
