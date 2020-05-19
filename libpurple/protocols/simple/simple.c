@@ -605,52 +605,33 @@ static int simple_send_raw(PurpleConnection *gc, const char *buf, int len)
 	return len;
 }
 
-static void sendout_sipmsg(struct simple_account_data *sip, struct sipmsg *msg) {
-	GSList *tmp = msg->headers;
-	gchar *name;
-	gchar *value;
-	GString *outstr = g_string_new("");
-	g_string_append_printf(outstr, "%s %s SIP/2.0\r\n", msg->method, msg->target);
-	while(tmp) {
-		name = ((struct siphdrelement*) (tmp->data))->name;
-		value = ((struct siphdrelement*) (tmp->data))->value;
-		g_string_append_printf(outstr, "%s: %s\r\n", name, value);
-		tmp = g_slist_next(tmp);
-	}
-	g_string_append_printf(outstr, "\r\n%s", msg->body ? msg->body : "");
-	sendout_pkt(sip->gc, outstr->str);
-	g_string_free(outstr, TRUE);
-}
-
-static void send_sip_response(PurpleConnection *gc, struct sipmsg *msg, int code,
-		const char *text, const char *body) {
-	GSList *tmp = msg->headers;
-	gchar *name;
-	gchar *value;
-	GString *outstr = g_string_new("");
+static void
+send_sip_response(PurpleConnection *gc, struct sipmsg *msg, gint code,
+                  const gchar *text, const gchar *body)
+{
+	gchar *outstr;
 
 	/* When sending the acknowlegements and errors, the content length from the original
 	   message is still here, but there is no body; we need to make sure we're sending the
 	   correct content length */
 	sipmsg_remove_header(msg, "Content-Length");
+	g_clear_pointer(&msg->body, g_free);
 	if(body) {
 		gchar len[12];
-		sprintf(len, "%" G_GSIZE_FORMAT , strlen(body));
+		msg->bodylen = strlen(body);
+		sprintf(len, "%d", msg->bodylen);
 		sipmsg_add_header(msg, "Content-Length", len);
-	}
-	else
+		msg->body = g_strdup(body);
+	} else {
 		sipmsg_add_header(msg, "Content-Length", "0");
-	g_string_append_printf(outstr, "SIP/2.0 %d %s\r\n", code, text);
-	while(tmp) {
-		name = ((struct siphdrelement*) (tmp->data))->name;
-		value = ((struct siphdrelement*) (tmp->data))->value;
-
-		g_string_append_printf(outstr, "%s: %s\r\n", name, value);
-		tmp = g_slist_next(tmp);
+		msg->bodylen = 0;
 	}
-	g_string_append_printf(outstr, "\r\n%s", body ? body : "");
-	sendout_pkt(gc, outstr->str);
-	g_string_free(outstr, TRUE);
+	msg->response = code;
+
+	outstr = sipmsg_to_string(msg, text);
+	sendout_pkt(gc, outstr);
+
+	g_free(outstr);
 }
 
 static void
@@ -1027,8 +1008,11 @@ static gboolean resend_timeout(struct simple_account_data *sip) {
 			/* TODO 408 */
 		} else {
 			if((currtime - trans->time > 2) && trans->retries == 0) {
+				gchar *outstr;
 				trans->retries++;
-				sendout_sipmsg(sip, trans->msg);
+				outstr = sipmsg_to_string(trans->msg, NULL);
+				sendout_pkt(sip->gc, outstr);
+				g_free(outstr);
 			}
 		}
 	}
@@ -1595,7 +1579,7 @@ static void process_input_message(struct simple_account_data *sip, struct sipmsg
 				sipmsg_remove_header(trans->msg, "Proxy-Authorization");
 				sipmsg_add_header(trans->msg, "Proxy-Authorization", auth);
 				g_free(auth);
-				resend = sipmsg_to_string(trans->msg);
+				resend = sipmsg_to_string(trans->msg, NULL);
 				/* resend request */
 				sendout_pkt(sip->gc, resend);
 				g_free(resend);
@@ -1639,7 +1623,7 @@ static void process_input_message(struct simple_account_data *sip, struct sipmsg
 							sipmsg_remove_header(trans->msg, "Authorization");
 							sipmsg_add_header(trans->msg, "Authorization", auth);
 							g_free(auth);
-							resend = sipmsg_to_string(trans->msg);
+							resend = sipmsg_to_string(trans->msg, NULL);
 							/* resend request */
 							sendout_pkt(sip->gc, resend);
 							g_free(resend);
