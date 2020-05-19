@@ -29,6 +29,7 @@
 #ifdef HAVE_NETTLE
 #include <nettle/des.h>
 #include <nettle/md4.h>
+#include <nettle/yarrow.h>
 #endif
 
 #include <string.h>
@@ -155,42 +156,32 @@ calc_resp(guint8 *keys, const guint8 *plaintext, unsigned char *results)
 	des_ecb_encrypt(plaintext, results + 16, key);
 }
 
-/*
- * TODO: We think we should be using cryptographically secure random numbers
- *       here.  We think the rand() function is probably bad.  We think
- *       /dev/urandom is a step up, but using a random function from an SSL
- *       library would probably be best.  In Windows we could possibly also
- *       use CryptGenRandom.
- */
 static void
 gensesskey(char *buffer)
 {
 	int fd;
 	int i;
-	ssize_t red = 0;
+	ssize_t bytes_seeded = 0;
+	uint8_t seed[YARROW256_SEED_FILE_SIZE];
+	struct yarrow256_ctx ctx;
 
 	fd = open("/dev/urandom", O_RDONLY);
 	if (fd >= 0) {
-		red = read(fd, buffer, 16);
-		if (red < 0) {
-			purple_debug_warning("ntlm", "Error reading from /dev/urandom: %s."
-					"  Falling back to inferior method.\n", g_strerror(errno));
-			red = 0;
-		} else if (red < 16) {
-			purple_debug_warning("ntlm", "Tried reading 16 bytes from "
-					"/dev/urandom but only got %"
-					G_GSSIZE_FORMAT ".  Falling back to "
-					"inferior method\n", (gssize)red);
+		bytes_seeded = read(fd, seed, YARROW256_SEED_FILE_SIZE);
+		if (bytes_seeded < 0) {
+			bytes_seeded = 0;
 		}
 		close(fd);
-	} else {
-		purple_debug_warning("ntlm", "Error opening /dev/urandom: %s."
-				"  Falling back to inferior method.\n", g_strerror(errno));
 	}
 
-	for (i = red; i < 16; i++) {
-		buffer[i] = (char)(g_random_int() & 0xff);
+	for (i = bytes_seeded; i < YARROW256_SEED_FILE_SIZE; i++) {
+		seed[i] = (char)(g_random_int() & 0xff);
 	}
+
+	yarrow256_init(&ctx, 0, NULL);
+	yarrow256_seed(&ctx, YARROW256_SEED_FILE_SIZE, seed);
+	yarrow256_random(&ctx, YARROW256_SEED_FILE_SIZE, seed);
+	yarrow256_random(&ctx, 16, (uint8_t *)buffer);
 }
 #endif /* HAVE_NETTLE */
 
