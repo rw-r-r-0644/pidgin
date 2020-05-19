@@ -1811,7 +1811,8 @@ static void login_cb(gpointer data, gint source, const gchar *error_message) {
 
 	conn = connection_create(sip, source);
 
-	sip->registertimeout = g_timeout_add(g_random_int_range(10000, 100000), (GSourceFunc)subscribe_timeout, sip);
+	sip->registertimeout = g_timeout_add_seconds(
+	        g_random_int_range(10, 100), (GSourceFunc)subscribe_timeout, sip);
 
 	do_register(sip);
 
@@ -1854,7 +1855,8 @@ static void simple_udp_host_resolved_listen_cb(int listenfd, gpointer data) {
 	sip->listenpa = purple_input_add(sip->fd, PURPLE_INPUT_READ, simple_udp_process, sip->gc);
 
 	sip->resendtimeout = g_timeout_add(2500, (GSourceFunc) resend_timeout, sip);
-	sip->registertimeout = g_timeout_add(g_random_int_range(10000, 100000), (GSourceFunc)subscribe_timeout, sip);
+	sip->registertimeout = g_timeout_add_seconds(
+	        g_random_int_range(10, 100), (GSourceFunc)subscribe_timeout, sip);
 	do_register(sip);
 }
 
