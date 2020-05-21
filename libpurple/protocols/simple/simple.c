@@ -210,8 +210,12 @@ watcher_destroy(struct simple_watcher *watcher)
 	g_free(watcher);
 }
 
-static struct sip_connection *connection_create(struct simple_account_data *sip, int fd) {
+static struct sip_connection *
+connection_create(struct simple_account_data *sip, GSocketConnection *sockconn,
+                  int fd)
+{
 	struct sip_connection *ret = g_new0(struct sip_connection, 1);
+	ret->sockconn = sockconn;
 	ret->fd = fd;
 	sip->openconns = g_slist_append(sip->openconns, ret);
 	return ret;
@@ -224,6 +228,7 @@ connection_destroy(struct sip_connection *conn)
 		purple_input_remove(conn->inputhandler);
 	}
 	g_clear_pointer(&conn->inbuf, g_free);
+	g_clear_object(&conn->sockconn);
 	g_free(conn);
 }
 
@@ -505,22 +510,34 @@ static void simple_canwrite_cb(gpointer data, gint source, PurpleInputCondition 
 
 static void simple_input_cb(gpointer data, gint source, PurpleInputCondition cond);
 
-static void send_later_cb(gpointer data, gint source, const gchar *error_message) {
+static void
+send_later_cb(GObject *sender, GAsyncResult *res, gpointer data)
+{
 	PurpleConnection *gc = data;
 	struct simple_account_data *sip;
 	struct sip_connection *conn;
+	GSocketConnection *sockconn;
+	GSocket *socket;
+	gint fd;
+	GError *error = NULL;
 
-	if(source < 0) {
-		gchar *tmp = g_strdup_printf(_("Unable to connect: %s"),
-				error_message);
-		purple_connection_error(gc,
-			PURPLE_CONNECTION_ERROR_NETWORK_ERROR, tmp);
-		g_free(tmp);
+	sockconn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(sender),
+	                                                  res, &error);
+	if (sockconn == NULL) {
+		if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			g_clear_error(&error);
+		} else {
+			purple_connection_take_error(gc, error);
+		}
 		return;
 	}
 
+	socket = g_socket_connection_get_socket(sockconn);
+	g_assert(socket != NULL);
+	fd = g_socket_get_fd(socket);
+
 	sip = purple_connection_get_protocol_data(gc);
-	sip->fd = source;
+	sip->fd = fd;
 	sip->connecting = FALSE;
 
 	simple_canwrite_cb(gc, sip->fd, PURPLE_INPUT_WRITE);
@@ -530,19 +547,30 @@ static void send_later_cb(gpointer data, gint source, const gchar *error_message
 		sip->tx_handler = purple_input_add(sip->fd, PURPLE_INPUT_WRITE,
 			simple_canwrite_cb, gc);
 
-	conn = connection_create(sip, source);
+	conn = connection_create(sip, sockconn, fd);
 	conn->inputhandler = purple_input_add(sip->fd, PURPLE_INPUT_READ, simple_input_cb, gc);
 }
-
 
 static void sendlater(PurpleConnection *gc, const char *buf) {
 	struct simple_account_data *sip = purple_connection_get_protocol_data(gc);
 
 	if(!sip->connecting) {
-		purple_debug_info("simple", "connecting to %s port %d\n", sip->realhostname ? sip->realhostname : "{NULL}", sip->realport);
-		if (purple_proxy_connect(gc, sip->account, sip->realhostname, sip->realport, send_later_cb, gc) == NULL) {
-			purple_connection_error(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, _("Unable to connect"));
+		GSocketClient *client = NULL;
+		GError *error = NULL;
+
+		client = purple_gio_socket_client_new(sip->account, &error);
+		if (client == NULL) {
+			purple_connection_take_error(sip->gc, error);
+			return;
 		}
+
+		purple_debug_info("simple", "connecting to %s port %d",
+		                  sip->realhostname ? sip->realhostname : "{NULL}",
+		                  sip->realport);
+		g_socket_client_connect_to_host_async(client, sip->realhostname,
+		                                      sip->realport, sip->cancellable,
+		                                      send_later_cb, gc);
+		g_object_unref(client);
 		sip->connecting = TRUE;
 	}
 
@@ -1760,40 +1788,59 @@ static void simple_input_cb(gpointer data, gint source, PurpleInputCondition con
 }
 
 /* Callback for new connections on incoming TCP port */
-static void simple_newconn_cb(gpointer data, gint source, PurpleInputCondition cond) {
-	PurpleConnection *gc = data;
+static void
+simple_newconn_cb(G_GNUC_UNUSED GSocketService *service,
+                  GSocketConnection *connection, GObject *source_object,
+                  G_GNUC_UNUSED gpointer data)
+{
+	PurpleConnection *gc = PURPLE_CONNECTION(source_object);
 	struct simple_account_data *sip = purple_connection_get_protocol_data(gc);
 	struct sip_connection *conn;
-	int newfd;
+	GSocket *socket;
+	gint fd;
 
-	newfd = accept(source, NULL, NULL);
-	g_return_if_fail(newfd >= 0);
+	socket = g_socket_connection_get_socket(connection);
+	g_assert(socket != NULL);
+	fd = g_socket_get_fd(socket);
 
-	_purple_network_set_common_socket_flags(newfd);
+	_purple_network_set_common_socket_flags(fd);
 
-	conn = connection_create(sip, newfd);
+	conn = connection_create(sip, g_object_ref(connection), fd);
 
-	conn->inputhandler = purple_input_add(newfd, PURPLE_INPUT_READ, simple_input_cb, gc);
+	conn->inputhandler =
+	        purple_input_add(fd, PURPLE_INPUT_READ, simple_input_cb, gc);
 }
 
-static void login_cb(gpointer data, gint source, const gchar *error_message) {
+static void
+login_cb(GObject *sender, GAsyncResult *res, gpointer data)
+{
 	PurpleConnection *gc = data;
 	struct simple_account_data *sip;
 	struct sip_connection *conn;
+	GSocketConnection *sockconn;
+	GSocket *socket;
+	gint fd;
+	GError *error = NULL;
 
-	if(source < 0) {
-		gchar *tmp = g_strdup_printf(_("Unable to connect: %s"),
-				error_message);
-		purple_connection_error(gc,
-			PURPLE_CONNECTION_ERROR_NETWORK_ERROR, tmp);
-		g_free(tmp);
+	sockconn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(sender),
+	                                                  res, &error);
+	if (sockconn == NULL) {
+		if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			g_clear_error(&error);
+		} else {
+			purple_connection_take_error(gc, error);
+		}
 		return;
 	}
 
-	sip = purple_connection_get_protocol_data(gc);
-	sip->fd = source;
+	socket = g_socket_connection_get_socket(sockconn);
+	g_assert(socket != NULL);
+	fd = g_socket_get_fd(socket);
 
-	conn = connection_create(sip, source);
+	sip = purple_connection_get_protocol_data(gc);
+	sip->fd = fd;
+
+	conn = connection_create(sip, sockconn, fd);
 
 	sip->registertimeout = g_timeout_add_seconds(
 	        g_random_int_range(10, 100), (GSourceFunc)subscribe_timeout, sip);
@@ -1893,35 +1940,6 @@ simple_udp_host_resolved(GObject *sender, GAsyncResult *result, gpointer data) {
 }
 
 static void
-simple_tcp_connect_listen_cb(int listenfd, gpointer data) {
-	struct simple_account_data *sip = (struct simple_account_data*) data;
-
-	sip->listen_data = NULL;
-
-	sip->listenfd = listenfd;
-	if(sip->listenfd == -1) {
-		purple_connection_error(sip->gc,
-			PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-			_("Unable to create listen socket"));
-		return;
-	}
-
-	purple_debug_info("simple", "listenfd: %d\n", sip->listenfd);
-	sip->listenport = purple_network_get_port_from_fd(sip->listenfd);
-	sip->listenpa = purple_input_add(sip->listenfd, PURPLE_INPUT_READ,
-			simple_newconn_cb, sip->gc);
-	purple_debug_info("simple", "connecting to %s port %d\n",
-			sip->realhostname, sip->realport);
-	/* open tcp connection to the server */
-	if (purple_proxy_connect(sip->gc, sip->account, sip->realhostname,
-			sip->realport, login_cb, sip->gc) == NULL) {
-		purple_connection_error(sip->gc,
-			PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-			_("Unable to connect"));
-	}
-}
-
-static void
 srvresolved(GObject *sender, GAsyncResult *result, gpointer data) {
 	GError *error = NULL;
 	GList *targets = NULL;
@@ -1963,15 +1981,32 @@ srvresolved(GObject *sender, GAsyncResult *result, gpointer data) {
 
 	/* TCP case */
 	if(!sip->udp) {
-		/* create socket for incoming connections */
-		sip->listen_data = purple_network_listen_range(5060, 5160, AF_UNSPEC, SOCK_STREAM, TRUE,
-					simple_tcp_connect_listen_cb, sip);
-		if (sip->listen_data == NULL) {
-			purple_connection_error(sip->gc,
-				PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-				_("Unable to create listen socket"));
+		GSocketClient *client;
+		/* create service for incoming connections */
+		sip->service = g_socket_service_new();
+		sip->listenport = purple_socket_listener_add_any_inet_port(
+		        G_SOCKET_LISTENER(sip->service), G_OBJECT(sip->gc), &error);
+		if (sip->listenport == 0) {
+			purple_connection_take_error(sip->gc, error);
 			return;
 		}
+		g_signal_connect(sip->service, "incoming",
+		                 G_CALLBACK(simple_newconn_cb), NULL);
+
+		purple_debug_info("simple", "connecting to %s port %d",
+		                  sip->realhostname, sip->realport);
+
+		client = purple_gio_socket_client_new(sip->account, &error);
+		if (client == NULL) {
+			purple_connection_take_error(sip->gc, error);
+			return;
+		}
+
+		/* open tcp connection to the server */
+		g_socket_client_connect_to_host_async(client, sip->realhostname,
+		                                      sip->realport, sip->cancellable,
+		                                      login_cb, sip->gc);
+		g_object_unref(client);
 	} else { /* UDP */
 		GResolver *resolver = g_resolver_get_default();
 
@@ -2010,7 +2045,6 @@ static void simple_login(PurpleAccount *account)
 	purple_connection_set_protocol_data(gc, sip);
 	sip->gc = gc;
 	sip->fd = -1;
-	sip->listenfd = -1;
 	sip->account = account;
 	sip->registerexpire = 900;
 	sip->udp = purple_account_get_bool(account, "udp", FALSE);
@@ -2090,13 +2124,16 @@ static void simple_close(PurpleConnection *gc)
 	g_cancellable_cancel(sip->cancellable);
 	g_object_unref(G_OBJECT(sip->cancellable));
 
+	if (sip->service) {
+		g_socket_service_stop(sip->service);
+	}
+	g_clear_object(&sip->service);
+
 	if (sip->listen_data != NULL)
 		purple_network_listen_cancel(sip->listen_data);
 
 	if (sip->fd >= 0)
 		close(sip->fd);
-	if (sip->listenfd >= 0)
-		close(sip->listenfd);
 
 	g_free(sip->servername);
 	g_free(sip->username);
