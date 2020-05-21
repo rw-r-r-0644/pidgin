@@ -94,6 +94,7 @@ struct simple_account_data {
 	gchar *username;
 	gchar *password;
 	GCancellable *cancellable;
+	GSocketService *service;
 	PurpleNetworkListenData *listen_data;
 	int fd;
 	int cseq;
@@ -102,7 +103,6 @@ struct simple_account_data {
 	int registerstatus; /* 0 nothing, 1 first registration send, 2 auth received, 3 registered */
 	struct sip_auth registrar;
 	struct sip_auth proxy;
-	int listenfd;
 	int listenport;
 	int listenpa;
 	gchar *status;
@@ -126,6 +126,7 @@ struct simple_account_data {
 };
 
 struct sip_connection {
+	GSocketConnection *sockconn;
 	int fd;
 	gchar *inbuf;
 	int inbuflen;
