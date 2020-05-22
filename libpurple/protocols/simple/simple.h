@@ -94,6 +94,8 @@ struct simple_account_data {
 	gchar *username;
 	gchar *password;
 	GCancellable *cancellable;
+	GInputStream *input;
+	PurpleQueuedOutputStream *output;
 	GSocketService *service;
 	PurpleNetworkListenData *listen_data;
 	int fd;
@@ -112,7 +114,6 @@ struct simple_account_data {
 	gboolean connecting;
 	PurpleAccount *account;
 	PurpleCircularBuffer *txbuf;
-	guint tx_handler;
 	gchar *regcallid;
 	GSList *transactions;
 	GSList *watcher;
