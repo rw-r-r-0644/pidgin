@@ -22,8 +22,6 @@
 #ifndef PURPLE_BUDDY_LIST_H
 #define PURPLE_BUDDY_LIST_H
 
-#include <glib/gi18n-lib.h>
-
 /**
  * SECTION:buddylist
  * @section_id: libpurple-buddylist
@@ -39,7 +37,7 @@
 #define PURPLE_TYPE_BUDDY_LIST (purple_buddy_list_get_type())
 typedef struct _PurpleBuddyList PurpleBuddyList;
 
-#define PURPLE_BLIST_DEFAULT_GROUP_NAME _("Buddies")
+#define PURPLE_BLIST_DEFAULT_GROUP_NAME (purple_blist_get_default_group_name())
 
 #include "chat.h"
 #include "contact.h"
@@ -434,6 +432,15 @@ void purple_blist_remove_account(PurpleAccount *account);
  * Since: 3.0.0
  */
 void purple_blist_walk(PurpleBlistWalkFunc group_func, PurpleBlistWalkFunc chat_func, PurpleBlistWalkFunc meta_contact_func, PurpleBlistWalkFunc contact_func, gpointer data);
+
+/**
+ * purple_blist_get_default_group_name:
+ *
+ * Gets the default group name for the buddy list.
+ *
+ * Returns: The name of the default group.
+ */
+const gchar *purple_blist_get_default_group_name(void);
 
 /****************************************************************************************/
 /* Buddy list file management API                                                       */

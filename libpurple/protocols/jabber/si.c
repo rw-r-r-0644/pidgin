@@ -22,9 +22,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <sys/types.h>
 #ifndef _WIN32

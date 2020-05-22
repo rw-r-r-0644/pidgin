@@ -21,9 +21,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #ifndef _WIN32
 # include <arpa/inet.h>

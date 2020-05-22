@@ -24,6 +24,8 @@
 
 #include NCURSES_HEADER
 
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include "gntbox.h"

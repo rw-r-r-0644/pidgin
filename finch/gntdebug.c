@@ -20,11 +20,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <glib.h>
+#include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
 
 #include <purple.h>

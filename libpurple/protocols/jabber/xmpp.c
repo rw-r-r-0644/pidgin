@@ -20,6 +20,8 @@
  *
  */
 
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include "xmpp.h"

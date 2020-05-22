@@ -18,6 +18,8 @@
  *
  */
 
+#include <glib/gi18n-lib.h>
+
 #ifndef _WIN32
 # include <sys/utsname.h>
 #endif
