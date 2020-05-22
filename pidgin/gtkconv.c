@@ -5829,9 +5829,9 @@ spellcheck_pref_cb(const char *name, PurplePrefType type,
 {
 	GList *cl;
 	PurpleConversation *conv;
-	PidginConversation *gtkconv;
 
 	for (cl = purple_conversations_get_all(); cl != NULL; cl = cl->next) {
+		PidginConversation *gtkconv = NULL;
 
 		conv = (PurpleConversation *)cl->data;
 
@@ -5962,13 +5962,6 @@ show_protocol_icons_pref_cb(const char *name, PurplePrefType type,
 }
 
 static void
-conv_placement_usetabs_cb(const char *name, PurplePrefType type,
-						  gconstpointer value, gpointer data)
-{
-	purple_prefs_trigger_callback(PIDGIN_PREFS_ROOT "/conversations/placement");
-}
-
-static void
 account_status_changed_cb(PurpleAccount *account, PurpleStatus *oldstatus,
                           PurpleStatus *newstatus)
 {
@@ -6035,23 +6028,6 @@ hide_new_pref_cb(const char *name, PurplePrefType type,
 	}
 }
 
-
-static void
-conv_placement_pref_cb(const char *name, PurplePrefType type,
-					   gconstpointer value, gpointer data)
-{
-	PidginConvPlacementFunc func;
-
-	if (!purple_strequal(name, PIDGIN_PREFS_ROOT "/conversations/placement"))
-		return;
-
-	func = pidgin_conv_placement_get_fnc(value);
-
-	if (func == NULL)
-		return;
-
-	pidgin_conv_placement_set_current_func(func);
-}
 
 static PidginConversation *
 get_gtkconv_with_contact(PurpleContact *contact)
@@ -6414,8 +6390,6 @@ pidgin_conversations_init(void)
 
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar", TRUE);
 
-	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/placement", "last");
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/placement_number", 1);
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/bgcolor", "");
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/fgcolor", "");
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/font_face", "");
@@ -6466,13 +6440,6 @@ pidgin_conversations_init(void)
 								spellcheck_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/tab_side",
 								tab_side_pref_cb, NULL);
-
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/tabs",
-								conv_placement_usetabs_cb, NULL);
-
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/placement",
-								conv_placement_pref_cb, NULL);
-	purple_prefs_trigger_callback(PIDGIN_PREFS_ROOT "/conversations/placement");
 
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/minimum_entry_lines",
 		minimum_entry_lines_pref_cb, NULL);
@@ -8528,399 +8495,6 @@ pidgin_conv_window_last_chat(void)
 	return NULL;
 }
 
-
-/**************************************************************************
- * Conversation placement functions
- **************************************************************************/
-typedef struct
-{
-	char *id;
-	char *name;
-	PidginConvPlacementFunc fnc;
-
-} ConvPlacementData;
-
-static GList *conv_placement_fncs = NULL;
-static PidginConvPlacementFunc place_conv = NULL;
-
-/* This one places conversations in the last made window. */
-static void
-conv_placement_last_created_win(PidginConversation *conv)
-{
-	PidginConvWindow *win;
-
-	GList *l = g_list_last(pidgin_conv_windows_get_list());
-	win = l ? l->data : NULL;;
-
-	if (win == NULL) {
-		win = pidgin_conv_window_new();
-
-		g_signal_connect(G_OBJECT(win->window), "configure_event",
-				G_CALLBACK(gtk_conv_configure_cb), NULL);
-
-		pidgin_conv_window_add_gtkconv(win, conv);
-		pidgin_conv_window_show(win);
-	} else {
-		pidgin_conv_window_add_gtkconv(win, conv);
-	}
-}
-
-/* This one places conversations in the last made window of the same type. */
-static gboolean
-conv_placement_last_created_win_type_configured_cb(GtkWidget *w,
-		GdkEventConfigure *event, PidginConversation *conv)
-{
-	GdkMonitor *monitor = NULL;
-	GdkRectangle geo;
-	int x, y;
-	GList *all;
-
-	if (gtk_widget_get_visible(w))
-		gtk_window_get_position(GTK_WINDOW(w), &x, &y);
-	else
-		return FALSE; /* carry on normally */
-
-	/* Workaround for GTK+ bug # 169811 - "configure_event" is fired
-	* when the window is being maximized */
-	if (gdk_window_get_state(gtk_widget_get_window(w)) & GDK_WINDOW_STATE_MAXIMIZED)
-		return FALSE;
-
-	monitor = gdk_display_get_monitor_at_window(gdk_display_get_default(),
-	                                            event->window);
-	gdk_monitor_get_geometry(monitor, &geo);
-
-	/* don't save off-screen positioning */
-	if (x + event->width < geo.x ||
-	    y + event->height < geo.y ||
-	    x > geo.width ||
-	    y > geo.height) {
-		return FALSE; /* carry on normally */
-	}
-
-	for (all = conv->convs; all != NULL; all = all->next) {
-		if (PURPLE_IS_IM_CONVERSATION(conv->active_conv) != PURPLE_IS_IM_CONVERSATION(all->data)) {
-			/* this window has different types of conversation, don't save */
-			return FALSE;
-		}
-	}
-
-	if (PURPLE_IS_IM_CONVERSATION(conv->active_conv)) {
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/x", x);
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/y", y);
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/width",  event->width);
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/im/height", event->height);
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv->active_conv)) {
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/chat/x", x);
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/chat/y", y);
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/chat/width",  event->width);
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/chat/height", event->height);
-	}
-
-	return FALSE;
-}
-
-static void
-conv_placement_last_created_win_type(PidginConversation *conv)
-{
-	PidginConvWindow *win;
-
-	if (PURPLE_IS_IM_CONVERSATION(conv->active_conv))
-		win = pidgin_conv_window_last_im();
-	else
-		win = pidgin_conv_window_last_chat();
-
-	if (win == NULL) {
-		win = pidgin_conv_window_new();
-
-		if (PURPLE_IS_IM_CONVERSATION(conv->active_conv) ||
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/chat/width") == 0) {
-			pidgin_conv_set_position_size(win,
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/im/x"),
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/im/y"),
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/im/width"),
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/im/height"));
-		} else if (PURPLE_IS_CHAT_CONVERSATION(conv->active_conv)) {
-			pidgin_conv_set_position_size(win,
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/chat/x"),
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/chat/y"),
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/chat/width"),
-				purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/chat/height"));
-		}
-
-		pidgin_conv_window_add_gtkconv(win, conv);
-		pidgin_conv_window_show(win);
-
-		g_signal_connect(G_OBJECT(win->window), "configure_event",
-				G_CALLBACK(conv_placement_last_created_win_type_configured_cb), conv);
-	} else
-		pidgin_conv_window_add_gtkconv(win, conv);
-}
-
-/* This one places each conversation in its own window. */
-static void
-conv_placement_new_window(PidginConversation *conv)
-{
-	PidginConvWindow *win;
-
-	win = pidgin_conv_window_new();
-
-	g_signal_connect(G_OBJECT(win->window), "configure_event",
-			G_CALLBACK(gtk_conv_configure_cb), NULL);
-
-	pidgin_conv_window_add_gtkconv(win, conv);
-
-	pidgin_conv_window_show(win);
-}
-
-static PurpleGroup *
-conv_get_group(PidginConversation *conv)
-{
-	PurpleGroup *group = NULL;
-
-	if (PURPLE_IS_IM_CONVERSATION(conv->active_conv)) {
-		PurpleBuddy *buddy;
-
-		buddy = purple_blist_find_buddy(purple_conversation_get_account(conv->active_conv),
-		                        purple_conversation_get_name(conv->active_conv));
-
-		if (buddy != NULL)
-			group = purple_buddy_get_group(buddy);
-
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv->active_conv)) {
-		PurpleChat *chat;
-
-		chat = purple_blist_find_chat(purple_conversation_get_account(conv->active_conv),
-		                            purple_conversation_get_name(conv->active_conv));
-
-		if (chat != NULL)
-			group = purple_chat_get_group(chat);
-	}
-
-	return group;
-}
-
-/*
- * This groups things by, well, group. Buddies from groups will always be
- * grouped together, and a buddy from a group not belonging to any currently
- * open windows will get a new window.
- */
-static void
-conv_placement_by_group(PidginConversation *conv)
-{
-	PurpleGroup *group = NULL;
-	GList *wl, *cl;
-
-	group = conv_get_group(conv);
-
-	/* Go through the list of IMs and find one with this group. */
-	for (wl = pidgin_conv_windows_get_list(); wl != NULL; wl = wl->next) {
-		PidginConvWindow *win2;
-		PidginConversation *conv2;
-		PurpleGroup *group2 = NULL;
-
-		win2 = wl->data;
-
-		for (cl = win2->gtkconvs;
-		     cl != NULL;
-		     cl = cl->next) {
-			conv2 = cl->data;
-
-			group2 = conv_get_group(conv2);
-
-			if (group == group2) {
-				pidgin_conv_window_add_gtkconv(win2, conv);
-
-				return;
-			}
-		}
-	}
-
-	/* Make a new window. */
-	conv_placement_new_window(conv);
-}
-
-/* This groups things by account.  Otherwise, the same semantics as above */
-static void
-conv_placement_by_account(PidginConversation *conv)
-{
-	GList *wins, *convs;
-	PurpleAccount *account;
-
-	account = purple_conversation_get_account(conv->active_conv);
-
-	/* Go through the list of IMs and find one with this group. */
-	for (wins = pidgin_conv_windows_get_list(); wins != NULL; wins = wins->next) {
-		PidginConvWindow *win2;
-		PidginConversation *conv2;
-
-		win2 = wins->data;
-
-		for (convs = win2->gtkconvs;
-		     convs != NULL;
-		     convs = convs->next) {
-			conv2 = convs->data;
-
-			if (account == purple_conversation_get_account(conv2->active_conv)) {
-				pidgin_conv_window_add_gtkconv(win2, conv);
-				return;
-			}
-		}
-	}
-
-	/* Make a new window. */
-	conv_placement_new_window(conv);
-}
-
-static ConvPlacementData *
-get_conv_placement_data(const char *id)
-{
-	ConvPlacementData *data = NULL;
-	GList *n;
-
-	for (n = conv_placement_fncs; n; n = n->next) {
-		data = n->data;
-		if (purple_strequal(data->id, id))
-			return data;
-	}
-
-	return NULL;
-}
-
-static void
-add_conv_placement_fnc(const char *id, const char *name,
-                       PidginConvPlacementFunc fnc)
-{
-	ConvPlacementData *data;
-
-	data = g_new(ConvPlacementData, 1);
-
-	data->id = g_strdup(id);
-	data->name = g_strdup(name);
-	data->fnc  = fnc;
-
-	conv_placement_fncs = g_list_append(conv_placement_fncs, data);
-}
-
-static void
-ensure_default_funcs(void)
-{
-	if (conv_placement_fncs == NULL) {
-		add_conv_placement_fnc("last", _("Last created window"),
-		                       conv_placement_last_created_win);
-		add_conv_placement_fnc("im_chat", _("Separate IM and Chat windows"),
-		                       conv_placement_last_created_win_type);
-		add_conv_placement_fnc("new", _("New window"),
-		                       conv_placement_new_window);
-		add_conv_placement_fnc("group", _("By group"),
-		                       conv_placement_by_group);
-		add_conv_placement_fnc("account", _("By account"),
-		                       conv_placement_by_account);
-	}
-}
-
-GList *
-pidgin_conv_placement_get_options(void)
-{
-	GList *n, *list = NULL;
-	ConvPlacementData *data;
-
-	ensure_default_funcs();
-
-	for (n = conv_placement_fncs; n; n = n->next) {
-		data = n->data;
-		list = g_list_append(list, data->name);
-		list = g_list_append(list, data->id);
-	}
-
-	return list;
-}
-
-
-void
-pidgin_conv_placement_add_fnc(const char *id, const char *name,
-                            PidginConvPlacementFunc fnc)
-{
-	g_return_if_fail(id   != NULL);
-	g_return_if_fail(name != NULL);
-	g_return_if_fail(fnc  != NULL);
-
-	ensure_default_funcs();
-
-	add_conv_placement_fnc(id, name, fnc);
-}
-
-void
-pidgin_conv_placement_remove_fnc(const char *id)
-{
-	ConvPlacementData *data = get_conv_placement_data(id);
-
-	if (data == NULL)
-		return;
-
-	conv_placement_fncs = g_list_remove(conv_placement_fncs, data);
-
-	g_free(data->id);
-	g_free(data->name);
-	g_free(data);
-}
-
-const char *
-pidgin_conv_placement_get_name(const char *id)
-{
-	ConvPlacementData *data;
-
-	ensure_default_funcs();
-
-	data = get_conv_placement_data(id);
-
-	if (data == NULL)
-		return NULL;
-
-	return data->name;
-}
-
-PidginConvPlacementFunc
-pidgin_conv_placement_get_fnc(const char *id)
-{
-	ConvPlacementData *data;
-
-	ensure_default_funcs();
-
-	data = get_conv_placement_data(id);
-
-	if (data == NULL)
-		return NULL;
-
-	return data->fnc;
-}
-
-void
-pidgin_conv_placement_set_current_func(PidginConvPlacementFunc func)
-{
-	g_return_if_fail(func != NULL);
-
-	/* If tabs are enabled, set the function, otherwise, NULL it out. */
-	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/tabs"))
-		place_conv = func;
-	else
-		place_conv = NULL;
-}
-
-PidginConvPlacementFunc
-pidgin_conv_placement_get_current_func(void)
-{
-	return place_conv;
-}
-
-void
-pidgin_conv_placement_place(PidginConversation *gtkconv)
-{
-	if (place_conv)
-		place_conv(gtkconv);
-	else
-		conv_placement_new_window(gtkconv);
-}
-
 gboolean
 pidgin_conv_is_hidden(PidginConversation *gtkconv)
 {
@@ -8974,6 +8548,25 @@ color_is_visible(GdkRGBA foreground, GdkRGBA background, gdouble min_contrast_ra
 	return (luminosity_ratio > min_contrast_ratio);
 }
 
+void
+pidgin_conv_placement_place(PidginConversation *conv) {
+       PidginConvWindow *win;
+
+       GList *l = g_list_last(pidgin_conv_windows_get_list());
+       win = l ? l->data : NULL;;
+
+       if (win == NULL) {
+               win = pidgin_conv_window_new();
+
+               g_signal_connect(G_OBJECT(win->window), "configure_event",
+                               G_CALLBACK(gtk_conv_configure_cb), NULL);
+
+               pidgin_conv_window_add_gtkconv(win, conv);
+               pidgin_conv_window_show(win);
+       } else {
+               pidgin_conv_window_add_gtkconv(win, conv);
+       }
+}
 
 static GArray*
 generate_nick_colors(guint numcolors, GdkRGBA background)
