@@ -19,6 +19,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
+
+#include <glib/gi18n-lib.h>
+
 #include <glib.h>
 #ifndef _WIN32
 #include <pwd.h>
@@ -49,6 +52,11 @@ bonjour_get_jid(PurpleAccount *account)
 	PurpleConnection *conn = purple_account_get_connection(account);
 	BonjourData *bd = purple_connection_get_protocol_data(conn);
 	return bd->jid;
+}
+
+const gchar *
+bonjour_get_group_name(void) {
+	return _("Bonjour");
 }
 
 static void

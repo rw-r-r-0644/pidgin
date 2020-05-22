@@ -22,6 +22,8 @@
 
 #include "finch.h"
 
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include "gntaccount.h"

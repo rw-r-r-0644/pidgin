@@ -21,6 +21,8 @@
   USA.
 */
 
+#include <glib/gi18n-lib.h>
+
 #define BUF_LEN (2048)
 #define BUF_LONG (BUF_LEN * 2)
 
