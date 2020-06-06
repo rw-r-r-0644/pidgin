@@ -520,7 +520,7 @@ pidgin_sound_play_file(const char *filename)
 		if (sink == NULL)
 			sink = gst_element_factory_make("waveformsink", "sink");
 		if (sink == NULL)
-			sink = gst_element_factory_make("gconfaudiosink", "sink");
+			sink = gst_element_factory_make("autoaudiosink", "sink");
 	} else if (purple_strequal(method, "directsound")) {
 		sink = gst_element_factory_make("directsoundsink", "sink");
 	} else if (purple_strequal(method, "waveform")) {
@@ -528,7 +528,7 @@ pidgin_sound_play_file(const char *filename)
 	}
 #else
 	if (purple_strequal(method, "automatic")) {
-		sink = gst_element_factory_make("gconfaudiosink", "sink");
+		sink = gst_element_factory_make("autoaudiosink", "sink");
 	} else if (purple_strequal(method, "esd")) {
 		sink = gst_element_factory_make("esdsink", "sink");
 	} else if (purple_strequal(method, "alsa")) {

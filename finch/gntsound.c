@@ -513,11 +513,7 @@ finch_sound_play_file(const char *filename)
 	if (gst_init_failed)  /* Perhaps do beep instead? */
 		return;
 	if (purple_strequal(method, "automatic")) {
-		if (purple_running_gnome()) {
-			sink = gst_element_factory_make("gconfaudiosink", "sink");
-		}
-		if (!sink)
-			sink = gst_element_factory_make("autoaudiosink", "sink");
+		sink = gst_element_factory_make("autoaudiosink", "sink");
 		if (!sink) {
 			purple_debug_error("sound", "Unable to create GStreamer audiosink.\n");
 			return;
