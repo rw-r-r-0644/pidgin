@@ -439,6 +439,8 @@ void purple_blist_walk(PurpleBlistWalkFunc group_func, PurpleBlistWalkFunc chat_
  * Gets the default group name for the buddy list.
  *
  * Returns: The name of the default group.
+ *
+ * Since: 3.0.0
  */
 const gchar *purple_blist_get_default_group_name(void);
 
