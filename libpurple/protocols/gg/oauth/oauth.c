@@ -27,6 +27,10 @@
 
 #include "oauth-parameter.h"
 
+#include <time.h>
+
+#include <glib.h>
+
 char *gg_oauth_static_nonce;		/* dla unit testów */
 char *gg_oauth_static_timestamp;	/* dla unit testów */
 

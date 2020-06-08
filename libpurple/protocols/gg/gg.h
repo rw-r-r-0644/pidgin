@@ -29,7 +29,6 @@
 #include <libgadu.h>
 #include <libsoup/soup.h>
 
-#include "internal.h"
 #include "search.h"
 
 #include <purple.h>

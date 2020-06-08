@@ -30,10 +30,6 @@
  * @title: Media API
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 G_BEGIN_DECLS
 
 void finch_media_manager_init(void);

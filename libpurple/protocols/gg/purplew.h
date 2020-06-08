@@ -30,7 +30,7 @@
 #ifndef PURPLE_GG_PURPLEW_H
 #define PURPLE_GG_PURPLEW_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 /**

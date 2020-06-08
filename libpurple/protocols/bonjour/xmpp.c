@@ -20,8 +20,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
+#include "purpleprivate.h"
 
 #ifndef _WIN32
 #include <net/if.h>

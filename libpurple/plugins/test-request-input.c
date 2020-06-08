@@ -20,8 +20,8 @@
  */
 
 #include <glib.h>
+#include <glib/gi18n-lib.h>
 
-#include "internal.h"
 #include <purple.h>
 
 #define PREF_ROOT "/plugins"

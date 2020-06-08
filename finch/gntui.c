@@ -20,8 +20,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <config.h>
+
+#include <glib/gi18n-lib.h>
+
+#include <purple.h>
+
 #include "finch.h"
-#include <internal.h>
 
 #include "gntui.h"
 
@@ -41,8 +46,6 @@
 #include "gntroomlist.h"
 #include "gntstatus.h"
 #include "gntsound.h"
-
-#include <purple.h>
 
 void finch_ui_init()
 {

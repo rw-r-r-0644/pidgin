@@ -30,7 +30,7 @@
 #ifndef PURPLE_GG_ROSTER_H
 #define PURPLE_GG_ROSTER_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 typedef struct

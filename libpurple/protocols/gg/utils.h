@@ -30,9 +30,10 @@
 #ifndef PURPLE_GG_UTILS_H
 #define PURPLE_GG_UTILS_H
 
-#include <internal.h>
 #include <libgadu.h>
 #include <json-glib/json-glib.h>
+
+#include <purple.h>
 
 /**
  * Converts stringified UIN to uin_t.

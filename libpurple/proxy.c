@@ -25,6 +25,8 @@
  , 2nd provide an easy way to add socks support
  , 3rd draw women to it like flies to honey */
 
+#include <glib/gi18n-lib.h>
+
 #include "internal.h"
 #include "debug.h"
 #include "notify.h"

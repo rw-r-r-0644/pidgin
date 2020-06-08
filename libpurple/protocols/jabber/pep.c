@@ -21,7 +21,7 @@
  *
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
 
 #include "pep.h"
 #include "iq.h"

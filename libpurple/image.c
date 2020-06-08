@@ -23,6 +23,7 @@
 
 #include "debug.h"
 #include "image.h"
+#include "util.h"
 
 typedef struct {
 	gchar *path;

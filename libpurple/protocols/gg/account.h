@@ -32,7 +32,7 @@
 
 #error "This file is outdated"
 
-#include <internal.h>
+#include <purple.h>
 
 typedef struct
 {

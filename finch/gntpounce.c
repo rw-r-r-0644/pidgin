@@ -20,7 +20,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include <internal.h>
+#include <glib/gi18n-lib.h>
+
+#include <purple.h>
 
 #include NCURSES_HEADER
 
@@ -36,8 +38,6 @@
 #include <gntutils.h>
 
 #include "finch.h"
-
-#include <purple.h>
 
 #include "gntpounce.h"
 

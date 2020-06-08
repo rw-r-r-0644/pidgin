@@ -29,10 +29,14 @@
 
 #include "roster.h"
 
+#include <glib/gi18n-lib.h>
+
 #include "gg.h"
 #include "xml.h"
 #include "utils.h"
 #include "purplew.h"
+
+#include "purpleprivate.h"
 
 #define GGP_ROSTER_SYNC_SETT "gg-synchronized"
 #define GGP_ROSTER_DEBUG 0

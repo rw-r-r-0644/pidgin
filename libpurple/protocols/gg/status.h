@@ -30,7 +30,7 @@
 #ifndef PURPLE_GG_STATUS_H
 #define PURPLE_GG_STATUS_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 typedef struct _ggp_status_session_data ggp_status_session_data;

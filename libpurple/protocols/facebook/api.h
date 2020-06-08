@@ -31,8 +31,6 @@
  * The API for interacting with the Facebook Messenger protocol.
  */
 
-#include "internal.h"
-
 #include <glib.h>
 
 #include <purple.h>

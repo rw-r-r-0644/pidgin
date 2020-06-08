@@ -25,7 +25,6 @@
 #ifndef PURPLE_JABBER_CHAT_H
 #define PURPLE_JABBER_CHAT_H
 
-#include "internal.h"
 #include <purple.h>
 
 #include "jabber.h"

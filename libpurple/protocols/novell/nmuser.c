@@ -18,7 +18,8 @@
  *
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
 #include <string.h>
 #include <purple.h>
 #include "nmfield.h"

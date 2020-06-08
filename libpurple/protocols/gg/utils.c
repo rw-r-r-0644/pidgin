@@ -31,6 +31,8 @@
 
 #include "gg.h"
 
+#include <purple.h>
+
 uin_t ggp_str_to_uin(const char *str)
 {
 	char *endptr;

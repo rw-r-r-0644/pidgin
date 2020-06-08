@@ -30,7 +30,7 @@
 #ifndef PURPLE_GG_AVATAR_H
 #define PURPLE_GG_AVATAR_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 typedef struct _ggp_avatar_session_data ggp_avatar_session_data;

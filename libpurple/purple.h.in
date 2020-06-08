@@ -35,10 +35,12 @@
 
 #include <glib.h>
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
+#ifndef PURPLE_GLOBAL_HEADER_INSIDE
+#define PURPLE_GLOBAL_HEADER_INSIDE
 #endif
 
 @PURPLE_H_INCLUDES@
+
+#undef PURPLE_GLOBAL_HEADER_INSIDE
 
 #endif /* PURPLE_PURPLE_H */

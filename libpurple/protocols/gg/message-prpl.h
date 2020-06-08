@@ -29,7 +29,7 @@
 #ifndef PURPLE_GG_MESSAGE_PRPL_H
 #define PURPLE_GG_MESSAGE_PRPL_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 typedef struct _ggp_message_session_data ggp_message_session_data;

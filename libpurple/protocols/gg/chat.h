@@ -29,7 +29,7 @@
 #ifndef PURPLE_GG_CHAT_H
 #define PURPLE_GG_CHAT_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 typedef struct _ggp_chat_session_data ggp_chat_session_data;

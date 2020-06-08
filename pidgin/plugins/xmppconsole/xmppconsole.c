@@ -21,7 +21,8 @@
  *
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include "gtkutils.h"
@@ -567,7 +568,7 @@ create_console(PurplePluginAction *action)
 
 	builder = gtk_builder_new_from_resource(
 	        "/im/pidgin/Pidgin/Plugin/XMPPConsole/console.ui");
-	gtk_builder_set_translation_domain(builder, PACKAGE);
+	gtk_builder_set_translation_domain(builder, GETTEXT_PACKAGE);
 	console->window = GTK_WIDGET(
 	        gtk_builder_get_object(builder, "PidginXmppConsole"));
 	gtk_builder_add_callback_symbol(builder, "console_destroy",

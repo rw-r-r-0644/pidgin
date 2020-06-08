@@ -20,7 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include "auth.h"
@@ -29,6 +30,8 @@
 #include "jutil.h"
 #include "iq.h"
 #include "notify.h"
+
+#include "purpleprivate.h"
 
 static GSList *auth_mechs = NULL;
 

@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <glib/gi18n-lib.h>
+
 #include "internal.h"
 
 #include "account.h"
@@ -30,6 +32,7 @@
 #include "notify.h"
 #include "prefs.h"
 #include "proxy.h"
+#include "purpleprivate.h"
 #include "purpleprotocolfactory.h"
 #include "request.h"
 #include "server.h"

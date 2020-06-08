@@ -32,7 +32,8 @@
  * to resolve this if desired.
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include <libsecret/secret.h>

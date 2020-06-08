@@ -24,7 +24,10 @@
  * possible for a malicious server or man-in-the-middle to trigger a crash.
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
+#include <ctype.h>
+
 #include <purple.h>
 
 #include "irc.h"

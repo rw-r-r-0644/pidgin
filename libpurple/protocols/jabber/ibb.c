@@ -21,7 +21,8 @@
  *
  */
 
-#include "internal.h"
+#include <math.h>
+
 #include <purple.h>
 
 #include "ibb.h"

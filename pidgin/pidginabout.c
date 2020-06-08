@@ -16,6 +16,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
+
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <json-glib/json-glib.h>
 #include <talkatu.h>
@@ -23,7 +30,6 @@
 #include "package_revision.h"
 #include "pidginabout.h"
 #include "pidginresources.h"
-#include "internal.h"
 #include "gtkutils.h"
 
 #include <stdio.h>

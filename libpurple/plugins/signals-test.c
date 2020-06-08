@@ -20,7 +20,8 @@
  */
 #define SIGNAL_TEST_PLUGIN_ID "core-signals-test"
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include <stdio.h>

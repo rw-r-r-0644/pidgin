@@ -23,7 +23,6 @@
  *
  */
 
-#include "internal.h"
 #include <purple.h>
 
 #include "content.h"
