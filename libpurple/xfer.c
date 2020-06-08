@@ -19,8 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
+
+#include <glib/gi18n-lib.h>
+
 #include "internal.h"
 #include "glibcompat.h" /* for purple_g_stat on win32 */
+
+#include <glib/gstdio.h>
 
 #include "enums.h"
 #include "image-store.h"

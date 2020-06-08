@@ -23,6 +23,8 @@
 
 /* This file is the fullcrap */
 
+#include <glib/gi18n-lib.h>
+
 #include "internal.h"
 #include "buddylist.h"
 #include "conversation.h"
@@ -31,6 +33,7 @@
 #include "notify.h"
 #include "prefs.h"
 #include "protocol.h"
+#include "purpleprivate.h"
 #include "request.h"
 #include "signals.h"
 #include "server.h"

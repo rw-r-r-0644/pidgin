@@ -19,10 +19,7 @@
  * 02111-1301, USA.
  */
 
-/* When writing a third-party plugin, do not include libpurple's internal.h
- * included below. This file is for internal libpurple use only. We're including
- * it here for our own convenience. */
-#include "internal.h"
+#include <glib/gi18n-lib.h>
 
 /* This file includes all the libpurple headers */
 #include <purple.h>

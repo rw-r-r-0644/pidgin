@@ -21,7 +21,7 @@
  *
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
 
 #include <stdlib.h>
 #include <glib.h>

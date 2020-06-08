@@ -29,6 +29,8 @@
  * @title: UI Definitions and Includes
  */
 
+#include <glib/gi18n-lib.h>
+
 #include <gtk/gtk.h>
 
 #ifdef _WIN32

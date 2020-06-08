@@ -11,7 +11,10 @@
 #ifndef PURPLE_ZEPHYR_SYSDEP_H
 #define PURPLE_ZEPHYR_SYSDEP_H
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>

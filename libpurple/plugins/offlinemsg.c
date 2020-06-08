@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02111-1301, USA.
  */
-#include "internal.h"
+#include <glib/gi18n-lib.h>
 
 #define PLUGIN_ID			"core-plugin_pack-offlinemsg"
 #define PLUGIN_NAME			N_("Offline Message Emulation")

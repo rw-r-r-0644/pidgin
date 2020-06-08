@@ -37,12 +37,20 @@ purple_major_version = parts[0]
 purple_minor_version = parts[1]
 purple_micro_version = parts[2]
 
-add_project_arguments('-DHAVE_CONFIG_H=1', language : 'c')
+GETTEXT_PACKAGE=meson.project_name()
+
+add_project_arguments([
+	'-DHAVE_CONFIG_H=1',
+	'-DVERSION="@0@"'.format(meson.project_version()),
+	'-DDISPLAY_VERSION="@0@"'.format(meson.project_version()),
+	'-DPURPLE_WEBSITE="https://pidgin.im"',
+	'-DGETTEXT_PACKAGE="@0@"'.format(GETTEXT_PACKAGE)],
+	language : 'c')
 conf = configuration_data()
 man_conf = configuration_data()
 version_conf = configuration_data()
 
-conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
+conf.set_quoted('GETTEXT_PACKAGE', GETTEXT_PACKAGE)
 conf.set_quoted('PACKAGE', meson.project_name())
 conf.set_quoted('PACKAGE_NAME', meson.project_name())
 conf.set_quoted('VERSION', meson.project_version())
@@ -607,7 +615,12 @@ else
 	# Ensure C++ compiler works
 	add_languages('cpp')
 	cxx_compiler = meson.get_compiler('cpp')
-	add_project_arguments('-DHAVE_CONFIG_H=1', language : 'cpp')
+	add_project_arguments([
+		'-DHAVE_CONFIG_H=1',
+		'-DDISPLAY_VERSION="@0@"'.format(meson.project_version()),
+		'-DPURPLE_WEBSITE="https://pidgin.im"',
+		'-DGETTEXT_PACKAGE="@0@"'.format(GETTEXT_PACKAGE)],
+		language : 'cpp')
 
 	qt5 = import('qt5')
 

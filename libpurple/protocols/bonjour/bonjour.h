@@ -28,13 +28,12 @@
 
 #include <gmodule.h>
 
-#include "internal.h"
 #include <purple.h>
 
 #include "mdns_common.h"
 #include "xmpp.h"
 
-#define BONJOUR_GROUP_NAME _("Bonjour")
+#define BONJOUR_GROUP_NAME (bonjour_get_group_name())
 #define BONJOUR_PROTOCOL_NAME "bonjour"
 #define BONJOUR_ICON_NAME "bonjour"
 
@@ -78,5 +77,7 @@ G_MODULE_EXPORT GType bonjour_protocol_get_type(void);
  *  This will always be username@machinename
  */
 const char *bonjour_get_jid(PurpleAccount *account);
+
+const gchar *bonjour_get_group_name(void);
 
 #endif /* PURPLE_BONJOUR_BONJOUR_H */

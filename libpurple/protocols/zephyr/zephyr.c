@@ -26,9 +26,17 @@
  *
 
 */
-#include "libpurple/internal.h"
+
+#include <glib/gi18n-lib.h>
+
+#include <glib.h>
+#include <glib/gstdio.h>
 
 #include <purple.h>
+
+#ifndef _WIN32
+# include <arpa/inet.h>
+#endif
 
 #include "internal.h"
 #include "zephyr.h"
@@ -36,6 +44,8 @@
 #include <strings.h>
 
 #define ZEPHYR_FALLBACK_CHARSET "ISO-8859-1"
+
+#define BUF_LEN (2048)
 
 /* these are deliberately high, since most people don't send multiple "PING"s */
 #define ZEPHYR_TYPING_SEND_TIMEOUT 15

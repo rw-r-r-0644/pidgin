@@ -29,8 +29,9 @@
  */
 
 #include <stdlib.h>
-#include <glib-object.h>
+
 #include <glib.h>
+#include <glib-object.h>
 
 #include "conversation.h"
 #include "request-datasheet.h"

@@ -20,7 +20,15 @@
  *
  */
 
-#include "internal.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+#include <glib/gstdio.h>
+
+#define BUF_LONG (4096)
+
 #include "pidgin.h"
 
 #ifdef HAVE_X11
@@ -32,6 +40,8 @@
 #include <talkatu.h>
 
 #include <purple.h>
+
+#include <math.h>
 
 #include "gtkinternal.h"
 #include "gtkdnd-hints.h"
@@ -6782,7 +6792,6 @@ pidgin_conversation_get_type(void)
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
-#include "internal.h"
 #include "pidgin.h"
 
 

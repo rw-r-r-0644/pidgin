@@ -29,7 +29,7 @@
 #ifndef PURPLE_GG_EDISC_H
 #define PURPLE_GG_EDISC_H
 
-#include <internal.h>
+#include <purple.h>
 
 typedef struct _ggp_edisc_session_data ggp_edisc_session_data;
 

@@ -41,6 +41,7 @@ typedef struct _PurpleProtocolClass PurpleProtocolClass;
 #include "account.h"
 #include "buddyicon.h"
 #include "buddylist.h"
+#include "chat.h"
 #include "connection.h"
 #include "conversations.h"
 #include "debug.h"

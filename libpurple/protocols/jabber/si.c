@@ -22,8 +22,17 @@
  *
  */
 
-#include "internal.h"
+#include <config.h>
+
+#include <sys/types.h>
+#ifndef _WIN32
+# include <sys/socket.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
+#include "purpleprivate.h"
 
 #include "buddy.h"
 #include "data.h"

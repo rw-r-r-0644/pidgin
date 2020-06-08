@@ -27,9 +27,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include "status.h"
+#include <glib/gi18n-lib.h>
 
 #include <libgadu.h>
+
+#include "status.h"
 
 #include "gg.h"
 #include "utils.h"

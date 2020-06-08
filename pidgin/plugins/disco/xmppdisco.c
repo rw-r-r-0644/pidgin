@@ -36,7 +36,8 @@ disco#info:
 	* For services that are a JID w/o a node, handle fetching ad-hoc commands?
 */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
 #include "pidgin.h"
 
 #include <purple.h>

@@ -18,7 +18,12 @@
  *
  */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
+#ifndef _WIN32
+# include <sys/utsname.h>
+#endif
+
 #include <purple.h>
 
 #include "nmuser.h"

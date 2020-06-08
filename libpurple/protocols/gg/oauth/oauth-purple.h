@@ -30,7 +30,7 @@
 #ifndef _GGP_OAUTH_PURPLE_H
 #define _GGP_OAUTH_PURPLE_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 typedef void (*ggp_oauth_request_cb)(PurpleConnection *gc, const gchar *token,

@@ -9,7 +9,9 @@
  *	"mit-copyright.h".
  */
 
-#include "libpurple/internal.h"
+#include <glib.h>
+#include <glib/gstdio.h>
+
 #include "internal.h"
 #include "util.h"
 

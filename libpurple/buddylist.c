@@ -20,6 +20,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
+
+#include <glib/gi18n-lib.h>
+
 #include "internal.h"
 #include "buddylist.h"
 #include "conversation.h"
@@ -28,6 +31,7 @@
 #include "pounce.h"
 #include "prefs.h"
 #include "protocol.h"
+#include "purpleprivate.h"
 #include "server.h"
 #include "signals.h"
 #include "util.h"
@@ -1978,6 +1982,11 @@ purple_blist_walk(PurpleBlistWalkFunc group_func,
 			}
 		}
 	}
+}
+
+const gchar *
+purple_blist_get_default_group_name(void) {
+	return _("Buddies");
 }
 
 

@@ -30,7 +30,7 @@
 #ifndef PURPLE_GG_IMAGE_PRPL_H
 #define PURPLE_GG_IMAGE_PRPL_H
 
-#include <internal.h>
+#include <purple.h>
 #include <libgadu.h>
 
 #define GGP_IMAGE_SIZE_MAX 255000

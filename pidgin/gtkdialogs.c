@@ -19,9 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+
 #include <talkatu.h>
 
-#include "internal.h"
 #include "pidgin.h"
 #include "package_revision.h"
 #ifdef HAVE_MESON_CONFIG

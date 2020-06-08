@@ -19,11 +19,7 @@
  * 02111-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include "internal.h"
+#include <glib/gi18n-lib.h>
 
 #include <libsoup/soup.h>
 #include <string.h>
