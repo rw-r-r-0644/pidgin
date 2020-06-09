@@ -24,8 +24,6 @@
 
 #include <purple.h>
 
-#include "internal.h"
-
 #include "pidgin/gtkblist.h"
 #include "pidgin/gtkdialogs.h"
 #include "pidgin/gtkpounce.h"

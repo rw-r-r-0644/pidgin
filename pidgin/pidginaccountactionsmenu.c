@@ -24,8 +24,6 @@
 
 #include <purple.h>
 
-#include "internal.h"
-
 #include "pidgin/gtkaccount.h"
 #include "pidgin/pidgin.h"
 #include "pidgin/pidginmooddialog.h"

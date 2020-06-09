@@ -26,8 +26,6 @@
 
 #include <purple.h>
 
-#include "internal.h"
-
 #include "pidgin/pidginpluginsdialog.h"
 
 struct _PidginPluginsMenu {
