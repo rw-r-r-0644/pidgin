@@ -22,7 +22,9 @@
 
 #include "pidgin/pidginmooddialog.h"
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+
+#include "config.h"
 
 /*< private >
  * pidgin_mood_update_status:
