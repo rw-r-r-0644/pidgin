@@ -215,7 +215,8 @@ if ENABLE_GTK
 	    requires : ['gtk+-3.0', 'purple-3', 'talkatu', 'gplugin-gtk'],
 	    variables : ['plugindir=${libdir}/pidgin-@0@'.format(purple_major_version)])
 
-	if INSTALL_I18N
+	if get_option('nls')
+		i18n = import('i18n')
 		DESKTOP_FILE = 'im.pidgin.Pidgin3.desktop'
 		desktop_file_in = configure_file(
 		    input : 'data/' + DESKTOP_FILE + '.in.in',

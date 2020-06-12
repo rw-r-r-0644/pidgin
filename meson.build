@@ -270,18 +270,6 @@ if host_machine.system() == 'darwin'
 endif
 
 # #######################################################################
-# # Disable creation and installation of translation files
-# #######################################################################
-
-INSTALL_I18N = get_option('nls')
-
-if INSTALL_I18N
-	i18n = import('i18n')
-
-	subdir('po')
-endif
-
-# #######################################################################
 # # Check for GLib 2.44 (required)
 # #######################################################################
 glib = dependency('glib-2.0', version : '>= 2.48.0')
@@ -792,6 +780,7 @@ subdir('share/sounds')
 subdir('finch')
 subdir('pidgin')
 subdir('doc')
+subdir('po')
 
 configure_file(output : 'config.h',
     configuration : conf)
@@ -816,7 +805,7 @@ if not EXTERNAL_LIBZEPHYR
 message('Use kerberos 4 with zephyr.... : ' + kerberos.to_string())
 endif
 message('Install pixmaps............... : ' + INSTALL_PIXMAPS.to_string())
-message('Install translations.......... : ' + INSTALL_I18N.to_string())
+message('Install translations.......... : ' + get_option('nls').to_string())
 message('Has you....................... : yes')
 message('')
 message('Build Unity integration plugin.: ' + enable_unity.to_string())
@@ -840,7 +829,7 @@ if not INSTALL_PIXMAPS
 	message('Warning: You have disabled the installation of pixmap data, but Pidgin')
 	message('still requires installed pixmaps.  Be sure you know what you are doing.')
 endif
-if not INSTALL_I18N
+if not get_option('nls')
 	message('')
 	message('Warning: You have disabled the building and installation of translation')
 	message('data.  This will prevent building Pidgin desktop files.')
