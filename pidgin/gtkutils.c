@@ -23,6 +23,8 @@
 # include <config.h>
 #endif
 
+#include <errno.h>
+
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
 

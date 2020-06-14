@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include <errno.h>
+
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
