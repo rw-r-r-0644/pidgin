@@ -53,6 +53,10 @@
 #define ZEPHYR_FD_READ 0
 #define ZEPHYR_FD_WRITE 1
 
+#ifndef HOST_NAME_MAX
+# define HOST_NAME_MAX 255
+#endif
+
 static PurpleProtocol *my_protocol = NULL;
 static GSList *cmds = NULL;
 

@@ -20,6 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <errno.h>
+
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
