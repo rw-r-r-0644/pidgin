@@ -20,10 +20,9 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
+#include <errno.h>
 #include <sys/types.h>
 #ifndef _WIN32
 # include <sys/wait.h>
