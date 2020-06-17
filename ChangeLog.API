@@ -594,6 +594,13 @@ version 3.0.0 (??/??/????):
 		* PidginBuddyList.connection_errors
 		* pidgin_check_if_dir
 		* PidginConversation.sg
+		* PidginConvPlacementFunc
+		* pidgin_conv_placement_get_name
+		* pidgin_conv_placement_add_fnc
+		* pidgin_conv_placement_remove_fnc
+		* pidgin_conv_placement_get_fnc
+		* pidgin_conv_placement_set_current_func
+		* pidgin_conv_placement_get_current_func
 		* PIDGIN_DIALOG
 		* pidgin_dialogs_alias_contact
 		* pidgin_make_pretty_arrows
