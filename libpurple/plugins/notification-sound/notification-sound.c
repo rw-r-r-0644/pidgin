@@ -298,6 +298,7 @@ gplugin_unload(GPluginPlugin *plugin, GError **error) {
 	purple_notification_sound_save_prefs();
 
 	g_clear_pointer(&context, ca_context_destroy);
+	g_clear_pointer(&mute_until, g_date_time_unref);
 
 	return TRUE;
 }
