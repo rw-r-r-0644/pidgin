@@ -1,4 +1,5 @@
 subdir('keyrings')
+subdir('notification-sound')
 
 if PLUGINS
 	autoaccept = library('autoaccept', 'autoaccept.c',
