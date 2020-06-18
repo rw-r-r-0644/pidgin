@@ -30,8 +30,8 @@ purple_compat_date_time_format_iso8601(GDateTime *datetime) {
 
 	/* Main date and time. */
 	main_date = g_date_time_format(datetime, "%Y-%m-%dT%H:%M:%S");
-	outstr = g_string_new (main_date);
-	g_free (main_date);
+	outstr = g_string_new(main_date);
+	g_free(main_date);
 
 	/* Timezone. Format it as `%:::z` unless the offset is zero, in which case
 	* we can simply use `Z`. */
