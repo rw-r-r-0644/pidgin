@@ -49,4 +49,9 @@ purple_g_stat(const gchar *filename, GStatBufW32 *buf)
 #  define g_stat purple_g_stat
 #endif
 
+#if !GLIB_CHECK_VERSION(2, 62, 0)
+#define g_date_time_format_iso8601(dt) (purple_compat_date_time_format_iso8601((dt)))
+gchar *purple_compat_date_time_format_iso8601(GDateTime *datetime);
+#endif /* GLIB_CHECK_VERSION(2, 62, 0) */
+
 #endif /* PURPLE_GLIBCOMPAT_H */
