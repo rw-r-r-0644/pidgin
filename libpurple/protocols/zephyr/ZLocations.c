@@ -10,7 +10,8 @@
  */
 
 #include "internal.h"
-#include "util.h"
+
+#include <purple.h>
 
 #ifndef WIN32
 #include <pwd.h>

@@ -28,7 +28,6 @@
 #endif
 
 #include <purple.h>
-#include "purpleprivate.h"
 
 #include "irc.h"
 

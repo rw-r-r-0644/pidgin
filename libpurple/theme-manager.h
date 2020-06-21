@@ -20,6 +20,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
+# error "only <purple.h> may be included directly"
+#endif
+
 #ifndef PURPLE_THEME_MANAGER_H
 #define PURPLE_THEME_MANAGER_H
 /**

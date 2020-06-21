@@ -23,7 +23,6 @@
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
-#include "purpleprivate.h"
 
 #ifndef _WIN32
 #include <net/if.h>

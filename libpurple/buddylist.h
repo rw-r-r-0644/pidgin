@@ -19,6 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
+# error "only <purple.h> may be included directly"
+#endif
+
 #ifndef PURPLE_BUDDY_LIST_H
 #define PURPLE_BUDDY_LIST_H
 
@@ -41,6 +45,20 @@ typedef struct _PurpleBuddyList PurpleBuddyList;
 
 #include "chat.h"
 #include "contact.h"
+
+/**
+ * _purple_blist_get_localized_default_group_name:
+ *
+ * Returns the name of default group for previously used non-English
+ * localization. It's used for merging default group, in cases when roster
+ * contains localized name.
+ *
+ * Please note, prpls shouldn't save default group name depending on current
+ * locale. So, this function is mostly for libpurple2 compatibility. And for
+ * improperly written prpls.
+ */
+const gchar *
+_purple_blist_get_localized_default_group_name(void);
 
 /**
  * PurpleBlistWalkFunc:

@@ -316,7 +316,7 @@ if enable_introspection
 	        gplugin_include_directories,
 	    ],
 	    install : true,
-	    extra_args : ['--quiet'])
+	    extra_args : ['-DPURPLE_COMPILATION', '--quiet'])
 endif
 
 subdir('tests')

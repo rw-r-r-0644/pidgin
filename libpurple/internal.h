@@ -28,8 +28,8 @@
  * @title: Internal definitions and includes
  */
 
-#if !defined(PURPLE_COMPILATION)
-#error "internal.h included outside of libpurple"
+#if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
+# error "only <purple.h> may be included directly"
 #endif
 
 #ifndef GLIB_VERSION_MIN_REQUIRED

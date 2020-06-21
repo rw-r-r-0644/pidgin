@@ -36,8 +36,6 @@
 
 #include <purple.h>
 
-#include "smiley-theme.h"
-
 G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_SMILEY_THEME  pidgin_smiley_theme_get_type()

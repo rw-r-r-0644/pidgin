@@ -19,6 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
+# error "only <purple.h> may be included directly"
+#endif
+
 #ifndef PURPLE_KEY_VALUE_PAIR_H
 #define PURPLE_KEY_VALUE_PAIR_H
 

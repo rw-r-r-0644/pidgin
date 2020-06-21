@@ -19,6 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
+# error "only <purple.h> may be included directly"
+#endif
+
 #ifndef PURPLE_NETWORK_H
 #define PURPLE_NETWORK_H
 /**
@@ -35,6 +39,14 @@
 # include <netinet/in.h>
 # include <sys/socket.h>
 #endif
+
+typedef union
+{
+	struct sockaddr sa;
+	struct sockaddr_in in;
+	struct sockaddr_in6 in6;
+	struct sockaddr_storage storage;
+} common_sockaddr_t;
 
 G_BEGIN_DECLS
 
@@ -322,6 +334,16 @@ const gchar *purple_network_get_turn_ip(void);
  * Remove a port mapping (UPnP or NAT-PMP) associated with listening socket
  */
 void purple_network_remove_port_mapping(gint fd);
+
+/**
+ * Sets most commonly used socket flags: O_NONBLOCK and FD_CLOEXEC.
+ *
+ * @param fd The file descriptor for the socket.
+ *
+ * @return TRUE if succeeded, FALSE otherwise.
+ */
+gboolean
+_purple_network_set_common_socket_flags(int fd);
 
 /**
  * purple_network_init:

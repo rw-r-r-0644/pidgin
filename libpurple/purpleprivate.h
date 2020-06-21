@@ -19,6 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
+# error "only <purple.h> may be included directly"
+#endif
+
 #ifndef PURPLE_PRIVATE_H
 #define PURPLE_PRIVATE_H
 
@@ -32,19 +36,6 @@
 	{ typedef char static_assertion_failed_ ## message \
 	[(condition) ? 1 : -1]; static_assertion_failed_ ## message dummy; \
 	(void)dummy; }
-
-/* This is meant to track use-after-free errors.
- * TODO: it should be disabled in released code. */
-#define PURPLE_ASSERT_CONNECTION_IS_VALID(gc) \
-	_purple_assert_connection_is_valid(gc, __FILE__, __LINE__)
-
-typedef union
-{
-	struct sockaddr sa;
-	struct sockaddr_in in;
-	struct sockaddr_in6 in6;
-	struct sockaddr_storage storage;
-} common_sockaddr_t;
 
 G_BEGIN_DECLS
 
@@ -187,30 +178,6 @@ void _purple_conversations_update_cache(PurpleConversation *conv,
 int *_purple_statuses_get_primitive_scores(void);
 
 /**
- * _purple_blist_get_localized_default_group_name:
- *
- * Returns the name of default group for previously used non-English
- * localization. It's used for merging default group, in case when roster
- * contains localized name.
- *
- * Please note, prpls shouldn't save default group name depending on current
- * locale. So, this function is mostly for libpurple2 compatibility. And for
- * improperly written prpls.
- */
-const gchar *
-_purple_blist_get_localized_default_group_name(void);
-
-/**
- * Sets most commonly used socket flags: O_NONBLOCK and FD_CLOEXEC.
- *
- * @param fd The file descriptor for the socket.
- *
- * @return TRUE if succeeded, FALSE otherwise.
- */
-gboolean
-_purple_network_set_common_socket_flags(int fd);
-
-/**
  * A fstat alternative, like g_stat for stat.
  *
  * @param fd The file descriptor.
@@ -236,10 +203,6 @@ _purple_message_init(void);
  */
 void
 _purple_message_uninit(void);
-
-void
-_purple_assert_connection_is_valid(PurpleConnection *gc,
-	const gchar *file, int line);
 
 /**
  * _purple_conversation_write_common:

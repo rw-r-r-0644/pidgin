@@ -19,6 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
+# error "only <purple.h> may be included directly"
+#endif
+
 #ifndef PURPLE_CONNECTION_H
 #define PURPLE_CONNECTION_H
 /**
@@ -42,6 +46,12 @@ typedef struct _PurpleConnectionUiOps PurpleConnectionUiOps;
 #define PURPLE_TYPE_CONNECTION_ERROR_INFO  (purple_connection_error_info_get_type())
 
 typedef struct _PurpleConnectionErrorInfo PurpleConnectionErrorInfo;
+
+/* This is meant to track use-after-free errors.
+ * TODO: it should be disabled in released code. */
+#define PURPLE_ASSERT_CONNECTION_IS_VALID(gc) \
+	_purple_assert_connection_is_valid(gc, __FILE__, __LINE__)
+
 
 /**
  * PurpleConnectionFlags:
@@ -282,6 +292,13 @@ struct _PurpleConnectionUiOps
 };
 
 G_BEGIN_DECLS
+
+/******************************************************************************
+ * To be deleted in the future
+ *****************************************************************************/
+void
+_purple_assert_connection_is_valid(PurpleConnection *gc,
+	const gchar *file, int line);
 
 /**************************************************************************/
 /* Connection API                                                         */

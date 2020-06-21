@@ -33,7 +33,6 @@
 #include "pidginstock.h"
 
 #ifdef USE_VV
-#include "media-gst.h"
 
 #ifdef GDK_WINDOWING_WIN32
 #include <gdk/gdkwin32.h>

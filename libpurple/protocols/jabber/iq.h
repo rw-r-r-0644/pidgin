@@ -25,6 +25,8 @@
 #ifndef PURPLE_JABBER_IQ_H
 #define PURPLE_JABBER_IQ_H
 
+#include <purple.h>
+
 typedef enum {
 	JABBER_IQ_SET,
 	JABBER_IQ_GET,
@@ -34,7 +36,6 @@ typedef enum {
 } JabberIqType;
 
 #include "jabber.h"
-#include "connection.h"
 
 typedef struct _JabberIq JabberIq;
 typedef struct _JabberIqCallbackData  JabberIqCallbackData;

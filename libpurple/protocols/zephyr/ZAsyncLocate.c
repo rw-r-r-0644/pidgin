@@ -9,7 +9,8 @@
  */
 
 #include "internal.h"
-#include "util.h"
+
+#include <purple.h>
 
 Code_t
 ZRequestLocations(const char *user, ZAsyncLocateData_t *zald,

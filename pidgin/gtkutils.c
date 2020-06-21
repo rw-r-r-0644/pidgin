@@ -28,7 +28,8 @@
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
 
-#include "glibcompat.h" /* for purple_g_stat on win32 */
+#include <purple.h>
+
 #include "pidgin.h"
 
 #ifdef _WIN32

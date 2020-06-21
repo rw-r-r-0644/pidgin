@@ -30,7 +30,6 @@
 #include "gg.h"
 
 #include <purple.h>
-#include "purpleprivate.h"
 
 typedef struct {
 	GSocketConnection *conn;

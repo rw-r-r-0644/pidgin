@@ -31,8 +31,6 @@
 #include <windows.h>
 #endif
 
-#include "util.h"
-
 #define NO_ESCAPE(ch) ((ch == 0x20) || (ch >= 0x30 && ch <= 0x39) || \
 					(ch >= 0x41 && ch <= 0x5a) || (ch >= 0x61 && ch <= 0x7a))
 

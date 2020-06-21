@@ -26,7 +26,6 @@
 #include <purple.h>
 
 #include "gtkxfer.h"
-#include "prefs.h"
 #include "pidginstock.h"
 #include "gtkutils.h"
 
