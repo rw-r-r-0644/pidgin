@@ -13,7 +13,8 @@
 #include <glib/gstdio.h>
 
 #include "internal.h"
-#include "util.h"
+
+#include <purple.h>
 
 #include <ctype.h>
 #ifndef WIN32

@@ -28,8 +28,9 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include <purple.h>
+
 #include "jingle.h"
-#include "xmlnode.h"
 
 G_BEGIN_DECLS
 

@@ -25,7 +25,7 @@
 #ifndef PURPLE_JABBER_SI_H
 #define PURPLE_JABBER_SI_H
 
-#include "xfer.h"
+#include <purple.h>
 
 #include "jabber.h"
 

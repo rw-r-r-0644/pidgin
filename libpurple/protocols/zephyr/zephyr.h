@@ -25,7 +25,7 @@
 
 #include <gmodule.h>
 
-#include "protocol.h"
+#include <purple.h>
 
 #define ZEPHYR_TYPE_PROTOCOL             (zephyr_protocol_get_type())
 #define ZEPHYR_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), ZEPHYR_TYPE_PROTOCOL, ZephyrProtocol))

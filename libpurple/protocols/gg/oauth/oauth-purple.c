@@ -35,7 +35,6 @@
 #include "../xml.h"
 
 #include <purple.h>
-#include "purpleprivate.h"
 
 #define GGP_OAUTH_RESPONSE_MAX 10240
 

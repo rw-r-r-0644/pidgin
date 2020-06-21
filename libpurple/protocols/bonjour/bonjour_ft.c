@@ -31,8 +31,6 @@
 
 #include <purple.h>
 
-#include "purpleprivate.h"
-
 #include "bonjour.h"
 #include "bonjour_ft.h"
 

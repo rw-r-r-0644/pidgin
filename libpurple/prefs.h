@@ -20,6 +20,10 @@
  *
  */
 
+#if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
+# error "only <purple.h> may be included directly"
+#endif
+
 #ifndef PURPLE_PREFS_H
 #define PURPLE_PREFS_H
 /**

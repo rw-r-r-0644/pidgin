@@ -10,7 +10,8 @@
  */
 
 #include "internal.h"
-#include "util.h"
+
+#include <purple.h>
 
 static Code_t Z_RetSubs(ZNotice_t *notice, int *nsubs, Z_AuthProc auth_routine);
 

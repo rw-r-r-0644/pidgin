@@ -30,9 +30,9 @@
 
 #include <gtk/gtk.h>
 
-#include "pidgin.h"
+#include <purple.h>
 
-#include "account.h"
+#include "pidgin.h"
 
 G_BEGIN_DECLS
 

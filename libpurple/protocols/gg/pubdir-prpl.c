@@ -29,6 +29,8 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <purple.h>
+
 #include "pubdir-prpl.h"
 #include "gg.h"
 
@@ -36,8 +38,6 @@
 #include "xml.h"
 #include "utils.h"
 #include "status.h"
-
-#include "purpleprivate.h"
 
 typedef struct
 {

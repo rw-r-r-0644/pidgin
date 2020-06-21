@@ -68,7 +68,6 @@ typedef struct _JabberStream JabberStream;
 #include "auth.h"
 #include "iq.h"
 #include "jutil.h"
-#include "xmlnode.h"
 #include "buddy.h"
 #include "bosh.h"
 

@@ -35,7 +35,7 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "purpleprivate.h"
+#include <purple.h>
 
 #define GGP_EDISC_OS "WINNT x86-msvc"
 #define GGP_EDISC_TYPE "desktop"

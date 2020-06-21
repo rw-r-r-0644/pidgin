@@ -30,7 +30,6 @@
 #include "pidgin.h"
 
 #include "gtkicon-theme-loader.h"
-#include "theme-manager.h"
 
 #include "pidginstock.h"
 

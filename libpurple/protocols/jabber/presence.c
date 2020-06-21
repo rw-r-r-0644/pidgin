@@ -33,8 +33,6 @@
 #include "jutil.h"
 #include "adhoccommands.h"
 
-#include "purpleprivate.h"
-
 #include "usermood.h"
 #include "usertune.h"
 

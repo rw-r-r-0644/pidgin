@@ -21,7 +21,6 @@
  *
  */
 #include <purple.h>
-#include "purpleprivate.h"
 
 #include "buddy.h"
 #include "chat.h"

@@ -37,7 +37,6 @@
 
 /* An incredibly large part of the following is from gtkmedia.c */
 #ifdef USE_VV
-#include "media-gst.h"
 
 #undef hangup
 

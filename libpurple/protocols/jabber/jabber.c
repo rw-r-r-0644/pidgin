@@ -28,7 +28,6 @@
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
-#include "purpleprivate.h"
 
 #include "auth.h"
 #include "buddy.h"

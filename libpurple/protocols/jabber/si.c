@@ -33,7 +33,6 @@
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
-#include "purpleprivate.h"
 
 #include "buddy.h"
 #include "data.h"

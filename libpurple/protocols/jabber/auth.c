@@ -29,9 +29,6 @@
 #include "jabber.h"
 #include "jutil.h"
 #include "iq.h"
-#include "notify.h"
-
-#include "purpleprivate.h"
 
 static GSList *auth_mechs = NULL;
 
