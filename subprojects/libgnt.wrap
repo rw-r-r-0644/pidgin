@@ -1,4 +1,4 @@
 [wrap-hg]
 directory = libgnt
-url = https://bitbucket.com/pidgin/libgnt
+url = https://keep.imfreedom.org/libgnt/libgnt
 revision = default
