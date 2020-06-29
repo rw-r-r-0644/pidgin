@@ -110,7 +110,6 @@ struct _PidginPrefsWindow {
 			GtkWidget *tabs_vbox;
 			GtkWidget *close_on_tabs;
 			PidginPrefCombo tab_side;
-			PidginPrefCombo placement;
 		} conversations;
 	} iface;
 
@@ -1708,14 +1707,6 @@ bind_interface_page(PidginPrefsWindow *win)
 	win->iface.conversations.tab_side.type = PURPLE_PREF_INT;
 	win->iface.conversations.tab_side.key = PIDGIN_PREFS_ROOT "/conversations/tab_side";
 	pidgin_prefs_bind_dropdown(&win->iface.conversations.tab_side);
-
-	win->iface.conversations.placement.type = PURPLE_PREF_STRING;
-	win->iface.conversations.placement.key = PIDGIN_PREFS_ROOT "/conversations/placement";
-	names = pidgin_conv_placement_get_options();
-	pidgin_prefs_bind_dropdown_from_list(
-			&win->iface.conversations.placement,
-			names);
-	g_list_free(names);
 }
 
 /* This is also Win32-specific, but must be visible for Glade binding. */
@@ -3487,9 +3478,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			iface.conversations.tab_side.combo);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			iface.conversations.placement.combo);
 
 	/* Browser page */
 	gtk_widget_class_bind_template_child(
@@ -3851,8 +3839,6 @@ pidgin_prefs_update_old(void)
 	/* Rename some old prefs */
 	purple_prefs_rename(PIDGIN_PREFS_ROOT "/logging/log_ims", "/purple/logging/log_ims");
 	purple_prefs_rename(PIDGIN_PREFS_ROOT "/logging/log_chats", "/purple/logging/log_chats");
-	purple_prefs_rename("/purple/conversations/placement",
-					  PIDGIN_PREFS_ROOT "/conversations/placement");
 
 	purple_prefs_rename(PIDGIN_PREFS_ROOT "/conversations/im/raise_on_events", "/plugins/gtk/X11/notify/method_raise");
 

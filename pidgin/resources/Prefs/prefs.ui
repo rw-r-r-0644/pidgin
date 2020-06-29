@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 
+<!-- Generated with glade 3.22.2 
 
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
@@ -424,7 +424,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="title" translatable="yes">Preferences</property>
     <property name="type_hint">dialog</property>
     <signal name="destroy" handler="delete_prefs" swapped="no"/>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -680,51 +680,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                         <property name="expand">False</property>
                                         <property name="fill">True</property>
                                         <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkBox">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="spacing">6</property>
-                                        <child>
-                                          <object class="GtkLabel" id="label4">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">N_ew conversations:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">iface.conversations.placement.combo</property>
-                                            <property name="xalign">0</property>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkComboBox" id="iface.conversations.placement.combo">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="model">iface.conversations.placement.store</property>
-                                            <child>
-                                              <object class="GtkCellRendererText"/>
-                                              <attributes>
-                                                <attribute name="text">0</attribute>
-                                              </attributes>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">2</property>
                                       </packing>
                                     </child>
                                   </object>
@@ -3583,7 +3538,6 @@ New themes can be installed by dragging and dropping them onto the theme list.</
     <widgets>
       <widget name="label2"/>
       <widget name="label3"/>
-      <widget name="label4"/>
     </widgets>
   </object>
   <object class="GtkSizeGroup" id="network.sg">
