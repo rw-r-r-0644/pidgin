@@ -278,53 +278,7 @@ PidginConvWindow *pidgin_conv_window_first_chat(void);
  */
 PidginConvWindow *pidgin_conv_window_last_chat(void);
 
-/**************************************************************************
- * GTK+ Conversation Placement API
- **************************************************************************/
-
-/**
- * PidginConvPlacementFunc: (skip)
- */
-typedef void (*PidginConvPlacementFunc)(PidginConversation *conv);
-
-/**
- * pidgin_conv_placement_get_options: (skip)
- */
-GList *pidgin_conv_placement_get_options(void);
-/**
- * pidgin_conv_placement_get_name: (skip)
- */
-const char *pidgin_conv_placement_get_name(const char *id);
-
-/**
- * pidgin_conv_placement_place: (skip)
- */
-void pidgin_conv_placement_place(PidginConversation *gtkconv);
-
-/**
- * pidgin_conv_placement_add_fnc: (skip)
- */
-void pidgin_conv_placement_add_fnc(const char *id, const char *name, PidginConvPlacementFunc fnc);
-
-/**
- * pidgin_conv_placement_remove_fnc: (skip)
- */
-void pidgin_conv_placement_remove_fnc(const char *id);
-
-/**
- * pidgin_conv_placement_get_fnc: (skip)
- */
-PidginConvPlacementFunc pidgin_conv_placement_get_fnc(const char *id);
-
-/**
- * pidgin_conv_placement_set_current_func: (skip)
- */
-void pidgin_conv_placement_set_current_func(PidginConvPlacementFunc func);
-
-/**
- * pidgin_conv_placement_get_current_func: (skip)
- */
-PidginConvPlacementFunc pidgin_conv_placement_get_current_func(void);
+void pidgin_conv_placement_place(PidginConversation *conv);
 
 G_END_DECLS
 

@@ -25,11 +25,6 @@ if PLUGINS
 	    dependencies : [libpurple_dep, libpidgin_dep, glib],
 	    name_prefix : '')
 
-	extplacement = library('extplacement', 'extplacement.c',
-	    dependencies : [libpurple_dep, libpidgin_dep, glib],
-	    name_prefix : '',
-	    install : true, install_dir : PIDGIN_PLUGINDIR)
-
 	gtkbuddynote = library('gtkbuddynote', 'gtkbuddynote.c',
 	    dependencies : [libpurple_dep, libpidgin_dep, glib],
 	    name_prefix : '',
