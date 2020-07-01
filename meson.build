@@ -43,7 +43,7 @@ add_project_arguments([
 	'-DHAVE_CONFIG_H=1',
 	'-DVERSION="@0@"'.format(meson.project_version()),
 	'-DDISPLAY_VERSION="@0@"'.format(meson.project_version()),
-	'-DPURPLE_WEBSITE="https://pidgin.im"',
+	'-DPURPLE_WEBSITE="https://pidgin.im/"',
 	'-DGETTEXT_PACKAGE="@0@"'.format(GETTEXT_PACKAGE)],
 	language : 'c')
 conf = configuration_data()
@@ -606,7 +606,7 @@ else
 	add_project_arguments([
 		'-DHAVE_CONFIG_H=1',
 		'-DDISPLAY_VERSION="@0@"'.format(meson.project_version()),
-		'-DPURPLE_WEBSITE="https://pidgin.im"',
+		'-DPURPLE_WEBSITE="https://pidgin.im/"',
 		'-DGETTEXT_PACKAGE="@0@"'.format(GETTEXT_PACKAGE)],
 		language : 'cpp')
 
