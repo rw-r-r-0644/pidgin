@@ -24,16 +24,15 @@
 
 GtkWidget *
 pidgin_talkatu_editor_new_for_connection(PurpleConnection *pc) {
-	GtkWidget *editor = NULL;
-	GtkWidget *view = NULL;
+	GtkWidget *editor = NULL, *input = NULL;
 
 	g_return_val_if_fail(pc != NULL, NULL);
 
 	editor = talkatu_editor_new();
-	view = talkatu_editor_get_view(TALKATU_EDITOR(editor));
+	input = talkatu_editor_get_input(TALKATU_EDITOR(editor));
 
 	gtk_text_view_set_buffer(
-		GTK_TEXT_VIEW(view),
+		GTK_TEXT_VIEW(input),
 		pidgin_talkatu_buffer_new_for_connection(pc)
 	);
 

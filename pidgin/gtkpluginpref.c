@@ -92,7 +92,7 @@ make_string_pref(GtkWidget *parent, PurplePluginPref *pref, GtkSizeGroup *sg) {
 				GtkWidget *hbox;
 				GtkWidget *spacer;
 				GtkWidget *editor;
-				GtkWidget *view;
+				GtkWidget *input;
 				GtkTextBuffer *buffer;
 
 				box = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
@@ -117,7 +117,7 @@ make_string_pref(GtkWidget *parent, PurplePluginPref *pref, GtkSizeGroup *sg) {
 				gtk_widget_show(spacer);
 
 				editor = talkatu_editor_new();
-				view = talkatu_editor_get_view(TALKATU_EDITOR(editor));
+				input = talkatu_editor_get_input(TALKATU_EDITOR(editor));
 
 				if ((format & PURPLE_STRING_FORMAT_TYPE_HTML) != 0) {
 					buffer = talkatu_html_buffer_new();
@@ -125,7 +125,7 @@ make_string_pref(GtkWidget *parent, PurplePluginPref *pref, GtkSizeGroup *sg) {
 					buffer = talkatu_buffer_new(NULL);
 				}
 
-				gtk_text_view_set_buffer(GTK_TEXT_VIEW(view), buffer);
+				gtk_text_view_set_buffer(GTK_TEXT_VIEW(input), buffer);
 
 				if (format & PURPLE_STRING_FORMAT_TYPE_MULTILINE) {
 					gchar *tmp = purple_strreplace(purple_prefs_get_string(pref_name), "\n", "<br>");
@@ -135,7 +135,7 @@ make_string_pref(GtkWidget *parent, PurplePluginPref *pref, GtkSizeGroup *sg) {
 					talkatu_markup_set_html(TALKATU_BUFFER(buffer), purple_prefs_get_string(pref_name), -1);
 				}
 
-				gtk_label_set_mnemonic_widget(GTK_LABEL(gtk_label), view);
+				gtk_label_set_mnemonic_widget(GTK_LABEL(gtk_label), input);
 				gtk_widget_show_all(editor);
 				g_object_set_data(G_OBJECT(buffer), "pref-key", (gpointer)pref_name);
 				g_signal_connect(G_OBJECT(buffer), "changed",

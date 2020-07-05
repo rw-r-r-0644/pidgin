@@ -838,7 +838,7 @@ status_menu_refresh_iter(PidginStatusBox *status_box, gboolean status_changed)
 		 * Suppress the "changed" signal because the status
 		 * was changed programmatically.
 		 */
-		gtk_widget_set_sensitive(GTK_WIDGET(status_box->view), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(status_box->input), FALSE);
 
 		talkatu_buffer_clear(TALKATU_BUFFER(status_box->buffer));
 
@@ -855,7 +855,7 @@ status_menu_refresh_iter(PidginStatusBox *status_box, gboolean status_changed)
 			talkatu_markup_set_html(TALKATU_BUFFER(status_box->buffer), message, -1);
 		}
 
-		gtk_widget_set_sensitive(GTK_WIDGET(status_box->view), TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(status_box->input), TRUE);
 		update_size(status_box);
 	}
 
@@ -1707,9 +1707,9 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 
 	status_box->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, FALSE);
 	status_box->editor = talkatu_editor_new();
-	status_box->view = talkatu_editor_get_view(TALKATU_EDITOR(status_box->editor));
+	status_box->input = talkatu_editor_get_input(TALKATU_EDITOR(status_box->editor));
 	status_box->buffer = talkatu_html_buffer_new();
-	gtk_text_view_set_buffer(GTK_TEXT_VIEW(status_box->view), status_box->buffer);
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(status_box->input), status_box->buffer);
 
 	g_signal_connect(G_OBJECT(status_box->buffer), "changed",
 	                 G_CALLBACK(pidgin_status_box_buffer_changed_cb),
@@ -1719,7 +1719,7 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 	                 G_CALLBACK(toggle_key_press_cb), status_box);
 	g_signal_connect(G_OBJECT(status_box->toggle_button), "button-press-event",
 	                 G_CALLBACK(toggled_cb), status_box);
-	g_signal_connect(G_OBJECT(status_box->view), "key-press-event",
+	g_signal_connect(G_OBJECT(status_box->input), "key-press-event",
 	                 G_CALLBACK(editor_remove_focus), status_box);
 
 	gtk_widget_set_parent(status_box->vbox, GTK_WIDGET(status_box));
@@ -2491,7 +2491,7 @@ static void pidgin_status_box_changed(PidginStatusBox *status_box)
 
 			gtk_widget_show_all(status_box->vbox);
 			status_box->typing = g_timeout_add_seconds(TYPING_TIMEOUT, (GSourceFunc)remove_typing_cb, status_box);
-			gtk_widget_grab_focus(status_box->view);
+			gtk_widget_grab_focus(status_box->input);
 
 			gtk_text_buffer_get_start_iter(status_box->buffer, &start);
 			gtk_text_buffer_get_end_iter(status_box->buffer, &end);

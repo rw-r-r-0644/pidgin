@@ -568,11 +568,11 @@ pidgin_request_input(const char *title, const char *primary,
 
 	if(multiline || purple_strequal(data->u.input.hint, "html")) {
 		GtkWidget *editor = talkatu_editor_new();
-		GtkWidget *view = talkatu_editor_get_view(TALKATU_EDITOR(editor));
+		GtkWidget *input = talkatu_editor_get_input(TALKATU_EDITOR(editor));
 		GtkTextBuffer *buffer = NULL;
 
-		gtk_widget_set_size_request(view, 320, 130);
-		gtk_widget_set_name(view, "pidgin_request_view");
+		gtk_widget_set_size_request(input, 320, 130);
+		gtk_widget_set_name(input, "pidgin_request_input");
 		gtk_box_pack_start(GTK_BOX(vbox), editor, TRUE, TRUE, 0);
 		gtk_widget_show(editor);
 
@@ -590,9 +590,9 @@ pidgin_request_input(const char *title, const char *primary,
 			}
 		}
 
-		gtk_text_view_set_buffer(GTK_TEXT_VIEW(view), buffer);
+		gtk_text_view_set_buffer(GTK_TEXT_VIEW(input), buffer);
 
-		data->u.input.entry = view;
+		data->u.input.entry = input;
 	} else {
 		GtkWidget *entry = gtk_entry_new();
 

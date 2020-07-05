@@ -707,7 +707,7 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 		= gtk_check_button_new_with_mnemonic(_("P_lay a sound"));
 
 	editor = talkatu_editor_new();
-	dialog->send_msg_entry = talkatu_editor_get_view(TALKATU_EDITOR(editor));
+	dialog->send_msg_entry = talkatu_editor_get_input(TALKATU_EDITOR(editor));
 	reset_send_msg_entry(dialog, NULL);
 
 	dialog->exec_cmd_entry    = gtk_entry_new();
