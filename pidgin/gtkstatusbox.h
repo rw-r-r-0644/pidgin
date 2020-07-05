@@ -90,7 +90,7 @@ struct _PidginStatusBox
 	GtkWidget *vbox;
 	gboolean editor_visible;
 	GtkWidget *editor;
-	GtkWidget *view;
+	GtkWidget *input;
 	GtkTextBuffer *buffer;
 
 	PurpleImage *buddy_icon_img;

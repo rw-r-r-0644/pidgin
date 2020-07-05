@@ -1135,7 +1135,7 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	/* Status message */
 	editor = talkatu_editor_new();
 
-	dialog->message_view = talkatu_editor_get_view(TALKATU_EDITOR(editor));
+	dialog->message_view = talkatu_editor_get_input(TALKATU_EDITOR(editor));
 	hbox = pidgin_add_widget_to_vbox(GTK_BOX(vbox), _("_Message:"), sg, editor, TRUE, NULL);
 
 	dialog->message_buffer = talkatu_html_buffer_new();
@@ -1459,7 +1459,7 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	editor = talkatu_editor_new();
 	gtk_box_pack_start(GTK_BOX(hbox), editor, TRUE, TRUE, 0);
 
-	dialog->message_view = talkatu_editor_get_view(TALKATU_EDITOR(editor));
+	dialog->message_view = talkatu_editor_get_input(TALKATU_EDITOR(editor));
 	dialog->message_buffer = talkatu_html_buffer_new();
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(dialog->message_view), dialog->message_buffer);
 

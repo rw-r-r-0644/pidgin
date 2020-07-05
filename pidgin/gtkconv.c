@@ -456,7 +456,7 @@ static gboolean
 check_for_and_do_command(PurpleConversation *conv)
 {
 	PidginConversation *gtkconv;
-	GtkWidget *view = NULL;
+	GtkWidget *input = NULL;
 	GtkTextBuffer *buffer = NULL;
 	gchar *cmd;
 	const gchar *prefix;
@@ -465,8 +465,8 @@ check_for_and_do_command(PurpleConversation *conv)
 	gtkconv = PIDGIN_CONVERSATION(conv);
 	prefix = pidgin_get_cmd_prefix();
 
-	view = talkatu_editor_get_view(TALKATU_EDITOR(gtkconv->editor));
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+	input = talkatu_editor_get_input(TALKATU_EDITOR(gtkconv->editor));
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(input));
 
 	cmd = talkatu_buffer_get_plain_text(TALKATU_BUFFER(buffer));
 
@@ -1799,7 +1799,7 @@ entry_key_press_cb(GtkWidget *entry, GdkEventKey *event, gpointer data)
 static gboolean
 refocus_entry_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
-	GtkWidget *view = NULL;
+	GtkWidget *input = NULL;
 	PidginConversation *gtkconv = data;
 
 	/* If we have a valid key for the conversation display, then exit */
@@ -1831,9 +1831,9 @@ refocus_entry_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
 		return FALSE;
 	}
 
-	view = talkatu_editor_get_view(TALKATU_EDITOR(gtkconv->editor));
-	gtk_widget_grab_focus(view);
-	gtk_widget_event(view, (GdkEvent *)event);
+	input = talkatu_editor_get_input(TALKATU_EDITOR(gtkconv->editor));
+	gtk_widget_grab_focus(input);
+	gtk_widget_event(input, (GdkEvent *)event);
 
 	return TRUE;
 }
@@ -4116,7 +4116,7 @@ pidgin_conv_create_tooltip(GtkWidget *tipwindow, gpointer userdata, int *w, int 
 static GtkWidget *
 setup_common_pane(PidginConversation *gtkconv)
 {
-	GtkWidget *vbox, *sw, *event_box, *view;
+	GtkWidget *vbox, *sw, *event_box, *input;
 	GtkCellRenderer *rend;
 	GtkTreePath *path;
 	PurpleConversation *conv = gtkconv->active_conv;
@@ -4262,11 +4262,11 @@ setup_common_pane(PidginConversation *gtkconv)
 	talkatu_editor_set_buffer(TALKATU_EDITOR(gtkconv->editor), talkatu_html_buffer_new());
 	gtk_box_pack_start(GTK_BOX(gtkconv->lower_hbox), gtkconv->editor, TRUE, TRUE, 0);
 
-	view = talkatu_editor_get_view(TALKATU_EDITOR(gtkconv->editor));
-	gtk_widget_set_name(view, "pidgin_conv_entry");
-	talkatu_view_set_send_binding(TALKATU_VIEW(view), TALKATU_VIEW_SEND_BINDING_RETURN | TALKATU_VIEW_SEND_BINDING_KP_ENTER);
+	input = talkatu_editor_get_input(TALKATU_EDITOR(gtkconv->editor));
+	gtk_widget_set_name(input, "pidgin_conv_entry");
+	talkatu_input_set_send_binding(TALKATU_INPUT(input), TALKATU_INPUT_SEND_BINDING_RETURN | TALKATU_INPUT_SEND_BINDING_KP_ENTER);
 	g_signal_connect(
-		G_OBJECT(view),
+		G_OBJECT(input),
 		"send-message",
 		G_CALLBACK(send_cb),
 		gtkconv
