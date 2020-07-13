@@ -34,6 +34,14 @@
 #include "bonjour.h"
 #include "bonjour_ft.h"
 
+typedef union
+{
+	struct sockaddr sa;
+	struct sockaddr_in in;
+	struct sockaddr_in6 in6;
+	struct sockaddr_storage storage;
+} common_sockaddr_t;
+
 static void
 bonjour_bytestreams_init(PurpleXfer *xfer);
 static void
