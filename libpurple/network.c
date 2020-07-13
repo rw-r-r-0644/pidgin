@@ -60,6 +60,14 @@
 #  define HX_SIZE_OF_IFREQ(a) sizeof(a)
 #endif
 
+typedef union
+{
+	struct sockaddr sa;
+	struct sockaddr_in in;
+	struct sockaddr_in6 in6;
+	struct sockaddr_storage storage;
+} common_sockaddr_t;
+
 struct _PurpleNetworkListenData {
 	int listenfd;
 	int socket_type;
