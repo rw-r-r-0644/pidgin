@@ -76,9 +76,6 @@ option('zephyr', type : 'feature',
 ##############################################################################
 # Pidgin Options
 
-option('cap', type : 'boolean', value : false,
-       description : 'compile with Contact Availability Prediction plugin')
-
 option('console-logging', type : 'boolean', value : false,
        description : 'compile with console logging support')
 

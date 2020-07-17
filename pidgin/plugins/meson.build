@@ -4,10 +4,6 @@ if false
 	subdir('musicmessaging')
 endif
 
-if get_option('cap')
-	subdir('cap')
-endif
-
 if enable_gestures
 	subdir('gestures')
 endif
