@@ -337,14 +337,14 @@ edit_dialog_show(SmileyManager *manager, PurpleSmiley *smiley)
 
 	/* The vbox */
 	vbox = gtk_grid_new();
-	gtk_grid_set_row_spacing(GTK_GRID(vbox), PIDGIN_HIG_BORDER);
+	gtk_grid_set_row_spacing(GTK_GRID(vbox), 12);
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(
 		edit_dialog->window)), vbox);
 	gtk_widget_show(vbox);
 
 	/* The hbox */
 	hbox = gtk_grid_new();
-	gtk_grid_set_column_spacing(GTK_GRID(hbox), PIDGIN_HIG_BORDER);
+	gtk_grid_set_column_spacing(GTK_GRID(hbox), 12);
 	gtk_grid_attach(GTK_GRID(vbox), hbox, 0, 0, 1, 1);
 
 	label = GTK_LABEL(gtk_label_new_with_mnemonic(_("_Image:")));
@@ -364,7 +364,7 @@ edit_dialog_show(SmileyManager *manager, PurpleSmiley *smiley)
 
 	/* info */
 	hbox = gtk_grid_new();
-	gtk_grid_set_column_spacing(GTK_GRID(hbox), PIDGIN_HIG_BORDER);
+	gtk_grid_set_column_spacing(GTK_GRID(hbox), 12);
 
 	gtk_grid_attach_next_to(GTK_GRID(vbox), hbox, NULL,
 		GTK_POS_BOTTOM, 1, 1);

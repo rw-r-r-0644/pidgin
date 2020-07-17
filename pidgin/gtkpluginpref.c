@@ -95,7 +95,7 @@ make_string_pref(GtkWidget *parent, PurplePluginPref *pref, GtkSizeGroup *sg) {
 				GtkWidget *input;
 				GtkTextBuffer *buffer;
 
-				box = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+				box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 
 				gtk_widget_show(box);
 				gtk_box_pack_start(GTK_BOX(parent), box, FALSE, FALSE, 0);
@@ -108,7 +108,7 @@ make_string_pref(GtkWidget *parent, PurplePluginPref *pref, GtkSizeGroup *sg) {
 				if(sg)
 					gtk_size_group_add_widget(sg, gtk_label);
 
-				hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+				hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 				gtk_box_pack_start(GTK_BOX(box), hbox, FALSE, FALSE, 0);
 				gtk_widget_show(hbox);
 

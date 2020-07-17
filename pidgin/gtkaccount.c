@@ -461,7 +461,7 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	gtk_widget_show(dialog->login_frame);
 
 	/* Main vbox */
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_widget_show(vbox);
 
@@ -651,7 +651,7 @@ add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	gtk_widget_show(dialog->user_frame);
 
 	/* Main vbox */
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_widget_show(vbox);
 
@@ -671,7 +671,7 @@ add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	gtk_widget_show(dialog->icon_check);
 	gtk_box_pack_start(GTK_BOX(vbox), dialog->icon_check, FALSE, FALSE, 0);
 
-	dialog->icon_hbox = hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	dialog->icon_hbox = hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_widget_set_sensitive(hbox, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->icon_check)));
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
@@ -700,8 +700,8 @@ add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 	gtk_widget_show(vbox2);
 
-	hbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
-	gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, PIDGIN_HIG_BORDER);
+	hbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+	gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 12);
 	gtk_widget_show(hbox2);
 
 	button = gtk_button_new_with_mnemonic(_("_Remove"));
@@ -804,8 +804,8 @@ add_account_options(AccountPrefsDialog *dialog)
 	account = dialog->account;
 
 	/* Main vbox */
-	dialog->protocol_frame = vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), PIDGIN_HIG_BORDER);
+	dialog->protocol_frame = vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 	gtk_notebook_insert_page(GTK_NOTEBOOK(dialog->notebook), vbox,
 			gtk_label_new_with_mnemonic(_("Ad_vanced")), 1);
 	gtk_widget_show(vbox);
@@ -1110,7 +1110,7 @@ add_proxy_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 		gtk_widget_destroy(dialog->proxy_frame);
 
 	/* Main vbox */
-	dialog->proxy_frame = vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	dialog->proxy_frame = vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_container_add(GTK_CONTAINER(parent), vbox);
 	gtk_widget_show(vbox);
 
@@ -1120,8 +1120,8 @@ add_proxy_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	add_pref_box(dialog, vbox, _("Proxy _type:"), dialog->proxy_dropdown);
 
 	/* Setup the second vbox, which may be hidden at times. */
-	dialog->proxy_vbox = vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
-	gtk_box_pack_start(GTK_BOX(vbox), vbox2, FALSE, FALSE, PIDGIN_HIG_BORDER);
+	dialog->proxy_vbox = vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+	gtk_box_pack_start(GTK_BOX(vbox), vbox2, FALSE, FALSE, 12);
 	gtk_widget_show(vbox2);
 
 	/* Host */
@@ -1207,9 +1207,8 @@ add_voice_options(AccountPrefsDialog *dialog)
 	}
 
 	if (!dialog->voice_frame) {
-		dialog->voice_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BORDER);
-		gtk_container_set_border_width(GTK_CONTAINER(dialog->voice_frame),
-										PIDGIN_HIG_BORDER);
+		dialog->voice_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
+		gtk_container_set_border_width(GTK_CONTAINER(dialog->voice_frame), 12);
 
 		dialog->suppression_check =
 				gtk_check_button_new_with_mnemonic(_("Use _silence suppression"));
@@ -1627,21 +1626,21 @@ pidgin_account_dialog_show_continue(PurpleAccount *account,
 	dialog->protocol = purple_protocols_find(dialog->protocol_id);
 
 	dialog->window = win = pidgin_create_dialog((type == PIDGIN_ADD_ACCOUNT_DIALOG) ? _("Add Account") : _("Modify Account"),
-		PIDGIN_HIG_BOX_SPACE, "account", FALSE);
+		6, "account", FALSE);
 
 	g_signal_connect(G_OBJECT(win), "delete_event",
 					 G_CALLBACK(account_win_destroy_cb), dialog);
 
 	/* Setup the vbox */
-	main_vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, PIDGIN_HIG_BOX_SPACE);
+	main_vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 6);
 
 	dialog->notebook = notebook = gtk_notebook_new();
 	gtk_box_pack_start(GTK_BOX(main_vbox), notebook, FALSE, FALSE, 0);
 	gtk_widget_show(GTK_WIDGET(notebook));
 
 	/* Setup the inner vbox */
-	dialog->top_vbox = vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BORDER);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), PIDGIN_HIG_BORDER);
+	dialog->top_vbox = vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox,
 			gtk_label_new_with_mnemonic(_("_Basic")));
 	gtk_widget_show(vbox);
@@ -1666,8 +1665,8 @@ pidgin_account_dialog_show_continue(PurpleAccount *account,
 	add_account_options(dialog);
 
 	/* Setup the page with 'Proxy'. */
-	dbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BORDER);
-	gtk_container_set_border_width(GTK_CONTAINER(dbox), PIDGIN_HIG_BORDER);
+	dbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
+	gtk_container_set_border_width(GTK_CONTAINER(dbox), 12);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), dbox,
 			gtk_label_new_with_mnemonic(_("P_roxy")));
 	gtk_widget_show(dbox);
@@ -2404,7 +2403,7 @@ pidgin_accounts_window_show(void)
 					 G_CALLBACK(accedit_win_destroy_cb), accounts_window);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, PIDGIN_HIG_BORDER);
+	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
 
 	/* Setup the scrolled window that will contain the list of accounts. */
 	sw = create_accounts_list(dialog);

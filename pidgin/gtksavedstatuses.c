@@ -550,7 +550,7 @@ pidgin_status_window_show(void)
 	width  = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/status/dialog/width");
 	height = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/status/dialog/height");
 
-	dialog->window = win = pidgin_create_dialog(_("Saved Statuses"), PIDGIN_HIG_BORDER, "statuses", TRUE);
+	dialog->window = win = pidgin_create_dialog(_("Saved Statuses"), 12, "statuses", TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(win), width, height);
 
 	g_signal_connect(G_OBJECT(win), "delete_event",
@@ -559,7 +559,7 @@ pidgin_status_window_show(void)
 					 G_CALLBACK(configure_cb), dialog);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, PIDGIN_HIG_BORDER);
+	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
 
 	/* List of saved status states */
 	list = create_saved_status_list(dialog);
@@ -1103,13 +1103,13 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	if (edit)
 		dialog->original_title = g_strdup(purple_savedstatus_get_title(saved_status));
 
-	dialog->window = win = pidgin_create_dialog(_("Status"), PIDGIN_HIG_BORDER, "status", TRUE);
+	dialog->window = win = pidgin_create_dialog(_("Status"), 12, "status", TRUE);
 
 	g_signal_connect(G_OBJECT(win), "destroy",
 					 G_CALLBACK(status_editor_destroy_cb), dialog);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, PIDGIN_HIG_BORDER);
+	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
 
 	sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
@@ -1159,7 +1159,7 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	gtk_box_pack_start(GTK_BOX(vbox), expander, FALSE, FALSE, 0);
 
 	/* Setup the box that the expander will cover */
-	dbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_CAT_SPACE);
+	dbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 18);
 	gtk_container_add(GTK_CONTAINER(expander), dbox);
 
 	/* Create the list model */
@@ -1193,7 +1193,7 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 
 	/* Button box */
 	bbox = pidgin_dialog_get_action_area(GTK_DIALOG(win));
-	gtk_box_set_spacing(GTK_BOX(bbox), PIDGIN_HIG_BOX_SPACE);
+	gtk_box_set_spacing(GTK_BOX(bbox), 6);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
 
 	/* Cancel button */
@@ -1402,19 +1402,19 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	dialog->account = account;
 
 	tmp = g_strdup_printf(_("Status for %s"), purple_account_get_username(account));
-	dialog->window = win = pidgin_create_dialog(tmp, PIDGIN_HIG_BORDER, "substatus", TRUE);
+	dialog->window = win = pidgin_create_dialog(tmp, 12, "substatus", TRUE);
 	g_free(tmp);
 
 	g_signal_connect(G_OBJECT(win), "destroy",
 					 G_CALLBACK(substatus_editor_destroy_cb), dialog);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, PIDGIN_HIG_BORDER);
+	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
 
 	sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
 	/* Status type */
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	label = gtk_label_new_with_mnemonic(_("_Status:"));
@@ -1448,7 +1448,7 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	gtk_box_pack_start(GTK_BOX(hbox), combo, FALSE, FALSE, 0);
 
 	/* Status mesage */
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 0);
 
 	label = gtk_label_new_with_mnemonic(_("_Message:"));

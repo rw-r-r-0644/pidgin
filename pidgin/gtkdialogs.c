@@ -383,14 +383,14 @@ pidgin_dialogs_ee(const char *ee)
 	gtk_dialog_set_default_response (GTK_DIALOG(window), GTK_RESPONSE_OK);
 	g_signal_connect(G_OBJECT(window), "response", G_CALLBACK(gtk_widget_destroy), NULL);
 
-	gtk_container_set_border_width (GTK_CONTAINER(window), PIDGIN_HIG_BOX_SPACE);
+	gtk_container_set_border_width (GTK_CONTAINER(window), 6);
 	gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 	gtk_box_set_spacing(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(window))),
-	                    PIDGIN_HIG_BORDER);
+	                    12);
 	gtk_container_set_border_width(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(window))),
-	                               PIDGIN_HIG_BOX_SPACE);
+	                               6);
 
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BORDER);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(window))), hbox);
 	img = gtk_image_new_from_icon_name("dialog-cool", GTK_ICON_SIZE_DIALOG);
 	gtk_box_pack_start(GTK_BOX(hbox), img, FALSE, FALSE, 0);

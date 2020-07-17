@@ -569,14 +569,14 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	vbox1 = gtk_dialog_get_content_area(GTK_DIALOG(window));
 
 	/* Create the vbox that will contain all the prefs stuff. */
-	vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_box_pack_start(GTK_BOX(vbox1), vbox2, TRUE, TRUE, 0);
 
 	/* Create the "Pounce on Whom" frame. */
 	frame = pidgin_make_frame(vbox2, _("Pounce on Whom"));
 
 	/* Account: */
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_box_pack_start(GTK_BOX(frame), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
 
@@ -596,7 +596,7 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	pidgin_set_accessible_label(dialog->account_menu, GTK_LABEL(label));
 
 	/* Buddy: */
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_box_pack_start(GTK_BOX(frame), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
 
@@ -630,7 +630,7 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 
 	grid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(frame), grid);
-	gtk_grid_set_column_spacing(GTK_GRID(grid), PIDGIN_HIG_BORDER);
+	gtk_grid_set_column_spacing(GTK_GRID(grid), 12);
 	gtk_widget_show(grid);
 
 	dialog->signon =
@@ -692,7 +692,7 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 
 	grid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(frame), grid);
-	gtk_grid_set_column_spacing(GTK_GRID(grid), PIDGIN_HIG_BORDER);
+	gtk_grid_set_column_spacing(GTK_GRID(grid), 12);
 	gtk_widget_show(grid);
 
 	dialog->open_win
@@ -779,7 +779,7 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	gtk_grid_attach(GTK_GRID(grid), dialog->play_sound_test,  3, 5, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), dialog->play_sound_reset, 4, 5, 1, 1);
 
-	gtk_grid_set_row_spacing(GTK_GRID(grid), PIDGIN_HIG_BOX_SPACE / 2);
+	gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
 
 	gtk_widget_show(dialog->open_win);
 	gtk_widget_show(dialog->popup);
@@ -857,7 +857,7 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 
 	grid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(frame), grid);
-	gtk_grid_set_column_spacing(GTK_GRID(grid), PIDGIN_HIG_BORDER);
+	gtk_grid_set_column_spacing(GTK_GRID(grid), 12);
 	gtk_widget_show(grid);
 
 	dialog->on_away =
@@ -1373,7 +1373,7 @@ pidgin_pounces_manager_show(void)
 					 G_CALLBACK(pounces_manager_configure_cb), dialog);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, PIDGIN_HIG_BORDER);
+	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
 
 	/* List of saved buddy pounces */
 	list = create_pounces_list(dialog);
