@@ -1,11 +1,11 @@
 ##############################################################################
 # General Options
 
-option('extraversion', type : 'string',
-       description : 'extra version number to be displayed in Help->About and --help (for packagers)')
-
 option('doc', type : 'boolean', value : false,
        description : 'build documentation with gtk-doc')
+
+option('extraversion', type : 'string',
+       description : 'extra version number to be displayed in Help->About and --help (for packagers)')
 
 option('glib-errors-trace', type : 'boolean', value : false,
        description : 'print backtraces for glib errors')
@@ -49,14 +49,14 @@ option('vv', type : 'feature',
 ##############################################################################
 # Protocol Plugins
 
-option('dynamic-prpls', type : 'string', value: 'all',
-       description : 'specify which protocols to build dynamically')
-
 option('avahi', type : 'feature',
        description : 'compile with avahi (required for Bonjour support)')
 
 option('cyrus-sasl', type : 'feature',
        description : 'enable Cyrus SASL support for XMPP/IRC')
+
+option('dynamic-prpls', type : 'string', value: 'all',
+       description : 'specify which protocols to build dynamically')
 
 option('krb4', type : 'boolean', value : false,
        description : 'compile Zephyr plugin with Kerberos 4 support')
@@ -76,9 +76,6 @@ option('zephyr', type : 'feature',
 ##############################################################################
 # Pidgin Options
 
-option('gtkui', type : 'boolean', value : true,
-       description : 'compile with GTK+ user interface')
-
 option('cap', type : 'boolean', value : false,
        description : 'compile with Contact Availability Prediction plugin')
 
@@ -90,6 +87,9 @@ option('gestures', type : 'boolean', value : true,
 
 option('gevolution', type : 'feature', value : 'disabled',
        description : 'compile with the Evolution plugin')
+
+option('gtkui', type : 'boolean', value : true,
+       description : 'compile with GTK+ user interface')
 
 option('unity-integration', type : 'feature',
        description : 'compile with support for unity integration plugin')
