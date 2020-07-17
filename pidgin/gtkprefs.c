@@ -2367,7 +2367,7 @@ keyring_page_add_settings(PidginPrefsWindow *win)
 	GList *it, *groups;
 	GtkSizeGroup *sg;
 
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_box_pack_start(GTK_BOX(win->keyring.vbox), box, FALSE, FALSE, 0);
 
 	sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);

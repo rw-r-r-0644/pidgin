@@ -449,9 +449,9 @@ pidgin_mini_dialog_init(PidginMiniDialog *self)
 
 	gtk_orientable_set_orientation(GTK_ORIENTABLE(self), GTK_ORIENTATION_VERTICAL);
 
-	gtk_container_set_border_width(GTK_CONTAINER(self), PIDGIN_HIG_BOX_SPACE);
+	gtk_container_set_border_width(GTK_CONTAINER(self), 6);
 
-	priv->title_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE));
+	priv->title_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6));
 
 	priv->icon = GTK_IMAGE(gtk_image_new());
 	gtk_widget_set_halign(GTK_WIDGET(priv->icon), GTK_ALIGN_START);

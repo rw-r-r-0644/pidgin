@@ -58,14 +58,6 @@
 # define PIDGIN_ALERT_TITLE PIDGIN_NAME
 #endif
 
-/*
- * Spacings between components, as defined by the
- * GNOME Human Interface Guidelines.
- */
-#define PIDGIN_HIG_CAT_SPACE     18
-#define PIDGIN_HIG_BORDER        12
-#define PIDGIN_HIG_BOX_SPACE      6
-
 /**
  * pidgin_start:
  *

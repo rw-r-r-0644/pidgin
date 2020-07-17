@@ -959,15 +959,15 @@ make_blist_request_dialog(PidginBlistRequestData *data, PurpleAccount *account,
 	gtk_window_set_title(GTK_WINDOW(data->window), title);
 	gtk_window_set_transient_for(GTK_WINDOW(data->window), blist_window);
 	gtk_dialog_set_default_response(GTK_DIALOG(data->window), GTK_RESPONSE_OK);
-	gtk_container_set_border_width(GTK_CONTAINER(data->window), PIDGIN_HIG_BOX_SPACE);
+	gtk_container_set_border_width(GTK_CONTAINER(data->window), 6);
 	gtk_window_set_resizable(GTK_WINDOW(data->window), FALSE);
 	gtk_box_set_spacing(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(data->window))),
-	                    PIDGIN_HIG_BORDER);
+	                    12);
 	gtk_container_set_border_width(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(data->window))),
-	                               PIDGIN_HIG_BOX_SPACE);
+	                               6);
 	gtk_window_set_role(GTK_WINDOW(data->window), window_role);
 
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BORDER);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(data->window))),
 	                  hbox);
 	gtk_box_pack_start(GTK_BOX(hbox), img, FALSE, FALSE, 0);
@@ -4929,7 +4929,7 @@ blist_focus_cb(GtkWidget *widget, GdkEventFocus *event, PidginBuddyList *gtkblis
 static GtkWidget *
 kiosk_page()
 {
-	GtkWidget *ret = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	GtkWidget *ret = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	GtkWidget *label;
 	GtkWidget *entry;
 	GtkWidget *bbox;
@@ -4965,7 +4965,7 @@ kiosk_page()
 	label = gtk_label_new(NULL);
 	gtk_box_pack_start(GTK_BOX(ret), label, TRUE, TRUE, 0);
 
-	gtk_container_set_border_width(GTK_CONTAINER(ret), PIDGIN_HIG_BORDER);
+	gtk_container_set_border_width(GTK_CONTAINER(ret), 12);
 
 	gtk_widget_show_all(ret);
 	return ret;

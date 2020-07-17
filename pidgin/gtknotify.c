@@ -563,14 +563,14 @@ pidgin_notify_message(PurpleNotifyMessageType type, const char *title,
 	g_signal_connect(G_OBJECT(dialog), "response",
 					 G_CALLBACK(message_response_cb), dialog);
 
-	gtk_container_set_border_width(GTK_CONTAINER(dialog), PIDGIN_HIG_BORDER);
+	gtk_container_set_border_width(GTK_CONTAINER(dialog), 12);
 	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
 	gtk_box_set_spacing(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
-	                    PIDGIN_HIG_BORDER);
+	                    12);
 	gtk_container_set_border_width(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
-	                               PIDGIN_HIG_BOX_SPACE);
+	                               6);
 
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BORDER);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
 	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
 	                  hbox);
 
@@ -1002,7 +1002,7 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 	/* Create the window */
 	window = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(window), title ? title :_("Search Results"));
-	gtk_container_set_border_width(GTK_CONTAINER(window), PIDGIN_HIG_BORDER);
+	gtk_container_set_border_width(GTK_CONTAINER(window), 12);
 	gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 
 	g_signal_connect_swapped(G_OBJECT(window), "delete_event",
@@ -1583,9 +1583,9 @@ pidgin_create_notification_dialog(PidginNotifyType type)
 	vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
 	/* Setup the dialog */
-	gtk_container_set_border_width(GTK_CONTAINER(dialog), PIDGIN_HIG_BOX_SPACE);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), PIDGIN_HIG_BOX_SPACE);
-	gtk_box_set_spacing(GTK_BOX(vbox), PIDGIN_HIG_BORDER);
+	gtk_container_set_border_width(GTK_CONTAINER(dialog), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
+	gtk_box_set_spacing(GTK_BOX(vbox), 12);
 
 	/* Golden ratio it up! */
 	gtk_widget_set_size_request(dialog, 550, 400);

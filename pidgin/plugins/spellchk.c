@@ -2120,8 +2120,8 @@ get_config_frame(PurplePlugin *plugin)
 	GtkWidget *vbox2;
 	GtkWidget *vbox3;
 
-	ret = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_CAT_SPACE);
-	gtk_container_set_border_width (GTK_CONTAINER(ret), PIDGIN_HIG_BORDER);
+	ret = gtk_box_new(GTK_ORIENTATION_VERTICAL, 18);
+	gtk_container_set_border_width (GTK_CONTAINER(ret), 12);
 
 	vbox = pidgin_make_frame(ret, _("Text Replacements"));
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 4);
@@ -2206,10 +2206,10 @@ get_config_frame(PurplePlugin *plugin)
 
 	vbox = pidgin_make_frame(ret, _("Add a new text replacement"));
 
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 0);
 	gtk_widget_show(hbox);
-	vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 	gtk_widget_show(vbox2);
 

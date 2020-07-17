@@ -238,7 +238,7 @@ gevo_new_person_dialog_show(EBook *book, EContact *contact,
 	dialog->book = book;
 	g_object_ref(book);
 
-	dialog->win = pidgin_create_window(_("New Person"), PIDGIN_HIG_BORDER, "new_person", FALSE);
+	dialog->win = pidgin_create_window(_("New Person"), 12, "new_person", FALSE);
 
 	g_signal_connect(G_OBJECT(dialog->win), "delete_event",
 					 G_CALLBACK(delete_win_cb), dialog);

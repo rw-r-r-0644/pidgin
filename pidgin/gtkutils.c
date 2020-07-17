@@ -360,7 +360,7 @@ GtkWidget *pidgin_new_menu_item(GtkWidget *menu, const char *mnemonic,
 	GtkWidget *box;
 	GtkWidget *label;
 
-        box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+        box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 
         menuitem = gtk_menu_item_new();
 
@@ -393,7 +393,7 @@ pidgin_make_frame(GtkWidget *parent, const char *title)
 	GtkLabel *label;
 	char *labeltitle;
 
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_box_pack_start(GTK_BOX(parent), vbox, FALSE, FALSE, 0);
 	gtk_widget_show(vbox);
 
@@ -409,7 +409,7 @@ pidgin_make_frame(GtkWidget *parent, const char *title)
 	gtk_widget_show(GTK_WIDGET(label));
 	pidgin_set_accessible_label(vbox, label);
 
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
 
@@ -417,7 +417,7 @@ pidgin_make_frame(GtkWidget *parent, const char *title)
 	gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(label), FALSE, FALSE, 0);
 	gtk_widget_show(GTK_WIDGET(label));
 
-	vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, FALSE, 0);
 	gtk_widget_show(vbox2);
 
@@ -1850,7 +1850,7 @@ pidgin_buddy_icon_chooser_new(GtkWindow *parent,
 	dialog->icon_preview = gtk_image_new();
 	dialog->icon_text = gtk_label_new(NULL);
 
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_widget_set_size_request(GTK_WIDGET(vbox), -1, 50);
 	gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(dialog->icon_preview), TRUE, FALSE, 0);
 	gtk_box_pack_end(GTK_BOX(vbox), GTK_WIDGET(dialog->icon_text), FALSE, FALSE, 0);

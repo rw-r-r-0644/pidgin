@@ -3937,7 +3937,7 @@ setup_chat_topic(PidginConversation *gtkconv, GtkWidget *vbox)
 		GtkWidget *hbox, *label;
 		PidginChatPane *gtkchat = gtkconv->u.chat;
 
-		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 		gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 		label = gtk_label_new(_("Topic:"));
@@ -4002,7 +4002,7 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 	PurpleConversation *conv = gtkconv->active_conv;
 
 	/* Build the right pane. */
-	lbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	lbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_paned_pack2(GTK_PANED(hpaned), lbox, FALSE, TRUE);
 	gtk_widget_show(lbox);
 
@@ -4125,7 +4125,7 @@ setup_common_pane(PidginConversation *gtkconv)
 	int buddyicon_size = 0;
 
 	/* Setup the top part of the pane */
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_widget_show(vbox);
 
 	/* Setup the info pane */
@@ -4253,7 +4253,7 @@ setup_common_pane(PidginConversation *gtkconv)
 	g_signal_connect(G_OBJECT(gtkconv->history), "key_release_event",
 	                 G_CALLBACK(refocus_entry_cb), gtkconv);
 
-	gtkconv->lower_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	gtkconv->lower_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_box_pack_start(GTK_BOX(vbox), gtkconv->lower_hbox, FALSE, FALSE, 0);
 	gtk_widget_show(gtkconv->lower_hbox);
 
@@ -4393,9 +4393,9 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	                 G_CALLBACK(ignore_middle_click), NULL);
 
 	/* Setup the container for the tab. */
-	gtkconv->tab_cont = tab_cont = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+	gtkconv->tab_cont = tab_cont = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	g_object_set_data(G_OBJECT(tab_cont), "PidginConversation", gtkconv);
-	gtk_container_set_border_width(GTK_CONTAINER(tab_cont), PIDGIN_HIG_BOX_SPACE);
+	gtk_container_set_border_width(GTK_CONTAINER(tab_cont), 6);
 	gtk_box_pack_start(GTK_BOX(tab_cont), pane, TRUE, TRUE, 0);
 	gtk_widget_show(pane);
 
@@ -5770,8 +5770,8 @@ pidgin_conv_get_tab_at_xy(PidginConvWindow *win, int x, int y, gboolean *to_righ
 			continue;
 
 		if (horiz) {
-			if (x_rel >= allocation.x - PIDGIN_HIG_BOX_SPACE &&
-					x_rel <= allocation.x + allocation.width + PIDGIN_HIG_BOX_SPACE) {
+			if (x_rel >= allocation.x - 6 &&
+					x_rel <= allocation.x + allocation.width + 6) {
 				page_num = i;
 
 				if (to_right && x_rel >= allocation.x + allocation.width/2)
@@ -5780,8 +5780,8 @@ pidgin_conv_get_tab_at_xy(PidginConvWindow *win, int x, int y, gboolean *to_righ
 				break;
 			}
 		} else {
-			if (y_rel >= allocation.y - PIDGIN_HIG_BOX_SPACE &&
-					y_rel <= allocation.y + allocation.height + PIDGIN_HIG_BOX_SPACE) {
+			if (y_rel >= allocation.y - 6 &&
+					y_rel <= allocation.y + allocation.height + 6) {
 				page_num = i;
 
 				if (to_right && y_rel >= allocation.y + allocation.height/2)
@@ -8144,7 +8144,7 @@ pidgin_conv_window_add_gtkconv(PidginConvWindow *win, PidginConversation *gtkcon
 	set_default_tab_colors(gtkconv->tab_label);
 	gtk_widget_set_name(gtkconv->tab_label, "tab-label");
 
-	gtkconv->menu_tabby = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+	gtkconv->menu_tabby = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtkconv->menu_label = gtk_label_new(tmp_lab);
 	gtk_box_pack_start(GTK_BOX(gtkconv->menu_tabby), gtkconv->menu_icon, FALSE, FALSE, 0);
 
@@ -8215,9 +8215,9 @@ pidgin_conv_tab_pack(PidginConvWindow *win, PidginConversation *gtkconv)
 	gtk_label_set_angle(GTK_LABEL(gtkconv->tab_label), angle);
 
 	if (angle)
-		gtkconv->tabby = gtk_box_new(GTK_ORIENTATION_VERTICAL, PIDGIN_HIG_BOX_SPACE);
+		gtkconv->tabby = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	else
-		gtkconv->tabby = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, PIDGIN_HIG_BOX_SPACE);
+		gtkconv->tabby = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_widget_set_name(gtkconv->tabby, "tab-container");
 
 	/* select the correct ordering for verticle tabs */
