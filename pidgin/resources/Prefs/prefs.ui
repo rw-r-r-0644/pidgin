@@ -1403,7 +1403,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                         <property name="fill">False</property>
                                       </packing>
                                     </child>
-                                    <child internal-child="view">
+                                    <child internal-child="input">
                                       <object class="TalkatuView" id="conversations.format_view">
                                         <property name="width_request">450</property>
                                         <property name="visible">True</property>
