@@ -18,20 +18,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-/* #warning ***pidgin*** */
 
-#ifndef _PIDGIN_H_
-#define _PIDGIN_H_
+#ifndef PIDGIN_CORE_H
+#define PIDGIN_CORE_H
 /**
  * SECTION:pidgin
  * @section_id: pidgin-pidgin
- * @short_description: <filename>pidgin.h</filename>
+ * @short_description: <filename>pidgincore.h</filename>
  * @title: UI Definitions and Includes
  */
 
 #include <glib/gi18n-lib.h>
 
-#include <gtk/gtk.h>
+#include <glib.h>
 
 #ifdef _WIN32
 #  include "win32/gtkwin32dep.h"
@@ -65,5 +64,5 @@
  */
 int pidgin_start(int argc, char *argv[]);
 
-#endif /* _PIDGIN_H_ */
+#endif /* PIDGIN_CORE_H */
 

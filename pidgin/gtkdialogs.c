@@ -27,7 +27,6 @@
 
 #include <talkatu.h>
 
-#include "pidgin.h"
 #include "package_revision.h"
 #ifdef HAVE_MESON_CONFIG
 #include "meson-config.h"
@@ -38,6 +37,7 @@
 #include "gtkblist.h"
 #include "gtkdialogs.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
 #include "pidginlog.h"
 #include "pidginstock.h"
 

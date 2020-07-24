@@ -24,8 +24,6 @@
 
 #include <talkatu.h>
 
-#include "pidgin.h"
-
 #include <purple.h>
 
 #include "gtkblist.h"
@@ -35,6 +33,7 @@
 #include "pidginstock.h"
 #include "gtkutils.h"
 #include "pidginaccountchooser.h"
+#include "pidgincore.h"
 #include "pidgintalkatu.h"
 
 #include <gdk/gdkkeysyms.h>

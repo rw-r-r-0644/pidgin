@@ -20,13 +20,13 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
-#include "gtkutils.h"
-#include "pidginplugininfo.h"
-#include "pidginaccountchooser.h"
+#include <gtk/gtk.h>
 
 #include <purple.h>
 
+#include "gtkutils.h"
+#include "pidginplugininfo.h"
+#include "pidginaccountchooser.h"
 
 #define CONTACT_PRIORITY_PLUGIN_ID "gtk-contact-priority"
 

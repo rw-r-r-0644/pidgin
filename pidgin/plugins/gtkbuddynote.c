@@ -17,6 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301, USA.
  */
 
+#include <glib/gi18n.h>
+
 #include <gtkblist.h>
 #include <pidginplugininfo.h>
 

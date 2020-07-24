@@ -26,10 +26,10 @@
 #include <purple.h>
 
 #include "gtkblist.h"
-#include "pidgin.h"
 #include "gtksavedstatuses.h"
-#include "pidginstock.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
+#include "pidginstock.h"
 
 /*
  * TODO: Should attach to the account-deleted and account-added signals

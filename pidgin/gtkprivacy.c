@@ -21,8 +21,6 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
-
 #include <purple.h>
 
 #include "gtkaccount.h"

@@ -25,8 +25,6 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
-
 #include <purple.h>
 
 #include "gtkaccount.h"
@@ -48,6 +46,7 @@
 #include "pidgin/pidginaccountchooser.h"
 #include "pidgin/pidginactiongroup.h"
 #include "pidgin/pidginbuddylistmenu.h"
+#include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
 #include "pidgin/pidgingdkpixbuf.h"
 #include "pidgin/pidginlog.h"

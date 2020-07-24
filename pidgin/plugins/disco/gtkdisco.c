@@ -33,7 +33,6 @@
 #include <purple.h>
 
 #include "gtkutils.h"
-#include "pidgin.h"
 #include "pidginaccountchooser.h"
 #include "pidgintooltip.h"
 

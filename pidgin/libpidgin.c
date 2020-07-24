@@ -31,7 +31,6 @@
 #include <glib/gstdio.h>
 
 #include <locale.h>
-#include "pidgin.h"
 
 #include <purple.h>
 
@@ -54,6 +53,7 @@
 #include "gtksound.h"
 #include "gtkutils.h"
 #include "gtkwhiteboard.h"
+#include "pidgincore.h"
 #include "pidgindebug.h"
 #include "pidginlog.h"
 #include "pidginplugininfo.h"

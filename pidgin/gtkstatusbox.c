@@ -37,16 +37,18 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gtk/gtk.h>
+
 #include <gdk/gdkkeysyms.h>
 
 #include <purple.h>
 
-#include "pidgin.h"
 #include "gtksavedstatuses.h"
-#include "pidginstock.h"
 #include "gtkstatusbox.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
 #include "pidgingdkpixbuf.h"
+#include "pidginstock.h"
 
 /* Timeout for typing notifications in seconds */
 #define TYPING_TIMEOUT 4

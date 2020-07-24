@@ -27,10 +27,12 @@
 #include <json-glib/json-glib.h>
 #include <talkatu.h>
 
-#include "package_revision.h"
 #include "pidginabout.h"
-#include "pidginresources.h"
+
+#include "package_revision.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
+#include "pidginresources.h"
 
 #include <stdio.h>
 

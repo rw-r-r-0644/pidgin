@@ -26,12 +26,13 @@
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
 
-#include "pidgin.h"
+#include <gtk/gtk.h>
 
 #include <purple.h>
 
 #include "gtkdialogs.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
 #include "pidgindebug.h"
 #include "pidginstock.h"
 

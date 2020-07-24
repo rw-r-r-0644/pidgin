@@ -21,15 +21,16 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
-#include "gtkutils.h"
-#include "pidginaccountchooser.h"
-#include "pidginstock.h"
-#include "pidgintooltip.h"
+#include <gtk/gtk.h>
 
 #include <purple.h>
 
 #include "gtkroomlist.h"
+
+#include "gtkutils.h"
+#include "pidginaccountchooser.h"
+#include "pidginstock.h"
+#include "pidgintooltip.h"
 
 #define PIDGIN_TYPE_ROOMLIST_DIALOG (pidgin_roomlist_dialog_get_type())
 G_DECLARE_FINAL_TYPE(PidginRoomlistDialog, pidgin_roomlist_dialog, PIDGIN,

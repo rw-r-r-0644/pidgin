@@ -23,13 +23,14 @@
 # include <config.h>
 #endif
 
-#include "gtksmiley-theme.h"
+#include <glib/gstdio.h>
 
 #include <purple.h>
 
-#include "gtkutils.h"
+#include "gtksmiley-theme.h"
 
-#include <glib/gstdio.h>
+#include "gtkutils.h"
+#include "pidgincore.h"
 
 #define PIDGIN_SMILEY_THEME_MAX_LINES 1024
 #define PIDGIN_SMILEY_THEME_MAX_TOKENS 1024

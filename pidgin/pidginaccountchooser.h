@@ -32,8 +32,6 @@
 
 #include <purple.h>
 
-#include "pidgin.h"
-
 G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_ACCOUNT_CHOOSER (pidgin_account_chooser_get_type())

@@ -38,8 +38,6 @@ disco#info:
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
-
 #include <purple.h>
 
 #include "gtkconv.h"

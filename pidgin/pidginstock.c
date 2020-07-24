@@ -27,11 +27,10 @@
 
 #include <purple.h>
 
-#include "pidgin.h"
+#include "pidginstock.h"
 
 #include "gtkicon-theme-loader.h"
-
-#include "pidginstock.h"
+#include "pidgincore.h"
 
 #warning GtkStock is deprecated. Port usage of PidginStock to GtkIconTheme \
 	and friends.

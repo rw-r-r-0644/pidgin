@@ -23,16 +23,15 @@
 
 #include <talkatu.h>
 
-#include "pidgin.h"
-
 #include <purple.h>
 
 #include "gtkrequest.h"
 #include "gtkutils.h"
-#include "pidginstock.h"
 #include "gtkblist.h"
 #include "gtkinternal.h"
 #include "pidginaccountchooser.h"
+#include "pidgincore.h"
+#include "pidginstock.h"
 
 #include <gdk/gdkkeysyms.h>
 

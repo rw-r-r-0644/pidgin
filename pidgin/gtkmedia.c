@@ -25,11 +25,13 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gtk/gtk.h>
+
 #include <purple.h>
 
-#include "pidgin.h"
 #include "gtkmedia.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
 #include "pidginstock.h"
 
 #ifdef USE_VV

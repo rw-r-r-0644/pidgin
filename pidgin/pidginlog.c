@@ -21,16 +21,18 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
+#include <gtk/gtk.h>
 
 #include <talkatu.h>
 
 #include <purple.h>
 
-#include "pidginstock.h"
+#include "pidginlog.h"
+
 #include "gtkblist.h"
 #include "gtkutils.h"
-#include "pidginlog.h"
+#include "pidgincore.h"
+#include "pidginstock.h"
 
 #define PIDGIN_TYPE_LOG_VIEWER pidgin_log_viewer_get_type()
 /**

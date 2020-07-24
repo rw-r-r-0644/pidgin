@@ -23,8 +23,7 @@
 
 #include <purple.h>
 
-#include "pidgin/minidialog.h"
-#include "pidgin/pidgin.h"
+#include "minidialog.h"
 
 static void     pidgin_mini_dialog_init       (PidginMiniDialog      *self);
 static void     pidgin_mini_dialog_class_init (PidginMiniDialogClass *klass);

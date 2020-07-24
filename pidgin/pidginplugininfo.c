@@ -20,6 +20,8 @@
  */
 #include "pidginplugininfo.h"
 
+#include "pidgincore.h"
+
 struct _PidginPluginInfo {
 	PurplePluginInfo parent;
 };
