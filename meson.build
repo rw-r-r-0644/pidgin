@@ -331,11 +331,6 @@ else
 endif
 conf.set('HAVE_X11', x11.found())
 
-enable_gestures = get_option('gestures')
-if not get_option('gtkui') or not x11.found()
-	enable_gestures = false
-endif
-
 #######################################################################
 # Check for LibXML2 (required)
 #######################################################################
@@ -793,7 +788,6 @@ message('Build GTK+ UI................. : ' + get_option('gtkui').to_string())
 message('Build console UI.............. : ' + enable_consoleui.to_string())
 message('Build for X11................. : ' + x11.found().to_string())
 message('')
-message('Enable Gestures............... : ' + enable_gestures.to_string())
 message('Protocols to build dynamically : @0@'.format(DYNAMIC_PRPLS))
 message('')
 message('Build with GStreamer support.. : ' + gstreamer.found().to_string())

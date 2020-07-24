@@ -79,9 +79,6 @@ option('zephyr', type : 'feature',
 option('console-logging', type : 'boolean', value : false,
        description : 'compile with console logging support')
 
-option('gestures', type : 'boolean', value : true,
-       description : 'compile with the gestures plugin')
-
 option('gevolution', type : 'feature', value : 'disabled',
        description : 'compile with the Evolution plugin')
 
