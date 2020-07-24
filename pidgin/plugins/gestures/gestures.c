@@ -18,13 +18,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02111-1301, USA.
  */
-#include "internal.h"
-#include "pidgin.h"
+
+#include <glib/gi18n-lib.h>
 
 #include <purple.h>
 
 #include "gtkconv.h"
-#include "gtkplugin.h"
 #include "gtkutils.h"
 
 #include "gstroke.h"
@@ -45,7 +44,7 @@ stroke_close(GtkWidget *widget, void *data)
 
 	gtkconv = PIDGIN_CONVERSATION(conv);
 
-	gstroke_cleanup(gtkconv->webview);
+	gstroke_cleanup(gtkconv->history);
 	g_object_unref(conv);
 }
 
@@ -123,15 +122,15 @@ attach_signals(PurpleConversation *conv)
 
 	gtkconv = PIDGIN_CONVERSATION(conv);
 
-	gstroke_enable(gtkconv->webview);
-	gstroke_signal_connect(gtkconv->webview, "14789",  stroke_close,    conv);
-	gstroke_signal_connect(gtkconv->webview, "1456",   stroke_close,    conv);
-	gstroke_signal_connect(gtkconv->webview, "1489",   stroke_close,    conv);
-	gstroke_signal_connect(gtkconv->webview, "74123",  stroke_next_tab, conv);
-	gstroke_signal_connect(gtkconv->webview, "7456",   stroke_next_tab, conv);
-	gstroke_signal_connect(gtkconv->webview, "96321",  stroke_prev_tab, conv);
-	gstroke_signal_connect(gtkconv->webview, "9654",   stroke_prev_tab, conv);
-	gstroke_signal_connect(gtkconv->webview, "25852",  stroke_new_win,  conv);
+	gstroke_enable(gtkconv->history);
+	gstroke_signal_connect(gtkconv->history, "14789",  stroke_close,    conv);
+	gstroke_signal_connect(gtkconv->history, "1456",   stroke_close,    conv);
+	gstroke_signal_connect(gtkconv->history, "1489",   stroke_close,    conv);
+	gstroke_signal_connect(gtkconv->history, "74123",  stroke_next_tab, conv);
+	gstroke_signal_connect(gtkconv->history, "7456",   stroke_next_tab, conv);
+	gstroke_signal_connect(gtkconv->history, "96321",  stroke_prev_tab, conv);
+	gstroke_signal_connect(gtkconv->history, "9654",   stroke_prev_tab, conv);
+	gstroke_signal_connect(gtkconv->history, "25852",  stroke_new_win,  conv);
 }
 
 static void
@@ -209,7 +208,7 @@ get_config_frame(PurplePlugin *plugin)
 	return ret;
 }
 
-static PidginPluginInfo *
+static GPluginPluginInfo *
 plugin_query(GError **error)
 {
 	const gchar * const authors[] = {
@@ -217,7 +216,7 @@ plugin_query(GError **error)
 		NULL
 	};
 
-	return pidgin_plugin_info_new(
+	return gplugin_plugin_info_new(
 		"id",                   GESTURES_PLUGIN_ID,
 		"name",                 N_("Mouse Gestures"),
 		"version",              DISPLAY_VERSION,
@@ -288,8 +287,8 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 
 		gtkconv = PIDGIN_CONVERSATION(conv);
 
-		gstroke_cleanup(gtkconv->webview);
-		gstroke_disable(gtkconv->webview);
+		gstroke_cleanup(gtkconv->history);
+		gstroke_disable(gtkconv->history);
 	}
 
 	return TRUE;

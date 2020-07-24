@@ -4,11 +4,8 @@ if false
 	subdir('musicmessaging')
 endif
 
-if enable_gestures
-	subdir('gestures')
-endif
-
 subdir('disco')
+subdir('gestures')
 subdir('ticker')
 subdir('xmppconsole')
 

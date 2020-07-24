@@ -36,10 +36,9 @@ void gstroke_enable (GtkWidget *widget);
 /* disable strokes for the widget */
 void gstroke_disable(GtkWidget *widget);
 
-guint gstroke_signal_connect (GtkWidget *widget,
-                              const gchar *name,
-                              void (*func)(GtkWidget *widget, void *data),
-                              gpointer data);
+void gstroke_signal_connect(GtkWidget *widget, const gchar *name,
+                            void (*func)(GtkWidget *widget, void *data),
+                            gpointer data);
 
 /* frees all the memory allocated for stroke, should be called when
    the widget is destroyed*/

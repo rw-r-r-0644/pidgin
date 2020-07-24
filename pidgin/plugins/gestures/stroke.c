@@ -147,11 +147,11 @@ _gstroke_trans (gchar *sequence, struct gstroke_metrics *metrics)
 	prev_bin = current_bin;
       }
 
-      /* move to next point, freeing current point from list */
-
-      free (crt_elem->data);
-      crt_elem = g_slist_next (crt_elem);
+		/* move to next point, freeing current point from list */
+		g_free(crt_elem->data);
+		crt_elem = g_slist_next(crt_elem);
     }
+	metrics->pointList = NULL;
   /* add the last run of points to the sequence */
   sequence[sequence_count++] = '0' + current_bin;
   /*  printf ("DEBUG:: adding final sequence: %d\n", current_bin);  */
