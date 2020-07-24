@@ -30,8 +30,6 @@
 
 #include <purple.h>
 
-#include "pidgin.h"
-
 #ifdef _WIN32
 #  undef small
 #  include <shellapi.h>
@@ -41,17 +39,16 @@
 
 #include <talkatu.h>
 
-#include <purple.h>
-
 #include "gtkaccount.h"
 #include "gtkprefs.h"
 
 #include "gtkconv.h"
 #include "gtkdialogs.h"
-#include "pidginstock.h"
 #include "gtkrequest.h"
 #include "gtkutils.h"
-#include "pidgin/minidialog.h"
+#include "minidialog.h"
+#include "pidgincore.h"
+#include "pidginstock.h"
 
 /******************************************************************************
  * Enums

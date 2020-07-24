@@ -28,8 +28,6 @@
  * @title: Whiteboard Frontend
  */
 
-#include "pidgin.h"
-
 G_BEGIN_DECLS
 
 /*****************************************************************************/

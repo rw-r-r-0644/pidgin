@@ -23,6 +23,8 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gtk/gtk.h>
+
 #include <math.h>
 
 #include <purple.h>

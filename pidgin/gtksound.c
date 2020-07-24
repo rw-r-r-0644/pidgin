@@ -30,8 +30,6 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
-
 #ifdef _WIN32
 #include <windows.h>
 #include <mmsystem.h>
@@ -45,6 +43,7 @@
 
 #include "gtkconv.h"
 #include "gtksound.h"
+#include "pidgincore.h"
 
 struct pidgin_sound_event {
 	char *label;

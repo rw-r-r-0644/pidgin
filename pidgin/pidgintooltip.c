@@ -23,7 +23,6 @@
 
 #include <purple.h>
 
-#include "pidgin.h"
 #include "pidgintooltip.h"
 
 static gboolean enable_tooltips;

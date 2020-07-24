@@ -29,7 +29,6 @@
  */
 
 #include "gtkconv.h"
-#include "pidgin.h"
 
 #include <purple.h>
 

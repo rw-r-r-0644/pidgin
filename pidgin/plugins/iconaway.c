@@ -22,8 +22,6 @@
 
 #include <purple.h>
 
-#include "pidgin.h"
-
 #include "gtkconv.h"
 #include "pidginplugininfo.h"
 

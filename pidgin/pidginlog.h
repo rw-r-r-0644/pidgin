@@ -29,8 +29,6 @@
  * @see_also: <link linkend="chapter-signals-gtklog">Log signals</link>
  */
 
-#include "pidgin.h"
-
 #include <purple.h>
 
 G_BEGIN_DECLS

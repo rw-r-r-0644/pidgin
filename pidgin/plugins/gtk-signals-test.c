@@ -20,6 +20,8 @@
  */
 #define GTK_SIGNAL_TEST_PLUGIN_ID "gtk-signals-test"
 
+#include <glib/gi18n.h>
+
 #include <gtk/gtk.h>
 
 #include <purple.h>

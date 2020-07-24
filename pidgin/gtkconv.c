@@ -29,8 +29,6 @@
 
 #define BUF_LONG (4096)
 
-#include "pidgin.h"
-
 #ifdef HAVE_X11
 # include <X11/Xlib.h>
 #endif
@@ -54,6 +52,7 @@
 #include "gtkprivacy.h"
 #include "gtkstyle.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
 #include "pidgingdkpixbuf.h"
 #include "pidgininvitedialog.h"
 #include "pidginlog.h"
@@ -6759,8 +6758,6 @@ pidgin_conversation_get_type(void)
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
-#include "pidgin.h"
-
 
 #include <gdk/gdkkeysyms.h>
 

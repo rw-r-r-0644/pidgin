@@ -31,8 +31,6 @@
 
 #include <purple.h>
 
-#include "pidgin.h"
-
 G_BEGIN_DECLS
 
 /**

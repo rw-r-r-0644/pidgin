@@ -99,6 +99,7 @@ libpidgin_headers = [
 	'pidginactiongroup.h',
 	'pidginbuddylistmenu.h',
 	'pidgincontactcompletion.h',
+	'pidgincore.h',
 	'pidgindebug.h',
 	'pidgingdkpixbuf.h',
 	'pidginicon.h',
@@ -114,7 +115,6 @@ libpidgin_headers = [
 	'pidginprotocolstore.h',
 	'pidgintalkatu.h',
 	'pidgintooltip.h',
-	'pidgin.h',
 ]
 
 pidgin_SOURCES = [

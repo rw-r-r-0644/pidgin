@@ -21,13 +21,14 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
+#include <gtk/gtk.h>
 
 #include <purple.h>
 
 #include "gtkxfer.h"
-#include "pidginstock.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
+#include "pidginstock.h"
 
 #ifdef _WIN32
 #  include <shellapi.h>

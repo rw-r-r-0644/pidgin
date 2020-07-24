@@ -24,9 +24,10 @@
 
 #include <purple.h>
 
-#include "pidgin/gtkaccount.h"
-#include "pidgin/pidgin.h"
-#include "pidgin/pidginaccountactionsmenu.h"
+#include "pidginaccountactionsmenu.h"
+
+#include "gtkaccount.h"
+#include "pidgincore.h"
 
 struct _PidginAccountsMenu {
 	GtkMenu parent;

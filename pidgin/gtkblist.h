@@ -63,7 +63,6 @@ typedef enum {
 
 #include <purple.h>
 
-#include "pidgin.h"
 #include "gtkblist-theme.h"
 
 /**************************************************************************

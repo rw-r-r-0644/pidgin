@@ -24,15 +24,14 @@
 #include <gdk/gdkkeysyms.h>
 #include <talkatu.h>
 
-#include "pidgin.h"
-
 #include <purple.h>
 
-#include "pidginstock.h"
 #include "gtkblist.h"
 #include "gtknotify.h"
 #include "gtkpounce.h"
 #include "gtkutils.h"
+#include "pidgincore.h"
+#include "pidginstock.h"
 
 typedef struct
 {

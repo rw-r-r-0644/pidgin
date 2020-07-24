@@ -25,8 +25,6 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "pidgin.h"
-
 #include <purple.h>
 
 #include "gtkaccount.h"
@@ -34,6 +32,7 @@
 #include "gtkdialogs.h"
 #include "gtkutils.h"
 #include "gtkstatusbox.h"
+#include "pidgincore.h"
 #include "pidginstock.h"
 #include "minidialog.h"
 #include "pidginprotocolchooser.h"

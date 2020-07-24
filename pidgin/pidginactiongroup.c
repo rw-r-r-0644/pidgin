@@ -24,17 +24,18 @@
 
 #include <purple.h>
 
-#include "pidgin/gtkblist.h"
-#include "pidgin/gtkdialogs.h"
-#include "pidgin/gtkpounce.h"
-#include "pidgin/gtkprefs.h"
-#include "pidgin/gtkprivacy.h"
-#include "pidgin/gtkroomlist.h"
-#include "pidgin/gtksmiley-manager.h"
-#include "pidgin/gtkxfer.h"
-#include "pidgin/pidginabout.h"
-#include "pidgin/pidginlog.h"
-#include "pidgin/pidginmooddialog.h"
+#include "gtkblist.h"
+#include "gtkdialogs.h"
+#include "gtkpounce.h"
+#include "gtkprefs.h"
+#include "gtkprivacy.h"
+#include "gtkroomlist.h"
+#include "gtksmiley-manager.h"
+#include "gtkxfer.h"
+#include "pidginabout.h"
+#include "pidgincore.h"
+#include "pidginlog.h"
+#include "pidginmooddialog.h"
 
 struct _PidginActionGroup {
 	GSimpleActionGroup parent;

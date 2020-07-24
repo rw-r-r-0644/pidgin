@@ -28,8 +28,6 @@
  * @title: Pidgin Dialogs
  */
 
-#include "pidgin.h"
-
 #include <purple.h>
 
 G_BEGIN_DECLS

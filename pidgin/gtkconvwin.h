@@ -28,6 +28,8 @@
  * @title: Conversation Window API
  */
 
+#include <gtk/gtk.h>
+
 #define PIDGIN_TYPE_CONV_WINDOW (pidgin_conv_window_get_type())
 
 typedef struct _PidginConvWindowMenu   PidginConvWindowMenu;

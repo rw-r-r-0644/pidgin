@@ -25,8 +25,6 @@
 
 #include <purple.h>
 
-#include "pidgin.h"
-
 G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_PLUGIN_INFO (pidgin_plugin_info_get_type())
