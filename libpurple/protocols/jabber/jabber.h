@@ -61,6 +61,8 @@ typedef struct _JabberStream JabberStream;
 #include <gio/gio.h>
 #include <libsoup/soup.h>
 
+#include <config.h>
+
 #include <purple.h>
 
 #include "namespaces.h"

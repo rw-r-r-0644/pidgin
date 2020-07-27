@@ -380,8 +380,10 @@ jabber_push_bytes_cb(GObject *source, GAsyncResult *res, gpointer data)
 	if (!result) {
 		purple_queued_output_stream_clear_queue(stream);
 
-		g_prefix_error(&error, "%s", _("Lost connection with server: "));
-		purple_connection_take_error(js->gc, error);
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			g_prefix_error(&error, "%s", _("Lost connection with server: "));
+			purple_connection_take_error(js->gc, error);
+		}
 	}
 }
 
