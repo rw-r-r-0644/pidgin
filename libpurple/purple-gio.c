@@ -49,9 +49,10 @@ graceful_close_cb(gpointer user_data)
 
 	/* Close input stream, from wrapper or GIOStream */
 	if (!g_input_stream_close(data->input, NULL, &error)) {
-		purple_debug_warning("gio",
-				"Error closing input stream: %s",
-				error->message);
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			purple_debug_warning("gio", "Error closing input stream: %s",
+			                     error->message);
+		}
 		g_clear_error(&error);
 	}
 
@@ -59,9 +60,10 @@ graceful_close_cb(gpointer user_data)
 
 	/* Close output stream, from wrapper or GIOStream */
 	if (!g_output_stream_close(data->output, NULL, &error)) {
-		purple_debug_warning("gio",
-				"Error closing output stream: %s",
-				error->message);
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			purple_debug_warning("gio", "Error closing output stream: %s",
+			                     error->message);
+		}
 		g_clear_error(&error);
 	}
 
@@ -69,9 +71,10 @@ graceful_close_cb(gpointer user_data)
 
 	/* Close io stream */
 	if (!g_io_stream_close(data->stream, NULL, &error)) {
-		purple_debug_warning("gio",
-				"Error closing stream: %s",
-				error->message);
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			purple_debug_warning("gio", "Error closing stream: %s",
+			                     error->message);
+		}
 		g_clear_error(&error);
 	}
 

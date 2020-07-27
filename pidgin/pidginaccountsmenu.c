@@ -80,7 +80,10 @@ pidgin_accounts_menu_add_enabled_account(PidginAccountsMenu *menu,
 	GtkWidget *item = NULL, *submenu = NULL;
 
 	/* if the account is in the disabled list, delete its widget */
-	g_hash_table_remove(menu->disabled_items, account);
+	if (g_hash_table_lookup_extended(menu->disabled_items, account, NULL, &item)) {
+		g_clear_pointer(&item, gtk_widget_destroy);
+		g_hash_table_remove(menu->disabled_items, account);
+	}
 
 	item = pidgin_accounts_menu_create_account_menu_item(menu, account);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
@@ -102,7 +105,10 @@ pidgin_accounts_menu_add_disabled_account(PidginAccountsMenu *menu,
 	GtkWidget *item = NULL;
 
 	/* if the account is in the enabled list, delete its widget */
-	g_hash_table_remove(menu->account_items, account);
+	if (g_hash_table_lookup_extended(menu->account_items, account, NULL, &item)) {
+		g_clear_pointer(&item, gtk_widget_destroy);
+		g_hash_table_remove(menu->account_items, account);
+	}
 
 	item = pidgin_accounts_menu_create_account_menu_item(menu, account);
 	g_signal_connect(G_OBJECT(item), "activate",
@@ -173,11 +179,9 @@ pidgin_accounts_menu_init(PidginAccountsMenu *menu) {
 
 	/* create our storage for the items */
 	menu->account_items = g_hash_table_new_full(g_direct_hash, g_direct_equal,
-	                                            g_object_unref,
-	                                            (GDestroyNotify)gtk_widget_destroy);
+	                                            g_object_unref, NULL);
 	menu->disabled_items = g_hash_table_new_full(g_direct_hash, g_direct_equal,
-	                                             g_object_unref,
-	                                             (GDestroyNotify)gtk_widget_destroy);
+	                                             g_object_unref, NULL);
 
 	/* add all of the existing accounts */
 	pidgin_accounts_menu_add_current(menu);
