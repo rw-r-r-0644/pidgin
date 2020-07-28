@@ -24,6 +24,8 @@
 #include <glib.h>
 #include <gmodule.h>
 
+#include <config.h>
+
 #ifdef HAVE_CYRUS_SASL
 #include <sasl/sasl.h>
 #endif
