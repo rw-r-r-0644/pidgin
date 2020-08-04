@@ -184,22 +184,6 @@ void winpidgin_shell_execute(const char *target, const char *verb, const char *c
 
 }
 
-void winpidgin_notify_uri(const char *uri) {
-	/* Allow a few commonly used and "safe" schemes to go to the specific
-	 * class handlers and send everything else to the default http browser.
-	 * This isn't optimal, but should cover the most common cases. I didn't
-	 * see any better secure solutions when I did some research.
-	 */
-	gchar *scheme = g_uri_parse_scheme(uri);
-	if (scheme && (g_ascii_strcasecmp(scheme, "https") == 0
-			|| g_ascii_strcasecmp(scheme, "ftp") == 0
-			|| g_ascii_strcasecmp(scheme, "mailto") == 0))
-		winpidgin_shell_execute(uri, "open", scheme);
-	else
-		winpidgin_shell_execute(uri, "open", "http");
-	g_free(scheme);
-}
-
 #define PIDGIN_WM_FOCUS_REQUEST (WM_APP + 13)
 #define PIDGIN_WM_PROTOCOL_HANDLE (WM_APP + 14)
 

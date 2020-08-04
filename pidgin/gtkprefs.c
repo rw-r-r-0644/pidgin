@@ -112,22 +112,6 @@ struct _PidginPrefsWindow {
 		} conversations;
 	} iface;
 
-	/* Browser page */
-	struct {
-		GtkWidget *page;
-		GtkWidget *stack;
-		/* GNOME version */
-		GtkWidget *gnome_not_found;
-		GtkWidget *gnome_program;
-		gchar *gnome_program_path;
-		/* Non-GNOME version */
-		PidginPrefCombo browser;
-		GtkWidget *place_hbox;
-		PidginPrefCombo place;
-		GtkWidget *manual_command_hbox;
-		GtkWidget *manual_command;
-	} browser;
-
 	/* Conversations page */
 	struct {
 		PidginPrefCombo notification_chat;
@@ -903,7 +887,6 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 	keyring_page_cleanup(prefs);
 
 	g_free(prefs->proxy.gnome_program_path);
-	g_free(prefs->browser.gnome_program_path);
 	prefs = NULL;
 }
 
@@ -1909,18 +1892,6 @@ proxy_button_clicked_cb(GtkWidget *button, PidginPrefsWindow *win)
 }
 
 static void
-browser_button_clicked_cb(GtkWidget *button, PidginPrefsWindow *win)
-{
-	GError *err = NULL;
-
-	if (g_spawn_command_line_async(win->browser.gnome_program_path, &err))
-		return;
-
-	purple_notify_error(NULL, NULL, _("Cannot start browser configuration program."), err->message, NULL);
-	g_error_free(err);
-}
-
-static void
 auto_ip_button_clicked_cb(GtkWidget *button, gpointer null)
 {
 	const char *ip;
@@ -2025,175 +1996,6 @@ bind_network_page(PidginPrefsWindow *win)
 			win->network.turn_username);
 	pidgin_prefs_bind_entry("/purple/network/turn_password",
 			win->network.turn_password);
-}
-
-static gboolean
-manual_browser_set(GtkWidget *entry, GdkEventFocus *event, gpointer data)
-{
-	const char *program = gtk_entry_get_text(GTK_ENTRY(entry));
-
-	purple_prefs_set_string(PIDGIN_PREFS_ROOT "/browsers/manual_command", program);
-
-	/* carry on normally */
-	return FALSE;
-}
-
-#ifndef _WIN32
-static GList *
-get_available_browsers(void)
-{
-	struct browser {
-		char *name;
-		char *command;
-	};
-
-	/* Sorted reverse alphabetically */
-	static const struct browser possible_browsers[] = {
-		{N_("Seamonkey"), "seamonkey"},
-		{N_("Opera"), "opera"},
-		{N_("Mozilla"), "mozilla"},
-		{N_("Konqueror"), "kfmclient"},
-		{N_("Google Chrome"), "google-chrome"},
-		/* Do not move the line below.  Code below expects gnome-open to be in
-		 * this list immediately after xdg-open! */
-		{N_("Desktop Default"), "xdg-open"},
-		{N_("GNOME Default"), "gnome-open"},
-		{N_("Galeon"), "galeon"},
-		{N_("Firefox"), "firefox"},
-		{N_("Firebird"), "mozilla-firebird"},
-		{N_("Epiphany"), "epiphany"},
-		/* Translators: please do not translate "chromium-browser" here! */
-		{N_("Chromium (chromium-browser)"), "chromium-browser"},
-		/* Translators: please do not translate "chrome" here! */
-		{N_("Chromium (chrome)"), "chrome"}
-	};
-	static const int num_possible_browsers = G_N_ELEMENTS(possible_browsers);
-
-	GList *browsers = NULL;
-	int i = 0;
-	char *browser_setting = (char *)purple_prefs_get_string(PIDGIN_PREFS_ROOT "/browsers/browser");
-
-	browsers = g_list_prepend(browsers, (gpointer)"custom");
-	browsers = g_list_prepend(browsers, (gpointer)_("Manual"));
-
-	for (i = 0; i < num_possible_browsers; i++) {
-		if (purple_program_is_valid(possible_browsers[i].command)) {
-			browsers = g_list_prepend(browsers,
-									  possible_browsers[i].command);
-			browsers = g_list_prepend(browsers, (gpointer)_(possible_browsers[i].name));
-			if(browser_setting && purple_strequal(possible_browsers[i].command, browser_setting))
-				browser_setting = NULL;
-			/* If xdg-open is valid, prefer it over gnome-open and skip forward */
-			if(purple_strequal(possible_browsers[i].command, "xdg-open")) {
-				if (purple_strequal("gnome-open", browser_setting)) {
-					purple_prefs_set_string(PIDGIN_PREFS_ROOT "/browsers/browser", possible_browsers[i].command);
-					browser_setting = NULL;
-				}
-				i++;
-			}
-		}
-	}
-
-	if(browser_setting)
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/browsers/browser", "custom");
-
-	return browsers;
-}
-
-static void
-browser_changed1_cb(const char *name, PurplePrefType type,
-					gconstpointer value, gpointer data)
-{
-	GtkWidget *hbox = data;
-	const char *browser = value;
-
-	gtk_widget_set_sensitive(hbox, !purple_strequal(browser, "custom"));
-}
-
-static void
-browser_changed2_cb(const char *name, PurplePrefType type,
-					gconstpointer value, gpointer data)
-{
-	GtkWidget *hbox = data;
-	const char *browser = value;
-
-	gtk_widget_set_sensitive(hbox, purple_strequal(browser, "custom"));
-}
-#endif /* _WIN32 */
-
-static void
-bind_browser_page(PidginPrefsWindow *win)
-{
-#ifdef _WIN32
-	/* We use the registered default browser in windows */
-	gtk_widget_hide(win->browser.page);
-	return;
-#else
-	/* if the user is running Mac OS X, hide the browsers tab */
-	if (purple_running_osx()) {
-		gtk_widget_hide(win->browser.page);
-	} else if (purple_running_gnome()) {
-		gchar *path;
-
-		gtk_stack_set_visible_child_name(GTK_STACK(win->browser.stack),
-				"gnome");
-
-		path = g_find_program_in_path("gnome-control-center");
-		if (path != NULL) {
-			gchar *tmp = g_strdup_printf("%s info", path);
-			g_free(path);
-			path = tmp;
-		} else {
-			path = g_find_program_in_path("gnome-default-applications-properties");
-		}
-
-		win->browser.gnome_program_path = path;
-		gtk_widget_set_visible(win->browser.gnome_not_found,
-				path == NULL);
-		gtk_widget_set_visible(win->browser.gnome_program,
-				path != NULL);
-	} else {
-		GList *browsers = NULL;
-
-		gtk_stack_set_visible_child_name(GTK_STACK(win->browser.stack),
-				"nongnome");
-
-		win->browser.browser.type = PURPLE_PREF_STRING;
-		win->browser.browser.key = PIDGIN_PREFS_ROOT "/browsers/browser";
-		browsers = get_available_browsers();
-		pidgin_prefs_bind_dropdown_from_list(
-				&win->browser.browser,
-				browsers);
-		g_list_free(browsers);
-
-		win->browser.place.type = PURPLE_PREF_INT;
-		win->browser.place.key = PIDGIN_PREFS_ROOT "/browsers/place";
-		pidgin_prefs_bind_dropdown(&win->browser.place);
-
-		purple_prefs_connect_callback(prefs,
-				PIDGIN_PREFS_ROOT "/browsers/browser",
-				browser_changed1_cb,
-				win->browser.place_hbox);
-
-		gtk_entry_set_text(GTK_ENTRY(win->browser.manual_command),
-				purple_prefs_get_string(PIDGIN_PREFS_ROOT "/browsers/manual_command"));
-		purple_prefs_connect_callback(prefs,
-				PIDGIN_PREFS_ROOT "/browsers/browser",
-				browser_changed2_cb,
-				win->browser.manual_command_hbox);
-
-		if (purple_strequal(
-				purple_prefs_get_string(
-					PIDGIN_PREFS_ROOT "/browsers/browser"),
-				"custom")) {
-			gtk_widget_set_sensitive(win->browser.place_hbox,
-					FALSE);
-		} else {
-			gtk_widget_set_sensitive(win->browser.manual_command_hbox,
-					FALSE);
-		}
-	}
-#endif /* _WIN32 */
 }
 
 static void
@@ -3425,7 +3227,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 #endif
 
 	bind_interface_page(win);
-	bind_browser_page(win);
 	bind_conv_page(win);
 	bind_logging_page(win);
 	bind_network_page(win);
@@ -3477,30 +3278,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			iface.conversations.tab_side.combo);
-
-	/* Browser page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.page);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.stack);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.gnome_not_found);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.gnome_program);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.browser.combo);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.place_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.place.combo);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.manual_command_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, browser.manual_command);
-	gtk_widget_class_bind_template_callback(widget_class,
-			browser_button_clicked_cb);
-	gtk_widget_class_bind_template_callback(widget_class,
-			manual_browser_set);
 
 	/* Conversations page */
 	gtk_widget_class_bind_template_child(
@@ -3784,14 +3561,6 @@ pidgin_prefs_init(void)
 	purple_prefs_add_none(PIDGIN_PREFS_ROOT "");
 	purple_prefs_add_none("/plugins/gtk");
 
-#ifndef _WIN32
-	/* Browsers */
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/browsers");
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/browsers/place", PIDGIN_BROWSER_DEFAULT);
-	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/browsers/manual_command", "");
-	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/browsers/browser", "xdg-open");
-#endif
-
 	/* Plugins */
 	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/plugins");
 	purple_prefs_add_path_list(PIDGIN_PREFS_ROOT "/plugins/loaded", NULL);
@@ -3844,23 +3613,6 @@ pidgin_prefs_update_old(void)
 	purple_prefs_rename_boolean_toggle(PIDGIN_PREFS_ROOT "/conversations/ignore_colors",
 									 PIDGIN_PREFS_ROOT "/conversations/show_incoming_formatting");
 
-	/*
-	 * This path pref changed to a string, so migrate. I know this will
-	 * break things for and confuse users that use multiple versions with
-	 * the same config directory, but I'm not inclined to want to deal with
-	 * that at the moment. -- rekkanoryo
-	 */
-	if (purple_prefs_exists(PIDGIN_PREFS_ROOT "/browsers/command") &&
-		purple_prefs_get_pref_type(PIDGIN_PREFS_ROOT "/browsers/command") ==
-			PURPLE_PREF_PATH)
-	{
-		const char *str = purple_prefs_get_path(
-			PIDGIN_PREFS_ROOT "/browsers/command");
-		purple_prefs_set_string(
-			PIDGIN_PREFS_ROOT "/browsers/manual_command", str);
-		purple_prefs_remove(PIDGIN_PREFS_ROOT "/browsers/command");
-	}
-
 	/* Remove some no-longer-used prefs */
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/blist/auto_expand_contacts");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/blist/button_style");
@@ -3871,6 +3623,11 @@ pidgin_prefs_update_old(void)
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/blist/tooltip_delay");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/blist/x");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/blist/y");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/browsers");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/browsers/browser");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/browsers/command");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/browsers/place");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/browsers/manual_command");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/button_type");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/ctrl_enter_sends");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/enter_sends");
@@ -3948,22 +3705,5 @@ pidgin_prefs_update_old(void)
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/vvconfig/audio/sink/plugin");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/vvconfig/video/src/plugin");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/vvconfig/video/sink/plugin");
-
-#ifndef _WIN32
-	/* Added in 3.0.0. */
-	if (purple_prefs_get_int(PIDGIN_PREFS_ROOT "/browsers/place") == 1) {
-		/* If the "open link in" pref is set to the old value for "existing
-		   window" then change it to "default." */
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/browsers/place",
-				PIDGIN_BROWSER_DEFAULT);
-	}
-
-	/* Added in 3.0.0. */
-	if (g_str_equal(
-			purple_prefs_get_string(PIDGIN_PREFS_ROOT "/browsers/browser"),
-			"netscape")) {
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/browsers/browser", "xdg-open");
-	}
-#endif /* !_WIN32 */
 }
 
