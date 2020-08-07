@@ -20,18 +20,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
-#include "internal.h"
-
-#include "pidgin.h"
 
 #include <purple.h>
 
-#include "gtkappbar.h"
-#include "gtkblist.h"
-#include "gtkconv.h"
-#include "gtkplugin.h"
-#include "gtkprefs.h"
-#include "gtkutils.h"
+#include <pidgin.h>
 
 /*
  *  MACROS & DEFINES

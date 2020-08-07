@@ -28,9 +28,7 @@
 
 #include <purple.h>
 
-#include "gtkconv.h"
-#include "gtkplugin.h"
-#include "gtkutils.h"
+#include <pidgin.h>
 
 #define DBUS_API_SUBJECT_TO_CHANGE
 #include <dbus/dbus.h>

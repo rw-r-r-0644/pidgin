@@ -19,16 +19,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
+# error "only <pidgin.h> may be included directly"
+#endif
+
 #ifndef PIDGIN_CORE_H
 #define PIDGIN_CORE_H
 /**
- * SECTION:pidgin
- * @section_id: pidgin-pidgin
+ * SECTION:core
+ * @section_id: pidgin-core
  * @short_description: <filename>pidgincore.h</filename>
  * @title: UI Definitions and Includes
  */
-
-#include <glib/gi18n-lib.h>
 
 #include <glib.h>
 

@@ -23,8 +23,7 @@
 
 #include <purple.h>
 
-#include "gtkconv.h"
-#include "gtkutils.h"
+#include <pidgin.h>
 
 #include "gstroke.h"
 

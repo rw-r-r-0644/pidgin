@@ -29,10 +29,7 @@
 
 #include <purple.h>
 
-#include "gtkblist.h"
-#include "gtkutils.h"
-#include "pidginplugininfo.h"
-#include "pidginstock.h"
+#include <pidgin.h>
 
 #include "gtkticker.h"
 

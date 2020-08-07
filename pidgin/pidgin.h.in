@@ -1,0 +1,48 @@
+/*
+ * pidgin
+ *
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, it can be viewed online at
+ * https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+ */
+
+#ifndef PIDGIN_PIDGIN_H
+#define PIDGIN_PIDGIN_H
+
+/**
+ * SECTION:pidgin
+ * @section_id: libpurple-purple
+ * @short_description: <filename>pidgin.h</filename>
+ * @title: Global header for Pidgin
+ *
+ * This file contains all the necessary preprocessor directives to include
+ * Pidgin's headers and other preprocessor directives required for plugins
+ * to build.  Including this file eliminates the need to directly include any
+ * other Pidgin files.
+ */
+
+#include <glib.h>
+
+#ifndef PIDGIN_GLOBAL_HEADER_INSIDE
+#define PIDGIN_GLOBAL_HEADER_INSIDE
+#endif
+
+@PIDGIN_H_INCLUDES@
+
+#undef PIDGIN_GLOBAL_HEADER_INSIDE
+
+#endif /* PIDGIN_PIDGIN_H */

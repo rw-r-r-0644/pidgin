@@ -26,11 +26,7 @@
 
 #include <purple.h>
 
-#include "gtkblist.h"
-#include "gtkutils.h"
-#include "pidgincore.h"
-#include "pidginicon.h"
-#include "pidginplugininfo.h"
+#include <pidgin.h>
 
 static SoupSession *session = NULL;
 

@@ -1,8 +1,3 @@
-/**
- * @file gtkdisco.c GTK+ Service Discovery UI
- * @ingroup pidgin
- */
-
 /* pidgin
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
@@ -32,9 +27,7 @@
 
 #include <purple.h>
 
-#include "gtkutils.h"
-#include "pidginaccountchooser.h"
-#include "pidgintooltip.h"
+#include <pidgin.h>
 
 #include "gtkdisco.h"
 #include "xmppdisco.h"

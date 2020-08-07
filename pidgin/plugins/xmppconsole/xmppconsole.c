@@ -23,12 +23,11 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gdk/gdkkeysyms.h>
+
 #include <purple.h>
 
-#include "gtkutils.h"
-#include "pidginplugininfo.h"
-
-#include <gdk/gdkkeysyms.h>
+#include <pidgin.h>
 
 #define PLUGIN_ID      "gtk-xmpp"
 #define PLUGIN_DOMAIN  (g_quark_from_static_string(PLUGIN_ID))

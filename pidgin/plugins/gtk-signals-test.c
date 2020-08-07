@@ -26,10 +26,7 @@
 
 #include <purple.h>
 
-#include "gtkaccount.h"
-#include "gtkblist.h"
-#include "gtkconv.h"
-#include "pidginplugininfo.h"
+#include <pidgin.h>
 
 /**************************************************************************
  * Account subsystem signal callbacks

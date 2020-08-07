@@ -16,12 +16,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-#include "internal.h"
 #include <purple.h>
 
-#include "gtkplugin.h"
-#include "gtkconv.h"
-#include "gtkutils.h"
+#include <pidgin.h>
 
 #include <unity.h>
 #include <messaging-menu.h>
