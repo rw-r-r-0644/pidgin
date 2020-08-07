@@ -93,9 +93,9 @@ libpidgin_headers = [
 	'gtkxfer.h',
 	'minidialog.h',
 	'pidginabout.h',
-	'pidginaccountactionsmenu.c',
+	'pidginaccountactionsmenu.h',
 	'pidginaccountchooser.h',
-	'pidginaccountsmenu.c',
+	'pidginaccountsmenu.h',
 	'pidginactiongroup.h',
 	'pidginbuddylistmenu.h',
 	'pidgincontactcompletion.h',
@@ -163,6 +163,19 @@ if ENABLE_GTK
 		)
 	endif
 
+	PIDGIN_H_INCLUDES = []
+	foreach header : libpidgin_headers
+		PIDGIN_H_INCLUDES += '#include <pidgin/@0@>'.format(header)
+	endforeach
+	pidgin_h_conf = configuration_data()
+	pidgin_h_conf.set('PIDGIN_H_INCLUDES', '\n'.join(PIDGIN_H_INCLUDES))
+	pidgin_h = configure_file(input : 'pidgin.h.in',
+	                          output : 'pidgin.h',
+	                          configuration : pidgin_h_conf,
+	                          install : true,
+	                          install_dir : get_option('includedir') / purple_filebase)
+
+
 	install_headers(libpidgin_headers, subdir : 'pidgin-3')
 
 	_libpidgin_dependencies = [
@@ -184,6 +197,7 @@ if ENABLE_GTK
 	libpidgin = shared_library('pidgin3',
 	    libpidgin_SOURCES,
 	    package_revision,
+	    c_args : ['-DPIDGIN_COMPILATION'],
 	    include_directories : [toplevel_inc],
 	    version : PURPLE_LIB_VERSION,
 	    dependencies : _libpidgin_dependencies,
@@ -191,7 +205,7 @@ if ENABLE_GTK
 	libpidgin_dep = declare_dependency(
 	    include_directories : [toplevel_inc, libpidgin_inc],
 	    link_with : libpidgin,
-	    dependencies : [gtk, glib, math])
+	    dependencies : [gtk, glib, math, talkatu_dep])
 
 	pidgin = executable('pidgin3',
 	    pidgin_SOURCES,
@@ -256,7 +270,7 @@ if ENABLE_GTK
 				talkatu_include_directories,
 			],
 			install : true,
-			extra_args : ['--quiet'])
+			extra_args : ['-DPIDGIN_COMPILATION', '--quiet'])
 	endif
 
 	subdir('data')

@@ -19,6 +19,10 @@
  *
  */
 
+#if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
+# error "only <pidgin.h> may be included directly"
+#endif
+
 #ifndef _PIDGINCELLRENDEREREXPANDER_H_
 #define _PIDGINCELLRENDEREREXPANDER_H_
 /**

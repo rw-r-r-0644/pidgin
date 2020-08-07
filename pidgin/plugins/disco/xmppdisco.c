@@ -40,8 +40,7 @@ disco#info:
 
 #include <purple.h>
 
-#include "gtkconv.h"
-#include "pidginplugininfo.h"
+#include <pidgin.h>
 
 #include "xmppdisco.h"
 #include "gtkdisco.h"

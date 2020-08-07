@@ -83,14 +83,11 @@
  *  -Added Raise option, formally in Purple proper
  */
 
-#include "internal.h"
-#include "pidgin.h"
-#include "gtkprefs.h"
+#include <glib/gi18n-lib.h>
 
 #include <purple.h>
 
-#include "gtkplugin.h"
-#include "gtkutils.h"
+#include <pidgin.h>
 
 #define NOTIFY_PLUGIN_ID "gtk-x11-notify"
 

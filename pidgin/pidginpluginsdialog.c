@@ -23,10 +23,7 @@
 
 #include "pidginpluginsdialog.h"
 
-# warning "fix this when pidgincore.h no longer icnludes gi18n.h"
-#if 0
 #include <glib/gi18n.h>
-#endif
 
 #include <gplugin.h>
 #include <gplugin-gtk.h>

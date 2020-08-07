@@ -18,15 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02111-1301, USA.
  */
-#include "internal.h"
-#include "gtkblist.h"
-#include "pidgin.h"
+#include <stdlib.h>
 
-#include "gtkutils.h"
+#include <pidgin.h>
 
 #include "gevolution.h"
-
-#include <stdlib.h>
 
 enum
 {

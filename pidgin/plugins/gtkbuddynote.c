@@ -19,10 +19,9 @@
 
 #include <glib/gi18n.h>
 
-#include <gtkblist.h>
-#include <pidginplugininfo.h>
-
 #include <purple.h>
+
+#include <pidgin.h>
 
 static void
 append_to_tooltip(PurpleBlistNode *node, GString *text, gboolean full)

@@ -19,6 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
+# error "only <pidgin.h> may be included directly"
+#endif
+
 #ifndef _PIDGINDIALOGS_H_
 #define _PIDGINDIALOGS_H_
 /**

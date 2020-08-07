@@ -22,8 +22,7 @@
 
 #include <purple.h>
 
-#include "gtkconv.h"
-#include "pidginplugininfo.h"
+#include <pidgin.h>
 
 #define ICONAWAY_PLUGIN_ID "gtk-iconaway"
 

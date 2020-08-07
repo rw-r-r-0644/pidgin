@@ -18,6 +18,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
+
+#if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
+# error "only <pidgin.h> may be included directly"
+#endif
+
 #ifndef PIDGIN_PLUGIN_INFO_H
 #define PIDGIN_PLUGIN_INFO_H
 

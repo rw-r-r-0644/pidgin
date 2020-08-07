@@ -19,10 +19,7 @@
  * 02111-1301, USA.
  */
 
-#include "internal.h"
-#include "gtkblist.h"
-#include "pidgin.h"
-#include "gtkutils.h"
+#include <pidgin.h>
 
 #include "gevolution.h"
 

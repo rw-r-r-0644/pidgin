@@ -30,18 +30,15 @@
  * or nearly directly from xchat, version 1.4.2 by Peter Zelezny and others.
  */
 
-#include "internal.h"
-#include "pidgin.h"
-
-#include <purple.h>
-
-#include "gtkplugin.h"
-#include "gtkprefs.h"
-#include "gtkutils.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+
+#include <glib/gi18n-lib.h>
+
+#include <purple.h>
+
+#include <pidgin.h>
 
 #define SPELLCHECK_PLUGIN_ID "gtk-spellcheck"
 #define SPELLCHK_OBJECT_KEY "spellchk"
