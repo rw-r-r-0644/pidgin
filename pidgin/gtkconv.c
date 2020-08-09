@@ -1844,7 +1844,6 @@ pidgin_conv_switch_active_conversation(PurpleConversation *conv)
 {
 	PidginConversation *gtkconv;
 	PurpleConversation *old_conv;
-	PurpleConnectionFlags features;
 
 	g_return_if_fail(conv != NULL);
 

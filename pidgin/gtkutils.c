@@ -944,7 +944,6 @@ static void dnd_image_ok_callback(_DndData *data, int choice)
 	size_t size;
 	GStatBuf st;
 	GError *err = NULL;
-	PurpleConversation *conv;
 	PurpleBuddy *buddy;
 	PurpleContact *contact;
 	PurpleImage *img;
