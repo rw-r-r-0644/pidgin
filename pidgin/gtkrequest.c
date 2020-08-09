@@ -28,7 +28,6 @@
 #include "gtkrequest.h"
 #include "gtkutils.h"
 #include "gtkblist.h"
-#include "gtkinternal.h"
 #include "pidginaccountchooser.h"
 #include "pidgincore.h"
 #include "pidginstock.h"

@@ -41,7 +41,6 @@
 
 #include <math.h>
 
-#include "gtkinternal.h"
 #include "gtkdnd-hints.h"
 #include "gtkblist.h"
 #include "gtkconv.h"
