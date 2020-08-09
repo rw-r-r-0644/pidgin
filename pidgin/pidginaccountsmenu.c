@@ -78,10 +78,14 @@ pidgin_accounts_menu_add_enabled_account(PidginAccountsMenu *menu,
                                          PurpleAccount *account)
 {
 	GtkWidget *item = NULL, *submenu = NULL;
+	gpointer data = NULL;
+	gboolean found = FALSE;
 
 	/* if the account is in the disabled list, delete its widget */
-	if (g_hash_table_lookup_extended(menu->disabled_items, account, NULL, &item)) {
-		g_clear_pointer(&item, gtk_widget_destroy);
+	found = g_hash_table_lookup_extended(menu->disabled_items, account, NULL,
+	                                     &data);
+	if(found) {
+		g_clear_pointer(&data, gtk_widget_destroy);
 		g_hash_table_remove(menu->disabled_items, account);
 	}
 
@@ -103,10 +107,14 @@ pidgin_accounts_menu_add_disabled_account(PidginAccountsMenu *menu,
                                           PurpleAccount *account)
 {
 	GtkWidget *item = NULL;
+	gpointer data = NULL;
+	gboolean found = FALSE;
 
 	/* if the account is in the enabled list, delete its widget */
-	if (g_hash_table_lookup_extended(menu->account_items, account, NULL, &item)) {
-		g_clear_pointer(&item, gtk_widget_destroy);
+	found = g_hash_table_lookup_extended(menu->account_items, account, NULL,
+	                                     &data);
+	if(found) {
+		g_clear_pointer(&data, gtk_widget_destroy);
 		g_hash_table_remove(menu->account_items, account);
 	}
 

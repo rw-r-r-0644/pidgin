@@ -1163,7 +1163,6 @@ saved_status_updated_cb(PurpleSavedStatus *status, PidginStatusBox *status_box)
 static void
 pidgin_status_box_list_position (PidginStatusBox *status_box, int *x, int *y, int *width, int *height)
 {
-	gint monitor_num;
 	GdkMonitor *m = NULL;
 	GdkRectangle monitor;
 	GtkRequisition popup_req;

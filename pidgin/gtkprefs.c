@@ -1656,8 +1656,6 @@ formatting_toggle_cb(TalkatuActionGroup *ag, GAction *action, const gchar *name,
 static void
 bind_interface_page(PidginPrefsWindow *win)
 {
-	GList *names = NULL;
-
 	/* System Tray */
 	win->iface.im.hide_new.type = PURPLE_PREF_STRING;
 	win->iface.im.hide_new.key = PIDGIN_PREFS_ROOT "/conversations/im/hide_new";
