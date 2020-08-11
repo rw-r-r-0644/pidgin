@@ -28,6 +28,7 @@
 # include <netdb.h>
 # include <sys/socket.h>
 #endif
+#include <errno.h>
 
 #include <purple.h>
 

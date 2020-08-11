@@ -36,6 +36,15 @@ static GList   *accounts = NULL;
 static guint    save_timer = 0;
 static gboolean accounts_loaded = FALSE;
 
+static void
+purple_accounts_network_changed_cb(GNetworkMonitor *m, gboolean available,
+                                   gpointer data)
+{
+	if(available) {
+		purple_accounts_restore_current_statuses();
+	}
+}
+
 /*********************************************************************
  * Writing to disk                                                   *
  *********************************************************************/
@@ -986,6 +995,9 @@ purple_accounts_init(void)
 
 	load_accounts();
 
+	g_signal_connect(G_OBJECT(g_network_monitor_get_default()),
+	                 "network-changed",
+	                 purple_accounts_network_changed_cb, NULL);
 }
 
 void
