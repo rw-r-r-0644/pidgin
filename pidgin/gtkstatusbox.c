@@ -177,6 +177,13 @@ static GtkContainerClass *parent_class = NULL;
 static void pidgin_status_box_class_init (PidginStatusBoxClass *klass);
 static void pidgin_status_box_init (PidginStatusBox *status_box);
 
+static void
+pidgin_status_box_network_changed_cb(GNetworkMonitor *m, gboolean available,
+                                     gpointer data)
+{
+	pidgin_status_box_set_network_available(PIDGIN_STATUS_BOX(data), available);
+}
+
 GType
 pidgin_status_box_get_type (void)
 {
@@ -1769,6 +1776,10 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 	purple_prefs_connect_callback(status_box, PIDGIN_PREFS_ROOT "/accounts/buddyicon",
 	                            update_buddyicon_cb, status_box);
 
+	g_signal_connect(G_OBJECT(g_network_monitor_get_default()),
+	                 "network-changed",
+	                 G_CALLBACK(pidgin_status_box_network_changed_cb),
+	                 status_box);
 }
 
 static void
