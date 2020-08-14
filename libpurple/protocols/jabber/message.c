@@ -1134,7 +1134,8 @@ jabber_xhtml_plain_equal(const char *xhtml_escaped, const char *plain)
 	return ret;
 }
 
-int jabber_message_send_im(PurpleConnection *gc, PurpleMessage *msg)
+int jabber_message_send_im(PurpleProtocolIM *pim, PurpleConnection *gc,
+                           PurpleMessage *msg)
 {
 	JabberMessage *jm;
 	JabberBuddy *jb;
@@ -1245,7 +1246,8 @@ int jabber_message_send_chat(PurpleConnection *gc, int id, PurpleMessage *msg)
 	return 1;
 }
 
-unsigned int jabber_send_typing(PurpleConnection *gc, const char *who, PurpleIMTypingState state)
+unsigned int jabber_send_typing(PurpleProtocolIM *pim, PurpleConnection *gc,
+                                const char *who, PurpleIMTypingState state)
 {
 	JabberStream *js;
 	JabberMessage *jm;

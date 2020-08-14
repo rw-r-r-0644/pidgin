@@ -399,7 +399,8 @@ static void null_close(PurpleConnection *gc)
   foreach_null_gc(report_status_change, gc, NULL);
 }
 
-static int null_send_im(PurpleConnection *gc, PurpleMessage *msg)
+static int null_send_im(PurpleProtocolIM *im, PurpleConnection *gc,
+                        PurpleMessage *msg)
 {
   const char *from_username = purple_account_get_username(purple_connection_get_account(gc));
   const gchar *who = purple_message_get_recipient(msg);
@@ -479,8 +480,10 @@ static void notify_typing(PurpleConnection *from, PurpleConnection *to,
                   (PurpleIMTypingState)typing);
 }
 
-static unsigned int null_send_typing(PurpleConnection *gc, const char *name,
-                                         PurpleIMTypingState typing) {
+static unsigned int null_send_typing(PurpleProtocolIM *im,
+                                     PurpleConnection *gc, const char *name,
+                                     PurpleIMTypingState typing)
+{
   purple_debug_info("nullprpl", "%s %s\n", purple_account_get_username(purple_connection_get_account(gc)),
                     typing_state_to_string(typing));
   foreach_null_gc(notify_typing, gc, (gpointer)typing);

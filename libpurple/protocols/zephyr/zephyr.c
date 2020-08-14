@@ -2057,7 +2057,7 @@ static int zephyr_chat_send(PurpleConnection * gc, int id, PurpleMessage *msg)
 }
 
 
-static int zephyr_send_im(PurpleConnection *gc, PurpleMessage *msg)
+static int zephyr_send_im(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMessage *msg)
 {
 	const char *sig;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
@@ -2531,7 +2531,7 @@ static const char *zephyr_list_icon(PurpleAccount * a, PurpleBuddy * b)
 	return "zephyr";
 }
 
-static unsigned int zephyr_send_typing(PurpleConnection *gc, const char *who, PurpleIMTypingState state) {
+static unsigned int zephyr_send_typing(PurpleProtocolIM *im, PurpleConnection *gc, const char *who, PurpleIMTypingState state) {
 	gchar *recipient;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 	if (use_tzc(zephyr))

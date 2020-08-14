@@ -375,46 +375,6 @@ struct _PurpleProtocolServerInterface
 #define PURPLE_PROTOCOL_SERVER_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE((obj), PURPLE_TYPE_PROTOCOL_SERVER, \
                                                PurpleProtocolServerInterface))
 
-#define PURPLE_TYPE_PROTOCOL_IM (purple_protocol_im_iface_get_type())
-
-typedef struct _PurpleProtocolIMInterface PurpleProtocolIMInterface;
-
-/**
- * PurpleProtocolIMInterface:
- * @send:        This protocol function should return a positive value on
- *               success. If the message is too big to be sent, return
- *               <literal>-E2BIG</literal>. If the account is not connected,
- *               return <literal>-ENOTCONN</literal>. If the protocol is unable
- *               to send the message for another reason, return some other
- *               negative value. You can use one of the valid #errno values, or
- *               just big something. If the message should not be echoed to the
- *               conversation window, return 0.
- * @send_typing: If this protocol requires the #PURPLE_IM_TYPING message to be
- *               sent repeatedly to signify that the user is still typing, then
- *               the protocol should return the number of seconds to wait before
- *               sending a subsequent notification. Otherwise the protocol
- *               should return 0.
- *
- * The protocol IM interface.
- *
- * This interface provides callbacks needed by protocols that implement IMs.
- */
-struct _PurpleProtocolIMInterface
-{
-	/*< private >*/
-	GTypeInterface parent_iface;
-
-	/*< public >*/
-	int  (*send)(PurpleConnection *connection, PurpleMessage *msg);
-
-	unsigned int (*send_typing)(PurpleConnection *connection, const char *name,
-							PurpleIMTypingState state);
-};
-
-#define PURPLE_IS_PROTOCOL_IM(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), PURPLE_TYPE_PROTOCOL_IM))
-#define PURPLE_PROTOCOL_IM_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE((obj), PURPLE_TYPE_PROTOCOL_IM, \
-                                           PurpleProtocolIMInterface))
-
 #define PURPLE_TYPE_PROTOCOL_CHAT (purple_protocol_chat_iface_get_type())
 
 typedef struct _PurpleProtocolChatInterface PurpleProtocolChatInterface;
@@ -899,23 +859,6 @@ void purple_protocol_server_iface_set_public_alias(PurpleProtocol *protocol,
 void purple_protocol_server_iface_get_public_alias(PurpleProtocol *protocol,
 		PurpleConnection *gc, PurpleGetPublicAliasSuccessCallback success_cb,
 		PurpleGetPublicAliasFailureCallback failure_cb);
-
-/**************************************************************************/
-/* Protocol IM Interface API                                              */
-/**************************************************************************/
-
-/**
- * purple_protocol_im_iface_get_type:
- *
- * Returns: The #GType for the protocol IM interface.
- */
-GType purple_protocol_im_iface_get_type(void);
-
-int purple_protocol_im_iface_send(PurpleProtocol *protocol, PurpleConnection *connection,
-		 PurpleMessage *msg);
-
-unsigned int purple_protocol_im_iface_send_typing(PurpleProtocol *protocol,
-		PurpleConnection *connection, const char *name, PurpleIMTypingState state);
 
 /**************************************************************************/
 /* Protocol Chat Interface API                                            */

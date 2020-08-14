@@ -533,56 +533,6 @@ purple_protocol_server_iface_get_public_alias(PurpleProtocol *protocol,
 #undef DEFINE_PROTOCOL_FUNC
 
 /**************************************************************************
- * Protocol IM Interface API
- **************************************************************************/
-#define DEFINE_PROTOCOL_FUNC(protocol,funcname,...) \
-	PurpleProtocolIMInterface *im_iface = \
-		PURPLE_PROTOCOL_IM_GET_IFACE(protocol); \
-	if (im_iface && im_iface->funcname) \
-		im_iface->funcname(__VA_ARGS__);
-
-#define DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol,defaultreturn,funcname,...) \
-	PurpleProtocolIMInterface *im_iface = \
-		PURPLE_PROTOCOL_IM_GET_IFACE(protocol); \
-	if (im_iface && im_iface->funcname) \
-		return im_iface->funcname(__VA_ARGS__); \
-	else \
-		return defaultreturn;
-
-GType
-purple_protocol_im_iface_get_type(void)
-{
-	static GType type = 0;
-
-	if (G_UNLIKELY(type == 0)) {
-		static const GTypeInfo info = {
-			.class_size = sizeof(PurpleProtocolIMInterface),
-		};
-
-		type = g_type_register_static(G_TYPE_INTERFACE,
-				"PurpleProtocolIMInterface", &info, 0);
-	}
-	return type;
-}
-
-int
-purple_protocol_im_iface_send(PurpleProtocol *protocol, PurpleConnection *gc,
-		PurpleMessage *msg)
-{
-	DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol, 0, send, gc, msg);
-}
-
-unsigned int
-purple_protocol_im_iface_send_typing(PurpleProtocol *protocol,
-		PurpleConnection *gc, const char *name, PurpleIMTypingState state)
-{
-	DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol, 0, send_typing, gc, name, state);
-}
-
-#undef DEFINE_PROTOCOL_FUNC_WITH_RETURN
-#undef DEFINE_PROTOCOL_FUNC
-
-/**************************************************************************
  * Protocol Chat Interface API
  **************************************************************************/
 #define DEFINE_PROTOCOL_FUNC(protocol,funcname,...) \

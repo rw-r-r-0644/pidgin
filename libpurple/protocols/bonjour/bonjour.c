@@ -206,7 +206,7 @@ bonjour_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 }
 
 static int
-bonjour_send_im(PurpleConnection *connection, PurpleMessage *msg)
+bonjour_send_im(PurpleProtocolIM *im, PurpleConnection *connection, PurpleMessage *msg)
 {
 	BonjourData *bd = purple_connection_get_protocol_data(connection);
 

@@ -40,7 +40,7 @@ static GList *irc_get_actions(PurpleConnection *gc);
 static void irc_login(PurpleAccount *account);
 static void irc_login_cb(GObject *source, GAsyncResult *res, gpointer user_data);
 static void irc_close(PurpleConnection *gc);
-static int irc_im_send(PurpleConnection *gc, PurpleMessage *msg);
+static int irc_im_send(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMessage *msg);
 static int irc_chat_send(PurpleConnection *gc, int id, PurpleMessage *msg);
 static void irc_chat_join (PurpleConnection *gc, GHashTable *data);
 static void irc_read_input_cb(GObject *source, GAsyncResult *res, gpointer data);
@@ -630,7 +630,7 @@ static void irc_close(PurpleConnection *gc)
 	g_free(irc);
 }
 
-static int irc_im_send(PurpleConnection *gc, PurpleMessage *msg)
+static int irc_im_send(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMessage *msg)
 {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
 	char *plain;

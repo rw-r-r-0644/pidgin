@@ -1192,7 +1192,7 @@ fb_server_set_status(PurpleAccount *acct, PurpleStatus *status)
 }
 
 static gint
-fb_im_send(PurpleConnection *gc, PurpleMessage *msg)
+fb_im_send(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMessage *msg)
 {
 	const gchar *name;
 	const gchar *text;
@@ -1215,8 +1215,8 @@ fb_im_send(PurpleConnection *gc, PurpleMessage *msg)
 }
 
 static guint
-fb_im_send_typing(PurpleConnection *gc, const gchar *name,
-                  PurpleIMTypingState state)
+fb_im_send_typing(PurpleProtocolIM *im, PurpleConnection *gc,
+                  const gchar *name, PurpleIMTypingState state)
 {
 	FbApi *api;
 	FbData *fata;
