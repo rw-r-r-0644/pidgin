@@ -39,7 +39,6 @@
       <xi:include href="xml/gntprefs.xml" />
       <xi:include href="xml/gntrequest.xml" />
       <xi:include href="xml/gntroomlist.xml" />
-      <xi:include href="xml/gntsound.xml" />
       <xi:include href="xml/gntstatus.xml" />
       <xi:include href="xml/gntui.xml" />
       <xi:include href="xml/finch.xml" />
