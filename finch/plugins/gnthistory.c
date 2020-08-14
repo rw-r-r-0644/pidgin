@@ -22,9 +22,7 @@
 
 #include <purple.h>
 
-#include "gntconv.h"
-#include "gntplugin.h"
-#include "gntrequest.h"
+#include <finch.h>
 
 #define HISTORY_PLUGIN_ID "gnt-history"
 

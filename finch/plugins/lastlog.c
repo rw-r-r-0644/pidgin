@@ -26,8 +26,7 @@
 #include <gnttextview.h>
 #include <gntwindow.h>
 
-#include <gntconv.h>
-#include <gntplugin.h>
+#include <finch.h>
 
 static PurpleCmdId cmd;
 

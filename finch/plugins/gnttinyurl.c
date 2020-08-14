@@ -30,13 +30,12 @@
 
 #include <glib.h>
 
-#include <gntconv.h>
-
-#include <gntplugin.h>
-
 #include <gntlabel.h>
 #include <gnttextview.h>
 #include <gntwindow.h>
+
+#include <finch.h>
+
 
 static int tag_num = 0;
 static SoupSession *session = NULL;

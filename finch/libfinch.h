@@ -16,25 +16,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FINCH_H
-#define FINCH_H
+#if !defined(FINCH_GLOBAL_HEADER_INSIDE) && !defined(FINCH_COMPILATION)
+# error "only <finch.h> may be included directly"
+#endif
 
-/**
- * SECTION:finch
- * @section_id: finch-finch
- * @short_description: <filename>finch.h</filename>
- * @title: UI Definitions and Includes
- */
+#ifndef LIBFINCH_H
+#define LIBFINCH_H
 
 #include <glib.h>
 
 #define FINCH_UI "gnt-purple"
 
 #define FINCH_PREFS_ROOT "/finch"
+
+/**
+ * SECTION:finch
+ * @section_id: finch-finch
+ * @short_description: <filename>libfinch.h</filename>
+ * @title: UI Definitions and Includes
+ */
+
+G_BEGIN_DECLS
 
 /**
  * finch_start:
@@ -47,5 +52,6 @@
  */
 gboolean finch_start(int *argc, char ***argv);
 
-#endif /* FINCH_H */
+G_END_DECLS
 
+#endif /* LIBFINCH_H */

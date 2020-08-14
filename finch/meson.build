@@ -128,7 +128,6 @@ libfinch_headers = [
 	'gntconn.h',
 	'gntconv.h',
 	'gntdebug.h',
-	'finch.h',
 	'gntidle.h',
 	'gntlog.h',
 	'gntmedia.h',
@@ -142,7 +141,8 @@ libfinch_headers = [
 	'gntsound.h',
 	'gntstatus.h',
 	'gntui.h',
-	'gntxfer.h'
+	'gntxfer.h',
+	'libfinch.h'
 ]
 
 finch_SOURCES = [
@@ -167,12 +167,26 @@ else
 endif
 
 if enable_consoleui
+	FINCH_H_INCLUDES = []
+	foreach header : libfinch_headers
+		FINCH_H_INCLUDES += '#include <finch/@0@>'.format(header)
+	endforeach
+	finch_h_conf = configuration_data()
+	finch_h_conf.set('FINCH_H_INCLUDES', '\n'.join(FINCH_H_INCLUDES))
+
+	finch_h = configure_file(input : 'finch.h.in',
+	                         output : 'finch.h',
+	                         configuration : finch_h_conf,
+	                         install : true,
+	                         install_dir : join_paths(get_option('includedir'),
+	                                                  'finch-3'))
+
 	install_headers(libfinch_headers, subdir : 'finch-3')
 
 	libfinch_inc = include_directories('.')
 	libfinch = shared_library('finch3',
 	    libfinch_SOURCES,
-	    c_args : ['-DSTANDALONE', '-DGNTSEAL_ENABLE', ncurses_header],
+	    c_args : ['-DSTANDALONE', '-DGNTSEAL_ENABLE', '-DFINCH_COMPILATION', ncurses_header],
 	    include_directories : [toplevel_inc],
 	    version : PURPLE_LIB_VERSION,
 	    dependencies : [libpurple_dep, libgnt_dep, ncurses, glib, winmm],
@@ -214,7 +228,7 @@ if enable_consoleui
 		        gplugin_include_directories,
 		    ],
 		    install : true,
-		    extra_args : ['--quiet'])
+		    extra_args : ['-DFINCH_COMPILATION', '--quiet'])
 	endif
 
 	subdir('plugins')
