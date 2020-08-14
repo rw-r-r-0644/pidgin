@@ -20,10 +20,10 @@
 
 #include <purple.h>
 
-#include "gntblist.h"
-#include "gntplugin.h"
-
 #include "gnttree.h"
+
+#include <finch.h>
+
 
 #define FINCH_TYPE_GROUPING_NODE     (finch_grouping_node_get_type())
 #define FINCH_GROUPING_NODE(obj)     (G_TYPE_CHECK_INSTANCE_CAST((obj), FINCH_TYPE_GROUPING_NODE, FinchGroupingNode))

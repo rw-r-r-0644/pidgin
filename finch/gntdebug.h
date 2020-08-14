@@ -20,6 +20,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#if !defined(FINCH_GLOBAL_HEADER_INSIDE) && !defined(FINCH_COMPILATION)
+# error "only <finch.h> may be included directly"
+#endif
+
 #ifndef FINCH_DEBUG_H
 #define FINCH_DEBUG_H
 

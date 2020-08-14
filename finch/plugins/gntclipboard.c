@@ -39,7 +39,7 @@
 #include <gnt.h>
 #include <gntwm.h>
 
-#include <gntplugin.h>
+#include <finch.h>
 
 #ifdef HAVE_X11
 static pid_t child = 0;

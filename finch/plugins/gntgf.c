@@ -50,8 +50,7 @@
 #include <gntlabel.h>
 #include <gnttree.h>
 
-#include "gntplugin.h"
-#include "gntconv.h"
+#include <finch.h>
 
 typedef struct
 {

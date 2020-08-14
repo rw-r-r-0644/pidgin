@@ -16,30 +16,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined(FINCH_GLOBAL_HEADER_INSIDE) && !defined(FINCH_COMPILATION)
-# error "only <finch.h> may be included directly"
+#ifndef FINCH_H
+#define FINCH_H
+
+#ifndef FINCH_GLOBAL_HEADER_INSIDE
+#define FINCH_GLOBAL_HEADER_INSIDE
 #endif
 
-#ifndef FINCH_MEDIA_H
-#define FINCH_MEDIA_H
+@FINCH_H_INCLUDES@
 
-/**
- * SECTION:gntmedia
- * @section_id: finch-gntmedia
- * @short_description: <filename>gntmedia.h</filename>
- * @title: Media API
- */
+#undef FINCH_GLOBAL_HEADER_INSIDE
 
-G_BEGIN_DECLS
-
-void finch_media_manager_init(void);
-void finch_media_manager_uninit(void);
-
-G_END_DECLS
-
-#endif /* FINCH_MEDIA_H */
-
+#endif /* FINCH_H */
