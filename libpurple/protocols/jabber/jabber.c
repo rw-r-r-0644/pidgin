@@ -3057,6 +3057,9 @@ static PurpleCmdRet jabber_cmd_chat_kick(PurpleConversation *conv,
 static PurpleCmdRet jabber_cmd_chat_msg(PurpleConversation *conv,
 		const char *cmd, char **args, char **error, void *data)
 {
+	PurpleConnection *pc = NULL;
+	PurpleProtocol *prpl = NULL;
+	PurpleMessage *msg = NULL;
 	JabberChat *chat = jabber_chat_find_by_conv(PURPLE_CHAT_CONVERSATION(conv));
 	char *who;
 
@@ -3064,9 +3067,12 @@ static PurpleCmdRet jabber_cmd_chat_msg(PurpleConversation *conv,
 		return PURPLE_CMD_RET_FAILED;
 
 	who = g_strdup_printf("%s@%s/%s", chat->room, chat->server, args[0]);
+	pc = purple_conversation_get_connection(conv);
+	prpl = purple_connection_get_protocol(pc);
 
-	jabber_message_send_im(purple_conversation_get_connection(conv),
-		purple_message_new_outgoing(who, args[1], 0));
+	msg = purple_message_new_outgoing(who, args[1], 0);
+
+	jabber_message_send_im(PURPLE_PROTOCOL_IM(prpl), pc, msg);
 
 	g_free(who);
 	return PURPLE_CMD_RET_OK;

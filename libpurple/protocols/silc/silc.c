@@ -1453,7 +1453,8 @@ silcpurple_send_im_resolved(SilcClient client,
 }
 
 static int
-silcpurple_send_im(PurpleConnection *gc, PurpleMessage *pmsg)
+silcpurple_send_im(PurpleProtocolIM *pim, PurpleConnection *gc,
+		   PurpleMessage *pmsg)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;

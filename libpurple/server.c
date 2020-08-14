@@ -34,6 +34,7 @@
 #include "prefs.h"
 #include "protocol.h"
 #include "purpleprivate.h"
+#include "purpleprotocolim.h"
 #include "request.h"
 #include "signals.h"
 #include "server.h"
@@ -46,11 +47,11 @@
 unsigned int
 purple_serv_send_typing(PurpleConnection *gc, const char *name, PurpleIMTypingState state)
 {
-	PurpleProtocol *protocol;
+	if(gc) {
+		PurpleProtocol *protocol = purple_connection_get_protocol(gc);
+		PurpleProtocolIM *im = PURPLE_PROTOCOL_IM(protocol);
 
-	if (gc) {
-		protocol = purple_connection_get_protocol(gc);
-		return purple_protocol_im_iface_send_typing(protocol, gc, name, state);
+		return purple_protocol_im_send_typing(im, gc, name, state);
 	}
 
 	return 0;
@@ -139,8 +140,15 @@ int purple_serv_send_im(PurpleConnection *gc, PurpleMessage *msg)
 
 	im = purple_conversations_find_im_with_account(recipient, account);
 
-	if (PURPLE_PROTOCOL_IMPLEMENTS(protocol, IM, send))
-		val = purple_protocol_im_iface_send(protocol, gc, msg);
+	/* we probably shouldn't be here if the protocol doesn't know how to send
+	 * im's... but there was a similar check here before so I just reproduced
+	 * it until we can reevaluate this function.
+	 */
+	if(PURPLE_IS_PROTOCOL_IM(protocol)) {
+		PurpleProtocolIM *pim = PURPLE_PROTOCOL_IM(protocol);
+
+		val = purple_protocol_im_send(pim, gc, msg);
+	}
 
 	/*
 	 * XXX - If "only auto-reply when away & idle" is set, then shouldn't

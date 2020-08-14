@@ -859,7 +859,7 @@ static void ggp_close(PurpleConnection *gc)
 	purple_debug_info("gg", "Connection closed.\n");
 }
 
-static unsigned int ggp_send_typing(PurpleConnection *gc, const char *name, PurpleIMTypingState state)
+static unsigned int ggp_send_typing(PurpleProtocolIM *im, PurpleConnection *gc, const char *name, PurpleIMTypingState state)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	int dummy_length; /* we don't send real length of typed message */

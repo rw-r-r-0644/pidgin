@@ -2242,7 +2242,7 @@ novell_close(PurpleConnection * gc)
 }
 
 static int
-novell_send_im(PurpleConnection *gc, PurpleMessage *msg)
+novell_send_im(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMessage *msg)
 {
 	NMUserRecord *user_record = NULL;
 	NMConference *conf = NULL;
@@ -2333,7 +2333,7 @@ novell_send_im(PurpleConnection *gc, PurpleMessage *msg)
 }
 
 static unsigned int
-novell_send_typing(PurpleConnection * gc, const char *name, PurpleIMTypingState state)
+novell_send_typing(PurpleProtocolIM *im, PurpleConnection * gc, const char *name, PurpleIMTypingState state)
 {
 	NMConference *conf = NULL;
 	NMUser *user;

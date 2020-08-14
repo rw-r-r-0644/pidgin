@@ -43,7 +43,7 @@ void ggp_message_got(PurpleConnection *gc, const struct gg_event_msg *ev);
 void ggp_message_got_multilogon(PurpleConnection *gc,
 	const struct gg_event_msg *ev);
 
-int ggp_message_send_im(PurpleConnection *gc, PurpleMessage *msg);
+int ggp_message_send_im(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMessage *msg);
 gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text);
 
 #endif /* PURPLE_GG_MESSAGE_PRPL_H */

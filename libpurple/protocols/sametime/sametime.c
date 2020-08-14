@@ -3665,8 +3665,9 @@ static void mw_protocol_close(PurpleConnection *gc) {
 }
 
 
-static int mw_protocol_send_im(PurpleConnection *gc, PurpleMessage *msg) {
-
+static int mw_protocol_send_im(PurpleProtocolIM *im, PurpleConnection *gc,
+                               PurpleMessage *msg)
+{
   gchar name[1000];
   struct mwPurpleProtocolData *pd;
   struct mwIdBlock who = { name, NULL };
@@ -3743,7 +3744,8 @@ static int mw_protocol_send_im(PurpleConnection *gc, PurpleMessage *msg) {
 }
 
 
-static unsigned int mw_protocol_send_typing(PurpleConnection *gc,
+static unsigned int mw_protocol_send_typing(PurpleProtocolIM *im,
+					PurpleConnection *gc,
 					const char *name,
 					PurpleIMTypingState state) {
 

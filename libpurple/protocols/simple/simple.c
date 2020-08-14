@@ -1082,7 +1082,7 @@ static void simple_send_message(struct simple_account_data *sip, const char *to,
 	g_free(fullto);
 }
 
-static int simple_im_send(PurpleConnection *gc, PurpleMessage *msg) {
+static int simple_im_send(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMessage *msg) {
 	struct simple_account_data *sip = purple_connection_get_protocol_data(gc);
 	char *to = g_strdup(purple_message_get_recipient(msg));
 	char *text = purple_unescape_html(purple_message_get_contents(msg));
@@ -1340,7 +1340,7 @@ static void process_incoming_notify(struct simple_account_data *sip, struct sipm
 	send_sip_response(sip->gc, msg, 200, "OK", NULL);
 }
 
-static unsigned int simple_typing(PurpleConnection *gc, const char *name, PurpleIMTypingState state) {
+static unsigned int simple_typing(PurpleProtocolIM *im, PurpleConnection *gc, const char *name, PurpleIMTypingState state) {
 	struct simple_account_data *sip = purple_connection_get_protocol_data(gc);
 
 	gchar *xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
