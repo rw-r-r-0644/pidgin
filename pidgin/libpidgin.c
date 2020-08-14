@@ -50,7 +50,6 @@
 #include "gtkroomlist.h"
 #include "gtksavedstatuses.h"
 #include "gtksmiley-theme.h"
-#include "gtksound.h"
 #include "gtkutils.h"
 #include "gtkwhiteboard.h"
 #include "pidgincore.h"
@@ -219,7 +218,6 @@ pidgin_ui_init(void)
 	purple_blist_set_ui(PIDGIN_TYPE_BUDDY_LIST);
 	purple_notify_set_ui_ops(pidgin_notify_get_ui_ops());
 	purple_request_set_ui_ops(pidgin_request_get_ui_ops());
-	purple_sound_set_ui_ops(pidgin_sound_get_ui_ops());
 	purple_connections_set_ui_ops(pidgin_connections_get_ui_ops());
 	purple_whiteboard_set_ui_ops(pidgin_whiteboard_get_ui_ops());
 	purple_idle_set_ui_ops(pidgin_idle_get_ui_ops());

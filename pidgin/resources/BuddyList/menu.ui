@@ -283,21 +283,6 @@
                 <property name="use_underline">True</property>
               </object>
             </child>
-            <child>
-              <object class="GtkSeparatorMenuItem">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkCheckMenuItem" id="mute_sounds">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="action_name">blist.mute-sounds</property>
-                <property name="label" translatable="yes">Mute _Sounds</property>
-                <property name="use_underline">True</property>
-              </object>
-            </child>
           </object>
         </child>
       </object>

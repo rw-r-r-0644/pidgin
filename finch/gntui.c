@@ -45,7 +45,6 @@
 #include "gntrequest.h"
 #include "gntroomlist.h"
 #include "gntstatus.h"
-#include "gntsound.h"
 
 void finch_ui_init()
 {
@@ -70,9 +69,6 @@ void finch_ui_init()
 	/* Initialize the buddy list */
 	finch_blist_init();
 	purple_blist_set_ui(FINCH_TYPE_BUDDY_LIST);
-
-	/* Initialize sound */
-	purple_sound_set_ui_ops(finch_sound_get_ui_ops());
 
 	/* Now the conversations */
 	finch_conversation_init();
@@ -110,7 +106,6 @@ void finch_ui_init()
 	gnt_register_action(_("File Transfers"), finch_xfer_dialog_show);
 	gnt_register_action(_("Plugins"), finch_plugins_show_all);
 	gnt_register_action(_("Room List"), finch_roomlist_show_all);
-	gnt_register_action(_("Sounds"), finch_sounds_show_all);
 	gnt_register_action(_("Preferences"), finch_prefs_show_all);
 	gnt_register_action(_("Keyring settings"), finch_prefs_show_keyring);
 	gnt_register_action(_("Statuses"), finch_savedstatus_show_all);

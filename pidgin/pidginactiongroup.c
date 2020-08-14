@@ -384,18 +384,6 @@ pidgin_action_group_signed_off_cb(PurpleAccount *account, gpointer data) {
  * Preference Callbacks
  *****************************************************************************/
 static void
-pidgin_action_group_mute_sounds_callback(const gchar *name,
-                                         PurplePrefType type,
-                                         gconstpointer value,
-                                         gpointer data)
-{
-	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
-
-	pidgin_action_group_bool_pref_handler(group, PIDGIN_ACTION_MUTE_SOUNDS,
-	                                      (gboolean)GPOINTER_TO_INT(value));
-}
-
-static void
 pidgin_action_group_show_buddy_icons_callback(const gchar *name,
                                               PurplePrefType type,
                                               gconstpointer value,
@@ -555,14 +543,6 @@ pidgin_action_group_join_chat(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
-pidgin_action_group_mute_sounds(GSimpleAction *action, GVariant *value,
-                                gpointer data)
-{
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/sound/mute",
-	                      g_variant_get_boolean(value));
-}
-
-static void
 pidgin_action_group_new_message(GSimpleAction *simple, GVariant *parameter,
                                 gpointer data)
 {
@@ -717,10 +697,6 @@ pidgin_action_group_init(PidginActionGroup *group) {
 			.name = PIDGIN_ACTION_JOIN_CHAT,
 			.activate = pidgin_action_group_join_chat,
 		}, {
-			.name = PIDGIN_ACTION_MUTE_SOUNDS,
-			.state = "false",
-			.change_state = pidgin_action_group_mute_sounds,
-		}, {
 			.name = PIDGIN_ACTION_NEW_MESSAGE,
 			.activate = pidgin_action_group_new_message,
 		}, {
@@ -781,9 +757,6 @@ pidgin_action_group_init(PidginActionGroup *group) {
 	/* now add some handlers for preference changes and set actions to the
 	 * correct value.
 	 */
-	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_MUTE_SOUNDS,
-	                               PIDGIN_PREFS_ROOT "/sound/mute",
-	                               pidgin_action_group_mute_sounds_callback);
 	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_BUDDY_ICONS,
 	                               PIDGIN_PREFS_ROOT "/blist/show_buddy_icons",
 	                               pidgin_action_group_show_buddy_icons_callback);

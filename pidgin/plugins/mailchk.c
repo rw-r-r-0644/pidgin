@@ -73,9 +73,6 @@ check_timeout(gpointer data)
 		gtk_widget_show(mail);
 	}
 
-	if (count & NEW_MAIL)
-		purple_sound_play_event(PURPLE_SOUND_POUNCE_DEFAULT, NULL);
-
 	if (count & UNREAD_MAIL)
 		gtk_label_set_text(GTK_LABEL(mail), "You have new mail!");
 	else if (count & ANY_MAIL)

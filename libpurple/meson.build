@@ -68,9 +68,6 @@ purple_coresources = [
 	'smiley.c',
 	'status.c',
 	'stun.c',
-	'sound.c',
-	'sound-theme.c',
-	'sound-theme-loader.c',
 	'theme.c',
 	'theme-loader.c',
 	'theme-manager.c',
@@ -149,9 +146,6 @@ purple_coreheaders = [
 	'smiley.h',
 	'status.h',
 	'stun.h',
-	'sound.h',
-	'sound-theme.h',
-	'sound-theme-loader.h',
 	'tests.h',
 	'theme.h',
 	'theme-loader.h',
@@ -216,7 +210,6 @@ purple_enumheaders = [
 	'purpleimconversation.h',
 	'roomlist.h',
 	'status.h',
-	'sound.h',
 	'xfer.h',
 	'xmlnode.h'
 ]

@@ -449,6 +449,38 @@ version 3.0.0 (??/??/????):
 		* purple_quotedp_decode. See the GMime library if needed.
 		* purple_request_certificate
 		* purple_request_field_list_add
+		* PurpleSoundUiOps
+		* PurpleSoundStatus
+		* PURPLE_SOUND_STATUS_AVAILABLE
+		* PURPLE_SOUND_STATUS_AWAY
+		* PURPLE_SOUND_STATUS_ALWAYS
+		* PurpleSoundEventID
+		* PURPLE_SOUND_BUDDY_ARRIVE
+		* PURPLE_SOUND_BUDDY_LEAVE
+		* PURPLE_SOUND_RECEIVE
+		* PURPLE_SOUND_FIRST_RECEIVE
+		* PURPLE_SOUND_SEND
+		* PURPLE_SOUND_CHAT_JOIN
+		* PURPLE_SOUND_CHAT_LEAVE
+		* PURPLE_SOUND_CHAT_YOU_SAY
+		* PURPLE_SOUND_CHAT_SAY
+		* PURPLE_SOUND_POUNCE_DEFAULT
+		* PURPLE_SOUND_CHAT_NICK
+		* PURPLE_SOUND_GOT_ATTENTION
+		* purple_sound_ui_ops_get_type
+		* purple_sound_play_file
+		* purple_sound_play_event
+		* purple_sound_set_ui_ops
+		* purple_sound_get_ui_ops
+		* purple_sound_init
+		* purple_sound_uninit
+		* purple_sounds_get_handle
+		* purple_sound_theme_get_type
+		* purple_sound_theme_get_file
+		* purple_sound_theme_get_file_full
+		* purple_sound_theme_set_file
+		* purple_sound_theme_loader_get_type
+		* PURPLE_NUM_SOUNDS
 		* purple_srv_cancel
 		* purple_srv_resolve_account
 		* purple_srv_txt_query_destroy
@@ -607,6 +639,11 @@ version 3.0.0 (??/??/????):
 		* pidgin_mini_dialog_links_supported
 		* pidgin_set_custom_buddy_icon
 		* pidgin_setup_screenname_autocomplete_with_filter
+		* pidgin_sound_get_event_label
+		* pidgin_sound_get_event_option
+		* pidgin_sound_get_handle
+		* pidgin_sound_get_ui_ops
+		* pidgin_sound_is_customized
 		* pidgin_toggle_sensitive, pidgin_toggle_sensitive_array, and
 		pidgin_toggle_showhide; use g_object_bind_property instead
 		* struct _GtkIMHtmlAnimation
@@ -627,6 +664,14 @@ version 3.0.0 (??/??/????):
 		* gnt_append_menu_action renamed to finch_append_menu_action
 		* gnt_ui_init renamed to finch_ui_init
 		* gnt_ui_uninit renamed to finch_ui_uninit
+
+		Removed:
+		* finch_sound_get_active_profile
+		* finch_sound_get_profiles
+		* finch_sound_get_ui_ops
+		* finch_sound_is_enabled
+		* finch_sound_set_active_profile
+		* finch_sounds_show_all
 
 	libgnt:
 		Changed:

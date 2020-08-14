@@ -39,7 +39,6 @@
 #include "gntpounce.h"
 #include "gntprefs.h"
 #include "gntrequest.h"
-#include "gntsound.h"
 #include "gntstatus.h"
 
 #include "gnt.h"
@@ -70,33 +69,11 @@ static int color_message_highlight;
 static int color_message_action;
 static int color_timestamp;
 
-static PurpleBuddy *
-find_buddy_for_conversation(PurpleConversation *conv)
-{
-	return purple_blist_find_buddy(purple_conversation_get_account(conv),
-			purple_conversation_get_name(conv));
-}
-
 static PurpleChat *
 find_chat_for_conversation(PurpleConversation *conv)
 {
 	return purple_blist_find_chat(purple_conversation_get_account(conv),
 			purple_conversation_get_name(conv));
-}
-
-static PurpleBlistNode *
-get_conversation_blist_node(PurpleConversation *conv)
-{
-	PurpleBlistNode *node = NULL;
-
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		node = (PurpleBlistNode*)find_buddy_for_conversation(conv);
-		node = node ? purple_blist_node_get_parent(node) : NULL;
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		node = (PurpleBlistNode*)find_chat_for_conversation(conv);
-	}
-
-	return node;
 }
 
 static void
@@ -502,16 +479,6 @@ toggle_logging_cb(GntMenuItem *item, gpointer ggconv)
 }
 
 static void
-toggle_sound_cb(GntMenuItem *item, gpointer ggconv)
-{
-	FinchConv *fc = ggconv;
-	PurpleBlistNode *node = get_conversation_blist_node(fc->active_conv);
-	fc->flags ^= FINCH_CONV_NO_SOUND;
-	if (node)
-		purple_blist_node_set_bool(node, "gnt-mute-sound", !!(fc->flags & FINCH_CONV_NO_SOUND));
-}
-
-static void
 send_to_cb(GntMenuItem *m, gpointer n)
 {
 	PurpleAccount *account = g_object_get_data(G_OBJECT(m), "purple_account");
@@ -692,12 +659,6 @@ gg_create_menu(FinchConv *ggc)
 			purple_conversation_is_logging(ggc->active_conv));
 	gnt_menu_add_item(GNT_MENU(sub), item);
 	gnt_menuitem_set_callback(item, toggle_logging_cb, ggc);
-
-	item = gnt_menuitem_check_new(_("Enable Sounds"));
-	gnt_menuitem_check_set_checked(GNT_MENU_ITEM_CHECK(item),
-			!(ggc->flags & FINCH_CONV_NO_SOUND));
-	gnt_menu_add_item(GNT_MENU(sub), item);
-	gnt_menuitem_set_callback(item, toggle_sound_cb, ggc);
 
 	item = gnt_menuitem_new(_("Plugins"));
 	gnt_menu_add_item(GNT_MENU(menu), item);
@@ -888,11 +849,6 @@ finch_create_conversation(PurpleConversation *conv)
 
 	if (PURPLE_IS_IM_CONVERSATION(conv))
 		g_signal_connect(G_OBJECT(ggc->entry), "text_changed", G_CALLBACK(send_typing_notification), ggc);
-
-	convnode = get_conversation_blist_node(conv);
-	if ((convnode && purple_blist_node_get_bool(convnode, "gnt-mute-sound")) ||
-			!finch_sound_is_enabled())
-		ggc->flags |= FINCH_CONV_NO_SOUND;
 
 	gg_create_menu(ggc);
 	gg_setup_commands(ggc, FALSE);

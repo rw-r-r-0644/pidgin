@@ -40,7 +40,6 @@
 #include "gtkprefs.h"
 #include "gtksavedstatuses.h"
 #include "gtksmiley-theme.h"
-#include "gtksound.h"
 #include "gtkstatus-icon-theme.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
@@ -191,22 +190,6 @@ struct _PidginPrefsWindow {
 		GtkWidget *apply;
 	} keyring;
 
-	/* Sounds page */
-	struct {
-		PidginPrefCombo method;
-		GtkWidget *method_vbox;
-		GtkWidget *command;
-		GtkWidget *command_hbox;
-		GtkWidget *mute;
-		GtkWidget *conv_focus;
-		PidginPrefCombo while_status;
-		struct {
-			GtkWidget *view;
-			GtkListStore *store;
-		} event;
-		GtkWidget *entry;
-	} sound;
-
 	/* Away page */
 	struct {
 		PidginPrefCombo idle_reporting;
@@ -224,7 +207,6 @@ struct _PidginPrefsWindow {
 		SoupSession *session;
 		GtkWidget *blist;
 		GtkWidget *status;
-		GtkWidget *sound;
 		GtkWidget *smiley;
 	} theme;
 
@@ -256,17 +238,11 @@ struct _PidginPrefsWindow {
 static PidginPrefsWindow *prefs = NULL;
 
 /* Themes page */
-static GtkWidget *prefs_sound_themes_combo_box;
 static GtkWidget *prefs_blist_themes_combo_box;
 static GtkWidget *prefs_status_themes_combo_box;
 static GtkWidget *prefs_smiley_themes_combo_box;
 
-/* Sound theme specific */
-static int sound_row_sel = 0;
-static gboolean prefs_sound_themes_loading;
-
 /* These exist outside the lifetime of the prefs dialog */
-static GtkListStore *prefs_sound_themes;
 static GtkListStore *prefs_blist_themes;
 static GtkListStore *prefs_status_icon_themes;
 static GtkListStore *prefs_smiley_themes;
@@ -865,7 +841,7 @@ static void keyring_page_cleanup(PidginPrefsWindow *win);
 static void
 delete_prefs(GtkWidget *asdf, void *gdsa)
 {
-	/* Close any "select sound" request dialogs */
+	/* Close any request dialogs */
 	purple_request_close_with_handle(prefs);
 
 	purple_notify_close_with_handle(prefs);
@@ -876,10 +852,6 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 	purple_prefs_disconnect_by_handle(prefs);
 
 	/* NULL-ify globals */
-	sound_row_sel = 0;
-	prefs_sound_themes_loading = FALSE;
-
-	prefs_sound_themes_combo_box = NULL;
 	prefs_blist_themes_combo_box = NULL;
 	prefs_status_themes_combo_box = NULL;
 	prefs_smiley_themes_combo_box = NULL;
@@ -934,47 +906,6 @@ smileys_refresh_theme_list(void)
 	}
 }
 
-/* Rebuild the markup for the sound theme selection for "(Custom)" themes */
-static void
-pref_sound_generate_markup(void)
-{
-	gboolean print_custom, customized;
-	const gchar *author, *description, *current_theme;
-	gchar *name, *markup;
-	PurpleSoundTheme *theme;
-	GtkTreeIter iter;
-
-	customized = pidgin_sound_is_customized();
-	current_theme = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/sound/theme");
-
-	if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(prefs_sound_themes), &iter)) {
-		do {
-			gtk_tree_model_get(GTK_TREE_MODEL(prefs_sound_themes), &iter, 2, &name, -1);
-
-			print_custom = customized && name && purple_strequal(current_theme, name);
-
-			if (!name || *name == '\0') {
-				g_free(name);
-				name = g_strdup(_("Default"));
-				author = _("Penguin Pimps");
-				description = _("The default Pidgin sound theme");
-			} else {
-				theme = PURPLE_SOUND_THEME(purple_theme_manager_find_theme(name, "sound"));
-				author = purple_theme_get_author(PURPLE_THEME(theme));
-				description = purple_theme_get_description(PURPLE_THEME(theme));
-			}
-
-			markup = get_theme_markup(name, print_custom, author, description);
-
-			gtk_list_store_set(prefs_sound_themes, &iter, 1, markup, -1);
-
-			g_free(name);
-			g_free(markup);
-
-		} while (gtk_tree_model_iter_next(GTK_TREE_MODEL(prefs_sound_themes), &iter));
-	}
-}
-
 /* adds the themes to the theme list from the manager so they can be displayed in prefs */
 static void
 prefs_themes_sort(PurpleTheme *theme)
@@ -984,22 +915,7 @@ prefs_themes_sort(PurpleTheme *theme)
 	gchar *image_full = NULL, *markup;
 	const gchar *name, *author, *description;
 
-	if (PURPLE_IS_SOUND_THEME(theme)){
-
-		image_full = purple_theme_get_image_full(theme);
-		if (image_full != NULL){
-			pixbuf = pidgin_pixbuf_new_from_file_at_scale(image_full, PREFS_OPTIMAL_ICON_SIZE, PREFS_OPTIMAL_ICON_SIZE, TRUE);
-			g_free(image_full);
-		} else
-			pixbuf = NULL;
-
-		gtk_list_store_append(prefs_sound_themes, &iter);
-		gtk_list_store_set(prefs_sound_themes, &iter, 0, pixbuf, 2, purple_theme_get_name(theme), -1);
-
-		if (pixbuf != NULL)
-			g_object_unref(G_OBJECT(pixbuf));
-
-	} else if (PIDGIN_IS_BLIST_THEME(theme) || PIDGIN_IS_STATUS_ICON_THEME(theme)){
+	if (PIDGIN_IS_BLIST_THEME(theme) || PIDGIN_IS_STATUS_ICON_THEME(theme)){
 		GtkListStore *store;
 
 		if (PIDGIN_IS_BLIST_THEME(theme))
@@ -1061,7 +977,6 @@ prefs_themes_refresh(void)
 	gchar *tmp;
 	GtkTreeIter iter;
 
-	prefs_sound_themes_loading = TRUE;
 	/* refresh the list of themes in the manager */
 	purple_theme_manager_refresh();
 
@@ -1069,11 +984,6 @@ prefs_themes_refresh(void)
 		"apps", "im.pidgin.Pidgin3.png", NULL);
 	pixbuf = pidgin_pixbuf_new_from_file_at_scale(tmp, PREFS_OPTIMAL_ICON_SIZE, PREFS_OPTIMAL_ICON_SIZE, TRUE);
 	g_free(tmp);
-
-	/* sound themes */
-	gtk_list_store_clear(prefs_sound_themes);
-	gtk_list_store_append(prefs_sound_themes, &iter);
-	gtk_list_store_set(prefs_sound_themes, &iter, 0, pixbuf, 2, "", -1);
 
 	/* blist themes */
 	gtk_list_store_clear(prefs_blist_themes);
@@ -1097,23 +1007,18 @@ prefs_themes_refresh(void)
 	gtk_list_store_clear(prefs_smiley_themes);
 
 	purple_theme_manager_for_each_theme(prefs_themes_sort);
-	pref_sound_generate_markup();
 	smileys_refresh_theme_list();
 
 	/* set active */
-	prefs_set_active_theme_combo(prefs_sound_themes_combo_box, prefs_sound_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/sound/theme"));
 	prefs_set_active_theme_combo(prefs_blist_themes_combo_box, prefs_blist_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/blist/theme"));
 	prefs_set_active_theme_combo(prefs_status_themes_combo_box, prefs_status_icon_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/status/icon-theme"));
 	prefs_set_active_theme_combo(prefs_smiley_themes_combo_box, prefs_smiley_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/smileys/theme"));
-	prefs_sound_themes_loading = FALSE;
 }
 
 /* init all the theme variables so that the themes can be sorted later and used by pref pages */
 static void
 prefs_themes_init(void)
 {
-	prefs_sound_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
-
 	prefs_blist_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
 
 	prefs_status_icon_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
@@ -1473,39 +1378,6 @@ prefs_build_theme_combo_box(GtkWidget *combo_box, GtkListStore *store,
 	g_signal_connect(G_OBJECT(combo_box), "drag_data_received", G_CALLBACK(theme_dnd_recv), (gpointer) type);
 }
 
-/* sets the current sound theme */
-static void
-prefs_set_sound_theme_cb(GtkComboBox *combo_box, gpointer user_data)
-{
-	PidginPrefsWindow *win = PIDGIN_PREFS_WINDOW(user_data);
-	gint i;
-	gchar *pref;
-	gchar *new_theme;
-	GtkTreeIter new_iter;
-
-	if(gtk_combo_box_get_active_iter(combo_box, &new_iter) && !prefs_sound_themes_loading) {
-
-		gtk_tree_model_get(GTK_TREE_MODEL(prefs_sound_themes), &new_iter, 2, &new_theme, -1);
-
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/sound/theme", new_theme);
-
-		/* New theme removes all customization */
-		for(i = 0; i < PURPLE_NUM_SOUNDS; i++){
-			pref = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/file/%s",
-						pidgin_sound_get_event_option(i));
-			purple_prefs_set_path(pref, "");
-			g_free(pref);
-		}
-
-		/* gets rid of the "(Custom)" from the last selection */
-		pref_sound_generate_markup();
-
-		gtk_entry_set_text(GTK_ENTRY(win->sound.entry), _("(default)"));
-
-		g_free(new_theme);
-	}
-}
-
 /* sets the current smiley theme */
 static void
 prefs_set_smiley_theme_cb(GtkComboBox *combo_box, gpointer user_data)
@@ -1615,11 +1487,6 @@ bind_theme_page(PidginPrefsWindow *win)
 	                            PIDGIN_PREFS_ROOT "/status/icon-theme",
 	                            "icon");
 	prefs_status_themes_combo_box = win->theme.status;
-
-	/* Sound Themes */
-	prefs_build_theme_combo_box(win->theme.sound, prefs_sound_themes,
-	                            PIDGIN_PREFS_ROOT "/sound/theme", "sound");
-	prefs_sound_themes_combo_box = win->theme.sound;
 
 	/* Smiley Themes */
 	prefs_build_theme_combo_box(win->theme.smiley, prefs_smiley_themes,
@@ -2310,294 +2177,6 @@ bind_keyring_page(PidginPrefsWindow *win)
 
 /*** keyring page - end *************************************************/
 
-static gboolean
-sound_method_filter(GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
-{
-	gboolean any = FALSE;
-	gboolean gstreamer = FALSE;
-	gboolean win32 = FALSE;
-
-	gtk_tree_model_get(model, iter, 2, &any, 3, &gstreamer, 4, &win32, -1);
-
-	if (any) {
-		return TRUE;
-	}
-
-	if (gstreamer) {
-#ifdef USE_GSTREAMER
-#ifdef _WIN32
-		return win32;
-#else
-		return !win32;
-#endif
-#else
-		return FALSE;
-#endif
-	}
-
-#ifdef _WIN32
-	return win32;
-#else
-	return !win32;
-#endif
-}
-
-static gint
-sound_cmd_yeah(GtkEntry *entry, gpointer d)
-{
-	purple_prefs_set_path(PIDGIN_PREFS_ROOT "/sound/command",
-			gtk_entry_get_text(GTK_ENTRY(entry)));
-	return TRUE;
-}
-
-static void
-sound_changed1_cb(const char *name, PurplePrefType type,
-				  gconstpointer value, gpointer data)
-{
-	GtkWidget *hbox = data;
-	const char *method = value;
-
-	gtk_widget_set_sensitive(hbox, purple_strequal(method, "custom"));
-}
-
-static void
-sound_changed2_cb(const char *name, PurplePrefType type,
-				  gconstpointer value, gpointer data)
-{
-	GtkWidget *vbox = data;
-	const char *method = value;
-
-	gtk_widget_set_sensitive(vbox, !purple_strequal(method, "none"));
-}
-
-
-static void
-event_toggled(GtkCellRendererToggle *cell, gchar *pth, gpointer data)
-{
-	GtkTreeModel *model = (GtkTreeModel *)data;
-	GtkTreeIter iter;
-	GtkTreePath *path = gtk_tree_path_new_from_string(pth);
-	char *pref;
-
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_model_get (model, &iter,
-						2, &pref,
-						-1);
-
-	purple_prefs_set_bool(pref, !gtk_cell_renderer_toggle_get_active(cell));
-	g_free(pref);
-
-	gtk_list_store_set(GTK_LIST_STORE (model), &iter,
-					   0, !gtk_cell_renderer_toggle_get_active(cell),
-					   -1);
-
-	gtk_tree_path_free(path);
-}
-
-static void
-test_sound(GtkWidget *button, gpointer i_am_NULL)
-{
-	char *pref;
-	gboolean temp_enabled;
-	gboolean temp_mute;
-
-	pref = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/enabled/%s",
-			pidgin_sound_get_event_option(sound_row_sel));
-
-	temp_enabled = purple_prefs_get_bool(pref);
-	temp_mute = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/sound/mute");
-
-	if (!temp_enabled) purple_prefs_set_bool(pref, TRUE);
-	if (temp_mute) purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/sound/mute", FALSE);
-
-	purple_sound_play_event(sound_row_sel, NULL);
-
-	if (!temp_enabled) purple_prefs_set_bool(pref, FALSE);
-	if (temp_mute) purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/sound/mute", TRUE);
-
-	g_free(pref);
-}
-
-/*
- * Resets a sound file back to default.
- */
-static void
-reset_sound(GtkWidget *button, gpointer data)
-{
-	PidginPrefsWindow *win = PIDGIN_PREFS_WINDOW(data);
-	gchar *pref;
-
-	pref = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/file/%s",
-						   pidgin_sound_get_event_option(sound_row_sel));
-	purple_prefs_set_path(pref, "");
-	g_free(pref);
-
-	gtk_entry_set_text(GTK_ENTRY(win->sound.entry), _("(default)"));
-
-	pref_sound_generate_markup();
-}
-
-static void
-sound_chosen_cb(void *user_data, const char *filename)
-{
-	gchar *pref;
-	int sound;
-
-	sound = GPOINTER_TO_INT(user_data);
-
-	/* Set it -- and forget it */
-	pref = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/file/%s",
-						   pidgin_sound_get_event_option(sound));
-	purple_prefs_set_path(pref, filename);
-	g_free(pref);
-
-	/*
-	 * If the sound we just changed is still the currently selected
-	 * sound, then update the box showing the file name.
-	 */
-	if (sound == sound_row_sel)
-		gtk_entry_set_text(GTK_ENTRY(prefs->sound.entry), filename);
-
-	pref_sound_generate_markup();
-}
-
-static void
-select_sound(GtkWidget *button, gpointer being_NULL_is_fun)
-{
-	gchar *pref;
-	const char *filename;
-
-	pref = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/file/%s",
-						   pidgin_sound_get_event_option(sound_row_sel));
-	filename = purple_prefs_get_path(pref);
-	g_free(pref);
-
-	if (*filename == '\0')
-		filename = NULL;
-
-	purple_request_file(prefs, _("Sound Selection"), filename, FALSE,
-		G_CALLBACK(sound_chosen_cb), NULL, NULL,
-		GINT_TO_POINTER(sound_row_sel));
-}
-
-static void
-prefs_sound_sel(GtkTreeSelection *sel, gpointer data)
-{
-	PidginPrefsWindow *win = PIDGIN_PREFS_WINDOW(data);
-	GtkTreeModel *model;
-	GtkTreeIter  iter;
-	GValue val;
-	const char *file;
-	char *pref;
-
-	if (! gtk_tree_selection_get_selected (sel, &model, &iter))
-		return;
-
-	val.g_type = 0;
-	gtk_tree_model_get_value (model, &iter, 3, &val);
-	sound_row_sel = g_value_get_uint(&val);
-
-	pref = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/file/%s",
-			pidgin_sound_get_event_option(sound_row_sel));
-	file = purple_prefs_get_path(pref);
-	g_free(pref);
-	if (win->sound.entry) {
-		gtk_entry_set_text(GTK_ENTRY(win->sound.entry),
-		                   (file && *file != '\0') ? file
-		                                           : _("(default)"));
-	}
-	g_value_unset (&val);
-
-	pref_sound_generate_markup();
-}
-
-static void
-bind_sound_page(PidginPrefsWindow *win)
-{
-	GtkTreeModel *model;
-	GtkTreeSelection *sel;
-	GtkTreePath *path;
-	int j;
-	const char *file;
-	char *pref;
-	const char *cmd;
-
-	win->sound.method.type = PURPLE_PREF_STRING;
-	win->sound.method.key = PIDGIN_PREFS_ROOT "/sound/method";
-	pidgin_prefs_bind_dropdown(&win->sound.method);
-	model = gtk_combo_box_get_model(GTK_COMBO_BOX(win->sound.method.combo));
-	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(model), sound_method_filter, NULL, NULL);
-	gtk_tree_model_filter_refilter(GTK_TREE_MODEL_FILTER(model));
-
-	gtk_widget_set_sensitive(
-	        win->sound.method_vbox,
-	        !purple_strequal(purple_prefs_get_string(PIDGIN_PREFS_ROOT
-	                                                 "/sound/method"),
-	                         "none"));
-	purple_prefs_connect_callback(prefs, PIDGIN_PREFS_ROOT "/sound/method",
-	                              sound_changed2_cb,
-	                              win->sound.method_vbox);
-
-	gtk_widget_set_sensitive(
-	        win->sound.command_hbox,
-	        purple_strequal(purple_prefs_get_string(PIDGIN_PREFS_ROOT
-	                                                "/sound/method"),
-	                        "custom"));
-	purple_prefs_connect_callback(prefs, PIDGIN_PREFS_ROOT "/sound/method",
-	                              sound_changed1_cb,
-	                              win->sound.command_hbox);
-
-	cmd = purple_prefs_get_path(PIDGIN_PREFS_ROOT "/sound/command");
-	if (cmd) {
-		gtk_entry_set_text(GTK_ENTRY(win->sound.command), cmd);
-	}
-
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/sound/mute",
-	                           win->sound.mute);
-
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/sound/conv_focus",
-	                           win->sound.conv_focus);
-
-	win->sound.while_status.type = PURPLE_PREF_INT;
-	win->sound.while_status.key = "/purple/sound/while_status";
-	pidgin_prefs_bind_dropdown(&win->sound.while_status);
-
-	/* SOUND SELECTION */
-	for (j=0; j < PURPLE_NUM_SOUNDS; j++) {
-		char *pref = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/enabled/%s",
-					     pidgin_sound_get_event_option(j));
-		const char *label = pidgin_sound_get_event_label(j);
-		GtkTreeIter iter;
-
-		if (label == NULL) {
-			g_free(pref);
-			continue;
-		}
-
-		gtk_list_store_append(win->sound.event.store, &iter);
-		gtk_list_store_set(win->sound.event.store, &iter,
-				   0, purple_prefs_get_bool(pref),
-				   1, _(label),
-				   2, pref,
-				   3, j,
-				   -1);
-		g_free(pref);
-	}
-
-	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(win->sound.event.view));
-	path = gtk_tree_path_new_first();
-	gtk_tree_selection_select_path(sel, path);
-	gtk_tree_path_free(path);
-
-	pref = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/file/%s",
-			       pidgin_sound_get_event_option(0));
-	file = purple_prefs_get_path(pref);
-	g_free(pref);
-	gtk_entry_set_text(GTK_ENTRY(win->sound.entry),
-	                   (file && *file != '\0') ? file : _("(default)"));
-}
-
-
 static void
 set_idle_away(PurpleSavedStatus *status)
 {
@@ -3230,7 +2809,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 	bind_network_page(win);
 	bind_proxy_page(win);
 	bind_keyring_page(win);
-	bind_sound_page(win);
 	bind_away_page(win);
 	bind_theme_page(win);
 #ifdef USE_VV
@@ -3430,34 +3008,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow, keyring.vbox);
 
-	/* Sounds page */
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.method.combo);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.method_vbox);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.command);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.command_hbox);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.mute);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.conv_focus);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.while_status.combo);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.event.view);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.event.store);
-	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
-	                                     sound.entry);
-	gtk_widget_class_bind_template_callback(widget_class, sound_cmd_yeah);
-	gtk_widget_class_bind_template_callback(widget_class, prefs_sound_sel);
-	gtk_widget_class_bind_template_callback(widget_class, event_toggled);
-	gtk_widget_class_bind_template_callback(widget_class, select_sound);
-	gtk_widget_class_bind_template_callback(widget_class, test_sound);
-	gtk_widget_class_bind_template_callback(widget_class, reset_sound);
-
 	/* Away page */
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
@@ -3486,15 +3036,11 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow, theme.status);
 	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, theme.sound);
-	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow, theme.smiley);
 	gtk_widget_class_bind_template_callback(widget_class,
 			prefs_set_blist_theme_cb);
 	gtk_widget_class_bind_template_callback(widget_class,
 			prefs_set_status_icon_theme_cb);
-	gtk_widget_class_bind_template_callback(widget_class,
-			prefs_set_sound_theme_cb);
 	gtk_widget_class_bind_template_callback(widget_class,
 			prefs_set_smiley_theme_cb);
 }
@@ -3653,6 +3199,40 @@ pidgin_prefs_update_old(void)
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/logging/individual_logs");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/signon");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/silent_signon");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/command");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/conv_focus");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/chat_msg_recv");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/first_im_recv");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/got_attention");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/im_recv");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/join_chat");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/left_chat");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/login");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/logout");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/nick_said");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/pounce_default");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/send_chat_msg");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/send_im");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled/sent_attention");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/enabled");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/chat_msg_recv");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/first_im_recv");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/got_attention");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/im_recv");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/join_chat");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/left_chat");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/login");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/logout");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/nick_said");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/pounce_default");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/send_chat_msg");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/send_im");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file/sent_attention");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/file");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/method");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/mute");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/theme");
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound");
 
 	/* Convert old queuing prefs to hide_new 3-way pref. */
 	if (purple_prefs_exists("/plugins/gtk/docklet/queue_messages") &&
