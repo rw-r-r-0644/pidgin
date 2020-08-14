@@ -44,8 +44,6 @@
 #include "smiley-custom.h"
 #include "smiley-parser.h"
 #include "smiley-theme.h"
-#include "sound.h"
-#include "sound-theme-loader.h"
 #include "status.h"
 #include "stun.h"
 #include "theme-manager.h"
@@ -180,7 +178,6 @@ purple_core_init(const char *ui)
 	purple_network_init();
 	purple_pounces_init();
 	purple_proxy_init();
-	purple_sound_init();
 	purple_stun_init();
 	purple_xfers_init();
 	purple_idle_init();
@@ -236,7 +233,6 @@ purple_core_quit(void)
 	purple_statuses_uninit();
 	purple_accounts_uninit();
 	purple_keyring_uninit(); /* after accounts */
-	purple_sound_uninit();
 	purple_theme_manager_uninit();
 	purple_xfers_uninit();
 	purple_proxy_uninit();

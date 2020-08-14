@@ -71,7 +71,6 @@ struct _PidginConvWindowMenu
 	GtkAction *insert_image;
 
 	GtkAction *logging;
-	GtkAction *sounds;
 	GtkAction *show_formatting_toolbar;
 
 	GtkWidget *send_to;

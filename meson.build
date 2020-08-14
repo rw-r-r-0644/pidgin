@@ -771,7 +771,6 @@ conf.set('DEBUG', enable_debug)
 toplevel_inc = include_directories('.')
 
 subdir('libpurple')
-subdir('share/sounds')
 subdir('finch')
 subdir('pidgin')
 subdir('doc')

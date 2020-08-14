@@ -1128,28 +1128,6 @@ menu_toolbar_cb(GtkAction *action, gpointer data)
 }
 
 static void
-menu_sounds_cb(GtkAction *action, gpointer data)
-{
-	PidginConvWindow *win = data;
-	PurpleConversation *conv;
-	PidginConversation *gtkconv;
-	PurpleBlistNode *node;
-
-	conv = pidgin_conv_window_get_active_conversation(win);
-
-	if (!conv)
-		return;
-
-	gtkconv = PIDGIN_CONVERSATION(conv);
-
-	gtkconv->make_sound =
-		gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action));
-	node = get_conversation_blist_node(conv);
-	if (node)
-		purple_blist_node_set_bool(node, "gtk-mute-sound", !gtkconv->make_sound);
-}
-
-static void
 chat_do_im(PidginConversation *gtkconv, const char *who)
 {
 	PurpleConversation *conv = gtkconv->active_conv;
@@ -2604,7 +2582,6 @@ static GtkActionEntry menu_entries[] =
 /* Toggle items */
 static const GtkToggleActionEntry menu_toggle_entries[] = {
 	{ "EnableLogging", NULL, N_("Enable _Logging"), NULL, NULL, G_CALLBACK(menu_logging_cb), FALSE },
-	{ "EnableSounds", NULL, N_("Enable _Sounds"), NULL, NULL, G_CALLBACK(menu_sounds_cb), FALSE },
 	{ "ShowFormattingToolbars", NULL, N_("Show Formatting _Toolbars"), NULL, NULL, G_CALLBACK(menu_toolbar_cb), FALSE },
 };
 
@@ -2647,36 +2624,11 @@ static const char *conversation_menu =
 		"</menu>"
 		"<menu action='OptionsMenu'>"
 			"<menuitem action='EnableLogging'/>"
-			"<menuitem action='EnableSounds'/>"
 			"<separator/>"
 			"<menuitem action='ShowFormattingToolbars'/>"
 		"</menu>"
 	"</menubar>"
 "</ui>";
-
-static void
-sound_method_pref_changed_cb(const char *name, PurplePrefType type,
-							 gconstpointer value, gpointer data)
-{
-	PidginConvWindow *win = data;
-	const char *method = value;
-
-	if (purple_strequal(method, "none"))
-	{
-		gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu->sounds),
-		                             FALSE);
-		gtk_action_set_sensitive(win->menu->sounds, FALSE);
-	}
-	else
-	{
-		PidginConversation *gtkconv = pidgin_conv_window_get_active_gtkconv(win);
-
-		if (gtkconv != NULL)
-			gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu->sounds),
-			                             gtkconv->make_sound);
-		gtk_action_set_sensitive(win->menu->sounds, TRUE);
-	}
-}
 
 /* Returns TRUE if some items were added to the menu, FALSE otherwise */
 static gboolean
@@ -3103,19 +3055,6 @@ setup_menubar(PidginConvWindow *win)
 	win->menu->logging =
 		gtk_ui_manager_get_action(win->menu->ui,
 		                          "/Conversation/OptionsMenu/EnableLogging");
-	win->menu->sounds =
-		gtk_ui_manager_get_action(win->menu->ui,
-		                          "/Conversation/OptionsMenu/EnableSounds");
-	method = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/sound/method");
-	if (purple_strequal(method, "none"))
-	{
-		gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu->sounds),
-		                               FALSE);
-		gtk_action_set_sensitive(win->menu->sounds, FALSE);
-	}
-	purple_prefs_connect_callback(win, PIDGIN_PREFS_ROOT "/sound/method",
-				    sound_method_pref_changed_cb, win);
-
 	win->menu->show_formatting_toolbar =
 		gtk_ui_manager_get_action(win->menu->ui,
 		                          "/Conversation/OptionsMenu/ShowFormattingToolbars");
@@ -4397,9 +4336,6 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	gtk_widget_show(pane);
 
 	convnode = get_conversation_blist_node(conv);
-	if (convnode == NULL || !purple_blist_node_get_bool(convnode, "gtk-mute-sound"))
-		gtkconv->make_sound = TRUE;
-
 	if (convnode != NULL && purple_blist_node_has_setting(convnode, "enable-logging")) {
 		gboolean logging = purple_blist_node_get_bool(convnode, "enable-logging");
 		purple_conversation_set_logging(conv, logging);
@@ -7667,7 +7603,6 @@ switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 	PidginConvWindow *win;
 	PurpleConversation *conv;
 	PidginConversation *gtkconv;
-	const char *sound_method;
 
 	win = user_data;
 	gtkconv = pidgin_conv_window_get_gtkconv_at_index(win, page_num);
@@ -7690,11 +7625,6 @@ switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 	regenerate_plugins_items(win);
 
 	pidgin_conv_switch_active_conversation(conv);
-
-	sound_method = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/sound/method");
-	if (!purple_strequal(sound_method, "none"))
-		gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu->sounds),
-		                             gtkconv->make_sound);
 
 	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu->show_formatting_toolbar),
 	                             purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar"));

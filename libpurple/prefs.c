@@ -1669,6 +1669,9 @@ prefs_update_old(void)
 	purple_prefs_remove("/purple/logging/log_idle_state");
 	purple_prefs_remove("/purple/logging/log_away_state");
 	purple_prefs_remove("/purple/logging/log_own_states");
+	purple_prefs_remove("/purple/sound/while_away");
+	purple_prefs_remove("/purple/sound/while_status");
+	purple_prefs_remove("/purple/sound");
 	purple_prefs_remove("/purple/status/scores/hidden");
 	purple_prefs_remove("/plugins/core/autorecon/hide_connected_error");
 	purple_prefs_remove("/plugins/core/autorecon/hide_connecting_error");
@@ -1676,14 +1679,6 @@ prefs_update_old(void)
 	purple_prefs_remove("/plugins/core/autorecon/restore_state");
 	purple_prefs_remove("/plugins/core/autorecon");
 	purple_prefs_remove("/plugins/lopl");
-
-	/* Convert old sounds while_away pref to new 3-way pref. */
-	if (purple_prefs_exists("/purple/sound/while_away") &&
-	    purple_prefs_get_bool("/purple/sound/while_away"))
-	{
-		purple_prefs_set_int("/purple/sound/while_status", 3);
-	}
-	purple_prefs_remove("/purple/sound/while_away");
 }
 
 void *

@@ -544,20 +544,6 @@ uri_handler(const char *proto, const char *cmd, GHashTable *params)
 }
 
 /**************************************************************************
- * Sound signal callbacks
- **************************************************************************/
-static int
-sound_playing_event_cb(PurpleSoundEventID event, PurpleAccount *account) {
-	if (account != NULL)
-		purple_debug_misc("signals test", "sound playing event: %d for account: %s\n",
-	    	            event, purple_account_get_username(account));
-	else
-		purple_debug_misc("signals test", "sound playing event: %d\n", event);
-
-	return 0;
-}
-
-/**************************************************************************
  * Notify signals callbacks
  **************************************************************************/
 static void
@@ -674,7 +660,6 @@ plugin_load(PurplePlugin *plugin, GError **error)
 	void *conn_handle     = purple_connections_get_handle();
 	void *conv_handle     = purple_conversations_get_handle();
 	void *accounts_handle = purple_accounts_get_handle();
-	void *sound_handle    = purple_sounds_get_handle();
 	void *notify_handle   = purple_notify_get_handle();
 	void *jabber_handle   = purple_protocols_find("prpl-jabber");
 
@@ -789,10 +774,6 @@ plugin_load(PurplePlugin *plugin, GError **error)
 						plugin, PURPLE_CALLBACK(quitting_cb), NULL);
 	purple_signal_connect(core_handle, "uri-handler",
 						plugin,	PURPLE_CALLBACK(uri_handler), NULL);
-
-	/* Sound signals */
-	purple_signal_connect(sound_handle, "playing-sound-event", plugin,
-	                    PURPLE_CALLBACK(sound_playing_event_cb), NULL);
 
 	/* Notify signals */
 	purple_signal_connect(notify_handle, "displaying-email-notification",

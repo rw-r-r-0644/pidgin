@@ -101,8 +101,6 @@ struct _PidginConversation
 
 	PidginConvWindow *win;
 
-	gboolean make_sound;
-
 	GtkWidget *tab_cont;
 	GtkWidget *tabby;
 	GtkWidget *menu_tabby;

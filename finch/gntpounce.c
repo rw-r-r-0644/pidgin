@@ -78,7 +78,6 @@ typedef struct
 	GntWidget *send_msg_entry;
 	GntWidget *exec_cmd;
 	GntWidget *exec_cmd_entry;
-	GntWidget *play_sound;
 
 	GntWidget *save_pounce;
 
@@ -250,8 +249,6 @@ save_pounce_cb(GntWidget *w, PurpleGntPounceDialog *dialog)
 		gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->send_msg)));
 	purple_pounce_action_set_enabled(dialog->pounce, "execute-command",
 		gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->exec_cmd)));
-	purple_pounce_action_set_enabled(dialog->pounce, "play-beep",
-		gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->play_sound)));
 
 	purple_pounce_action_set_attribute(dialog->pounce, "send-message",
 									 "message", message);
@@ -269,8 +266,6 @@ save_pounce_cb(GntWidget *w, PurpleGntPounceDialog *dialog)
 		gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->send_msg)));
 	purple_prefs_set_bool("/finch/pounces/default_actions/execute-command",
 		gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->exec_cmd)));
-	purple_prefs_set_bool("/finch/pounces/default_actions/play-beep",
-		gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->play_sound)));
 
 	purple_pounce_set_save(dialog->pounce,
 		gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->save_pounce)));
@@ -422,7 +417,6 @@ finch_pounce_editor_show(PurpleAccount *account, const char *name,
 	dialog->popup = gnt_check_box_new(_("Pop up a notification"));
 	dialog->send_msg = gnt_check_box_new(_("Send a message"));
 	dialog->exec_cmd = gnt_check_box_new(_("Execute a command"));
-	dialog->play_sound = gnt_check_box_new(_("Play a sound"));
 
 	dialog->send_msg_entry    = gnt_entry_new(NULL);
 	dialog->exec_cmd_entry    = gnt_entry_new(NULL);
@@ -443,9 +437,6 @@ finch_pounce_editor_show(PurpleAccount *account, const char *name,
 	hbox = gnt_hbox_new(FALSE);
 	gnt_box_add_widget(GNT_BOX(hbox), dialog->exec_cmd);
 	gnt_box_add_widget(GNT_BOX(hbox), dialog->exec_cmd_entry);
-	gnt_box_add_widget(GNT_BOX(window), hbox);
-	hbox = gnt_hbox_new(FALSE);
-	gnt_box_add_widget(GNT_BOX(hbox), dialog->play_sound);
 	gnt_box_add_widget(GNT_BOX(window), hbox);
 
 	gnt_box_add_widget(GNT_BOX(window), gnt_line_new(FALSE));
@@ -517,8 +508,6 @@ finch_pounce_editor_show(PurpleAccount *account, const char *name,
 			purple_pounce_action_is_enabled(cur_pounce, "send-message"));
 		gnt_check_box_set_checked(GNT_CHECK_BOX(dialog->exec_cmd),
 			purple_pounce_action_is_enabled(cur_pounce, "execute-command"));
-		gnt_check_box_set_checked(GNT_CHECK_BOX(dialog->play_sound),
-			purple_pounce_action_is_enabled(cur_pounce, "play-beep"));
 
 		gnt_check_box_set_checked(GNT_CHECK_BOX(dialog->save_pounce),
 			purple_pounce_get_save(cur_pounce));
@@ -595,8 +584,6 @@ finch_pounce_editor_show(PurpleAccount *account, const char *name,
 			purple_prefs_get_bool("/finch/pounces/default_actions/send-message"));
 		gnt_check_box_set_checked(GNT_CHECK_BOX(dialog->exec_cmd),
 			purple_prefs_get_bool("/finch/pounces/default_actions/execute-command"));
-		gnt_check_box_set_checked(GNT_CHECK_BOX(dialog->play_sound),
-			purple_prefs_get_bool("/finch/pounces/default_actions/play-beep"));
 	}
 
 	gnt_widget_show(window);

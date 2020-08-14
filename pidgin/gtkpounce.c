@@ -91,11 +91,6 @@ typedef struct
 	GtkWidget *exec_cmd;
 	GtkWidget *exec_cmd_entry;
 	GtkWidget *exec_cmd_browse;
-	GtkWidget *play_sound;
-	GtkWidget *play_sound_entry;
-	GtkWidget *play_sound_browse;
-	GtkWidget *play_sound_test;
-	GtkWidget *play_sound_reset;
 
 	GtkWidget *save_pounce;
 
@@ -154,32 +149,6 @@ filesel(GtkWidget *widget, gpointer data)
 		G_CALLBACK(pounce_update_entry_fields), NULL, NULL, entry);
 	g_signal_connect_swapped(G_OBJECT(entry), "destroy",
 			G_CALLBACK(purple_request_close_with_handle), entry);
-}
-
-static void
-pounce_test_sound(GtkWidget *w, GtkWidget *entry)
-{
-	const char *filename;
-	gboolean temp_mute;
-
-	temp_mute = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/sound/mute");
-
-	if (temp_mute) purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/sound/mute", FALSE);
-
-	filename = gtk_entry_get_text(GTK_ENTRY(entry));
-
-	if (filename != NULL && *filename != '\0' && !purple_strequal(filename, _("(default)")))
-		purple_sound_play_file(filename, NULL);
-	else
-		purple_sound_play_event(PURPLE_SOUND_POUNCE_DEFAULT, NULL);
-
-	if (temp_mute) purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/sound/mute", TRUE);
-}
-
-static void
-pounce_reset_sound(GtkWidget *w, GtkWidget *entry)
-{
-	gtk_entry_set_text(GTK_ENTRY(entry), _("(default)"));
 }
 
 static void
@@ -247,7 +216,7 @@ static void
 save_pounce_cb(GtkWidget *w, PidginPounceDialog *dialog)
 {
 	const char *name;
-	const char *command, *sound, *reason;
+	const char *command, *reason;
 	char *message;
 	PurplePounceEvent events   = PURPLE_POUNCE_NONE;
 	PurplePounceOption options = PURPLE_POUNCE_OPTION_NONE;
@@ -299,7 +268,6 @@ save_pounce_cb(GtkWidget *w, PidginPounceDialog *dialog)
 	/* Data fields */
 	message = talkatu_markup_get_html(dialog->send_msg_buffer, NULL);
 	command = gtk_entry_get_text(GTK_ENTRY(dialog->exec_cmd_entry));
-	sound   = gtk_entry_get_text(GTK_ENTRY(dialog->play_sound_entry));
 	reason  = gtk_entry_get_text(GTK_ENTRY(dialog->popup_entry));
 
 	if (*reason == '\0') reason = NULL;
@@ -308,7 +276,6 @@ save_pounce_cb(GtkWidget *w, PidginPounceDialog *dialog)
 		message = NULL;
 	}
 	if (*command == '\0') command = NULL;
-	if (*sound   == '\0' || purple_strequal(sound, _("(default)"))) sound   = NULL;
 
 	/* If the pounce has already been triggered, let's pretend it is a new one */
 	if (dialog->pounce != NULL
@@ -338,15 +305,11 @@ save_pounce_cb(GtkWidget *w, PidginPounceDialog *dialog)
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->send_msg)));
 	purple_pounce_action_set_enabled(dialog->pounce, "execute-command",
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->exec_cmd)));
-	purple_pounce_action_set_enabled(dialog->pounce, "play-sound",
-		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->play_sound)));
 
 	purple_pounce_action_set_attribute(dialog->pounce, "send-message",
 									 "message", message);
 	purple_pounce_action_set_attribute(dialog->pounce, "execute-command",
 									 "command", command);
-	purple_pounce_action_set_attribute(dialog->pounce, "play-sound",
-									 "filename", sound);
 	purple_pounce_action_set_attribute(dialog->pounce, "popup-notify",
 									 "reason", reason);
 
@@ -359,8 +322,6 @@ save_pounce_cb(GtkWidget *w, PidginPounceDialog *dialog)
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->send_msg)));
 	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/pounces/default_actions/execute-command",
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->exec_cmd)));
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/pounces/default_actions/play-sound",
-		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->play_sound)));
 
 	purple_pounce_set_save(dialog->pounce,
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->save_pounce)));
@@ -702,8 +663,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 		= gtk_check_button_new_with_mnemonic(_("Send a _message"));
 	dialog->exec_cmd
 		= gtk_check_button_new_with_mnemonic(_("E_xecute a command"));
-	dialog->play_sound
-		= gtk_check_button_new_with_mnemonic(_("P_lay a sound"));
 
 	editor = talkatu_editor_new();
 	dialog->send_msg_entry = talkatu_editor_get_input(TALKATU_EDITOR(editor));
@@ -712,21 +671,11 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	dialog->exec_cmd_entry    = gtk_entry_new();
 	dialog->popup_entry       = gtk_entry_new();
 	dialog->exec_cmd_browse   = gtk_button_new_with_mnemonic(_("Brows_e..."));
-	dialog->play_sound_entry  = gtk_entry_new();
-	gtk_entry_set_text(GTK_ENTRY(dialog->play_sound_entry), _("(default)"));
-	gtk_editable_set_editable(GTK_EDITABLE(dialog->play_sound_entry), FALSE);
-	dialog->play_sound_browse = gtk_button_new_with_mnemonic(_("Br_owse..."));
-	dialog->play_sound_test   = gtk_button_new_with_mnemonic(_("Pre_view"));
-	dialog->play_sound_reset  = gtk_button_new_with_mnemonic(_("Reset"));
 
 	gtk_widget_set_sensitive(editor,                    FALSE);
 	gtk_widget_set_sensitive(dialog->exec_cmd_entry,    FALSE);
 	gtk_widget_set_sensitive(dialog->popup_entry,       FALSE);
 	gtk_widget_set_sensitive(dialog->exec_cmd_browse,   FALSE);
-	gtk_widget_set_sensitive(dialog->play_sound_entry,  FALSE);
-	gtk_widget_set_sensitive(dialog->play_sound_browse, FALSE);
-	gtk_widget_set_sensitive(dialog->play_sound_test,   FALSE);
-	gtk_widget_set_sensitive(dialog->play_sound_reset,  FALSE);
 
 	g_object_unref(sg);
 
@@ -737,11 +686,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	gtk_size_group_add_widget(sg, dialog->exec_cmd);
 	gtk_size_group_add_widget(sg, dialog->exec_cmd_entry);
 	gtk_size_group_add_widget(sg, dialog->exec_cmd_browse);
-	gtk_size_group_add_widget(sg, dialog->play_sound);
-	gtk_size_group_add_widget(sg, dialog->play_sound_entry);
-	gtk_size_group_add_widget(sg, dialog->play_sound_browse);
-	gtk_size_group_add_widget(sg, dialog->play_sound_test);
-	gtk_size_group_add_widget(sg, dialog->play_sound_reset);
 
 	g_object_unref(sg);
 	sg = NULL;
@@ -755,14 +699,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	gtk_widget_set_valign(dialog->exec_cmd_entry, GTK_ALIGN_CENTER);
 	gtk_widget_set_hexpand(dialog->exec_cmd_browse, TRUE);
 	gtk_widget_set_valign(dialog->exec_cmd_browse, GTK_ALIGN_CENTER);
-	gtk_widget_set_valign(dialog->play_sound, GTK_ALIGN_CENTER);
-	gtk_widget_set_valign(dialog->play_sound_entry, GTK_ALIGN_CENTER);
-	gtk_widget_set_hexpand(dialog->play_sound_browse, TRUE);
-	gtk_widget_set_valign(dialog->play_sound_browse, GTK_ALIGN_CENTER);
-	gtk_widget_set_hexpand(dialog->play_sound_test, TRUE);
-	gtk_widget_set_valign(dialog->play_sound_test, GTK_ALIGN_CENTER);
-	gtk_widget_set_hexpand(dialog->play_sound_reset, TRUE);
-	gtk_widget_set_valign(dialog->play_sound_reset, GTK_ALIGN_CENTER);
 
 	gtk_grid_attach(GTK_GRID(grid), dialog->open_win,         0, 0, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), dialog->popup,            0, 1, 1, 1);
@@ -772,11 +708,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	gtk_grid_attach(GTK_GRID(grid), dialog->exec_cmd,         0, 4, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), dialog->exec_cmd_entry,   1, 4, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), dialog->exec_cmd_browse,  2, 4, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), dialog->play_sound,       0, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), dialog->play_sound_entry, 1, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), dialog->play_sound_browse,2, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), dialog->play_sound_test,  3, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), dialog->play_sound_reset, 4, 5, 1, 1);
 
 	gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
 
@@ -788,11 +719,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	gtk_widget_show(dialog->exec_cmd);
 	gtk_widget_show(dialog->exec_cmd_entry);
 	gtk_widget_show(dialog->exec_cmd_browse);
-	gtk_widget_show(dialog->play_sound);
-	gtk_widget_show(dialog->play_sound_entry);
-	gtk_widget_show(dialog->play_sound_browse);
-	gtk_widget_show(dialog->play_sound_test);
-	gtk_widget_show(dialog->play_sound_reset);
 
 	g_signal_connect(G_OBJECT(dialog->message_recv), "clicked",
 					 G_CALLBACK(message_recv_toggle),
@@ -815,29 +741,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	g_signal_connect(G_OBJECT(dialog->exec_cmd_browse), "clicked",
 					 G_CALLBACK(filesel),
 					 dialog->exec_cmd_entry);
-
-	g_object_bind_property(dialog->play_sound, "active",
-			dialog->play_sound_entry, "sensitive",
-			G_BINDING_DEFAULT);
-	g_object_bind_property(dialog->play_sound, "active",
-			dialog->play_sound_browse, "sensitive",
-			G_BINDING_DEFAULT);
-	g_object_bind_property(dialog->play_sound, "active",
-			dialog->play_sound_test, "sensitive",
-			G_BINDING_DEFAULT);
-	g_object_bind_property(dialog->play_sound, "active",
-			dialog->play_sound_reset, "sensitive",
-			G_BINDING_DEFAULT);
-
-	g_signal_connect(G_OBJECT(dialog->play_sound_browse), "clicked",
-					 G_CALLBACK(filesel),
-					 dialog->play_sound_entry);
-	g_signal_connect(G_OBJECT(dialog->play_sound_test), "clicked",
-					 G_CALLBACK(pounce_test_sound),
-					 dialog->play_sound_entry);
-	g_signal_connect(G_OBJECT(dialog->play_sound_reset), "clicked",
-					 G_CALLBACK(pounce_reset_sound),
-					 dialog->play_sound_entry);
 
 	g_signal_connect_swapped(G_OBJECT(dialog->send_msg_entry), "format-cleared",
 			G_CALLBACK(reset_send_msg_entry), dialog);
@@ -948,8 +851,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 			purple_pounce_action_is_enabled(cur_pounce, "send-message"));
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->exec_cmd),
 			purple_pounce_action_is_enabled(cur_pounce, "execute-command"));
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->play_sound),
-			purple_pounce_action_is_enabled(cur_pounce, "play-sound"));
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->save_pounce),
 			purple_pounce_get_save(cur_pounce));
@@ -973,14 +874,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 													  "command")) != NULL)
 		{
 			gtk_entry_set_text(GTK_ENTRY(dialog->exec_cmd_entry), value);
-		}
-
-		if ((value = purple_pounce_action_get_attribute(cur_pounce,
-													  "play-sound",
-													  "filename")) != NULL)
-		{
-			gtk_entry_set_text(GTK_ENTRY(dialog->play_sound_entry),
-			                   (*value != '\0') ? value : _("(default)"));
 		}
 	}
 	else
@@ -1040,8 +933,6 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/pounces/default_actions/send-message"));
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->exec_cmd),
 			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/pounces/default_actions/execute-command"));
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->play_sound),
-			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/pounces/default_actions/play-sound"));
 	}
 
 	gtk_widget_show(vbox2);
@@ -1527,19 +1418,6 @@ pounce_cb(PurplePounce *pounce, PurplePounceEvent events, void *data)
 			}
 		}
 	}
-
-	if (purple_pounce_action_is_enabled(pounce, "play-sound"))
-	{
-		const char *sound;
-
-		sound = purple_pounce_action_get_attribute(pounce,
-												 "play-sound", "filename");
-
-		if (sound != NULL)
-			purple_sound_play_file(sound, account);
-		else
-			purple_sound_play_event(PURPLE_SOUND_POUNCE_DEFAULT, account);
-	}
 }
 
 static void
@@ -1555,7 +1433,6 @@ new_pounce(PurplePounce *pounce)
 	purple_pounce_action_register(pounce, "popup-notify");
 	purple_pounce_action_register(pounce, "send-message");
 	purple_pounce_action_register(pounce, "execute-command");
-	purple_pounce_action_register(pounce, "play-sound");
 
 	update_pounces();
 }
@@ -1582,8 +1459,6 @@ pidgin_pounces_init(void)
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/pounces/default_actions/send-message",
 						FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/pounces/default_actions/execute-command",
-						FALSE);
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/pounces/default_actions/play-sound",
 						FALSE);
 	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/pounces/dialog");
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/pounces/dialog/width",  520);

@@ -119,13 +119,6 @@
 #define PIDGIN_ACTION_JOIN_CHAT ("join-chat")
 
 /**
- * PIDGIN_ACTION_MUTE_SOUNDS:
- *
- * A constant that represents the mute-sounds action.
- */
-#define PIDGIN_ACTION_MUTE_SOUNDS ("mute-sounds")
-
-/**
  * PIDGIN_ACTION_NEW_MESSAGE:
  *
  * A constant that represents the new-message action.
