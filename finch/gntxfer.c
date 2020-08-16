@@ -376,7 +376,7 @@ finch_xfer_dialog_update_xfer(PurpleXfer *xfer)
 	PurpleGntXferUiData *data;
 	char *size_str, *remaining_str;
 	gint64 current_time;
-	char prog_str[5];
+	char prog_str[G_ASCII_DTOSTR_BUF_SIZE];
 	double kb_sent;
 	double kbps = 0.0;
 	gint64 now;
@@ -416,7 +416,7 @@ finch_xfer_dialog_update_xfer(PurpleXfer *xfer)
 	kbsec = g_strdup_printf(_("%.2f KB/s"), kbps);
 
 	gnt_tree_change_text(GNT_TREE(xfer_dialog->tree), xfer, COLUMN_PROGRESS,
-			g_ascii_dtostr(prog_str, sizeof(prog_str), purple_xfer_get_progress(xfer) * 100.));
+			g_ascii_dtostr(prog_str, G_ASCII_DTOSTR_BUF_SIZE, purple_xfer_get_progress(xfer) * 100.));
 	gnt_tree_change_text(GNT_TREE(xfer_dialog->tree), xfer, COLUMN_SIZE, size_str);
 	gnt_tree_change_text(GNT_TREE(xfer_dialog->tree), xfer, COLUMN_REMAINING, remaining_str);
 	gnt_tree_change_text(GNT_TREE(xfer_dialog->tree), xfer, COLUMN_SPEED, kbsec);

@@ -1932,7 +1932,7 @@ static void write_zsubs(zephyr_account *zephyr)
 		g_free(zclass);
 		g_free(zinst);
 		g_free(zrecip);
-		g_free(triple);
+		g_strfreev(triple);
 		s = s->next;
 	}
 	g_free(fname);
