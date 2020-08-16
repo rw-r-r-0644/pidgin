@@ -36,7 +36,7 @@
 
 #include <purple.h>
 
-#include "gntwidget.h"
+#include <gnt.h>
 
 typedef struct _FinchLogViewer FinchLogViewer;
 

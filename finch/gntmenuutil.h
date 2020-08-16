@@ -37,7 +37,6 @@
 #include <purple.h>
 
 #include <gnt.h>
-#include <gntmenu.h>
 
 /***************************************************************************
  * GNT Menu Utility Functions

@@ -27,15 +27,6 @@
 #include NCURSES_HEADER
 
 #include <gnt.h>
-#include <gntbox.h>
-#include <gntbutton.h>
-#include <gntcheckbox.h>
-#include <gntcombobox.h>
-#include <gntentry.h>
-#include <gntlabel.h>
-#include <gntline.h>
-#include <gnttree.h>
-#include <gntutils.h>
 
 #include "finch.h"
 

@@ -29,14 +29,6 @@
 #include <purple.h>
 
 #include <gnt.h>
-#include <gntbox.h>
-#include <gntbutton.h>
-#include <gntcheckbox.h>
-#include <gntentry.h>
-#include <gntfilesel.h>
-#include <gntlabel.h>
-#include <gntline.h>
-#include <gnttextview.h>
 
 #include "gntdebug.h"
 #include "finch.h"

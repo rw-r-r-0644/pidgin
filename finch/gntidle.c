@@ -22,10 +22,11 @@
 
 #include <purple.h>
 
+#include <gnt.h>
+
 #include "finch.h"
+
 #include "gntidle.h"
-#include "gnt.h"
-#include "gntwm.h"
 
 static time_t
 finch_get_idle_time(void)

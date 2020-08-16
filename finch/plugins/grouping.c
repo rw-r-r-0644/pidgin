@@ -20,7 +20,7 @@
 
 #include <purple.h>
 
-#include "gnttree.h"
+#include <gnt.h>
 
 #include <finch.h>
 

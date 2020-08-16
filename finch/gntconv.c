@@ -30,6 +30,8 @@
 
 #include <purple.h>
 
+#include <gnt.h>
+
 #include "gntaccount.h"
 #include "gntblist.h"
 #include "gntconv.h"
@@ -40,20 +42,6 @@
 #include "gntprefs.h"
 #include "gntrequest.h"
 #include "gntstatus.h"
-
-#include "gnt.h"
-#include "gntbox.h"
-#include "gntentry.h"
-#include "gntlabel.h"
-#include "gntmenu.h"
-#include "gntmenuitem.h"
-#include "gntmenuitemcheck.h"
-#include "gntmenuutil.h"
-#include "gntstyle.h"
-#include "gnttextview.h"
-#include "gnttree.h"
-#include "gntutils.h"
-#include "gntwindow.h"
 
 #define PREF_ROOT	"/finch/conversations"
 #define PREF_CHAT   PREF_ROOT "/chats"
