@@ -494,10 +494,12 @@ smiley_list_dnd_recv(GtkWidget *widget, GdkDragContext *dc, gint x, gint y,
 			purple_debug_warning("gtksmiley-manager",
 				"dropped file does not exists");
 			gtk_drag_finish(dc, FALSE, FALSE, time);
+			g_free(filename);
 			return;
 		}
 
 		image = purple_image_new_from_file(filename, NULL);
+		g_free(filename);
 		if (!image) {
 			purple_debug_warning("gtksmiley-manager",
 				"dropped file is not a valid image");

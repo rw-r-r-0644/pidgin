@@ -36,7 +36,9 @@ outgoing_msg_common(const char *message)
 
   ms = g_strsplit(m, "</u>", -1);
   g_free(m);
-  return g_strjoinv("</font>", ms);
+  m = g_strjoinv("</font>", ms);
+  g_strfreev(ms);
+  return m;
 }
 
 static gboolean outgoing_msg_cb1(PurpleConversation *conv, PurpleMessage *msg,

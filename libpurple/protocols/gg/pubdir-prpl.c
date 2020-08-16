@@ -799,7 +799,6 @@ static void ggp_pubdir_set_info_got_token(PurpleConnection *gc,
 	name = g_uri_escape_string(record->first_name, NULL, FALSE);
 	surname = g_uri_escape_string(record->last_name, NULL, FALSE);
 	city = g_uri_escape_string(record->city, NULL, FALSE);
-
 	bday = g_date_time_format(record->birth, "%Y-%m-%d");
 
 	request_data = g_strdup_printf(
@@ -817,6 +816,9 @@ static void ggp_pubdir_set_info_got_token(PurpleConnection *gc,
 		city,
 		record->province);
 
+	g_free(name);
+	g_free(surname);
+	g_free(city);
 	g_free(bday);
 
 	if (purple_debug_is_verbose() && purple_debug_is_unsafe()) {
