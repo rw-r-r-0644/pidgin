@@ -116,6 +116,7 @@ ggp_pubdir_record_free(ggp_pubdir_record *records, int count)
 		g_free(records[i].first_name);
 		g_free(records[i].last_name);
 		g_free(records[i].city);
+		g_date_time_unref(records[i].birth);
 	}
 	g_free(records);
 }
@@ -214,6 +215,7 @@ ggp_pubdir_got_data(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 		record->nickname = ggp_free_if_equal(record->nickname, "");
 		record->first_name = ggp_free_if_equal(record->first_name, "");
 		record->last_name = ggp_free_if_equal(record->last_name, "");
+		g_clear_pointer(&record->birth, g_date_time_unref);
 
 		if (record->label) {}
 		else if (record->nickname)
@@ -246,7 +248,7 @@ ggp_pubdir_got_data(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 			record->city = NULL;
 		}
 
-		record->birth = ggp_date_from_iso8601(birth_s);
+		record->birth = g_date_time_new_from_iso8601(birth_s, NULL);
 		/*TODO: calculate age from birth */
 
 		if (purple_debug_is_verbose()) {
@@ -256,7 +258,7 @@ ggp_pubdir_got_data(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 				"[birth:%lu]\n", record->uin, record->label,
 				record->nickname, record->first_name,
 				record->last_name, record->city, record->gender,
-				record->age, record->birth);
+				record->age, g_date_time_to_unix(record->birth));
 		}
 
 		g_free(city);
@@ -386,8 +388,11 @@ static void ggp_pubdir_get_info_protocol_got(PurpleConnection *gc,
 			record->city);
 	}
 	if (record->birth) {
-		purple_notify_user_info_add_pair_plaintext(info, _("Birthday"),
-			ggp_date_strftime("%Y-%m-%d", record->birth));
+		gchar *bday = g_date_time_format(record->birth, "%Y-%m-%d");
+
+		purple_notify_user_info_add_pair_plaintext(info, _("Birthday"), bday);
+
+		g_free(bday);
 	} else if (record->age) {
 		gchar *age_s = g_strdup_printf("%d", record->age);
 		purple_notify_user_info_add_pair_plaintext(info, _("Age"),
@@ -778,6 +783,7 @@ static void ggp_pubdir_set_info_got_token(PurpleConnection *gc,
 	gchar *url;
 	gchar *request_data;
 	gchar *name, *surname, *city;
+	gchar *bday;
 	uin_t uin = record->uin;
 
 	PURPLE_ASSERT_CONNECTION_IS_VALID(gc);
@@ -794,6 +800,8 @@ static void ggp_pubdir_set_info_got_token(PurpleConnection *gc,
 	surname = g_uri_escape_string(record->last_name, NULL, FALSE);
 	city = g_uri_escape_string(record->city, NULL, FALSE);
 
+	bday = g_date_time_format(record->birth, "%Y-%m-%d");
+
 	request_data = g_strdup_printf(
 		"name=%s&"
 		"surname=%s&"
@@ -804,10 +812,12 @@ static void ggp_pubdir_set_info_got_token(PurpleConnection *gc,
 		"city=%s&"
 		"province=%d",
 		name, surname,
-		ggp_date_strftime("%Y-%m-%d", record->birth),
+		bday,
 		record->gender,
 		city,
 		record->province);
+
+	g_free(bday);
 
 	if (purple_debug_is_verbose() && purple_debug_is_unsafe()) {
 		purple_debug_misc("gg", "ggp_pubdir_set_info_got_token: "
@@ -851,10 +861,10 @@ ggp_pubdir_set_info_request(PurpleConnection *gc, PurpleRequestFields *fields)
 	birth_s = g_strdup_printf(
 	        "%sT10:00:00+00:00",
 	        purple_request_fields_get_string(fields, "birth_date"));
-	record->birth = ggp_date_from_iso8601(birth_s);
+	record->birth = g_date_time_new_from_iso8601(birth_s, NULL);
 	g_free(birth_s);
 	purple_debug_info("gg", "ggp_pubdir_set_info_request: birth [%lu][%s]",
-	                  record->birth,
+	                  g_date_time_to_unix(record->birth),
 	                  purple_request_fields_get_string(fields, "birth_date"));
 
 	url = g_strdup_printf("http://api.gadu-gadu.pl/users/%u.xml", uin);
@@ -870,6 +880,7 @@ ggp_pubdir_set_info_dialog(PurpleConnection *gc, int records_count,
 	PurpleRequestFields *fields;
 	PurpleRequestFieldGroup *group;
 	PurpleRequestField *field;
+	gchar *bday = NULL;
 	gsize i;
 	const ggp_pubdir_record *record;
 
@@ -903,12 +914,14 @@ ggp_pubdir_set_info_dialog(PurpleConnection *gc, int records_count,
 	                                GINT_TO_POINTER(GGP_PUBDIR_GENDER_FEMALE));
 	purple_request_field_group_add_field(group, field);
 
+	if(record != NULL && record->birth != NULL) {
+		bday = g_date_time_format(record->birth, "%Y-%m-%d");
+	}
+
 	field = purple_request_field_string_new(
-	        "birth_date", _("Birth Day"),
-	        (record && record->birth)
-	                ? ggp_date_strftime("%Y-%m-%d", record->birth)
-	                : NULL,
+	        "birth_date", _("Birth Day"), bday,
 	        FALSE);
+	g_free(bday);
 	purple_request_field_set_required(field, TRUE);
 	purple_request_field_group_add_field(group, field);
 

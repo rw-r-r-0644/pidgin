@@ -50,7 +50,7 @@ typedef struct
 	ggp_pubdir_gender gender;
 	gchar *city;
 	unsigned int province;
-	time_t birth;
+	GDateTime *birth;
 	unsigned int age;
 } ggp_pubdir_record;
 

@@ -742,7 +742,6 @@ finch_create_conversation(PurpleConversation *conv)
 	char *title;
 	PurpleConversation *cc;
 	PurpleAccount *account;
-	PurpleBlistNode *convnode = NULL;
 
 	if (ggc) {
 		gnt_window_present(ggc->window);

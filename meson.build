@@ -738,22 +738,19 @@ foreach header : 'sgtty.h sys/cdefs.h sys/file.h sys/filio.h sys/ioctl.h sys/msg
 	    compiler.has_header(header))
 endforeach
 
-# sys/sysctl.h on OpenBSD 4.2 requires sys/param.h
-# sys/sysctl.h on FreeBSD requires sys/types.h
-have_sys_param_h = compiler.has_header('sys/param.h')
-conf.set('HAVE_SYS_PARAM_H', have_sys_param_h)
-prefix = '''
+# OpenBSD 6.7 and FreeBSD 12 require including sys/types.h before sys/sysctl.h.
+# NetBSD 9.0 doesn't care.
+if target_machine.system() in ['freebsd', 'openbsd']
+	prefix = '''
 #include <sys/types.h>
 '''
-if have_sys_param_h
-	prefix += '''
-#include <sys/param.h>
-'''
+
+	conf.set('HAVE_SYS_SYSCTL_H',
+	    compiler.has_header('sys/sysctl.h', prefix : prefix))
+	conf.set('HAVE_SYS_SOCKET_H',
+	    compiler.has_header('sys/socket.h'))
 endif
-conf.set('HAVE_SYS_SYSCTL_H',
-    compiler.has_header('sys/sysctl.h', prefix : prefix))
-conf.set('HAVE_SYS_SOCKET_H',
-    compiler.has_header('sys/socket.h'))
+
 #AC_VAR_TIMEZONE_EXTERNALS
 
 #######################################################################

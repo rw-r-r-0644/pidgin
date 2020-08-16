@@ -2937,7 +2937,6 @@ static GtkWidget *
 setup_menubar(PidginConvWindow *win)
 {
 	GtkAccelGroup *accel_group;
-	const char *method;
 	GtkActionGroup *action_group;
 	GError *error;
 	GtkWidget *menuitem;

@@ -219,28 +219,6 @@ gchar * ggp_free_if_equal(gchar *str, const gchar *pattern)
 	return str;
 }
 
-const gchar * ggp_date_strftime(const gchar *format, time_t date)
-{
-	GDate g_date;
-	static gchar buff[30];
-
-	g_date_set_time_t(&g_date, date);
-	if (0 == g_date_strftime(buff, sizeof(buff), format, &g_date))
-		return NULL;
-	return buff;
-}
-
-time_t ggp_date_from_iso8601(const gchar *str)
-{
-	GTimeVal g_timeval;
-
-	if (!str)
-		return 0;
-	if (!g_time_val_from_iso8601(str, &g_timeval))
-		return 0;
-	return g_timeval.tv_sec;
-}
-
 uint64_t * ggp_uint64dup(uint64_t val)
 {
 	uint64_t *ptr = g_new(uint64_t, 1);

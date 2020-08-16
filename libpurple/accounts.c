@@ -997,7 +997,7 @@ purple_accounts_init(void)
 
 	g_signal_connect(G_OBJECT(g_network_monitor_get_default()),
 	                 "network-changed",
-	                 purple_accounts_network_changed_cb, NULL);
+	                 G_CALLBACK(purple_accounts_network_changed_cb), NULL);
 }
 
 void
