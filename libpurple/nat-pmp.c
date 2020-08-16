@@ -32,23 +32,20 @@
 #include "signals.h"
 #include "network.h"
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#include <sys/types.h>
 
 #ifdef HAVE_SYS_SYSCTL_H
-#include <sys/sysctl.h>
+# include <sys/sysctl.h>
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
+# include <sys/socket.h>
 #endif
 
 /* We will need sysctl() and NET_RT_DUMP, both of which are not present
  * on all platforms, to continue. */
 #if defined(HAVE_SYS_SYSCTL_H) && defined(NET_RT_DUMP)
 
-#include <sys/types.h>
 #include <net/route.h>
 
 #define PMP_DEBUG	1
