@@ -44,11 +44,6 @@
 #include <purple.h>
 
 #include <gnt.h>
-#include <gntbox.h>
-#include <gntbutton.h>
-#include <gntcheckbox.h>
-#include <gntlabel.h>
-#include <gnttree.h>
 
 #include <finch.h>
 

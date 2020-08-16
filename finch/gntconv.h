@@ -35,8 +35,6 @@
  */
 
 #include <gnt.h>
-#include <gntwidget.h>
-#include <gntmenuitem.h>
 
 #include <purple.h>
 

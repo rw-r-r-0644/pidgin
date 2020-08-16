@@ -36,8 +36,7 @@
 
 #include <purple.h>
 
-#include "gnt.h"
-#include "gnttree.h"
+#include <gnt.h>
 
 #define FINCH_TYPE_BUDDY_LIST (finch_buddy_list_get_type())
 #define FINCH_TYPE_BLIST_MANAGER (finch_blist_manager_get_type())

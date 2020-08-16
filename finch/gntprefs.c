@@ -26,11 +26,11 @@
 
 #include <purple.h>
 
+#include <gnt.h>
+
 #include "gntprefs.h"
 #include "gntrequest.h"
 
-#include "gnt.h"
-#include "gntwidget.h"
 
 #include <string.h>
 

@@ -22,12 +22,9 @@
 
 #include <purple.h>
 
-#include "finch.h"
+#include <gnt.h>
 
-#include "gnt.h"
-#include "gntmenu.h"
-#include "gntmenuitem.h"
-#include "gntmenuutil.h"
+#include "finch.h"
 
 static void
 context_menu_callback(GntMenuItem *item, gpointer data)

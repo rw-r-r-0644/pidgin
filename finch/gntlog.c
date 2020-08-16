@@ -27,13 +27,6 @@
 #include "finch.h"
 
 #include <gnt.h>
-#include <gntbox.h>
-#include <gntbutton.h>
-#include <gntentry.h>
-#include <gntlabel.h>
-#include <gnttextview.h>
-#include <gnttree.h>
-#include <gntwindow.h>
 
 #include "gntlog.h"
 

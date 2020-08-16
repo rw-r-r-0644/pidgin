@@ -23,8 +23,6 @@
 #include <purple.h>
 
 #include <gnt.h>
-#include <gnttextview.h>
-#include <gntwindow.h>
 
 #include <finch.h>
 

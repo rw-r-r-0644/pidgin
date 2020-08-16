@@ -30,9 +30,7 @@
 
 #include <glib.h>
 
-#include <gntlabel.h>
-#include <gnttextview.h>
-#include <gntwindow.h>
+#include <gnt.h>
 
 #include <finch.h>
 

@@ -26,14 +26,11 @@
 
 #include <purple.h>
 
+#include <gnt.h>
+
 #include "finch.h"
 #include "gntconv.h"
 #include "gntmedia.h"
-
-#include "gnt.h"
-#include "gntbutton.h"
-#include "gntbox.h"
-#include "gntlabel.h"
 
 /* An incredibly large part of the following is from gtkmedia.c */
 #ifdef USE_VV

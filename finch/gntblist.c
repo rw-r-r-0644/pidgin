@@ -28,23 +28,7 @@
 
 #include <purple.h>
 
-#include "gntbox.h"
-#include "gntcolors.h"
-#include "gntcombobox.h"
-#include "gntentry.h"
-#include "gntxfer.h"
-#include "gntlabel.h"
-#include "gntline.h"
-#include "gntlog.h"
-#include "gntmenu.h"
-#include "gntmenuitem.h"
-#include "gntmenuitemcheck.h"
-#include "gntmenuutil.h"
-#include "gntpounce.h"
-#include "gntstyle.h"
-#include "gnttree.h"
-#include "gntutils.h"
-#include "gntwindow.h"
+#include <gnt.h>
 
 #include "gntblist.h"
 #include "gntconv.h"

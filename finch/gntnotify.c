@@ -25,12 +25,6 @@
 #include <purple.h>
 
 #include <gnt.h>
-#include <gntbox.h>
-#include <gntbutton.h>
-#include <gntlabel.h>
-#include <gnttree.h>
-#include <gntutils.h>
-#include <gntwindow.h>
 
 #include "finch.h"
 

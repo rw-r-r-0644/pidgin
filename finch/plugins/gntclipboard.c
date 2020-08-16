@@ -37,7 +37,6 @@
 #include <purple.h>
 
 #include <gnt.h>
-#include <gntwm.h>
 
 #include <finch.h>
 

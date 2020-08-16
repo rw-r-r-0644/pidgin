@@ -22,17 +22,12 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "finch.h"
+#include <finch.h>
+
+#include <gnt.h>
 
 #include "gntrequest.h"
 #include "gntroomlist.h"
-
-#include "gntbox.h"
-#include "gntbutton.h"
-#include "gntcombobox.h"
-#include "gnttextview.h"
-#include "gnttree.h"
-#include "gntwindow.h"
 
 #define PREF_ROOT "/finch/roomlist"
 
