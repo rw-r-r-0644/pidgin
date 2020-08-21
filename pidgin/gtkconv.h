@@ -107,7 +107,7 @@ struct _PidginConversation
 
 	GArray *nick_colors;
 	PurpleMessageFlags last_flags;
-	GtkTextBuffer *history_buffer;
+	GtkWidget *history_sw;
 	GtkWidget *history;
 
 	GtkWidget *editor;

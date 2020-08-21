@@ -1730,13 +1730,13 @@ entry_key_press_cb(GtkWidget *entry, GdkEventKey *event, gpointer data)
 
 		case GDK_KEY_Page_Up:
 		case GDK_KEY_KP_Page_Up:
-			talkatu_history_page_up(TALKATU_HISTORY(gtkconv->history));
+			talkatu_scrolled_window_page_up(TALKATU_SCROLLED_WINDOW(gtkconv->history_sw));
 			return TRUE;
 			break;
 
 		case GDK_KEY_Page_Down:
 		case GDK_KEY_KP_Page_Down:
-			talkatu_history_page_down(TALKATU_HISTORY(gtkconv->history));
+			talkatu_scrolled_window_page_down(TALKATU_SCROLLED_WINDOW(gtkconv->history_sw));
 			return TRUE;
 			break;
 
@@ -4051,7 +4051,7 @@ pidgin_conv_create_tooltip(GtkWidget *tipwindow, gpointer userdata, int *w, int 
 static GtkWidget *
 setup_common_pane(PidginConversation *gtkconv)
 {
-	GtkWidget *vbox, *sw, *event_box, *input;
+	GtkWidget *vbox, *event_box, *input;
 	GtkCellRenderer *rend;
 	GtkTreePath *path;
 	PurpleConversation *conv = gtkconv->active_conv;
@@ -4148,19 +4148,19 @@ setup_common_pane(PidginConversation *gtkconv)
 	g_object_set(rend, "xalign", 0.0, "xpad", 6, "ypad", 0, NULL);
 
 	/* Setup the history widget */
-	sw = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw), GTK_SHADOW_IN);
+	gtkconv->history_sw = talkatu_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_shadow_type(
+		GTK_SCROLLED_WINDOW(gtkconv->history_sw),
+		GTK_SHADOW_IN
+	);
 	gtk_scrolled_window_set_policy(
-		GTK_SCROLLED_WINDOW(sw),
+		GTK_SCROLLED_WINDOW(gtkconv->history_sw),
 		GTK_POLICY_NEVER,
 		GTK_POLICY_ALWAYS
 	);
 
-	gtkconv->history_buffer = talkatu_history_buffer_new();
 	gtkconv->history = talkatu_history_new();
-	gtk_text_view_set_buffer(GTK_TEXT_VIEW(gtkconv->history), gtkconv->history_buffer);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(gtkconv->history), GTK_WRAP_WORD);
-	gtk_container_add(GTK_CONTAINER(sw), gtkconv->history);
+	gtk_container_add(GTK_CONTAINER(gtkconv->history_sw), gtkconv->history);
 
 	if (chat) {
 		GtkWidget *hpaned;
@@ -4172,14 +4172,14 @@ setup_common_pane(PidginConversation *gtkconv)
 		hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 		gtk_box_pack_start(GTK_BOX(vbox), hpaned, TRUE, TRUE, 0);
 		gtk_widget_show(hpaned);
-		gtk_paned_pack1(GTK_PANED(hpaned), sw, TRUE, TRUE);
+		gtk_paned_pack1(GTK_PANED(hpaned), gtkconv->history_sw, TRUE, TRUE);
 
 		/* Now add the userlist */
 		setup_chat_userlist(gtkconv, hpaned);
 	} else {
-		gtk_box_pack_start(GTK_BOX(vbox), sw, TRUE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(vbox), gtkconv->history_sw, TRUE, TRUE, 0);
 	}
-	gtk_widget_show_all(sw);
+	gtk_widget_show_all(gtkconv->history_sw);
 
 	g_object_set_data(G_OBJECT(gtkconv->history), "gtkconv", gtkconv);
 
@@ -4686,8 +4686,8 @@ pidgin_conv_write_conv(PurpleConversation *conv, PurpleMessage *pmsg)
 	}
 
 	pidgin_msg = pidgin_message_new(pmsg);
-	talkatu_history_buffer_write_message(
-		TALKATU_HISTORY_BUFFER(gtkconv->history_buffer),
+	talkatu_history_write_message(
+		TALKATU_HISTORY(gtkconv->history),
 		TALKATU_MESSAGE(pidgin_msg)
 	);
 
