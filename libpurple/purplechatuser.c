@@ -154,9 +154,6 @@ static void
 purple_chat_user_finalize(GObject *object) {
 	PurpleChatUser *chat_user = PURPLE_CHAT_USER(object);
 
-	purple_signal_emit(purple_conversations_get_handle(),
-	                   "deleting-chat-user", chat_user);
-
 	g_free(chat_user->alias);
 	g_free(chat_user->alias_key);
 	g_free(chat_user->name);
@@ -270,20 +267,6 @@ purple_chat_user_get_flags(PurpleChatUser *chat_user) {
 	g_return_val_if_fail(PURPLE_IS_CHAT_USER(chat_user), PURPLE_CHAT_USER_NONE);
 
 	return chat_user->flags;
-}
-
-void
-purple_chat_user_set_ui_data(PurpleChatUser *chat_user, gpointer ui_data) {
-	g_return_if_fail(PURPLE_IS_CHAT_USER(chat_user));
-
-	chat_user->ui_data = ui_data;
-}
-
-gpointer
-purple_chat_user_get_ui_data(PurpleChatUser *chat_user) {
-	g_return_val_if_fail(PURPLE_IS_CHAT_USER(chat_user), NULL);
-
-	return chat_user->ui_data;
 }
 
 void
