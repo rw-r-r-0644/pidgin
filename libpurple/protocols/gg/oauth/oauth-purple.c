@@ -63,7 +63,7 @@ ggp_oauth_access_token_got(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
                            gpointer user_data)
 {
 	ggp_oauth_data *data = user_data;
-	gchar *token, *token_secret;
+	gchar *token = NULL, *token_secret = NULL;
 	PurpleXmlNode *xml;
 	gboolean succ = TRUE;
 
@@ -81,6 +81,8 @@ ggp_oauth_access_token_got(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	if (!succ || strlen(token) < 10) {
 		purple_debug_error("gg", "ggp_oauth_access_token_got: invalid xml - "
 		                         "token is not present");
+		g_free(token);
+		g_free(token_secret);
 		ggp_oauth_data_free(data);
 		return;
 	}

@@ -32,13 +32,13 @@
 
 #include <purple.h>
 
-gboolean ggp_xml_get_string(const PurpleXmlNode *xml, gchar *childName, gchar **var);
-gboolean ggp_xml_get_bool(const PurpleXmlNode *xml, gchar *childName, gboolean *var);
-gboolean ggp_xml_get_uint(const PurpleXmlNode *xml, gchar *childName, unsigned int *var);
+gboolean ggp_xml_get_string(const PurpleXmlNode *xml, const gchar *childName, gchar **var);
+gboolean ggp_xml_get_bool(const PurpleXmlNode *xml, const gchar *childName, gboolean *var);
+gboolean ggp_xml_get_uint(const PurpleXmlNode *xml, const gchar *childName, unsigned int *var);
 
-gboolean ggp_xml_set_string(PurpleXmlNode *xml, gchar *childName, const gchar *val);
-gboolean ggp_xml_set_bool(PurpleXmlNode *xml, gchar *childName, gboolean val);
-gboolean ggp_xml_set_uint(PurpleXmlNode *xml, gchar *childName, unsigned int val);
+gboolean ggp_xml_set_string(PurpleXmlNode *xml, const gchar *childName, const gchar *val);
+gboolean ggp_xml_set_bool(PurpleXmlNode *xml, const gchar *childName, gboolean val);
+gboolean ggp_xml_set_uint(PurpleXmlNode *xml, const gchar *childName, unsigned int val);
 
 void ggp_xmlnode_remove_children(PurpleXmlNode *xml);
 

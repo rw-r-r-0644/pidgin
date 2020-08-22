@@ -798,7 +798,8 @@ static gboolean ggp_roster_send_update_contact_update(PurpleConnection *gc,
 	PurpleBuddy *buddy;
 	PurpleXmlNode *buddy_node, *contact_groups;
 	gboolean succ = TRUE;
-	const char *group_id;
+	const gchar *group_id;
+	gchar *guid;
 
 	g_return_val_if_fail(change->type == GGP_ROSTER_CHANGE_CONTACT_UPDATE,
 		FALSE);
@@ -830,10 +831,11 @@ static gboolean ggp_roster_send_update_contact_update(PurpleConnection *gc,
 	}
 
 	/* add new */
+	guid = g_uuid_string_random();
 	purple_debug_misc("gg", "ggp_roster_send_update_contact_update: "
 		"adding %u...\n", uin);
 	buddy_node = purple_xmlnode_new_child(content->contacts_node, "Contact");
-	succ &= ggp_xml_set_string(buddy_node, "Guid", g_uuid_string_random());
+	succ &= ggp_xml_set_string(buddy_node, "Guid", guid);
 	succ &= ggp_xml_set_uint(buddy_node, "GGNumber", uin);
 	succ &= ggp_xml_set_string(buddy_node, "ShowName",
 		purple_buddy_get_alias(buddy));
@@ -850,6 +852,7 @@ static gboolean ggp_roster_send_update_contact_update(PurpleConnection *gc,
 	/* we don't use Guid, so update is not needed
 	 * content->needs_update = TRUE;
 	 */
+	g_free(guid);
 
 	g_hash_table_insert(content->contact_nodes, GINT_TO_POINTER(uin),
 		buddy_node);
