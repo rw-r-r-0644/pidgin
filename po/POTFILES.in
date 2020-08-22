@@ -14,7 +14,6 @@ finch/gntpounce.c
 finch/gntprefs.c
 finch/gntrequest.c
 finch/gntroomlist.c
-finch/gntsound.c
 finch/gntstatus.c
 finch/gntui.c
 finch/gntxfer.c
@@ -219,9 +218,6 @@ libpurple/protocols/silc/wb.c
 libpurple/protocols/simple/ntlm.c
 libpurple/protocols/simple/simple.c
 libpurple/protocols/simple/sipmsg.c
-libpurple/protocols/zephyr/error_message.c
-libpurple/protocols/zephyr/et_name.c
-libpurple/protocols/zephyr/init_et.c
 libpurple/protocols/zephyr/ZAsyncLocate.c
 libpurple/protocols/zephyr/ZCkAuth.c
 libpurple/protocols/zephyr/ZCkIfNot.c
@@ -229,7 +225,6 @@ libpurple/protocols/zephyr/ZClosePort.c
 libpurple/protocols/zephyr/ZCmpUID.c
 libpurple/protocols/zephyr/ZCmpUIDP.c
 libpurple/protocols/zephyr/zephyr.c
-libpurple/protocols/zephyr/zephyr_err.c
 libpurple/protocols/zephyr/ZFlsLocs.c
 libpurple/protocols/zephyr/ZFlsSubs.c
 libpurple/protocols/zephyr/ZFmtAuth.c
@@ -271,6 +266,8 @@ libpurple/protocols/zephyr/ZVariables.c
 libpurple/protocols/zephyr/ZWait4Not.c
 libpurple/proxy.c
 libpurple/purple-gio.c
+libpurple/purplechatuser.c
+libpurple/purpleimconversation.c
 libpurple/queuedoutputstream.c
 libpurple/request.c
 libpurple/request-datasheet.c
@@ -283,12 +280,7 @@ libpurple/smiley-custom.c
 libpurple/smiley-list.c
 libpurple/smiley-parser.c
 libpurple/smiley-theme.c
-libpurple/sound.c
-libpurple/sound-theme.c
-libpurple/sound-theme-loader.c
-libpurple/sslconn.c
 libpurple/status.c
-libpurple/stringref.c
 libpurple/stun.c
 libpurple/tests/test_attention_type.c
 libpurple/tests/test_image.c
@@ -328,7 +320,6 @@ pidgin/gtkicon-theme-loader.c
 pidgin/gtkidle.c
 pidgin/gtkmedia.c
 pidgin/gtknotify.c
-pidgin/gtkplugin.c
 pidgin/gtkpluginpref.c
 pidgin/gtkpounce.c
 pidgin/gtkprefs.c
@@ -339,7 +330,6 @@ pidgin/gtksavedstatuses.c
 pidgin/gtkscrollbook.c
 pidgin/gtksmiley-manager.c
 pidgin/gtksmiley-theme.c
-pidgin/gtksound.c
 pidgin/gtkstatusbox.c
 pidgin/gtkstatus-icon-theme.c
 pidgin/gtkstyle.c
@@ -352,7 +342,6 @@ pidgin/pidginabout.c
 pidgin/pidgin.c
 pidgin/pidgincontactcompletion.c
 pidgin/pidgindebug.c
-pidgin/pidgindebugplugininfo.c
 pidgin/pidgingdkpixbuf.c
 pidgin/pidgininvitedialog.c
 pidgin/pidginlog.c
@@ -361,12 +350,10 @@ pidgin/pidginmessage.c
 pidgin/pidginstock.c
 pidgin/pidgintalkatu.c
 pidgin/pidgintooltip.c
-pidgin/plugins/cap/cap.c
 pidgin/plugins/contact_priority.c
 pidgin/plugins/disco/gtkdisco.c
 pidgin/plugins/disco/xmppdisco.c
 pidgin/plugins/disco/resources/disco.ui
-pidgin/plugins/extplacement.c
 pidgin/plugins/gestures/gestures.c
 pidgin/plugins/gestures/stroke.c
 pidgin/plugins/gestures/stroke-draw.c
@@ -385,7 +372,6 @@ pidgin/plugins/mailchk.c
 pidgin/plugins/musicmessaging/musicmessaging.c
 pidgin/plugins/notify.c
 pidgin/plugins/pidgininc.c
-pidgin/plugins/raw.c
 pidgin/plugins/relnot.c
 pidgin/plugins/screencap.c
 pidgin/plugins/spellchk.c
@@ -407,8 +393,6 @@ pidgin/resources/About/about.ui
 pidgin/resources/Debug/debug.ui
 pidgin/resources/Debug/plugininfo.ui
 pidgin/resources/Conversations/invite_dialog.ui
-pidgin/win32/gtkdocklet-win32.c
 pidgin/win32/gtkwin32dep.c
-pidgin/win32/MinimizeToTray.c
 pidgin/win32/untar.c
 pidgin/win32/winpidgin.c
