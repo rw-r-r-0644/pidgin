@@ -6,7 +6,6 @@ endif
 
 subdir('disco')
 subdir('gestures')
-subdir('ticker')
 subdir('xmppconsole')
 
 if IS_WIN32
