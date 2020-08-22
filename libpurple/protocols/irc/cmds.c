@@ -428,7 +428,7 @@ int irc_cmd_privmsg(struct irc_conn *irc, const char *cmd, const char *target, c
 		return 0;
 
 	max_privmsg_arg_len = IRC_MAX_MSG_SIZE - strlen(args[0]) - 64;
-	salvaged = purple_utf8_salvage(args[1]);
+	salvaged = g_utf8_make_valid(args[1], -1);
 	cur = salvaged;
 	end = salvaged;
 	while (*end && *cur) {

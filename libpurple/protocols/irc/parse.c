@@ -289,7 +289,7 @@ static char *irc_recv_convert(struct irc_conn *irc, const char *string)
 
 	if (encodings[0] == NULL) {
 		g_strfreev(encodings);
-		return purple_utf8_salvage(string);
+		return g_utf8_make_valid(string, -1);
 	}
 
 	for (i = 0; encodings[i] != NULL; i++) {
@@ -311,7 +311,7 @@ static char *irc_recv_convert(struct irc_conn *irc, const char *string)
 	}
 	g_strfreev(encodings);
 
-	return purple_utf8_salvage(string);
+	return g_utf8_make_valid(string, -1);
 }
 
 /* This function is shamelessly stolen from glib--it is an old version of the
@@ -688,7 +688,7 @@ void irc_parse_msg(struct irc_conn *irc, char *input)
 	purple_signal_emit(_irc_protocol, "irc-receiving-text", gc, &input);
 
 	if (purple_debug_is_verbose()) {
-		char *clean = purple_utf8_salvage(input);
+		char *clean = g_utf8_make_valid(input, -1);
 		clean = g_strstrip(clean);
 		purple_debug_misc("irc", ">> %s\n", clean);
 		g_free(clean);
@@ -754,7 +754,7 @@ void irc_parse_msg(struct irc_conn *irc, char *input)
 			 * field has inadvertently been marked verbatim, this
 			 * could cause weirdness. */
 			tmp = g_strndup(cur, end - cur);
-			args[i] = purple_utf8_salvage(tmp);
+			args[i] = g_utf8_make_valid(tmp, -1);
 			g_free(tmp);
 			cur += end - cur;
 			break;
@@ -775,7 +775,7 @@ void irc_parse_msg(struct irc_conn *irc, char *input)
 		case '*':
 			/* Ditto 'v' above; we're going to salvage this in case
 			 * it leaks past the IRC protocol */
-			args[i] = purple_utf8_salvage(cur);
+			args[i] = g_utf8_make_valid(cur, -1);
 			cur = cur + strlen(cur);
 			break;
 		default:
@@ -809,7 +809,7 @@ static void irc_parse_error_cb(struct irc_conn *irc, char *input)
 	char *clean;
 	/* This really should be escaped somehow that you can tell what
 	 * the junk was -- but as it is, it can crash glib. */
-	clean = purple_utf8_salvage(input);
+	clean = g_utf8_make_valid(input, -1);
 	purple_debug(PURPLE_DEBUG_WARNING, "irc", "Unrecognized string: %s\n", clean);
 	g_free(clean);
 }

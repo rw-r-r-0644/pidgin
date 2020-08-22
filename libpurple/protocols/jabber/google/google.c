@@ -149,7 +149,7 @@ void google_buddy_node_chat(PurpleBlistNode *node, gpointer data)
 	JabberStream *js;
 	JabberChat *chat;
 	gchar *room;
-	gchar *uuid = purple_uuid_random();
+	gchar *uuid = g_uuid_string_random();
 
 	g_return_if_fail(PURPLE_IS_BUDDY(node));
 

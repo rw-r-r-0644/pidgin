@@ -771,7 +771,7 @@ static const gchar * ggp_roster_send_update_group_add(
 	purple_debug_info("gg", "ggp_roster_send_update_group_add: adding %s\n",
 		purple_group_get_name(group));
 
-	id = purple_uuid_random();
+	id = g_uuid_string_random();
 
 	group_node = purple_xmlnode_new_child(content->groups_node, "Group");
 	succ &= ggp_xml_set_string(group_node, "Id", id);
@@ -833,7 +833,7 @@ static gboolean ggp_roster_send_update_contact_update(PurpleConnection *gc,
 	purple_debug_misc("gg", "ggp_roster_send_update_contact_update: "
 		"adding %u...\n", uin);
 	buddy_node = purple_xmlnode_new_child(content->contacts_node, "Contact");
-	succ &= ggp_xml_set_string(buddy_node, "Guid", purple_uuid_random());
+	succ &= ggp_xml_set_string(buddy_node, "Guid", g_uuid_string_random());
 	succ &= ggp_xml_set_uint(buddy_node, "GGNumber", uin);
 	succ &= ggp_xml_set_string(buddy_node, "ShowName",
 		purple_buddy_get_alias(buddy));

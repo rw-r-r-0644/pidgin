@@ -280,6 +280,7 @@ version 3.0.0 (??/??/????):
 		* purple_util_fetch_url_request now takes a length as the eighth
 		  parameter
 		* purple_util_fetch_url_len now takes a length as the fifth parameter
+		* purple_uuid_random.  Use g_uuid_string_random.
 		* PurpleWhiteboard is now a GObject. Please see the documentation for
 		  details.
 		* purple_value_destroy is now purple_value_free
@@ -340,6 +341,7 @@ version 3.0.0 (??/??/????):
 		* purple_account_add_buddies_with_invite
 		* purple_account_add_buddy_with_invite
 		* purple_account_set_current_error
+		* purple_base16_*
 		* purple_base64_*. Use g_base64_* instead
 		* purple_blist_get_ui_data
 		* purple_blist_load
@@ -378,6 +380,7 @@ version 3.0.0 (??/??/????):
 		  event loop yourself. See GLib Main Event Loop docs.
 		* PurpleEventLoopUiOps. Manually drive the GLib event loop
 		  yourself. See GLib Main Event Loop docs.
+		* purple_fd_get_ip.  Use GSocket instead.
 		* purple_get_host_name. Use g_get_host_name, instead.
 		* purple_get_tzoff_str(). Use g_date_time_format, instead.
 		* purple_ip_address_is_valid, purple_ipv4_address_is_valid, and
@@ -447,6 +450,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_protocol_option_menu_new
 		* purple_proxy_connect_socks5
 		* purple_quotedp_decode. See the GMime library if needed.
+		* purple_restore_default_signal_handlers
 		* purple_request_certificate
 		* purple_request_field_list_add
 		* PurpleSoundUiOps
@@ -519,6 +523,7 @@ version 3.0.0 (??/??/????):
 		* purple_txt_cancel
 		* purple_txt_resolve_account
 		* PurpleType, use GType instead.
+		* purple_utf8_salvage.  Use g_utf8_make_valid instead.
 		* purple_util_fetch_url_len. Use purple_util_fetch_url, instead.
 		* purple_util_fetch_url_request_len. Use
 		* purple_util_fetch_url_request, instead.

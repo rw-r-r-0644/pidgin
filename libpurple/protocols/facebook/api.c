@@ -1935,7 +1935,7 @@ fb_api_rehash(FbApi *api)
 	}
 
 	if (priv->did == NULL) {
-		priv->did = purple_uuid_random();
+		priv->did = g_uuid_string_random();
 	}
 
 	if (priv->mid == 0) {

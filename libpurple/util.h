@@ -92,57 +92,6 @@ void purple_util_init(void);
 void purple_util_uninit(void);
 
 /**************************************************************************/
-/* Base16 Functions                                                       */
-/**************************************************************************/
-
-/**
- * purple_base16_encode:
- * @data: The data to convert.
- * @len:  The length of the data.
- *
- * Converts a chunk of binary data to its base-16 equivalent.
- *
- *  See purple_base16_decode()
- *
- * Returns: The base-16 string in the ASCII encoding.  Must be
- *         g_free'd when no longer needed.
- */
-gchar *purple_base16_encode(const guchar *data, gsize len);
-
-/**
- * purple_base16_decode:
- * @str:     The base-16 string to convert to raw data.
- * @ret_len: The length of the returned data.  You can
- *                pass in NULL if you're sure that you know
- *                the length of the decoded data, or if you
- *                know you'll be able to use strlen to
- *                determine the length, etc.
- *
- * Converts an ASCII string of base-16 encoded data to
- * the binary equivalent.
- *
- *  See purple_base16_encode()
- *
- * Returns: The raw data.  Must be g_free'd when no longer needed.
- */
-guchar *purple_base16_decode(const char *str, gsize *ret_len);
-
-/**
- * purple_base16_encode_chunked:
- * @data: The data to convert.
- * @len:  The length of the data.
- *
- * Converts a chunk of binary data to a chunked base-16 representation
- * (handy for key fingerprints)
- *
- * Example output: 01:23:45:67:89:AB:CD:EF
- *
- * Returns: The base-16 string in the ASCII chunked encoding.  Must be
- *         g_free'd when no longer needed.
- */
-gchar *purple_base16_encode_chunked(const guchar *data, gsize len);
-
-/**************************************************************************/
 /* Date/Time Functions                                                    */
 /**************************************************************************/
 
@@ -822,16 +771,6 @@ gboolean purple_running_kde(void);
 gboolean purple_running_osx(void);
 
 /**
- * purple_fd_get_ip:
- * @fd: The socket file descriptor.
- *
- * Returns the IP address from a socket file descriptor.
- *
- * Returns: The IP address, or %NULL on error.
- */
-char *purple_fd_get_ip(int fd);
-
-/**
  * purple_socket_get_family:
  * @fd: The socket file descriptor.
  *
@@ -1100,7 +1039,6 @@ void purple_str_wipe(gchar *str);
  */
 void purple_utf16_wipe(gunichar2 *str);
 
-
 /**************************************************************************/
 /* URI/URL Functions                                                      */
 /**************************************************************************/
@@ -1197,18 +1135,6 @@ char *purple_uri_escape_for_open(const char *unescaped);
  * Returns: The UTF-8 string, or %NULL if it could not be converted.
  */
 gchar *purple_utf8_try_convert(const char *str);
-
-/**
- * purple_utf8_salvage:
- * @str: The source string.
- *
- * Salvages the valid UTF-8 characters from a string, replacing any
- * invalid characters with a filler character (currently hardcoded to
- * '?').
- *
- * Returns: A valid UTF-8 string.
- */
-gchar *purple_utf8_salvage(const char *str);
 
 /**
  * purple_utf8_strip_unprintables:
@@ -1309,24 +1235,6 @@ const char *purple_unescape_filename(const char *str);
  * Returns: The resulting string.
  */
 const char *purple_escape_filename(const char *str);
-
-/**
- * purple_restore_default_signal_handlers:
- *
- * Restore default signal handlers for signals which might reasonably have
- * handlers. This should be called by a fork()'d child process, since child processes
- * inherit the handlers of the parent.
- */
-void purple_restore_default_signal_handlers(void);
-
-/**
- * purple_uuid_random:
- *
- * Returns a type 4 (random) UUID
- *
- * Returns: A UUID, caller is responsible for freeing it
- */
-gchar *purple_uuid_random(void);
 
 /**
  * purple_callback_set_zero:

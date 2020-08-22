@@ -65,97 +65,6 @@ purple_util_uninit(void)
 }
 
 /**************************************************************************
- * Base16 Functions
- **************************************************************************/
-gchar *
-purple_base16_encode(const guchar *data, gsize len)
-{
-	gsize i;
-	gchar *ascii = NULL;
-
-	g_return_val_if_fail(data != NULL, NULL);
-	g_return_val_if_fail(len > 0,   NULL);
-
-	ascii = g_malloc(len * 2 + 1);
-
-	for (i = 0; i < len; i++)
-		g_snprintf(&ascii[i * 2], 3, "%02x", data[i] & 0xFF);
-
-	return ascii;
-}
-
-guchar *
-purple_base16_decode(const char *str, gsize *ret_len)
-{
-	gsize len, i, accumulator = 0;
-	guchar *data;
-
-	g_return_val_if_fail(str != NULL, NULL);
-
-	len = strlen(str);
-
-	g_return_val_if_fail(*str, 0);
-	g_return_val_if_fail(len % 2 == 0,    0);
-
-	data = g_malloc(len / 2);
-
-	for (i = 0; i < len; i++)
-	{
-		if ((i % 2) == 0)
-			accumulator = 0;
-		else
-			accumulator <<= 4;
-
-		if (isdigit(str[i]))
-			accumulator |= str[i] - 48;
-		else
-		{
-			switch(tolower(str[i]))
-			{
-				case 'a':  accumulator |= 10;  break;
-				case 'b':  accumulator |= 11;  break;
-				case 'c':  accumulator |= 12;  break;
-				case 'd':  accumulator |= 13;  break;
-				case 'e':  accumulator |= 14;  break;
-				case 'f':  accumulator |= 15;  break;
-			}
-		}
-
-		if (i % 2)
-			data[(i - 1) / 2] = accumulator;
-	}
-
-	if (ret_len != NULL)
-		*ret_len = len / 2;
-
-	return data;
-}
-
-gchar *
-purple_base16_encode_chunked(const guchar *data, gsize len)
-{
-	gsize i;
-	gchar *ascii = NULL;
-
-	g_return_val_if_fail(data != NULL, NULL);
-	g_return_val_if_fail(len > 0,   NULL);
-
-	/* For each byte of input, we need 2 bytes for the hex representation
-	 * and 1 for the colon.
-	 * The final colon will be replaced by a terminating NULL
-	 */
-	ascii = g_malloc(len * 3 + 1);
-
-	for (i = 0; i < len; i++)
-		g_snprintf(&ascii[i * 3], 4, "%02x:", data[i] & 0xFF);
-
-	/* Replace the final colon with NULL */
-	ascii[len * 3 - 1] = 0;
-
-	return ascii;
-}
-
-/**************************************************************************
  * Date/Time Functions
  **************************************************************************/
 
@@ -2507,36 +2416,6 @@ typedef union purple_sockaddr {
 	struct sockaddr_storage sa_stor;
 } PurpleSockaddr;
 
-char *
-purple_fd_get_ip(int fd)
-{
-	PurpleSockaddr addr;
-	socklen_t namelen = sizeof(addr);
-	int family;
-
-	g_return_val_if_fail(fd != 0, NULL);
-
-	if (getsockname(fd, &(addr.sa), &namelen))
-		return NULL;
-
-	family = addr.sa.sa_family;
-
-	if (family == AF_INET) {
-		return g_strdup(inet_ntoa(addr.sa_in.sin_addr));
-	}
-#if defined(AF_INET6) && defined(HAVE_INET_NTOP)
-	else if (family == AF_INET6) {
-		char host[INET6_ADDRSTRLEN];
-		const char *tmp;
-
-		tmp = inet_ntop(family, &(addr.sa_in6.sin6_addr), host, sizeof(host));
-		return g_strdup(tmp);
-	}
-#endif
-
-	return NULL;
-}
-
 int
 purple_socket_get_family(int fd)
 {
@@ -2917,7 +2796,6 @@ purple_str_seconds_to_string(guint secs)
 	return ret;
 }
 
-
 size_t
 purple_utf16_size(const gunichar2 *str)
 {
@@ -3287,33 +3165,6 @@ purple_utf8_try_convert(const char *str)
 	g_free(utf8);
 
 	return NULL;
-}
-
-#define utf8_first(x) ((x & 0x80) == 0 || (x & 0xe0) == 0xc0 \
-		       || (x & 0xf0) == 0xe0 || (x & 0xf8) == 0xf0)
-gchar *
-purple_utf8_salvage(const char *str)
-{
-	GString *workstr;
-	const char *end;
-
-	g_return_val_if_fail(str != NULL, NULL);
-
-	workstr = g_string_sized_new(strlen(str));
-
-	do {
-		(void)g_utf8_validate(str, -1, &end);
-		workstr = g_string_append_len(workstr, str, end - str);
-		str = end;
-		if (*str == '\0')
-			break;
-		do {
-			workstr = g_string_append_c(workstr, '?');
-			str++;
-		} while (!utf8_first(*str));
-	} while (*str != '\0');
-
-	return g_string_free(workstr, FALSE);
 }
 
 gchar *
@@ -3692,37 +3543,6 @@ purple_escape_filename(const char *str)
 	return buf;
 }
 
-void purple_restore_default_signal_handlers(void)
-{
-#ifndef _WIN32
-	signal(SIGHUP, SIG_DFL);	/* 1: terminal line hangup */
-	signal(SIGINT, SIG_DFL);	/* 2: interrupt program */
-	signal(SIGQUIT, SIG_DFL);	/* 3: quit program */
-	signal(SIGILL,  SIG_DFL);	/* 4:  illegal instruction (not reset when caught) */
-	signal(SIGTRAP, SIG_DFL);	/* 5:  trace trap (not reset when caught) */
-	signal(SIGABRT, SIG_DFL);	/* 6:  abort program */
-
-#ifdef SIGPOLL
-	signal(SIGPOLL,  SIG_DFL);	/* 7:  pollable event (POSIX) */
-#endif /* SIGPOLL */
-
-#ifdef SIGEMT
-	signal(SIGEMT,  SIG_DFL);	/* 7:  EMT instruction (Non-POSIX) */
-#endif /* SIGEMT */
-
-	signal(SIGFPE,  SIG_DFL);	/* 8:  floating point exception */
-	signal(SIGBUS,  SIG_DFL);	/* 10: bus error */
-	signal(SIGSEGV, SIG_DFL);	/* 11: segmentation violation */
-	signal(SIGSYS,  SIG_DFL);	/* 12: bad argument to system call */
-	signal(SIGPIPE, SIG_DFL);	/* 13: write on a pipe with no reader */
-	signal(SIGALRM, SIG_DFL);	/* 14: real-time timer expired */
-	signal(SIGTERM, SIG_DFL);	/* 15: software termination signal */
-	signal(SIGCHLD, SIG_DFL);	/* 20: child status has changed */
-	signal(SIGXCPU, SIG_DFL);	/* 24: exceeded CPU time limit */
-	signal(SIGXFSZ, SIG_DFL);	/* 25: exceeded file size limit */
-#endif /* !_WIN32 */
-}
-
 static void
 set_status_with_attrs(PurpleStatus *status, ...)
 {
@@ -3784,26 +3604,6 @@ char * purple_util_format_song_info(const char *title, const char *artist, const
 	}
 
 	return g_string_free(string, FALSE);
-}
-
-gchar *
-purple_uuid_random(void)
-{
-	guint32 tmp, a, b;
-
-	tmp = g_random_int();
-	a = 0x4000 | (tmp & 0xFFF); /* 0x4000 to 0x4FFF */
-	tmp >>= 12;
-	b = ((1 << 3) << 12) | (tmp & 0x3FFF); /* 0x8000 to 0xBFFF */
-
-	tmp = g_random_int();
-
-	return g_strdup_printf("%08x-%04x-%04x-%04x-%04x%08x",
-			g_random_int(),
-			tmp & 0xFFFF,
-			a,
-			b,
-			(tmp >> 16) & 0xFFFF, g_random_int());
 }
 
 void purple_callback_set_zero(gpointer data)

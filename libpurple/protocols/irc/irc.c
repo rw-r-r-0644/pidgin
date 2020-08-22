@@ -268,7 +268,7 @@ int irc_send_len(struct irc_conn *irc, const char *buf, int buflen)
 		return 0;
 
 	if (purple_debug_is_verbose()) {
-		gchar *clean = purple_utf8_salvage(tosend);
+		gchar *clean = g_utf8_make_valid(tosend, -1);
 		clean = g_strstrip(clean);
 		purple_debug_misc("irc", "<< %s\n", clean);
 		g_free(clean);
