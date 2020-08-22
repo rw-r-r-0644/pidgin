@@ -261,7 +261,8 @@ ggp_pubdir_got_data(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 				record->age, g_date_time_to_unix(record->birth));
 		}
 
-		g_free(city);
+		g_clear_pointer(&city, g_free);
+		g_clear_pointer(&birth_s, g_free);
 
 		xml = purple_xmlnode_get_next_twin(xml);
 	}
