@@ -1179,12 +1179,9 @@ static char *process_txt_log(char *txt, char *to_free)
 		to_free = txt;
 
 	/* g_markup_escape_text requires valid UTF-8 */
-	if (!g_utf8_validate(txt, -1, NULL))
-	{
-		tmp = purple_utf8_salvage(txt);
-		g_free(to_free);
-		to_free = txt = tmp;
-	}
+	tmp = g_utf8_make_valid(txt, -1);
+	g_free(to_free);
+	to_free = txt = tmp;
 
 	tmp = g_markup_escape_text(txt, -1);
 	g_free(to_free);

@@ -333,7 +333,7 @@ silc_channel_message(SilcClient client, SilcClientConnection conn,
 		const char *msg = (const char *)message;
 		char *salvaged = NULL;
 		if (!g_utf8_validate((const char *)message, -1, NULL)) {
-			salvaged = purple_utf8_salvage((const char *)message);
+			salvaged = g_utf8_make_valid((const char *)message, -1);
 			msg = salvaged;
 		}
 		tmp = g_markup_escape_text(msg, -1);
@@ -414,7 +414,7 @@ silc_private_message(SilcClient client, SilcClientConnection conn,
 		const char *msg = (const char *)message;
 		char *salvaged = NULL;
 		if (!g_utf8_validate((const char *)message, -1, NULL)) {
-			salvaged = purple_utf8_salvage((const char *)message);
+			salvaged = g_utf8_make_valid((const char *)message, -1);
 			msg = salvaged;
 		}
 		tmp = g_markup_escape_text(msg, -1);

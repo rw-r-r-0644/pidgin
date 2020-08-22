@@ -720,8 +720,9 @@ current_error_to_xmlnode(PurpleConnectionErrorInfo *err)
 	child = purple_xmlnode_new_child(node, "description");
 	if(err->description) {
 		char *utf8ized = purple_utf8_try_convert(err->description);
-		if(utf8ized == NULL)
-			utf8ized = purple_utf8_salvage(err->description);
+		if(utf8ized == NULL) {
+			utf8ized = g_utf8_make_valid(err->description, -1);
+		}
 		purple_xmlnode_insert_data(child, utf8ized, -1);
 		g_free(utf8ized);
 	}

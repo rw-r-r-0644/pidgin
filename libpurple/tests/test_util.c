@@ -25,24 +25,6 @@
 #include <purple.h>
 
 /******************************************************************************
- * base 16 tests
- *****************************************************************************/
-static void
-test_util_base_16_encode(void) {
-	gchar *in = purple_base16_encode((const guchar *)"hello, world!", 14);
-	g_assert_cmpstr("68656c6c6f2c20776f726c642100", ==, in);
-}
-
-static void
-test_util_base_16_decode(void) {
-	gsize sz = 0;
-	guchar *out = purple_base16_decode("21646c726f77202c6f6c6c656800", &sz);
-
-	g_assert_cmpint(sz, ==, 14);
-	g_assert_cmpstr("!dlrow ,olleh", ==, (const gchar *)out);
-}
-
-/******************************************************************************
  * filename escape tests
  *****************************************************************************/
 static void
@@ -513,11 +495,6 @@ test_uri_escape_for_open(void) {
 gint
 main(gint argc, gchar **argv) {
 	g_test_init(&argc, &argv, NULL);
-
-	g_test_add_func("/util/base/16/encode",
-	                test_util_base_16_encode);
-	g_test_add_func("/util/base/16/decode",
-	                test_util_base_16_decode);
 
 	g_test_add_func("/util/filename/escape",
 	                test_util_filename_escape);

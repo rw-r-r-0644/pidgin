@@ -160,7 +160,7 @@ void irc_msg_default(struct irc_conn *irc, const char *name, const char *from, c
 	 * is. */
 
 	tmp = g_strndup(cur, end - cur);
-	convname = purple_utf8_salvage(tmp);
+	convname = g_utf8_make_valid(tmp, -1);
 	g_free(tmp);
 
 	/* Check for an existing conversation */
@@ -182,7 +182,7 @@ void irc_msg_default(struct irc_conn *irc, const char *name, const char *from, c
 	}
 
 	/* We then print "numeric: remainder". */
-	clean = purple_utf8_salvage(end);
+	clean = g_utf8_make_valid(end, -1);
 	tmp = g_strdup_printf("%.3s: %s", numeric, clean);
 	g_free(clean);
 	purple_conversation_write_system_message(convo, tmp,
@@ -193,7 +193,7 @@ void irc_msg_default(struct irc_conn *irc, const char *name, const char *from, c
 
   undirected:
 	/* This, too, should be escaped somehow (smarter) */
-	clean = purple_utf8_salvage(args[0]);
+	clean = g_utf8_make_valid(args[0], -1);
 	purple_debug(PURPLE_DEBUG_INFO, "irc", "Unrecognized message: %s\n", clean);
 	g_free(clean);
 }
