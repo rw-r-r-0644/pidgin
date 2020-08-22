@@ -120,31 +120,6 @@ void purple_chat_user_set_chat(PurpleChatUser *chat_user,
 PurpleChatConversation *purple_chat_user_get_chat(PurpleChatUser *chat_user);
 
 /**
- * purple_chat_user_set_ui_data:
- * @chat_user: The chat user
- * @ui_data: A pointer to associate with this chat user.
- *
- * Set the UI data associated with this chat user.
- *
- * Since: 3.0.0
- */
-void purple_chat_user_set_ui_data(PurpleChatUser *chat_user, gpointer ui_data);
-
-/**
- * purple_chat_user_get_ui_data:
- * @chat_user: The chat user.
- *
- * Get the UI data associated with this chat user.
- *
- * Returns: (transfer none): The UI data associated with this chat user.  This
- *          is a convenience field provided to the UIs--it is not used by the
- *          libpurple core.
- *
- * Since: 3.0.0
- */
-gpointer purple_chat_user_get_ui_data(PurpleChatUser *chat_user);
-
-/**
  * purple_chat_user_get_alias:
  * @chat_user: The chat user.
  *
