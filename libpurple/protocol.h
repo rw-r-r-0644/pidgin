@@ -474,42 +474,6 @@ struct _PurpleProtocolChatInterface
 #define PURPLE_PROTOCOL_CHAT_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE((obj), PURPLE_TYPE_PROTOCOL_CHAT, \
                                              PurpleProtocolChatInterface))
 
-#define PURPLE_TYPE_PROTOCOL_PRIVACY (purple_protocol_privacy_iface_get_type())
-
-typedef struct _PurpleProtocolPrivacyInterface PurpleProtocolPrivacyInterface;
-
-/**
- * PurpleProtocolPrivacyInterface:
- * @add_permit:		Add the buddy on the required authorized list.
- * @add_deny:		Add the buddy on the required blocked list.
- * @rem_permit:		Remove the buddy from the requried authorized list.
- * @rem_deny:		Remove the buddy from the required blocked list.
- * @set_permit_deny:Update the server with the privacy information on the permit and deny lists.
- *
- * The protocol privacy interface.
- *
- * This interface provides privacy callbacks such as to permit/deny users.
- */
-struct _PurpleProtocolPrivacyInterface
-{
-	/*< private >*/
-	GTypeInterface parent_iface;
-
-	/*< public >*/
-	void (*add_permit)(PurpleConnection *gc, const char *name);
-
-	void (*add_deny)(PurpleConnection *gc, const char *name);
-
-	void (*rem_permit)(PurpleConnection *gc, const char *name);
-
-	void (*rem_deny)(PurpleConnection *gc, const char *name);
-
-	void (*set_permit_deny)(PurpleConnection *gc);
-};
-
-#define PURPLE_IS_PROTOCOL_PRIVACY(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), PURPLE_TYPE_PROTOCOL_PRIVACY))
-#define PURPLE_PROTOCOL_PRIVACY_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE((obj), PURPLE_TYPE_PROTOCOL_PRIVACY, \
-                                                PurpleProtocolPrivacyInterface))
 
 #define PURPLE_TYPE_PROTOCOL_MEDIA (purple_protocol_media_iface_get_type())
 
@@ -1023,85 +987,6 @@ char *purple_protocol_chat_iface_get_user_real_name(PurpleProtocol *protocol,
  */
 void purple_protocol_chat_iface_set_topic(PurpleProtocol *protocol,
 		PurpleConnection *gc, int id, const char *topic);
-
-/**************************************************************************/
-/* Protocol Privacy Interface API                                         */
-/**************************************************************************/
-
-/**
- * purple_protocol_privacy_iface_get_type:
- *
- * Returns: The #GType for the protocol privacy interface.
- *
- * Since: 3.0.0
- */
-GType purple_protocol_privacy_iface_get_type(void);
-
-/**
- * purple_protocol_privacy_iface_add_permit:
- * @protocol: The #PurpleProtocol instance.
- * @connection: The #PurpleConnection instance.
- * @name: The username to permit.
- *
- * Adds a permit to the privacy settings for @connection to allow @name to
- * contact the user.
- *
- * Since: 3.0.0
- */
-void purple_protocol_privacy_iface_add_permit(PurpleProtocol *protocol,
-		PurpleConnection *connection, const char *name);
-
-/**
- * purple_protocol_privacy_iface_add_deny:
- * @protocol: The #PurpleProtocol instance.
- * @connection: The #PurpleConnection instance.
- * @name: The username to deny.
- *
- * Adds a deny to the privacy settings for @connection to deny @name from
- * contacting the user.
- *
- * Since: 3.0.0
- */
-void purple_protocol_privacy_iface_add_deny(PurpleProtocol *protocol,
-		PurpleConnection *connection, const char *name);
-
-/**
- * purple_protocol_privacy_iface_rem_permit:
- * @protocol: The #PurpleProtocol instance.
- * @connection: The #PurpleConnection instance.
- * @name: The username to remove from the permit privacy settings.
- *
- * Removes an existing permit for @name.
- *
- * Since: 3.0.0
- */
-void purple_protocol_privacy_iface_rem_permit(PurpleProtocol *protocol,
-		PurpleConnection *connection, const char *name);
-
-/**
- * purple_protocol_privacy_iface_rem_deny:
- * @protocol: The #PurpleProtocol instance.
- * @connection: The #PurpleConnection instance.
- * @name: The username to remove from the deny privacy settings.
- *
- * Removes an existing deny for @name.
- *
- * Since: 3.0.0
- */
-void purple_protocol_privacy_iface_rem_deny(PurpleProtocol *protocol,
-		PurpleConnection *connection, const char *name);
-
-/**
- * purple_protocol_privacy_iface_set_permit_deny:
- * @protocol: The #PurpleProtocol instance.
- * @connection: The #PurpleConnection instance.
- *
- * Forces a sync of the privacy settings with server.
- *
- * Since: 3.0.0
- */
-void purple_protocol_privacy_iface_set_permit_deny(PurpleProtocol *protocol,
-		PurpleConnection *connection);
 
 /**************************************************************************/
 /* Protocol Media Interface API                                           */

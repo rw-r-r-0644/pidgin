@@ -4278,7 +4278,9 @@ static void privacy_fill(struct mwPrivacyInfo *priv,
 }
 
 
-static void mw_protocol_set_permit_deny(PurpleConnection *gc) {
+static void mw_protocol_set_permit_deny(PurpleProtocolPrivacy *priv,
+                                        PurpleConnection *gc)
+{
   PurpleAccount *acct;
   struct mwPurpleProtocolData *pd;
   struct mwSession *session;
@@ -4333,23 +4335,31 @@ static void mw_protocol_set_permit_deny(PurpleConnection *gc) {
 }
 
 
-static void mw_protocol_add_permit(PurpleConnection *gc, const char *name) {
-  mw_protocol_set_permit_deny(gc);
+static void mw_protocol_add_permit(PurpleProtocolPrivacy *privacy,
+                                   PurpleConnection *gc, const char *name)
+{
+  mw_protocol_set_permit_deny(privacy, gc);
 }
 
 
-static void mw_protocol_add_deny(PurpleConnection *gc, const char *name) {
-  mw_protocol_set_permit_deny(gc);
+static void mw_protocol_add_deny(PurpleProtocolPrivacy *privacy,
+                                 PurpleConnection *gc, const char *name)
+{
+  mw_protocol_set_permit_deny(privacy, gc);
 }
 
 
-static void mw_protocol_rem_permit(PurpleConnection *gc, const char *name) {
-  mw_protocol_set_permit_deny(gc);
+static void mw_protocol_remove_permit(PurpleProtocolPrivacy *privacy,
+                                      PurpleConnection *gc, const char *name)
+{
+  mw_protocol_set_permit_deny(privacy, gc);
 }
 
 
-static void mw_protocol_rem_deny(PurpleConnection *gc, const char *name) {
-  mw_protocol_set_permit_deny(gc);
+static void mw_protocol_remove_deny(PurpleProtocolPrivacy *privacy,
+                                    PurpleConnection *gc, const char *name)
+{
+  mw_protocol_set_permit_deny(privacy, gc);
 }
 
 
@@ -5302,8 +5312,8 @@ mw_protocol_privacy_iface_init(PurpleProtocolPrivacyInterface *privacy_iface)
 {
   privacy_iface->add_permit      = mw_protocol_add_permit;
   privacy_iface->add_deny        = mw_protocol_add_deny;
-  privacy_iface->rem_permit      = mw_protocol_rem_permit;
-  privacy_iface->rem_deny        = mw_protocol_rem_deny;
+  privacy_iface->remove_permit   = mw_protocol_remove_permit;
+  privacy_iface->remove_deny     = mw_protocol_remove_deny;
   privacy_iface->set_permit_deny = mw_protocol_set_permit_deny;
 }
 

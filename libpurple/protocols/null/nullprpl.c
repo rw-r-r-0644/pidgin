@@ -616,27 +616,35 @@ static void null_remove_buddies(PurpleConnection *gc, GList *buddies,
  * purple_privacy_check(), from privacy.h), to determine whether messages are
  * allowed or blocked.
  */
-static void null_add_permit(PurpleConnection *gc, const char *name) {
+static void null_add_permit(PurpleProtocolPrivacy *privacy,
+                            PurpleConnection *gc, const char *name)
+{
   purple_debug_info("nullprpl", "%s adds %s to their allowed list\n",
                     purple_account_get_username(purple_connection_get_account(gc)), name);
 }
 
-static void null_add_deny(PurpleConnection *gc, const char *name) {
+static void null_add_deny(PurpleProtocolPrivacy *privacy,
+                          PurpleConnection *gc, const char *name)
+{
   purple_debug_info("nullprpl", "%s adds %s to their blocked list\n",
                     purple_account_get_username(purple_connection_get_account(gc)), name);
 }
 
-static void null_rem_permit(PurpleConnection *gc, const char *name) {
+static void null_remove_permit(PurpleProtocolPrivacy *privacy,
+                               PurpleConnection *gc, const char *name)
+{
   purple_debug_info("nullprpl", "%s removes %s from their allowed list\n",
                     purple_account_get_username(purple_connection_get_account(gc)), name);
 }
 
-static void null_rem_deny(PurpleConnection *gc, const char *name) {
+static void null_remove_deny(PurpleProtocolPrivacy *privacy,
+                             PurpleConnection *gc, const char *name)
+{
   purple_debug_info("nullprpl", "%s removes %s from their blocked list\n",
                     purple_account_get_username(purple_connection_get_account(gc)), name);
 }
 
-static void null_set_permit_deny(PurpleConnection *gc) {
+static void null_set_permit_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc) {
   /* this is for synchronizing the local black/whitelist with the server.
    * for nullprotocol, it's a noop.
    */
@@ -1090,8 +1098,8 @@ null_protocol_privacy_iface_init(PurpleProtocolPrivacyInterface *privacy_iface)
 {
   privacy_iface->add_permit      = null_add_permit;
   privacy_iface->add_deny        = null_add_deny;
-  privacy_iface->rem_permit      = null_rem_permit;
-  privacy_iface->rem_deny        = null_rem_deny;
+  privacy_iface->remove_permit   = null_remove_permit;
+  privacy_iface->remove_deny     = null_remove_deny;
   privacy_iface->set_permit_deny = null_set_permit_deny;
 }
 

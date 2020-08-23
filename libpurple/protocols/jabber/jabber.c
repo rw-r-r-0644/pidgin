@@ -1886,7 +1886,8 @@ void jabber_request_block_list(JabberStream *js)
 	jabber_iq_send(iq);
 }
 
-void jabber_add_deny(PurpleConnection *gc, const char *who)
+void jabber_add_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
+                     const char *who)
 {
 	JabberStream *js;
 	JabberIq *iq;
@@ -1923,7 +1924,8 @@ void jabber_add_deny(PurpleConnection *gc, const char *who)
 	jabber_iq_send(iq);
 }
 
-void jabber_rem_deny(PurpleConnection *gc, const char *who)
+void jabber_remove_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
+                        const char *who)
 {
 	JabberStream *js;
 	JabberIq *iq;
@@ -4163,7 +4165,7 @@ static void
 jabber_protocol_privacy_iface_init(PurpleProtocolPrivacyInterface *privacy_iface)
 {
 	privacy_iface->add_deny = jabber_add_deny;
-	privacy_iface->rem_deny = jabber_rem_deny;
+	privacy_iface->remove_deny = jabber_remove_deny;
 }
 
 static void

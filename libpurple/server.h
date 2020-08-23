@@ -133,22 +133,22 @@ void purple_serv_add_permit(PurpleConnection *gc, const char *name);
 void purple_serv_add_deny(PurpleConnection *gc, const char *name);
 
 /**
- * purple_serv_rem_permit:
+ * purple_serv_remove_permit:
  * @gc:     The connection over which to send the typing notification.
  * @name:   The name of the remote user.
  *
  * Remove the buddy from the required authorized list.
  */
-void purple_serv_rem_permit(PurpleConnection *gc, const char *name);
+void purple_serv_remove_permit(PurpleConnection *gc, const char *name);
 
 /**
- * purple_serv_rem_deny:
+ * purple_serv_remove_deny:
  * @gc:     The connection over which to send the typing notification.
  * @name:   The name of the remote user.
  *
  * Remove the buddy from the required blocked list.
  */
-void purple_serv_rem_deny(PurpleConnection *gc, const char *name);
+void purple_serv_remove_deny(PurpleConnection *gc, const char *name);
 
 /**
  * purple_serv_set_permit_deny:
