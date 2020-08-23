@@ -268,6 +268,7 @@ libpurple/proxy.c
 libpurple/purple-gio.c
 libpurple/purplechatuser.c
 libpurple/purpleimconversation.c
+libpurple/purpleprotocolprivacy.c
 libpurple/queuedoutputstream.c
 libpurple/request.c
 libpurple/request-datasheet.c

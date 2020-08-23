@@ -3067,7 +3067,8 @@ novell_set_status(PurpleAccount *account, PurpleStatus *status)
 }
 
 static void
-novell_add_permit(PurpleConnection *gc, const char *who)
+novell_add_permit(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
+                  const char *who)
 {
 	NMUser *user;
 	NMERR_T rc = NM_OK;
@@ -3112,7 +3113,8 @@ novell_add_permit(PurpleConnection *gc, const char *who)
 }
 
 static void
-novell_add_deny(PurpleConnection *gc, const char *who)
+novell_add_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
+                const char *who)
 {
 	NMUser *user;
 	NMERR_T rc = NM_OK;
@@ -3157,7 +3159,8 @@ novell_add_deny(PurpleConnection *gc, const char *who)
 }
 
 static void
-novell_rem_permit(PurpleConnection *gc, const char *who)
+novell_remove_permit(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
+                     const char *who)
 {
 	NMUser *user;
 	NMERR_T rc = NM_OK;
@@ -3187,7 +3190,8 @@ novell_rem_permit(PurpleConnection *gc, const char *who)
 }
 
 static void
-novell_rem_deny(PurpleConnection *gc, const char *who)
+novell_remove_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
+                   const char *who)
 {
 	NMUser *user;
 	NMERR_T rc = NM_OK;
@@ -3217,7 +3221,7 @@ novell_rem_deny(PurpleConnection *gc, const char *who)
 }
 
 static void
-novell_set_permit_deny(PurpleConnection *gc)
+novell_set_permit_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc)
 {
 	NMERR_T rc = NM_OK;
 	const char *dn, *name = NULL;
@@ -3556,8 +3560,8 @@ novell_protocol_privacy_iface_init(PurpleProtocolPrivacyInterface *privacy_iface
 {
 	privacy_iface->add_permit      = novell_add_permit;
 	privacy_iface->add_deny        = novell_add_deny;
-	privacy_iface->rem_permit      = novell_rem_permit;
-	privacy_iface->rem_deny        = novell_rem_deny;
+	privacy_iface->remove_permit   = novell_remove_permit;
+	privacy_iface->remove_deny     = novell_remove_deny;
 	privacy_iface->set_permit_deny = novell_set_permit_deny;
 }
 

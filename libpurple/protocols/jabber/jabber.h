@@ -407,8 +407,8 @@ void jabber_blocklist_parse_push(JabberStream *js, const char *from,
                                  JabberIqType type, const char *id,
                                  PurpleXmlNode *child);
 void jabber_request_block_list(JabberStream *js);
-void jabber_add_deny(PurpleConnection *gc, const char *who);
-void jabber_rem_deny(PurpleConnection *gc, const char *who);
+void jabber_add_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc, const char *who);
+void jabber_remove_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc, const char *who);
 void jabber_keepalive(PurpleConnection *gc);
 void jabber_register_gateway(JabberStream *js, const char *gateway);
 void jabber_register_account(PurpleAccount *account);

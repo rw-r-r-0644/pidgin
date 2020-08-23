@@ -2335,9 +2335,10 @@ purple_account_privacy_permit_remove(PurpleAccount *account, const char *who,
 	name = purple_normalize(account, who);
 
 	l = g_slist_find_custom(priv->permit, name, (GCompareFunc)g_strcmp0);
-	if (l == NULL)
+	if (l == NULL) {
 		/* We didn't find the buddy we were looking for, so bail out */
 		return FALSE;
+	}
 
 	/* We should not free l->data just yet. There can be occasions where
 	 * l->data == who. In such cases, freeing l->data here can cause crashes
@@ -2345,11 +2346,13 @@ purple_account_privacy_permit_remove(PurpleAccount *account, const char *who,
 	del = l->data;
 	priv->permit = g_slist_delete_link(priv->permit, l);
 
-	if (!local_only && purple_account_is_connected(account))
-		purple_serv_rem_permit(purple_account_get_connection(account), who);
+	if (!local_only && purple_account_is_connected(account)) {
+		purple_serv_remove_permit(purple_account_get_connection(account), who);
+	}
 
-	if (ui_ops != NULL && ui_ops->permit_removed != NULL)
+	if (ui_ops != NULL && ui_ops->permit_removed != NULL) {
 		ui_ops->permit_removed(account, who);
+	}
 
 	purple_blist_save_account(purple_blist_get_default(), account);
 
@@ -2419,20 +2422,23 @@ purple_account_privacy_deny_remove(PurpleAccount *account, const char *who,
 	normalized = purple_normalize(account, who);
 
 	l = g_slist_find_custom(priv->deny, normalized, (GCompareFunc)g_strcmp0);
-	if (l == NULL)
+	if (l == NULL) {
 		/* We didn't find the buddy we were looking for, so bail out */
 		return FALSE;
+	}
 
 	buddy = purple_blist_find_buddy(account, normalized);
 
 	name = l->data;
 	priv->deny = g_slist_delete_link(priv->deny, l);
 
-	if (!local_only && purple_account_is_connected(account))
-		purple_serv_rem_deny(purple_account_get_connection(account), name);
+	if (!local_only && purple_account_is_connected(account)) {
+		purple_serv_remove_deny(purple_account_get_connection(account), name);
+	}
 
-	if (ui_ops != NULL && ui_ops->deny_removed != NULL)
+	if (ui_ops != NULL && ui_ops->deny_removed != NULL) {
 		ui_ops->deny_removed(account, who);
+	}
 
 	if (buddy != NULL) {
 		purple_signal_emit(purple_blist_get_handle(),

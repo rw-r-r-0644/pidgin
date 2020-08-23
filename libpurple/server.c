@@ -35,6 +35,7 @@
 #include "protocol.h"
 #include "purpleprivate.h"
 #include "purpleprotocolim.h"
+#include "purpleprotocolprivacy.h"
 #include "request.h"
 #include "signals.h"
 #include "server.h"
@@ -350,50 +351,49 @@ void purple_serv_move_buddy(PurpleBuddy *buddy, PurpleGroup *orig, PurpleGroup *
 
 void purple_serv_add_permit(PurpleConnection *gc, const char *name)
 {
-	PurpleProtocol *protocol;
-
 	if (gc) {
-		protocol = purple_connection_get_protocol(gc);
-		purple_protocol_privacy_iface_add_permit(protocol, gc, name);
+		PurpleProtocol *protocol = purple_connection_get_protocol(gc);
+		PurpleProtocolPrivacy *privacy = PURPLE_PROTOCOL_PRIVACY(protocol);
+
+		purple_protocol_privacy_add_permit(privacy, gc, name);
 	}
 }
 
 void purple_serv_add_deny(PurpleConnection *gc, const char *name)
 {
-	PurpleProtocol *protocol;
-
 	if (gc) {
-		protocol = purple_connection_get_protocol(gc);
-		purple_protocol_privacy_iface_add_deny(protocol, gc, name);
+		PurpleProtocol *protocol = purple_connection_get_protocol(gc);
+		PurpleProtocolPrivacy *privacy = PURPLE_PROTOCOL_PRIVACY(protocol);
+
+		purple_protocol_privacy_add_deny(privacy, gc, name);
 	}
 }
 
-void purple_serv_rem_permit(PurpleConnection *gc, const char *name)
+void purple_serv_remove_permit(PurpleConnection *gc, const char *name)
 {
-	PurpleProtocol *protocol;
-
 	if (gc) {
-		protocol = purple_connection_get_protocol(gc);
-		purple_protocol_privacy_iface_rem_permit(protocol, gc, name);
+		PurpleProtocol *protocol = purple_connection_get_protocol(gc);
+		PurpleProtocolPrivacy *privacy = PURPLE_PROTOCOL_PRIVACY(protocol);
+
+		purple_protocol_privacy_remove_permit(privacy, gc, name);
 	}
 }
 
-void purple_serv_rem_deny(PurpleConnection *gc, const char *name)
+void purple_serv_remove_deny(PurpleConnection *gc, const char *name)
 {
-	PurpleProtocol *protocol;
-
 	if (gc) {
-		protocol = purple_connection_get_protocol(gc);
-		purple_protocol_privacy_iface_rem_deny(protocol, gc, name);
+		PurpleProtocol *protocol = purple_connection_get_protocol(gc);
+		PurpleProtocolPrivacy *privacy = PURPLE_PROTOCOL_PRIVACY(protocol);
+
+		purple_protocol_privacy_remove_deny(privacy, gc, name);
 	}
 }
 
 void purple_serv_set_permit_deny(PurpleConnection *gc)
 {
-	PurpleProtocol *protocol;
-
 	if (gc) {
-		protocol = purple_connection_get_protocol(gc);
+		PurpleProtocol *protocol = purple_connection_get_protocol(gc);
+		PurpleProtocolPrivacy *privacy = PURPLE_PROTOCOL_PRIVACY(protocol);
 
 		/*
 		 * this is called when either you import a buddy list, and make lots
@@ -401,7 +401,7 @@ void purple_serv_set_permit_deny(PurpleConnection *gc)
 		 * in the prefs. In either case you should probably be resetting and
 		 * resending the permit/deny info when you get this.
 		 */
-		purple_protocol_privacy_iface_set_permit_deny(protocol, gc);
+		purple_protocol_privacy_set_permit_deny(privacy, gc);
 	}
 }
 

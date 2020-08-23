@@ -190,7 +190,8 @@ static void ggp_action_buddylist_load(PurpleProtocolAction *action)
 
 /* ----- BLOCK BUDDIES -------------------------------------------------- */
 
-static void ggp_add_deny(PurpleConnection *gc, const char *who)
+static void ggp_add_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
+                         const char *who)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	uin_t uin = ggp_str_to_uin(who);
@@ -201,7 +202,8 @@ static void ggp_add_deny(PurpleConnection *gc, const char *who)
 	gg_add_notify_ex(info->session, uin, GG_USER_BLOCKED);
 }
 
-static void ggp_rem_deny(PurpleConnection *gc, const char *who)
+static void ggp_remove_deny(PurpleProtocolPrivacy *privacy,
+                            PurpleConnection *gc, const char *who)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	uin_t uin = ggp_str_to_uin(who);
@@ -1134,7 +1136,7 @@ static void
 ggp_protocol_privacy_iface_init(PurpleProtocolPrivacyInterface *privacy_iface)
 {
 	privacy_iface->add_deny = ggp_add_deny;
-	privacy_iface->rem_deny = ggp_rem_deny;
+	privacy_iface->remove_deny = ggp_remove_deny;
 }
 
 static void
