@@ -1869,60 +1869,6 @@ menu_conv_sel_send_cb(GObject *m, gpointer data)
  * A bunch of buddy icon functions
  **************************************************************************/
 
-static GList *get_protocol_icon_list(PurpleAccount *account)
-{
-	GList *l = NULL;
-	PurpleProtocol *protocol =
-			purple_protocols_find(purple_account_get_protocol_id(account));
-	const char *protoname = purple_protocol_class_list_icon(protocol, account, NULL);
-	l = g_hash_table_lookup(protocol_lists, protoname);
-	if (l)
-		return l;
-
-	l = g_list_prepend(l, pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_LARGE));
-	l = g_list_prepend(l, pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_MEDIUM));
-	l = g_list_prepend(l, pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_SMALL));
-
-	g_hash_table_insert(protocol_lists, g_strdup(protoname), l);
-	return l;
-}
-
-static GList *
-pidgin_conv_get_tab_icons(PurpleConversation *conv)
-{
-	PurpleAccount *account = NULL;
-	const char *name = NULL;
-
-	g_return_val_if_fail(conv != NULL, NULL);
-
-	account = purple_conversation_get_account(conv);
-	name = purple_conversation_get_name(conv);
-
-	g_return_val_if_fail(account != NULL, NULL);
-	g_return_val_if_fail(name != NULL, NULL);
-
-	/* Use the buddy icon, if possible */
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		PurpleBuddy *b = purple_blist_find_buddy(account, name);
-		if (b != NULL) {
-			PurplePresence *p;
-			p = purple_buddy_get_presence(b);
-			if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_AWAY))
-				return away_list;
-			if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_UNAVAILABLE))
-				return busy_list;
-			if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_EXTENDED_AWAY))
-				return xa_list;
-			if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_OFFLINE))
-				return offline_list;
-			else
-				return available_list;
-		}
-	}
-
-	return get_protocol_icon_list(account);
-}
-
 static const char *
 pidgin_conv_get_icon_stock(PurpleConversation *conv)
 {
@@ -2002,8 +1948,6 @@ static void
 update_tab_icon(PurpleConversation *conv)
 {
 	PidginConversation *gtkconv;
-	PidginConvWindow *win;
-	GList *l;
 	GdkPixbuf *emblem = NULL;
 	const char *status = NULL;
 	const char *infopane_status = NULL;
@@ -2011,7 +1955,6 @@ update_tab_icon(PurpleConversation *conv)
 	g_return_if_fail(conv != NULL);
 
 	gtkconv = PIDGIN_CONVERSATION(conv);
-	win = gtkconv->win;
 	if (conv != gtkconv->active_conv)
 		return;
 
@@ -2053,14 +1996,6 @@ update_tab_icon(PurpleConversation *conv)
 	/* XXX seanegan Why do I have to do this? */
 	gtk_widget_queue_resize(gtkconv->infopane);
 	gtk_widget_queue_draw(gtkconv->infopane);
-
-	if (pidgin_conv_window_is_active_conversation(conv) &&
-		(!PURPLE_IS_IM_CONVERSATION(conv) || gtkconv->u.im->anim == NULL))
-	{
-		l = pidgin_conv_get_tab_icons(conv);
-
-		gtk_window_set_icon_list(GTK_WINDOW(win->window), l);
-	}
 }
 
 static gboolean
@@ -4958,8 +4893,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 	PurpleConversation *conv = gtkconv->active_conv;
 	PurpleConnection *gc;
 	PurpleProtocol *protocol = NULL;
-	GdkPixbuf *window_icon = NULL;
-//	PidginWebViewButtons buttons;
 	PurpleAccount *account;
 
 	win     = pidgin_conv_get_window(gtkconv);
@@ -5128,34 +5061,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 		gtk_action_set_sensitive(win->menu->remove, FALSE);
 		gtk_action_set_sensitive(win->menu->insert_link, TRUE);
 		gtk_action_set_sensitive(win->menu->insert_image, FALSE);
-	}
-
-	/*
-	 * Update the window's icon
-	 */
-	if (pidgin_conv_window_is_active_conversation(conv))
-	{
-		GList *l = NULL;
-		if (PURPLE_IS_IM_CONVERSATION(conv) &&
-				(gtkconv->u.im->anim))
-		{
-			PurpleBuddy *buddy = purple_blist_find_buddy(purple_conversation_get_account(conv), purple_conversation_get_name(conv));
-			window_icon =
-				gdk_pixbuf_animation_get_static_image(gtkconv->u.im->anim);
-
-			if (buddy &&  !PURPLE_BUDDY_IS_ONLINE(buddy))
-				gdk_pixbuf_saturate_and_pixelate(window_icon, window_icon, 0.0, FALSE);
-
-			g_object_ref(window_icon);
-			l = g_list_append(l, window_icon);
-		} else {
-			l = pidgin_conv_get_tab_icons(conv);
-		}
-		gtk_window_set_icon_list(GTK_WINDOW(win->window), l);
-		if (window_icon != NULL) {
-			g_object_unref(G_OBJECT(window_icon));
-			g_list_free(l);
-		}
 	}
 }
 
@@ -5863,18 +5768,6 @@ show_buddy_icons_pref_cb(const char *name, PurplePrefType type,
 }
 
 static void
-show_protocol_icons_pref_cb(const char *name, PurplePrefType type,
-						gconstpointer value, gpointer data)
-{
-	GList *l;
-	for (l = purple_conversations_get_all(); l != NULL; l = l->next) {
-		PurpleConversation *conv = l->data;
-		if (PIDGIN_CONVERSATION(conv))
-			update_tab_icon(conv);
-	}
-}
-
-static void
 account_status_changed_cb(PurpleAccount *account, PurpleStatus *oldstatus,
                           PurpleStatus *newstatus)
 {
@@ -6362,8 +6255,6 @@ pidgin_conversations_init(void)
 								animate_buddy_icons_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons",
 								show_buddy_icons_pref_cb, NULL);
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/blist/show_protocol_icons",
-								show_protocol_icons_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/im/hide_new",
 								hide_new_pref_cb, NULL);
 
