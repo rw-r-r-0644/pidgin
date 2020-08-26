@@ -25,6 +25,8 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gst/gst.h>
+
 #include <talkatu.h>
 
 #include "package_revision.h"
@@ -40,10 +42,6 @@
 #include "pidgincore.h"
 #include "pidginlog.h"
 #include "pidginstock.h"
-
-#ifdef USE_GSTREAMER
-#include <gst/gst.h>
-#endif
 
 static GList *dialogwindows = NULL;
 

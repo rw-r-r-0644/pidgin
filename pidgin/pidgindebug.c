@@ -834,9 +834,7 @@ pidgin_debug_ui_init(PidginDebugUi *self)
 	REGISTER_G_LOG_HANDLER("Json");
 	REGISTER_G_LOG_HANDLER("libsoup");
 	REGISTER_G_LOG_HANDLER("Talkatu");
-#ifdef USE_GSTREAMER
 	REGISTER_G_LOG_HANDLER("GStreamer");
-#endif
 
 #ifdef _WIN32
 	if (!purple_debug_is_enabled())

@@ -391,9 +391,7 @@ finch_debug_ui_init(FinchDebugUi *self)
 	REGISTER_G_LOG_HANDLER("GLib-GObject");
 	REGISTER_G_LOG_HANDLER("GThread");
 	REGISTER_G_LOG_HANDLER("Gnt");
-#ifdef USE_GSTREAMER
 	REGISTER_G_LOG_HANDLER("GStreamer");
-#endif
 	REGISTER_G_LOG_HANDLER("stderr");
 
 	g_set_print_handler(print_stderr);   /* Redirect the debug messages to stderr */

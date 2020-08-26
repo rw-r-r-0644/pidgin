@@ -28,10 +28,8 @@
 #include "media.h"
 #include "mediamanager.h"
 
-#ifdef USE_GSTREAMER
 #include "media-gst.h"
 #include <media/backend-fs2.h>
-#endif /* USE_GSTREAMER */
 
 #ifdef USE_VV
 #include <farstream/fs-element-added-notifier.h>
@@ -53,16 +51,11 @@ struct _PurpleMediaOutputWindow
 	gchar *session_id;
 	gchar *participant;
 	gulong window_id;
-#ifdef USE_GSTREAMER
 	GstElement *sink;
-#else
-	gpointer sink;
-#endif
 };
 
 typedef struct
 {
-#ifdef USE_GSTREAMER
 	GstElement *pipeline;
 	PurpleMediaCaps ui_caps;
 	GList *medias;
@@ -87,7 +80,6 @@ typedef struct
 	GList *appdata_info; /* holds PurpleMediaAppDataInfo */
 	GMutex appdata_mutex;
 	guint appdata_cb_token; /* last used read/write callback token */
-#endif
 #endif
 } PurpleMediaManagerPrivate;
 

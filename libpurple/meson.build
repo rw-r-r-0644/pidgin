@@ -26,6 +26,7 @@ purple_coresources = [
 	'image-store.c',
 	'keyring.c',
 	'log.c',
+	'media/backend-fs2.c',
 	'media/backend-iface.c',
 	'media/candidate.c',
 	'media/codec.c',
@@ -165,9 +166,6 @@ purple_coreheaders = [
 purple_filebase = 'purple-@0@'.format(purple_major_version)
 purple_include_base = join_paths(purple_filebase, 'libpurple')
 
-if gstreamer.found()
-	purple_coresources += 'media/backend-fs2.c'
-endif
 if enable_vv
 	purple_coreheaders += 'media-gst.h'
 endif
@@ -300,10 +298,7 @@ if enable_introspection
 	introspection_sources = (purple_coreheaders + purple_builtheaders +
 	                         purple_mediaheaders)
 
-	Purple_gir_includes = ['GObject-2.0', 'Gio-2.0', gplugin_gir]
-	if gstreamer.found()
-		Purple_gir_includes += ['Gst-1.0']
-	endif
+	Purple_gir_includes = ['GObject-2.0', 'Gio-2.0', 'Gst-1.0', gplugin_gir]
 
 	libpurple_gir = gnome.generate_gir(libpurple,
 	    sources : introspection_sources,

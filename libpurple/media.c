@@ -27,10 +27,8 @@
 
 #include "debug.h"
 
-#ifdef USE_GSTREAMER
 #include "media/backend-fs2.h"
 #include "media-gst.h"
-#endif /* USE_GSTREAMER */
 
 #ifdef USE_VV
 /** @copydoc _PurpleMediaSession */

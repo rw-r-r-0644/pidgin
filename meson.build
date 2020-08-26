@@ -355,19 +355,14 @@ libsoup = dependency('libsoup-2.4', version : '>= 2.42')
 # Check for GStreamer
 #######################################################################
 
-gstreamer = dependency('gstreamer-1.0', required : get_option('gstreamer'))
-conf.set('USE_GSTREAMER', gstreamer.found())
+gstreamer = dependency('gstreamer-1.0')
 
 #######################################################################
 # Check for GStreamer Video
 #######################################################################
-if gstreamer.found()
-	gstreamer_video = dependency('gstreamer-video-1.0',
-	                             required : get_option('gstreamer-video'))
-	conf.set('USE_GSTVIDEO', gstreamer_video.found())
-else
-	gstreamer_video = []
-endif
+gstreamer_video = dependency('gstreamer-video-1.0',
+                             required : get_option('gstreamer-video'))
+conf.set('USE_GSTVIDEO', gstreamer_video.found())
 
 #######################################################################
 # Check for Farstream
@@ -379,7 +374,7 @@ farstream = dependency('farstream-0.2', version : '>= 0.2.7',
 # Check for Voice and Video support
 #######################################################################
 if get_option('vv').enabled() or get_option('vv').auto()
-	if gstreamer.found() and gstreamer_video.found() and farstream.found()
+	if gstreamer_video.found() and farstream.found()
 		conf.set('USE_VV', true)
 		enable_vv = true
 	else
@@ -786,7 +781,6 @@ message('Build for X11................. : ' + x11.found().to_string())
 message('')
 message('Protocols to build dynamically : @0@'.format(DYNAMIC_PRPLS))
 message('')
-message('Build with GStreamer support.. : ' + gstreamer.found().to_string())
 message('Build with voice and video.... : ' + enable_vv.to_string())
 message('Build with Nettle support..... : ' + nettle.found().to_string())
 message('Build with Cyrus SASL support. : ' + sasl.found().to_string())
