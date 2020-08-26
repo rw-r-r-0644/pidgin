@@ -57,10 +57,20 @@ typedef GPluginPlugin PurplePlugin;
 
 typedef GPluginPluginInterface PurplePluginInterface;
 
-#define PURPLE_TYPE_PLUGIN_INFO             (purple_plugin_info_get_type())
+/**
+ * PURPLE_TYPE_PLUGIN_INFO:
+ *
+ * The standard _get_type macro for #PurplePluginInfo.
+ */
+#define PURPLE_TYPE_PLUGIN_INFO (purple_plugin_info_get_type())
 typedef struct _PurplePluginInfo PurplePluginInfo;
 
-#define PURPLE_TYPE_PLUGIN_ACTION  (purple_plugin_action_get_type())
+/**
+ * PURPLE_TYPE_PLUGIN_ACTION:
+ *
+ * The standard _get_type macro for #PurplePluginAction.
+ */
+#define PURPLE_TYPE_PLUGIN_ACTION (purple_plugin_action_get_type())
 typedef struct _PurplePluginAction PurplePluginAction;
 
 #include "pluginpref.h"

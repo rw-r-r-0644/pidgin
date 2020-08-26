@@ -42,6 +42,11 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_QUEUED_OUTPUT_STREAM:
+ *
+ * The standard _get_type macro for #PurpleQueuedOutputStream.
+ */
 #define PURPLE_TYPE_QUEUED_OUTPUT_STREAM  purple_queued_output_stream_get_type()
 
 G_DECLARE_FINAL_TYPE(PurpleQueuedOutputStream,

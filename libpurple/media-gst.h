@@ -37,7 +37,18 @@
 
 #include <gst/gst.h>
 
+/**
+ * PURPLE_TYPE_MEDIA_ELEMENT_TYPE:
+ *
+ * The standard _get_type macro for #PurpleMediaElementType.
+ */
 #define PURPLE_TYPE_MEDIA_ELEMENT_TYPE  purple_media_element_type_get_type()
+
+/**
+ * PURPLE_TYPE_MEDIA_ELEMENT_INFO:
+ *
+ * The standard _get_type macro for #PurpleMediaElementInfo.
+ */
 #define PURPLE_TYPE_MEDIA_ELEMENT_INFO  purple_media_element_info_get_type()
 
 /**

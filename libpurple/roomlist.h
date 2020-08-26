@@ -32,19 +32,36 @@
  * @title: Room List API
  */
 
+/**
+ * PURPLE_TYPE_ROOMLIST:
+ *
+ * The standard _get_type macro for #PurpleRoomlist.
+ */
 #define PURPLE_TYPE_ROOMLIST (purple_roomlist_get_type())
 typedef struct _PurpleRoomlist PurpleRoomlist;
 
-#define PURPLE_TYPE_ROOMLIST_ROOM        (purple_roomlist_room_get_type())
-
+/**
+ * PURPLE_TYPE_ROOMLIST_ROOM:
+ *
+ * The standard _get_type macro for #PurpleRoomlistRoom.
+ */
+#define PURPLE_TYPE_ROOMLIST_ROOM (purple_roomlist_room_get_type())
 typedef struct _PurpleRoomlistRoom PurpleRoomlistRoom;
 
-#define PURPLE_TYPE_ROOMLIST_FIELD       (purple_roomlist_field_get_type())
-
+/**
+ * PURPLE_TYPE_ROOMLIST_FIELD:
+ *
+ * The standard _get_type macro for #PurpleRoomlistField.
+ */
+#define PURPLE_TYPE_ROOMLIST_FIELD (purple_roomlist_field_get_type())
 typedef struct _PurpleRoomlistField PurpleRoomlistField;
 
-#define PURPLE_TYPE_ROOMLIST_UI_OPS      (purple_roomlist_ui_ops_get_type())
-
+/**
+ * PURPLE_TYPE_ROOMLIST_UI_OPS:
+ *
+ * The standard _get_type macro for #PurpleRoomlistUiOps.
+ */
+#define PURPLE_TYPE_ROOMLIST_UI_OPS (purple_roomlist_ui_ops_get_type())
 typedef struct _PurpleRoomlistUiOps PurpleRoomlistUiOps;
 
 /**

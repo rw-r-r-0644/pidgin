@@ -48,6 +48,11 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_SMILEY:
+ *
+ * The standard _get_type macro for #PurpleSmiley.
+ */
 #define PURPLE_TYPE_SMILEY  purple_smiley_get_type()
 
 /**

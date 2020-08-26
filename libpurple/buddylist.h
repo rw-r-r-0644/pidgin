@@ -38,9 +38,19 @@
 
 #include "buddy.h"
 
+/**
+ * PURPLE_TYPE_BUDDY_LIST:
+ *
+ * The standard _get_type macro for #PurpleBuddyList.
+ */
 #define PURPLE_TYPE_BUDDY_LIST (purple_buddy_list_get_type())
 typedef struct _PurpleBuddyList PurpleBuddyList;
 
+/**
+ * PURPLE_BLIST_DEFAULT_GROUP_NAME:
+ *
+ * A helper to get the default group name for the buddy list.
+ */
 #define PURPLE_BLIST_DEFAULT_GROUP_NAME (purple_blist_get_default_group_name())
 
 #include "chat.h"

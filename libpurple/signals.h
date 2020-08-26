@@ -36,7 +36,13 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define PURPLE_CALLBACK(func) ((PurpleCallback)func)
+/**
+ * PURPLE_CALLBACK:
+ * @func: a function pointer.
+ *
+ * Cast a function pointer to #PurpleCallback.
+ */
+#define PURPLE_CALLBACK(func) ((PurpleCallback)(func))
 
 typedef void (*PurpleCallback)(void);
 typedef void (*PurpleSignalMarshalFunc)(PurpleCallback cb, va_list args,

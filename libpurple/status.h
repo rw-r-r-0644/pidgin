@@ -33,10 +33,20 @@
  * @title: Status Object API
  */
 
-#define PURPLE_TYPE_STATUS             (purple_status_get_type())
-typedef struct _PurpleStatus           PurpleStatus;
+/**
+ * PURPLE_TYPE_STATUS:
+ *
+ * The standard _get_type macro for #PurpleStatus.
+ */
+#define PURPLE_TYPE_STATUS (purple_status_get_type())
+typedef struct _PurpleStatus PurpleStatus;
 
-#define PURPLE_TYPE_STATUS_TYPE        (purple_status_type_get_type())
+/**
+ * PURPLE_TYPE_STATUS_TYPE:
+ *
+ * The standard _get_type macro for #PurpleStatusType.
+ */
+#define PURPLE_TYPE_STATUS_TYPE (purple_status_type_get_type())
 
 /**
  * PurpleStatusType:
@@ -50,13 +60,22 @@ typedef struct _PurpleStatus           PurpleStatus;
  * hardcoded in each protocol and will not change often.  And because
  * they are hardcoded, they do not need to be saved to any XML file.
  */
-typedef struct _PurpleStatusType       PurpleStatusType;
+typedef struct _PurpleStatusType PurpleStatusType;
 
-#define PURPLE_TYPE_STATUS_ATTRIBUTE   (purple_status_attribute_get_type())
+/**
+ * PURPLE_TYPE_STATUS_ATTRIBUTE:
+ *
+ * The standard _get_type macro for #PurpleStatusAttribute.
+ */
+#define PURPLE_TYPE_STATUS_ATTRIBUTE (purple_status_attribute_get_type())
+typedef struct _PurpleStatusAttribute PurpleStatusAttribute;
 
-typedef struct _PurpleStatusAttribute  PurpleStatusAttribute;
-
-#define PURPLE_TYPE_MOOD               (purple_mood_get_type())
+/**
+ * PURPLE_TYPE_MOOD:
+ *
+ * The standard _get_type macro for #PurpleMood.
+ */
+#define PURPLE_TYPE_MOOD (purple_mood_get_type())
 
 typedef struct {
 	const char *mood;
@@ -102,16 +121,75 @@ typedef enum
 
 #include "presence.h"
 
-#define PURPLE_TUNE_ARTIST	"tune_artist"
-#define PURPLE_TUNE_TITLE	"tune_title"
-#define PURPLE_TUNE_ALBUM	"tune_album"
-#define PURPLE_TUNE_GENRE	"tune_genre"
-#define PURPLE_TUNE_COMMENT	"tune_comment"
-#define PURPLE_TUNE_TRACK	"tune_track"
-#define PURPLE_TUNE_TIME	"tune_time"
-#define PURPLE_TUNE_YEAR	"tune_year"
-#define PURPLE_TUNE_URL		"tune_url"
-#define PURPLE_TUNE_FULL	"tune_full"
+/**
+ * PURPLE_TUNE_ALBUM:
+ *
+ * A constant for a status attribute that represents the album of a song.
+ */
+#define PURPLE_TUNE_ALBUM "tune_album"
+
+/**
+ * PURPLE_TUNE_ARTIST:
+ *
+ * A constant for a status attribute that represents the artists of a song.
+ */
+#define PURPLE_TUNE_ARTIST "tune_artist"
+
+/**
+ * PURPLE_TUNE_COMMENT:
+ *
+ * A constant for a status attribute that represents the comment of a song.
+ */
+#define PURPLE_TUNE_COMMENT "tune_comment"
+
+/**
+ * PURPLE_TUNE_FULL:
+ *
+ * A constant for a status attribute that represents the full details of a song.
+ */
+#define PURPLE_TUNE_FULL "tune_full"
+
+/**
+ * PURPLE_TUNE_GENRE:
+ *
+ * A constant for a status attribute that represents the genre of a song.
+ */
+#define PURPLE_TUNE_GENRE "tune_genre"
+
+/**
+ * PURPLE_TUNE_TIME:
+ *
+ * A constant for a status attribute that represents the duration of a song.
+ */
+#define PURPLE_TUNE_TIME "tune_time"
+
+/**
+ * PURPLE_TUNE_TITLE:
+ *
+ * A constant for a status attribute that represents the title of a song.
+ */
+#define PURPLE_TUNE_TITLE "tune_title"
+
+/**
+ * PURPLE_TUNE_TRACK:
+ *
+ * A constant for a status attribute that represents the track number of a song.
+ */
+#define PURPLE_TUNE_TRACK "tune_track"
+
+/**
+ * PURPLE_TUNE_URL:
+ *
+ * A constant for a status attribute that represents the url of a song.
+ */
+#define PURPLE_TUNE_URL "tune_url"
+
+/**
+ * PURPLE_TUNE_YEAR:
+ *
+ * A constant for a status attribute that represents the release year of a song.
+ */
+#define PURPLE_TUNE_YEAR "tune_year"
 
 #define PURPLE_MOOD_NAME	"mood"
 #define PURPLE_MOOD_COMMENT	"moodtext"

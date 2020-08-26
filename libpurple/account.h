@@ -25,6 +25,7 @@
 
 #ifndef PURPLE_ACCOUNT_H
 #define PURPLE_ACCOUNT_H
+
 /**
  * SECTION:account
  * @section_id: libpurple-account
@@ -35,6 +36,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
+/**
+ * PURPLE_TYPE_ACCOUNT:
+ *
+ * The standard _get_type macro for #PurpleAccount.
+ */
 #define PURPLE_TYPE_ACCOUNT             (purple_account_get_type())
 
 typedef struct _PurpleAccount       PurpleAccount;

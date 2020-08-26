@@ -83,6 +83,11 @@ G_BEGIN_DECLS
 /* PurplePresence API                                                     */
 /**************************************************************************/
 
+/**
+ * PURPLE_TYPE_PRESENCE:
+ *
+ * The standard _get_type macro for #PurplePresence.
+ */
 #define PURPLE_TYPE_PRESENCE  purple_presence_get_type()
 
 /**
@@ -263,6 +268,11 @@ time_t purple_presence_get_login_time(PurplePresence *presence);
 /* PurpleAccountPresence API                                              */
 /**************************************************************************/
 
+/**
+ * PURPLE_TYPE_ACCOUNT_PRESENCE:
+ *
+ * The standard _get_type macro for #PurpleAccountPresence.
+ */
 #define PURPLE_TYPE_ACCOUNT_PRESENCE (purple_account_presence_get_type())
 
 /**
@@ -299,6 +309,11 @@ PurpleAccount *purple_account_presence_get_account(PurpleAccountPresence *presen
 /* PurpleBuddyPresence API                                                */
 /**************************************************************************/
 
+/**
+ * PURPLE_TYPE_BUDDY_PRESENCE:
+ *
+ * The standard _get_type macro for #PurpleBuddyPresence.
+ */
 #define PURPLE_TYPE_BUDDY_PRESENCE (purple_buddy_presence_get_type())
 
 /**

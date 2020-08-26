@@ -44,9 +44,12 @@
 #define PURPLE_IS_CONVERSATION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), PURPLE_TYPE_CONVERSATION))
 #define PURPLE_CONVERSATION_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), PURPLE_TYPE_CONVERSATION, PurpleConversationClass))
 
+/**
+ * PURPLE_TYPE_CONVERSATION_UI_OPS:
+ *
+ * The standard _get_type macro for #PurpleConversationUiOps.
+ */
 #define PURPLE_TYPE_CONVERSATION_UI_OPS      (purple_conversation_ui_ops_get_type())
-
-#define PURPLE_TYPE_CONVERSATION_MESSAGE     (purple_conversation_message_get_type())
 
 /**************************************************************************/
 /* Data Structures                                                        */

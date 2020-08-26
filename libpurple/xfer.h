@@ -33,6 +33,11 @@
  * @see_also: <link linkend="chapter-signals-xfer">File Transfer signals</link>
  */
 
+/**
+ * PURPLE_TYPE_XFER_UI_OPS:
+ *
+ * The standard _get_type macro for #PurpleXferUiOps.
+ */
 #define PURPLE_TYPE_XFER_UI_OPS      (purple_xfer_ui_ops_get_type())
 
 /**************************************************************************/
@@ -88,8 +93,12 @@ typedef enum
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_XFER:
+ *
+ * The standard _get_type macro for #PurpleXfer.
+ */
 #define PURPLE_TYPE_XFER             (purple_xfer_get_type())
-
 G_DECLARE_DERIVABLE_TYPE(PurpleXfer, purple_xfer, PURPLE, XFER, GObject)
 
 /**
@@ -796,6 +805,12 @@ PurpleXferUiOps *purple_xfers_get_ui_ops(void);
 /******************************************************************************
  * Protocol Interface
  *****************************************************************************/
+
+/**
+ * PURPLE_TYPE_PROTOCOL_XFER:
+ *
+ * The standard _get_type macro for #PurpleProtocolXfer.
+ */
 #define PURPLE_TYPE_PROTOCOL_XFER (purple_protocol_xfer_get_type())
 
 /**

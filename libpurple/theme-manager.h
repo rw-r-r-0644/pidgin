@@ -40,7 +40,12 @@
 
 typedef void (*PurpleThemeFunc) (PurpleTheme *theme);
 
-#define PURPLE_TYPE_THEME_MANAGER  purple_theme_manager_get_type()
+/**
+ * PURPLE_TYPE_THEME_MANAGER:
+ *
+ * The standard _get_type macro for #PurpleThemeManager.
+ */
+#define PURPLE_TYPE_THEME_MANAGER purple_theme_manager_get_type()
 
 /**************************************************************************/
 /* Purple Theme Manager API                                               */

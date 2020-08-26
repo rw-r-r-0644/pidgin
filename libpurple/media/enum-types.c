@@ -200,7 +200,7 @@ purple_media_session_type_get_type()
  */
 
 GType
-purple_media_state_changed_get_type()
+purple_media_state_get_type()
 {
 	static GType type = 0;
 	if (type == 0) {

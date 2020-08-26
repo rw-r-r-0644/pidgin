@@ -41,6 +41,11 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_MESSAGE:
+ *
+ * The standard _get_type macro for #PurpleMessage.
+ */
 #define PURPLE_TYPE_MESSAGE  purple_message_get_type()
 
 /**
