@@ -27,11 +27,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <errno.h>
+
+#include <purple.h>
+
 #include "utils.h"
 
 #include "gg.h"
-
-#include <purple.h>
 
 uin_t ggp_str_to_uin(const char *str)
 {

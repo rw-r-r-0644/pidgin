@@ -28,6 +28,8 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <errno.h>
+
 #include "message-prpl.h"
 
 #include "gg.h"

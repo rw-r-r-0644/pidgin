@@ -28,9 +28,6 @@ option('pixmaps-install', type : 'boolean', value : true,
 option('farstream', type : 'feature',
        description : 'compile with farstream support')
 
-option('gstreamer', type : 'feature',
-       description : 'compile with GStreamer audio support')
-
 option('gstreamer-video', type : 'feature',
        description : 'compile with GStreamer 1.0 Video Overlay support')
 
