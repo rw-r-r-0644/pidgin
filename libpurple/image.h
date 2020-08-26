@@ -44,6 +44,11 @@
 
 #include <glib-object.h>
 
+/**
+ * PURPLE_TYPE_IMAGE:
+ *
+ * The standard _get_type macro for #PurpleImage.
+ */
 #define PURPLE_TYPE_IMAGE  purple_image_get_type()
 
 struct _PurpleImageClass {

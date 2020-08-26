@@ -55,7 +55,12 @@
 
 #include <glib-object.h>
 
-#define PURPLE_TYPE_TRIE  purple_trie_get_type()
+/**
+ * PURPLE_TYPE_TRIE:
+ *
+ * The standard _get_type macro for #PurpleTrie.
+ */
+#define PURPLE_TYPE_TRIE purple_trie_get_type()
 
 /**
  * PurpleTrieReplaceCb:

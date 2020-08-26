@@ -51,6 +51,11 @@ typedef struct _PurpleAttentionType PurpleAttentionType;
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_PROTOCOL_ATTENTION:
+ *
+ * The standard _get_type macro for #PurpleProtocolAttention.
+ */
 #define PURPLE_TYPE_PROTOCOL_ATTENTION (purple_protocol_attention_get_type())
 
 /******************************************************************************

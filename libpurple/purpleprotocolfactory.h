@@ -45,6 +45,11 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_PROTOCOL_FACTORY:
+ *
+ * The standard _get_type macro for #PurpleProtocolFactory.
+ */
 #define PURPLE_TYPE_PROTOCOL_FACTORY (purple_protocol_factory_iface_get_type())
 G_DECLARE_INTERFACE(PurpleProtocolFactory, purple_protocol_factory, PURPLE,
                     PROTOCOL_FACTORY, GObject)

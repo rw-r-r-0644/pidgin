@@ -39,6 +39,11 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_UI_INFO:
+ *
+ * The standard _get_type macro for #PurpleUiInfo.
+ */
 #define PURPLE_TYPE_UI_INFO (purple_ui_info_get_type())
 G_DECLARE_FINAL_TYPE(PurpleUiInfo, purple_ui_info, PURPLE, UI_INFO, GObject)
 

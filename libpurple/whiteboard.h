@@ -32,9 +32,19 @@
  * @title: Whiteboard Object
  */
 
+/**
+ * PURPLE_TYPE_WHITEBOARD:
+ *
+ * The standard _get_type macro for #PurpleWhiteboard.
+ */
 #define PURPLE_TYPE_WHITEBOARD (purple_whiteboard_get_type())
 typedef struct _PurpleWhiteboard PurpleWhiteboard;
 
+/**
+ * PURPLE_TYPE_WHITEBOARD_UI_OPS:
+ *
+ * The standard _get_type macro for #PurpleWhiteboardUiOps.
+ */
 #define PURPLE_TYPE_WHITEBOARD_UI_OPS      (purple_whiteboard_ui_ops_get_type())
 
 typedef struct _PurpleWhiteboardUiOps PurpleWhiteboardUiOps;

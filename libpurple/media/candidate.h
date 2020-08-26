@@ -38,6 +38,11 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_MEDIA_CANDIDATE:
+ *
+ * The standard _get_type macro for #PurpleMediaCandidate.
+ */
 #define PURPLE_TYPE_MEDIA_CANDIDATE  purple_media_candidate_get_type()
 
 /**

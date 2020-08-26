@@ -66,6 +66,11 @@ typedef enum /*< flags >*/
 
 } PurpleChatUserFlags;
 
+/**
+ * PURPLE_TYPE_CHAT_USER:
+ *
+ * The standard _get_type macro for #PurpleChatUser.
+ */
 #define PURPLE_TYPE_CHAT_USER purple_chat_user_get_type()
 
 /**

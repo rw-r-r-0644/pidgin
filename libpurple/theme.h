@@ -35,7 +35,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define PURPLE_TYPE_THEME  purple_theme_get_type()
+/**
+ * PURPLE_TYPE_THEME:
+ *
+ * The standard _get_type macro for #PurpleTheme.
+ */
+#define PURPLE_TYPE_THEME purple_theme_get_type()
 
 struct _PurpleThemeClass
 {

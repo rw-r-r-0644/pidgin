@@ -36,12 +36,47 @@
 
 G_BEGIN_DECLS
 
-#define PURPLE_TYPE_MEDIA_CANDIDATE_TYPE   (purple_media_candidate_type_get_type())
-#define PURPLE_MEDIA_TYPE_CAPS	           (purple_media_caps_get_type())
-#define PURPLE_MEDIA_TYPE_INFO_TYPE	   (purple_media_info_type_get_type())
+/**
+ * PURPLE_TYPE_MEDIA_CANDIDATE_TYPE:
+ *
+ * The standard _get_type macro for #PurpleMediaCandidateType.
+ */
+#define PURPLE_TYPE_MEDIA_CANDIDATE_TYPE (purple_media_candidate_type_get_type())
+
+/**
+ * PURPLE_MEDIA_TYPE_CAPS:
+ *
+ * The standard _get_type macro for #PurpleMediaCaps.
+ */
+#define PURPLE_MEDIA_TYPE_CAPS (purple_media_caps_get_type())
+
+/**
+ * PURPLE_MEDIA_TYPE_INFO_TYPE:
+ *
+ * The standard _get_type macro for #PurpleMediaInfoType.
+ */
+#define PURPLE_MEDIA_TYPE_INFO_TYPE (purple_media_info_type_get_type())
+
+/**
+ * PURPLE_TYPE_MEDIA_NETWORK_PROTOCOL:
+ *
+ * The standard _get_type macro for #PurpleMediaNetworkProtocol.
+ */
 #define PURPLE_TYPE_MEDIA_NETWORK_PROTOCOL (purple_media_network_protocol_get_type())
-#define PURPLE_TYPE_MEDIA_SESSION_TYPE     (purple_media_session_type_get_type())
-#define PURPLE_MEDIA_TYPE_STATE            (purple_media_state_changed_get_type())
+
+/**
+ * PURPLE_TYPE_MEDIA_SESSION_TYPE:
+ *
+ * The standard _get_type macro for #PurpleMediaSessionType.
+ */
+#define PURPLE_TYPE_MEDIA_SESSION_TYPE (purple_media_session_type_get_type())
+
+/**
+ * PURPLE_MEDIA_TYPE_STATE:
+ *
+ * The standard _get_type macro for #PurpleMediaState.
+ */
+#define PURPLE_MEDIA_TYPE_STATE (purple_media_state_get_type())
 
 /**
  * PurpleMediaCandidateType:
@@ -188,13 +223,13 @@ GType purple_media_network_protocol_get_type(void);
 GType purple_media_session_type_get_type(void);
 
 /**
- * purple_media_state_changed_get_type:
+ * purple_media_state_get_type:
  *
- * Gets the type of the state-changed enum
+ * Gets the type of the state enum
  *
- * Returns: The state-changed enum's GType
+ * Returns: The state enum's GType
  */
-GType purple_media_state_changed_get_type(void);
+GType purple_media_state_get_type(void);
 
 G_END_DECLS
 

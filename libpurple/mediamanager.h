@@ -40,7 +40,12 @@ typedef struct _PurpleMediaManager PurpleMediaManager;
 #include "account.h"
 #include "media.h"
 
-#define PURPLE_TYPE_MEDIA_MANAGER  purple_media_manager_get_type()
+/**
+ * PURPLE_TYPE_MEDIA_MANAGER:
+ *
+ * The standard _get_type macro for #PurpleMediaManager.
+ */
+#define PURPLE_TYPE_MEDIA_MANAGER purple_media_manager_get_type()
 
 /**
  * PurpleMediaManagerClass:

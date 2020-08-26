@@ -36,6 +36,11 @@
 #include <glib-object.h>
 #include "theme.h"
 
+/**
+ * PURPLE_TYPE_THEME_LOADER:
+ *
+ * The standard _get_type macro for #PurpleThemeLoader.
+ */
 #define PURPLE_TYPE_THEME_LOADER  purple_theme_loader_get_type()
 
 struct _PurpleThemeLoaderClass

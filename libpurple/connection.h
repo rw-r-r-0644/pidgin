@@ -35,16 +35,28 @@
 
 #include <glib.h>
 
+/**
+ * PURPLE_TYPE_CONNECTION:
+ *
+ * The standard _get_type macro for #PurpleConnection.
+ */
 #define PURPLE_TYPE_CONNECTION  purple_connection_get_type()
-
 typedef struct _PurpleConnection PurpleConnection;
 
+/**
+ * PURPLE_TYPE_CONNECTION_UI_OPS:
+ *
+ * The standard _get_type macro for #PurpleConnectionUiOps.
+ */
 #define PURPLE_TYPE_CONNECTION_UI_OPS  (purple_connection_ui_ops_get_type())
-
 typedef struct _PurpleConnectionUiOps PurpleConnectionUiOps;
 
+/**
+ * PURPLE_TYPE_CONNECTION_ERROR_INFO:
+ *
+ * The standard _get_type macro for #PurpleConnectionErrorInfo.
+ */
 #define PURPLE_TYPE_CONNECTION_ERROR_INFO  (purple_connection_error_info_get_type())
-
 typedef struct _PurpleConnectionErrorInfo PurpleConnectionErrorInfo;
 
 /* This is meant to track use-after-free errors.

@@ -35,6 +35,11 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_CIRCULAR_BUFFER:
+ *
+ * The standard _get_type macro for #PurpleCircularBuffer.
+ */
 #define PURPLE_TYPE_CIRCULAR_BUFFER (purple_circular_buffer_get_type())
 
 G_DECLARE_DERIVABLE_TYPE(PurpleCircularBuffer, purple_circular_buffer, PURPLE,
