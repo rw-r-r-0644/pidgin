@@ -71,6 +71,7 @@
       <xi:include href="xml/purplekeyvaluepair.xml" />
       <xi:include href="xml/purpleprotocolfactory.xml" />
       <xi:include href="xml/purpleprotocolim.xml" />
+      <xi:include href="xml/purpleprotocolmedia.xml" />
       <xi:include href="xml/purpleprotocolprivacy.xml" />
       <xi:include href="xml/purpleuiinfo.xml" />
       <xi:include href="xml/queuedoutputstream.xml" />

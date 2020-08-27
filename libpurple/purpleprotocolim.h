@@ -27,8 +27,8 @@
 #define PURPLE_PROTOCOL_IM_H
 
 /**
- * SECTION:protocolim
- * @section_id: libpurple-protocolim
+ * SECTION:purpleprotocolim
+ * @section_id: libpurple-purpleprotocolim
  * @short_description: Protocol Instant Message Interface
  * @title: ProtocolIM Interface
  */
@@ -47,6 +47,8 @@ G_DECLARE_INTERFACE(PurpleProtocolIM, purple_protocol_im, PURPLE, PROTOCOL_IM,
  * PURPLE_TYPE_PROTOCOL_IM:
  *
  * The standard _get_type method for #PurpleProtocolIM.
+ *
+ * Since: 3.0.0
  */
 
 /**

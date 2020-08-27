@@ -474,54 +474,6 @@ struct _PurpleProtocolChatInterface
 #define PURPLE_PROTOCOL_CHAT_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE((obj), PURPLE_TYPE_PROTOCOL_CHAT, \
                                              PurpleProtocolChatInterface))
 
-
-#define PURPLE_TYPE_PROTOCOL_MEDIA (purple_protocol_media_iface_get_type())
-
-typedef struct _PurpleProtocolMediaInterface PurpleProtocolMediaInterface;
-
-/**
- * PurpleProtocolMediaInterface:
- * @initiate_session: Initiate a media session with the given contact.
- *                    <sbr/>@account: The account to initiate the media session
- *                                    on.
- *                    <sbr/>@who: The remote user to initiate the session with.
- *                    <sbr/>@type: The type of media session to initiate.
- *                    <sbr/>Returns: %TRUE if the call succeeded else %FALSE.
- *                                   (Doesn't imply the media session or stream
- *                                   will be successfully created)
- * @get_caps: Checks to see if the given contact supports the given type of
- *            media session.
- *            <sbr/>@account: The account the contact is on.
- *            <sbr/>@who: The remote user to check for media capability with.
- *            <sbr/>Returns: The media caps the contact supports.
- * @send_dtmf: Sends DTMF codes out-of-band in a protocol-specific way if the
- *             protocol supports it, or failing that in-band if the media backend
- *             can do so. See purple_media_send_dtmf().
- *
- * The protocol media interface.
- *
- * This interface provides callbacks for media sessions on the protocol.
- */
-struct _PurpleProtocolMediaInterface
-{
-	/*< private >*/
-	GTypeInterface parent_iface;
-
-	/*< public >*/
-	gboolean (*initiate_session)(PurpleAccount *account, const char *who,
-					PurpleMediaSessionType type);
-
-	PurpleMediaCaps (*get_caps)(PurpleAccount *account,
-					  const char *who);
-
-	gboolean (*send_dtmf)(PurpleMedia *media, gchar dtmf,
-				    guint8 volume, guint8 duration);
-};
-
-#define PURPLE_IS_PROTOCOL_MEDIA(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), PURPLE_TYPE_PROTOCOL_MEDIA))
-#define PURPLE_PROTOCOL_MEDIA_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE((obj), PURPLE_TYPE_PROTOCOL_MEDIA, \
-                                              PurpleProtocolMediaInterface))
-
 /**
  * PURPLE_PROTOCOL_IMPLEMENTS:
  * @protocol: The protocol in which to check
@@ -987,71 +939,6 @@ char *purple_protocol_chat_iface_get_user_real_name(PurpleProtocol *protocol,
  */
 void purple_protocol_chat_iface_set_topic(PurpleProtocol *protocol,
 		PurpleConnection *gc, int id, const char *topic);
-
-/**************************************************************************/
-/* Protocol Media Interface API                                           */
-/**************************************************************************/
-
-/**
- * purple_protocol_media_iface_get_type:
- *
- * Returns: The #GType for the protocol media interface.
- *
- * Since: 3.0.0
- */
-GType purple_protocol_media_iface_get_type(void);
-
-/**
- * purple_protocol_media_iface_initiate_session:
- * @protocol: The #PurpleProtocol instance.
- * @account: The #PurpleAccount instance.
- * @who: The user to initiate a media session with.
- * @type: The type of media session to create.
- *
- * Initiates a media connection of @type to @who.
- *
- * Returns: TRUE if successful, FALSE otherwise.
- *
- * Since: 3.0.0
- */
-gboolean purple_protocol_media_iface_initiate_session(PurpleProtocol *protocol,
-		PurpleAccount *account, const char *who, PurpleMediaSessionType type);
-
-/**
- * purple_protocol_media_iface_get_caps:
- * @protocol: The #PurpleProtocol instance.
- * @account: The #PurpleAccount instance.
- * @who: The user to get the media capabilites for.
- *
- * Gets the #PurpleMediaCaps for @who which determine what types of media are
- * available.
- *
- * Returns: the media capabilities of @who.
- *
- * Since: 3.0.0
- */
-PurpleMediaCaps purple_protocol_media_iface_get_caps(PurpleProtocol *protocol,
-		PurpleAccount *account, const char *who);
-
-/**
- * purple_protocol_media_iface_send_dtmf:
- * @protocol: The #PurpleProtocol instance.
- * @media: The #PurpleMedia instance.
- * @dtmf: A DTMF to send.
- * @volume: The volume to send @dtmf at.
- * @duration: The duration to send @dtmf (in ms?)
- *
- * Sends a DTMF (dual-tone multi-frequency) signal via the established @media
- * for the given @duration at the given @volume.
- *
- * It is up to the specific implementation if DTMF is send in or out of band.
- *
- * Returns: TRUE if successful, FALSE otherwise.
- *
- * Since: 3.0.0
- */
-gboolean purple_protocol_media_iface_send_dtmf(PurpleProtocol *protocol,
-		PurpleMedia *media, gchar dtmf, guint8 volume, guint8 duration);
 
 G_END_DECLS
 
