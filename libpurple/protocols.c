@@ -30,6 +30,7 @@
 #include "notify.h"
 #include "protocol.h"
 #include "purpleaccountoption.h"
+#include "purpleprotocolmedia.h"
 #include "request.h"
 #include "util.h"
 
@@ -469,17 +470,24 @@ purple_protocol_initiate_media(PurpleAccount *account,
 	PurpleConnection *gc = NULL;
 	PurpleProtocol *protocol = NULL;
 
-	if (account)
+	if(account) {
 		gc = purple_account_get_connection(account);
-	if (gc)
+	}
+	if(gc) {
 		protocol = purple_connection_get_protocol(gc);
+	}
 
-	if (protocol) {
-		/* should check that the protocol supports this media type here? */
-		return purple_protocol_media_iface_initiate_session(protocol, account, who, type);
-	} else
-#endif
+	if(PURPLE_IS_PROTOCOL_MEDIA(protocol)) {
+		PurpleProtocolMedia *media = PURPLE_PROTOCOL_MEDIA(protocol);
+
+		return purple_protocol_media_initiate_session(media, account, who,
+		                                              type);
+	} else {
+		return FALSE;
+	}
+#else
 	return FALSE;
+#endif
 }
 
 PurpleMediaCaps
@@ -489,15 +497,22 @@ purple_protocol_get_media_caps(PurpleAccount *account, const char *who)
 	PurpleConnection *gc = NULL;
 	PurpleProtocol *protocol = NULL;
 
-	if (account)
+	if(account) {
 		gc = purple_account_get_connection(account);
-	if (gc)
+	}
+	if(gc) {
 		protocol = purple_connection_get_protocol(gc);
+	}
 
-	if (protocol)
-		return purple_protocol_media_iface_get_caps(protocol, account, who);
-#endif
+	if(PURPLE_IS_PROTOCOL_MEDIA(protocol)) {
+		return purple_protocol_media_get_caps(PURPLE_PROTOCOL_MEDIA(protocol),
+		                                      account, who);
+	} else {
+		return PURPLE_MEDIA_CAPS_NONE;
+	}
+#else
 	return PURPLE_MEDIA_CAPS_NONE;
+#endif
 }
 
 void
