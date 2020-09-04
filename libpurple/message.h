@@ -1,4 +1,5 @@
-/* purple
+/*
+ * purple
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -14,9 +15,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301 USA
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,6 +25,7 @@
 
 #ifndef PURPLE_MESSAGE_H
 #define PURPLE_MESSAGE_H
+
 /**
  * SECTION:message
  * @include:message.h
@@ -39,6 +40,8 @@
 
 #include <glib-object.h>
 
+#include <libpurple/purpleattachment.h>
+
 G_BEGIN_DECLS
 
 /**
@@ -49,16 +52,55 @@ G_BEGIN_DECLS
 #define PURPLE_TYPE_MESSAGE  purple_message_get_type()
 
 /**
+ * PurpleMessageFlags:
+ * @PURPLE_MESSAGE_SEND:        Outgoing message.
+ * @PURPLE_MESSAGE_RECV:        Incoming message.
+ * @PURPLE_MESSAGE_SYSTEM:      System message.
+ * @PURPLE_MESSAGE_AUTO_RESP:   Auto response.
+ * @PURPLE_MESSAGE_ACTIVE_ONLY: Hint to the UI that this message should not be
+ *                              shown in conversations which are only open for
+ *                              internal UI purposes (e.g. for contact-aware
+ *                              conversations).
+ * @PURPLE_MESSAGE_NICK:        Contains your nick.
+ * @PURPLE_MESSAGE_NO_LOG:      Do not log.
+ * @PURPLE_MESSAGE_ERROR:       Error message.
+ * @PURPLE_MESSAGE_DELAYED:     Delayed message.
+ * @PURPLE_MESSAGE_RAW:         "Raw" message - don't apply formatting
+ * @PURPLE_MESSAGE_IMAGES:      Message contains images
+ * @PURPLE_MESSAGE_NOTIFY:      Message is a notification
+ * @PURPLE_MESSAGE_NO_LINKIFY:  Message should not be auto-linkified
+ * @PURPLE_MESSAGE_INVISIBLE:   Message should not be displayed
+ * @PURPLE_MESSAGE_REMOTE_SEND: Message sent from another location,
+ *                              not an echo of a local one
+ *                              Since: 2.12.0
+ *
+ * Flags applicable to a message. Most will have send, recv or system.
+ */
+typedef enum /*< flags >*/
+{
+	PURPLE_MESSAGE_SEND         = 1 << 0,
+	PURPLE_MESSAGE_RECV         = 1 << 1,
+	PURPLE_MESSAGE_SYSTEM       = 1 << 2,
+	PURPLE_MESSAGE_AUTO_RESP    = 1 << 3,
+	PURPLE_MESSAGE_ACTIVE_ONLY  = 1 << 4,
+	PURPLE_MESSAGE_NICK         = 1 << 5,
+	PURPLE_MESSAGE_NO_LOG       = 1 << 6,
+	PURPLE_MESSAGE_ERROR        = 1 << 7,
+	PURPLE_MESSAGE_DELAYED      = 1 << 8,
+	PURPLE_MESSAGE_RAW          = 1 << 9,
+	PURPLE_MESSAGE_IMAGES       = 1 << 10,
+	PURPLE_MESSAGE_NOTIFY       = 1 << 11,
+	PURPLE_MESSAGE_NO_LINKIFY   = 1 << 12,
+	PURPLE_MESSAGE_INVISIBLE    = 1 << 13,
+	PURPLE_MESSAGE_REMOTE_SEND  = 1 << 14,
+} PurpleMessageFlags;
+
+/**
  * purple_message_get_type:
  *
  * Returns: the #GType for a message.
  */
 G_DECLARE_FINAL_TYPE(PurpleMessage, purple_message, PURPLE, MESSAGE, GObject)
-
-/* conversations.h depends on PurpleMessage and currently PurpleMessageFlag is
- * in conversations.h.
- */
-#include <conversation.h>
 
 /**
  * purple_message_new_outgoing:
@@ -248,6 +290,59 @@ purple_message_set_flags(PurpleMessage *msg, PurpleMessageFlags flags);
  */
 PurpleMessageFlags
 purple_message_get_flags(PurpleMessage *msg);
+
+/**
+ * purple_message_add_attachment:
+ * @message: The #PurpleMessage instance.
+ * @attachment: The #PurpleAttachment instance.
+ *
+ * Adds @attachment to @message.
+ *
+ * Returns %TRUE if an attachment with the same ID did not already exist.
+ */
+gboolean purple_message_add_attachment(PurpleMessage *message, PurpleAttachment *attachment);
+
+/**
+ * purple_message_remove_attachment:
+ * @message: The #PurpleMessage instance.
+ * @id: The id of the #PurpleAttachment
+ *
+ * Removes the #PurpleAttachment identified by @id if it exists.
+ *
+ * Returns: %TRUE if the #PurpleAttachment was found and removed, %FALSE
+ *          otherwise.
+ */
+gboolean purple_message_remove_attachment(PurpleMessage *message, guint64 id);
+
+/**
+ * purple_message_get_attachment:
+ * @message: The #PurpleMessage instance.
+ * @id: The id of the #PurpleAttachment to get.
+ *
+ * Retrieves the #PurpleAttachment identified by @id from @message.
+ *
+ * Returns: (transfer full): The #PurpleAttachment if it was found, otherwise
+ *                           %NULL.
+ */
+PurpleAttachment *purple_message_get_attachment(PurpleMessage *message, guint64 id);
+
+/**
+ * purple_message_foreach_attachment:
+ * @message: The #PurpleMessage instance.
+ * @func: (scope call): The #PurpleAttachmentForeachFunc to call.
+ * @data: User data to pass to @func.
+ *
+ * Calls @func for each #PurpleAttachment that's attached to @message.
+ */
+void purple_message_foreach_attachment(PurpleMessage *message, PurpleAttachmentForeachFunc func, gpointer data);
+
+/**
+ * purple_message_clear_attachments:
+ * @message: The #PurpleMessage instance.
+ *
+ * Removes all attachments from @message.
+ */
+void purple_message_clear_attachments(PurpleMessage *message);
 
 G_END_DECLS
 

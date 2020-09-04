@@ -21,12 +21,19 @@
 
 #include "pidginmessage.h"
 
+#include "pidginattachment.h"
+
 struct _PidginMessage {
 	GObject parent;
 
-	PurpleMessage *msg;
+	PurpleMessage *message;
 	GDateTime *timestamp;
 };
+
+typedef struct {
+	TalkatuAttachmentForeachFunc func;
+	gpointer data;
+} PidginMessageAttachmentForeachData;
 
 enum {
 	PROP_0,
@@ -46,24 +53,118 @@ static GParamSpec *properties[N_PROPERTIES] = {NULL, };
  * Helpers
  *****************************************************************************/
 static void
-pidgin_message_set_message(PidginMessage *msg, PurpleMessage *purple_msg) {
-	if(g_set_object(&msg->msg, purple_msg)) {
-		g_clear_pointer(&msg->timestamp, g_date_time_unref);
-		msg->timestamp = g_date_time_new_from_unix_local(purple_message_get_time(purple_msg));
+pidgin_message_set_message(PidginMessage *message, PurpleMessage *purple_msg) {
+	if(g_set_object(&message->message, purple_msg)) {
+		g_clear_pointer(&message->timestamp, g_date_time_unref);
+		message->timestamp = g_date_time_new_from_unix_local(purple_message_get_time(purple_msg));
 
-		g_object_freeze_notify(G_OBJECT(msg));
-		g_object_notify_by_pspec(G_OBJECT(msg), properties[PROP_MESSAGE]);
-		g_object_notify(G_OBJECT(msg), "timestamp");
-		g_object_thaw_notify(G_OBJECT(msg));
+		g_object_freeze_notify(G_OBJECT(message));
+		g_object_notify_by_pspec(G_OBJECT(message), properties[PROP_MESSAGE]);
+		g_object_notify(G_OBJECT(message), "timestamp");
+		g_object_thaw_notify(G_OBJECT(message));
 	}
 }
 
 /******************************************************************************
  * TalkatuMessage Implementation
  *****************************************************************************/
+static gboolean
+pidgin_message_add_attachment(TalkatuMessage *tmessage,
+                              TalkatuAttachment *tattachment)
+{
+	PidginMessage *pmessage = PIDGIN_MESSAGE(tmessage);
+	PurpleAttachment *pattachment = NULL;
+	gboolean ret = FALSE;
+
+	pattachment = purple_attachment_new(
+		talkatu_attachment_get_id(tattachment),
+		talkatu_attachment_get_content_type(tattachment)
+	);
+
+	ret = purple_message_add_attachment(pmessage->message, pattachment);
+
+	g_object_unref(G_OBJECT(pattachment));
+
+	return ret;
+}
+
+static gboolean
+pidgin_message_remove_attachment(TalkatuMessage *tmessage, guint64 id) {
+	PidginMessage *pmessage = PIDGIN_MESSAGE(tmessage);
+
+	return purple_message_remove_attachment(pmessage->message, id);
+}
+
+static TalkatuAttachment *
+pidgin_message_get_attachment(TalkatuMessage *tmessage, guint64 id) {
+	PidginMessage *pmessage = PIDGIN_MESSAGE(tmessage);
+	PidginAttachment *pidgin_attachment = NULL;
+	PurpleAttachment *purple_attachment = NULL;
+
+	purple_attachment = purple_message_get_attachment(pmessage->message, id);
+	pidgin_attachment = pidgin_attachment_new(purple_attachment);
+	g_object_unref(G_OBJECT(purple_attachment));
+
+	return TALKATU_ATTACHMENT(pidgin_attachment);
+}
+
+static void
+pidgin_message_foreach_attachment_helper(PurpleAttachment *attachment,
+                                         gpointer data)
+{
+	PidginAttachment *pidgin_attachment = NULL;
+	PidginMessageAttachmentForeachData *d = NULL;
+
+	d = (PidginMessageAttachmentForeachData *)data;
+	pidgin_attachment = pidgin_attachment_new(attachment);
+
+	d->func(TALKATU_ATTACHMENT(pidgin_attachment), d->data);
+
+	g_object_unref(G_OBJECT(pidgin_attachment));
+}
+
+static void
+pidgin_message_foreach_attachment(TalkatuMessage *tmessage,
+                                  TalkatuAttachmentForeachFunc func,
+                                  gpointer data)
+{
+	PidginMessage *pmessage = PIDGIN_MESSAGE(tmessage);
+	PidginMessageAttachmentForeachData *d = NULL;
+
+	/* PurpleAttachmentForeachFunc and TalkatuAttachmentForeachFunc may not
+	 * always have the same signature.  So to work around that, we use a helper
+	 * function that has the signature of PurpleAttachmentForeachFunc but will
+	 * call the TalkatuAttachmentForeachFunc while also wrapping the
+	 * PurpleAttachments.
+	 */
+
+	d = g_new(PidginMessageAttachmentForeachData, 1);
+	d->func = func;
+	d->data = data;
+
+	purple_message_foreach_attachment(
+		pmessage->message,
+		pidgin_message_foreach_attachment_helper,
+		d
+	);
+
+	g_free(d);
+}
+
+static void
+pidgin_message_clear_attachments(TalkatuMessage *tmessage) {
+	PidginMessage *pmessage = PIDGIN_MESSAGE(tmessage);
+
+	purple_message_clear_attachments(pmessage->message);
+}
+
 static void
 pidgin_message_talkatu_message_init(TalkatuMessageInterface *iface) {
-	/* we don't actually change behavior, we just override properties */
+	iface->add_attachment = pidgin_message_add_attachment;
+	iface->remove_attachment = pidgin_message_remove_attachment;
+	iface->get_attachment = pidgin_message_get_attachment;
+	iface->foreach_attachment = pidgin_message_foreach_attachment;
+	iface->clear_attachments = pidgin_message_clear_attachments;
 }
 
 /******************************************************************************
@@ -79,26 +180,26 @@ G_DEFINE_TYPE_EXTENDED(
 
 static void
 pidgin_message_get_property(GObject *obj, guint param_id, GValue *value, GParamSpec *pspec) {
-	PidginMessage *msg = PIDGIN_MESSAGE(obj);
+	PidginMessage *message = PIDGIN_MESSAGE(obj);
 
 	switch(param_id) {
 		case PROP_MESSAGE:
-			g_value_set_object(value, msg->msg);
+			g_value_set_object(value, message->message);
 			break;
 		case PROP_ID:
-			g_value_set_uint(value, purple_message_get_id(msg->msg));
+			g_value_set_uint(value, purple_message_get_id(message->message));
 			break;
 		case PROP_CONTENT_TYPE:
 			g_value_set_enum(value, TALKATU_CONTENT_TYPE_PLAIN);
 			break;
 		case PROP_AUTHOR:
-			g_value_set_string(value, purple_message_get_author(msg->msg));
+			g_value_set_string(value, purple_message_get_author(message->message));
 			break;
 		case PROP_CONTENTS:
-			g_value_set_string(value, purple_message_get_contents(msg->msg));
+			g_value_set_string(value, purple_message_get_contents(message->message));
 			break;
 		case PROP_TIMESTAMP:
-			g_value_set_pointer(value, msg->timestamp);
+			g_value_set_pointer(value, message->timestamp);
 			break;
 		case PROP_EDITED:
 			g_value_set_boolean(value, FALSE);
@@ -111,11 +212,11 @@ pidgin_message_get_property(GObject *obj, guint param_id, GValue *value, GParamS
 
 static void
 pidgin_message_set_property(GObject *obj, guint param_id, const GValue *value, GParamSpec *pspec) {
-	PidginMessage *msg = PIDGIN_MESSAGE(obj);
+	PidginMessage *message = PIDGIN_MESSAGE(obj);
 
 	switch(param_id) {
 		case PROP_MESSAGE:
-			pidgin_message_set_message(msg, g_value_get_object(value));
+			pidgin_message_set_message(message, g_value_get_object(value));
 			break;
 		case PROP_ID:
 		case PROP_CONTENT_TYPE:
@@ -132,15 +233,15 @@ pidgin_message_set_property(GObject *obj, guint param_id, const GValue *value, G
 }
 
 static void
-pidgin_message_init(PidginMessage *msg) {
+pidgin_message_init(PidginMessage *message) {
 }
 
 static void
 pidgin_message_finalize(GObject *obj) {
-	PidginMessage *msg = PIDGIN_MESSAGE(obj);
+	PidginMessage *message = PIDGIN_MESSAGE(obj);
 
-	g_clear_object(&msg->msg);
-	g_clear_pointer(&msg->timestamp, g_date_time_unref);
+	g_clear_object(&message->message);
+	g_clear_pointer(&message->timestamp, g_date_time_unref);
 
 	G_OBJECT_CLASS(pidgin_message_parent_class)->finalize(obj);
 }
@@ -175,17 +276,17 @@ pidgin_message_class_init(PidginMessageClass *klass) {
  * API
  *****************************************************************************/
 PidginMessage *
-pidgin_message_new(PurpleMessage *msg) {
+pidgin_message_new(PurpleMessage *message) {
 	return g_object_new(
 		PIDGIN_TYPE_MESSAGE,
-		"message", msg,
+		"message", message,
 		NULL
 	);
 }
 
 PurpleMessage *
-pidgin_message_get_message(PidginMessage *msg) {
-	g_return_val_if_fail(PIDGIN_IS_MESSAGE(msg), NULL);
+pidgin_message_get_message(PidginMessage *message) {
+	g_return_val_if_fail(PIDGIN_IS_MESSAGE(message), NULL);
 
-	return msg->msg;
+	return message->message;
 }

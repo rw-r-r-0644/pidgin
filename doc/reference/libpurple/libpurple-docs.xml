@@ -102,6 +102,7 @@
       <title>Messaging</title>
 
         <xi:include href="xml/message.xml" />
+        <xi:include href="xml/purpleattachment.xml" />
         <xi:include href="xml/log.xml" />
         <xi:include href="xml/cmds.xml" />
     </chapter>
