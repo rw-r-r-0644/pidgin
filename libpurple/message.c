@@ -46,6 +46,8 @@ typedef struct {
 	gchar *contents;
 	guint64 msgtime;
 	PurpleMessageFlags flags;
+
+	GHashTable *attachments;
 } PurpleMessagePrivate;
 
 enum
@@ -246,6 +248,80 @@ purple_message_get_flags(PurpleMessage *msg)
 	return priv->flags;
 }
 
+gboolean
+purple_message_add_attachment(PurpleMessage *message,
+                              PurpleAttachment *attachment)
+{
+	PurpleMessagePrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_MESSAGE(message), FALSE);
+	g_return_val_if_fail(PURPLE_IS_ATTACHMENT(attachment), FALSE);
+
+	priv = purple_message_get_instance_private(message);
+
+	return g_hash_table_insert(priv->attachments,
+	                           purple_attachment_get_hash_key(attachment),
+	                           g_object_ref(G_OBJECT(attachment)));
+}
+
+gboolean
+purple_message_remove_attachment(PurpleMessage *message, guint64 id) {
+	PurpleMessagePrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_MESSAGE(message), FALSE);
+
+	priv = purple_message_get_instance_private(message);
+
+	return g_hash_table_remove(priv->attachments, &id);
+}
+
+PurpleAttachment *
+purple_message_get_attachment(PurpleMessage *message, guint64 id) {
+	PurpleMessagePrivate *priv = NULL;
+	PurpleAttachment *attachment = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_MESSAGE(message), NULL);
+
+	priv = purple_message_get_instance_private(message);
+
+	attachment = g_hash_table_lookup(priv->attachments, &id);
+
+	if(PURPLE_IS_ATTACHMENT(attachment)) {
+		return PURPLE_ATTACHMENT(g_object_ref(G_OBJECT(attachment)));
+	}
+
+	return NULL;
+}
+
+void
+purple_message_foreach_attachment(PurpleMessage *message,
+                                  PurpleAttachmentForeachFunc func,
+                                  gpointer data)
+{
+	PurpleMessagePrivate *priv = NULL;
+	GHashTableIter iter;
+	gpointer value;
+
+	g_return_if_fail(PURPLE_IS_MESSAGE(message));
+	g_return_if_fail(func != NULL);
+
+	g_hash_table_iter_init(&iter, priv->attachments);
+	while(g_hash_table_iter_next(&iter, NULL, &value)) {
+		func(PURPLE_ATTACHMENT(value), data);
+	}
+}
+
+void
+purple_message_clear_attachments(PurpleMessage *message) {
+	PurpleMessagePrivate *priv = NULL;
+
+	g_return_if_fail(PURPLE_IS_MESSAGE(message));
+
+	priv = purple_message_get_instance_private(message);
+
+	g_hash_table_remove_all(priv->attachments);
+}
+
 /******************************************************************************
  * Object stuff
  ******************************************************************************/
@@ -256,6 +332,9 @@ purple_message_init(PurpleMessage *msg)
 	static guint max_id = 0;
 
 	PurpleMessagePrivate *priv = purple_message_get_instance_private(msg);
+
+	priv->attachments = g_hash_table_new_full(g_int64_hash, g_int64_equal,
+	                                          NULL, g_object_unref);
 
 	priv->id = ++max_id;
 	g_hash_table_insert(messages, GINT_TO_POINTER(max_id), msg);
@@ -271,6 +350,8 @@ purple_message_finalize(GObject *obj)
 	g_free(priv->author_alias);
 	g_free(priv->recipient);
 	g_free(priv->contents);
+
+	g_hash_table_destroy(priv->attachments);
 
 	G_OBJECT_CLASS(purple_message_parent_class)->finalize(obj);
 }

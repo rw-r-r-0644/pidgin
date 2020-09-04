@@ -23,14 +23,14 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef PIDGIN_MESSAGE_H
-#define PIDGIN_MESSAGE_H
+#ifndef PIDGIN_ATTACHMENT_H
+#define PIDGIN_ATTACHMENT_H
 
 /**
- * SECTION:pidginmessage
- * @section_id: pidgin-pidginmessage
- * @short_description: <filename>pidginmessage.h</filename>
- * @title: Pidgin Message API
+ * SECTION:pidginattachment
+ * @section_id: pidgin-pidginattachment
+ * @short_description: <filename>pidginattachment.h</filename>
+ * @title: Pidgin Attachment API
  */
 
 #include <purple.h>
@@ -39,29 +39,29 @@
 
 G_BEGIN_DECLS
 
-#define PIDGIN_TYPE_MESSAGE (pidgin_message_get_type())
-G_DECLARE_FINAL_TYPE(PidginMessage, pidgin_message, PIDGIN, MESSAGE, GObject)
+#define PIDGIN_TYPE_ATTACHMENT (pidgin_attachment_get_type())
+G_DECLARE_FINAL_TYPE(PidginAttachment, pidgin_attachment, PIDGIN, ATTACHMENT, GObject)
 
 /**
- * pidgin_message_new:
- * @msg: The #PurpleMessage to wrap.
+ * pidgin_attachment_new:
+ * @attachment: The #PurpleAttachment to wrap.
  *
- * Wraps @msg so that it can be used as a #TalkatuMessage.
+ * Wraps @attachment so that it can be used as a #TalkatuAttachment.
  *
- * Returns: (transfer full): The new #PidginMessage instance.
+ * Returns: (transfer full): The new #PidginAttachment instance.
  */
-PidginMessage *pidgin_message_new(PurpleMessage *msg);
+PidginAttachment *pidgin_attachment_new(PurpleAttachment *attachment);
 
 /**
- * pidgin_message_get_message:
- * @msg: The #PidginMessage instance.
+ * pidgin_attachment_get_attachment:
+ * @attachment: The #PidginAttachment instance.
  *
- * Gets the #PurpleMessage that @msg is wrapping.
+ * Gets the #PurpleAttachment that @attachment is wrapping.
  *
- * Returns: (transfer none): The #PurpleMessage that @msg is wrapping.
+ * Returns: (transfer none): The #PurpleAttachment that @attachment is wrapping.
  */
-PurpleMessage *pidgin_message_get_message(PidginMessage *msg);
+PurpleAttachment *pidgin_attachment_get_attachment(PidginAttachment *attachment);
 
 G_END_DECLS
 
-#endif /* PIDGIN_MESSAGE_H */
+#endif /* PIDGIN_ATTACHMENT_H */

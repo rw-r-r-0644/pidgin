@@ -110,50 +110,6 @@ typedef enum
 
 } PurpleConversationUpdateType;
 
-/**
- * PurpleMessageFlags:
- * @PURPLE_MESSAGE_SEND:        Outgoing message.
- * @PURPLE_MESSAGE_RECV:        Incoming message.
- * @PURPLE_MESSAGE_SYSTEM:      System message.
- * @PURPLE_MESSAGE_AUTO_RESP:   Auto response.
- * @PURPLE_MESSAGE_ACTIVE_ONLY: Hint to the UI that this message should not be
- *                              shown in conversations which are only open for
- *                              internal UI purposes (e.g. for contact-aware
- *                              conversations).
- * @PURPLE_MESSAGE_NICK:        Contains your nick.
- * @PURPLE_MESSAGE_NO_LOG:      Do not log.
- * @PURPLE_MESSAGE_ERROR:       Error message.
- * @PURPLE_MESSAGE_DELAYED:     Delayed message.
- * @PURPLE_MESSAGE_RAW:         "Raw" message - don't apply formatting
- * @PURPLE_MESSAGE_IMAGES:      Message contains images
- * @PURPLE_MESSAGE_NOTIFY:      Message is a notification
- * @PURPLE_MESSAGE_NO_LINKIFY:  Message should not be auto-linkified
- * @PURPLE_MESSAGE_INVISIBLE:   Message should not be displayed
- * @PURPLE_MESSAGE_REMOTE_SEND: Message sent from another location,
- *                              not an echo of a local one
- *                              Since: 2.12.0
- *
- * Flags applicable to a message. Most will have send, recv or system.
- */
-typedef enum /*< flags >*/
-{
-	PURPLE_MESSAGE_SEND         = 1 << 0,
-	PURPLE_MESSAGE_RECV         = 1 << 1,
-	PURPLE_MESSAGE_SYSTEM       = 1 << 2,
-	PURPLE_MESSAGE_AUTO_RESP    = 1 << 3,
-	PURPLE_MESSAGE_ACTIVE_ONLY  = 1 << 4,
-	PURPLE_MESSAGE_NICK         = 1 << 5,
-	PURPLE_MESSAGE_NO_LOG       = 1 << 6,
-	PURPLE_MESSAGE_ERROR        = 1 << 7,
-	PURPLE_MESSAGE_DELAYED      = 1 << 8,
-	PURPLE_MESSAGE_RAW          = 1 << 9,
-	PURPLE_MESSAGE_IMAGES       = 1 << 10,
-	PURPLE_MESSAGE_NOTIFY       = 1 << 11,
-	PURPLE_MESSAGE_NO_LINKIFY   = 1 << 12,
-	PURPLE_MESSAGE_INVISIBLE    = 1 << 13,
-	PURPLE_MESSAGE_REMOTE_SEND  = 1 << 14,
-} PurpleMessageFlags;
-
 #include <glib.h>
 #include <glib-object.h>
 #include "message.h"
