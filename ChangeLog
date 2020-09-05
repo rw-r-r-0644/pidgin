@@ -48,9 +48,6 @@ version 3.0.0 (??/??/????):
 	* Support the conversation-extended signal for extending the
 	  conversation menu. (Howard Chu) (#14818)
 
-	AIM and ICQ:
-	* Make buddy list management code more efficient. (Oliver) (#4816)
-
 	Bonjour:
 	* Support file transfers up to ~9 EiB.
 
@@ -68,23 +65,6 @@ version 3.0.0 (??/??/????):
 	* Added a new prpl for the Facebook Messenger protocol
 	* Removed the defunct Facebook XMPP support
 
-	MSN:
-	* Fix file transfer with older Mac MSN clients.
-	* Support file transfers up to ~9 EiB.
-	* Fix buddies not going offline.
-
-	MXit:
-	* Remove all reference to Hidden Number.
-	* Fix decoding of font-size changes in the markup of received messages.
-	* Ignore new invites to join a GroupChat if you're already joined, or
-	  still have a pending invite.
-	* The buddy's name was not centered vertically in the buddy-list if they
-	  did not have a status-message or mood set.
-
-	MySpace:
-	* Remove this protocol because the servers have been taken offline.
-	  (Robbie Vehse) (#15356)
-
 	XMPP:
 	* Strip element prefixes from XHTML-IM messages as they're presented
 	  to the core (and UIs) as incoming messages (Thijs Alkemade).
@@ -93,28 +73,76 @@ version 3.0.0 (??/??/????):
 	* Invalid user moods can no longer be sent to the server.
 	* Added WEBEX-TOKEN SASL auth (Bryon Roche).
 
-	AIM:
-	* Add support for the newer kerberos-based authentication of AIM 8.x
-
 	Plugins:
 	* A new plugin API has been introduced. Plugins are no longer required
 	  to be of a predefined type (such as protocol, standard, loader etc),
 	  and can perform multiple roles.
 	* The Offline Message Emulation plugin now adds a note that the message
 	  was an offline message. (Flavius Anton) (#2497)
-	* Two example plugins, caesarcipher and caesarcipher_consumer, have
-	  been added that demonstrate registering of a dynamic cipher type in
-	  one plugin and using it in another.
 	* IPC test plugins have been removed, since the new plugin API does not
 	  provide a seperate IPC API.
 
 	Protocols:
-	* A single oscar plugin provides both AIM and ICQ protocols.
 	* A single jabber plugin provides XMPP, GTalk and Facebook protocols.
-	* A single yahoo plugin provides both Yahoo and Yahoo JAPAN protocols.
 
-	GNT:
-	* Fix a use after free when using Python. (PR #357 kdex)
+version 2.14.1 (11/06/2020):
+	* Fixed issues with Windows installer that always thought Pidgin was
+	  running. (Eion Robb)
+	* Fixed an issue where the Windows installer was not using Unicode while
+	  doing checksums which made it fail. (Eion Robb)
+	* Fixed an issue in the released source code that caused the Mercurial
+	  revision in the About box to be "unknown". (Gary Kramlich)
+
+version 2.14.0 (10/06/2020):
+	General:
+	* Fixed a memory leak in search results. (#17292 PR #320 David Woodhouse)
+	* Support SNI with GNUTLS. (#17300 tiagosalem) (PR #659 Mihai Moldovan)
+	* Add additional error handling to NSS and GNUTLS. (PR #679 Samuel Thibault)
+
+	libpurple:
+	* Add invisible buddy support to support presence/name/photos for non
+	  buddies. (#17295 PR 321 David Woodhouse)
+	* Make purple-remote compatible with both Python 2 and Python 3. (Jan
+	  Synacek of RedHat)
+	* Fixed some leaky deprecation warnings.  (PR #586 Gary Kramlich)
+	* Fixed HTML logs which were writing invalid HTML. (#17280 stars PR #312
+	  Daniel Kamil Kozar)
+	* Fixed a use after free in purple_smiley_set_data_impl. (PR #694 Gary
+	  Kramlich)
+	* Added the chat_send_file ability to protocol plugins. (PR #701 David
+	  Woodhouse)
+
+	Pidgin:
+	* Treat <p> tags as line breaks when pasting. (PR #678 Colin Xu)
+	* Reverted Ticket #17232/PR #695.  It caused more harm than good and a new
+	  solution needs to be found.  (PR #695 Gary Kramlich)
+
+	Bonjour:
+	* Always use port fallback for IPv4 addresses. (PR #382 Michael Osborne)
+
+	XMPP:
+	* Support for XEP-0198 Stream Management (PR #309 defanor)
+	* Decrease delay for file transfer using streamhosts (PR #464 #627 Evert
+	  Mouw)
+
+	Voice & Video:
+	* Improve webcam failure handling. (PR #322 David Woodhouse)
+	* Show error when creating media pipeline fails. (#17290 PR 322 David
+	  Woodhouse)
+	* Clip audio level reporting. (#14426 PR #322 David Woodhouse)
+	* Keep track of devices managed by GstDeviceMonitor. (PR #322 David
+	  Woodhouse)
+	* Ignore PulseAudio monitors.  (PR #322 David Woodhouse)
+	* Backport native Voice & Video prefs from 3.0.  (PR #322 David Woodhouse)
+	* Fixed building against GStreamer 0.10 (PR #325 David Woodhouse)
+	* Fixed initial delay on incoming audio (PR #379 David Woodhouse)
+	* Properly cleanup timeouts. (PR #383 Jakub Adam)
+	* Added an audio mixer so mixed sources don't cause a pipe failure. (PR #522
+	  Fabrice Bellet)
+	* Added screen share support for Wayland via XDP Portal. (PR #337 David
+	  Woodhouse)
+	* Handle unplug and replug events of selected media device. (PR #699 David
+	  Woodhouse)
 
 version 2.13.0 (03/08/2018):
 	libpurple:
