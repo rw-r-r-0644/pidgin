@@ -7268,7 +7268,6 @@ static void sort_method_log_activity(PurpleBlistNode *node, PurpleBuddyList *bli
 void
 pidgin_blist_update_sort_methods(void)
 {
-	GtkWidget *sort_item = NULL;
 	GMenu *menu = NULL;
 	GList *l;
 
@@ -7295,8 +7294,12 @@ pidgin_blist_update_sort_methods(void)
 	}
 
 	/* replace the old submenu with a new one */
-	sort_item = pidgin_buddy_list_menu_get_sort_item(PIDGIN_BUDDY_LIST_MENU(gtkblist->menu));
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(sort_item),
-	                          gtk_menu_new_from_model(G_MENU_MODEL(menu)));
-	g_object_unref(G_OBJECT(menu));
+	if(PIDGIN_IS_BUDDY_LIST_MENU(gtkblist->menu)) {
+		GtkWidget *item = NULL;
+
+		item = pidgin_buddy_list_menu_get_sort_item(PIDGIN_BUDDY_LIST_MENU(gtkblist->menu));
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),
+		                          gtk_menu_new_from_model(G_MENU_MODEL(menu)));
+		g_object_unref(G_OBJECT(menu));
+	}
 }
