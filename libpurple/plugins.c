@@ -828,7 +828,7 @@ purple_plugins_init(void)
 	                       purple_marshal_VOID__POINTER,
 	                       G_TYPE_NONE, 1, PURPLE_TYPE_PLUGIN);
 
-	gplugin_init();
+	gplugin_init(GPLUGIN_CORE_FLAGS_NONE);
 
 	search_path = g_getenv("PURPLE_PLUGIN_PATH");
 	if (search_path) {
