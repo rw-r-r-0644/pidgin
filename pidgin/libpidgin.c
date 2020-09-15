@@ -378,49 +378,36 @@ pidgin_setup_error_handler(void)
 	GIOChannel *signal_channel;
 	GIOStatus signal_status;
 	GError *error = NULL;
-#ifndef DEBUG
 	char *segfault_message_tmp;
 
-		/* We translate this here in case the crash breaks gettext. */
-		segfault_message_tmp = g_strdup_printf(_(
-			"%s %s has segfaulted and attempted to dump a core file.\n"
-			"This is a bug in the software and has happened through\n"
-			"no fault of your own.\n\n"
-			"If you can reproduce the crash, please notify the developers\n"
-			"by reporting a bug at:\n"
-			"%ssimpleticket/\n\n"
-			"Please make sure to specify what you were doing at the time\n"
-			"and post the backtrace from the core file.  If you do not know\n"
-			"how to get the backtrace, please read the instructions at\n"
-			"%swiki/GetABacktrace\n"),
-			PIDGIN_NAME, DISPLAY_VERSION, PURPLE_WEBSITE, PURPLE_WEBSITE
-		);
+	/* We translate this here in case the crash breaks gettext. */
+	segfault_message_tmp = g_strdup_printf(_(
+		"%s %s has segfaulted and attempted to dump a core file.\n"
+		"This is a bug in the software and has happened through\n"
+		"no fault of your own.\n\n"
+		"If you can reproduce the crash, please notify the developers\n"
+		"by reporting a bug at:\n"
+		"%snewissue\n\n"
+		"Please make sure to specify what you were doing at the time\n"
+		"and post the backtrace from the core file.  If you do not know\n"
+		"how to get the backtrace, please read the instructions at\n"
+		"https://developer.pidgin.im/wiki/GetABacktrace\n"),
+		PIDGIN_NAME, DISPLAY_VERSION, PURPLE_WEBSITE
+	);
 
-		/* we have to convert the message (UTF-8 to console
-		   charset) early because after a segmentation fault
-		   it's not a good practice to allocate memory */
-		segfault_message = g_locale_from_utf8(segfault_message_tmp,
-						      -1, NULL, NULL, &error);
-		if (segfault_message != NULL) {
-			g_free(segfault_message_tmp);
-		}
-		else {
-			/* use 'segfault_message_tmp' (UTF-8) as a fallback */
-			g_warning("%s\n", error->message);
-			g_clear_error(&error);
-			segfault_message = segfault_message_tmp;
-		}
-#else
-		/* Don't mark this for translation. */
-		segfault_message = g_strdup(
-			"Hi, user.  We need to talk.\n"
-			"I think something's gone wrong here.  It's probably my fault.\n"
-			"No, really, it's not you... it's me... no no no, I think we get along well\n"
-			"it's just that.... well, I want to see other people.  I... what?!?  NO!  I \n"
-			"haven't been cheating on you!!  How many times do you want me to tell you?!  And\n"
-			"for the last time, it's just a rash!\n"
-		);
-#endif
+	/* we have to convert the message (UTF-8 to console
+	   charset) early because after a segmentation fault
+	   it's not a good practice to allocate memory */
+	segfault_message = g_locale_from_utf8(segfault_message_tmp, -1, NULL, NULL,
+	                                      &error);
+	if(segfault_message != NULL) {
+		g_free(segfault_message_tmp);
+	} else {
+		/* use 'segfault_message_tmp' (UTF-8) as a fallback */
+		g_warning("%s\n", error->message);
+		g_clear_error(&error);
+		segfault_message = segfault_message_tmp;
+	}
 
 	/*
 	 * Create a socket pair for receiving unix signals from a signal
