@@ -8,7 +8,7 @@ if ENABLE_GTK
 	    output : 'pidgin3.1',
 	    configuration : man_conf,
 	    install : true,
-	    install_dir : get_option('mandir') + '/man1')
+	    install_dir : get_option('mandir') / 'man1')
 endif
 
 if enable_consoleui
@@ -17,5 +17,5 @@ if enable_consoleui
 	    output : 'finch3.1',
 	    configuration : man_conf,
 	    install : true,
-	    install_dir : get_option('mandir') + '/man1')
+	    install_dir : get_option('mandir') / 'man1')
 endif

@@ -86,7 +86,7 @@ SMILEYS = [
 ]
 
 if INSTALL_PIXMAPS
-	pidginsmileypixdir = pidginpixmapdir + '/emotes/small'
+	pidginsmileypixdir = pidginpixmapdir / 'emotes/small'
 
 	custom_target('small-theme',
 	    input : 'small.theme.in',

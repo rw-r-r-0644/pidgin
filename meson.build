@@ -136,7 +136,7 @@ conf.set('WORDS_BIGENDIAN', host_machine.endian() != 'little')
 # Check for directories
 if IS_WIN32
 	foreach dir : ['bin', 'lib', 'data', 'sysconf', 'locale']
-		path = join_paths(get_option('prefix'), get_option(dir + 'dir'))
+		path = get_option('prefix') / get_option(dir + 'dir')
 		conf.set_quoted('WIN32_FHS_@0@DIR'.format(dir.to_upper()), path)
 	endforeach
 
@@ -152,28 +152,25 @@ if IS_WIN32
 	conf.set('PURPLE_LOCALEDIR', 'wpurple_locale_dir()')
 else
 	foreach dir : ['data', 'sysconf', 'locale']
-		path = join_paths(get_option('prefix'), get_option(dir + 'dir'))
+		path = get_option('prefix') / get_option(dir + 'dir')
 		conf.set_quoted('PURPLE_@0@DIR'.format(dir.to_upper()), path)
 	endforeach
 
-	common_libdir = join_paths(get_option('prefix'), get_option('libdir'))
+	common_libdir = get_option('prefix') / get_option('libdir')
 	conf.set_quoted('PURPLE_LIBDIR',
-	                join_paths(common_libdir,
-	                           'purple-@0@'.format(purple_major_version)))
+	                common_libdir / 'purple-@0@'.format(purple_major_version))
 	conf.set_quoted('PIDGIN_LIBDIR',
-	                join_paths(common_libdir,
-	                           'pidgin-@0@'.format(purple_major_version)))
+	                common_libdir / 'pidgin-@0@'.format(purple_major_version))
 	conf.set_quoted('FINCH_LIBDIR',
-	                join_paths(common_libdir,
-	                           'finch-@0@'.format(purple_major_version)))
+	                common_libdir / 'finch-@0@'.format(purple_major_version))
 endif
 
-abslibdir = join_paths(get_option('prefix'), get_option('libdir'))
-PURPLE_PLUGINDIR = join_paths(abslibdir, 'purple-@0@'.format(purple_major_version))
+abslibdir = get_option('prefix') / get_option('libdir')
+PURPLE_PLUGINDIR = abslibdir / 'purple-@0@'.format(purple_major_version)
 conf.set_quoted('PURPLE_PLUGINDIR', PURPLE_PLUGINDIR)
-PIDGIN_PLUGINDIR = join_paths(abslibdir, 'pidgin-@0@'.format(purple_major_version))
+PIDGIN_PLUGINDIR = abslibdir / 'pidgin-@0@'.format(purple_major_version)
 conf.set_quoted('PIDGIN_PLUGINDIR', PIDGIN_PLUGINDIR)
-FINCH_PLUGINDIR = join_paths(abslibdir, 'finch-@0@'.format(purple_major_version))
+FINCH_PLUGINDIR = abslibdir / 'finch-@0@'.format(purple_major_version)
 conf.set_quoted('FINCH_PLUGINDIR', FINCH_PLUGINDIR)
 
 # Check for inet_aton
@@ -297,8 +294,7 @@ if get_option('gtkui')
 		if enable_introspection
 			talkatu_gir = 'Talkatu-0.0'
 			talkatu_include_directories = include_directories(
-			    join_paths(talkatu_dep.get_pkgconfig_variable('prefix'),
-			               'share/gir-1.0'))
+			    talkatu_dep.get_pkgconfig_variable('prefix') / 'share/gir-1.0')
 		else
 			talkatu_include_directories = []
 		endif
@@ -615,8 +611,7 @@ if gplugin_dep.found()
 	if enable_introspection
 		gplugin_gir = 'GPlugin-1.0'
 		gplugin_include_directories = include_directories(
-		    join_paths(gplugin_dep.get_pkgconfig_variable('prefix'),
-		               'share/gir-1.0'))
+		    gplugin_dep.get_pkgconfig_variable('prefix') / 'share/gir-1.0')
 	else
 		gplugin_include_directories = []
 	endif
@@ -627,8 +622,7 @@ if gplugin_dep.found()
 		if enable_introspection
 			gplugin_gtk_gir = 'GPluginGtk-1.0'
 			gplugin_gtk_include_directories = include_directories(
-				join_paths(gplugin_gtk_dep.get_pkgconfig_variable('prefix'),
-				           'share/gir-1.0'))
+			    gplugin_gtk_dep.get_pkgconfig_variable('prefix') / 'share/gir-1.0')
 		else
 			gplugin_gtk_include_directories = []
 		endif
@@ -803,7 +797,7 @@ message('')
 message('Print debugging messages...... : ' + enable_debug.to_string())
 message('Generate documentation........ : ' + ENABLE_DOC.to_string())
 message('')
-bindir = join_paths(get_option('prefix'), get_option('bindir'))
+bindir = get_option('prefix') / get_option('bindir')
 message('Pidgin will be installed in @0@.'.format(bindir))
 if pidginpath.found()
 	message('Warning: You have an old copy of Pidgin at @0@.'.format(pidginpath.path()))
