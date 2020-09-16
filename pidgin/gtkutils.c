@@ -192,14 +192,6 @@ GtkWidget *pidgin_dialog_add_button(GtkDialog *dialog, const char *label,
 	return button;
 }
 
-void
-pidgin_set_sensitive_if_input(GtkWidget *entry, GtkWidget *dialog)
-{
-	const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
-	gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK,
-									  (*text != '\0'));
-}
-
 GtkWidget *pidgin_separator(GtkWidget *menu)
 {
 	GtkWidget *menuitem;
@@ -227,26 +219,6 @@ GtkWidget *pidgin_new_check_item(GtkWidget *menu, const char *str,
 	gtk_widget_show_all(menuitem);
 
 	return menuitem;
-}
-
-GtkWidget *
-pidgin_pixbuf_toolbar_button_from_stock(const char *icon)
-{
-	GtkWidget *button, *image, *bbox;
-
-	button = gtk_toggle_button_new();
-	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
-
-	bbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-
-	gtk_container_add (GTK_CONTAINER(button), bbox);
-
-	image = gtk_image_new_from_stock(icon, gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL));
-	gtk_box_pack_start(GTK_BOX(bbox), image, FALSE, FALSE, 0);
-
-	gtk_widget_show_all(bbox);
-
-	return button;
 }
 
 GtkWidget *
@@ -368,21 +340,6 @@ pidgin_make_frame(GtkWidget *parent, const char *title)
 	return vbox2;
 }
 
-static gpointer
-aop_option_menu_get_selected(GtkWidget *optmenu)
-{
-	gpointer data = NULL;
-	GtkTreeIter iter;
-
-	g_return_val_if_fail(optmenu != NULL, NULL);
-
-	if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(optmenu), &iter))
-		gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(optmenu)),
-		                   &iter, AOP_DATA_COLUMN, &data, -1);
-
-	return data;
-}
-
 GdkPixbuf *
 pidgin_create_icon_from_protocol(PurpleProtocol *protocol, PidginProtocolIconSize size, PurpleAccount *account)
 {
@@ -431,12 +388,6 @@ aop_option_menu_select_by_data(GtkWidget *optmenu, gpointer data)
 			}
 		} while (gtk_tree_model_iter_next(model, &iter));
 	}
-}
-
-const char *
-pidgin_protocol_option_menu_get_selected(GtkWidget *optmenu)
-{
-	return (const char *)aop_option_menu_get_selected(optmenu);
 }
 
 void
@@ -735,129 +686,6 @@ pidgin_set_accessible_relations (GtkWidget *w, GtkLabel *l)
 	atk_relation_set_add (set, relation);
 	g_object_unref (relation);
 	g_object_unref(set);
-}
-
-void
-pidgin_menu_position_func_helper(GtkMenu *menu,
-							gint *x,
-							gint *y,
-							gboolean *push_in,
-							gpointer data)
-{
-	GtkWidget *widget;
-	GtkRequisition requisition;
-	GdkMonitor *monitor = NULL;
-	GdkRectangle geo;
-	gint space_left, space_right, space_above, space_below;
-	gboolean rtl;
-
-	g_return_if_fail(GTK_IS_MENU(menu));
-
-	widget     = GTK_WIDGET(menu);
-	rtl        = (gtk_widget_get_direction(widget) == GTK_TEXT_DIR_RTL);
-
-	/*
-	 * We need the requisition to figure out the right place to
-	 * popup the menu. In fact, we always need to ask here, since
-	 * if a size_request was queued while we weren't popped up,
-	 * the requisition won't have been recomputed yet.
-	 */
-	gtk_widget_get_preferred_size(widget, NULL, &requisition);
-
-	monitor = gdk_display_get_monitor_at_point(gdk_display_get_default(), *x, *y);
-
-	*push_in = FALSE;
-
-	/*
-	 * The placement of popup menus horizontally works like this (with
-	 * RTL in parentheses)
-	 *
-	 * - If there is enough room to the right (left) of the mouse cursor,
-	 *   position the menu there.
-	 *
-	 * - Otherwise, if if there is enough room to the left (right) of the
-	 *   mouse cursor, position the menu there.
-	 *
-	 * - Otherwise if the menu is smaller than the monitor, position it
-	 *   on the side of the mouse cursor that has the most space available
-	 *
-	 * - Otherwise (if there is simply not enough room for the menu on the
-	 *   monitor), position it as far left (right) as possible.
-	 *
-	 * Positioning in the vertical direction is similar: first try below
-	 * mouse cursor, then above.
-	 */
-	gdk_monitor_get_geometry(monitor, &geo);
-
-	space_left = *x - geo.x;
-	space_right = geo.x + geo.width - *x - 1;
-	space_above = *y - geo.y;
-	space_below = geo.y + geo.height - *y - 1;
-
-	/* position horizontally */
-
-	if (requisition.width <= space_left ||
-	    requisition.width <= space_right)
-	{
-		if ((rtl  && requisition.width <= space_left) ||
-		    (!rtl && requisition.width >  space_right))
-		{
-			/* position left */
-			*x = *x - requisition.width + 1;
-		}
-
-		/* x is clamped on-screen further down */
-	}
-	else if (requisition.width <= geo.width)
-	{
-		/* the menu is too big to fit on either side of the mouse
-		 * cursor, but smaller than the monitor. Position it on
-		 * the side that has the most space
-		 */
-		if (space_left > space_right)
-		{
-			/* left justify */
-			*x = geo.x;
-		}
-		else
-		{
-			/* right justify */
-			*x = geo.x + geo.width - requisition.width;
-		}
-	}
-	else /* menu is simply too big for the monitor */
-	{
-		if (rtl)
-		{
-			/* right justify */
-			*x = geo.x + geo.width - requisition.width;
-		}
-		else
-		{
-			/* left justify */
-			*x = geo.x;
-		}
-	}
-
-	/* Position vertically. The algorithm is the same as above, but
-	 * simpler because we don't have to take RTL into account.
-	 */
-
-	if (requisition.height <= space_above ||
-	    requisition.height <= space_below)
-	{
-		if (requisition.height > space_below) {
-			*y = *y - requisition.height + 1;
-		}
-
-		*y = CLAMP (*y, geo.y,
-			   geo.y + geo.height - requisition.height);
-	} else {
-		if (space_below >= space_above)
-			*y = geo.y + geo.height - requisition.height;
-		else
-			*y = geo.y;
-	}
 }
 
 void
@@ -1218,17 +1046,6 @@ void pidgin_buddy_icon_get_scale_size(GdkPixbuf *buf, PurpleBuddyIconSpec *spec,
 		*height = 100;
 }
 
-GdkPixbuf * pidgin_create_status_icon(PurpleStatusPrimitive prim, GtkWidget *w, const char *size)
-{
-	GtkIconSize icon_size = gtk_icon_size_from_name(size);
-	GdkPixbuf *pixbuf = NULL;
-	const char *stock = pidgin_stock_id_from_status_primitive(prim);
-
-	pixbuf = gtk_widget_render_icon (w, stock ? stock : PIDGIN_STOCK_STATUS_AVAILABLE,
-			icon_size, "GtkWidget");
-	return pixbuf;
-}
-
 static const char *
 stock_id_from_status_primitive_idle(PurpleStatusPrimitive prim, gboolean idle)
 {
@@ -1263,25 +1080,6 @@ const char *
 pidgin_stock_id_from_status_primitive(PurpleStatusPrimitive prim)
 {
 	return stock_id_from_status_primitive_idle(prim, FALSE);
-}
-
-const char *
-pidgin_stock_id_from_presence(PurplePresence *presence)
-{
-	PurpleStatus *status;
-	PurpleStatusType *type;
-	PurpleStatusPrimitive prim;
-	gboolean idle;
-
-	g_return_val_if_fail(presence, NULL);
-
-	status = purple_presence_get_active_status(presence);
-	type = purple_status_get_status_type(status);
-	prim = purple_status_type_get_primitive(type);
-
-	idle = purple_presence_is_idle(presence);
-
-	return stock_id_from_status_primitive_idle(prim, idle);
 }
 
 GdkPixbuf *
@@ -2290,11 +2088,6 @@ pidgin_text_combo_box_entry_new(const char *default_item, GList *items)
 const char *pidgin_text_combo_box_entry_get_text(GtkWidget *widget)
 {
 	return gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN((widget)))));
-}
-
-void pidgin_text_combo_box_entry_set_text(GtkWidget *widget, const char *text)
-{
-	gtk_entry_set_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN((widget)))), (text));
 }
 
 GtkWidget *
