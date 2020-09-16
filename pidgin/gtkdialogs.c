@@ -40,6 +40,7 @@
 #include "gtkdialogs.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
+#include "pidgindialog.h"
 #include "pidginlog.h"
 #include "pidginstock.h"
 
@@ -112,7 +113,7 @@ pidgin_build_help_dialog(const char *title, const char *role, GString *string)
 	AtkObject *obj;
 	char *filename, *tmp;
 
-	win = pidgin_create_dialog(title, 0, role, TRUE);
+	win = pidgin_dialog_new(title, 0, role, TRUE);
 	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 0);
 	gtk_window_set_default_size(GTK_WINDOW(win), 475, 450);
 

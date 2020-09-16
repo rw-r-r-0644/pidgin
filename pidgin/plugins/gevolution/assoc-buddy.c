@@ -316,7 +316,7 @@ gevo_associate_buddy_dialog_new(PurpleBuddy *buddy)
 
 	dialog->buddy = buddy;
 
-	dialog->win = pidgin_create_window(NULL, 12, "assoc_buddy", TRUE);
+	dialog->win = pidgin_window_new(NULL, 12, "assoc_buddy", TRUE);
 
 	g_signal_connect(G_OBJECT(dialog->win), "delete_event",
 					 G_CALLBACK(delete_win_cb), dialog);

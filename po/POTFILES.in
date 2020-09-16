@@ -345,8 +345,10 @@ pidgin/minidialog.c
 pidgin/pidginabout.c
 pidgin/pidgin.c
 pidgin/pidginattachment.c
+pidgin/pidginclosebutton.c
 pidgin/pidgincontactcompletion.c
 pidgin/pidgindebug.c
+pidgin/pidgindialog.c
 pidgin/pidgingdkpixbuf.c
 pidgin/pidgininvitedialog.c
 pidgin/pidginlog.c
@@ -355,6 +357,7 @@ pidgin/pidginmessage.c
 pidgin/pidginstock.c
 pidgin/pidgintalkatu.c
 pidgin/pidgintooltip.c
+pidgin/pidginwindow.c
 pidgin/plugins/contact_priority.c
 pidgin/plugins/disco/gtkdisco.c
 pidgin/plugins/disco/xmppdisco.c
@@ -398,6 +401,7 @@ pidgin/resources/About/about.ui
 pidgin/resources/Debug/debug.ui
 pidgin/resources/Debug/plugininfo.ui
 pidgin/resources/Conversations/invite_dialog.ui
+pidgin/resources/closebutton.ui
 pidgin/win32/gtkwin32dep.c
 pidgin/win32/untar.c
 pidgin/win32/winpidgin.c

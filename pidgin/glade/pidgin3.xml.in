@@ -3,17 +3,23 @@
   <glade-widget-classes>
     <glade-widget-class name="PidginAccountChooser" generic-name="account_chooser" title="AccountChooser"/>
     <glade-widget-class name="PidginAccountsMenu" generic-name="accounts_menu" title="AccountsMenu"/>
+    <glade-widget-class name="PidginCloseButton" generic-name="close-button" title="CloseButton"/>
+    <glade-widget-class name="PidginDialog" generic-name="dialog" title="Dialog"/>
     <glade-widget-class name="PidginInviteDialog" generic-name="invite_dialog" title="InviteDialog"/>
     <glade-widget-class name="PidginMenuTray" generic-name="menu_tray" title="MenuTray"/>
     <glade-widget-class name="PidginPluginsMenu" generic-name="plugins_menu" title="PluginsMenu"/>
     <glade-widget-class name="PidginScrollBook" generic-name="scroll_book" title="ScrollBook"/>
+    <glade-widget-class name="PidginWindow" generic-name="window" title="Window"/>
   </glade-widget-classes>
   <glade-widget-group name="pidgin" title="Pidgin">
     <glade-widget-class-ref name="PidginAccountChooser"/>
     <glade-widget-class-ref name="PidginAccountsMenu"/>
+    <glade-widget-class-ref name="PidginCloseButton"/>
+    <glade-widget-class-ref name="PidginDialog"/>
     <glade-widget-class-ref name="PidginInviteDialog"/>
     <glade-widget-class-ref name="PidginMenuTray"/>
     <glade-widget-class-ref name="PidginPluginsMenu"/>
     <glade-widget-class-ref name="PidginScrollBook"/>
+    <glade-widget-class-ref name="PidginWindow"/>
   </glade-widget-group>
 </glade-catalog>

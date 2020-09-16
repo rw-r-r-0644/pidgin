@@ -34,6 +34,7 @@
 #include "gtkutils.h"
 #include "pidginaccountchooser.h"
 #include "pidgincore.h"
+#include "pidgindialog.h"
 #include "pidgintalkatu.h"
 
 #include <gdk/gdkkeysyms.h>
@@ -1253,7 +1254,7 @@ pidgin_pounces_manager_show(void)
 	width  = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/pounces/dialog/width");
 	height = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/pounces/dialog/height");
 
-	dialog->window = win = pidgin_create_dialog(_("Buddy Pounces"), 0, "pounces", TRUE);
+	dialog->window = win = pidgin_dialog_new(_("Buddy Pounces"), 0, "pounces", TRUE);
 
 	gtk_window_set_default_size(GTK_WINDOW(win), width, height);
 

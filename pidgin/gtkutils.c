@@ -127,61 +127,6 @@ static GSList *minidialogs = NULL;
 /******************************************************************************
  * Code
  *****************************************************************************/
-static
-void pidgin_window_init(GtkWindow *wnd, const char *title, guint border_width, const char *role, gboolean resizable)
-{
-	if (title)
-		gtk_window_set_title(wnd, title);
-#ifdef _WIN32
-	else
-		gtk_window_set_title(wnd, PIDGIN_ALERT_TITLE);
-#endif
-	gtk_container_set_border_width(GTK_CONTAINER(wnd), border_width);
-	if (role)
-		gtk_window_set_role(wnd, role);
-	gtk_window_set_resizable(wnd, resizable);
-}
-
-GtkWidget *
-pidgin_create_window(const char *title, guint border_width, const char *role, gboolean resizable)
-{
-	GtkWindow *wnd = NULL;
-
-	wnd = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-	pidgin_window_init(wnd, title, border_width, role, resizable);
-
-	return GTK_WIDGET(wnd);
-}
-
-GtkWidget *
-pidgin_create_small_button(GtkWidget *image)
-{
-	GtkWidget *button;
-
-	button = gtk_button_new();
-	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
-
-	/* don't allow focus on the close button */
-	gtk_widget_set_focus_on_click(button, FALSE);
-
-	gtk_widget_show(image);
-
-	gtk_container_add(GTK_CONTAINER(button), image);
-
-	return button;
-}
-
-GtkWidget *
-pidgin_create_dialog(const char *title, guint border_width, const char *role, gboolean resizable)
-{
-	GtkWindow *wnd = NULL;
-
-	wnd = GTK_WINDOW(gtk_dialog_new());
-	pidgin_window_init(wnd, title, border_width, role, resizable);
-
-	return GTK_WIDGET(wnd);
-}
-
 GtkWidget *
 pidgin_create_video_widget(void)
 {

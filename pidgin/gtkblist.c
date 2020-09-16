@@ -46,6 +46,7 @@
 #include "pidgin/pidginaccountchooser.h"
 #include "pidgin/pidginactiongroup.h"
 #include "pidgin/pidginbuddylistmenu.h"
+#include "pidgin/pidginclosebutton.h"
 #include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
 #include "pidgin/pidgingdkpixbuf.h"
@@ -53,6 +54,7 @@
 #include "pidgin/pidginmooddialog.h"
 #include "pidgin/pidginplugininfo.h"
 #include "pidgin/pidgintooltip.h"
+#include "pidgin/pidginwindow.h"
 #include "pidginmenutray.h"
 #include "pidginstock.h"
 
@@ -5197,7 +5199,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtkblist->empty_avatar = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, 32, 32);
 	gdk_pixbuf_fill(gtkblist->empty_avatar, 0x00000000);
 
-	gtkblist->window = pidgin_create_window(_("Buddy List"), 0, "buddy_list", TRUE);
+	gtkblist->window = pidgin_window_new(_("Buddy List"), 0, "buddy_list", TRUE);
 	g_signal_connect(G_OBJECT(gtkblist->window), "focus-in-event",
 			 G_CALLBACK(blist_focus_cb), gtkblist);
 	g_signal_connect(G_OBJECT(gtkblist->window), "focus-out-event",
@@ -5279,9 +5281,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtk_box_pack_start(GTK_BOX(content_area), gtkblist->headline_label,
 	                   TRUE, TRUE, 0);
 
-	close = gtk_image_new_from_stock(GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
-	close = pidgin_create_small_button(close);
-	gtk_widget_set_tooltip_text(close, _("Close"));
+	close = pidgin_close_button_new();
 	gtk_info_bar_add_action_widget(GTK_INFO_BAR(infobar), close,
 	                               GTK_RESPONSE_CLOSE);
 

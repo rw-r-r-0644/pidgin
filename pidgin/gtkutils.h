@@ -84,42 +84,6 @@ typedef gboolean (*PidginFilterBuddyCompletionEntryFunc) (const PidginBuddyCompl
 G_BEGIN_DECLS
 
 /**
- * pidgin_create_small_button:
- * @image:   A button image.
- *
- * Creates a small button
- *
- * Returns: (transfer full): A GtkButton created from the image.
- */
-GtkWidget *pidgin_create_small_button(GtkWidget *image);
-
-/**
- * pidgin_create_window:
- * @title:        The window title, or %NULL
- * @border_width: The window's desired border width
- * @role:         A string indicating what the window is responsible for doing, or %NULL
- * @resizable:    Whether the window should be resizable (%TRUE) or not (%FALSE)
- *
- * Creates a new window
- *
- * Returns: (transfer full): A new window.
- */
-GtkWidget *pidgin_create_window(const char *title, guint border_width, const char *role, gboolean resizable);
-
-/**
- * pidgin_create_dialog:
- * @title:        The window title, or %NULL
- * @border_width: The window's desired border width
- * @role:         A string indicating what the window is responsible for doing, or %NULL
- * @resizable:    Whether the window should be resizable (%TRUE) or not (%FALSE)
- *
- * Creates a new dialog window
- *
- * Returns: (transfer full): A new dialog window.
- */
-GtkWidget *pidgin_create_dialog(const char *title, guint border_width, const char *role, gboolean resizable);
-
-/**
  * pidgin_create_video_widget:
  *
  * Creates a new drawing area suitable for displaying a video

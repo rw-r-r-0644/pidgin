@@ -29,6 +29,7 @@
 #include "gtksavedstatuses.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
+#include "pidgindialog.h"
 #include "pidginstock.h"
 
 /*
@@ -550,7 +551,7 @@ pidgin_status_window_show(void)
 	width  = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/status/dialog/width");
 	height = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/status/dialog/height");
 
-	dialog->window = win = pidgin_create_dialog(_("Saved Statuses"), 12, "statuses", TRUE);
+	dialog->window = win = pidgin_dialog_new(_("Saved Statuses"), 12, "statuses", TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(win), width, height);
 
 	g_signal_connect(G_OBJECT(win), "delete_event",
@@ -1103,7 +1104,7 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	if (edit)
 		dialog->original_title = g_strdup(purple_savedstatus_get_title(saved_status));
 
-	dialog->window = win = pidgin_create_dialog(_("Status"), 12, "status", TRUE);
+	dialog->window = win = pidgin_dialog_new(_("Status"), 12, "status", TRUE);
 
 	g_signal_connect(G_OBJECT(win), "destroy",
 					 G_CALLBACK(status_editor_destroy_cb), dialog);
@@ -1402,7 +1403,7 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	dialog->account = account;
 
 	tmp = g_strdup_printf(_("Status for %s"), purple_account_get_username(account));
-	dialog->window = win = pidgin_create_dialog(tmp, 12, "substatus", TRUE);
+	dialog->window = win = pidgin_dialog_new(tmp, 12, "substatus", TRUE);
 	g_free(tmp);
 
 	g_signal_connect(G_OBJECT(win), "destroy",

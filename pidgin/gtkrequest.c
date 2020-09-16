@@ -30,6 +30,7 @@
 #include "gtkblist.h"
 #include "pidginaccountchooser.h"
 #include "pidgincore.h"
+#include "pidgindialog.h"
 #include "pidginstock.h"
 
 #include <gdk/gdkkeysyms.h>
@@ -1885,11 +1886,7 @@ pidgin_request_fields(const char *title, const char *primary,
 	data->cbs[0] = ok_cb;
 	data->cbs[1] = cancel_cb;
 
-#ifdef _WIN32
-	data->dialog = win = pidgin_create_dialog(PIDGIN_ALERT_TITLE, 12, "multifield", TRUE) ;
-#else /* !_WIN32 */
-	data->dialog = win = pidgin_create_dialog(title, 12, "multifield", TRUE) ;
-#endif /* _WIN32 */
+	data->dialog = win = pidgin_dialog_new(title, 12, "multifield", TRUE) ;
 
 	g_signal_connect(G_OBJECT(win), "delete_event",
 					 G_CALLBACK(destroy_multifield_cb), data);

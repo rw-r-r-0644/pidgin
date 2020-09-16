@@ -39,8 +39,10 @@ libpidgin_SOURCES = [
 	'pidginactiongroup.c',
 	'pidginattachment.c',
 	'pidginbuddylistmenu.c',
+	'pidginclosebutton.c',
 	'pidgincontactcompletion.c',
 	'pidgindebug.c',
+	'pidgindialog.c',
 	'pidgingdkpixbuf.c',
 	'pidgininvitedialog.c',
 	'pidginlog.c',
@@ -54,6 +56,7 @@ libpidgin_SOURCES = [
 	'pidginprotocolstore.c',
 	'pidgintalkatu.c',
 	'pidgintooltip.c',
+	'pidginwindow.c',
 ]
 
 libpidgin_headers = [
@@ -98,8 +101,10 @@ libpidgin_headers = [
 	'pidginactiongroup.h',
 	'pidginattachment.h',
 	'pidginbuddylistmenu.h',
+	'pidginclosebutton.h',
 	'pidgincontactcompletion.h',
 	'pidgincore.h',
+	'pidgindialog.h',
 	'pidgindebug.h',
 	'pidgingdkpixbuf.h',
 	'pidginicon.h',
@@ -115,6 +120,7 @@ libpidgin_headers = [
 	'pidginprotocolstore.h',
 	'pidgintalkatu.h',
 	'pidgintooltip.h',
+	'pidginwindow.h',
 ]
 
 pidgin_SOURCES = [

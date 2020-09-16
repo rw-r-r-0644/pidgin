@@ -33,6 +33,7 @@
 #include "gtkutils.h"
 #include "gtkstatusbox.h"
 #include "pidgincore.h"
+#include "pidgindialog.h"
 #include "pidginstock.h"
 #include "minidialog.h"
 #include "pidginprotocolchooser.h"
@@ -1624,7 +1625,7 @@ pidgin_account_dialog_show_continue(PurpleAccount *account,
 	dialog->sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 	dialog->protocol = purple_protocols_find(dialog->protocol_id);
 
-	dialog->window = win = pidgin_create_dialog((type == PIDGIN_ADD_ACCOUNT_DIALOG) ? _("Add Account") : _("Modify Account"),
+	dialog->window = win = pidgin_dialog_new((type == PIDGIN_ADD_ACCOUNT_DIALOG) ? _("Add Account") : _("Modify Account"),
 		6, "account", FALSE);
 
 	g_signal_connect(G_OBJECT(win), "delete_event",
@@ -2395,7 +2396,7 @@ pidgin_accounts_window_show(void)
 	width  = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/accounts/dialog/width");
 	height = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/accounts/dialog/height");
 
-	dialog->window = win = pidgin_create_dialog(_("Accounts"), 0, "accounts", TRUE);
+	dialog->window = win = pidgin_dialog_new(_("Accounts"), 0, "accounts", TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(win), width, height);
 
 	g_signal_connect(G_OBJECT(win), "delete_event",
