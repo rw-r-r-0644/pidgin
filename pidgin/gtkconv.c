@@ -51,6 +51,7 @@
 #include "gtkprivacy.h"
 #include "gtkstyle.h"
 #include "gtkutils.h"
+#include "pidginclosebutton.h"
 #include "pidgincore.h"
 #include "pidgingdkpixbuf.h"
 #include "pidgininvitedialog.h"
@@ -59,6 +60,7 @@
 #include "pidginmessage.h"
 #include "pidginstock.h"
 #include "pidgintooltip.h"
+#include "pidginwindow.h"
 
 #include "gtknickcolors.h"
 
@@ -7651,7 +7653,7 @@ pidgin_conv_window_new()
 	window_list = g_list_append(window_list, win);
 
 	/* Create the window. */
-	win->window = pidgin_create_window(NULL, 0, "conversation", TRUE);
+	win->window = pidgin_window_new(NULL, 0, "conversation", TRUE);
 	/*_pidgin_widget_set_accessible_name(win->window, "Conversations");*/
 	if (!gtk_get_current_event_state(&state))
 		gtk_window_set_focus_on_map(GTK_WINDOW(win->window), FALSE);
@@ -7915,9 +7917,7 @@ pidgin_conv_window_add_gtkconv(PidginConvWindow *win, PidginConversation *gtkcon
 
 
 	/* Close button. */
-	gtkconv->close = pidgin_create_small_button(gtk_label_new("×"));
-	gtk_widget_set_tooltip_text(gtkconv->close, _("Close conversation"));
-
+	gtkconv->close = pidgin_close_button_new();
 	g_signal_connect(gtkconv->close, "clicked", G_CALLBACK (close_conv_cb), gtkconv);
 
 	/* Status icon. */

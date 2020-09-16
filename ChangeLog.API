@@ -632,6 +632,9 @@ version 3.0.0 (??/??/????):
 		* pidgin_conv_placement_get_fnc
 		* pidgin_conv_placement_set_current_func
 		* pidgin_conv_placement_get_current_func
+		* pidgin_create_dialog, use pidgin_dialog_new instead.
+		* pidgin_create_small_button, use pidgin_close_button_new instead.
+		* pidgin_create_window, use pidgin_window_new instead.
 		* PIDGIN_DIALOG
 		* pidgin_dialogs_alias_contact
 		* pidgin_make_pretty_arrows

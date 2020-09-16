@@ -22,5 +22,6 @@
     <file compressed="true">Roomlist/roomlist.ui</file>
     <file compressed="true">Whiteboard/whiteboard.ui</file>
     <file compressed="true">Xfer/xfer.ui</file>
+    <file compressed="true">closebutton.ui</file>
   </gresource>
 </gresources>
