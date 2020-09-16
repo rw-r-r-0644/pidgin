@@ -28,6 +28,7 @@
 #include "gtkprivacy.h"
 #include "gtkutils.h"
 #include "pidginaccountchooser.h"
+#include "pidginaccountstore.h"
 
 #define PIDGIN_TYPE_PRIVACY_DIALOG (pidgin_privacy_dialog_get_type())
 G_DECLARE_FINAL_TYPE(PidginPrivacyDialog, pidgin_privacy_dialog, PIDGIN,
@@ -119,8 +120,8 @@ user_selected_cb(GtkTreeSelection *sel, PidginPrivacyDialog *dialog)
 }
 
 static void
-select_account_cb(GtkWidget *chooser, PidginPrivacyDialog *dialog)
-{
+select_account_cb(GtkWidget *w, PidginPrivacyDialog *dialog) {
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(w);
 	PurpleAccount *account = pidgin_account_chooser_get_selected(chooser);
 	gsize i;
 
@@ -300,15 +301,15 @@ pidgin_privacy_dialog_class_init(PidginPrivacyDialogClass *klass)
 }
 
 static void
-pidgin_privacy_dialog_init(PidginPrivacyDialog *dialog)
-{
+pidgin_privacy_dialog_init(PidginPrivacyDialog *dialog) {
+	PidginAccountChooser *chooser = NULL;
 	gssize selected = -1;
 	gsize i;
 
 	gtk_widget_init_template(GTK_WIDGET(dialog));
 
-	dialog->account =
-	        pidgin_account_chooser_get_selected(dialog->account_chooser);
+	chooser = PIDGIN_ACCOUNT_CHOOSER(dialog->account_chooser);
+	dialog->account = pidgin_account_chooser_get_selected(chooser);
 
 	/* Add the drop-down list with the allow/block types. */
 	for (i = 0; i < menu_entry_count; i++) {

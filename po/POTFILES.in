@@ -344,6 +344,9 @@ pidgin/libpidgin.c
 pidgin/minidialog.c
 pidgin/pidginabout.c
 pidgin/pidgin.c
+pidgin/pidginaccountfilterconnected.c
+pidgin/pidginaccountfilterprotocol.c
+pidgin/pidginaccountstore.c
 pidgin/pidginattachment.c
 pidgin/pidginclosebutton.c
 pidgin/pidgincontactcompletion.c

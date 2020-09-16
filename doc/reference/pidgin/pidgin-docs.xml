@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 
 <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
@@ -54,9 +54,12 @@
       <xi:include href="xml/minidialog.xml" />
       <xi:include href="xml/pidgin.xml" />
       <xi:include href="xml/pidginabout.xml" />
-      <xi:include href="xml/pidginaccountchooser.xml" />
       <xi:include href="xml/pidginaccountactionsmenu.xml" />
+      <xi:include href="xml/pidginaccountchooser.xml" />
+      <xi:include href="xml/pidginaccountfilterconnected.xml" />
+      <xi:include href="xml/pidginaccountfilterprotocol.xml" />
       <xi:include href="xml/pidginaccountsmenu.xml" />
+      <xi:include href="xml/pidginaccountstore.xml" />
       <xi:include href="xml/pidginactiongroup.xml" />
       <xi:include href="xml/pidginattachment.xml" />
       <xi:include href="xml/pidginbuddylistmenu.xml" />

@@ -45,8 +45,6 @@ G_DECLARE_FINAL_TYPE(PidginAccountChooser, pidgin_account_chooser, PIDGIN,
 
 /**
  * pidgin_account_chooser_new:
- * @default_account: The account to select by default.
- * @show_all: Whether or not to show all accounts, or just active accounts.
  *
  * Creates a combo box filled with accounts.
  *
@@ -54,8 +52,7 @@ G_DECLARE_FINAL_TYPE(PidginAccountChooser, pidgin_account_chooser, PIDGIN,
  *
  * Since: 3.0.0
  */
-GtkWidget *pidgin_account_chooser_new(PurpleAccount *default_account,
-                                      gboolean show_all);
+GtkWidget *pidgin_account_chooser_new(void);
 
 /**
  * pidgin_account_chooser_set_filter_func:
@@ -76,12 +73,12 @@ void pidgin_account_chooser_set_filter_func(
  *
  * Gets the currently selected account from an account combo box.
  *
- * Returns: (transfer none): Returns the #PurpleAccount that is currently
+ * Returns: (transfer full): Returns the #PurpleAccount that is currently
  *          selected.
  *
  * Since: 3.0.0
  */
-PurpleAccount *pidgin_account_chooser_get_selected(GtkWidget *chooser);
+PurpleAccount *pidgin_account_chooser_get_selected(PidginAccountChooser *chooser);
 
 /**
  * pidgin_account_chooser_set_selected:
@@ -92,20 +89,8 @@ PurpleAccount *pidgin_account_chooser_get_selected(GtkWidget *chooser);
  *
  * Since: 3.0.0
  */
-void pidgin_account_chooser_set_selected(GtkWidget *chooser,
+void pidgin_account_chooser_set_selected(PidginAccountChooser *chooser,
                                          PurpleAccount *account);
-
-/**
- * pidgin_account_chooser_get_show_all:
- * @chooser: The chooser created by pidgin_account_chooser_new().
- *
- * Returns whether to show all accounts.
- *
- * Returns: Whether or not to show all accounts, or just active accounts.
- *
- * Since: 3.0.0
- */
-gboolean pidgin_account_chooser_get_show_all(GtkWidget *chooser);
 
 G_END_DECLS
 

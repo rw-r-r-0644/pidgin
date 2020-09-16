@@ -110,8 +110,8 @@ static gint delete_win_cb(GtkWidget *w, GdkEventAny *e, gpointer d)
 }
 
 static void
-dialog_select_account_cb(GtkWidget *chooser, PidginRoomlistDialog *dialog)
-{
+dialog_select_account_cb(GtkWidget *w, PidginRoomlistDialog *dialog) {
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(w);
 	PurpleAccount *account = pidgin_account_chooser_get_selected(chooser);
 	gboolean change = (account != dialog->account);
 	dialog->account = account;
@@ -566,19 +566,20 @@ pidgin_roomlist_dialog_init(PidginRoomlistDialog *self)
 static PidginRoomlistDialog *
 pidgin_roomlist_dialog_new_with_account(PurpleAccount *account)
 {
-	PidginRoomlistDialog *dialog;
+	PidginRoomlistDialog *dialog = NULL;
+	PidginAccountChooser *chooser = NULL;
 
 	dialog = g_object_new(PIDGIN_TYPE_ROOMLIST_DIALOG, NULL);
 	dialog->account = account;
 
+	chooser = PIDGIN_ACCOUNT_CHOOSER(dialog->account_widget);
+
 	if (!account) {
 		/* This is normally NULL, and we normally don't care what the
 		 * first selected item is */
-		dialog->account = pidgin_account_chooser_get_selected(
-		        dialog->account_widget);
+		dialog->account = pidgin_account_chooser_get_selected(chooser);
 	} else {
-		pidgin_account_chooser_set_selected(dialog->account_widget,
-		                                    account);
+		pidgin_account_chooser_set_selected(chooser, account);
 	}
 
 	/* show the dialog window and return the dialog */

@@ -26,9 +26,11 @@
 #include <purple.h>
 
 #include "gtkrequest.h"
-#include "gtkutils.h"
 #include "gtkblist.h"
+#include "gtkutils.h"
 #include "pidginaccountchooser.h"
+#include "pidginaccountfilterconnected.h"
+#include "pidginaccountstore.h"
 #include "pidgincore.h"
 #include "pidgindialog.h"
 #include "pidginstock.h"
@@ -262,8 +264,10 @@ field_choice_option_cb(GtkRadioButton *button, PurpleRequestField *field)
 static void
 field_account_cb(GObject *w, PurpleRequestField *field)
 {
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(w);
+
 	purple_request_field_account_set_value(
-	        field, pidgin_account_chooser_get_selected(GTK_WIDGET(w)));
+	        field, pidgin_account_chooser_get_selected(chooser));
 }
 
 static void
@@ -1325,10 +1329,32 @@ static GtkWidget *
 create_account_field(PurpleRequestField *field)
 {
 	GtkWidget *widget;
+	PurpleAccount *account;
 
-	widget = pidgin_account_chooser_new(
-	        purple_request_field_account_get_default_value(field),
-	        purple_request_field_account_get_show_all(field));
+	widget = pidgin_account_chooser_new();
+	account  = purple_request_field_account_get_default_value(field);
+
+	if(purple_request_field_account_get_show_all(field)) {
+		GtkListStore *store = pidgin_account_store_new();
+
+		gtk_combo_box_set_model(GTK_COMBO_BOX(widget), GTK_TREE_MODEL(store));
+
+		g_object_unref(G_OBJECT(store));
+	} else {
+		GtkListStore *store = NULL;
+		GtkTreeModel *filter = NULL;
+
+		store = pidgin_account_store_new();
+		filter = pidgin_account_filter_connected_new(GTK_TREE_MODEL(store),
+		                                             NULL);
+		g_object_unref(G_OBJECT(store));
+
+		gtk_combo_box_set_model(GTK_COMBO_BOX(widget), GTK_TREE_MODEL(filter));
+		g_object_unref(G_OBJECT(filter));
+	}
+
+	pidgin_account_chooser_set_selected(PIDGIN_ACCOUNT_CHOOSER(widget),
+	                                    account);
 	pidgin_account_chooser_set_filter_func(
 	        PIDGIN_ACCOUNT_CHOOSER(widget),
 	        purple_request_field_account_get_filter(field));
@@ -1338,6 +1364,7 @@ create_account_field(PurpleRequestField *field)
 	gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
 	g_signal_connect(widget, "changed",
 		G_CALLBACK(req_field_changed_cb), field);
+	gtk_widget_show(widget);
 
 	return widget;
 }

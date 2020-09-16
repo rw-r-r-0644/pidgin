@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
+  <object class="PidginAccountStore" id="accounts"/>
   <object class="GtkImage" id="add_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -179,6 +180,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   <object class="PidginAccountChooser" id="account_widget">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="model">accounts</property>
+                    <property name="active">0</property>
                     <signal name="changed" handler="dialog_select_account_cb" object="PidginRoomlistDialog" swapped="no"/>
                     <accessibility>
                       <relation type="labelled-by" target="label1"/>
