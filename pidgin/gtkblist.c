@@ -44,6 +44,8 @@
 #include "gtkutils.h"
 #include "pidgin/minidialog.h"
 #include "pidgin/pidginaccountchooser.h"
+#include "pidgin/pidginaccountfilterconnected.h"
+#include "pidgin/pidginaccountstore.h"
 #include "pidgin/pidginactiongroup.h"
 #include "pidgin/pidginbuddylistmenu.h"
 #include "pidgin/pidginclosebutton.h"
@@ -967,6 +969,7 @@ make_blist_request_dialog(PidginBlistRequestData *data, PurpleAccount *account,
 	GtkWidget *hbox;
 	GtkWidget *vbox;
 	GtkWindow *blist_window;
+	GtkTreeModel *model = NULL, *filter = NULL;
 	PidginBuddyList *gtkblist;
 
 	data->account = account;
@@ -1009,7 +1012,19 @@ make_blist_request_dialog(PidginBlistRequestData *data, PurpleAccount *account,
 
 	data->sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
-	data->account_menu = pidgin_account_chooser_new(account, FALSE);
+	model = GTK_TREE_MODEL(pidgin_account_store_new());
+	filter = pidgin_account_filter_connected_new(model, NULL);
+	g_object_unref(G_OBJECT(model));
+	data->account_menu = pidgin_account_chooser_new();
+	gtk_combo_box_set_model(GTK_COMBO_BOX(data->account_menu), filter);
+	g_object_unref(G_OBJECT(filter));
+	if(PURPLE_IS_ACCOUNT(account)) {
+		pidgin_account_chooser_set_selected(PIDGIN_ACCOUNT_CHOOSER(
+			data->account_menu), account);
+	} else {
+		gtk_combo_box_set_active(GTK_COMBO_BOX(data->account_menu), 0);
+	}
+
 	pidgin_account_chooser_set_filter_func(
 	        PIDGIN_ACCOUNT_CHOOSER(data->account_menu), filter_func);
 	pidgin_add_widget_to_vbox(GTK_BOX(vbox), _("A_ccount"), data->sg, data->account_menu, TRUE, NULL);
@@ -1109,8 +1124,8 @@ rebuild_chat_entries(PidginChatData *data, const char *default_chat_name)
 static void
 chat_select_account_cb(GObject *w, PidginChatData *data)
 {
-	PurpleAccount *account =
-	        pidgin_account_chooser_get_selected(GTK_WIDGET(w));
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(w);
+	PurpleAccount *account = pidgin_account_chooser_get_selected(chooser);
 
 	g_return_if_fail(data != NULL);
 	g_return_if_fail(account != NULL);
@@ -1131,6 +1146,7 @@ void
 pidgin_blist_joinchat_show(void)
 {
 	PidginChatData *data = NULL;
+	PidginAccountChooser *chooser = NULL;
 
 	data = g_new0(PidginChatData, 1);
 
@@ -1147,8 +1163,9 @@ pidgin_blist_joinchat_show(void)
 	gtk_dialog_set_default_response(GTK_DIALOG(data->rq_data.window),
 		GTK_RESPONSE_OK);
 	data->default_chat_name = NULL;
-	data->rq_data.account =
-	        pidgin_account_chooser_get_selected(data->rq_data.account_menu);
+
+	chooser = PIDGIN_ACCOUNT_CHOOSER(data->rq_data.account_menu);
+	data->rq_data.account = pidgin_account_chooser_get_selected(chooser);
 
 	rebuild_chat_entries(data, NULL);
 
@@ -6263,8 +6280,8 @@ groups_tree(void)
 static void
 add_buddy_select_account_cb(GObject *w, PidginAddBuddyData *data)
 {
-	PurpleAccount *account =
-	        pidgin_account_chooser_get_selected(GTK_WIDGET(w));
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(w);
+	PurpleAccount *account = pidgin_account_chooser_get_selected(chooser);
 	PurpleConnection *pc = NULL;
 	PurpleProtocol *protocol = NULL;
 	gboolean invite_enabled = TRUE;
@@ -6371,6 +6388,7 @@ pidgin_blist_request_add_buddy(PurpleBuddyList *list, PurpleAccount *account,
                                const char *username, const char *group,
                                const char *alias)
 {
+	PidginAccountChooser *chooser = NULL;
 	PidginAddBuddyData *data = g_new0(PidginAddBuddyData, 1);
 	PidginBlistRequestData *blist_req_data = &data->rq_data;
 
@@ -6434,8 +6452,8 @@ pidgin_blist_request_add_buddy(PurpleBuddyList *list, PurpleAccount *account,
 	gtk_widget_show_all(data->rq_data.window);
 
 	/* Force update of invite message entry sensitivity */
-	pidgin_account_chooser_set_selected(blist_req_data->account_menu,
-	                                    account);
+	chooser = PIDGIN_ACCOUNT_CHOOSER(blist_req_data->account_menu);
+	pidgin_account_chooser_set_selected(chooser, account);
 }
 
 static void

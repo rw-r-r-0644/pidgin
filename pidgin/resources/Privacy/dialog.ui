@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 
+<!-- Generated with glade 3.22.1
 
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
+  <object class="PidginAccountStore" id="account_store"/>
+  <object class="PidginAccountFilterConnected" id="connected_account_store">
+    <property name="child_model">account_store</property>
+  </object>
   <object class="GtkListStore" id="allow_store">
     <columns>
       <!-- column-name column1 -->
@@ -169,6 +173,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   <object class="PidginAccountChooser" id="account_chooser">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="model">connected_account_store</property>
+                    <property name="active">0</property>
                     <signal name="changed" handler="select_account_cb" object="PidginPrivacyDialog" swapped="no"/>
                     <accessibility>
                       <relation type="labelled-by" target="label1"/>

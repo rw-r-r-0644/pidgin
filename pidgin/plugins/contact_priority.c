@@ -29,17 +29,19 @@
 #define CONTACT_PRIORITY_PLUGIN_ID "gtk-contact-priority"
 
 static void
-select_account(GtkWidget *chooser, gpointer data)
+select_account(GtkWidget *widget, gpointer data)
 {
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(widget);
 	PurpleAccount *account = pidgin_account_chooser_get_selected(chooser);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data),
 	                          (gdouble)purple_account_get_int(account, "score", 0));
 }
 
 static void
-account_update(GtkWidget *widget, GtkWidget *chooser)
+account_update(GtkWidget *widget, gpointer data)
 {
 	PurpleAccount *account = NULL;
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(data);
 
 	account = pidgin_account_chooser_get_selected(chooser);
 	purple_account_set_int(account, "score", gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widget)));
@@ -79,6 +81,7 @@ get_config_frame(PurplePlugin *plugin)
 	GtkWidget *chooser = NULL;
 	GtkAdjustment *adj = NULL;
 	GtkSizeGroup *sg = NULL;
+	GtkListStore *store = NULL;
 	PurpleAccount *account = NULL;
 	int i;
 
@@ -145,12 +148,15 @@ get_config_frame(PurplePlugin *plugin)
 	adj = GTK_ADJUSTMENT(gtk_adjustment_new(0, -500, 500, 1, 1, 1));
 	spin = gtk_spin_button_new(adj, 1, 0);
 
-	chooser = pidgin_account_chooser_new(NULL, TRUE);
+	store = pidgin_account_store_new();
+	chooser = pidgin_account_chooser_new();
+	gtk_combo_box_set_model(GTK_COMBO_BOX(chooser), GTK_TREE_MODEL(store));
+	g_object_unref(G_OBJECT(store));
 	gtk_box_pack_start(GTK_BOX(hbox), chooser, FALSE, FALSE, 0);
 	g_signal_connect(chooser, "changed", G_CALLBACK(select_account), spin);
 
 	/* this is where we set up the spin button we made above */
-	account = pidgin_account_chooser_get_selected(chooser);
+	account = pidgin_account_chooser_get_selected(PIDGIN_ACCOUNT_CHOOSER(chooser));
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(spin),
 	                          (gdouble)purple_account_get_int(account, "score", 0));
 	gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(spin), GTK_ADJUSTMENT(adj));

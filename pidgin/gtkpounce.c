@@ -33,6 +33,7 @@
 #include "pidginstock.h"
 #include "gtkutils.h"
 #include "pidginaccountchooser.h"
+#include "pidginaccountstore.h"
 #include "pidgincore.h"
 #include "pidgindialog.h"
 #include "pidgintalkatu.h"
@@ -347,8 +348,9 @@ entry_key_press_cb(GtkWidget *widget, GdkEventKey *event,
 }
 
 static void
-pounce_choose_cb(GtkWidget *chooser, PidginPounceDialog *dialog)
+pounce_choose_cb(GtkWidget *w, PidginPounceDialog *dialog)
 {
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(w);
 	dialog->account = pidgin_account_chooser_get_selected(chooser);
 }
 
@@ -399,7 +401,8 @@ pounce_dnd_recv(GtkWidget *widget, GdkDragContext *dc, gint x, gint y,
 		gtk_entry_set_text(GTK_ENTRY(dialog->buddy_entry), purple_buddy_get_name(buddy));
 		dialog->account = purple_buddy_get_account(buddy);
 		pidgin_account_chooser_set_selected(
-		        dialog->account_menu, purple_buddy_get_account(buddy));
+			PIDGIN_ACCOUNT_CHOOSER(dialog->account_menu),
+			purple_buddy_get_account(buddy));
 
 		gtk_drag_finish(dc, TRUE, (gdk_drag_context_get_actions(dc) == GDK_ACTION_MOVE), t);
 	}
@@ -425,7 +428,7 @@ pounce_dnd_recv(GtkWidget *widget, GdkDragContext *dc, gint x, gint y,
 				gtk_entry_set_text(GTK_ENTRY(dialog->buddy_entry), username);
 				dialog->account = account;
 				pidgin_account_chooser_set_selected(
-				        dialog->account_menu, account);
+					PIDGIN_ACCOUNT_CHOOSER(dialog->account_menu), account);
 			}
 		}
 
@@ -445,8 +448,8 @@ static const GtkTargetEntry dnd_targets[] =
 static void
 reset_send_msg_entry(PidginPounceDialog *dialog, GtkWidget *dontcare)
 {
-	PurpleAccount *account =
-	        pidgin_account_chooser_get_selected(dialog->account_menu);
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(dialog->account_menu);
+	PurpleAccount *account = pidgin_account_chooser_get_selected(chooser);
 
 	if(GTK_IS_TEXT_BUFFER(dialog->send_msg_buffer)) {
 		g_object_unref(dialog->send_msg_buffer);
@@ -483,6 +486,7 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	GtkWidget *grid;
 	GtkSizeGroup *sg;
 	GtkWidget *editor;
+	GtkTreeModel *model;
 
 	g_return_if_fail((cur_pounce != NULL) ||
 	                 (account != NULL) ||
@@ -547,8 +551,12 @@ pidgin_pounce_editor_show(PurpleAccount *account, const char *name,
 	gtk_widget_show(label);
 	gtk_size_group_add_widget(sg, label);
 
-	dialog->account_menu =
-	        pidgin_account_chooser_new(dialog->account, TRUE);
+	dialog->account_menu = pidgin_account_chooser_new();
+	model = GTK_TREE_MODEL(pidgin_account_store_new());
+	gtk_combo_box_set_model(GTK_COMBO_BOX(dialog->account_menu), model);
+	g_object_unref(G_OBJECT(model));
+	pidgin_account_chooser_set_selected(
+		PIDGIN_ACCOUNT_CHOOSER(dialog->account_menu), dialog->account);
 	g_signal_connect(dialog->account_menu, "changed",
 	                 G_CALLBACK(pounce_choose_cb), dialog);
 

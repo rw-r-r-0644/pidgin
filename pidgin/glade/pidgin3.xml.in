@@ -3,6 +3,9 @@
   <glade-widget-classes>
     <glade-widget-class name="PidginAccountChooser" generic-name="account_chooser" title="AccountChooser"/>
     <glade-widget-class name="PidginAccountsMenu" generic-name="accounts_menu" title="AccountsMenu"/>
+    <glade-widget-class name="PidginAccountStore" generic-name="account_store" title="AccountStore"/>
+    <glade-widget-class name="PidginAccountFilterConnected" generic-name="account_filter_connected" title="FilterConnected"/>
+    <glade-widget-class name="PidginAccountFilterProtocol" generic-name="account_filter_protocol" title="FilterProtocol"/>
     <glade-widget-class name="PidginCloseButton" generic-name="close-button" title="CloseButton"/>
     <glade-widget-class name="PidginDialog" generic-name="dialog" title="Dialog"/>
     <glade-widget-class name="PidginInviteDialog" generic-name="invite_dialog" title="InviteDialog"/>
@@ -14,6 +17,9 @@
   <glade-widget-group name="pidgin" title="Pidgin">
     <glade-widget-class-ref name="PidginAccountChooser"/>
     <glade-widget-class-ref name="PidginAccountsMenu"/>
+    <glade-widget-class-ref name="PidginAccountStore"/>
+    <glade-widget-class-ref name="PidginAccountFilterConnected"/>
+    <glade-widget-class-ref name="PidginAccountFilterProtocol"/>
     <glade-widget-class-ref name="PidginCloseButton"/>
     <glade-widget-class-ref name="PidginDialog"/>
     <glade-widget-class-ref name="PidginInviteDialog"/>

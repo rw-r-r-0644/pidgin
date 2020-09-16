@@ -145,7 +145,7 @@ pidgin_disco_load_icon(XmppDiscoService *service, const char *size)
 static void
 dialog_select_account_cb(GtkWidget *chooser, PidginDiscoDialog *dialog)
 {
-	PurpleAccount *account = pidgin_account_chooser_get_selected(chooser);
+	PurpleAccount *account = pidgin_account_chooser_get_selected(PIDGIN_ACCOUNT_CHOOSER(chooser));
 	gboolean change = (account != dialog->account);
 	dialog->account = account;
 	gtk_widget_set_sensitive(dialog->browse_button, account != NULL);
@@ -414,11 +414,6 @@ static void close_button_cb(GtkButton *button, PidginDiscoDialog *dialog)
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 }
 
-static gboolean account_filter_func(PurpleAccount *account)
-{
-	return purple_strequal(purple_account_get_protocol_id(account), XMPP_PROTOCOL_ID);
-}
-
 static gboolean
 disco_paint_tooltip(GtkWidget *tipwindow, cairo_t *cr, gpointer data)
 {
@@ -520,6 +515,8 @@ void pidgin_disco_signed_off_cb(PurpleConnection *pc)
 		PidginDiscoList *list = dialog->discolist;
 
 		if (list && list->pc == pc) {
+			PurpleAccount *account = NULL;
+
 			if (list->in_progress)
 				pidgin_disco_list_set_in_progress(list, FALSE);
 
@@ -528,10 +525,12 @@ void pidgin_disco_signed_off_cb(PurpleConnection *pc)
 			pidgin_disco_list_unref(list);
 			dialog->discolist = NULL;
 
+			account = pidgin_account_chooser_get_selected(
+				PIDGIN_ACCOUNT_CHOOSER(dialog->account_chooser));
+
 			gtk_widget_set_sensitive(
 			        dialog->browse_button,
-			        pidgin_account_chooser_get_selected(
-			                dialog->account_chooser) != NULL);
+			        account != NULL);
 
 			gtk_widget_set_sensitive(dialog->register_button, FALSE);
 			gtk_widget_set_sensitive(dialog->add_button, FALSE);
@@ -609,11 +608,8 @@ pidgin_disco_dialog_init(PidginDiscoDialog *dialog)
 	gtk_widget_init_template(GTK_WIDGET(dialog));
 
 	/* accounts dropdown list */
-	pidgin_account_chooser_set_filter_func(
-	        PIDGIN_ACCOUNT_CHOOSER(dialog->account_chooser),
-	        account_filter_func);
-	dialog->account =
-	        pidgin_account_chooser_get_selected(dialog->account_chooser);
+	dialog->account = pidgin_account_chooser_get_selected(
+		PIDGIN_ACCOUNT_CHOOSER(dialog->account_chooser));
 
 	/* browse button */
 	gtk_widget_set_sensitive(dialog->browse_button, dialog->account != NULL);
