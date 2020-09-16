@@ -245,23 +245,23 @@ if ENABLE_GTK
 		i18n = import('i18n')
 		DESKTOP_FILE = 'im.pidgin.Pidgin3.desktop'
 		desktop_file_in = configure_file(
-		    input : 'data/' + DESKTOP_FILE + '.in.in',
+		    input : 'data' / (DESKTOP_FILE + '.in.in'),
 		    output : DESKTOP_FILE + '.in',
 		    configuration : conf)
 		desktop_file = i18n.merge_file(
 		    input : desktop_file_in,
 		    output : DESKTOP_FILE,
-		    po_dir : meson.source_root() + '/po',
+		    po_dir : meson.source_root() / 'po',
 		    type : 'desktop',
 		    install : true,
-		    install_dir : get_option('datadir') + '/applications')
+		    install_dir : get_option('datadir') / 'applications')
 
 		appdata = i18n.merge_file(
 		    input : 'data/im.pidgin.Pidgin3.appdata.xml.in',
 		    output : 'im.pidgin.Pidgin3.appdata.xml',
-		    po_dir : meson.source_root() + '/po',
+		    po_dir : meson.source_root() / 'po',
 		    install : true,
-		    install_dir : get_option('datadir') + '/metainfo')
+		    install_dir : get_option('datadir') / 'metainfo')
 	endif  # INSTALL_I18N
 
 	if enable_introspection

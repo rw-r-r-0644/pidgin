@@ -1,2 +1,2 @@
 install_subdir('16',
-    install_dir : pidginpixmapdir + '/tray')
+    install_dir : pidginpixmapdir / 'tray')

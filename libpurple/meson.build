@@ -168,7 +168,7 @@ purple_coreheaders = [
 ]
 
 purple_filebase = 'purple-@0@'.format(purple_major_version)
-purple_include_base = join_paths(purple_filebase, 'libpurple')
+purple_include_base = purple_filebase / 'libpurple'
 
 if enable_vv
 	purple_coreheaders += 'media-gst.h'
@@ -227,7 +227,7 @@ enums = gnome.mkenums('enums',
     h_template : 'enums.h.in',
     c_template : 'enums.c.in',
     install_header : true,
-    install_dir : join_paths(get_option('includedir'), purple_include_base))
+    install_dir : get_option('includedir') / purple_include_base)
 enums_c = enums[0]
 enums_h = enums[1]
 
@@ -242,14 +242,12 @@ purple_h = configure_file(input : 'purple.h.in',
                           output : 'purple.h',
                           configuration : purple_h_conf,
                           install : true,
-                          install_dir : join_paths(get_option('includedir'),
-                                                   purple_filebase))
+                          install_dir : get_option('includedir') / purple_filebase)
 version_h = configure_file(input : 'version.h.in',
                            output : 'version.h',
                            configuration : version_conf,
                            install : true,
-                           install_dir : join_paths(get_option('includedir'),
-                                                    purple_include_base))
+                           install_dir : get_option('includedir') / purple_include_base)
 
 purple_builtsources = [
 	enums_c,
@@ -286,7 +284,7 @@ install_headers(purple_coreheaders,
                 subdir : purple_include_base)
 
 install_headers(purple_mediaheaders,
-                subdir : join_paths(purple_include_base, 'media'))
+                subdir : purple_include_base / 'media')
 
 pkgconfig.generate(
     name : 'libpurple',

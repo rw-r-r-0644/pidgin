@@ -32,7 +32,7 @@ if get_option('consoleui')
 	ncurses = dependency('ncursesw', required : false)
 	if ncurses.found()
 		foreach location : ncursesw_header_paths
-			f = location + 'ncurses.h'
+			f = location / 'ncurses.h'
 			if compiler.has_header_symbol(f, 'get_wch',
 			    prefix : '#define _XOPEN_SOURCE_EXTENDED')
 				ncurses_header = f
@@ -44,7 +44,7 @@ if get_option('consoleui')
 		ncurses_libs = compiler.find_library('ncursesw', required : false)
 		if ncurses_libs.found()
 			foreach location : ncursesw_header_paths
-				f = location + 'ncurses.h'
+				f = location / 'ncurses.h'
 				if compiler.has_header_symbol(f, 'get_wch',
 				    prefix : '#define _XOPEN_SOURCE_EXTENDED')
 					ncurses_available = true
@@ -176,8 +176,7 @@ if enable_consoleui
 	                         output : 'finch.h',
 	                         configuration : finch_h_conf,
 	                         install : true,
-	                         install_dir : join_paths(get_option('includedir'),
-	                                                  'finch-3'))
+				 install_dir : get_option('includedir') / 'finch-3')
 
 	install_headers(libfinch_headers, subdir : 'finch-3')
 

@@ -1,4 +1,4 @@
-pidginpixmapdir = get_option('datadir') + '/pixmaps/pidgin'
+pidginpixmapdir = get_option('datadir') / 'pixmaps/pidgin'
 
 subdir('emotes/default/24')
 subdir('emotes/small/16')
@@ -12,6 +12,6 @@ if INSTALL_PIXMAPS
 	# installing somewhere with existing stuff. Additionally, we have
 	# extra stuff in our directories we don't want to install.
 	install_data('edit.png', 'info.png', 'pause.png',
-	    install_dir : join_paths(pidginpixmapdir, 'buttons'))
+	    install_dir : pidginpixmapdir / 'buttons')
 	subdir('tray')
 endif

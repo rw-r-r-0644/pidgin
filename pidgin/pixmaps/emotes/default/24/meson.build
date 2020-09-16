@@ -186,7 +186,7 @@ SMILEYS = [
 ]
 
 if INSTALL_PIXMAPS
-	pidginsmileypixdir = pidginpixmapdir + '/emotes/default'
+	pidginsmileypixdir = pidginpixmapdir / 'emotes/default'
 
 	custom_target('default-theme',
 	    input : 'default.theme.in',
