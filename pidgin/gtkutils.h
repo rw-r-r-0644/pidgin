@@ -45,30 +45,10 @@ typedef enum
 
 typedef enum
 {
-	PIDGIN_BUTTON_NONE = 0,
-	PIDGIN_BUTTON_TEXT,
-	PIDGIN_BUTTON_IMAGE,
-	PIDGIN_BUTTON_TEXT_IMAGE
-
-} PidginButtonStyle;
-
-typedef enum
-{
 	PIDGIN_PROTOCOL_ICON_SMALL,
 	PIDGIN_PROTOCOL_ICON_MEDIUM,
 	PIDGIN_PROTOCOL_ICON_LARGE
 } PidginProtocolIconSize;
-
-#ifndef _WIN32
-typedef enum
-{
-	PIDGIN_BROWSER_DEFAULT = 0,
-	/* value '1' was used by PIDGIN_BROWSER_CURRENT, which no longer exists */
-	PIDGIN_BROWSER_NEW_WINDOW = 2,
-	PIDGIN_BROWSER_NEW_TAB
-
-} PidginBrowserPlace;
-#endif /* _WIN32 */
 
 typedef struct {
 	gboolean is_buddy;
@@ -139,17 +119,6 @@ GtkWidget *pidgin_dialog_add_button(GtkDialog *dialog, const char *label,
 GtkWidget *pidgin_dialog_get_action_area(GtkDialog *dialog);
 
 /**
- * pidgin_set_sensitive_if_input:
- * @entry:  The text entry widget.
- * @dialog: The dialog containing the text entry widget.
- *
- * Checks if text has been entered into a GtkTextEntry widget.  If
- * so, the GTK_RESPONSE_OK on the given dialog is set to TRUE.
- * Otherwise GTK_RESPONSE_OK is set to FALSE.
- */
-void pidgin_set_sensitive_if_input(GtkWidget *entry, GtkWidget *dialog);
-
-/**
  * pidgin_separator:
  * @menu: The menu to add a separator to.
  *
@@ -204,16 +173,6 @@ GtkWidget *pidgin_pixbuf_button_from_stock(const char *text, const char *icon,
 										 PidginButtonOrientation style);
 
 /**
- * pidgin_pixbuf_toolbar_button_from_stock:
- * @stock: The stock icon name.
- *
- * Creates a toolbar button with the stock icon.
- *
- * Returns: (transfer full): The button.
- */
-GtkWidget *pidgin_pixbuf_toolbar_button_from_stock(const char *stock);
-
-/**
  * pidgin_make_frame:
  * @parent: The widget to put the frame into.
  * @title:  The title for the frame.
@@ -223,17 +182,6 @@ GtkWidget *pidgin_pixbuf_toolbar_button_from_stock(const char *stock);
  * Returns: (transfer full): The vbox to put things into.
  */
 GtkWidget *pidgin_make_frame(GtkWidget *parent, const char *title);
-
-/**
- * pidgin_protocol_option_menu_get_selected:
- * @optmenu: The drop-down option menu created by
- *           pidgin_protocol_option_menu_new().
- *
- * Gets the currently selected protocol from a protocol drop down box.
- *
- * Returns: Returns the protocol ID that is currently selected.
- */
-const char *pidgin_protocol_option_menu_get_selected(GtkWidget *optmenu);
 
 /**
  * pidgin_setup_screenname_autocomplete:
@@ -348,22 +296,6 @@ void pidgin_set_accessible_label(GtkWidget *w, GtkLabel *l);
 void pidgin_set_accessible_relations(GtkWidget *w, GtkLabel *l);
 
 /**
- * pidgin_menu_position_func_helper:
- * @menu: The menu we are positioning.
- * @x: Address of the gint representing the horizontal position
- *        where the menu shall be drawn. This is an output parameter.
- * @y: Address of the gint representing the vertical position
- *        where the menu shall be drawn. This is an output parameter.
- * @push_in: This is an output parameter?
- * @data: Not used by this particular position function.
- *
- * A helper function for GtkMenuPositionFuncs. This ensures the menu will
- * be kept on screen if possible.
- */
-void pidgin_menu_position_func_helper(GtkMenu *menu, gint *x, gint *y,
-										gboolean *push_in, gpointer data);
-
-/**
  * pidgin_menu_popup_at_treeview_selection:
  * @menu: The menu to show.
  * @treeview: The treeview to use for positioning.
@@ -430,18 +362,6 @@ GdkPixbuf *pidgin_create_protocol_icon(PurpleAccount *account, PidginProtocolIco
 GdkPixbuf *pidgin_create_icon_from_protocol(PurpleProtocol *protocol, PidginProtocolIconSize size, PurpleAccount *account);
 
 /**
- * pidgin_create_status_icon:
- * @primitive:  The status primitive
- * @w:          The widget to render this
- * @size:       The icon size to render at
- *
- * Creates a status icon for a given primitve
- *
- * Returns: (transfer full): A GdkPixbuf, created from stock
- */
-GdkPixbuf * pidgin_create_status_icon(PurpleStatusPrimitive primitive, GtkWidget *w, const char *size);
-
-/**
  * pidgin_stock_id_from_status_primitive:
  * @prim:   The status primitive
  *
@@ -450,16 +370,6 @@ GdkPixbuf * pidgin_create_status_icon(PurpleStatusPrimitive primitive, GtkWidget
  * Returns: The stock-id
  */
 const char *pidgin_stock_id_from_status_primitive(PurpleStatusPrimitive prim);
-
-/**
- * pidgin_stock_id_from_presence:
- * @presence:   The presence.
- *
- * Returns an appropriate stock-id for a PurplePresence.
- *
- * Returns: The stock-id
- */
-const char *pidgin_stock_id_from_presence(PurplePresence *presence);
 
 /**
  * pidgin_append_menu_action:
@@ -649,15 +559,6 @@ GtkWidget *pidgin_text_combo_box_entry_new(const char *default_item, GList *item
  * Returns:               The text in the widget's entry. It must not be freed
  */
 const char *pidgin_text_combo_box_entry_get_text(GtkWidget *widget);
-
-/**
- * pidgin_text_combo_box_entry_set_text:
- * @widget:         The simple text GtkComboBoxEntry equivalent widget
- * @text:           The text to set
- *
- * Set the text in the entry of the simple text GtkComboBoxEntry equivalent
- */
-void pidgin_text_combo_box_entry_set_text(GtkWidget *widget, const char *text);
 
 /**
  * pidgin_auto_parent_window:

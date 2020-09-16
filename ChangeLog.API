@@ -623,6 +623,7 @@ version 3.0.0 (??/??/????):
 		* gtk_imhtml_image_scale
 		* pidgin_blist_update_account_error_state
 		* PidginBuddyList.connection_errors
+		* PidginButtonStyle
 		* pidgin_check_if_dir
 		* PidginConversation.sg
 		* PidginConvPlacementFunc
@@ -634,18 +635,25 @@ version 3.0.0 (??/??/????):
 		* pidgin_conv_placement_get_current_func
 		* pidgin_create_dialog, use pidgin_dialog_new instead.
 		* pidgin_create_small_button, use pidgin_close_button_new instead.
+		* pidgin_create_status_icon
 		* pidgin_create_window, use pidgin_window_new instead.
 		* PIDGIN_DIALOG
 		* pidgin_dialogs_alias_contact
 		* pidgin_make_pretty_arrows
+		* pidgin_menu_position_func_helper
 		* pidgin_mini_dialog_links_supported
+		* pidgin_pixbuf_toolbar_button_from_stock
+		* pidgin_protocol_option_menu_get_selected
 		* pidgin_set_custom_buddy_icon
+		* pidgin_set_sensitive_if_input
 		* pidgin_setup_screenname_autocomplete_with_filter
 		* pidgin_sound_get_event_label
 		* pidgin_sound_get_event_option
 		* pidgin_sound_get_handle
 		* pidgin_sound_get_ui_ops
 		* pidgin_sound_is_customized
+		* pidgin_stock_id_from_presence
+		* pidgin_text_combo_box_entry_set_text
 		* pidgin_toggle_sensitive, pidgin_toggle_sensitive_array, and
 		pidgin_toggle_showhide; use g_object_bind_property instead
 		* struct _GtkIMHtmlAnimation
