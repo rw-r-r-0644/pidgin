@@ -44,8 +44,16 @@ gboolean ggp_validator_password(PurpleRequestField *field, gchar **errmsg,
 
 	value = purple_request_field_string_get_value(field);
 
-	if (value != NULL && ggp_password_validate(value))
-		return TRUE;
+	if (value != NULL) {
+		size_t len = strlen(value);
+		if (6 <= len && len <= 15) {
+			if (g_regex_match_simple(
+			            "^[ a-zA-Z0-9~`!@#$%^&*()_+=[\\]{};':\",./?<>\\\\|-]+$",
+			            value, 0, 0)) {
+				return TRUE;
+			}
+		}
+	}
 
 	if (errmsg)
 		*errmsg = g_strdup(_("Password can contain 6-15 alphanumeric characters"));
