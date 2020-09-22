@@ -29,6 +29,8 @@
 #include "debug.h"
 #include "notify.h"
 #include "prefs.h"
+#include "purpleaccountpresence.h"
+#include "purplebuddypresence.h"
 #include "status.h"
 
 typedef struct _PurpleStatusPrivate  PurpleStatusPrivate;

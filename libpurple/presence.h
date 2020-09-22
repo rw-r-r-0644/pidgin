@@ -16,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -26,6 +25,7 @@
 
 #ifndef PURPLE_PRESENCE_H
 #define PURPLE_PRESENCE_H
+
 /**
  * SECTION:presence
  * @section_id: libpurple-presence
@@ -52,9 +52,9 @@
  * Note: When a presence is destroyed with the last g_object_unref(), all
  *       statuses added to this list will be destroyed along with the presence.
  */
+
 typedef struct _PurplePresence PurplePresence;
 
-#include "account.h"
 #include "buddylist.h"
 #include "status.h"
 
@@ -66,22 +66,18 @@ typedef struct _PurplePresence PurplePresence;
  * Base class for all #PurplePresence's
  */
 struct _PurplePresenceClass {
-	GObjectClass parent_class;
+	/*< private >*/
+	GObjectClass parent;
 
+	/*< public >*/
 	void (*update_idle)(PurplePresence *presence, gboolean old_idle);
+	GList *(*get_statuses)(PurplePresence *presence);
 
 	/*< private >*/
-	void (*_purple_reserved1)(void);
-	void (*_purple_reserved2)(void);
-	void (*_purple_reserved3)(void);
-	void (*_purple_reserved4)(void);
+	gpointer reserved[4];
 };
 
 G_BEGIN_DECLS
-
-/**************************************************************************/
-/* PurplePresence API                                                     */
-/**************************************************************************/
 
 /**
  * PURPLE_TYPE_PRESENCE:
@@ -95,14 +91,14 @@ G_BEGIN_DECLS
  *
  * Returns: The #GType for the #PurplePresence object.
  */
-G_DECLARE_DERIVABLE_TYPE(PurplePresence, purple_presence, PURPLE,
-		PRESENCE, GObject)
+G_DECLARE_DERIVABLE_TYPE(PurplePresence, purple_presence, PURPLE, PRESENCE,
+                         GObject)
 
 /**
  * purple_presence_set_status_active:
- * @presence:  The presence.
+ * @presence: The presence.
  * @status_id: The ID of the status.
- * @active:    The active state.
+ * @active: The active state.
  *
  * Sets the active state of a status in a presence.
  *
@@ -110,8 +106,7 @@ G_DECLARE_DERIVABLE_TYPE(PurplePresence, purple_presence, PURPLE,
  * be set active, so if you wish to disable a status, set another
  * non-independent status to active, or use purple_presence_switch_status().
  */
-void purple_presence_set_status_active(PurplePresence *presence,
-									 const char *status_id, gboolean active);
+void purple_presence_set_status_active(PurplePresence *presence, const gchar *status_id, gboolean active);
 
 /**
  * purple_presence_switch_status:
@@ -123,8 +118,7 @@ void purple_presence_set_status_active(PurplePresence *presence,
  * This is similar to purple_presence_set_status_active(), except it won't
  * activate independent statuses.
  */
-void purple_presence_switch_status(PurplePresence *presence,
-								 const char *status_id);
+void purple_presence_switch_status(PurplePresence *presence, const gchar *status_id);
 
 /**
  * purple_presence_set_idle:
@@ -137,8 +131,7 @@ void purple_presence_switch_status(PurplePresence *presence,
  *
  * Sets the idle state and time on a presence.
  */
-void purple_presence_set_idle(PurplePresence *presence, gboolean idle,
-							time_t idle_time);
+void purple_presence_set_idle(PurplePresence *presence, gboolean idle, time_t idle_time);
 
 /**
  * purple_presence_set_login_time:
@@ -168,8 +161,7 @@ GList *purple_presence_get_statuses(PurplePresence *presence);
  *
  * Returns: (transfer none): The status if found, or %NULL.
  */
-PurpleStatus *purple_presence_get_status(PurplePresence *presence,
-									 const char *status_id);
+PurpleStatus *purple_presence_get_status(PurplePresence *presence, const gchar *status_id);
 
 /**
  * purple_presence_get_active_status:
@@ -214,8 +206,7 @@ gboolean purple_presence_is_online(PurplePresence *presence);
  *
  * Returns: TRUE if the status is active, or FALSE.
  */
-gboolean purple_presence_is_status_active(PurplePresence *presence,
-										const char *status_id);
+gboolean purple_presence_is_status_active(PurplePresence *presence, const gchar *status_id);
 
 /**
  * purple_presence_is_status_primitive_active:
@@ -229,8 +220,7 @@ gboolean purple_presence_is_status_active(PurplePresence *presence,
  *
  * Returns: TRUE if the status is active, or FALSE.
  */
-gboolean purple_presence_is_status_primitive_active(
-	PurplePresence *presence, PurpleStatusPrimitive primitive);
+gboolean purple_presence_is_status_primitive_active(PurplePresence *presence, PurpleStatusPrimitive primitive);
 
 /**
  * purple_presence_is_idle:
@@ -263,102 +253,6 @@ time_t purple_presence_get_idle_time(PurplePresence *presence);
  * Returns: The presence's login time.
  */
 time_t purple_presence_get_login_time(PurplePresence *presence);
-
-/**************************************************************************/
-/* PurpleAccountPresence API                                              */
-/**************************************************************************/
-
-/**
- * PURPLE_TYPE_ACCOUNT_PRESENCE:
- *
- * The standard _get_type macro for #PurpleAccountPresence.
- */
-#define PURPLE_TYPE_ACCOUNT_PRESENCE (purple_account_presence_get_type())
-
-/**
- * purple_account_presence_get_type:
- *
- * Returns: The #GType for the #PurpleAccountPresence object.
- */
-G_DECLARE_FINAL_TYPE(PurpleAccountPresence, purple_account_presence,
-		PURPLE, ACCOUNT_PRESENCE, PurplePresence)
-
-/**
- * purple_account_presence_new:
- * @account: The account to associate with the presence.
- *
- * Creates a presence for an account.
- *
- * Returns: The new presence.
- *
- * Since: 3.0.0
- */
-PurpleAccountPresence *purple_account_presence_new(PurpleAccount *account);
-
-/**
- * purple_account_presence_get_account:
- * @presence: The presence.
- *
- * Returns an account presence's account.
- *
- * Returns: (transfer none): The presence's account.
- */
-PurpleAccount *purple_account_presence_get_account(PurpleAccountPresence *presence);
-
-/**************************************************************************/
-/* PurpleBuddyPresence API                                                */
-/**************************************************************************/
-
-/**
- * PURPLE_TYPE_BUDDY_PRESENCE:
- *
- * The standard _get_type macro for #PurpleBuddyPresence.
- */
-#define PURPLE_TYPE_BUDDY_PRESENCE (purple_buddy_presence_get_type())
-
-/**
- * purple_buddy_presence_get_type:
- *
- * Returns: The #GType for the #PurpleBuddyPresence object.
- */
-G_DECLARE_FINAL_TYPE(PurpleBuddyPresence, purple_buddy_presence, PURPLE,
-		BUDDY_PRESENCE, PurplePresence)
-
-/**
- * purple_buddy_presence_new:
- * @buddy: The buddy to associate with the presence.
- *
- * Creates a presence for a buddy.
- *
- * Returns: The new presence.
- *
- * Since: 3.0.0
- */
-PurpleBuddyPresence *purple_buddy_presence_new(PurpleBuddy *buddy);
-
-/**
- * purple_buddy_presence_get_buddy:
- * @presence: The presence.
- *
- * Returns the buddy presence's buddy.
- *
- * Returns: (transfer none): The presence's buddy.
- */
-PurpleBuddy *purple_buddy_presence_get_buddy(PurpleBuddyPresence *presence);
-
-/**
- * purple_buddy_presence_compare:
- * @buddy_presence1: The first presence.
- * @buddy_presence2: The second presence.
- *
- * Compares two buddy presences for availability.
- *
- * Returns: -1 if @buddy_presence1 is more available than @buddy_presence2.
- *           0 if @buddy_presence1 is equal to @buddy_presence2.
- *           1 if @buddy_presence1 is less available than @buddy_presence2.
- */
-gint purple_buddy_presence_compare(PurpleBuddyPresence *buddy_presence1,
-						   PurpleBuddyPresence *buddy_presence2);
 
 G_END_DECLS
 

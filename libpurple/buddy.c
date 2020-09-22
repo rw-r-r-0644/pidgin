@@ -21,6 +21,7 @@
  *
  */
 #include "internal.h"
+#include "purplebuddypresence.h"
 #include "util.h"
 
 typedef struct _PurpleBuddyPrivate      PurpleBuddyPrivate;
