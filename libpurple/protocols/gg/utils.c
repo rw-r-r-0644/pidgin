@@ -102,15 +102,6 @@ gchar * ggp_convert_from_cp1250(const gchar *src)
 	return ggp_convert(src, "CP1250", "UTF-8");
 }
 
-gboolean ggp_password_validate(const gchar *password)
-{
-	const int len = strlen(password);
-	if (len < 6 || len > 15)
-		return FALSE;
-	return g_regex_match_simple("^[ a-zA-Z0-9~`!@#$%^&*()_+=[\\]{};':\",./?"
-		"<>\\\\|-]+$", password, 0, 0);
-}
-
 gchar * ggp_utf8_strndup(const gchar *str, gsize n)
 {
 	size_t raw_len;
@@ -134,60 +125,6 @@ gchar * ggp_utf8_strndup(const gchar *str, gsize n)
 	return g_strndup(str, raw_len);
 }
 
-GSList * ggp_list_copy_to_slist_deep(GList *list, GCopyFunc func,
-	gpointer user_data)
-{
-	GSList *new_list = NULL;
-	GList *it;
-
-	it = g_list_first(list);
-	while (it) {
-		new_list = g_slist_append(new_list, func(it->data, user_data));
-		it = g_list_next(it);
-	}
-	return new_list;
-}
-
-GList * ggp_strsplit_list(const gchar *string, const gchar *delimiter,
-	gint max_tokens)
-{
-	gchar **splitted, **it;
-	GList *list = NULL;
-
-	it = splitted = g_strsplit(string, delimiter, max_tokens);
-	while (*it) {
-		list = g_list_append(list, *it);
-		it++;
-	}
-	g_free(splitted);
-
-	return list;
-}
-
-gchar * ggp_strjoin_list(const gchar *separator, GList *list)
-{
-	gchar **str_array;
-	gchar *joined;
-	gint list_len, i;
-	GList *it;
-
-	list_len = g_list_length(list);
-	str_array = g_new(gchar*, list_len + 1);
-
-	it = g_list_first(list);
-	i = 0;
-	while (it) {
-		str_array[i++] = it->data;
-		it = g_list_next(it);
-	}
-	str_array[i] = NULL;
-
-	joined = g_strjoinv(separator, str_array);
-	g_free(str_array);
-
-	return joined;
-}
-
 const gchar * ggp_ipv4_to_str(uint32_t raw_ip)
 {
 	static gchar buff[INET_ADDRSTRLEN];
@@ -200,16 +137,6 @@ const gchar * ggp_ipv4_to_str(uint32_t raw_ip)
 		((raw_ip >> 24) & 0xFF));
 
 	return buff;
-}
-
-GList * ggp_list_truncate(GList *list, guint length, GDestroyNotify free_func)
-{
-	while (g_list_length(list) > length) {
-		GList *last = g_list_last(list);
-		free_func(last->data);
-		list = g_list_delete_link(list, last);
-	}
-	return list;
 }
 
 gchar * ggp_free_if_equal(gchar *str, const gchar *pattern)
@@ -226,18 +153,6 @@ uint64_t * ggp_uint64dup(uint64_t val)
 	uint64_t *ptr = g_new(uint64_t, 1);
 	*ptr = val;
 	return ptr;
-}
-
-gint ggp_int64_compare(gconstpointer _a, gconstpointer _b)
-{
-	const int64_t *ap = _a, *bp = _b;
-	const int64_t a = *ap, b = *bp;
-	if (a == b)
-		return 0;
-	if (a < b)
-		return -1;
-	else
-		return 1;
 }
 
 JsonParser * ggp_json_parse(const gchar *data)

@@ -81,27 +81,13 @@ gchar * ggp_convert_to_cp1250(const gchar *src);
  */
 gchar * ggp_convert_from_cp1250(const gchar *src);
 
-gboolean ggp_password_validate(const gchar *password);
-
 gchar * ggp_utf8_strndup(const gchar *str, gsize n);
 
-GSList * ggp_list_copy_to_slist_deep(GList *list, GCopyFunc func,
-	gpointer user_data);
-
-GList * ggp_strsplit_list(const gchar *string, const gchar *delimiter,
-	gint max_tokens);
-
-gchar * ggp_strjoin_list(const gchar *separator, GList *list);
-
 const gchar * ggp_ipv4_to_str(uint32_t raw_ip);
-
-GList * ggp_list_truncate(GList *list, guint length, GDestroyNotify free_func);
 
 gchar * ggp_free_if_equal(gchar *str, const gchar *pattern);
 
 uint64_t * ggp_uint64dup(uint64_t val);
-
-gint ggp_int64_compare(gconstpointer a, gconstpointer b);
 
 JsonParser * ggp_json_parse(const gchar *data);
 

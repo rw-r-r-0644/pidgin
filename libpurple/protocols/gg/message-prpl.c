@@ -309,13 +309,14 @@ static void ggp_message_format_from_gg(ggp_message_got_data *msg,
 	msg->text = text_new;
 }
 
-gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
+gchar *
+ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 {
 	gchar *text_new, *tmp;
-	GList *rt = NULL; /* reformatted text */
+	GString *reformatted_text = NULL;
 	GMatchInfo *match;
 	guint pos = 0;
-	GList *pending_objects = NULL;
+	GString *pending_objects = NULL;
 	GList *font_stack = NULL;
 	static int html_sizes_pt[7] = { 7, 8, 9, 10, 12, 14, 16 };
 
@@ -346,6 +347,8 @@ gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 	text_new = g_strdup_printf("%s<eom></eom>", text_new);
 	g_free(tmp);
 
+	reformatted_text = g_string_new(NULL);
+	pending_objects = g_string_new(NULL);
 	g_regex_match(global_data.re_html_tag, text_new, 0, &match);
 	while (g_match_info_matches(match)) {
 		int m_start, m_end, m_pos;
@@ -370,76 +373,80 @@ gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 				"uknown tag %s\n", tag_str);
 		}
 
-		/* closing *all* formatting-related tags (GG11 weirness)
+		/* closing *all* formatting-related tags (GG11 weirdness)
 		 * and adding pending objects */
-		if ((text_before && (font_changed || pending_objects)) ||
-			(tag == GGP_HTML_TAG_EOM && tag_close))
-		{
+		if ((text_before && (font_changed || pending_objects->len > 0)) ||
+		    (tag == GGP_HTML_TAG_EOM && tag_close)) {
 			font_changed = FALSE;
 			if (in_any_tag) {
 				in_any_tag = FALSE;
-				if (font_current->s && !GGP_GG11_FORCE_COMPAT)
-					rt = g_list_prepend(rt,
-						g_strdup("</s>"));
-				if (font_current->u)
-					rt = g_list_prepend(rt,
-						g_strdup("</u>"));
-				if (font_current->i)
-					rt = g_list_prepend(rt,
-						g_strdup("</i>"));
-				if (font_current->b)
-					rt = g_list_prepend(rt,
-						g_strdup("</b>"));
-				rt = g_list_prepend(rt, g_strdup("</span>"));
+				if (font_current->s && !GGP_GG11_FORCE_COMPAT) {
+					g_string_append(reformatted_text, "</s>");
+				}
+				if (font_current->u) {
+					g_string_append(reformatted_text, "</u>");
+				}
+				if (font_current->i) {
+					g_string_append(reformatted_text, "</i>");
+				}
+				if (font_current->b) {
+					g_string_append(reformatted_text, "</b>");
+				}
+				g_string_append(reformatted_text, "</span>");
 			}
-			if (pending_objects) {
-				rt = g_list_concat(pending_objects, rt);
-				pending_objects = NULL;
+			if (pending_objects->len > 0) {
+				g_string_append(reformatted_text, pending_objects->str);
+				g_string_truncate(pending_objects, 0);
 			}
 		}
 
 		/* opening formatting-related tags again */
 		if (text_before && !in_any_tag) {
-			gchar *style;
-			GList *styles = NULL;
 			gboolean has_size = (font_new->size > 0 &&
 				font_new->size <= 7 && font_new->size != 3);
+			gboolean has_style =
+			        has_size || font_new->face ||
+			        (font_new->bgcolor >= 0 && !GGP_GG11_FORCE_COMPAT) ||
+			        font_new->color >= 0;
 
-			if (has_size)
-				styles = g_list_append(styles, g_strdup_printf(
-					"font-size:%dpt;",
-					html_sizes_pt[font_new->size - 1]));
-			if (font_new->face)
-				styles = g_list_append(styles, g_strdup_printf(
-					"font-family:%s;", font_new->face));
-			if (font_new->bgcolor >= 0 && !GGP_GG11_FORCE_COMPAT)
-				styles = g_list_append(styles, g_strdup_printf(
-					"background-color:#%06x;",
-					font_new->bgcolor));
-			if (font_new->color >= 0)
-				styles = g_list_append(styles, g_strdup_printf(
-					"color:#%06x;", font_new->color));
+			if (has_style) {
+				g_string_append(reformatted_text, "<span style=\"");
 
-			if (styles) {
-				gchar *combined = ggp_strjoin_list(" ", styles);
-				g_list_free_full(styles, g_free);
-				style = g_strdup_printf(" style=\"%s\"",
-					combined);
-				g_free(combined);
-			} else
-				style = g_strdup("");
-			rt = g_list_prepend(rt, g_strdup_printf("<span%s>",
-				style));
-			g_free(style);
+				if (has_size) {
+					g_string_append_printf(reformatted_text, "font-size:%dpt;",
+					                       html_sizes_pt[font_new->size - 1]);
+				}
+				if (font_new->face) {
+					g_string_append_printf(reformatted_text, "font-family:%s;",
+					                       font_new->face);
+				}
+				if (font_new->bgcolor >= 0 && !GGP_GG11_FORCE_COMPAT) {
+					g_string_append_printf(reformatted_text,
+					                       "background-color:#%06x;",
+					                       font_new->bgcolor);
+				}
+				if (font_new->color >= 0) {
+					g_string_append_printf(reformatted_text, "color:#%06x;",
+					                       font_new->color);
+				}
 
-			if (font_new->b)
-				rt = g_list_prepend(rt, g_strdup("<b>"));
-			if (font_new->i)
-				rt = g_list_prepend(rt, g_strdup("<i>"));
-			if (font_new->u)
-				rt = g_list_prepend(rt, g_strdup("<u>"));
-			if (font_new->s && !GGP_GG11_FORCE_COMPAT)
-				rt = g_list_prepend(rt, g_strdup("<s>"));
+				g_string_append(reformatted_text, "\">");
+			} else {
+				g_string_append(reformatted_text, "<span>");
+			}
+
+			if (font_new->b) {
+				g_string_append(reformatted_text, "<b>");
+			}
+			if (font_new->i) {
+				g_string_append(reformatted_text, "<i>");
+			}
+			if (font_new->u) {
+				g_string_append(reformatted_text, "<u>");
+			}
+			if (font_new->s && !GGP_GG11_FORCE_COMPAT) {
+				g_string_append(reformatted_text, "<s>");
+			}
 
 			ggp_font_free(font_current);
 			font_current = font_new;
@@ -448,8 +455,8 @@ gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 			in_any_tag = TRUE;
 		}
 		if (text_before) {
-			rt = g_list_prepend(rt,
-				g_strndup(text_new + pos, m_start - pos));
+			g_string_append_len(reformatted_text, text_new + pos,
+			                    m_start - pos);
 		}
 
 		/* set formatting of a following text */
@@ -480,10 +487,9 @@ gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 				res = ggp_image_prepare(conv, image, &id);
 
 			if (res == GGP_IMAGE_PREPARE_OK) {
-				pending_objects = g_list_prepend(
-					pending_objects, g_strdup_printf(
-					"<img name=\"" GGP_IMAGE_ID_FORMAT
-					"\">", id));
+				g_string_append_printf(pending_objects,
+				                       "<img name=\"" GGP_IMAGE_ID_FORMAT "\">",
+				                       id);
 			} else if (res == GGP_IMAGE_PREPARE_TOO_BIG) {
 				purple_conversation_write_system_message(conv,
 					_("Image is too large, please try "
@@ -541,9 +547,9 @@ gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 
 			font_stack = g_list_prepend(font_stack,
 				ggp_font_clone(font_new));
-			if (tag == GGP_HTML_TAG_DIV)
-				pending_objects = g_list_prepend(
-					pending_objects, g_strdup("<br>"));
+			if (tag == GGP_HTML_TAG_DIV) {
+				g_string_append(pending_objects, "<br>");
+			}
 
 			style = g_hash_table_lookup(attribs, "style");
 			if (style)
@@ -583,11 +589,9 @@ gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 			else
 				font_new = ggp_font_clone(font_base);
 		} else if (tag == GGP_HTML_TAG_BR) {
-			pending_objects = g_list_prepend(pending_objects,
-				g_strdup("<br>"));
+			g_string_append(pending_objects, "<br>");
 		} else if (tag == GGP_HTML_TAG_HR) {
-			pending_objects = g_list_prepend(pending_objects,
-				g_strdup("<br><span>---</span><br>"));
+			g_string_append(pending_objects, "<br><span>---</span><br>");
 		} else if (tag == GGP_HTML_TAG_A || tag == GGP_HTML_TAG_EOM) {
 			/* do nothing */
 		} else if (tag == GGP_HTML_TAG_UNKNOWN) {
@@ -616,10 +620,9 @@ gchar * ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 	g_list_free_full(font_stack, ggp_font_free);
 
 	/* combining reformatted text info one string */
-	rt = g_list_reverse(rt);
 	g_free(text_new);
-	text_new = ggp_strjoin_list("", rt);
-	g_list_free_full(rt, g_free);
+	g_string_free(pending_objects, TRUE);
+	text_new = g_string_free(reformatted_text, FALSE);
 
 	if (purple_debug_is_verbose())
 		purple_debug_info("gg", "reformatted text: [%s]", text_new);
