@@ -23,6 +23,7 @@
 
 #include "contact.h"
 #include "internal.h" /* TODO: this needs to die */
+#include "purplebuddypresence.h"
 #include "purpleprivate.h"
 #include "util.h"
 

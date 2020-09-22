@@ -266,7 +266,9 @@ libpurple/protocols/zephyr/ZVariables.c
 libpurple/protocols/zephyr/ZWait4Not.c
 libpurple/proxy.c
 libpurple/purple-gio.c
+libpurple/purpleaccountpresence.c
 libpurple/purpleattachment.c
+libpurple/purplebuddypresence.c
 libpurple/purplechatuser.c
 libpurple/purpleimconversation.c
 libpurple/purpleprotocolim.c
