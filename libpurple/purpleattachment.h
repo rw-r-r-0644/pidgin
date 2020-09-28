@@ -178,7 +178,7 @@ void purple_attachment_set_remote_uri(PurpleAttachment *attachment, const gchar 
  *
  * Since: 3.0.0
  */
-gsize purple_attachment_get_size(PurpleAttachment *attachment);
+guint64 purple_attachment_get_size(PurpleAttachment *attachment);
 
 /**
  * purple_attachment_set_size:
@@ -189,7 +189,7 @@ gsize purple_attachment_get_size(PurpleAttachment *attachment);
  *
  * Since: 3.0.0
  */
-void purple_attachment_set_size(PurpleAttachment *attachment, gsize size);
+void purple_attachment_set_size(PurpleAttachment *attachment, guint64 size);
 
 /**
  * purple_attachment_get_filename:
