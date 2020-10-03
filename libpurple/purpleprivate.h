@@ -189,22 +189,6 @@ int
 _purple_fstat(int fd, GStatBuf *st);
 
 /**
- * _purple_message_init: (skip)
- *
- * Initializes the #PurpleMessage subsystem.
- */
-void
-_purple_message_init(void);
-
-/**
- * _purple_message_uninit: (skip)
- *
- * Uninitializes the #PurpleMessage subsystem.
- */
-void
-_purple_message_uninit(void);
-
-/**
  * _purple_conversation_write_common:
  * @conv:    The conversation.
  * @msg:     The message.

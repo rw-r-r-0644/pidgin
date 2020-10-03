@@ -25,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
+
+#include <glib.h>
 #include <glib/gi18n-lib.h>
 
 #include "chat.h"
@@ -471,6 +473,7 @@ void ggp_chat_invite(PurpleConnection *gc, int local_id, const char *message,
 int ggp_chat_send(PurpleConnection *gc, int local_id, PurpleMessage *msg)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
+	GDateTime *dt = NULL;
 	PurpleChatConversation *conv;
 	ggp_chat_local_info *chat;
 	gboolean succ = TRUE;
@@ -496,10 +499,11 @@ int ggp_chat_send(PurpleConnection *gc, int local_id, PurpleMessage *msg)
 	g_free(gg_msg);
 
 	me = purple_account_get_username(purple_connection_get_account(gc));
+	dt = purple_message_get_timestamp(msg);
 	purple_serv_got_chat_in(gc, chat->local_id, me,
 		purple_message_get_flags(msg),
 		purple_message_get_contents(msg),
-		purple_message_get_time(msg));
+		(time_t)g_date_time_to_unix(dt));
 
 	return succ ? 0 : -1;
 }
@@ -507,11 +511,12 @@ int ggp_chat_send(PurpleConnection *gc, int local_id, PurpleMessage *msg)
 void ggp_chat_got_message(PurpleConnection *gc, uint64_t chat_id,
 	const char *message, time_t time, uin_t who)
 {
+	PurpleAccount *account = NULL;
 	ggp_chat_local_info *chat;
 	uin_t me;
 
-	me = ggp_str_to_uin(purple_account_get_username(
-		purple_connection_get_account(gc)));
+	account = purple_connection_get_account(gc);
+	me = ggp_str_to_uin(purple_account_get_username(account));
 
 	chat = ggp_chat_get(gc, chat_id);
 	if (!chat) {
@@ -522,11 +527,16 @@ void ggp_chat_got_message(PurpleConnection *gc, uint64_t chat_id,
 
 	ggp_chat_open_conv(chat);
 	if (who == me) {
+		GDateTime *dt = NULL;
 		PurpleMessage *pmsg;
 
 		pmsg = purple_message_new_outgoing(
+			purple_account_get_name_for_display(account),
 			ggp_uin_to_str(who), message, 0);
-		purple_message_set_time(pmsg, time);
+
+		dt = g_date_time_new_from_unix_local((gint64)time);
+		purple_message_set_timestamp(pmsg, dt);
+		g_date_time_unref(dt);
 
 		purple_conversation_write_message(
 			PURPLE_CONVERSATION(chat->conv), pmsg);

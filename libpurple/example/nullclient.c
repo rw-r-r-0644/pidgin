@@ -40,13 +40,15 @@
 static void
 null_write_conv(PurpleConversation *conv, PurpleMessage *msg)
 {
-	time_t mtime = purple_message_get_time(msg);
+	gchar *timestamp = purple_message_format_timestamp(msg, "(%H:%M:%S)");
 
 	printf("(%s) %s %s: %s\n",
 		purple_conversation_get_name(conv),
-		purple_utf8_strftime("(%H:%M:%S)", localtime(&mtime)),
+		timestamp,
 		purple_message_get_author_alias(msg),
 		purple_message_get_contents(msg));
+
+	g_free(timestamp);
 }
 
 static PurpleConversationUiOps null_conv_uiops =

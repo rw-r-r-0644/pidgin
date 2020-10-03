@@ -48,6 +48,8 @@ G_BEGIN_DECLS
  * PURPLE_TYPE_MESSAGE:
  *
  * The standard _get_type macro for #PurpleMessage.
+ *
+ * Since: 3.0.0
  */
 #define PURPLE_TYPE_MESSAGE  purple_message_get_type()
 
@@ -96,27 +98,50 @@ typedef enum /*< flags >*/
 } PurpleMessageFlags;
 
 /**
+ * PurpleMessageContentType:
+ * @PURPLE_MESSAGE_CONTENT_TYPE_PLAIN: The message has no formatting.
+ * @PURPLE_MESSAGE_CONTENT_TYPE_HTML: The message is formatted in HTML.
+ * @PURPLE_MESSAGE_CONTENT_TYPE_XHTML: The mesage is formatted in XHTML.
+ * @PURPLE_MESSAGE_CONTENT_TYPE_MARKDOWN: The message is formatted in Markdown.
+ *
+ * The message formatting for the message.
+ *
+ * Since: 3.0.0
+ */
+typedef enum /*< prefix=PURPLE_MESSAGE_CONTENT_TYPE,underscore_name=PURPLE_MESSAGE_CONTENT_TYPE >*/
+{
+	PURPLE_MESSAGE_CONTENT_TYPE_PLAIN = 0,
+	PURPLE_MESSAGE_CONTENT_TYPE_HTML,
+	PURPLE_MESSAGE_CONTENT_TYPE_XHTML,
+	PURPLE_MESSAGE_CONTENT_TYPE_MARKDOWN,
+} PurpleMessageContentType;
+
+/**
  * purple_message_get_type:
  *
  * Returns: the #GType for a message.
+ *
+ * Since: 3.0.0
  */
 G_DECLARE_FINAL_TYPE(PurpleMessage, purple_message, PURPLE, MESSAGE, GObject)
 
 /**
  * purple_message_new_outgoing:
- * @who: Message's recipient.
- * @contents: The contents of a message.
- * @flags: The message flags.
+ * @author: The author.
+ * @recipient: The recipient.
+ * @contents: The contents.
+ * @flags: The #PurpleMessageFlags.
  *
- * Creates new outgoing message (the user is the author).
+ * Creates new outgoing message to @recipient.
  *
- * You don't need to set the #PURPLE_MESSAGE_SEND flag.
+ * You don't need to set the #PURPLE_MESSAGE_SEND flag.  If the message is not
+ * plain text be sure to call purple_message_set_content_type().
  *
- * Returns: the new #PurpleMessage.
+ * Returns: (transfer full): The new #PurpleMessage instance.
+ *
+ * Since: 3.0.0
  */
-PurpleMessage *
-purple_message_new_outgoing(const gchar *who, const gchar *contents,
-	PurpleMessageFlags flags);
+PurpleMessage *purple_message_new_outgoing(const gchar *author, const gchar *recipient, const gchar *contents, PurpleMessageFlags flags);
 
 /**
  * purple_message_new_incoming:
@@ -130,10 +155,10 @@ purple_message_new_outgoing(const gchar *who, const gchar *contents,
  * You don't need to set the #PURPLE_MESSAGE_RECV flag.
  *
  * Returns: the new #PurpleMessage.
+ *
+ * Since: 3.0.0
  */
-PurpleMessage *
-purple_message_new_incoming(const gchar *who, const gchar *contents,
-	PurpleMessageFlags flags, guint64 timestamp);
+PurpleMessage *purple_message_new_incoming(const gchar *who, const gchar *contents, PurpleMessageFlags flags, guint64 timestamp);
 
 /**
  * purple_message_new_system:
@@ -145,151 +170,198 @@ purple_message_new_incoming(const gchar *who, const gchar *contents,
  * You don't need to set the #PURPLE_MESSAGE_SYSTEM flag.
  *
  * Returns: the new #PurpleMessage.
+ *
+ * Since: 3.0.0
  */
-PurpleMessage *
-purple_message_new_system(const gchar *contents, PurpleMessageFlags flags);
+PurpleMessage *purple_message_new_system(const gchar *contents, PurpleMessageFlags flags);
 
 /**
  * purple_message_get_id:
- * @msg: The message.
+ * @message: The message.
  *
  * Returns the unique identifier of the message. These identifiers are not
  * serialized - it's a per-session id.
  *
- * Returns: the global identifier of @msg.
- */
-guint
-purple_message_get_id(PurpleMessage *msg);
-
-/**
- * purple_message_find_by_id:
- * @id: The message identifier.
+ * Returns: the global identifier of @message.
  *
- * Finds the message with a given @id.
- *
- * Returns: (transfer none): The #PurpleMessage, or %NULL if not found.
+ * Since: 3.0.0
  */
-PurpleMessage *
-purple_message_find_by_id(guint id);
+guint purple_message_get_id(PurpleMessage *message);
 
 /**
  * purple_message_get_author:
- * @msg: The message.
+ * @message: The message.
  *
- * Returns the author of the message - his screen name (not a local alias).
+ * Returns the author of the message, not a local alias.
  *
- * Returns: the author of @msg.
+ * Returns: the author of @message.
+ *
+ * Since: 3.0.0
  */
-const gchar *
-purple_message_get_author(PurpleMessage *msg);
+const gchar *purple_message_get_author(PurpleMessage *message);
+
+/**
+ * purple_message_set_recipient:
+ * @message: The #PurpleMessage instance.
+ * @recipient: The name of the recipient.
+ *
+ * Sets the recipient of @message to @recipient.
+ *
+ * Since: 3.0.0
+ */
+void purple_message_set_recipient(PurpleMessage *message, const gchar *recipient);
 
 /**
  * purple_message_get_recipient:
- * @msg: The message.
+ * @message: The message.
  *
- * Returns the recipient of the message - his screen name (not a local alias).
+ * Returns the recipient of the message, not a local alias.
  *
- * Returns: the recipient of @msg.
+ * Returns: the recipient of @message.
+ *
+ * Since: 3.0.0
  */
-const gchar *
-purple_message_get_recipient(PurpleMessage *msg);
+const gchar *purple_message_get_recipient(PurpleMessage *message);
 
 /**
  * purple_message_set_author_alias:
- * @msg: The message.
+ * @message: The message.
  * @alias: The alias.
  *
- * Sets the alias of @msg's author. You don't normally need to call this.
+ * Sets the alias of @message's author. You don't normally need to call this.
+ *
+ * Since: 3.0.0
  */
-void
-purple_message_set_author_alias(PurpleMessage *msg, const gchar *alias);
+void purple_message_set_author_alias(PurpleMessage *message, const gchar *alias);
 
 /**
  * purple_message_get_author_alias:
- * @msg: The message.
+ * @message: The message.
  *
- * Returns the alias of @msg author.
+ * Returns the alias of @message author.
  *
- * Returns: the @msg author's alias.
+ * Returns: the @message author's alias.
+ *
+ * Since: 3.0.0
  */
-const gchar *
-purple_message_get_author_alias(PurpleMessage *msg);
+const gchar *purple_message_get_author_alias(PurpleMessage *message);
 
 /**
  * purple_message_set_contents:
- * @msg: The message.
+ * @message: The message.
  * @cont: The contents.
  *
- * Sets the contents of the @msg. It might be HTML.
+ * Sets the contents of the @message. It might be HTML.
+ *
+ * Since: 3.0.0
  */
-void
-purple_message_set_contents(PurpleMessage *msg, const gchar *cont);
+void purple_message_set_contents(PurpleMessage *message, const gchar *cont);
 
 /**
  * purple_message_get_contents:
- * @msg: The message.
+ * @message: The message.
  *
  * Returns the contents of the message.
  *
- * Returns: the contents of @msg.
+ * Returns: the contents of @message.
+ *
+ * Since: 3.0.0
  */
-const gchar *
-purple_message_get_contents(PurpleMessage *msg);
+const gchar *purple_message_get_contents(PurpleMessage *message);
+
+/**
+ * purple_message_set_content_type:
+ * @message: The #PurpleMessage instance.
+ * @content_type: The #PurpleMessageContentType value.
+ *
+ * Sets the content-type of @message to @content_type.
+ *
+ * Since: 3.0.0
+ */
+void purple_message_set_content_type(PurpleMessage *message, PurpleMessageContentType content_type);
+
+/**
+ * purple_message_get_content_type:
+ * @message: The #PurpleMessage instance.
+ *
+ * Gets the content-type of @message.
+ *
+ * Returns: The #PurpleMessageContentType of @message.
+ *
+ * Since: 3.0.0
+ */
+PurpleMessageContentType purple_message_get_content_type(PurpleMessage *message);
 
 /**
  * purple_message_is_empty:
- * @msg: The message.
+ * @message: The message.
  *
  * Checks, if the message's body is empty.
  *
- * Returns: %TRUE, if @msg is empty.
+ * Returns: %TRUE, if @message is empty.
+ *
+ * Since: 3.0.0
  */
-gboolean
-purple_message_is_empty(PurpleMessage *msg);
+gboolean purple_message_is_empty(PurpleMessage *message);
 
 /**
- * purple_message_set_time:
- * @msg: The message.
- * @msgtime: The timestamp of a message.
+ * purple_message_set_timestamp:
+ * @message: The #PurpleMessage instance.
+ * @timestamp: (nullable): The #GDateTime of the message.
  *
- * Sets the @msg's timestamp. It should be a date of posting, but it can be
- * a date of receiving (if the former is not available).
+ * Sets the timestamp of @message.
+ *
+ * Since: 3.0.0
  */
-void
-purple_message_set_time(PurpleMessage *msg, guint64 msgtime);
+void purple_message_set_timestamp(PurpleMessage *message, GDateTime *timestamp);
 
 /**
- * purple_message_get_time:
- * @msg: The message.
+ * purple_message_get_timestamp:
+ * @message: The message.
  *
- * Returns a @msg's timestamp.
+ * Returns a @message's timestamp.  If @message does not currently have a
+ * timestamp, the current time will be set as the time stamp and returned.
  *
- * Returns: @msg's timestamp.
+ * Returns: (transfer none): The #GDateTime timestamp from @message.
+ *
+ * Since: 3.0.0
  */
-guint64
-purple_message_get_time(PurpleMessage *msg);
+GDateTime *purple_message_get_timestamp(PurpleMessage *message);
+
+/**
+ * purple_message_format_timestamp:
+ * @message: The #PurpleMessage instance.
+ * @format: The format to output the time stamp as.
+ *
+ * Formats the timestamp of @message and returns it.
+ *
+ * Returns: The formatted timestamp.
+ */
+gchar *purple_message_format_timestamp(PurpleMessage *message, const gchar *format);
 
 /**
  * purple_message_set_flags:
- * @msg: The message.
+ * @message: The message.
  * @flags: The message flags.
  *
- * Sets flags for @msg. It shouldn't be in a conflict with a message type,
+ * Sets flags for @message. It shouldn't be in a conflict with a message type,
  * so use it carefully.
+ *
+ * Since: 3.0.0
  */
-void
-purple_message_set_flags(PurpleMessage *msg, PurpleMessageFlags flags);
+void purple_message_set_flags(PurpleMessage *message, PurpleMessageFlags flags);
 
 /**
  * purple_message_get_flags:
- * @msg: The message.
+ * @message: The message.
  *
- * Returns the flags of a @msg.
+ * Returns the flags of a @message.
  *
- * Returns: the flags of a @msg.
+ * Returns: the flags of a @message.
+ *
+ * Since: 3.0.0
  */
-PurpleMessageFlags
-purple_message_get_flags(PurpleMessage *msg);
+PurpleMessageFlags purple_message_get_flags(PurpleMessage *message);
 
 /**
  * purple_message_add_attachment:
@@ -299,6 +371,8 @@ purple_message_get_flags(PurpleMessage *msg);
  * Adds @attachment to @message.
  *
  * Returns %TRUE if an attachment with the same ID did not already exist.
+ *
+ * Since: 3.0.0
  */
 gboolean purple_message_add_attachment(PurpleMessage *message, PurpleAttachment *attachment);
 
@@ -311,6 +385,8 @@ gboolean purple_message_add_attachment(PurpleMessage *message, PurpleAttachment 
  *
  * Returns: %TRUE if the #PurpleAttachment was found and removed, %FALSE
  *          otherwise.
+ *
+ * Since: 3.0.0
  */
 gboolean purple_message_remove_attachment(PurpleMessage *message, guint64 id);
 
@@ -323,6 +399,8 @@ gboolean purple_message_remove_attachment(PurpleMessage *message, guint64 id);
  *
  * Returns: (transfer full): The #PurpleAttachment if it was found, otherwise
  *                           %NULL.
+ *
+ * Since: 3.0.0
  */
 PurpleAttachment *purple_message_get_attachment(PurpleMessage *message, guint64 id);
 
@@ -333,6 +411,8 @@ PurpleAttachment *purple_message_get_attachment(PurpleMessage *message, guint64 
  * @data: User data to pass to @func.
  *
  * Calls @func for each #PurpleAttachment that's attached to @message.
+ *
+ * Since: 3.0.0
  */
 void purple_message_foreach_attachment(PurpleMessage *message, PurpleAttachmentForeachFunc func, gpointer data);
 
@@ -341,6 +421,8 @@ void purple_message_foreach_attachment(PurpleMessage *message, PurpleAttachmentF
  * @message: The #PurpleMessage instance.
  *
  * Removes all attachments from @message.
+ *
+ * Since: 3.0.0
  */
 void purple_message_clear_attachments(PurpleMessage *message);
 

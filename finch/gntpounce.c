@@ -843,15 +843,18 @@ pounce_cb(PurplePounce *pounce, PurplePounceEvent events, void *data)
 		if (message != NULL)
 		{
 			PurpleMessage *pmsg;
+			const gchar *me = purple_account_get_name_for_display(account);
 
 			im = purple_conversations_find_im_with_account(pouncee, account);
 
-			if (im == NULL)
+			if (im == NULL) {
 				im = purple_im_conversation_new(account, pouncee);
+			}
 
-			pmsg = purple_message_new_outgoing(pouncee, message, 0);
+			pmsg = purple_message_new_outgoing(me, pouncee, message, 0);
 			purple_serv_send_im(purple_account_get_connection(account), pmsg);
 			purple_conversation_write_message(PURPLE_CONVERSATION(im), pmsg);
+			g_object_unref(G_OBJECT(pmsg));
 		}
 	}
 
