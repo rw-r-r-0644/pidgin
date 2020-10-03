@@ -235,16 +235,28 @@ static void ggp_message_got_display(PurpleConnection *gc,
 		ggp_chat_got_message(gc, msg->chat_id, msg->text, msg->time,
 			msg->user);
 	} else if (msg->type == GGP_MESSAGE_GOT_TYPE_MULTILOGON) {
+		GDateTime *dt = NULL;
+		PurpleAccount *account = NULL;
 		PurpleIMConversation *im = ggp_message_get_conv(gc, msg->user);
 		PurpleMessage *pmsg;
+		const gchar *me = NULL;
 
-		pmsg = purple_message_new_outgoing(NULL, msg->text, 0);
-		purple_message_set_time(pmsg, msg->time);
+		account = purple_connection_get_account(gc);
+		me = purple_account_get_name_for_display(account);
+
+		pmsg = purple_message_new_outgoing(me, NULL, msg->text, 0);
+
+		dt = g_date_time_new_from_unix_local((gint64)msg->time);
+		purple_message_set_timestamp(pmsg, dt);
+		g_date_time_unref(dt);
 
 		purple_conversation_write_message(PURPLE_CONVERSATION(im), pmsg);
-	} else
+
+		g_object_unref(G_OBJECT(pmsg));
+	} else {
 		purple_debug_error("gg", "ggp_message_got_display: "
 			"unexpected message type: %d\n", msg->type);
+	}
 }
 
 static gboolean ggp_message_format_from_gg_found_img(const GMatchInfo *info,

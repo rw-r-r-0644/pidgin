@@ -88,9 +88,9 @@ int irc_cmd_ctcp(struct irc_conn *irc, const char *cmd, const char *target, cons
 int irc_cmd_ctcp_action(struct irc_conn *irc, const char *cmd, const char *target, const char **args)
 {
 	PurpleConnection *gc = purple_account_get_connection(irc->account);
-	char *action, *escaped, *dst, **newargs;
-	const char *src;
-	char *msg;
+	gchar *action, *escaped, *dst, **newargs;
+	const gchar *src, *me;
+	gchar *msg;
 	PurpleConversation *convo;
 	PurpleMessage *pmsg;
 
@@ -98,28 +98,41 @@ int irc_cmd_ctcp_action(struct irc_conn *irc, const char *cmd, const char *targe
 		return 0;
 
 	convo = purple_conversations_find_with_account(target, irc->account);
+	me = purple_account_get_name_for_display(irc->account);
 
 	msg = g_strdup_printf("/me %s", args[0]);
 
 	/* XXX: we'd prefer to keep this in conversation.c */
 	if (PURPLE_IS_IM_CONVERSATION(convo)) {
-		pmsg = purple_message_new_outgoing(
-			purple_conversation_get_name(convo), msg, 0);
+		const gchar *conv_name = purple_conversation_get_name(convo);
+		pmsg = purple_message_new_outgoing(me, conv_name, msg, 0);
 
 		purple_signal_emit(purple_conversations_get_handle(),
 			"sending-im-msg", irc->account, pmsg);
 	} else {
-		pmsg = purple_message_new_outgoing(NULL, msg, 0);
+		pmsg = purple_message_new_outgoing(me, NULL, msg, 0);
 
 		purple_signal_emit(purple_conversations_get_handle(),
 			"sending-chat-msg", irc->account, pmsg,
 			purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(convo)));
 	}
 
+	/* We free the original message because it could have been changed by the
+	 * sending-*-msg signals above.
+	 */
 	g_free(msg);
-	if (purple_message_is_empty(pmsg))
+
+	/* if the message was eaten by a signal we bail */
+	if(purple_message_is_empty(pmsg)) {
+		g_object_unref(G_OBJECT(pmsg));
+
 		return 0;
-	msg = g_strdup(purple_message_get_contents(pmsg)); /* XXX: is it really necessary? */
+	}
+
+	/* create a copy of the updated message, which should not be null because
+	 * we just tested if it was empty in the above conditional.
+	 */
+	msg = g_strdup(purple_message_get_contents(pmsg));
 
 	if (strncmp(msg, "/me ", 4) != 0) {
 		newargs = g_new0(char *, 2);
@@ -177,17 +190,22 @@ int irc_cmd_ctcp_action(struct irc_conn *irc, const char *cmd, const char *targe
 		escaped = g_markup_escape_text(args[0], -1);
 		action = g_strdup_printf("/me %s", escaped);
 		g_free(escaped);
-		if (action[strlen(action) - 1] == '\n')
+		if (action[strlen(action) - 1] == '\n') {
 			action[strlen(action) - 1] = '\0';
-		if (PURPLE_IS_CHAT_CONVERSATION(convo))
+		}
+		if (PURPLE_IS_CHAT_CONVERSATION(convo)) {
 			purple_serv_got_chat_in(gc, purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(convo)),
 			                 purple_connection_get_display_name(gc),
 			                 PURPLE_MESSAGE_SEND, action, time(NULL));
-		else
-			purple_conversation_write_message(convo, purple_message_new_outgoing(
-				purple_connection_get_display_name(gc), action, 0));
+		} else {
+			purple_message_set_recipient(pmsg,
+			                             purple_connection_get_display_name(gc));
+			purple_conversation_write_message(convo, pmsg);
+		}
 		g_free(action);
 	}
+
+	g_object_unref(G_OBJECT(pmsg));
 
 	return 1;
 }
@@ -512,11 +530,20 @@ int irc_cmd_query(struct irc_conn *irc, const char *cmd, const char *target, con
 	purple_conversation_present(PURPLE_CONVERSATION(im));
 
 	if (args[1]) {
+		PurpleMessage *message = NULL;
+		const gchar *me = NULL;
+		const gchar *recipient = NULL;
+
 		gc = purple_account_get_connection(irc->account);
 		irc_cmd_privmsg(irc, cmd, target, args);
-		purple_conversation_write_message(PURPLE_CONVERSATION(im),
-			purple_message_new_outgoing(
-				purple_connection_get_display_name(gc), args[1], 0));
+
+		me = purple_account_get_name_for_display(irc->account);
+		recipient = purple_connection_get_display_name(gc);
+		message = purple_message_new_outgoing(me, recipient, args[1], 0);
+
+		purple_conversation_write_message(PURPLE_CONVERSATION(im), message);
+
+		g_object_unref(G_OBJECT(message));
 	}
 
 	return 0;

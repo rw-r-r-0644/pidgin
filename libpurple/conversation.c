@@ -87,9 +87,8 @@ common_send(PurpleConversation *conv, const char *message, PurpleMessageFlags ms
 	PurpleConnection *gc;
 	PurpleConversationPrivate *priv =
 			purple_conversation_get_instance_private(conv);
-	PurpleMessage *msg;
 	char *displayed = NULL;
-	const char *sent;
+	const char *sent, *me;
 	int err = 0;
 
 	if (*message == '\0')
@@ -100,6 +99,8 @@ common_send(PurpleConversation *conv, const char *message, PurpleMessageFlags ms
 
 	gc = purple_account_get_connection(account);
 	g_return_if_fail(PURPLE_IS_CONNECTION(gc));
+
+	me = purple_account_get_name_for_display(account);
 
 	/* Always linkfy the text for display, unless we're
 	 * explicitly asked to do otheriwse*/
@@ -119,7 +120,7 @@ common_send(PurpleConversation *conv, const char *message, PurpleMessageFlags ms
 	msgflags |= PURPLE_MESSAGE_SEND;
 
 	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		msg = purple_message_new_outgoing(
+		PurpleMessage *msg = purple_message_new_outgoing(me,
 			purple_conversation_get_name(conv), sent, msgflags);
 
 		purple_signal_emit(purple_conversations_get_handle(), "sending-im-msg",
@@ -138,11 +139,14 @@ common_send(PurpleConversation *conv, const char *message, PurpleMessageFlags ms
 			purple_signal_emit(purple_conversations_get_handle(),
 				"sent-im-msg", account, msg);
 		}
+
+		g_object_unref(G_OBJECT(msg));
 	}
 	else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
+		PurpleMessage *msg;
 		int id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv));
 
-		msg = purple_message_new_outgoing(NULL, sent, msgflags);
+		msg = purple_message_new_outgoing(me, NULL, sent, msgflags);
 
 		purple_signal_emit(purple_conversations_get_handle(),
 			"sending-chat-msg", account, msg, id);
@@ -153,6 +157,8 @@ common_send(PurpleConversation *conv, const char *message, PurpleMessageFlags ms
 			purple_signal_emit(purple_conversations_get_handle(),
 				"sent-chat-msg", account, msg, id);
 		}
+
+		g_object_unref(G_OBJECT(msg));
 	}
 
 	if (err < 0) {
@@ -558,7 +564,7 @@ _purple_conversation_write_common(PurpleConversation *conv, PurpleMessage *pmsg)
 		GList *log;
 		GDateTime *dt;
 
-		dt = g_date_time_new_from_unix_local(purple_message_get_time(pmsg));
+		dt = g_date_time_ref(purple_message_get_timestamp(pmsg));
 		log = priv->logs;
 		while (log != NULL) {
 			purple_log_write((PurpleLog *)log->data,

@@ -4640,11 +4640,13 @@ pidgin_conv_write_conv(PurpleConversation *conv, PurpleMessage *pmsg)
 			purple_conversation_get_name(conv));
 		if (chat) {
 			GHashTable *comps = purple_chat_get_components(chat);
+			GDateTime *dt = NULL;
 			time_t now, history_since, prev_history_since = 0;
 			struct tm *history_since_tm;
 			const char *history_since_s, *prev_history_since_s;
 
-			history_since = purple_message_get_time(pmsg) + 1;
+			dt = purple_message_get_timestamp(pmsg);
+			history_since = g_date_time_to_unix(dt) + 1;
 
 			prev_history_since_s = g_hash_table_lookup(comps,
 				"history_since");
@@ -6025,8 +6027,10 @@ update_chat_topic(PurpleChatConversation *chat, const char *old, const char *new
 static int
 message_compare(PurpleMessage *m1, PurpleMessage *m2)
 {
-	guint64 t1 = purple_message_get_time(m1), t2 = purple_message_get_time(m2);
-	return (t1 > t2) - (t1 < t2);
+	GDateTime *dt1 = purple_message_get_timestamp(m1);
+	GDateTime *dt2 = purple_message_get_timestamp(m2);
+
+	return g_date_time_compare(dt1, dt2);
 }
 
 /* Adds some message history to the gtkconv. This happens in a idle-callback. */
@@ -6036,13 +6040,14 @@ add_message_history_to_gtkconv(gpointer data)
 	PidginConversation *gtkconv = data;
 	int count = 0;
 	int timer = gtkconv->attach_timer;
-	time_t when = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(gtkconv->editor), "attach-start-time"));
+	GDateTime *when = (GDateTime *)g_object_get_data(G_OBJECT(gtkconv->editor), "attach-start-time");
 	gboolean im = (PURPLE_IS_IM_CONVERSATION(gtkconv->active_conv));
 
 	gtkconv->attach_timer = 0;
 	while (gtkconv->attach_current && count < ADD_MESSAGE_HISTORY_AT_ONCE) {
 		PurpleMessage *msg = gtkconv->attach_current->data;
-		if (!im && when && (guint64)when < purple_message_get_time(msg)) {
+		GDateTime *dt = purple_message_get_timestamp(msg);
+		if (!im && when && g_date_time_difference(dt, when) >= 0) {
 			g_object_set_data(G_OBJECT(gtkconv->editor), "attach-start-time", NULL);
 		}
 		/* XXX: should it be gtkconv->active_conv? */
@@ -6069,8 +6074,10 @@ add_message_history_to_gtkconv(gpointer data)
 			GList *history = purple_conversation_get_message_history(conv);
 			for (; history; history = history->next) {
 				PurpleMessage *msg = history->data;
-				if (purple_message_get_time(msg) > (guint64)when)
+				GDateTime *dt = purple_message_get_timestamp(msg);
+				if(g_date_time_difference(dt, when) > 0) {
 					msgs = g_list_prepend(msgs, msg);
+				}
 			}
 		}
 		msgs = g_list_sort(msgs, (GCompareFunc)message_compare);
@@ -6131,6 +6138,8 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 
 	list = purple_conversation_get_message_history(conv);
 	if (list) {
+		GDateTime *dt = NULL;
+
 		if (PURPLE_IS_IM_CONVERSATION(conv)) {
 			GList *convs;
 			list = g_list_copy(list);
@@ -6147,8 +6156,9 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 			gtkconv->attach_current = g_list_last(list);
 		}
 
-		g_object_set_data(G_OBJECT(gtkconv->editor), "attach-start-time",
-			GINT_TO_POINTER(purple_message_get_time(list->data)));
+		dt = purple_message_get_timestamp(PURPLE_MESSAGE(list->data));
+		g_object_set_data_full(G_OBJECT(gtkconv->editor), "attach-start-time",
+		                       g_date_time_ref(dt), (GDestroyNotify)g_date_time_unref);
 		gtkconv->attach_timer = g_idle_add(add_message_history_to_gtkconv, gtkconv);
 	} else {
 		purple_signal_emit(pidgin_conversations_get_handle(),

@@ -19,6 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <glib.h>
 #include <glib/gi18n-lib.h>
 
 #include <gio/gio.h>
@@ -432,7 +433,8 @@ void
 fb_util_serv_got_im(PurpleConnection *gc, const gchar *who, const gchar *text,
                     PurpleMessageFlags flags, guint64 timestamp)
 {
-	const gchar *name;
+	GDateTime *dt = NULL;
+	const gchar *name, *me;
 	PurpleAccount *acct;
 	PurpleIMConversation *conv;
 	PurpleMessage *msg;
@@ -449,21 +451,30 @@ fb_util_serv_got_im(PurpleConnection *gc, const gchar *who, const gchar *text,
 		conv = purple_im_conversation_new(acct, who);
 	}
 
+	me = purple_account_get_name_for_display(acct);
 	name = purple_account_get_username(acct);
-	msg = purple_message_new_outgoing(name, text, flags);
-	purple_message_set_time(msg, timestamp);
+	msg = purple_message_new_outgoing(me, name, text, flags);
+
+	dt = g_date_time_new_from_unix_local((gint64)timestamp);
+	purple_message_set_timestamp(msg, dt);
+	g_date_time_unref(dt);
+
 	purple_conversation_write_message(PURPLE_CONVERSATION(conv), msg);
+
+	g_object_unref(G_OBJECT(msg));
 }
 
 void
 fb_util_serv_got_chat_in(PurpleConnection *gc, gint id, const gchar *who,
                          const gchar *text, PurpleMessageFlags flags,
-			 guint64 timestamp)
+                         guint64 timestamp)
 {
+	GDateTime *dt = NULL;
 	const gchar *name;
 	PurpleAccount *acct;
 	PurpleChatConversation *conv;
 	PurpleMessage *msg;
+	const gchar *me;
 
 	if (!(flags & PURPLE_MESSAGE_SEND)) {
 		purple_serv_got_chat_in(gc, id, who, flags, text, timestamp);
@@ -473,10 +484,18 @@ fb_util_serv_got_chat_in(PurpleConnection *gc, gint id, const gchar *who,
 	acct = purple_connection_get_account(gc);
 	conv = purple_conversations_find_chat(gc, id);
 
+	me = purple_account_get_name_for_display(acct);
 	name = purple_account_get_username(acct);
-	msg = purple_message_new_outgoing(name, text, flags);
-	purple_message_set_time(msg, timestamp);
+
+	msg = purple_message_new_outgoing(me, name, text, flags);
+
+	dt = g_date_time_new_from_unix_local((gint64)timestamp);
+	purple_message_set_timestamp(msg, dt);
+	g_date_time_unref(dt);
+
 	purple_conversation_write_message(PURPLE_CONVERSATION(conv), msg);
+
+	g_object_unref(G_OBJECT(msg));
 }
 
 gboolean

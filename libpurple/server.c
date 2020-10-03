@@ -556,6 +556,7 @@ void purple_serv_got_im(PurpleConnection *gc, const char *who, const char *msg,
 	pmsg = purple_message_new_incoming(name, message, flags, mtime);
 	purple_conversation_write_message(PURPLE_CONVERSATION(im), pmsg);
 	g_free(message);
+	g_object_unref(G_OBJECT(pmsg));
 
 	/*
 	 * Don't autorespond if:
@@ -622,12 +623,15 @@ void purple_serv_got_im(PurpleConnection *gc, const char *who, const char *msg,
 				if (!(flags & PURPLE_MESSAGE_AUTO_RESP))
 				{
 					PurpleMessage *msg;
+					const gchar *me = purple_account_get_name_for_display(account);
 
-					msg = purple_message_new_outgoing(name,
+					msg = purple_message_new_outgoing(me, name,
 						away_msg, PURPLE_MESSAGE_AUTO_RESP);
 
 					purple_serv_send_im(gc, msg);
 					purple_conversation_write_message(PURPLE_CONVERSATION(im), msg);
+
+					g_object_unref(G_OBJECT(msg));
 				}
 			}
 		}
@@ -890,16 +894,23 @@ void purple_serv_got_chat_in(PurpleConnection *g, int id, const char *who,
 	purple_signal_emit(purple_conversations_get_handle(), "received-chat-msg", purple_connection_get_account(g),
 					 who, message, chat, flags);
 
-	if (flags & PURPLE_MESSAGE_RECV)
+	if (flags & PURPLE_MESSAGE_RECV) {
 		pmsg = purple_message_new_incoming(who, message, flags, mtime);
-	else {
-		pmsg = purple_message_new_outgoing(who, message, flags);
-		purple_message_set_time(pmsg, mtime);
+	} else {
+		PurpleAccount *account = purple_connection_get_account(g);
+		GDateTime *dt = g_date_time_new_from_unix_local((gint64)mtime);
+		const gchar *me = purple_account_get_name_for_display(account);
+
+		pmsg = purple_message_new_outgoing(me, who, message, flags);
+		purple_message_set_timestamp(pmsg, dt);
+		g_date_time_unref(dt);
 	}
 	purple_conversation_write_message(PURPLE_CONVERSATION(chat), pmsg);
 
 	g_free(angel);
 	g_free(buffy);
+
+	g_object_unref(G_OBJECT(pmsg));
 }
 
 void purple_serv_send_file(PurpleConnection *gc, const char *who, const char *file)

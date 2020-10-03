@@ -27,7 +27,6 @@ struct _PidginMessage {
 	GObject parent;
 
 	PurpleMessage *message;
-	GDateTime *timestamp;
 };
 
 typedef struct {
@@ -55,13 +54,7 @@ static GParamSpec *properties[N_PROPERTIES] = {NULL, };
 static void
 pidgin_message_set_message(PidginMessage *message, PurpleMessage *purple_msg) {
 	if(g_set_object(&message->message, purple_msg)) {
-		g_clear_pointer(&message->timestamp, g_date_time_unref);
-		message->timestamp = g_date_time_new_from_unix_local(purple_message_get_time(purple_msg));
-
-		g_object_freeze_notify(G_OBJECT(message));
 		g_object_notify_by_pspec(G_OBJECT(message), properties[PROP_MESSAGE]);
-		g_object_notify(G_OBJECT(message), "timestamp");
-		g_object_thaw_notify(G_OBJECT(message));
 	}
 }
 
@@ -199,7 +192,7 @@ pidgin_message_get_property(GObject *obj, guint param_id, GValue *value, GParamS
 			g_value_set_string(value, purple_message_get_contents(message->message));
 			break;
 		case PROP_TIMESTAMP:
-			g_value_set_pointer(value, message->timestamp);
+			g_value_set_boxed(value, purple_message_get_timestamp(message->message));
 			break;
 		case PROP_EDITED:
 			g_value_set_boolean(value, FALSE);
@@ -241,7 +234,6 @@ pidgin_message_finalize(GObject *obj) {
 	PidginMessage *message = PIDGIN_MESSAGE(obj);
 
 	g_clear_object(&message->message);
-	g_clear_pointer(&message->timestamp, g_date_time_unref);
 
 	G_OBJECT_CLASS(pidgin_message_parent_class)->finalize(obj);
 }

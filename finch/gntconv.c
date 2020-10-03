@@ -902,11 +902,14 @@ finch_write_conv(PurpleConversation *conv, PurpleMessage *msg)
 
 	/* Unnecessary to print the timestamp for delayed message */
 	if (purple_prefs_get_bool("/finch/conversations/timestamps")) {
-		time_t mtime = purple_message_get_time(msg);
-		if (!mtime)
-			time(&mtime);
+		gchar *timestamp = NULL;
+
+		timestamp = purple_message_format_timestamp(msg, "(%H:%M:%S)");
+
 		gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(ggconv->tv),
-					purple_utf8_strftime("(%H:%M:%S)", localtime(&mtime)), gnt_color_pair(color_timestamp));
+		                                     timestamp,
+		                                     gnt_color_pair(color_timestamp));
+		g_free(timestamp);
 	}
 
 	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(ggconv->tv), " ", GNT_TEXT_FLAG_NORMAL);

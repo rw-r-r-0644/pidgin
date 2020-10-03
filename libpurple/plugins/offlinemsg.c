@@ -73,7 +73,11 @@ record_pounce(OfflineMsg *offline)
 	PurplePounceEvent event;
 	PurplePounceOption option;
 	PurpleConversation *conv;
+	PurpleMessage *message;
 	char *temp;
+	const gchar *me;
+
+	me = purple_account_get_name_for_display(offline->account);
 
 	event = PURPLE_POUNCE_SIGNON;
 	option = PURPLE_POUNCE_OPTION_NONE;
@@ -99,9 +103,9 @@ record_pounce(OfflineMsg *offline)
 	g_object_set_data(G_OBJECT(conv), "plugin_pack:offlinemsg",
 				GINT_TO_POINTER(OFFLINE_MSG_YES));
 
-	/* TODO: use a reference to a PurpleMessage */
-	purple_conversation_write_message(conv,
-		purple_message_new_outgoing(offline->who, offline->message, 0));
+	message = purple_message_new_outgoing(me, offline->who, offline->message, 0);
+	purple_conversation_write_message(conv, message);
+	g_object_unref(G_OBJECT(message));
 
 	discard_data(offline);
 }
