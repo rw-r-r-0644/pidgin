@@ -116,7 +116,7 @@ pidgin_plugins_dialog_pref_dialog_close(GPluginPlugin *plugin) {
 	PurplePluginInfo *info = PURPLE_PLUGIN_INFO(ginfo);
 	PidginPluginUiData *ui_data;
 
-	ui_data = purple_plugin_info_get_ui_data(info);
+	ui_data = g_object_get_data(G_OBJECT(info), "pidgin-ui-data");
 	if (ui_data == NULL) {
 		purple_debug_info("PidginPluginsDialog", "failed to find uidata\n");
 		return;
@@ -136,8 +136,7 @@ pidgin_plugins_dialog_pref_dialog_close(GPluginPlugin *plugin) {
 		purple_plugin_pref_frame_destroy(ui_data->u.frame.pref_frame);
 	}
 
-	g_free(ui_data);
-	purple_plugin_info_set_ui_data(info, NULL);
+	g_object_set_data(G_OBJECT(info), "pidgin-ui-data", NULL);
 }
 
 /******************************************************************************
@@ -186,6 +185,12 @@ pidgin_plugins_dialog_pref_dialog_response_cb(GtkWidget *dialog, int response,
 }
 
 static void
+pidgin_plugins_dialog_request_close_cb(PurplePluginInfo *info)
+{
+	g_object_set_data(G_OBJECT(info), "pidgin-ui-data", NULL);
+}
+
+static void
 pidgin_plugins_dialog_config_plugin_cb(GtkWidget *button, gpointer data) {
 	PidginPluginsDialog *dialog = PIDGIN_PLUGINS_DIALOG(data);
 	PidginPluginUiData *ui_data;
@@ -204,7 +209,7 @@ pidgin_plugins_dialog_config_plugin_cb(GtkWidget *button, gpointer data) {
 	ginfo = gplugin_plugin_get_info(plugin);
 	info = PURPLE_PLUGIN_INFO(ginfo);
 
-	if(purple_plugin_info_get_ui_data(info)) {
+	if (g_object_get_data(G_OBJECT(info), "pidgin-ui-data")) {
 		g_object_unref(G_OBJECT(plugin));
 		return;
 	}
@@ -213,7 +218,7 @@ pidgin_plugins_dialog_config_plugin_cb(GtkWidget *button, gpointer data) {
 	pref_request_cb = purple_plugin_info_get_pref_request_cb(info);
 
 	ui_data = g_new0(PidginPluginUiData, 1);
-	purple_plugin_info_set_ui_data(info, ui_data);
+	g_object_set_data_full(G_OBJECT(info), "pidgin-ui-data", ui_data, g_free);
 
 	prefs_count = 0;
 	if (pref_frame_cb) {
@@ -241,10 +246,9 @@ pidgin_plugins_dialog_config_plugin_cb(GtkWidget *button, gpointer data) {
 	if (pref_request_cb) {
 		ui_data->type = PIDGIN_PLUGIN_UI_DATA_TYPE_REQUEST;
 		ui_data->u.request_handle = pref_request_cb(plugin);
-		purple_request_add_close_notify(ui_data->u.request_handle,
-			purple_callback_set_zero, &info->ui_data);
-		purple_request_add_close_notify(ui_data->u.request_handle,
-			g_free, ui_data);
+		purple_request_add_close_notify(
+		        ui_data->u.request_handle,
+		        (GDestroyNotify)pidgin_plugins_dialog_request_close_cb, info);
 	} else {
 		GtkWidget *box, *pdialog, *content, *sw;
 
@@ -254,8 +258,7 @@ pidgin_plugins_dialog_config_plugin_cb(GtkWidget *button, gpointer data) {
 		if (box == NULL) {
 			purple_debug_error("gtkplugin",
 				"Failed to display prefs frame");
-			g_free(ui_data);
-			purple_plugin_info_set_ui_data(info, NULL);
+			g_object_set_data(G_OBJECT(info), "pidgin-ui-data", NULL);
 			g_object_unref(G_OBJECT(plugin));
 			return;
 		}

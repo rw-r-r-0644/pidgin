@@ -139,16 +139,11 @@ typedef enum /*< flags >*/
 
 /**
  * PurplePluginInfo:
- * @ui_data: The UI data associated with the plugin. This is a convenience
- *           field provided to the UIs -- it is not used by the libpurple core.
  *
  * Holds information about a plugin.
  */
 struct _PurplePluginInfo {
 	GPluginPluginInfo parent;
-
-	/*< public >*/
-	gpointer ui_data;
 };
 
 /**
@@ -492,27 +487,6 @@ purple_plugin_info_get_flags(PurplePluginInfo *info);
  * Returns: The plugin info error, or %NULL.
  */
 const gchar *purple_plugin_info_get_error(PurplePluginInfo *info);
-
-/**
- * purple_plugin_info_set_ui_data:
- * @info: The plugin's info instance.
- * @ui_data: A pointer to associate with this object.
- *
- * Set the UI data associated with a plugin.
- */
-void purple_plugin_info_set_ui_data(PurplePluginInfo *info, gpointer ui_data);
-
-/**
- * purple_plugin_info_get_ui_data:
- * @info: The plugin's info instance.
- *
- * Returns the UI data associated with a plugin.
- *
- * Returns: The UI data associated with this plugin.  This is a
- *          convenience field provided to the UIs--it is not
- *          used by the libpurple core.
- */
-gpointer purple_plugin_info_get_ui_data(PurplePluginInfo *info);
 
 /**************************************************************************/
 /* PluginAction API                                                       */

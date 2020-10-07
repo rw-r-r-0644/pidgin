@@ -199,10 +199,11 @@ finch_plugin_pref_close(PurplePlugin *plugin)
 	g_return_if_fail(plugin != NULL);
 
 	info = purple_plugin_get_info(plugin);
-	ui_data = purple_plugin_info_get_ui_data(info);
+	ui_data = g_object_get_data(G_OBJECT(info), "finch-ui-data");
 
-	if (!ui_data)
+	if (ui_data == NULL) {
 		return;
+	}
 
 	if (ui_data->type == FINCH_PLUGIN_UI_DATA_TYPE_REQUEST) {
 		purple_request_close(PURPLE_REQUEST_FIELDS,
@@ -214,8 +215,7 @@ finch_plugin_pref_close(PurplePlugin *plugin)
 
 	gnt_widget_destroy(ui_data->u.window);
 
-	g_free(ui_data);
-	purple_plugin_info_set_ui_data(info, NULL);
+	g_object_set_data(G_OBJECT(info), "finch-ui-data", NULL);
 }
 
 static void
@@ -346,8 +346,13 @@ remove_confwin(GntWidget *window, gpointer _plugin)
 	PurplePlugin *plugin = _plugin;
 	PurplePluginInfo *info = purple_plugin_get_info(plugin);
 
-	g_free(info->ui_data);
-	purple_plugin_info_set_ui_data(info, NULL);
+	g_object_set_data(G_OBJECT(info), "finch-ui-data", NULL);
+}
+
+static void
+close_plugin_info_request_cb(PurplePluginInfo *info)
+{
+	g_object_set_data(G_OBJECT(info), "finch-ui-data", NULL);
 }
 
 static void
@@ -370,10 +375,11 @@ configure_plugin_cb(GntWidget *button, gpointer null)
 
 	info = purple_plugin_get_info(plugin);
 
-	if (purple_plugin_info_get_ui_data(info))
+	if (g_object_get_data(G_OBJECT(info), "finch-ui-data")) {
 		return;
+	}
 	ui_data = g_new0(FinchPluginUiData, 1);
-	purple_plugin_info_set_ui_data(info, ui_data);
+	g_object_set_data_full(G_OBJECT(info), "finch-ui-data", ui_data, g_free);
 
 	if (FINCH_IS_PLUGIN_INFO(info))
 		priv = finch_plugin_info_get_instance_private(
@@ -414,9 +420,8 @@ configure_plugin_cb(GntWidget *button, gpointer null)
 
 		ui_data->type = FINCH_PLUGIN_UI_DATA_TYPE_REQUEST;
 		ui_data->u.request_handle = handle = pref_request_cb(plugin);
-		purple_request_add_close_notify(handle,
-			purple_callback_set_zero, &info->ui_data);
-		purple_request_add_close_notify(handle, g_free, ui_data);
+		purple_request_add_close_notify(
+		        handle, (GDestroyNotify)close_plugin_info_request_cb, info);
 	}
 	else if (purple_plugin_info_get_pref_frame_cb(info))
 	{
@@ -431,8 +436,7 @@ configure_plugin_cb(GntWidget *button, gpointer null)
 	{
 		purple_notify_info(plugin, _("Error"), _("No configuration "
 			"options for this plugin."), NULL, NULL);
-		g_free(ui_data);
-		purple_plugin_info_set_ui_data(info, NULL);
+		g_object_set_data(G_OBJECT(info), "finch-ui-data", NULL);
 	}
 }
 
