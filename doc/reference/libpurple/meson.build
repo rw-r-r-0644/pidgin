@@ -8,6 +8,7 @@ ignore_hfiles = [
     'tests',
     'win32',
     'backend-fs2.h',
+    'glibcompat.h',
     'internal.h',
     'purpleprivate.h',
 ]
