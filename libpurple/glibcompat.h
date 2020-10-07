@@ -55,6 +55,7 @@ purple_g_stat(const gchar *filename, GStatBufW32 *buf)
 
 #if !GLIB_CHECK_VERSION(2, 62, 0)
 #define g_date_time_format_iso8601(dt) (purple_compat_date_time_format_iso8601((dt)))
+G_GNUC_INTERNAL
 gchar *purple_compat_date_time_format_iso8601(GDateTime *datetime);
 #endif /* GLIB_CHECK_VERSION(2, 62, 0) */
 

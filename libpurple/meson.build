@@ -108,7 +108,6 @@ purple_coreheaders = [
 	'countingnode.h',
 	'debug.h',
 	'eventloop.h',
-	'glibcompat.h',
 	'group.h',
 	'idle.h',
 	'image.h',

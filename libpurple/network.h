@@ -328,14 +328,14 @@ const gchar *purple_network_get_turn_ip(void);
 void purple_network_remove_port_mapping(gint fd);
 
 /**
+ * _purple_network_set_common_socket_flags:
+ * @fd: The file descriptor for the socket.
+ *
  * Sets most commonly used socket flags: O_NONBLOCK and FD_CLOEXEC.
  *
- * @param fd The file descriptor for the socket.
- *
- * @return TRUE if succeeded, FALSE otherwise.
+ * Returns: %TRUE if succeeded, %FALSE otherwise.
  */
-gboolean
-_purple_network_set_common_socket_flags(int fd);
+gboolean _purple_network_set_common_socket_flags(int fd);
 
 /**
  * purple_network_init:
