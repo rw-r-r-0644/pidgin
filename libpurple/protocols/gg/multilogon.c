@@ -200,6 +200,13 @@ ggp_multilogon_disconnect(PurpleRequestDatasheetRecord *rec, gpointer _gc)
 		purple_request_datasheet_record_get_datasheet(rec), key);
 }
 
+static void
+ggp_multilogin_close_request(ggp_multilogon_session_data *mldata)
+{
+	mldata->sheet_handle = NULL;
+	mldata->dialog_handle = NULL;
+}
+
 void
 ggp_multilogon_dialog(PurpleConnection *gc)
 {
@@ -248,7 +255,5 @@ ggp_multilogon_dialog(PurpleConnection *gc)
 	mldata->dialog_handle = dialog_handle;
 
 	purple_request_add_close_notify(dialog_handle,
-		purple_callback_set_zero, &mldata->sheet_handle);
-	purple_request_add_close_notify(dialog_handle,
-		purple_callback_set_zero, &mldata->dialog_handle);
+		(GDestroyNotify)ggp_multilogin_close_request, mldata);
 }
