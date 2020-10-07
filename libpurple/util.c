@@ -3606,15 +3606,6 @@ char * purple_util_format_song_info(const char *title, const char *artist, const
 	return g_string_free(string, FALSE);
 }
 
-void purple_callback_set_zero(gpointer data)
-{
-	gpointer *ptr = data;
-
-	g_return_if_fail(ptr != NULL);
-
-	*ptr = NULL;
-}
-
 GValue *
 purple_value_new(GType type)
 {

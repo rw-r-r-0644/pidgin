@@ -1237,16 +1237,6 @@ const char *purple_unescape_filename(const char *str);
 const char *purple_escape_filename(const char *str);
 
 /**
- * purple_callback_set_zero:
- * @data: A pointer to variable, which should be set to NULL.
- *
- * Sets given pointer to NULL.
- *
- * Function designed to be used as a GDestroyNotify callback.
- */
-void purple_callback_set_zero(gpointer data);
-
-/**
  * purple_value_new:
  * @type:  The type of data to be held by the GValue
  *
