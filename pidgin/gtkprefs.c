@@ -121,7 +121,6 @@ struct _PidginPrefsWindow {
 			GtkWidget *animate_buddy_icons;
 			GtkWidget *send_typing;
 		} im;
-		GtkWidget *spellcheck;
 		GtkWidget *use_smooth_scrolling;
 		struct {
 			GtkWidget *blink_im;
@@ -1606,8 +1605,6 @@ bind_conv_page(PidginPrefsWindow *win)
 
 	pidgin_prefs_bind_checkbox("/purple/conversations/im/send_typing",
 			win->conversations.im.send_typing);
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/spellcheck",
-			win->conversations.spellcheck);
 
 	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/use_smooth_scrolling",
 			win->conversations.use_smooth_scrolling);
@@ -2874,9 +2871,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.im.send_typing);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.spellcheck);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.use_smooth_scrolling);

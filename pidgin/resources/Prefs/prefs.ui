@@ -718,21 +718,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="conversations.spellcheck">
-                                    <property name="label" translatable="yes">Highlight _misspelled words</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">6</property>
-                                  </packing>
-                                </child>
-                                <child>
                                   <object class="GtkCheckButton" id="conversations.use_smooth_scrolling">
                                     <property name="label" translatable="yes">Use smooth-scrolling</property>
                                     <property name="visible">True</property>
@@ -743,7 +728,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">7</property>
+                                    <property name="position">6</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -758,7 +743,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">8</property>
+                                    <property name="position">7</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -809,7 +794,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">9</property>
+                                    <property name="position">8</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -847,7 +832,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">10</property>
+                                    <property name="position">9</property>
                                   </packing>
                                 </child>
                               </object>

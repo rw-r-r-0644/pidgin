@@ -5646,27 +5646,6 @@ close_on_tabs_pref_cb(const char *name, PurplePrefType type,
 }
 
 static void
-spellcheck_pref_cb(const char *name, PurplePrefType type,
-				   gconstpointer value, gpointer data)
-{
-	GList *cl;
-	PurpleConversation *conv;
-
-	for (cl = purple_conversations_get_all(); cl != NULL; cl = cl->next) {
-		PidginConversation *gtkconv = NULL;
-
-		conv = (PurpleConversation *)cl->data;
-
-		if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv))
-			continue;
-
-		gtkconv = PIDGIN_CONVERSATION(conv);
-
-# warning toggle spell checking when talkatu #60 is done.
-	}
-}
-
-static void
 tab_side_pref_cb(const char *name, PurplePrefType type,
 				 gconstpointer value, gpointer data)
 {
@@ -6199,7 +6178,6 @@ pidgin_conversations_init(void)
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_italic", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_underline", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_strike", FALSE);
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/spellcheck", TRUE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/show_incoming_formatting", TRUE);
 	/* TODO: it's about *remote* smileys, not local ones */
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/resize_custom_smileys", TRUE);
@@ -6254,8 +6232,6 @@ pidgin_conversations_init(void)
 								close_on_tabs_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar",
 								show_formatting_toolbar_pref_cb, NULL);
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/spellcheck",
-								spellcheck_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/tab_side",
 								tab_side_pref_cb, NULL);
 
