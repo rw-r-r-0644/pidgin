@@ -10,7 +10,7 @@ option('extraversion', type : 'string',
 option('glib-errors-trace', type : 'boolean', value : false,
        description : 'print backtraces for glib errors')
 
-option('introspection', type : 'feature',
+option('introspection', type : 'boolean', value : true,
        description : 'build introspection data')
 
 option('nettle', type : 'feature',
