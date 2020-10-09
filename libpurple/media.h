@@ -509,15 +509,13 @@ void purple_media_set_output_volume(PurpleMedia *media, const gchar *session_id,
  * @media: The media instance to set the output window on.
  * @session_id: The session to set the output window on.
  * @participant: Optionally, the participant to set the output window on.
- * @window_id: The window id use for embedding the video in.
  *
  * Sets a video output window for the given session/stream.
  *
  * Returns: An id to reference the output window.
  */
 gulong purple_media_set_output_window(PurpleMedia *media,
-		const gchar *session_id, const gchar *participant,
-		gulong window_id);
+		const gchar *session_id, const gchar *participant);
 
 /**
  * purple_media_remove_output_windows:

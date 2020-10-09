@@ -351,7 +351,7 @@ libsoup = dependency('libsoup-2.4', version : '>= 2.42')
 # Check for GStreamer
 #######################################################################
 
-gstreamer = dependency('gstreamer-1.0')
+gstreamer = dependency('gstreamer-1.0', version : '>=1.14')
 
 #######################################################################
 # Check for GStreamer Video

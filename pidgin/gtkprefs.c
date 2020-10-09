@@ -225,7 +225,8 @@ struct _PidginPrefsWindow {
 		struct {
 			PidginPrefCombo input;
 			PidginPrefCombo output;
-			GtkWidget *drawing_area;
+			GtkWidget *frame;
+			GtkWidget *sink_widget;
 			GtkWidget *test;
 			GstElement *pipeline;
 		} video;
@@ -2525,57 +2526,20 @@ video_test_destroy_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-window_id_cb(GstBus *bus, GstMessage *msg, gulong window_id)
-{
-	if (GST_MESSAGE_TYPE(msg) != GST_MESSAGE_ELEMENT ||
-	    !gst_is_video_overlay_prepare_window_handle_message(msg)) {
-		return;
-	}
-
-	g_signal_handlers_disconnect_matched(bus,
-	                                     G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA,
-	                                     0, 0, NULL, window_id_cb,
-	                                     (gpointer)window_id);
-
-	gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(GST_MESSAGE_SRC(msg)),
-	                                    window_id);
-}
-
-static void
 enable_video_test(PidginPrefsWindow *win)
 {
-	GstBus *bus;
-	GdkWindow *window = gtk_widget_get_window(win->vv.video.drawing_area);
-	gulong window_id = 0;
-
-#ifdef GDK_WINDOWING_WIN32
-	if (GDK_IS_WIN32_WINDOW(window))
-		window_id = GPOINTER_TO_UINT(GDK_WINDOW_HWND(window));
-	else
-#endif
-#ifdef GDK_WINDOWING_X11
-	if (GDK_IS_X11_WINDOW(window))
-		window_id = gdk_x11_window_get_xid(window);
-	else
-#endif
-#ifdef GDK_WINDOWING_QUARTZ
-	if (GDK_IS_QUARTZ_WINDOW(window))
-		window_id = (gulong)gdk_quartz_window_get_nsview(window);
-	else
-#endif
-		g_warning("Unsupported GDK backend");
-#if !(defined(GDK_WINDOWING_WIN32) \
-   || defined(GDK_WINDOWING_X11) \
-   || defined(GDK_WINDOWING_QUARTZ))
-#	error "Unsupported GDK windowing system"
-#endif
+	GtkWidget *video = NULL;
+	GstElement *sink = NULL;
 
 	win->vv.video.pipeline = create_video_pipeline();
-	bus = gst_pipeline_get_bus(GST_PIPELINE(win->vv.video.pipeline));
-	gst_bus_set_sync_handler(bus, gst_bus_sync_signal_handler, NULL, NULL);
-	g_signal_connect(bus, "sync-message::element",
-	                 G_CALLBACK(window_id_cb), (gpointer)window_id);
-	gst_object_unref(bus);
+
+	sink = g_object_get_data(G_OBJECT(win->vv.video.pipeline), "sink");
+	g_object_get(sink, "widget", &video, NULL);
+	gtk_widget_show(video);
+
+	g_clear_pointer(&win->vv.video.sink_widget, gtk_widget_destroy);
+	gtk_container_add(GTK_CONTAINER(win->vv.video.frame), video);
+	win->vv.video.sink_widget = video;
 
 	gst_element_set_state(GST_ELEMENT(win->vv.video.pipeline),
 	                      GST_STATE_PLAYING);
@@ -2601,27 +2565,10 @@ toggle_video_test_cb(GtkToggleButton *test, gpointer data)
 static void
 bind_video_test(PidginPrefsWindow *win, GtkBuilder *builder)
 {
-	GtkWidget *video;
 	GObject *test;
-	GdkRGBA color = {0.0, 0.0, 0.0, 1.0};
 
-	win->vv.video.drawing_area = video = GTK_WIDGET(
-	        gtk_builder_get_object(builder, "vv.video.test_area"));
-	gtk_widget_override_background_color(video, GTK_STATE_FLAG_NORMAL,
-	                                     &color);
-
-	/* In order to enable client shadow decorations, GtkDialog from GTK+ 3.0
-	 * uses ARGB visual which by default gets inherited by its child
-	 * widgets. XVideo adaptors on the other hand often support just depth
-	 * 24 and rendering video through xvimagesink onto a widget inside a
-	 * GtkDialog then results in no visible output.
-	 *
-	 * This ensures the default system visual of the drawing area doesn't
-	 * get overridden by the widget's parent.
-	 */
-	gtk_widget_set_visual(video, gdk_screen_get_system_visual(
-	                                     gtk_widget_get_screen(video)));
-
+	win->vv.video.frame = GTK_WIDGET(
+	        gtk_builder_get_object(builder, "vv.video.frame"));
 	test = gtk_builder_get_object(builder, "vv.video.test");
 	g_signal_connect(test, "toggled",
 	                 G_CALLBACK(toggle_video_test_cb), win);
@@ -3142,6 +3089,8 @@ pidgin_prefs_init(void)
 void
 pidgin_prefs_update_old(void)
 {
+	const gchar *video_sink = NULL;
+
 	/* Rename some old prefs */
 	purple_prefs_rename(PIDGIN_PREFS_ROOT "/logging/log_ims", "/purple/logging/log_ims");
 	purple_prefs_rename(PIDGIN_PREFS_ROOT "/logging/log_chats", "/purple/logging/log_chats");
@@ -3269,6 +3218,18 @@ pidgin_prefs_update_old(void)
 		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/vvconfig/video/sink/device",
 				purple_prefs_get_string("/plugins/gtk/vvconfig/video/sink/device"));
 	}
+
+	video_sink = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/vvconfig/video/sink/device");
+	if (purple_strequal(video_sink, "glimagesink") || purple_strequal(video_sink, "directdrawsink")) {
+		/* Accelerated sinks move to GTK GL. */
+		video_sink = "gtkglsink";
+		/* FIXME: I haven't been able to get gtkglsink to work yet: */
+		video_sink = "gtksink";
+	} else {
+		/* Everything else, including default will be moved to GTK sink. */
+		video_sink = "gtksink";
+	}
+	purple_prefs_set_string(PIDGIN_PREFS_ROOT "/vvconfig/video/sink/device", video_sink);
 
 	purple_prefs_remove("/plugins/core/vvconfig");
 	purple_prefs_remove("/plugins/gtk/vvconfig");

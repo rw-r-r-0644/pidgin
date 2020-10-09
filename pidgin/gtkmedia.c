@@ -520,68 +520,6 @@ pidgin_media_emit_message(PidginMedia *gtkmedia, const char *msg)
 	g_object_unref(account);
 }
 
-typedef struct
-{
-	PidginMedia *gtkmedia;
-	gchar *session_id;
-	gchar *participant;
-} PidginMediaRealizeData;
-
-static gboolean
-realize_cb_cb(PidginMediaRealizeData *data)
-{
-	PidginMediaPrivate *priv = data->gtkmedia->priv;
-	GdkWindow *window = NULL;
-
-	if (data->participant == NULL)
-		window = gtk_widget_get_window(priv->local_video);
-	else {
-		GtkWidget *widget = pidgin_media_get_widget(data->gtkmedia,
-				data->session_id, data->participant);
-		if (widget)
-			window = gtk_widget_get_window(widget);
-	}
-
-	if (window) {
-		gulong window_id = 0;
-#ifdef GDK_WINDOWING_WIN32
-		if (GDK_IS_WIN32_WINDOW(window))
-			window_id = GPOINTER_TO_UINT(GDK_WINDOW_HWND(window));
-		else
-#endif
-#ifdef GDK_WINDOWING_X11
-		if (GDK_IS_X11_WINDOW(window))
-			window_id = gdk_x11_window_get_xid(window);
-		else
-#endif
-#ifdef GDK_WINDOWING_QUARTZ
-		if (GDK_IS_QUARTZ_WINDOW(window))
-			window_id = (gulong)gdk_quartz_window_get_nsview(window);
-		else
-#endif
-			g_warning("Unsupported GDK backend");
-#if !(defined(GDK_WINDOWING_WIN32) \
-   || defined(GDK_WINDOWING_X11) \
-   || defined(GDK_WINDOWING_QUARTZ))
-#		error "Unsupported GDK windowing system"
-#endif
-
-		purple_media_set_output_window(priv->media, data->session_id,
-				data->participant, window_id);
-	}
-
-	g_free(data->session_id);
-	g_free(data->participant);
-	g_free(data);
-	return FALSE;
-}
-
-static void
-realize_cb(GtkWidget *widget, PidginMediaRealizeData *data)
-{
-	g_timeout_add(0, (GSourceFunc)realize_cb_cb, data);
-}
-
 static void
 pidgin_media_error_cb(PidginMedia *media, const char *error, PidginMedia *gtkmedia)
 {
@@ -927,58 +865,43 @@ pidgin_media_ready_cb(PurpleMedia *media, PidginMedia *gtkmedia, const gchar *si
 	}
 
 	if (type & PURPLE_MEDIA_RECV_VIDEO) {
-		PidginMediaRealizeData *data;
-		GtkWidget *aspect;
-		GtkWidget *remote_video;
+		PidginMediaPrivate *priv = gtkmedia->priv;
+		PurpleMediaManager *manager = NULL;
+		GstElement *pipeline = NULL;
+		GstElement *sink = NULL;
+		GtkWidget *remote_video = NULL;
 
-		aspect = gtk_aspect_frame_new(NULL, 0, 0, 4.0/3.0, FALSE);
-		gtk_frame_set_shadow_type(GTK_FRAME(aspect), GTK_SHADOW_IN);
-		gtk_box_pack_start(GTK_BOX(recv_widget), aspect, TRUE, TRUE, 0);
-
-		data = g_new0(PidginMediaRealizeData, 1);
-		data->gtkmedia = gtkmedia;
-		data->session_id = g_strdup(sid);
-		data->participant = g_strdup(gtkmedia->priv->screenname);
-
-		remote_video = pidgin_create_video_widget();
-		g_signal_connect(G_OBJECT(remote_video), "realize",
-				G_CALLBACK(realize_cb), data);
-		gtk_container_add(GTK_CONTAINER(aspect), remote_video);
-		gtk_widget_set_size_request (GTK_WIDGET(remote_video), 320, 240);
-		g_signal_connect(G_OBJECT(remote_video), "destroy",
-				G_CALLBACK(destroy_parent_widget_cb), aspect);
-
+		purple_media_set_output_window(priv->media, sid, priv->screenname);
+		manager = purple_media_get_manager(priv->media);
+		pipeline = purple_media_manager_get_pipeline(manager);
+		sink = gst_bin_get_by_name(GST_BIN(pipeline), "gtkglsink");
+		if (sink == NULL) {
+			sink = gst_bin_get_by_name(GST_BIN(pipeline), "gtksink");
+		}
+		g_object_get(G_OBJECT(sink), "widget", &remote_video, NULL);
 		gtk_widget_show(remote_video);
-		gtk_widget_show(aspect);
+		gtk_box_pack_start(GTK_BOX(recv_widget), remote_video, TRUE, TRUE, 0);
 
-		pidgin_media_insert_widget(gtkmedia, remote_video,
-				data->session_id, data->participant);
+		pidgin_media_insert_widget(gtkmedia, remote_video, sid, priv->screenname);
 	}
 
 	if (type & PURPLE_MEDIA_SEND_VIDEO && !gtkmedia->priv->local_video) {
-		PidginMediaRealizeData *data;
-		GtkWidget *aspect;
-		GtkWidget *local_video;
+		PidginMediaPrivate *priv = gtkmedia->priv;
+		PurpleMediaManager *manager = NULL;
+		GstElement *pipeline = NULL;
+		GstElement *sink = NULL;
+		GtkWidget *local_video = NULL;
 
-		aspect = gtk_aspect_frame_new(NULL, 0, 0, 4.0/3.0, TRUE);
-		gtk_frame_set_shadow_type(GTK_FRAME(aspect), GTK_SHADOW_IN);
-		gtk_box_pack_start(GTK_BOX(send_widget), aspect, FALSE, TRUE, 0);
-
-		data = g_new0(PidginMediaRealizeData, 1);
-		data->gtkmedia = gtkmedia;
-		data->session_id = g_strdup(sid);
-		data->participant = NULL;
-
-		local_video = pidgin_create_video_widget();
-		g_signal_connect(G_OBJECT(local_video), "realize",
-				G_CALLBACK(realize_cb), data);
-		gtk_container_add(GTK_CONTAINER(aspect), local_video);
-		gtk_widget_set_size_request (GTK_WIDGET(local_video), 80, 60);
-		g_signal_connect(G_OBJECT(local_video), "destroy",
-				G_CALLBACK(destroy_parent_widget_cb), aspect);
-
+		purple_media_set_output_window(priv->media, sid, NULL);
+		manager = purple_media_get_manager(priv->media);
+		pipeline = purple_media_manager_get_pipeline(manager);
+		sink = gst_bin_get_by_name(GST_BIN(pipeline), "gtkglsink");
+		if (sink == NULL) {
+			sink = gst_bin_get_by_name(GST_BIN(pipeline), "gtksink");
+		}
+		g_object_get(G_OBJECT(sink), "widget", &local_video, NULL);
 		gtk_widget_show(local_video);
-		gtk_widget_show(aspect);
+		gtk_box_pack_start(GTK_BOX(send_widget), local_video, TRUE, TRUE, 0);
 
 		gtkmedia->priv->pause =
 				gtk_toggle_button_new_with_mnemonic(_("_Pause"));

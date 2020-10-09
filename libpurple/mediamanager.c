@@ -50,7 +50,6 @@ struct _PurpleMediaOutputWindow
 	PurpleMedia *media;
 	gchar *session_id;
 	gchar *participant;
-	gulong window_id;
 	GstElement *sink;
 };
 
@@ -71,9 +70,7 @@ typedef struct
 	PurpleMediaElementInfo *audio_src;
 	PurpleMediaElementInfo *audio_sink;
 
-#if GST_CHECK_VERSION(1, 4, 0)
 	GstDeviceMonitor *device_monitor;
-#endif /* GST_CHECK_VERSION(1, 4, 0) */
 
 #ifdef HAVE_MEDIA_APPLICATION
 	/* Application data streams */
@@ -238,12 +235,10 @@ purple_media_manager_finalize (GObject *media)
 			(GDestroyNotify) free_appdata_info_locked);
 	g_mutex_clear (&priv->appdata_mutex);
 #endif
-#if GST_CHECK_VERSION(1, 4, 0)
 	if (priv->device_monitor) {
 		gst_device_monitor_stop(priv->device_monitor);
 		g_object_unref(priv->device_monitor);
 	}
-#endif /* GST_CHECK_VERSION(1, 4, 0) */
 
 	G_OBJECT_CLASS(purple_media_manager_parent_class)->finalize(media);
 }
@@ -1390,30 +1385,6 @@ purple_media_manager_get_active_element(PurpleMediaManager *manager,
 
 	return NULL;
 }
-
-static void
-window_id_cb(GstBus *bus, GstMessage *msg, PurpleMediaOutputWindow *ow)
-{
-	GstElement *sink;
-
-	if (GST_MESSAGE_TYPE(msg) != GST_MESSAGE_ELEMENT
-	 || !gst_is_video_overlay_prepare_window_handle_message(msg))
-		return;
-
-	sink = GST_ELEMENT(GST_MESSAGE_SRC(msg));
-	while (sink != ow->sink) {
-		if (sink == NULL)
-			return;
-		sink = GST_ELEMENT_PARENT(sink);
-	}
-
-	g_signal_handlers_disconnect_matched(bus, G_SIGNAL_MATCH_FUNC
-			| G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-			window_id_cb, ow);
-
-	gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(GST_MESSAGE_SRC(msg)),
-	                                    ow->window_id);
-}
 #endif
 
 gboolean
@@ -1433,7 +1404,6 @@ purple_media_manager_create_output_window(PurpleMediaManager *manager,
 		if (ow->sink == NULL && ow->media == media &&
 				purple_strequal(participant, ow->participant) &&
 				purple_strequal(session_id, ow->session_id)) {
-			GstBus *bus;
 			GstElement *queue, *convert, *scale;
 			GstElement *tee = purple_media_get_tee(media,
 					session_id, participant);
@@ -1466,12 +1436,6 @@ purple_media_manager_create_output_window(PurpleMediaManager *manager,
 			gst_bin_add_many(GST_BIN(GST_ELEMENT_PARENT(tee)),
 					queue, convert, scale, ow->sink, NULL);
 
-			bus = gst_pipeline_get_bus(GST_PIPELINE(
-					manager->priv->pipeline));
-			g_signal_connect(bus, "sync-message::element",
-					G_CALLBACK(window_id_cb), ow);
-			gst_object_unref(bus);
-
 			gst_element_set_state(ow->sink, GST_STATE_PLAYING);
 			gst_element_set_state(scale, GST_STATE_PLAYING);
 			gst_element_set_state(convert, GST_STATE_PLAYING);
@@ -1491,7 +1455,7 @@ purple_media_manager_create_output_window(PurpleMediaManager *manager,
 gulong
 purple_media_manager_set_output_window(PurpleMediaManager *manager,
 		PurpleMedia *media, const gchar *session_id,
-		const gchar *participant, gulong window_id)
+		const gchar *participant)
 {
 #ifdef USE_VV
 	PurpleMediaOutputWindow *output_window;
@@ -1504,7 +1468,6 @@ purple_media_manager_set_output_window(PurpleMediaManager *manager,
 	output_window->media = media;
 	output_window->session_id = g_strdup(session_id);
 	output_window->participant = g_strdup(participant);
-	output_window->window_id = window_id;
 
 	manager->priv->output_windows = g_list_prepend(
 			manager->priv->output_windows, output_window);
@@ -1863,8 +1826,6 @@ videosink_disable_last_sample(GstElement *sink)
 	}
 }
 
-#if GST_CHECK_VERSION(1, 4, 0)
-
 static PurpleMediaElementType
 gst_class_to_purple_element_type(const gchar *device_class)
 {
@@ -1924,7 +1885,6 @@ device_is_ignored(GstDevice *device)
 {
 	gboolean result = FALSE;
 
-#if GST_CHECK_VERSION(1, 6, 0)
 	gchar *device_class;
 
 	g_return_val_if_fail(device, TRUE);
@@ -1948,7 +1908,6 @@ device_is_ignored(GstDevice *device)
 	}
 
 	g_free(device_class);
-#endif /* GST_CHECK_VERSION(1, 6, 0) */
 
 	return result;
 }
@@ -2063,12 +2022,9 @@ device_monitor_bus_cb(GstBus *bus, GstMessage *message, gpointer user_data)
 	return G_SOURCE_CONTINUE;
 }
 
-#endif /* GST_CHECK_VERSION(1, 4, 0) */
-
 static void
 purple_media_manager_init_device_monitor(PurpleMediaManager *manager)
 {
-#if GST_CHECK_VERSION(1, 4, 0)
 	GstBus *bus;
 	GList *i;
 
@@ -2090,7 +2046,6 @@ purple_media_manager_init_device_monitor(PurpleMediaManager *manager)
 		purple_media_manager_register_gst_device(manager, device);
 		gst_object_unref(device);
 	}
-#endif /* GST_CHECK_VERSION(1, 4, 0) */
 }
 
 GList *
@@ -2177,11 +2132,9 @@ static void
 purple_media_manager_register_static_elements(PurpleMediaManager *manager)
 {
 	static const gchar *VIDEO_SINK_PLUGINS[] = {
+		"gtksink", "GTK",
+		"gtkglsink", "GTK OpenGL",
 		/* "aasink", "AALib", Didn't work for me */
-		"directdrawsink", "DirectDraw",
-		"glimagesink", "OpenGL",
-		"ximagesink", "X Window System",
-		"xvimagesink", "X Window System (Xv)",
 		NULL
 	};
 	const gchar **sinks = VIDEO_SINK_PLUGINS;

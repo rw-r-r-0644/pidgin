@@ -1371,13 +1371,13 @@ void purple_media_set_output_volume(PurpleMedia *media,
 
 gulong
 purple_media_set_output_window(PurpleMedia *media, const gchar *session_id,
-		const gchar *participant, gulong window_id)
+		const gchar *participant)
 {
 #ifdef USE_VV
 	g_return_val_if_fail(PURPLE_IS_MEDIA(media), FALSE);
 
 	return purple_media_manager_set_output_window(media->priv->manager,
-			media, session_id, participant, window_id);
+			media, session_id, participant);
 #else
 	return 0;
 #endif
