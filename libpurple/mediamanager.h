@@ -231,7 +231,6 @@ gboolean purple_media_manager_create_output_window(
  * @media: The media instance to find the stream in.
  * @session_id: The session the stream is associated with.
  * @participant: The participant the stream is associated with.
- * @window_id: The window ID to embed the video in.
  *
  * Registers a video output window to be created for a given stream.
  *
@@ -239,7 +238,7 @@ gboolean purple_media_manager_create_output_window(
  */
 gulong purple_media_manager_set_output_window(PurpleMediaManager *manager,
 		PurpleMedia *media, const gchar *session_id,
-		const gchar *participant, gulong window_id);
+		const gchar *participant);
 
 /**
  * purple_media_manager_remove_output_window:

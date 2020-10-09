@@ -64,15 +64,6 @@ typedef gboolean (*PidginFilterBuddyCompletionEntryFunc) (const PidginBuddyCompl
 G_BEGIN_DECLS
 
 /**
- * pidgin_create_video_widget:
- *
- * Creates a new drawing area suitable for displaying a video
- *
- * Returns: (transfer full): A new drawing area for displaying video.
- */
-GtkWidget *pidgin_create_video_widget(void);
-
-/**
  * pidgin_dialog_get_vbox_with_properties:
  * @dialog:       The dialog window
  * @homogeneous:  TRUE if all children are to be given equal space allotments.
