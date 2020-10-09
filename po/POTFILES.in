@@ -270,6 +270,7 @@ libpurple/purpleaccountpresence.c
 libpurple/purpleattachment.c
 libpurple/purplebuddypresence.c
 libpurple/purplechatuser.c
+libpurple/purplecredentialprovider.c
 libpurple/purpleimconversation.c
 libpurple/purpleprotocolim.c
 libpurple/purpleprotocolmedia.c

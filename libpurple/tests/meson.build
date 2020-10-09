@@ -2,6 +2,7 @@ PROGS = [
     'account_option',
     'attention_type',
     'circular_buffer',
+    'credential_provider',
     'image',
     'keyvaluepair',
     'protocol_action',
