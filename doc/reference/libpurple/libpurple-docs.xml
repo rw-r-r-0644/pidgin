@@ -69,6 +69,7 @@
       <xi:include href="xml/purpleaccountusersplit.xml" />
       <xi:include href="xml/purplebuddypresence.xml" />
       <xi:include href="xml/purplechatuser.xml" />
+      <xi:include href="xml/purplecredentialprovider.xml" />
       <xi:include href="xml/purpleimconversation.xml" />
       <xi:include href="xml/purplekeyvaluepair.xml" />
       <xi:include href="xml/purpleprotocolfactory.xml" />
