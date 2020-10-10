@@ -479,7 +479,7 @@ static void irc_login(PurpleAccount *account)
 }
 
 static gboolean do_login(PurpleConnection *gc) {
-	char *buf, *tmp = NULL;
+	char *buf = NULL;
 	char *server;
 	const char *nickname, *identname, *realname;
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
@@ -502,18 +502,16 @@ static gboolean do_login(PurpleConnection *gc) {
 		g_free(buf);
 	}
 
-	realname = purple_account_get_string(irc->account, "realname", "");
-	identname = purple_account_get_string(irc->account, "username", "");
+	nickname = purple_connection_get_display_name(gc);
 
-	if (identname == NULL || *identname == '\0') {
-		identname = g_get_user_name();
+	realname = purple_account_get_string(irc->account, "realname", "");
+	if(realname == NULL || *realname == '\0') {
+		realname = IRC_DEFAULT_ALIAS;
 	}
 
-	if (identname != NULL && strchr(identname, ' ') != NULL) {
-		tmp = g_strdup(identname);
-		while ((buf = strchr(tmp, ' ')) != NULL) {
-			*buf = '_';
-		}
+	identname = purple_account_get_string(irc->account, "username", "");
+	if(identname == NULL || *identname == '\0') {
+		identname = nickname;
 	}
 
 	if (*irc->server == ':') {
@@ -523,16 +521,13 @@ static gboolean do_login(PurpleConnection *gc) {
 		server = g_strdup(irc->server);
 	}
 
-	buf = irc_format(irc, "vvvv:", "USER", tmp ? tmp : identname, "*", server,
-	                 *realname == '\0' ? IRC_DEFAULT_ALIAS : realname);
-	g_free(tmp);
+	buf = irc_format(irc, "vvvv:", "USER", identname, "*", server, realname);
 	g_free(server);
 	if (irc_send(irc, buf) < 0) {
 		g_free(buf);
 		return FALSE;
 	}
 	g_free(buf);
-	nickname = purple_connection_get_display_name(gc);
 	buf = irc_format(irc, "vn", "NICK", nickname);
 	irc->reqnick = g_strdup(nickname);
 	irc->nickused = FALSE;
