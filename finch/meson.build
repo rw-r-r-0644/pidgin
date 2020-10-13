@@ -212,9 +212,18 @@ if enable_consoleui
 	if enable_introspection
 		introspection_sources = libfinch_headers
 
+		Finch_gir_includes = [
+			libgnt_gir[0],
+			gplugin_gir,
+			# subproject needs to be before libpurple in the repo so that
+			# meson will use our variables and not try to discover them from
+			# libpurple.
+			libpurple_gir[0],
+		]
+
 		gnome.generate_gir(libfinch,
 		    sources : introspection_sources,
-		    includes : [libgnt_gir[0], libpurple_gir[0], gplugin_gir],
+		    includes : Finch_gir_includes,
 		    namespace : 'Finch',
 		    symbol_prefix : 'finch',
 		    identifier_prefix : 'Finch',
