@@ -565,7 +565,7 @@ handle_urgent(PidginConvWindow *purplewin, gboolean set)
 	g_return_if_fail(purplewin != NULL);
 	g_return_if_fail(purplewin->window != NULL);
 
-	pidgin_set_urgent(GTK_WINDOW(purplewin->window), set);
+	gtk_window_set_urgency_hint(GTK_WINDOW(purplewin->window), set);
 }
 
 static void

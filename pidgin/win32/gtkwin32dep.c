@@ -293,95 +293,6 @@ static HWND winpidgin_message_window_init(void) {
 	return win_hwnd;
 }
 
-static gboolean stop_flashing(GtkWidget *widget, GdkEventFocus *event, gpointer data) {
-	GtkWindow *window = data;
-	gpointer handler_id;
-
-	winpidgin_window_flash(window, FALSE);
-
-	if ((handler_id = g_object_get_data(G_OBJECT(window), "flash_stop_handler_id"))) {
-		g_signal_handler_disconnect(G_OBJECT(window), (gulong) GPOINTER_TO_UINT(handler_id));
-		g_object_steal_data(G_OBJECT(window), "flash_stop_handler_id");
-	}
-
-	return FALSE;
-}
-
-void
-winpidgin_window_flash(GtkWindow *window, gboolean flash) {
-	GdkWindow * gdkwin;
-	FLASHWINFO info;
-
-	g_return_if_fail(window != NULL);
-
-	gdkwin = gtk_widget_get_window(GTK_WIDGET(window));
-
-	g_return_if_fail(GDK_IS_WINDOW(gdkwin));
-	g_return_if_fail(gdk_window_get_window_type(gdkwin) != GDK_WINDOW_CHILD);
-
-	if (gdk_window_is_destroyed(gdkwin))
-		return;
-
-	memset(&info, 0, sizeof(FLASHWINFO));
-	info.cbSize = sizeof(FLASHWINFO);
-	info.hwnd = GDK_WINDOW_HWND(gdkwin);
-	if (flash) {
-		DWORD flashCount;
-		info.uCount = 3;
-		if (SystemParametersInfo(SPI_GETFOREGROUNDFLASHCOUNT, 0, &flashCount, 0))
-			info.uCount = flashCount;
-		info.dwFlags = FLASHW_ALL | FLASHW_TIMER;
-	} else
-		info.dwFlags = FLASHW_STOP;
-	FlashWindowEx(&info);
-	info.dwTimeout = 0;
-
-}
-
-void
-winpidgin_conv_blink(PurpleConversation *conv) {
-	PidginConvWindow *win;
-	GtkWindow *window;
-
-	if(conv == NULL) {
-		purple_debug_info("winpidgin", "No conversation found to blink.\n");
-		return;
-	}
-
-	win = pidgin_conv_get_window(PIDGIN_CONVERSATION(conv));
-	if(win == NULL) {
-		purple_debug_info("winpidgin", "No conversation windows found to blink.\n");
-		return;
-	}
-	window = GTK_WINDOW(win->window);
-
-	/* Don't flash if the window is in the foreground */
-	if (GetForegroundWindow() ==
-		GDK_WINDOW_HWND(gtk_widget_get_window(GTK_WIDGET(window))))
-	{
-		return;
-	}
-
-	winpidgin_window_flash(window, TRUE);
-	/* Stop flashing when window receives focus */
-	if (g_object_get_data(G_OBJECT(window), "flash_stop_handler_id") == NULL) {
-		gulong handler_id = g_signal_connect(G_OBJECT(window), "focus-in-event",
-						     G_CALLBACK(stop_flashing), window);
-		g_object_set_data(G_OBJECT(window), "flash_stop_handler_id", GUINT_TO_POINTER(handler_id));
-	}
-}
-
-static gboolean
-winpidgin_conv_im_blink(PurpleConversation *conv, PurpleMessage *pmsg)
-{
-	/* Don't flash for our own messages or system messages */
-	if (purple_message_get_flags(pmsg) & (PURPLE_MESSAGE_SEND | PURPLE_MESSAGE_SYSTEM))
-		return FALSE;
-	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/win32/blink_im"))
-		winpidgin_conv_blink(conv);
-	return FALSE;
-}
-
 void winpidgin_init(void) {
 	typedef void (__cdecl* LPFNSETLOGFILE)(const LPCSTR);
 	LPFNSETLOGFILE MySetLogFile;
@@ -415,17 +326,6 @@ void winpidgin_init(void) {
 
 	if (purple_debug_is_verbose())
 		purple_debug_misc("winpidgin", "winpidgin_init end\n");
-}
-
-void winpidgin_post_init(void) {
-
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/win32");
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/win32/blink_im", TRUE);
-
-	purple_signal_connect(pidgin_conversations_get_handle(),
-		"displaying-im-msg", &gtkwin32_handle, PURPLE_CALLBACK(winpidgin_conv_im_blink),
-		NULL);
-
 }
 
 /* Windows Cleanup */

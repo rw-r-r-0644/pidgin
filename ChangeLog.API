@@ -650,6 +650,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_protocol_option_menu_get_selected
 		* pidgin_set_custom_buddy_icon
 		* pidgin_set_sensitive_if_input
+		* pidgin_set_urgent, use gtk_window_set_urgency_hint instead.
 		* pidgin_setup_screenname_autocomplete_with_filter
 		* pidgin_sound_get_event_label
 		* pidgin_sound_get_event_option

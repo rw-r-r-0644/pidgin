@@ -4458,7 +4458,8 @@ reset_headline(PidginBuddyList *gtkblist)
 	gtkblist->headline_callback = NULL;
 	gtkblist->headline_data = NULL;
 	gtkblist->headline_destroy = NULL;
-	pidgin_set_urgent(GTK_WINDOW(gtkblist->window), FALSE);
+
+	gtk_window_set_urgency_hint(GTK_WINDOW(gtkblist->window), FALSE);
 }
 
 static gboolean
@@ -4965,7 +4966,7 @@ blist_focus_cb(GtkWidget *widget, GdkEventFocus *event, PidginBuddyList *gtkblis
 {
 	if(event->in) {
 		gtk_blist_focused = TRUE;
-		pidgin_set_urgent(GTK_WINDOW(gtkblist->window), FALSE);
+		gtk_window_set_urgency_hint(GTK_WINDOW(gtkblist->window), FALSE);
 	} else {
 		gtk_blist_focused = FALSE;
 	}
@@ -6722,10 +6723,10 @@ pidgin_blist_set_headline(const char *text, const gchar *icon_name,
 
 
 static void
-set_urgent(void)
-{
-	if (gtkblist->window && !gtk_widget_has_focus(gtkblist->window))
-		pidgin_set_urgent(GTK_WINDOW(gtkblist->window), TRUE);
+set_urgent(void) {
+	if(gtkblist->window && !gtk_widget_has_focus(gtkblist->window)) {
+		gtk_window_set_urgency_hint(GTK_WINDOW(gtkblist->window), TRUE);
+	}
 }
 
 PidginBuddyList *
