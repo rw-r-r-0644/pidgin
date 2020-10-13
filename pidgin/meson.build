@@ -217,7 +217,7 @@ if ENABLE_GTK
 	libpidgin_dep = declare_dependency(
 	    include_directories : [toplevel_inc, libpidgin_inc],
 	    link_with : libpidgin,
-	    dependencies : [gtk, glib, math, talkatu_dep])
+	    dependencies : [gtk, glib, math, talkatu_dep, gplugin_gtk_dep])
 
 	pidgin = executable('pidgin3',
 	    pidgin_SOURCES,
@@ -267,9 +267,18 @@ if ENABLE_GTK
 	if enable_introspection
 		introspection_sources = libpidgin_headers
 
+		Pidgin_gir_includes = [
+			'GObject-2.0', 'Gtk-3.0',
+			talkatu_gir, gplugin_gir, gplugin_gtk_gir,
+			# subproject needs to be before libpurple in the repo so that
+			# meson will use our variables and not try to discover them from
+			# libpurple.
+			libpurple_gir[0],
+		]
+
 		gnome.generate_gir(libpidgin,
 			sources : introspection_sources,
-			includes : ['GObject-2.0', 'Gtk-3.0', libpurple_gir[0], talkatu_gir, gplugin_gir, gplugin_gtk_gir],
+			includes : Pidgin_gir_includes,
 			namespace : 'Pidgin',
 			symbol_prefix : 'pidgin',
 			identifier_prefix : 'Pidgin',
