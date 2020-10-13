@@ -1772,15 +1772,6 @@ pidgin_convert_buddy_icon(PurpleProtocol *protocol, const char *path, size_t *le
 	return NULL;
 }
 
-void pidgin_set_urgent(GtkWindow *window, gboolean urgent)
-{
-#if defined _WIN32
-	winpidgin_window_flash(window, urgent);
-#else
-	gtk_window_set_urgency_hint(window, urgent);
-#endif
-}
-
 static void *
 pidgin_utils_get_handle(void)
 {

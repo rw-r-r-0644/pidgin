@@ -509,16 +509,6 @@ gboolean pidgin_tree_view_search_equal_func(GtkTreeModel *model, gint column,
 			const gchar *key, GtkTreeIter *iter, gpointer data);
 
 /**
- * pidgin_set_urgent:
- * @window:  The window to draw attention to
- * @urgent:  Whether to set the urgent hint or not
- *
- * Sets or resets a window to 'urgent,' by setting the URGENT hint in X
- * or blinking in the win32 taskbar
- */
-void pidgin_set_urgent(GtkWindow *window, gboolean urgent);
-
-/**
  * pidgin_get_dim_grey_string:
  * @widget:  The widget to return dim grey for
  *

@@ -199,10 +199,6 @@ pidgin_application_startup(GApplication *application) {
 	 */
 	gdk_notify_startup_complete();
 
-#ifdef _WIN32
-	winpidgin_post_init();
-#endif
-
 	/* TODO: Use GtkApplicationWindow or add a window instead */
 	g_application_hold(application);
 }

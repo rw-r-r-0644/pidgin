@@ -640,7 +640,7 @@ pidgin_notify_email(PurpleConnection *gc, const char *subject, const char *from,
 static int
 mail_window_focus_cb(GtkWidget *widget, GdkEventFocus *focus, gpointer null)
 {
-	pidgin_set_urgent(GTK_WINDOW(widget), FALSE);
+	gtk_window_set_urgency_hint(GTK_WINDOW(widget), FALSE);
 	return 0;
 }
 
@@ -834,8 +834,9 @@ pidgin_notify_emails(PurpleConnection *gc, size_t count, gboolean detailed,
 				reset_mail_dialog);
 		mail_dialog->in_use = FALSE;
 		g_free(label_text);
-	} else if (!gtk_widget_has_focus(mail_dialog->dialog))
-		pidgin_set_urgent(GTK_WINDOW(mail_dialog->dialog), TRUE);
+	} else if(!gtk_widget_has_focus(mail_dialog->dialog)) {
+		gtk_window_set_urgency_hint(GTK_WINDOW(mail_dialog->dialog), TRUE);
+	}
 
 	return data;
 }
