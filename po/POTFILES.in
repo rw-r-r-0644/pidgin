@@ -371,12 +371,6 @@ pidgin/plugins/disco/resources/disco.ui
 pidgin/plugins/gestures/gestures.c
 pidgin/plugins/gestures/stroke.c
 pidgin/plugins/gestures/stroke-draw.c
-pidgin/plugins/gevolution/add_buddy_dialog.c
-pidgin/plugins/gevolution/assoc-buddy.c
-pidgin/plugins/gevolution/eds-utils.c
-pidgin/plugins/gevolution/gevolution.c
-pidgin/plugins/gevolution/gevo-util.c
-pidgin/plugins/gevolution/new_person_dialog.c
 pidgin/plugins/gtkbuddynote.c
 pidgin/plugins/gtk-signals-test.c
 pidgin/plugins/history.c
@@ -389,8 +383,6 @@ pidgin/plugins/pidgininc.c
 pidgin/plugins/relnot.c
 pidgin/plugins/screencap.c
 pidgin/plugins/spellchk.c
-pidgin/plugins/ticker/gtkticker.c
-pidgin/plugins/ticker/ticker.c
 pidgin/plugins/transparency.c
 pidgin/plugins/unity.c
 pidgin/plugins/win32/winprefs/gtkappbar.c

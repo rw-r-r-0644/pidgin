@@ -1,5 +1,3 @@
-subdir('gevolution')
-
 if false
 	subdir('musicmessaging')
 endif
