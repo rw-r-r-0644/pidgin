@@ -432,14 +432,10 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	GList *l, *l2;
 	char *username = NULL;
 	GtkCssProvider *entry_css;
-	const gchar entry_style[] =
-		"entry.copyable-insensitive {"
-			"color: @insensitive_fg_color;"
-			"background-color: @insensitive_bg_color;"
-		"}";
+	const gchar *res = "/im/pidgin/Pidgin/Accounts/entry.css";
 
 	entry_css = gtk_css_provider_new();
-	gtk_css_provider_load_from_data(entry_css, entry_style, -1, NULL);
+	gtk_css_provider_load_from_resource(entry_css, res);
 
 	if (dialog->protocol_menu != NULL)
 	{

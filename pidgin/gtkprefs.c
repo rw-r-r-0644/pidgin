@@ -1796,19 +1796,7 @@ bind_network_page(PidginPrefsWindow *win)
 {
 	GtkStyleContext *context;
 	GtkCssProvider *ip_css;
-	const gchar ip_style[] =
-		".bad-ip {"
-			"color: @error_fg_color;"
-			"text-shadow: 0 1px @error_text_shadow;"
-			"background-image: none;"
-			"background-color: @error_bg_color;"
-		"}"
-		".good-ip {"
-			"color: @question_fg_color;"
-			"text-shadow: 0 1px @question_text_shadow;"
-			"background-image: none;"
-			"background-color: @success_color;"
-		"}";
+	const gchar *res = "/im/pidgin/Pidgin/Prefs/ip.css";
 
 	gtk_entry_set_text(GTK_ENTRY(win->network.stun_server),
 			purple_prefs_get_string("/purple/network/stun_server"));
@@ -1821,7 +1809,8 @@ bind_network_page(PidginPrefsWindow *win)
 			purple_network_get_public_ip());
 
 	ip_css = gtk_css_provider_new();
-	gtk_css_provider_load_from_data(ip_css, ip_style, -1, NULL);
+	gtk_css_provider_load_from_resource(ip_css, res);
+
 	context = gtk_widget_get_style_context(win->network.public_ip);
 	gtk_style_context_add_provider(context,
 	                               GTK_STYLE_PROVIDER(ip_css),
