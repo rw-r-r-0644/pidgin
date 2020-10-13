@@ -37,8 +37,6 @@
 #include "gtkaccount.h"
 #include "gtkblist.h"
 #include "gtkconn.h"
-#include "gtkconv.h"
-#include "gtkdialogs.h"
 #include "gtkxfer.h"
 #include "gtkidle.h"
 #include "gtkmedia.h"
@@ -52,6 +50,7 @@
 #include "gtksmiley-theme.h"
 #include "gtkutils.h"
 #include "gtkwhiteboard.h"
+#include "pidginapplication.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
 #include "pidginlog.h"
@@ -82,34 +81,6 @@ static const int ignore_sig_list[] = {
 	-1
 };
 #endif /* !_WIN32 */
-
-static void
-dologin_named(const char *name)
-{
-	PurpleAccount *account;
-	char **names;
-	int i;
-
-	if (name != NULL) { /* list of names given */
-		names = g_strsplit(name, ",", 64);
-		for (i = 0; names[i] != NULL; i++) {
-			account = purple_accounts_find(names[i], NULL);
-			if (account != NULL) { /* found a user */
-				purple_account_set_enabled(account, PIDGIN_UI, TRUE);
-			}
-		}
-		g_strfreev(names);
-	} else { /* no name given, use the first account */
-		GList *accounts;
-
-		accounts = purple_accounts_get_all();
-		if (accounts != NULL)
-		{
-			account = (PurpleAccount *)accounts->data;
-			purple_account_set_enabled(account, PIDGIN_UI, TRUE);
-		}
-	}
-}
 
 #ifndef _WIN32
 static char *segfault_message;
@@ -183,16 +154,6 @@ mainloop_sighandler(GIOChannel *source, GIOCondition cond, gpointer data)
 	return TRUE;
 }
 #endif /* !_WIN32 */
-
-static int
-ui_main(void)
-{
-	pidgin_blist_setup_sort_methods();
-
-	gtk_window_set_default_icon_name("pidgin");
-
-	return 0;
-}
 
 static void
 debug_init(void)
@@ -276,97 +237,11 @@ static PurpleCoreUiOps core_ops =
 	pidgin_ui_get_info,
 };
 
-static PurpleCoreUiOps *
+PurpleCoreUiOps *
 pidgin_core_get_ui_ops(void)
 {
 	return &core_ops;
 }
-
-static gint
-pidgin_handle_local_options_cb(GApplication *app, GVariantDict *options,
-		gpointer user_data)
-{
-	if (g_variant_dict_contains(options, "version")) {
-		printf("%s %s (libpurple %s)\n", PIDGIN_NAME, DISPLAY_VERSION,
-		                                 purple_core_get_version());
-		return 0;
-	}
-
-	return -1;
-}
-
-static void
-pidgin_activate_cb(GApplication *application, gpointer user_data)
-{
-	PidginBuddyList *blist = pidgin_blist_get_default_gtk_blist();
-
-	if (blist != NULL && blist->window != NULL) {
-		gtk_window_present(GTK_WINDOW(blist->window));
-	}
-}
-
-static gint
-pidgin_command_line_cb(GApplication *application,
-		GApplicationCommandLine *cmdline, gpointer user_data)
-{
-	gchar **argv;
-	int argc;
-	int i;
-
-	argv = g_application_command_line_get_arguments(cmdline, &argc);
-
-	if (argc == 1) {
-		/* No arguments, just activate */
-		g_application_activate(application);
-	}
-
-	/* Start at 1 to skip the executable name */
-	for (i = 1; i < argc; ++i) {
-		purple_got_protocol_handler_uri(argv[i]);
-	}
-
-	g_strfreev(argv);
-
-	return 0;
-}
-
-static gchar *opt_config_dir_arg = NULL;
-static gboolean opt_nologin = FALSE;
-static gboolean opt_login = FALSE;
-static gchar *opt_login_arg = NULL;
-
-static gboolean
-login_opt_arg_func(const gchar *option_name, const gchar *value,
-		gpointer data, GError **error)
-{
-	opt_login = TRUE;
-
-	g_free(opt_login_arg);
-	opt_login_arg = g_strdup(value);
-
-	return TRUE;
-}
-
-static GOptionEntry option_entries[] = {
-	{"config", 'c', 0,
-		G_OPTION_ARG_FILENAME, &opt_config_dir_arg,
-		N_("use DIR for config files"), N_("DIR")},
-	{"login", 'l', G_OPTION_FLAG_OPTIONAL_ARG,
-		G_OPTION_ARG_CALLBACK, &login_opt_arg_func,
-		N_("enable specified account(s) (optional argument NAME\n"
-		  "                            "
-		  "specifies account(s) to use, separated by commas.\n"
-		  "                            "
-		  "Without this only the first account will be enabled)"),
-		N_("[NAME]")},
-	{"nologin", 'n', 0,
-		G_OPTION_ARG_NONE, &opt_nologin,
-		N_("don't automatically login"), NULL},
-	{"version", 'v', 0,
-		G_OPTION_ARG_NONE, NULL,
-		N_("display the current version and exit"), NULL},
-	{NULL}
-};
 
 #ifndef _WIN32
 static void
@@ -473,156 +348,6 @@ pidgin_setup_error_handler(void)
 }
 #endif /* !_WIN32 */
 
-static void
-pidgin_startup_cb(GApplication *app, gpointer user_data)
-{
-	char *search_path;
-	GtkCssProvider *provider;
-	GdkScreen *screen;
-	GList *accounts;
-	gboolean gui_check;
-	GList *active_accounts;
-	GStatBuf st;
-	GError *error = NULL;
-
-	/* set a user-specified config directory */
-	if (opt_config_dir_arg != NULL) {
-		if (g_path_is_absolute(opt_config_dir_arg)) {
-			purple_util_set_user_dir(opt_config_dir_arg);
-		} else {
-			/* Make an absolute (if not canonical) path */
-			char *cwd = g_get_current_dir();
-			char *path = g_build_path(G_DIR_SEPARATOR_S, cwd, opt_config_dir_arg, NULL);
-			purple_util_set_user_dir(path);
-			g_free(path);
-			g_free(cwd);
-		}
-	}
-
-	search_path = g_build_filename(purple_config_dir(), "gtk-3.0.css", NULL);
-
-	provider = gtk_css_provider_new();
-	gui_check = gtk_css_provider_load_from_path(provider, search_path, &error);
-
-	if (gui_check && !error) {
-		screen = gdk_screen_get_default();
-		gtk_style_context_add_provider_for_screen(screen,
-		                                          GTK_STYLE_PROVIDER(provider),
-		                                          GTK_STYLE_PROVIDER_PRIORITY_USER);
-	} else {
-		purple_debug_error("gtk", "Unable to load custom gtk-3.0.css: %s\n",
-		                   error ? error->message : "(unknown error)");
-		g_clear_error(&error);
-	}
-
-	g_free(search_path);
-
-#ifdef _WIN32
-	winpidgin_init();
-#endif
-
-	purple_core_set_ui_ops(pidgin_core_get_ui_ops());
-
-	if (!purple_core_init(PIDGIN_UI)) {
-		fprintf(stderr,
-				"Initialization of the libpurple core failed. Dumping core.\n"
-				"Please report this!\n");
-#ifndef _WIN32
-		g_free(segfault_message);
-#endif
-		abort();
-	}
-
-	if (!g_getenv("PURPLE_PLUGINS_SKIP")) {
-		search_path = g_build_filename(purple_data_dir(),
-				"plugins", NULL);
-		if (!g_stat(search_path, &st))
-			g_mkdir(search_path, S_IRUSR | S_IWUSR | S_IXUSR);
-		purple_plugins_add_search_path(search_path);
-		g_free(search_path);
-
-		purple_plugins_add_search_path(PIDGIN_LIBDIR);
-	} else {
-		purple_debug_info("gtk",
-				"PURPLE_PLUGINS_SKIP environment variable "
-				"set, skipping normal Pidgin plugin paths");
-	}
-
-	purple_plugins_refresh();
-
-	/* load plugins we had when we quit */
-	purple_plugins_load_saved(PIDGIN_PREFS_ROOT "/plugins/loaded");
-
-	ui_main();
-
-	g_free(opt_config_dir_arg);
-	opt_config_dir_arg = NULL;
-
-	/*
-	 * We want to show the blist early in the init process so the
-	 * user feels warm and fuzzy (not cold and prickley).
-	 */
-	purple_blist_show();
-
-	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled"))
-		pidgin_debug_window_show();
-
-	if (opt_login) {
-		/* disable all accounts */
-		for (accounts = purple_accounts_get_all(); accounts != NULL; accounts = accounts->next) {
-			PurpleAccount *account = accounts->data;
-			purple_account_set_enabled(account, PIDGIN_UI, FALSE);
-		}
-		/* honor the startup status preference */
-		if (!purple_prefs_get_bool("/purple/savedstatus/startup_current_status"))
-			purple_savedstatus_activate(purple_savedstatus_get_startup());
-		/* now enable the requested ones */
-		dologin_named(opt_login_arg);
-		g_free(opt_login_arg);
-		opt_login_arg = NULL;
-	} else if (opt_nologin)	{
-		/* Set all accounts to "offline" */
-		PurpleSavedStatus *saved_status;
-
-		/* If we've used this type+message before, lookup the transient status */
-		saved_status = purple_savedstatus_find_transient_by_type_and_message(
-							PURPLE_STATUS_OFFLINE, NULL);
-
-		/* If this type+message is unique then create a new transient saved status */
-		if (saved_status == NULL)
-			saved_status = purple_savedstatus_new(NULL, PURPLE_STATUS_OFFLINE);
-
-		/* Set the status for each account */
-		purple_savedstatus_activate(saved_status);
-	} else {
-		/* Everything is good to go--sign on already */
-		if (!purple_prefs_get_bool("/purple/savedstatus/startup_current_status"))
-			purple_savedstatus_activate(purple_savedstatus_get_startup());
-		purple_accounts_restore_current_statuses();
-	}
-
-	if ((active_accounts = purple_accounts_get_all_active()) == NULL)
-	{
-		pidgin_accounts_window_show();
-	}
-	else
-	{
-		g_list_free(active_accounts);
-	}
-
-	/* GTK clears the notification for us when opening the first window,
-	 * but we may have launched with only a status icon, so clear the it
-	 * just in case. */
-	gdk_notify_startup_complete();
-
-#ifdef _WIN32
-	winpidgin_post_init();
-#endif
-
-	/* TODO: Use GtkApplicationWindow or add a window instead */
-	g_application_hold(app);
-}
-
 int pidgin_start(int argc, char *argv[])
 {
 	GApplication *app;
@@ -643,24 +368,7 @@ int pidgin_start(int argc, char *argv[])
 	pidgin_setup_error_handler();
 #endif
 
-	app = G_APPLICATION(gtk_application_new("im.pidgin.Pidgin3",
-				G_APPLICATION_CAN_OVERRIDE_APP_ID |
-				G_APPLICATION_HANDLES_COMMAND_LINE));
-
-	g_application_add_main_option_entries(app, option_entries);
-	g_application_add_option_group(app, purple_get_option_group());
-	g_application_add_option_group(app, gplugin_get_option_group());
-
-	g_object_set(app, "register-session", TRUE, NULL);
-
-	g_signal_connect(app, "handle-local-options",
-			G_CALLBACK(pidgin_handle_local_options_cb), NULL);
-	g_signal_connect(app, "startup",
-			G_CALLBACK(pidgin_startup_cb), NULL);
-	g_signal_connect(app, "activate",
-			G_CALLBACK(pidgin_activate_cb), NULL);
-	g_signal_connect(app, "command-line",
-			G_CALLBACK(pidgin_command_line_cb), NULL);
+	app = pidgin_application_new();
 
 	ret = g_application_run(app, argc, argv);
 

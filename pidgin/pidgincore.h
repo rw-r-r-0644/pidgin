@@ -34,6 +34,8 @@
 
 #include <glib.h>
 
+#include <purple.h>
+
 #ifdef _WIN32
 #  include "win32/gtkwin32dep.h"
 #endif
@@ -65,6 +67,18 @@
  * Start pidgin with the given command line arguments.
  */
 int pidgin_start(int argc, char *argv[]);
+
+/**
+ * pidgin_core_get_ui_ops:
+ *
+ * Gets the #PurpleCoreUiOps that Pidgin sets up. You probably don't want to
+ * call this.
+ *
+ * Returns: The #PurpleCoreUiOps for Pidgin.
+ *
+ * Since: 3.0.0
+ */
+PurpleCoreUiOps *pidgin_core_get_ui_ops(void);
 
 #endif /* PIDGIN_CORE_H */
 
