@@ -606,8 +606,8 @@ void irc_msg_topic(struct irc_conn *irc, const char *name, const char *from, cha
 void irc_msg_topicinfo(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleChatConversation *chat;
-	struct tm *tm;
-	time_t t;
+	GDateTime *dt, *local;
+	gint64 mtime;
 	char *msg, *timestamp, *datestamp;
 
 	chat = purple_conversations_find_chat_with_account(args[1], irc->account);
@@ -616,21 +616,30 @@ void irc_msg_topicinfo(struct irc_conn *irc, const char *name, const char *from,
 		return;
 	}
 
-	t = (time_t)atol(args[3]);
-	if (t == 0) {
+	mtime = g_ascii_strtoll(args[3], NULL, 10);
+	if(mtime == 0 || mtime == G_MININT64 || mtime == G_MAXINT64) {
 		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Got apparently nonsensical topic timestamp %s\n", args[3]);
 		return;
 	}
-	tm = localtime(&t);
 
-	timestamp = g_strdup(purple_time_format(tm));
-	datestamp = g_strdup(purple_date_format_short(tm));
+	dt = g_date_time_new_from_unix_utc(mtime);
+	if(dt == NULL) {
+		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Failed to turn %" G_GINT64_FORMAT " into a GDateTime\n", mtime);
+		return;
+	}
+
+	local = g_date_time_to_local(dt);
+	g_date_time_unref(dt);
+
+	timestamp = g_date_time_format(local, "%X");
+	datestamp = g_date_time_format(local, "%x");
 	msg = g_strdup_printf(_("Topic for %s set by %s at %s on %s"), args[1], args[2], timestamp, datestamp);
 	purple_conversation_write_system_message(PURPLE_CONVERSATION(chat),
 		msg, PURPLE_MESSAGE_NO_LINKIFY);
 	g_free(timestamp);
 	g_free(datestamp);
 	g_free(msg);
+	g_date_time_unref(local);
 }
 
 void irc_msg_unknown(struct irc_conn *irc, const char *name, const char *from, char **args)

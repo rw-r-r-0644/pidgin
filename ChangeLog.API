@@ -369,6 +369,8 @@ version 3.0.0 (??/??/????):
 		  or whatever is appropriate for your UI.
 		* purple_core_migrate
 		* Removed the general Purple DBus interface
+		* purple_date_format_long, use g_date_time_format instead.
+		* purple_date_format_short, use g_date_time_format instead.
 		* purple_dnsquery_a_account
 		* purple_event_loop_{get|set}_ui_ops. Manually drive the GLib
 		  event loop yourself. See GLib Main Event Loop docs.
@@ -513,6 +515,8 @@ version 3.0.0 (??/??/????):
 		* purple_str_has_prefix. Use g_str_has_prefix instead
 		* purple_str_has_suffix. Use g_str_has_suffix instead
 		* purple_str_size_to_units. Use g_format_size() instead.
+		* purple_time_build. Use g_date_time_new* instead.
+		* purple_time_format. Use g_date_time_format instead.
 		* purple_timeout_*. Use g_timeout_* or g_idle_* instead.
 		* purple_txt_cancel
 		* purple_txt_resolve_account

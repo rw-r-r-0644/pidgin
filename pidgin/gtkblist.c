@@ -3434,9 +3434,17 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 				 * must be wrong, show the actual date instead of
 				 * "4 days", etc.
 				 */
-				tmp = g_strdup(purple_date_format_long(localtime(&signon)));
-			} else
+				GDateTime *dt = NULL, *local = NULL;
+
+				dt = g_date_time_new_from_unix_utc(signon);
+				local = g_date_time_to_local(dt);
+				g_date_time_unref(dt);
+
+				tmp = g_date_time_format(local, _("%x %X"));
+				g_date_time_unref(local);
+			} else {
 				tmp = purple_str_seconds_to_string(time(NULL) - signon);
+			}
 			purple_notify_user_info_add_pair_plaintext(user_info, _("Logged In"), tmp);
 			g_free(tmp);
 		}

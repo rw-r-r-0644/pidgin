@@ -125,34 +125,6 @@ void purple_util_uninit(void);
 const char *purple_utf8_strftime(const char *format, const struct tm *tm);
 
 /**
- * purple_date_format_short:
- * @tm: The time to format, or %NULL to use the current local time
- *
- * Formats a time into the user's preferred short date format.
- *
- * The returned string is stored in a static buffer, so the result
- * should be g_strdup()'d if it's going to be kept.
- *
- * Returns: The date, formatted as per the user's settings.  In the USA this
- *         is something like "02/18/13"
- */
-const char *purple_date_format_short(const struct tm *tm);
-
-/**
- * purple_date_format_long:
- * @tm: The time to format, or %NULL to use the current local time
- *
- * Formats a time into the user's preferred short date plus time format.
- *
- * The returned string is stored in a static buffer, so the result
- * should be g_strdup()'d if it's going to be kept.
- *
- * Returns: The timestamp, formatted as per the user's settings.  In the USA
- *         this is something like "02/18/13 15:26:44"
- */
-const char *purple_date_format_long(const struct tm *tm);
-
-/**
  * purple_date_format_full:
  * @tm: The time to format, or %NULL to use the current local time
  *
@@ -165,36 +137,6 @@ const char *purple_date_format_long(const struct tm *tm);
  *         USA this is something like "Mon Feb 18 15:26:44 2013"
  */
 const char *purple_date_format_full(const struct tm *tm);
-
-/**
- * purple_time_format:
- * @tm: The time to format, or %NULL to use the current local time
- *
- * Formats a time into the user's preferred time format.
- *
- * The returned string is stored in a static buffer, so the result
- * should be g_strdup()'d if it's going to be kept.
- *
- * Returns: The time, formatted as per the user's settings.  In the USA this
- *         is something like "15:26:44"
- */
-const char *purple_time_format(const struct tm *tm);
-
-/**
- * purple_time_build:
- * @year:  The year.
- * @month: The month.
- * @day:   The day.
- * @hour:  The hour.
- * @min:   The minute.
- * @sec:   The second.
- *
- * Builds a time_t from the supplied information.
- *
- * Returns: A time_t.
- */
-time_t purple_time_build(int year, int month, int day, int hour,
-					   int min, int sec);
 
 /**
  * PURPLE_NO_TZ_OFF:
