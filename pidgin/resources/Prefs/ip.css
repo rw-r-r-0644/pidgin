@@ -1,0 +1,13 @@
+.bad-ip {
+	color: @error_fg_color;
+	text-shadow: 0 1px @error_text_shadow;
+	background-image: none;
+	background-color: @error_bg_color;
+}
+
+.good-ip {
+	color: @question_fg_color;
+	text-shadow: 0 1px @question_text_shadow;
+	background-image: none;
+	background-color: @success_color;
+}

@@ -585,19 +585,7 @@ pidgin_debug_window_init(PidginDebugWindow *win)
 	GtkTextIter end;
 	GtkStyleContext *context;
 	GtkCssProvider *filter_css;
-	const gchar filter_style[] =
-		".bad-filter {"
-			"color: @error_fg_color;"
-			"text-shadow: 0 1px @error_text_shadow;"
-			"background-image: none;"
-			"background-color: @error_bg_color;"
-		"}"
-		".good-filter {"
-			"color: @question_fg_color;"
-			"text-shadow: 0 1px @question_text_shadow;"
-			"background-image: none;"
-			"background-color: @success_color;"
-		"}";
+	const gchar *res = "/im/pidgin/Pidgin/Debug/filter.css";
 
 	gtk_widget_init_template(GTK_WIDGET(win));
 
@@ -636,7 +624,8 @@ pidgin_debug_window_init(PidginDebugWindow *win)
 
 		/* regex entry */
 		filter_css = gtk_css_provider_new();
-		gtk_css_provider_load_from_data(filter_css, filter_style, -1, NULL);
+		gtk_css_provider_load_from_resource(filter_css, res);
+
 		context = gtk_widget_get_style_context(win->expression);
 		gtk_style_context_add_provider(context,
 		                               GTK_STYLE_PROVIDER(filter_css),
