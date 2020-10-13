@@ -101,48 +101,9 @@ purple_utf8_strftime(const char *format, const struct tm *tm)
 }
 
 const char *
-purple_date_format_short(const struct tm *tm)
-{
-	return purple_utf8_strftime("%x", tm);
-}
-
-const char *
-purple_date_format_long(const struct tm *tm)
-{
-	/*
-	 * This string determines how some dates are displayed.  The default
-	 * string "%x %X" shows the date then the time.  Translators can
-	 * change this to "%X %x" if they want the time to be shown first,
-	 * followed by the date.
-	 */
-	return purple_utf8_strftime(_("%x %X"), tm);
-}
-
-const char *
 purple_date_format_full(const struct tm *tm)
 {
 	return purple_utf8_strftime("%c", tm);
-}
-
-const char *
-purple_time_format(const struct tm *tm)
-{
-	return purple_utf8_strftime("%X", tm);
-}
-
-time_t
-purple_time_build(int year, int month, int day, int hour, int min, int sec)
-{
-	struct tm tm;
-
-	tm.tm_year = year - 1900;
-	tm.tm_mon = month - 1;
-	tm.tm_mday = day;
-	tm.tm_hour = hour;
-	tm.tm_min = min;
-	tm.tm_sec = sec >= 0 ? sec : time(NULL) % 60;
-
-	return mktime(&tm);
 }
 
 /* originally taken from GLib trunk 1-6-11 */

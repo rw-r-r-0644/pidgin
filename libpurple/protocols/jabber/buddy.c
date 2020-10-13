@@ -739,17 +739,17 @@ add_jbr_info(JabberBuddyInfo *jbi, const char *resource,
 	}
 
 	if (jbr && jbr->tz_off != PURPLE_NO_TZ_OFF) {
-		time_t now_t;
-		struct tm *now;
-		char *timestamp;
-		time(&now_t);
-		now_t += jbr->tz_off;
-		now = gmtime(&now_t);
+		GDateTime *dt = NULL;
+		GTimeZone *tz = NULL;
+		char *timestamp = NULL;
 
-		timestamp = g_strdup_printf("%s %c%02d%02d", purple_time_format(now),
-		                            jbr->tz_off < 0 ? '-' : '+',
-		                            abs((int)(jbr->tz_off / (60 * 60))),
-		                            abs((int)((jbr->tz_off % (60 * 60)) / 60)));
+		tz = g_time_zone_new_offset(jbr->tz_off);
+		dt = g_date_time_new_now(tz);
+		g_time_zone_unref(tz);
+
+		timestamp = g_date_time_format(dt, "%X %:z");
+		g_date_time_unref(dt);
+
 		purple_notify_user_info_prepend_pair_plaintext(user_info, _("Local Time"), timestamp);
 		g_free(timestamp);
 	}
