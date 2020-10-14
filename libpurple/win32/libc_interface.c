@@ -42,8 +42,6 @@
 # define S_ISDIR(m) (((m)&S_IFDIR)==S_IFDIR)
 #endif
 
-static char errbuf[1024];
-
 /* helpers */
 static int wpurple_is_socket( int fd ) {
 	int optval;
@@ -339,35 +337,6 @@ struct hostent* wpurple_gethostbyname(const char *name) {
 		return NULL;
 	}
 	return hp;
-}
-
-/* string.h */
-char* wpurple_strerror(int errornum) {
-	if (errornum > WSABASEERR) {
-		switch(errornum) {
-			case WSAECONNABORTED: /* 10053 */
-				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Connection interrupted by other software on your computer."));
-				break;
-			case WSAECONNRESET: /* 10054 */
-				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Remote host closed connection."));
-				break;
-			case WSAETIMEDOUT: /* 10060 */
-				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Connection timed out."));
-				break;
-			case WSAECONNREFUSED: /* 10061 */
-				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Connection refused."));
-				break;
-			case WSAEADDRINUSE: /* 10048 */
-				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Address already in use."));
-				break;
-			default:
-				g_snprintf(errbuf, sizeof(errbuf), "Windows socket error #%d", errornum);
-		}
-	} else {
-		const char *tmp = g_strerror(errornum);
-		g_snprintf(errbuf, sizeof(errbuf), "%s", tmp);
-	}
-	return errbuf;
 }
 
 /* unistd.h */
