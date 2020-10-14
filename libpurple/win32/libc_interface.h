@@ -102,12 +102,6 @@ wpurple_gethostbyname( name )
 #define ntohl( netlong ) \
 (unsigned int)ntohl( netlong )
 
-/* string.h */
-#define strerror( errornum ) \
-wpurple_strerror( errornum )
-#define g_strerror( errornum ) \
-wpurple_strerror( errornum )
-
 /* unistd.h */
 #define read( fd, buf, buflen ) \
 wpurple_read( fd, buf, buflen )

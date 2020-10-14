@@ -47,9 +47,6 @@ int wpurple_inet_pton(int af, const char *src, void *dst);
 /* netdb.h */
 struct hostent* wpurple_gethostbyname(const char *name);
 
-/* string.h */
-char* wpurple_strerror( int errornum );
-
 /* fcntl.h */
 int wpurple_fcntl(int socket, int command, ...);
 #define F_GETFL 3
