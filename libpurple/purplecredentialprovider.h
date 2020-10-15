@@ -57,7 +57,7 @@ G_BEGIN_DECLS
 
 #define PURPLE_TYPE_CREDENTIAL_PROVIDER (purple_credential_provider_get_type())
 G_DECLARE_DERIVABLE_TYPE(PurpleCredentialProvider, purple_credential_provider,
-                         PURPLE, CREDENTIAL_PROVIDER, GObject);
+                         PURPLE, CREDENTIAL_PROVIDER, GObject)
 
 /**
  * PurpleCredentialProviderClass:

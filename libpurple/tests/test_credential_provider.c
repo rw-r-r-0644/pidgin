@@ -387,6 +387,8 @@ test_purple_credential_provider_timeout_cb(gpointer data) {
 	g_main_loop_quit((GMainLoop *)data);
 
 	g_warning("timed out waiting for the callback function to be called");
+
+	return FALSE;
 }
 
 static void
