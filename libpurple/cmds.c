@@ -19,7 +19,7 @@
 #include "internal.h"
 
 #include "account.h"
-#include "util.h"
+#include "purplemarkup.h"
 #include "cmds.h"
 
 static PurpleCommandsUiOps *cmds_ui_ops = NULL;

@@ -272,6 +272,7 @@ libpurple/purplebuddypresence.c
 libpurple/purplechatuser.c
 libpurple/purplecredentialprovider.c
 libpurple/purpleimconversation.c
+libpurple/purplemarkup.c
 libpurple/purpleprotocolim.c
 libpurple/purpleprotocolmedia.c
 libpurple/purpleprotocolprivacy.c

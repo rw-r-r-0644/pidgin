@@ -24,6 +24,7 @@
 #include "internal.h"
 
 #include "notify.h"
+#include "purplemarkup.h"
 #include "request.h"
 #include "debug.h"
 #include "purplekeyvaluepair.h"

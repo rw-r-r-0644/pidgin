@@ -26,10 +26,10 @@
 #include "debug.h"
 #include "idle.h"
 #include "notify.h"
+#include "purplemarkup.h"
 #include "savedstatuses.h"
 #include "request.h"
 #include "status.h"
-#include "util.h"
 #include "xmlnode.h"
 
 /*

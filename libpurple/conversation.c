@@ -32,11 +32,11 @@
 #include "notify.h"
 #include "prefs.h"
 #include "protocol.h"
+#include "purplemarkup.h"
 #include "purpleprivate.h"
 #include "request.h"
 #include "signals.h"
 #include "smiley-list.h"
-#include "util.h"
 
 typedef struct _PurpleConversationPrivate  PurpleConversationPrivate;
 
