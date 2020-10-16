@@ -24,6 +24,7 @@
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
+#include "libpurple/glibcompat.h"
 
 #include <canberra.h>
 
