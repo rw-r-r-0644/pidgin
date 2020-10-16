@@ -17,6 +17,7 @@ tasks:
   clean:
     type: convey/clean
     files:
+      - appimage-x86_64
       - pvs-studio
       - scanbuild
 
@@ -33,6 +34,17 @@ tasks:
     files: ${TARGET}
 
 plans:
+  pidgin3-appimage-x86_64:
+    environment:
+      - TARGET=appimage-x86_64
+      - BUILD_NUMBER=0
+      - COMMIT_SHORT=${HG_COMMIT_SHORT}
+      - VERSION=${BUILD_NUMBER}~${COMMIT_SHORT}
+      - RECIPE=Pidgin3
+      - CONFIGURE_ARGS=-Dconsoleui=False
+    stages:
+      - tasks: [import, build-target, export-target]
+
   clean:
     stages:
       - tasks: [clean]
