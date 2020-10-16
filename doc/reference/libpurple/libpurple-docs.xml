@@ -72,6 +72,7 @@
       <xi:include href="xml/purplecredentialprovider.xml" />
       <xi:include href="xml/purpleimconversation.xml" />
       <xi:include href="xml/purplekeyvaluepair.xml" />
+      <xi:include href="xml/purplemarkup.xml" />
       <xi:include href="xml/purpleprotocolfactory.xml" />
       <xi:include href="xml/purpleprotocolim.xml" />
       <xi:include href="xml/purpleprotocolmedia.xml" />

@@ -5,6 +5,7 @@ PROGS = [
     'credential_provider',
     'image',
     'keyvaluepair',
+    'markup',
     'protocol_action',
     'protocol_attention',
     'protocol_xfer',

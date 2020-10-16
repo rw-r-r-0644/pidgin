@@ -33,7 +33,7 @@
 #include "image-store.h"
 #include "log.h"
 #include "prefs.h"
-#include "util.h"
+#include "purplemarkup.h"
 #include "time.h"
 
 static GSList *loggers = NULL;

@@ -33,6 +33,7 @@
 #include <string.h>
 #include <glib.h>
 
+#include "purplemarkup.h"
 #include "util.h"
 #include "xmlnode.h"
 
