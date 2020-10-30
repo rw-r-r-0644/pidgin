@@ -582,11 +582,10 @@ endif
 # Check for KWallet headers
 #######################################################################
 
-if IS_WIN32
+if IS_WIN32 or not add_languages('cpp', required : get_option('kwallet'))
 	kwallet = disabler()
 else
-	# Ensure C++ compiler works
-	add_languages('cpp')
+	# Use C++ compiler
 	cxx_compiler = meson.get_compiler('cpp')
 	add_project_arguments([
 		'-DHAVE_CONFIG_H=1',
