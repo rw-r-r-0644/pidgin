@@ -182,6 +182,10 @@
       <title>Index of new symbols in 3.0.0</title>
       <xi:include href="xml/api-index-3.0.0.xml"><xi:fallback /></xi:include>
     </index>
+    <index id="api-2.14.0">
+      <title>Index of new symbols in 2.14.0</title>
+      <xi:include href="xml/api-index-2.14.0.xml"><xi:fallback /></xi:include>
+    </index>
     <index id="api-2.13.0">
       <title>Index of new symbols in 2.13.0</title>
       <xi:include href="xml/api-index-2.13.0.xml"><xi:fallback /></xi:include>
