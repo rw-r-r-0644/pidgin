@@ -454,7 +454,7 @@ endif
 
 
 DEFAULT_PRPLS = ['bonjour', 'facebook', 'gg', 'irc', 'jabber', 'novell',
-                 'null', 'sametime', 'silc', 'simple', 'zephyr']
+                 'null', 'sametime', 'silc', 'zephyr']
 ALL_PRPLS = DEFAULT_PRPLS + ['null']
 
 dynamic_list = get_option('dynamic-prpls').split(',')
@@ -489,7 +489,6 @@ DYNAMIC_NOVELL = DYNAMIC_PRPLS.contains('novell')
 DYNAMIC_NULL = DYNAMIC_PRPLS.contains('null')
 DYNAMIC_SAMETIME = DYNAMIC_PRPLS.contains('sametime')
 DYNAMIC_SILC = DYNAMIC_PRPLS.contains('silc')
-DYNAMIC_SIMPLE = DYNAMIC_PRPLS.contains('simple')
 DYNAMIC_ZEPHYR = DYNAMIC_PRPLS.contains('zephyr')
 
 conf.set('HAVE_SYS_UTSNAME_H',

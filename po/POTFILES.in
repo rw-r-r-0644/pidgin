@@ -215,9 +215,6 @@ libpurple/protocols/silc/pk.c
 libpurple/protocols/silc/silc.c
 libpurple/protocols/silc/util.c
 libpurple/protocols/silc/wb.c
-libpurple/protocols/simple/ntlm.c
-libpurple/protocols/simple/simple.c
-libpurple/protocols/simple/sipmsg.c
 libpurple/protocols/zephyr/ZAsyncLocate.c
 libpurple/protocols/zephyr/ZCkAuth.c
 libpurple/protocols/zephyr/ZCkIfNot.c
