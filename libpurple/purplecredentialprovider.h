@@ -159,10 +159,10 @@ void purple_credential_provider_read_password_async(PurpleCredentialProvider *pr
  * @provider: The #PurpleCredentialProvider instance.
  * @account: The #PurpleAccount whose password we're looking up.
  * @result: The #GAsyncResult from the previous
- *          purple_credential_provider_read_password() call.
+ *          purple_credential_provider_read_password_async() call.
  * @error: (out) (optional): Return address for a #GError.
  *
- * Finishes a previous call to purple_credential_provider_read_password().
+ * Finishes a previous call to purple_credential_provider_read_password_async().
  *
  * Returns: (transfer full): The password or %NULL if successful, otherwise
  *                           %NULL with @error set on failure.
@@ -192,10 +192,11 @@ void purple_credential_provider_write_password_async(PurpleCredentialProvider *p
  * @provider: The #PurpleCredentialProvider instance.
  * @account: The #PurpleAccount whose password we're writing.
  * @result: The #GAsyncResult from the previous
- *          purple_credential_provider_write_password() call.
+ *          purple_credential_provider_write_password_async() call.
  * @error: (out) (optional): Return address for a #GError.
  *
- * Finishes a previous call to purple_credential_provider_write_password().
+ * Finishes a previous call to
+ * purple_credential_provider_write_password_async().
  *
  * Returns: %TRUE if the password was written successfully, otherwise %FALSE
  *          with @error set.
@@ -224,10 +225,11 @@ void purple_credential_provider_clear_password_async(PurpleCredentialProvider *p
  * @provider: The #PurpleCredentialProvider instance.
  * @account: The #PurpleAccount whose password we're clearing.
  * @result: The #GAsyncResult from the previous
- *          purple_credential_provider_clear_password() call.
+ *          purple_credential_provider_clear_password_async() call.
  * @error: (out) (optional): Return address for a #GError.
  *
- * Finishes a previous call to purple_credential_provider_clear_password().
+ * Finishes a previous call to
+ * purple_credential_provider_clear_password_async().
  *
  * Returns: %TRUE if the password was cleared successfully, otherwise %FALSE
  *          with @error set.
@@ -249,7 +251,7 @@ void purple_credential_provider_close(PurpleCredentialProvider *provider);
 
 /**
  * purple_credential_provider_read_settings:
- * @provider: The #PurpleCredentialProviderInstance.
+ * @provider: The #PurpleCredentialProvider instance.
  *
  * Reads settings from @provider.
  *
