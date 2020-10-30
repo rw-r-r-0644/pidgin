@@ -340,7 +340,7 @@ purple_circular_buffer_class_init(PurpleCircularBufferClass *klass) {
 PurpleCircularBuffer *
 purple_circular_buffer_new(gsize growsize) {
 	return g_object_new(PURPLE_TYPE_CIRCULAR_BUFFER,
-	                    "grow-size", growsize ? growsize : DEFAULT_BUF_SIZE,
+	                    "grow-size", (guint64)(growsize ? growsize : DEFAULT_BUF_SIZE),
 	                    NULL);
 }
 
