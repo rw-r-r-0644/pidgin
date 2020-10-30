@@ -6254,24 +6254,6 @@ pidgin_conversations_init(void)
 	                     G_TYPE_POINTER, /* pointer to a (PidginConvWindow *) */
 	                     G_TYPE_POINTER); /* pointer to a (PidginConvWindow *) */
 
-	purple_signal_register(handle, "conversation-timestamp",
-#if SIZEOF_TIME_T == 4
-	                     purple_marshal_POINTER__POINTER_INT_BOOLEAN,
-#elif SIZEOF_TIME_T == 8
-			     purple_marshal_POINTER__POINTER_INT64_BOOLEAN,
-#else
-#error Unkown size of time_t
-#endif
-	                     G_TYPE_STRING, 3, PURPLE_TYPE_CONVERSATION,
-#if SIZEOF_TIME_T == 4
-	                     G_TYPE_INT,
-#elif SIZEOF_TIME_T == 8
-	                     G_TYPE_INT64,
-#else
-# error Unknown size of time_t
-#endif
-	                     G_TYPE_BOOLEAN);
-
 	purple_signal_register(handle, "displaying-im-msg",
 		purple_marshal_BOOLEAN__POINTER_POINTER,
 		G_TYPE_BOOLEAN, 2, PURPLE_TYPE_CONVERSATION, PURPLE_TYPE_MESSAGE);

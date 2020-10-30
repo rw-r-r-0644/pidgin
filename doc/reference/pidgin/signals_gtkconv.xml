@@ -9,7 +9,6 @@
 <title role="signal_proto.title">List of signals</title>
 <synopsis>
   &quot;<link linkend="gtkconvs-conversation-dragging">conversation-dragging</link>&quot;
-  &quot;<link linkend="gtkconvs-conversation-timestamp">conversation-timestamp</link>&quot;
   &quot;<link linkend="gtkconvs-displaying-im-msg">displaying-im-msg</link>&quot;
   &quot;<link linkend="gtkconvs-displayed-im-msg">displayed-im-msg</link>&quot;
   &quot;<link linkend="gtkconvs-displaying-chat-msg">displaying-chat-msg</link>&quot;
@@ -49,40 +48,6 @@ Emitted when a conversation is being drag and dropped between windows.
   </variablelist>
 </refsect2>
 
-<refsect2 id="gtkconvs-conversation-timestamp" role="signal">
- <title>The <literal>&quot;conversation-timestamp&quot;</literal> signal</title>
-<programlisting>
-char *              user_function                      (PurpleConversation *conv,
-                                                        time_t when,
-                                                        gboolean show_date,
-                                                        gpointer user_data)
-</programlisting>
-  <para>
-Emitted to allow plugins to customize the timestamp on a message.
-  </para>
-  <variablelist role="params">
-  <varlistentry>
-    <term><parameter>conv</parameter>&#160;:</term>
-    <listitem><simpara>The conversation the message belongs to.</simpara></listitem>
-  </varlistentry>
-  <varlistentry>
-    <term><parameter>when</parameter>&#160;:</term>
-    <listitem><simpara>The time to be converted to a string.</simpara></listitem>
-  </varlistentry>
-  <varlistentry>
-    <term><parameter>show_date</parameter>&#160;:</term>
-    <listitem><simpara>Whether the date should be displayed.</simpara></listitem>
-  </varlistentry>
-  <varlistentry>
-    <term><parameter>user_data</parameter>&#160;:</term>
-    <listitem><simpara>user data set when the signal handler was connected.</simpara></listitem>
-  </varlistentry>
-  <varlistentry>
-    <term><emphasis>Returns</emphasis>&#160;:</term>
-    <listitem><simpara>A textual representation of the time, or <literal>NULL</literal> to use a default format.</simpara></listitem>
-  </varlistentry>
-  </variablelist>
-</refsect2>
 
 <refsect2 id="gtkconvs-displaying-im-msg" role="signal">
  <title>The <literal>&quot;displaying-im-msg&quot;</literal> signal</title>
