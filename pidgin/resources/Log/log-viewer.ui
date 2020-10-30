@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 
+<!-- Generated with glade 3.22.2 
 
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="can_focus">False</property>
     <property name="role">log_viewer</property>
     <property name="type_hint">dialog</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -214,7 +214,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <property name="editable">False</property>
                         <property name="wrap_mode">word</property>
                         <property name="buffer">log_buffer</property>
-                        <property name="send_binding"/>
                       </object>
                     </child>
                   </object>
