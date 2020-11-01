@@ -383,8 +383,6 @@ pidgin/plugins/screencap.c
 pidgin/plugins/spellchk.c
 pidgin/plugins/transparency.c
 pidgin/plugins/unity.c
-pidgin/plugins/win32/winprefs/gtkappbar.c
-pidgin/plugins/win32/winprefs/winprefs.c
 pidgin/plugins/xmppconsole/console.ui
 pidgin/plugins/xmppconsole/xmppconsole.c
 pidgin/resources/Log/log-viewer.ui
