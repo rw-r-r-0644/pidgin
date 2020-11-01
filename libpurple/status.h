@@ -119,7 +119,7 @@ typedef enum
 	PURPLE_STATUS_NUM_PRIMITIVES, /*< skip >*/
 } PurpleStatusPrimitive;
 
-#include "presence.h"
+#include "purplepresence.h"
 
 /**
  * PURPLE_TUNE_ALBUM:

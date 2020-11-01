@@ -47,7 +47,6 @@ typedef struct _PurpleGroupClass PurpleGroupClass;
 #include "account.h"
 #include "blistnode.h"
 #include "buddyicon.h"
-#include "presence.h"
 #include "status.h"
 
 /**************************************************************************/

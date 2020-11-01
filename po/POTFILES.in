@@ -90,7 +90,6 @@ libpurple/plugins/statenotify.c
 libpurple/plugins/test-request-input.c
 libpurple/pounce.c
 libpurple/prefs.c
-libpurple/presence.c
 libpurple/protocol.c
 libpurple/protocols/bonjour/bonjour.c
 libpurple/protocols/bonjour/bonjour_ft.c
@@ -270,6 +269,7 @@ libpurple/purplechatuser.c
 libpurple/purplecredentialprovider.c
 libpurple/purpleimconversation.c
 libpurple/purplemarkup.c
+libpurple/purplepresence.c
 libpurple/purpleprotocolim.c
 libpurple/purpleprotocolmedia.c
 libpurple/purpleprotocolprivacy.c
