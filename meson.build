@@ -545,14 +545,6 @@ endif
 
 pidginpath = find_program('pidgin', required : false)
 
-if get_option('glib-errors-trace')
-	if compiler.get_id() == 'clang'
-		error('--enable-glib-errors-trace doesn\'t work with clang')
-	endif
-	conf.set('ENABLE_GLIBTRACE', true)
-	add_project_arguments('-rdynamic', language : 'c')
-endif
-
 #######################################################################
 # Check for Unity and Messaging Menu
 # Remove when Ubuntu 16.04 is EOL

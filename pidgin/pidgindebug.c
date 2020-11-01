@@ -36,10 +36,6 @@
 #include "pidgindebug.h"
 #include "pidginstock.h"
 
-#ifdef ENABLE_GLIBTRACE
-#include <execinfo.h>
-#endif
-
 #include <gdk/gdkkeysyms.h>
 
 #include "pidginresources.h"
@@ -592,7 +588,7 @@ pidgin_debug_window_init(PidginDebugWindow *win)
 	width  = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/debug/width");
 	height = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/debug/height");
 
-	purple_debug_info("gtkdebug", "Setting dimensions to %d, %d\n",
+	purple_debug_info("pidgindebug", "Setting dimensions to %d, %d\n",
 					width, height);
 
 	gtk_window_set_default_size(GTK_WINDOW(win), width, height);
@@ -710,67 +706,42 @@ debug_enabled_cb(const char *name, PurplePrefType type,
 }
 
 static void
-pidgin_glib_log_handler(const gchar *domain, GLogLevelFlags flags,
-					  const gchar *msg, gpointer user_data)
+pidgin_debug_g_log_handler(const gchar *domain, GLogLevelFlags flags,
+                           const gchar *msg, gpointer user_data)
 {
 	PurpleDebugLevel level;
-	char *new_msg = NULL;
-	char *new_domain = NULL;
+	GString *category = g_string_new("GLog-");
 
-	if ((flags & G_LOG_LEVEL_ERROR) == G_LOG_LEVEL_ERROR)
+	if(domain != NULL) {
+		g_string_append_printf(category, "%s-", domain);
+	}
+
+	if((flags & G_LOG_LEVEL_ERROR) != 0) {
+		g_string_append(category, "Error");
 		level = PURPLE_DEBUG_ERROR;
-	else if ((flags & G_LOG_LEVEL_CRITICAL) == G_LOG_LEVEL_CRITICAL)
+	} else if((flags & G_LOG_LEVEL_CRITICAL) != 0) {
+		g_string_append(category, "Fatal");
 		level = PURPLE_DEBUG_FATAL;
-	else if ((flags & G_LOG_LEVEL_WARNING) == G_LOG_LEVEL_WARNING)
+	} else if((flags & G_LOG_LEVEL_WARNING) != 0) {
+		g_string_append(category, "Warning");
 		level = PURPLE_DEBUG_WARNING;
-	else if ((flags & G_LOG_LEVEL_MESSAGE) == G_LOG_LEVEL_MESSAGE)
+	} else if((flags & G_LOG_LEVEL_MESSAGE) != 0) {
+		g_string_append(category, "Message");
 		level = PURPLE_DEBUG_INFO;
-	else if ((flags & G_LOG_LEVEL_INFO) == G_LOG_LEVEL_INFO)
+	} else if((flags & G_LOG_LEVEL_INFO) != 0) {
+		g_string_append(category, "Info");
 		level = PURPLE_DEBUG_INFO;
-	else if ((flags & G_LOG_LEVEL_DEBUG) == G_LOG_LEVEL_DEBUG)
+	} else if((flags & G_LOG_LEVEL_DEBUG) != 0) {
+		g_string_append(category, "Debug");
 		level = PURPLE_DEBUG_MISC;
-	else
-	{
-		purple_debug_warning("gtkdebug",
-				   "Unknown glib logging level in %d\n", flags);
-
-		level = PURPLE_DEBUG_MISC; /* This will never happen. */
+	} else {
+		g_string_append(category, "Unknown");
+		level = PURPLE_DEBUG_MISC;
 	}
 
-	if (msg != NULL)
-		new_msg = purple_utf8_try_convert(msg);
-
-	if (domain != NULL)
-		new_domain = purple_utf8_try_convert(domain);
-
-	if (new_msg != NULL)
-	{
-#ifdef ENABLE_GLIBTRACE
-		void *bt_buff[20];
-		size_t bt_size;
-
-		bt_size = backtrace(bt_buff, 20);
-		fprintf(stderr, "\nBacktrace for \"%s\" (%s):\n", new_msg,
-			new_domain != NULL ? new_domain : "g_log");
-		backtrace_symbols_fd(bt_buff, bt_size, STDERR_FILENO);
-		fprintf(stderr, "\n");
-#endif
-
-		purple_debug(level, (new_domain != NULL ? new_domain : "g_log"),
-				   "%s\n", new_msg);
-
-		g_free(new_msg);
-	}
-
-	g_free(new_domain);
+	purple_debug(level, category->str, "%s\n", msg);
+	g_string_free(category, TRUE);
 }
-
-#ifdef _WIN32
-static void
-pidgin_glib_dummy_print_handler(const gchar *string)
-{
-}
-#endif
 
 static void
 pidgin_debug_ui_init(PidginDebugUi *self)
@@ -803,32 +774,7 @@ pidgin_debug_ui_init(PidginDebugUi *self)
 	purple_prefs_connect_callback(NULL, PIDGIN_PREFS_ROOT "/debug/enabled",
 	                              debug_enabled_cb, self);
 
-#define REGISTER_G_LOG_HANDLER(name) \
-	g_log_set_handler((name), G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL \
-					  | G_LOG_FLAG_RECURSION, \
-					  pidgin_glib_log_handler, NULL)
-
-	/* Register the glib/gtk log handlers. */
-	REGISTER_G_LOG_HANDLER(NULL);
-	REGISTER_G_LOG_HANDLER("Gdk");
-	REGISTER_G_LOG_HANDLER("GdkPixbuf");
-	REGISTER_G_LOG_HANDLER("GLib");
-	REGISTER_G_LOG_HANDLER("GLib-GObject");
-	REGISTER_G_LOG_HANDLER("GModule");
-	REGISTER_G_LOG_HANDLER("Gnt"); /* just in case we find a gnt plugin */
-	REGISTER_G_LOG_HANDLER("GPlugin");
-	REGISTER_G_LOG_HANDLER("GPluginGtk");
-	REGISTER_G_LOG_HANDLER("GThread");
-	REGISTER_G_LOG_HANDLER("Gtk");
-	REGISTER_G_LOG_HANDLER("Json");
-	REGISTER_G_LOG_HANDLER("libsoup");
-	REGISTER_G_LOG_HANDLER("Talkatu");
-	REGISTER_G_LOG_HANDLER("GStreamer");
-
-#ifdef _WIN32
-	if (!purple_debug_is_enabled())
-		g_set_print_handler(pidgin_glib_dummy_print_handler);
-#endif
+	g_log_set_default_handler(pidgin_debug_g_log_handler, NULL);
 }
 
 static void

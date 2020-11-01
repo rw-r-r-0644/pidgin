@@ -7,9 +7,6 @@ option('doc', type : 'boolean', value : false,
 option('extraversion', type : 'string',
        description : 'extra version number to be displayed in Help->About and --help (for packagers)')
 
-option('glib-errors-trace', type : 'boolean', value : false,
-       description : 'print backtraces for glib errors')
-
 option('introspection', type : 'boolean', value : true,
        description : 'build introspection data')
 
