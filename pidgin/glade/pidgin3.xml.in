@@ -7,6 +7,7 @@
     <glade-widget-class name="PidginAccountFilterConnected" generic-name="account_filter_connected" title="FilterConnected"/>
     <glade-widget-class name="PidginAccountFilterProtocol" generic-name="account_filter_protocol" title="FilterProtocol"/>
     <glade-widget-class name="PidginCloseButton" generic-name="close-button" title="CloseButton"/>
+    <glade-widget-class name="PidginConversationWindow" generic-name="conversation_window" title="ConversationWindow"/>
     <glade-widget-class name="PidginDialog" generic-name="dialog" title="Dialog"/>
     <glade-widget-class name="PidginInviteDialog" generic-name="invite_dialog" title="InviteDialog"/>
     <glade-widget-class name="PidginMenuTray" generic-name="menu_tray" title="MenuTray"/>
@@ -21,6 +22,7 @@
     <glade-widget-class-ref name="PidginAccountFilterConnected"/>
     <glade-widget-class-ref name="PidginAccountFilterProtocol"/>
     <glade-widget-class-ref name="PidginCloseButton"/>
+    <glade-widget-class-ref name="PidginConversationWindow"/>
     <glade-widget-class-ref name="PidginDialog"/>
     <glade-widget-class-ref name="PidginInviteDialog"/>
     <glade-widget-class-ref name="PidginMenuTray"/>

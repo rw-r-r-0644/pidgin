@@ -351,6 +351,7 @@ pidgin/pidginaccountstore.c
 pidgin/pidginattachment.c
 pidgin/pidginclosebutton.c
 pidgin/pidgincontactcompletion.c
+pidgin/pidginconversationwindow.c
 pidgin/pidgindebug.c
 pidgin/pidgindialog.c
 pidgin/pidgingdkpixbuf.c

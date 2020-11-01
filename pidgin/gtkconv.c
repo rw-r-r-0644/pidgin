@@ -52,6 +52,7 @@
 #include "gtkstyle.h"
 #include "gtkutils.h"
 #include "pidginclosebutton.h"
+#include "pidginconversationwindow.h"
 #include "pidgincore.h"
 #include "pidgingdkpixbuf.h"
 #include "pidgininvitedialog.h"
@@ -7621,10 +7622,11 @@ pidgin_conv_window_new()
 	window_list = g_list_append(window_list, win);
 
 	/* Create the window. */
-	win->window = pidgin_window_new(NULL, 0, "conversation", TRUE);
+	win->window = pidgin_conversation_window_new();
 	/*_pidgin_widget_set_accessible_name(win->window, "Conversations");*/
-	if (!gtk_get_current_event_state(&state))
+	if(!gtk_get_current_event_state(&state)) {
 		gtk_window_set_focus_on_map(GTK_WINDOW(win->window), FALSE);
+	}
 
 	/* Etan: I really think this entire function call should happen only
 	 * when we are on Windows but I was informed that back before we used
@@ -7713,17 +7715,14 @@ pidgin_conv_window_new()
 	g_signal_connect(G_OBJECT(win->notebook), "button_release_event",
 	                 G_CALLBACK(notebook_release_cb), win);
 
-	testidea = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	testidea = pidgin_conversation_window_get_vbox(PIDGIN_CONVERSATION_WINDOW(win->window));
+	gtk_container_add(GTK_CONTAINER(win->window), testidea);
 
 	/* Setup the menubar. */
 	menubar = setup_menubar(win);
 	gtk_box_pack_start(GTK_BOX(testidea), menubar, FALSE, TRUE, 0);
 
 	gtk_box_pack_start(GTK_BOX(testidea), win->notebook, TRUE, TRUE, 0);
-
-	gtk_container_add(GTK_CONTAINER(win->window), testidea);
-
-	gtk_widget_show(testidea);
 
 	/* Update the plugin actions when plugins are (un)loaded */
 	purple_signal_connect(purple_plugins_get_handle(), "plugin-load",
