@@ -50,7 +50,7 @@ typedef struct _PurpleBuddyClass PurpleBuddyClass;
 #include "contact.h"
 #include "group.h"
 #include "media.h"
-#include "presence.h"
+#include "purplepresence.h"
 #include "status.h"
 
 #define PURPLE_BUDDY_IS_ONLINE(b) \

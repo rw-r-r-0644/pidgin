@@ -31,7 +31,7 @@
  */
 
 #include "buddylist.h"
-#include "presence.h"
+#include "purplepresence.h"
 
 G_BEGIN_DECLS
 

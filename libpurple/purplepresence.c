@@ -1,4 +1,6 @@
-/* purple
+/*
+ * purple
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,15 +17,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <glib/gi18n-lib.h>
 
 #include "internal.h"
 #include "debug.h"
-#include "presence.h"
+#include "purplepresence.h"
 #include "purpleprivate.h"
 
 typedef struct {
@@ -70,7 +71,7 @@ purple_presence_set_active_status(PurplePresence *presence,
  *****************************************************************************/
 static void
 purple_presence_set_property(GObject *obj, guint param_id, const GValue *value,
-		GParamSpec *pspec)
+                             GParamSpec *pspec)
 {
 	PurplePresence *presence = PURPLE_PRESENCE(obj);
 
@@ -106,10 +107,9 @@ purple_presence_set_property(GObject *obj, guint param_id, const GValue *value,
 	}
 }
 
-/* Get method for GObject properties */
 static void
 purple_presence_get_property(GObject *obj, guint param_id, GValue *value,
-		GParamSpec *pspec)
+                             GParamSpec *pspec)
 {
 	PurplePresence *presence = PURPLE_PRESENCE(obj);
 
@@ -155,8 +155,7 @@ purple_presence_init(PurplePresence *presence) {
 }
 
 static void
-purple_presence_finalize(GObject *obj)
-{
+purple_presence_finalize(GObject *obj) {
 	PurplePresencePrivate *priv = NULL;
 
 	priv = purple_presence_get_instance_private(PURPLE_PRESENCE(obj));
@@ -167,19 +166,28 @@ purple_presence_finalize(GObject *obj)
 	G_OBJECT_CLASS(purple_presence_parent_class)->finalize(obj);
 }
 
-/* Class initializer function */
-static void purple_presence_class_init(PurplePresenceClass *klass)
-{
+static void
+purple_presence_class_init(PurplePresenceClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 
 	obj_class->get_property = purple_presence_get_property;
 	obj_class->set_property = purple_presence_set_property;
 	obj_class->finalize = purple_presence_finalize;
 
+	/**
+	 * PurplePresence:idle:
+	 *
+	 * Whether or not the presence is in an idle state.
+	 */
 	properties[PROP_IDLE] = g_param_spec_boolean("idle", "Idle",
 				"Whether the presence is in idle state.", FALSE,
 				G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+	/**
+	 * PurplePresence:idle-time:
+	 *
+	 * The time when the presence went idle.
+	 */
 	properties[PROP_IDLE_TIME] =
 #if SIZEOF_TIME_T == 4
 		g_param_spec_int
@@ -199,6 +207,11 @@ static void purple_presence_class_init(PurplePresenceClass *klass)
 #endif
 				G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+	/**
+	 * PurplePresence:login-time:
+	 *
+	 * The login-time of the presence.
+	 */
 	properties[PROP_LOGIN_TIME] =
 #if SIZEOF_TIME_T == 4
 		g_param_spec_int
@@ -218,6 +231,11 @@ static void purple_presence_class_init(PurplePresenceClass *klass)
 #endif
 				G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+	/**
+	 * PurplePresence:active-status:
+	 *
+	 * The currently active status of the presence.
+	 */
 	properties[PROP_ACTIVE_STATUS] = g_param_spec_object("active-status",
 				"Active status",
 				"The active status for the presence.", PURPLE_TYPE_STATUS,
@@ -233,7 +251,7 @@ void
 purple_presence_set_status_active(PurplePresence *presence,
                                   const gchar *status_id, gboolean active)
 {
-	PurpleStatus *status;
+	PurpleStatus *status = NULL;
 
 	g_return_if_fail(PURPLE_IS_PRESENCE(presence));
 	g_return_if_fail(status_id != NULL);
@@ -244,10 +262,8 @@ purple_presence_set_status_active(PurplePresence *presence,
 	/* TODO: Should we do the following? */
 	/* g_return_if_fail(active == status->active); */
 
-	if (purple_status_is_exclusive(status))
-	{
-		if (!active)
-		{
+	if(purple_status_is_exclusive(status)) {
+		if(!active) {
 			purple_debug_warning("presence",
 					"Attempted to set a non-independent status "
 					"(%s) inactive. Only independent statuses "
@@ -273,18 +289,19 @@ purple_presence_set_idle(PurplePresence *presence, gboolean idle,
 	PurplePresencePrivate *priv = NULL;
 	PurplePresenceClass *klass = NULL;
 	gboolean old_idle;
-	GObject *obj;
+	GObject *obj = NULL;
 
 	g_return_if_fail(PURPLE_IS_PRESENCE(presence));
 
 	priv = purple_presence_get_instance_private(presence);
 	klass = PURPLE_PRESENCE_GET_CLASS(presence);
 
-	if (priv->idle == idle && priv->idle_time == idle_time)
+	if (priv->idle == idle && priv->idle_time == idle_time) {
 		return;
+	}
 
-	old_idle        = priv->idle;
-	priv->idle      = idle;
+	old_idle = priv->idle;
+	priv->idle = idle;
 	priv->idle_time = (idle ? idle_time : 0);
 
 	obj = G_OBJECT(presence);
@@ -293,8 +310,9 @@ purple_presence_set_idle(PurplePresence *presence, gboolean idle,
 	g_object_notify_by_pspec(obj, properties[PROP_IDLE_TIME]);
 	g_object_thaw_notify(obj);
 
-	if (klass->update_idle)
+	if(klass->update_idle) {
 		klass->update_idle(presence, old_idle);
+	}
 }
 
 void
@@ -305,8 +323,9 @@ purple_presence_set_login_time(PurplePresence *presence, time_t login_time) {
 
 	priv = purple_presence_get_instance_private(presence);
 
-	if (priv->login_time == login_time)
+	if(priv->login_time == login_time) {
 		return;
+	}
 
 	priv->login_time = login_time;
 
@@ -331,7 +350,7 @@ purple_presence_get_statuses(PurplePresence *presence) {
 PurpleStatus *
 purple_presence_get_status(PurplePresence *presence, const gchar *status_id) {
 	PurplePresencePrivate *priv = NULL;
-	PurpleStatus *status;
+	PurpleStatus *status = NULL;
 	GList *l = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PRESENCE(presence), NULL);
@@ -341,21 +360,23 @@ purple_presence_get_status(PurplePresence *presence, const gchar *status_id) {
 
 	/* What's the purpose of this hash table? */
 	status = (PurpleStatus *)g_hash_table_lookup(priv->status_table,
-						   status_id);
+	                                             status_id);
 
-	if (status == NULL) {
-		for (l = purple_presence_get_statuses(presence);
-			 l != NULL && status == NULL; l = l->next)
+	if(status == NULL) {
+		for(l = purple_presence_get_statuses(presence);
+			l != NULL && status == NULL; l = l->next)
 		{
 			PurpleStatus *temp_status = l->data;
 
-			if (purple_strequal(status_id, purple_status_get_id(temp_status)))
+			if (purple_strequal(status_id, purple_status_get_id(temp_status))) {
 				status = temp_status;
+			}
 		}
 
-		if (status != NULL)
+		if(status != NULL) {
 			g_hash_table_insert(priv->status_table,
 								g_strdup(purple_status_get_id(status)), status);
+		}
 	}
 
 	return status;
@@ -374,7 +395,7 @@ purple_presence_get_active_status(PurplePresence *presence) {
 
 gboolean
 purple_presence_is_available(PurplePresence *presence) {
-	PurpleStatus *status;
+	PurpleStatus *status = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PRESENCE(presence), FALSE);
 
@@ -386,12 +407,13 @@ purple_presence_is_available(PurplePresence *presence) {
 
 gboolean
 purple_presence_is_online(PurplePresence *presence) {
-	PurpleStatus *status;
+	PurpleStatus *status = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PRESENCE(presence), FALSE);
 
-	if ((status = purple_presence_get_active_status(presence)) == NULL)
+	if((status = purple_presence_get_active_status(presence)) == NULL) {
 		return FALSE;
+	}
 
 	return purple_status_is_online(status);
 }
@@ -400,7 +422,7 @@ gboolean
 purple_presence_is_status_active(PurplePresence *presence,
                                  const gchar *status_id)
 {
-	PurpleStatus *status;
+	PurpleStatus *status = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PRESENCE(presence), FALSE);
 	g_return_val_if_fail(status_id != NULL, FALSE);
@@ -414,21 +436,22 @@ gboolean
 purple_presence_is_status_primitive_active(PurplePresence *presence,
                                            PurpleStatusPrimitive primitive)
 {
-	GList *l;
+	GList *l = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PRESENCE(presence), FALSE);
 	g_return_val_if_fail(primitive != PURPLE_STATUS_UNSET, FALSE);
 
-	for (l = purple_presence_get_statuses(presence);
-	     l != NULL; l = l->next)
-	{
+	for(l = purple_presence_get_statuses(presence); l != NULL; l = l->next) {
 		PurpleStatus *temp_status = l->data;
 		PurpleStatusType *type = purple_status_get_status_type(temp_status);
 
-		if (purple_status_type_get_primitive(type) == primitive &&
+		if(purple_status_type_get_primitive(type) == primitive &&
 		    purple_status_is_active(temp_status))
+		{
 			return TRUE;
+		}
 	}
+
 	return FALSE;
 }
 
@@ -438,9 +461,13 @@ purple_presence_is_idle(PurplePresence *presence) {
 
 	g_return_val_if_fail(PURPLE_IS_PRESENCE(presence), FALSE);
 
+	if(!purple_presence_is_online(presence)) {
+		return FALSE;
+	}
+
 	priv = purple_presence_get_instance_private(presence);
 
-	return purple_presence_is_online(presence) && priv->idle;
+	return priv->idle;
 }
 
 time_t
@@ -450,6 +477,7 @@ purple_presence_get_idle_time(PurplePresence *presence) {
 	g_return_val_if_fail(PURPLE_IS_PRESENCE(presence), 0);
 
 	priv = purple_presence_get_instance_private(presence);
+
 	return priv->idle_time;
 }
 
@@ -460,5 +488,6 @@ purple_presence_get_login_time(PurplePresence *presence) {
 	g_return_val_if_fail(PURPLE_IS_PRESENCE(presence), 0);
 
 	priv = purple_presence_get_instance_private(presence);
+
 	return purple_presence_is_online(presence) ? priv->login_time : 0;
 }
