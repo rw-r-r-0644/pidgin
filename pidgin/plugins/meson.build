@@ -6,10 +6,6 @@ subdir('disco')
 subdir('gestures')
 subdir('xmppconsole')
 
-if IS_WIN32
-	subdir('win32/winprefs')
-endif
-
 if PLUGINS
 	contact_priority = library('contact_priority', 'contact_priority.c',
 	    dependencies : [libpurple_dep, libpidgin_dep, glib],
