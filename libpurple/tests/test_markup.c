@@ -1,5 +1,5 @@
 /*
- * Purple - Internet Messenging Library
+ * Purple - Internet Messaging Library
  * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
