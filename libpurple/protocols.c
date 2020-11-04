@@ -30,6 +30,7 @@
 #include "notify.h"
 #include "protocol.h"
 #include "purpleaccountoption.h"
+#include "purpleprotocolattention.h"
 #include "purpleprotocolmedia.h"
 #include "request.h"
 #include "util.h"
@@ -373,10 +374,11 @@ purple_protocol_send_attention(PurpleConnection *gc, const char *who, guint type
 
 	attn = purple_get_attention_type_from_code(purple_connection_get_account(gc), type_code);
 
-	if ((buddy = purple_blist_find_buddy(purple_connection_get_account(gc), who)) != NULL)
+	if ((buddy = purple_blist_find_buddy(purple_connection_get_account(gc), who)) != NULL) {
 		alias = purple_buddy_get_contact_alias(buddy);
-	else
+	} else {
 		alias = who;
+	}
 
 	if (attn && purple_attention_type_get_outgoing_desc(attn)) {
 		description = g_strdup_printf(purple_attention_type_get_outgoing_desc(attn), alias);
@@ -387,8 +389,9 @@ purple_protocol_send_attention(PurpleConnection *gc, const char *who, guint type
 	purple_debug_info("server", "serv_send_attention: sending '%s' to %s\n",
 			description, who);
 
-	if (!purple_protocol_attention_send(PURPLE_PROTOCOL_ATTENTION(protocol), gc, who, type_code))
+	if (!purple_protocol_attention_send_attention(PURPLE_PROTOCOL_ATTENTION(protocol), gc, who, type_code)) {
 		return;
+	}
 
 	im = purple_im_conversation_new(purple_connection_get_account(gc), who);
 	purple_conversation_write_system_message(PURPLE_CONVERSATION(im), description, 0);

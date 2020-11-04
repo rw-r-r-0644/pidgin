@@ -1,23 +1,23 @@
 /*
- * Purple
+ * purple
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
- * Purple is the legal property of its developers, whose names are too
- * numerous to list here. Please refer to the COPYRIGHT file distributed
- * with this source distribution
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at
- * your option) any later version.
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301 USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <glib.h>
@@ -63,7 +63,7 @@ test_purple_protocol_attention_get_types(PurpleProtocolAttention *attn, PurpleAc
 
 static void
 test_purple_protocol_attention_iface_init(PurpleProtocolAttentionInterface *iface) {
-	iface->send = test_purple_protocol_attention_send;
+	iface->send_attention = test_purple_protocol_attention_send;
 	iface->get_types = test_purple_protocol_attention_get_types;
 }
 
@@ -99,7 +99,7 @@ test_purple_protocol_attention_can_send(void) {
 	gboolean actual = FALSE;
 
 	attn->send_called = FALSE;
-	actual = purple_protocol_attention_send(PURPLE_PROTOCOL_ATTENTION(attn), c, "someguy", 0);
+	actual = purple_protocol_attention_send_attention(PURPLE_PROTOCOL_ATTENTION(attn), c, "someguy", 0);
 	g_assert_true(actual);
 
 	g_assert_true(attn->send_called);

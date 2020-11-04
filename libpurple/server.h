@@ -33,11 +33,11 @@
  */
 
 #include "accounts.h"
-#include "attention.h"
 #include "conversations.h"
 #include "group.h"
 #include "message.h"
 #include "protocols.h"
+#include "purpleattentiontype.h"
 
 G_BEGIN_DECLS
 
