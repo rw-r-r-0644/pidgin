@@ -29,7 +29,6 @@
 
 #include "gtkaccount.h"
 #include "gtkblist.h"
-#include "gtkcellrendererexpander.h"
 #include "gtkconv.h"
 #include "gtkdialogs.h"
 #include "gtkxfer.h"
@@ -48,6 +47,7 @@
 #include "pidgin/pidginaccountstore.h"
 #include "pidgin/pidginactiongroup.h"
 #include "pidgin/pidginbuddylistmenu.h"
+#include "pidgin/pidgincellrendererexpander.h"
 #include "pidgin/pidginclosebutton.h"
 #include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
@@ -5048,7 +5048,7 @@ pidgin_blist_build_layout(PurpleBuddyList *list)
 	gtk_tree_view_column_pack_start(column, rend, FALSE);
 	gtk_tree_view_column_set_attributes(column, rend,
 					    "visible", GROUP_EXPANDER_VISIBLE_COLUMN,
-					    "expander-visible", GROUP_EXPANDER_COLUMN,
+					    "is-expanded", GROUP_EXPANDER_COLUMN,
 					    "sensitive", GROUP_EXPANDER_COLUMN,
 					    "cell-background-rgba", BGCOLOR_COLUMN,
 					    NULL);
@@ -5058,7 +5058,7 @@ pidgin_blist_build_layout(PurpleBuddyList *list)
 	gtk_tree_view_column_pack_start(column, rend, FALSE);
 	gtk_tree_view_column_set_attributes(column, rend,
 					    "visible", CONTACT_EXPANDER_VISIBLE_COLUMN,
-					    "expander-visible", CONTACT_EXPANDER_COLUMN,
+					    "is-expanded", CONTACT_EXPANDER_COLUMN,
 					    "sensitive", CONTACT_EXPANDER_COLUMN,
 					    "cell-background-rgba", BGCOLOR_COLUMN,
 					    NULL);

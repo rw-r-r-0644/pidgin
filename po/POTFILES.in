@@ -316,7 +316,6 @@ pidgin/gtkaccount.c
 pidgin/gtkblist.c
 pidgin/gtkblist-theme.c
 pidgin/gtkblist-theme-loader.c
-pidgin/gtkcellrendererexpander.c
 pidgin/gtkconn.c
 pidgin/gtkconv.c
 pidgin/gtkdialogs.c
@@ -350,6 +349,7 @@ pidgin/pidginaccountfilterconnected.c
 pidgin/pidginaccountfilterprotocol.c
 pidgin/pidginaccountstore.c
 pidgin/pidginattachment.c
+pidgin/pidgincellrendererexpander.c
 pidgin/pidginclosebutton.c
 pidgin/pidgincontactcompletion.c
 pidgin/pidginconversationwindow.c
