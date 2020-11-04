@@ -1,4 +1,7 @@
 /*
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
+ *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
  * source distribution.
@@ -14,34 +17,42 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef _PIDGINCELLRENDEREREXPANDER_H_
-#define _PIDGINCELLRENDEREREXPANDER_H_
+#ifndef PIDGIN_CELL_RENDERER_EXPANDER_H
+#define PIDGIN_CELL_RENDERER_EXPANDER_H
+
 /**
  * SECTION:gtkcellrendererexpander
  * @section_id: pidgin-gtkcellrendererexpander
  * @short_description: <filename>gtkcellrendererexpander.h</filename>
  * @title: Cell Renderer Expander
+ *
+ * A #GtkCellRenderer that can hide its children.
  */
 
 #include <gtk/gtk.h>
 
-#define PIDGIN_TYPE_CELL_RENDERER_EXPANDER  pidgin_cell_renderer_expander_get_type()
+#define PIDGIN_TYPE_CELL_RENDERER_EXPANDER (pidgin_cell_renderer_expander_get_type())
+G_DECLARE_FINAL_TYPE(PidginCellRendererExpander, pidgin_cell_renderer_expander,
+                     PIDGIN, CELL_RENDERER_EXPANDER, GtkCellRenderer)
 
 G_BEGIN_DECLS
 
-G_DECLARE_FINAL_TYPE(PidginCellRendererExpander, pidgin_cell_renderer_expander,
-		PIDGIN, CELL_RENDERER_EXPANDER, GtkCellRenderer)
-GtkCellRenderer  *pidgin_cell_renderer_expander_new          (void);
+/**
+ * pidgin_cell_renderer_expander_new:
+ *
+ * Creates a new #PidginCellRendererExpander.
+ *
+ * Returns: (transfer full): The new cell renderer.
+ */
+GtkCellRenderer *pidgin_cell_renderer_expander_new(void);
 
 G_END_DECLS
 
-#endif /* _PIDGINCELLRENDEREREXPANDER_H_ */
+#endif /* PIDGIN_CELL_RENDERER_EXPANDER_H */
