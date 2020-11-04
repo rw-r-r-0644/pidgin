@@ -4188,7 +4188,7 @@ jabber_protocol_roomlist_iface_init(PurpleProtocolRoomlistInterface *roomlist_if
 static void
 jabber_protocol_attention_iface_init(PurpleProtocolAttentionInterface *iface)
 {
-	iface->send      = jabber_send_attention;
+	iface->send_attention = jabber_send_attention;
 	iface->get_types = jabber_attention_types;
 }
 

@@ -27,7 +27,6 @@ finch/plugins/lastlog.c
 libpurple/account.c
 libpurple/accounts.c
 libpurple/action.c
-libpurple/attention.c
 libpurple/blistnode.c
 libpurple/buddy.c
 libpurple/buddyicon.c
@@ -264,12 +263,14 @@ libpurple/proxy.c
 libpurple/purple-gio.c
 libpurple/purpleaccountpresence.c
 libpurple/purpleattachment.c
+libpurple/purpleattentiontype.c
 libpurple/purplebuddypresence.c
 libpurple/purplechatuser.c
 libpurple/purplecredentialprovider.c
 libpurple/purpleimconversation.c
 libpurple/purplemarkup.c
 libpurple/purplepresence.c
+libpurple/purpleprotocolattention.c
 libpurple/purpleprotocolim.c
 libpurple/purpleprotocolmedia.c
 libpurple/purpleprotocolprivacy.c

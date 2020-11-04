@@ -1,4 +1,6 @@
-/* purple
+/*
+ * purple
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,15 +17,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "attention.h"
+#include "purpleattentiontype.h"
 
-/******************************************************************************
- * PurpleAttentionType API
- *****************************************************************************/
 struct _PurpleAttentionType {
 	/* The name to show in GUI elements. */
 	const gchar *name;
@@ -44,6 +42,9 @@ G_DEFINE_BOXED_TYPE(
 	g_free
 );
 
+/******************************************************************************
+ * Public API
+ *****************************************************************************/
 PurpleAttentionType *
 purple_attention_type_new(const gchar *unlocalized_name,
                           const gchar *name,
@@ -144,41 +145,3 @@ purple_attention_type_set_unlocalized_name(PurpleAttentionType *type, const gcha
 
 	type->unlocalized_name = ulname;
 }
-
-/******************************************************************************
- * PurpleAttentionType API
- *****************************************************************************/
-G_DEFINE_INTERFACE(PurpleProtocolAttention, purple_protocol_attention, G_TYPE_INVALID);
-
-static void
-purple_protocol_attention_default_init(PurpleProtocolAttentionInterface *iface) {
-}
-
-gboolean
-purple_protocol_attention_send(PurpleProtocolAttention *attn, PurpleConnection *gc, const gchar *username, guint type) {
-	PurpleProtocolAttentionInterface *iface = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL_ATTENTION(attn), FALSE);
-
-	iface = PURPLE_PROTOCOL_ATTENTION_GET_IFACE(attn);
-	if(iface && iface->send) {
-		return iface->send(attn, gc, username, type);
-	}
-
-	return FALSE;
-}
-
-GList *
-purple_protocol_attention_get_types(PurpleProtocolAttention *attn, PurpleAccount *account) {
-	PurpleProtocolAttentionInterface *iface = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL_ATTENTION(attn), NULL);
-
-	iface = PURPLE_PROTOCOL_ATTENTION_GET_IFACE(attn);
-	if(iface && iface->get_types) {
-		return iface->get_types(attn, account);
-	}
-
-	return NULL;
-}
-

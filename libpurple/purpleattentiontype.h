@@ -1,4 +1,6 @@
-/* purple
+/*
+ * purple
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,28 +17,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
 # error "only <purple.h> may be included directly"
 #endif
 
-#ifndef PURPLE_ATTENTION_H
-#define PURPLE_ATTENTION_H
+#ifndef PURPLE_ATTENTION_TYPE_H
+#define PURPLE_ATTENTION_TYPE_H
 
 #include <glib.h>
 #include <glib-object.h>
 
 /**
- * SECTION:attention
- * @section_id: libpurple-attention
- * @short_description: <filename>attention.h</filename>
- * @title: Attention Object and Interfaces
+ * SECTION:purpleattentiontype
+ * @section_id: libpurple-purpleattentiontype
+ * @title: Attention Types
  */
 
-#define PURPLE_TYPE_ATTENTION_TYPE  (purple_attention_type_get_type())
+#define PURPLE_TYPE_ATTENTION_TYPE (purple_attention_type_get_type())
 
 /**
  * PurpleAttentionType:
@@ -46,9 +46,6 @@
  */
 typedef struct _PurpleAttentionType PurpleAttentionType;
 
-#include "account.h"
-#include "connection.h"
-
 G_BEGIN_DECLS
 
 /**
@@ -57,10 +54,6 @@ G_BEGIN_DECLS
  * The standard _get_type macro for #PurpleProtocolAttention.
  */
 #define PURPLE_TYPE_PROTOCOL_ATTENTION (purple_protocol_attention_get_type())
-
-/******************************************************************************
- * AttentionType API
- *****************************************************************************/
 
 /**
  * purple_attention_type_get_type:
@@ -193,65 +186,6 @@ const gchar *purple_attention_type_get_unlocalized_name(const PurpleAttentionTyp
  */
 void purple_attention_type_set_unlocalized_name(PurpleAttentionType *type, const gchar *ulname);
 
-/******************************************************************************
- * Protocol Interface
- *****************************************************************************/
-
-/**
- * purple_protocol_attention_get_type:
- *
- * Returns: The #GType for the protocol attention interface.
- */
-G_DECLARE_INTERFACE(PurpleProtocolAttention, purple_protocol_attention, PURPLE,
-                    PROTOCOL_ATTENTION, GObject)
-
-/**
- * PurpleProtocolAttentionInterface:
- * @send: Called to send an attention message. See
- *        purple_protocol_attention_send().
- * @get_types: Called to list the protocol's attention types. See
- *             purple_protocol_attention_get_types().
- *
- * The protocol attention interface.
- *
- * This interface provides attention API for sending and receiving
- * zaps/nudges/buzzes etc.
- */
-struct _PurpleProtocolAttentionInterface {
-	/*< private >*/
-	GTypeInterface parent;
-
-	/*< public >*/
-	gboolean (*send)(PurpleProtocolAttention *attn, PurpleConnection *gc,
-	                 const gchar *username, guint type);
-
-	GList *(*get_types)(PurpleProtocolAttention *attn, PurpleAccount *acct);
-};
-
-/**
- * purple_protocol_attention_get_types:
- * @attn: The #PurpleProtocolAttention.
- * @acct: The #PurpleAccount whose attention types to get.
- *
- * Returns a list of #PurpleAttentionType's for @attn.
- *
- * Returns: (transfer container) (element-type PurpleAttentionType): The list of #PurpleAttentionType's.
- */
-GList *purple_protocol_attention_get_types(PurpleProtocolAttention *attn, PurpleAccount *acct);
-
-/**
- * purple_protocol_attention_send:
- * @attn: The #PurpleProtocolAttention instance.
- * @gc: The #PurpleConnection to send on
- * @username: The name of the user to send the attention to.
- * @type: The type of attention to send.
- *
- * Sends an attention message of @type to @username.
- *
- * Returns: TRUE on success, FALSE otherwise.
- */
-gboolean purple_protocol_attention_send(PurpleProtocolAttention *attn, PurpleConnection *gc, const gchar *username, guint type);
-
 G_END_DECLS
 
-#endif /* PURPLE_ATTENTION_H */
+#endif /* PURPLE_ATTENTION_TYPE_H */

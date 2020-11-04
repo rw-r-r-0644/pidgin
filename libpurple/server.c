@@ -34,6 +34,7 @@
 #include "prefs.h"
 #include "protocol.h"
 #include "purpleprivate.h"
+#include "purpleprotocolattention.h"
 #include "purpleprotocolim.h"
 #include "purpleprotocolprivacy.h"
 #include "request.h"
