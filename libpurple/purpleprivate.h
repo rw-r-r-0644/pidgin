@@ -206,6 +206,20 @@ _purple_fstat(int fd, GStatBuf *st);
 void
 _purple_conversation_write_common(PurpleConversation *conv, PurpleMessage *msg);
 
+/**
+ * purple_credential_manager_startup:
+ *
+ * Starts up the credential manager by creating the default instance.
+ */
+void purple_credential_manager_startup(void);
+
+/**
+ * purple_credential_manager_shutdown:
+ *
+ * Shuts down the credential manager by destroying the default instance.
+ */
+void purple_credential_manager_shutdown(void);
+
 G_END_DECLS
 
 #endif /* PURPLE_PRIVATE_H */

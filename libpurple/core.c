@@ -155,6 +155,7 @@ purple_core_init(const char *ui)
 	 */
 	purple_plugins_init();
 
+	purple_credential_manager_startup(); /* before accounts */
 	purple_keyring_init(); /* before accounts */
 	purple_theme_manager_init();
 
@@ -232,6 +233,7 @@ purple_core_quit(void)
 	purple_statuses_uninit();
 	purple_accounts_uninit();
 	purple_keyring_uninit(); /* after accounts */
+	purple_credential_manager_shutdown(); /* after accounts */
 	purple_theme_manager_uninit();
 	purple_xfers_uninit();
 	purple_proxy_uninit();
