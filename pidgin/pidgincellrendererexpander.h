@@ -28,9 +28,9 @@
 #define PIDGIN_CELL_RENDERER_EXPANDER_H
 
 /**
- * SECTION:gtkcellrendererexpander
- * @section_id: pidgin-gtkcellrendererexpander
- * @short_description: <filename>gtkcellrendererexpander.h</filename>
+ * SECTION:pidgincellrendererexpander
+ * @section_id: pidgin-cellrendererexpander
+ * @short_description: <filename>pidgincellrendererexpander.h</filename>
  * @title: Cell Renderer Expander
  *
  * A #GtkCellRenderer that can hide its children.

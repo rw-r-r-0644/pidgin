@@ -23,7 +23,6 @@
       <xi:include href="xml/gtkblist-theme-loader.xml" />
       <xi:include href="xml/gtkblist-theme.xml" />
       <xi:include href="xml/gtkblist.xml" />
-      <xi:include href="xml/gtkcellrendererexpander.xml" />
       <xi:include href="xml/gtkconn.xml" />
       <xi:include href="xml/gtkconv.xml" />
       <xi:include href="xml/gtkconvwin.xml" />
@@ -63,6 +62,7 @@
       <xi:include href="xml/pidginactiongroup.xml" />
       <xi:include href="xml/pidginattachment.xml" />
       <xi:include href="xml/pidginbuddylistmenu.xml" />
+      <xi:include href="xml/pidgincellrendererexpander.xml" />
       <xi:include href="xml/pidginclosebutton.xml" />
       <xi:include href="xml/pidgincontactcompletion.xml" />
       <xi:include href="xml/pidginconversationwindow.xml" />
