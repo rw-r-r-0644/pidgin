@@ -256,6 +256,7 @@ libpurple/purpleattachment.c
 libpurple/purpleattentiontype.c
 libpurple/purplebuddypresence.c
 libpurple/purplechatuser.c
+libpurple/purplecredentialmanager.c
 libpurple/purplecredentialprovider.c
 libpurple/purpleimconversation.c
 libpurple/purplemarkup.c

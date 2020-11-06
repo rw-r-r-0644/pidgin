@@ -28,7 +28,7 @@
 /* Since we're using GTask to test asynchrous functions, we need to use a main
  * loop.
  */
-static GMainLoop *loop = FALSE;
+static GMainLoop *loop = NULL;
 
 /******************************************************************************
  * TestCredentialProviderEmpty

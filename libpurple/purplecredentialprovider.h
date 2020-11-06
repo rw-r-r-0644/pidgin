@@ -128,11 +128,11 @@ const gchar *purple_credential_provider_get_name(PurpleCredentialProvider *provi
 /**
  * purple_credential_provider_is_valid:
  * @provider: The #PurpleCredentialProvider instance.
- * @error: (out) (optional): A return address for a #GError.
+ * @error: (out) (optional) (nullable): Return address for a #GError.
  *
  * Checks whether or not @provider is setup correctly.  This is primarily meant
- * for #purple_keyring_register to call to avoid programming errors, but can be
- * used by anyone.
+ * for #purple_credential_provider_register_provider to call to avoid
+ * programming errors, but can be used by anyone.
  *
  * Returns: %FALSE on error, otherwise %TRUE.
  *
@@ -144,8 +144,9 @@ gboolean purple_credential_provider_is_valid(PurpleCredentialProvider *provider,
  * purple_credential_provider_read_password_async:
  * @provider: The #PurpleCredentialProvider instance.
  * @account: The #PurpleAccount whose password to read.
- * @cancellable: (nullable): optional GCancellable object, NULL to ignore.
- * @callback: (scope async): a GAsyncReadyCallback to call when the request is satisfied.
+ * @cancellable: (nullable): optional GCancellable object, %NULL to ignore.
+ * @callback: (scope async): a #GAsyncReadyCallback to call when the request is
+ *            satisfied.
  * @data: User data to pass to @callback.
  *
  * Reads the password for @account from @provider.
@@ -160,7 +161,7 @@ void purple_credential_provider_read_password_async(PurpleCredentialProvider *pr
  * @account: The #PurpleAccount whose password we're looking up.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_provider_read_password_async() call.
- * @error: (out) (optional): Return address for a #GError.
+ * @error: (out) (optional) (nullable): Return address for a #GError.
  *
  * Finishes a previous call to purple_credential_provider_read_password_async().
  *
@@ -176,7 +177,7 @@ gchar *purple_credential_provider_read_password_finish(PurpleCredentialProvider 
  * @provider: The #PurpleCredentialProvider instance.
  * @account: The #PurpleAccount whose password to write.
  * @password: The password to write.
- * @cancellable: (nullable): optional GCancellable object, NULL to ignore.
+ * @cancellable: (nullable): optional GCancellable object, %NULL to ignore.
  * @callback: (scope async): a #GAsyncReadyCallback to call when the request is
  *            satisfied.
  * @data: User data to pass to @callback.
@@ -193,7 +194,7 @@ void purple_credential_provider_write_password_async(PurpleCredentialProvider *p
  * @account: The #PurpleAccount whose password we're writing.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_provider_write_password_async() call.
- * @error: (out) (optional): Return address for a #GError.
+ * @error: (out) (optional) (nullable): Return address for a #GError.
  *
  * Finishes a previous call to
  * purple_credential_provider_write_password_async().
@@ -226,7 +227,7 @@ void purple_credential_provider_clear_password_async(PurpleCredentialProvider *p
  * @account: The #PurpleAccount whose password we're clearing.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_provider_clear_password_async() call.
- * @error: (out) (optional): Return address for a #GError.
+ * @error: (out) (optional) (nullable): Return address for a #GError.
  *
  * Finishes a previous call to
  * purple_credential_provider_clear_password_async().
@@ -246,6 +247,8 @@ gboolean purple_credential_provider_clear_password_finish(PurpleCredentialProvid
  * or close a file to save memory.
  *
  * Since: 3.0.0
+ *
+ * Deprecated: 3.0.0
  */
 void purple_credential_provider_close(PurpleCredentialProvider *provider);
 

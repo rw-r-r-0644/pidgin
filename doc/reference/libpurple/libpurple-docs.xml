@@ -68,6 +68,7 @@
       <xi:include href="xml/purpleattentiontype.xml" />
       <xi:include href="xml/purplebuddypresence.xml" />
       <xi:include href="xml/purplechatuser.xml" />
+      <xi:include href="xml/purplecredentialmanager.xml" />
       <xi:include href="xml/purplecredentialprovider.xml" />
       <xi:include href="xml/purpleimconversation.xml" />
       <xi:include href="xml/purplekeyvaluepair.xml" />
