@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301 USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,11 +26,14 @@
 
 #ifndef PURPLE_REQUEST_DATA_H
 #define PURPLE_REQUEST_DATA_H
+
 /**
  * SECTION:request-datasheet
  * @section_id: libpurple-request-datasheet
  * @short_description: <filename>request-datasheet.h</filename>
  * @title: Request Datasheet API
+ *
+ * Request Datasheet is a UI abstracted table.
  */
 
 #include <glib.h>

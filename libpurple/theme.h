@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -30,6 +31,9 @@
  * @section_id: libpurple-theme
  * @short_description: <filename>theme.h</filename>
  * @title: Theme Abstact Class
+ *
+ * The theme API represents the common abilities for all of our supported
+ * themes.
  */
 
 #include <glib.h>
@@ -60,6 +64,8 @@ G_BEGIN_DECLS
 
 /**
  * purple_theme_get_type:
+ *
+ * The standard _get_type function for #GType's.
  *
  * Returns: The #GType for a theme.
  */

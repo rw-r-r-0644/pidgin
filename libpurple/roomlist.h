@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,11 +26,15 @@
 
 #ifndef PURPLE_ROOMLIST_H
 #define PURPLE_ROOMLIST_H
+
 /**
  * SECTION:roomlist
  * @section_id: libpurple-roomlist
  * @short_description: <filename>roomlist.h</filename>
  * @title: Room List API
+ *
+ * The room list API describes how to display and populate a list of rooms in
+ * a protocol abstract way.
  */
 
 /**
@@ -153,6 +158,8 @@ G_BEGIN_DECLS
 
 /**
  * purple_roomlist_get_type:
+ *
+ * The standard _get_type function for #PurpleRoomlist.
  *
  * Returns: The #GType for the Room List object.
  */
@@ -367,6 +374,8 @@ struct _PurpleProtocolRoomlistInterface
 /**
  * purple_protocol_roomlist_iface_get_type:
  *
+ * The standard _get_type function for #PurpleProtocolRoomlistInterface.
+ *
  * Returns: The #GType for the protocol roomlist interface.
  *
  * Since: 3.0.0
@@ -433,6 +442,8 @@ char *purple_protocol_roomlist_iface_room_serialize(PurpleProtocol *protocol,
 
 /**
  * purple_roomlist_room_get_type:
+ *
+ * The standard _get_type function for #PurpleRoomlistRoom.
  *
  * Returns: The #GType for the #PurpleRoomlistRoom boxed structure.
  */
@@ -536,6 +547,8 @@ GList * purple_roomlist_room_get_fields(PurpleRoomlistRoom *room);
 /**
  * purple_roomlist_field_get_type:
  *
+ * The standard _get_type function for #PurpleRoomlistField.
+ *
  * Returns: The #GType for the #PurpleRoomlistField boxed structure.
  */
 GType purple_roomlist_field_get_type(void);
@@ -592,6 +605,8 @@ gboolean purple_roomlist_field_get_hidden(PurpleRoomlistField *field);
 
 /**
  * purple_roomlist_ui_ops_get_type:
+ *
+ * The standard _get_type function for #PurpleRoomlistUiOps.
  *
  * Returns: The #GType for the #PurpleRoomlistUiOps boxed structure.
  */

@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,16 +26,16 @@
 
 #ifndef PURPLE_STUN_H
 #define PURPLE_STUN_H
+
 /**
  * SECTION:stun
  * @section_id: libpurple-stun
  * @short_description: <filename>stun.h</filename>
  * @title: STUN API
+ *
+ * The STUN API is an implementation of Session Traversal Utilities for NAT,
+ * that is used to help us determine our public IP address.
  */
-
-/******************************************************************************
- * STUN API
- *****************************************************************************/
 
 typedef struct _PurpleStunNatDiscovery PurpleStunNatDiscovery;
 
@@ -111,6 +112,12 @@ G_BEGIN_DECLS
  */
 PurpleStunNatDiscovery *purple_stun_discover(PurpleStunCallback cb);
 
+/**
+ * purple_stun_init:
+ *
+ * Initializes the STUN API.  This is called by libpurple and you should not be
+ * calling it yourself.
+ */
 void purple_stun_init(void);
 
 G_END_DECLS

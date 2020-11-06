@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,12 +26,16 @@
 
 #ifndef PURPLE_SIGNALS_H
 #define PURPLE_SIGNALS_H
+
 /**
  * SECTION:signals
  * @section_id: libpurple-signals
  * @short_description: <filename>signals.h</filename>
  * @title: Purple-signals API
  * @see_also: <link linkend="chapter-tut-signals">Signals tutorial</link>
+ *
+ * The signals API is similar to GObject signals, but works on classes where
+ * GObject signals work on instances.
  */
 
 #include <glib.h>
@@ -44,7 +49,22 @@
  */
 #define PURPLE_CALLBACK(func) ((PurpleCallback)(func))
 
+/**
+ * PurpleCallback:
+ *
+ * A generic function pointer type to represent a callback function.
+ */
 typedef void (*PurpleCallback)(void);
+
+/**
+ * PurpleSignalMarshalFunc:
+ * @cb: The #PurpleCallback to call.
+ * @args: The arguments to the function.
+ * @data: Userdata to pass to @cb.
+ * @return_val: (optional) (nullable): A return address for a return value.
+ *
+ * A generic function pointer type used to register signals.
+ */
 typedef void (*PurpleSignalMarshalFunc)(PurpleCallback cb, va_list args,
 									  void *data, void **return_val);
 

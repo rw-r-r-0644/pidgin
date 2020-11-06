@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -16,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -30,8 +30,10 @@
 /**
  * SECTION:purpleuiinfo
  * @section_id: libpurple-ui-info
- * @short_description: <filename>purpleuiinfo.h</filename>
+ * @short_description: User Interface Information
  * @title: A simple class that contains information about a user interface.
+ *
+ * #PurpleUiInfo keeps track of basic information about the user interface.
  */
 
 #include <glib.h>

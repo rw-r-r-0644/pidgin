@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -16,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -26,11 +26,15 @@
 
 #ifndef PURPLE_STATUS_H
 #define PURPLE_STATUS_H
+
 /**
  * SECTION:status
  * @section_id: libpurple-status
  * @short_description: <filename>status.h</filename>
  * @title: Status Object API
+ *
+ * The status API is what keeps track of all status for all accounts as well as
+ * all contacts.
  */
 
 /**
@@ -41,7 +45,7 @@
 #define PURPLE_TYPE_STATUS (purple_status_get_type())
 typedef struct _PurpleStatus PurpleStatus;
 
-/**
+/*
  * PURPLE_TYPE_STATUS_TYPE:
  *
  * The standard _get_type macro for #PurpleStatusType.
@@ -77,10 +81,20 @@ typedef struct _PurpleStatusAttribute PurpleStatusAttribute;
  */
 #define PURPLE_TYPE_MOOD (purple_mood_get_type())
 
+/**
+ * PurpleMood:
+ * @mood: A string representing the mood.
+ * @description: A short description of the mood.
+ *
+ * A structure to represent a mood.
+ */
 typedef struct {
+	/*< public >*/
 	const char *mood;
 	const char *description;
-	gpointer *padding;
+
+	/*< private >*/
+	gpointer padding[4];
 } PurpleMood;
 
 /**
@@ -241,7 +255,9 @@ PurpleStatusPrimitive purple_primitive_get_type_from_id(const char *id);
 /**
  * purple_status_type_get_type:
  *
- * Returns: The #GType for the #PurpleStatusType boxed structure.
+ * The standard _get_type function for #PurpleStatusType.
+ *
+ * Returns: The #GType for #PurpleStatusType.
  */
 GType purple_status_type_get_type(void);
 
@@ -457,6 +473,8 @@ const PurpleStatusType *purple_status_type_find_with_id(GList *status_types,
 /**
  * purple_status_attribute_get_type:
  *
+ * The standard _get_type function for #PurpleStatusAttribute.
+ *
  * Returns: The #GType for the #PurpleStatusAttribute boxed structure.
  */
 GType purple_status_attribute_get_type(void);
@@ -519,6 +537,8 @@ GValue *purple_status_attribute_get_value(const PurpleStatusAttribute *attr);
 /**
  * purple_mood_get_type:
  *
+ * The standard _get_type function for #PurpleMood.
+ *
  * Returns: The #GType for the #PurpleMood boxed structure.
  */
 GType purple_mood_get_type(void);
@@ -530,7 +550,9 @@ GType purple_mood_get_type(void);
 /**
  * purple_status_get_type:
  *
- * Returns: The #GType for the Status object.
+ * The standard _get_type function for #PurpleStatus.
+ *
+ * Returns: The #GType for #PurpleStatus.
  */
 G_DECLARE_FINAL_TYPE(PurpleStatus, purple_status, PURPLE, STATUS, GObject)
 
@@ -574,12 +596,13 @@ void purple_status_set_active_with_attrs(PurpleStatus *status, gboolean active,
 									   va_list args);
 
 /**
- * purple_status_set_active_with_attrs_list:
+ * purple_status_set_active_with_attrs_dict:
  * @status: The status.
  * @active: The active state.
- * @attrs: (element-type utf8 gpointer): A hash table of attributes to set on the status.
- *               This hash table's keys are valid attribute names for this PurpleStatusType.
- *               The hash table is not modified or freed by this function.
+ * @attrs: (element-type utf8 gpointer): A hash table of attributes to set on
+ *         the status.  This hash table's keys are valid attribute names for
+ *         this PurpleStatusType.  The hash table is not modified or freed by
+ *         this function.
  *
  * Sets whether or not a status is active.
  *
@@ -587,8 +610,7 @@ void purple_status_set_active_with_attrs(PurpleStatus *status, gboolean active,
  *
  * Since: 3.0.0
  */
-void purple_status_set_active_with_attrs_dict(PurpleStatus *status, gboolean active,
-											GHashTable *attrs);
+void purple_status_set_active_with_attrs_dict(PurpleStatus *status, gboolean active, GHashTable *attrs);
 
 /**
  * purple_status_get_status_type:

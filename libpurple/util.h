@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,11 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
- * TODO Rename the functions so that they live somewhere in the purple
- *      namespace.
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -33,6 +31,9 @@
  * @section_id: libpurple-util
  * @short_description: <filename>util.h</filename>
  * @title: Utility Functions
+ *
+ * The utility API is a cesspool please don't add more stuff here.  Namespace
+ * new functions properly and don't put them here.
  */
 
 #include <stdio.h>

@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,12 +26,15 @@
 
 #ifndef PURPLE_SAVEDSTATUSES_H
 #define PURPLE_SAVEDSTATUSES_H
+
 /**
  * SECTION:savedstatuses
  * @section_id: libpurple-savedstatuses
  * @short_description: <filename>savedstatuses.h</filename>
  * @title: Saved Status API
  * @see_also: <link linkend="chapter-signals-savedstatus">Saved Status signals</link>
+ *
+ * The saved statuses API manages statuses that are saved to disk.
  */
 
 #define PURPLE_TYPE_SAVEDSTATUS  (purple_savedstatus_get_type())
@@ -77,6 +81,8 @@ G_BEGIN_DECLS
 
 /**
  * purple_savedstatus_get_type:
+ *
+ * The standard _get_type function for #PurpleSavedStatus.
  *
  * Returns: The #GType for the #PurpleSavedStatus boxed structure.
  */

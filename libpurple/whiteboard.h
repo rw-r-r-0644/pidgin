@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,11 +26,15 @@
 
 #ifndef PURPLE_WHITEBOARD_H
 #define PURPLE_WHITEBOARD_H
+
 /**
  * SECTION:whiteboard
  * @section_id: libpurple-whiteboard
  * @short_description: <filename>whiteboard.h</filename>
  * @title: Whiteboard Object
+ *
+ * The #PurpleWhiteboard API describes all interactions with whiteboards or
+ * shared drawing spaces with other users.
  */
 
 /**
@@ -139,6 +144,8 @@ G_BEGIN_DECLS
 /**
  * purple_whiteboard_get_type:
  *
+ * The standard _get_type function for #PurpleWhiteboard.
+ *
  * Returns: The #GType for the #PurpleWhiteboard object.
  */
 G_DECLARE_FINAL_TYPE(PurpleWhiteboard, purple_whiteboard, PURPLE, WHITEBOARD,
@@ -146,6 +153,8 @@ G_DECLARE_FINAL_TYPE(PurpleWhiteboard, purple_whiteboard, PURPLE, WHITEBOARD,
 
 /**
  * purple_whiteboard_ui_ops_get_type:
+ *
+ * The standard _get_type function for #PurpleWhiteboardUiOps.
  *
  * Returns: The #GType for the #PurpleWhiteboardUiOps boxed structure.
  */
