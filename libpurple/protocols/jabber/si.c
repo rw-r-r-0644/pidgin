@@ -50,7 +50,8 @@ struct _JabberSIXfer {
 
 	JabberStream *js;
 
-	PurpleProxyConnectData *connect_data;
+	GCancellable *cancellable;
+	GSocketClient *client;
 	GSocketService *service;
 	guint connect_timeout;
 
@@ -67,7 +68,6 @@ struct _JabberSIXfer {
 	} stream_method;
 
 	GList *streamhosts;
-	PurpleProxyInfo *gpi;
 
 	char *rxqueue;
 	size_t rxlen;
@@ -108,37 +108,60 @@ jabber_si_xfer_find(JabberStream *js, const char *sid, const char *from)
 static void jabber_si_bytestreams_attempt_connect(PurpleXfer *xfer);
 
 static void
-jabber_si_bytestreams_connect_cb(gpointer data, gint source, const gchar *error_message)
+jabber_si_bytestreams_try_next_streamhost(PurpleXfer *xfer,
+                                          const gchar *error_message)
 {
-	PurpleXfer *xfer = data;
 	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
-	JabberIq *iq;
-	PurpleXmlNode *query, *su;
 	JabberBytestreamsStreamhost *streamhost = jsx->streamhosts->data;
 
-	purple_proxy_info_destroy(jsx->gpi);
-	jsx->gpi = NULL;
-	jsx->connect_data = NULL;
+	purple_debug_warning(
+	        "jabber",
+	        "si connection failed, jid was %s, host was %s, error was %s",
+	        streamhost->jid, streamhost->host, error_message);
+	jsx->streamhosts = g_list_remove(jsx->streamhosts, streamhost);
+	jabber_bytestreams_streamhost_free(streamhost);
+	g_clear_object(&jsx->client);
+	jabber_si_bytestreams_attempt_connect(xfer);
+}
 
-	if (jsx->connect_timeout > 0)
-		g_source_remove(jsx->connect_timeout);
-	jsx->connect_timeout = 0;
+static void
+jabber_si_bytestreams_connect_cb(GObject *source, GAsyncResult *result,
+                                 gpointer user_data)
+{
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
+	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
+	GIOStream *stream = NULL;
+	GError *error = NULL;
+	GSocket *socket = NULL;
+	JabberIq *iq = NULL;
+	JabberBytestreamsStreamhost *streamhost = jsx->streamhosts->data;
 
-	if(source < 0) {
-		purple_debug_warning("jabber",
-				"si connection failed, jid was %s, host was %s, error was %s\n",
-				streamhost->jid, streamhost->host,
-				error_message ? error_message : "(null)");
-		jsx->streamhosts = g_list_remove(jsx->streamhosts, streamhost);
-		jabber_bytestreams_streamhost_free(streamhost);
-		jabber_si_bytestreams_attempt_connect(xfer);
+	stream = g_proxy_connect_finish(G_PROXY(source), result, &error);
+	if (stream == NULL) {
+		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			purple_debug_error("proxy",
+			                   "Unable to connect to destination host: %s",
+			                   error->message);
+			jabber_si_bytestreams_try_next_streamhost(
+			        xfer, "Unable to connect to destination host.");
+		}
+
+		g_clear_error(&error);
+		return;
+	}
+
+	if (!G_IS_SOCKET_CONNECTION(stream)) {
+		purple_debug_error("proxy",
+		                   "GProxy didn't return a GSocketConnection.");
+		jabber_si_bytestreams_try_next_streamhost(
+		        xfer, "GProxy didn't return a GSocketConnection.");
+		g_object_unref(stream);
 		return;
 	}
 
 	/* unknown file transfer type is assumed to be RECEIVE */
-	if(purple_xfer_get_xfer_type(xfer) == PURPLE_XFER_TYPE_SEND)
-	{
-		PurpleXmlNode *activate;
+	if (purple_xfer_get_xfer_type(xfer) == PURPLE_XFER_TYPE_SEND) {
+		PurpleXmlNode *query, *activate;
 		iq = jabber_iq_new_query(jsx->js, JABBER_IQ_SET, NS_BYTESTREAMS);
 		purple_xmlnode_set_attrib(iq->node, "to", streamhost->jid);
 		query = purple_xmlnode_get_child(iq->node, "query");
@@ -147,9 +170,8 @@ jabber_si_bytestreams_connect_cb(gpointer data, gint source, const gchar *error_
 		purple_xmlnode_insert_data(activate, purple_xfer_get_remote_user(xfer), -1);
 
 		/* TODO: We need to wait for an activation result before starting */
-	}
-	else
-	{
+	} else {
+		PurpleXmlNode *query, *su;
 		iq = jabber_iq_new_query(jsx->js, JABBER_IQ_RESULT, NS_BYTESTREAMS);
 		purple_xmlnode_set_attrib(iq->node, "to", purple_xfer_get_remote_user(xfer));
 		jabber_iq_set_id(iq, jsx->iq_id);
@@ -160,27 +182,9 @@ jabber_si_bytestreams_connect_cb(gpointer data, gint source, const gchar *error_
 
 	jabber_iq_send(iq);
 
-	purple_xfer_start(xfer, source, NULL, -1);
-}
-
-static gboolean
-connect_timeout_cb(gpointer data)
-{
-	PurpleXfer *xfer = data;
-	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
-
-	purple_debug_info("jabber", "Streamhost connection timeout of %d seconds exceeded.\n", STREAMHOST_CONNECT_TIMEOUT);
-
-	jsx->connect_timeout = 0;
-
-	if (jsx->connect_data != NULL)
-		purple_proxy_connect_cancel(jsx->connect_data);
-	jsx->connect_data = NULL;
-
-	/* Trigger the connect error manually */
-	jabber_si_bytestreams_connect_cb(xfer, -1, "Timeout Exceeded.");
-
-	return FALSE;
+	jsx->local_streamhost_conn = G_SOCKET_CONNECTION(stream);
+	socket = g_socket_connection_get_socket(jsx->local_streamhost_conn);
+	purple_xfer_start(xfer, g_socket_get_fd(socket), NULL, -1);
 }
 
 static void
@@ -209,7 +213,105 @@ jabber_si_bytestreams_ibb_timeout_cb(gpointer data)
 	return FALSE;
 }
 
-static void jabber_si_bytestreams_attempt_connect(PurpleXfer *xfer)
+/* This is called when we connect to the SOCKS5 proxy server (through any
+ * relevant account proxy)
+ */
+static void
+jabber_si_bytestreams_socks5_connect_to_host_cb(GObject *source,
+                                                GAsyncResult *result,
+                                                gpointer user_data)
+{
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
+	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
+	JabberID *dstjid;
+	GSocketConnection *conn;
+	GProxy *proxy;
+	GSocketAddress *addr;
+	GInetSocketAddress *inet_addr;
+	GSocketAddress *proxy_addr;
+	gchar *dstaddr, *hash;
+	GError *error = NULL;
+
+	conn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(source),
+	                                              result, &error);
+	if (conn == NULL) {
+		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			purple_debug_error("jabber", "Unable to connect to SOCKS5 host: %s",
+			                   error->message);
+			jabber_si_bytestreams_try_next_streamhost(
+			        xfer, "Unable to connect to SOCKS5 host.");
+		}
+
+		g_clear_error(&error);
+		return;
+	}
+
+	proxy = g_proxy_get_default_for_protocol("socks5");
+	if (proxy == NULL) {
+		purple_debug_error("jabber", "SOCKS5 proxy backend missing.");
+		jabber_si_bytestreams_try_next_streamhost(
+		        xfer, "SOCKS5 proxy backend missing.");
+		g_object_unref(conn);
+		return;
+	}
+
+	addr = g_socket_connection_get_remote_address(conn, &error);
+	if (addr == NULL) {
+		purple_debug_error(
+		        "proxy",
+		        "Unable to retrieve SOCKS5 host address from connection: %s",
+		        error->message);
+		jabber_si_bytestreams_try_next_streamhost(
+		        xfer, "Unable to retrieve SOCKS5 host address from connection");
+		g_object_unref(conn);
+		g_object_unref(proxy);
+		g_clear_error(&error);
+		return;
+	}
+
+	dstjid = jabber_id_new(purple_xfer_get_remote_user(xfer));
+
+	/* unknown file transfer type is assumed to be RECEIVE */
+	if (purple_xfer_get_xfer_type(xfer) == PURPLE_XFER_TYPE_SEND) {
+		dstaddr = g_strdup_printf("%s%s@%s/%s%s@%s/%s", jsx->stream_id,
+		                          jsx->js->user->node, jsx->js->user->domain,
+		                          jsx->js->user->resource, dstjid->node,
+		                          dstjid->domain, dstjid->resource);
+	} else {
+		dstaddr = g_strdup_printf(
+		        "%s%s@%s/%s%s@%s/%s", jsx->stream_id, dstjid->node,
+		        dstjid->domain, dstjid->resource, jsx->js->user->node,
+		        jsx->js->user->domain, jsx->js->user->resource);
+	}
+
+	/* Per XEP-0065, the 'host' must be SHA1(SID + from JID + to JID) */
+	hash = g_compute_checksum_for_string(G_CHECKSUM_SHA1, dstaddr, -1);
+
+	g_free(dstaddr);
+	jabber_id_free(dstjid);
+
+	inet_addr = G_INET_SOCKET_ADDRESS(addr);
+
+	proxy_addr =
+	        g_proxy_address_new(g_inet_socket_address_get_address(inet_addr),
+	                            g_inet_socket_address_get_port(inet_addr),
+	                            "socks5", hash, 0, NULL, NULL);
+	g_object_unref(inet_addr);
+
+	purple_debug_info("jabber", "Connecting to %s using SOCKS5 proxy", hash);
+
+	g_proxy_connect_async(proxy, G_IO_STREAM(conn), G_PROXY_ADDRESS(proxy_addr),
+	                      jsx->cancellable, jabber_si_bytestreams_connect_cb,
+	                      user_data);
+
+	g_object_unref(proxy_addr);
+	g_object_unref(conn);
+	g_object_unref(proxy);
+	g_free(hash);
+}
+
+static void
+jabber_si_bytestreams_attempt_connect(PurpleXfer *xfer)
 {
 	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
 	JabberBytestreamsStreamhost *streamhost;
@@ -261,62 +363,46 @@ static void jabber_si_bytestreams_attempt_connect(PurpleXfer *xfer)
 	}
 
 	streamhost = jsx->streamhosts->data;
-
-	if (jsx->connect_data) {
-		purple_debug_info("jabber",
-				"jabber_si_bytestreams_attempt_connect: "
-				"cancelling existing connection attempt and restarting\n");
-		purple_proxy_connect_cancel(jsx->connect_data);
-		jsx->connect_data = NULL;
-		if (jsx->connect_timeout > 0)
-			g_source_remove(jsx->connect_timeout);
-		jsx->connect_timeout = 0;
-	}
-	if (jsx->gpi != NULL)
-		purple_proxy_info_destroy(jsx->gpi);
-	jsx->gpi = NULL;
-
 	dstjid = jabber_id_new(purple_xfer_get_remote_user(xfer));
 
 	/* TODO: Deal with zeroconf */
 
 	if(dstjid != NULL && streamhost->host && streamhost->port > 0) {
-		char *dstaddr, *hash;
+		GError *error = NULL;
 		PurpleAccount *account;
-		jsx->gpi = purple_proxy_info_new();
-		purple_proxy_info_set_proxy_type(jsx->gpi, PURPLE_PROXY_SOCKS5);
-		purple_proxy_info_set_host(jsx->gpi, streamhost->host);
-		purple_proxy_info_set_port(jsx->gpi, streamhost->port);
-
-		/* unknown file transfer type is assumed to be RECEIVE */
-		if(purple_xfer_get_xfer_type(xfer) == PURPLE_XFER_TYPE_SEND)
-			dstaddr = g_strdup_printf("%s%s@%s/%s%s@%s/%s", jsx->stream_id, jsx->js->user->node, jsx->js->user->domain,
-				jsx->js->user->resource, dstjid->node, dstjid->domain, dstjid->resource);
-		else
-			dstaddr = g_strdup_printf("%s%s@%s/%s%s@%s/%s", jsx->stream_id, dstjid->node, dstjid->domain, dstjid->resource,
-				jsx->js->user->node, jsx->js->user->domain, jsx->js->user->resource);
-
-		/* Per XEP-0065, the 'host' must be SHA1(SID + from JID + to JID) */
-		hash = g_compute_checksum_for_string(G_CHECKSUM_SHA1,
-				dstaddr, -1);
 
 		account = purple_connection_get_account(jsx->js->gc);
-		jsx->connect_data = purple_proxy_connect_socks5_account(NULL, account,
-				jsx->gpi, hash, 0,
-				jabber_si_bytestreams_connect_cb, xfer);
-		g_free(hash);
-		g_free(dstaddr);
+		jsx->client = purple_gio_socket_client_new(account, &error);
+		if (jsx->client != NULL) {
+			if (purple_xfer_get_xfer_type(xfer) != PURPLE_XFER_TYPE_SEND) {
+				/* When selecting a streamhost, timeout after
+				 * STREAMHOST_CONNECT_TIMEOUT seconds, otherwise it takes
+				 * forever
+				 */
+				g_socket_client_set_timeout(jsx->client,
+				                            STREAMHOST_CONNECT_TIMEOUT);
+			}
 
-		/* When selecting a streamhost, timeout after STREAMHOST_CONNECT_TIMEOUT seconds, otherwise it takes forever */
-		if (purple_xfer_get_xfer_type(xfer) != PURPLE_XFER_TYPE_SEND && jsx->connect_data != NULL)
-			jsx->connect_timeout = g_timeout_add_seconds(
-				STREAMHOST_CONNECT_TIMEOUT, connect_timeout_cb, xfer);
+			purple_debug_info("jabber",
+			                  "Connecting to SOCKS5 streamhost proxy %s:%d",
+			                  streamhost->host, streamhost->port);
+
+			g_socket_client_connect_to_host_async(
+			        jsx->client, streamhost->host, streamhost->port,
+			        jsx->cancellable,
+			        jabber_si_bytestreams_socks5_connect_to_host_cb, xfer);
+		} else {
+			purple_debug_error(
+			        "jabber",
+			        "Failed to connect to SOCKS5 streamhost proxy: %s",
+			        error->message);
+			g_clear_error(&error);
+		}
 
 		jabber_id_free(dstjid);
 	}
 
-	if (jsx->connect_data == NULL)
-	{
+	if (jsx->client == NULL) {
 		jsx->streamhosts = g_list_remove(jsx->streamhosts, streamhost);
 		jabber_bytestreams_streamhost_free(streamhost);
 		jabber_si_bytestreams_attempt_connect(xfer);
@@ -1317,6 +1403,8 @@ static void jabber_si_xfer_cancel_send(PurpleXfer *xfer)
 		jabber_ibb_session_close(jsx->ibb_session);
 	}
 	purple_debug_info("jabber", "in jabber_si_xfer_cancel_send\n");
+
+	g_cancellable_cancel(jsx->cancellable);
 }
 
 
@@ -1359,6 +1447,8 @@ static void jabber_si_xfer_cancel_recv(PurpleXfer *xfer)
 		jabber_ibb_session_close(jsx->ibb_session);
 	}
 	purple_debug_info("jabber", "in jabber_si_xfer_cancel_recv\n");
+
+	g_cancellable_cancel(jsx->cancellable);
 }
 
 
@@ -1724,8 +1814,10 @@ void jabber_si_parse(JabberStream *js, const char *from, JabberIqType type,
  * GObject Implementation
  *****************************************************************************/
 static void
-jabber_si_xfer_init(JabberSIXfer *xfer) {
-	xfer->ibb_session = NULL;
+jabber_si_xfer_init(JabberSIXfer *jsx)
+{
+	jsx->ibb_session = NULL;
+	jsx->cancellable = g_cancellable_new();
 }
 
 static void
@@ -1735,10 +1827,10 @@ jabber_si_xfer_finalize(GObject *obj) {
 
 	js->file_transfers = g_list_remove(js->file_transfers, jsx);
 
-	if (jsx->connect_data != NULL) {
-		purple_proxy_connect_cancel(jsx->connect_data);
-	}
+	g_cancellable_cancel(jsx->cancellable);
+	g_clear_object(&jsx->cancellable);
 
+	g_clear_object(&jsx->client);
 	g_clear_object(&jsx->local_streamhost_conn);
 	if (jsx->service) {
 		g_socket_service_stop(jsx->service);
