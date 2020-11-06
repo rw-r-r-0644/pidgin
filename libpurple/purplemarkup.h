@@ -34,7 +34,10 @@ G_BEGIN_DECLS
 /**
  * SECTION:purplemarkup
  * @section_id: libpurple-purplemarkup
+ * @short_description: Text Markup API
  * @title: Text Markup API
+ *
+ * Helper functions for handling markup.
  */
 
 /**

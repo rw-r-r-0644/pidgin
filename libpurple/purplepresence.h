@@ -1,5 +1,5 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
  * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
@@ -30,6 +30,7 @@
 /**
  * SECTION:purplepresence
  * @section_id: libpurple-purplepresence
+ * @short_description: Presence Objects
  * @title: Presence Object API
  *
  * This file contains the base #PurplePresence type which is used by

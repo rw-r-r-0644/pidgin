@@ -90,7 +90,6 @@
       <xi:include href="xml/core.xml" />
       <xi:include href="xml/status.xml" />
       <xi:include href="xml/stun.xml" />
-      <xi:include href="xml/tests.xml" />
       <xi:include href="xml/theme.xml" />
       <xi:include href="xml/theme-loader.xml" />
       <xi:include href="xml/theme-manager.xml" />

@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -31,6 +32,9 @@
  * @section_id: libpurple-purpleprotocolim
  * @short_description: Protocol Instant Message Interface
  * @title: ProtocolIM Interface
+ *
+ * #PurpleProtocolIM describes the API that protocols need to implement for
+ * handling one on one conversations.
  */
 
 #include <glib.h>

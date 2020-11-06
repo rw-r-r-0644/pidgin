@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,11 +26,14 @@
 
 #ifndef PURPLE_REQUEST_H
 #define PURPLE_REQUEST_H
+
 /**
  * SECTION:request
  * @section_id: libpurple-request
  * @short_description: <filename>request.h</filename>
  * @title: Request API
+ *
+ * The request API is an abstract procedural ui builder.
  */
 
 #include <stdlib.h>
@@ -1018,7 +1022,7 @@ const char *purple_request_field_get_label(const PurpleRequestField *field);
 gboolean purple_request_field_is_visible(const PurpleRequestField *field);
 
 /**
- * purple_request_field_get_type_hint:
+ * purple_request_field_get_field_type_hint:
  * @field: The field.
  *
  * Returns the field's type hint.
@@ -2363,6 +2367,8 @@ purple_request_folder(void *handle, const char *title, const char *dirname,
 
 /**
  * purple_request_ui_ops_get_type:
+ *
+ * The standard _get_type function for #PurpleRequestUiOps.
  *
  * Returns: The #GType for the #PurpleRequestUiOps boxed structure.
  */

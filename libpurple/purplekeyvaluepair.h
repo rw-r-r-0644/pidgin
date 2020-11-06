@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -28,9 +29,11 @@
 
 /**
  * SECTION:purplekeyvaluepair
- * @section_id: libpurple-key-value-pair
+ * @section_id: libpurple-keyvaluepair
  * @short_description: <filename>purplekeyvaluepair.h</filename>
  * @title: Key Value Pairs
+ *
+ * A simple key value pair data structure.
  */
 
 #include <glib.h>

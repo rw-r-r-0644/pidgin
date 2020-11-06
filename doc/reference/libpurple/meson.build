@@ -6,6 +6,7 @@ ignore_hfiles = [
     'plugins',
     'protocols',
     'tests',
+    'tests.h',
     'win32',
     'backend-fs2.h',
     'glibcompat.h',

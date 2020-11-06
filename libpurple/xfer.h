@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -31,6 +32,8 @@
  * @short_description: <filename>xfer.h</filename>
  * @title: File Transfer API
  * @see_also: <link linkend="chapter-signals-xfer">File Transfer signals</link>
+ *
+ * The Xfer API is used to manage file transfers.
  */
 
 /**
@@ -99,6 +102,14 @@ G_BEGIN_DECLS
  * The standard _get_type macro for #PurpleXfer.
  */
 #define PURPLE_TYPE_XFER             (purple_xfer_get_type())
+
+/**
+ * purple_xfer_get_type:
+ *
+ * The standard _get_type function for #PurpleXfer.
+ *
+ * Returns: The #GType for #PurpleXfer.
+ */
 G_DECLARE_DERIVABLE_TYPE(PurpleXfer, purple_xfer, PURPLE, XFER, GObject)
 
 /**
@@ -748,6 +759,8 @@ void purple_xfer_prepare_thumbnail(PurpleXfer *xfer, const gchar *formats);
 /**
  * purple_xfer_ui_ops_get_type:
  *
+ * The standard _get_type function for #GType's.
+ *
  * Returns: The #GType for the #PurpleXferUiOps boxed structure.
  */
 GType purple_xfer_ui_ops_get_type(void);
@@ -815,6 +828,8 @@ PurpleXferUiOps *purple_xfers_get_ui_ops(void);
 
 /**
  * purple_protocol_xfer_get_type:
+ *
+ * The standard _get_type function for #GType's.
  *
  * Returns: The #GType for the protocol xfer interface.
  */
