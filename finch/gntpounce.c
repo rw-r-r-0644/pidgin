@@ -28,9 +28,8 @@
 
 #include <gnt.h>
 
-#include "finch.h"
-
 #include "gntpounce.h"
+#include "libfinch.h"
 
 
 typedef struct
