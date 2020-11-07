@@ -32,9 +32,9 @@
 #include <purple.h>
 
 #include "gntdebug.h"
+#include "gntidle.h"
 #include "gntprefs.h"
 #include "gntui.h"
-#include "gntidle.h"
 
 #include "config.h"
 #include "package_revision.h"

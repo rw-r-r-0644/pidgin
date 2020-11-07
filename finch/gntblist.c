@@ -20,9 +20,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include "finch.h"
-
 #include NCURSES_HEADER
+
+#include <string.h>
 
 #include <glib/gi18n-lib.h>
 
@@ -32,8 +32,10 @@
 
 #include "gntblist.h"
 #include "gntconv.h"
+#include "gntlog.h"
+#include "gntmenuutil.h"
+#include "gntpounce.h"
 #include "gntstatus.h"
-#include <string.h>
 
 #define PREF_ROOT "/finch/blist"
 #define TYPING_TIMEOUT_S 4
