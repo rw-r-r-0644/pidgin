@@ -139,7 +139,7 @@ jabber_si_bytestreams_connect_cb(GObject *source, GAsyncResult *result,
 	stream = g_proxy_connect_finish(G_PROXY(source), result, &error);
 	if (stream == NULL) {
 		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
-			purple_debug_error("proxy",
+			purple_debug_error("jabber",
 			                   "Unable to connect to destination host: %s",
 			                   error->message);
 			jabber_si_bytestreams_try_next_streamhost(
@@ -151,7 +151,7 @@ jabber_si_bytestreams_connect_cb(GObject *source, GAsyncResult *result,
 	}
 
 	if (!G_IS_SOCKET_CONNECTION(stream)) {
-		purple_debug_error("proxy",
+		purple_debug_error("jabber",
 		                   "GProxy didn't return a GSocketConnection.");
 		jabber_si_bytestreams_try_next_streamhost(
 		        xfer, "GProxy didn't return a GSocketConnection.");
@@ -224,12 +224,13 @@ jabber_si_bytestreams_socks5_connect_to_host_cb(GObject *source,
 	PurpleXfer *xfer = PURPLE_XFER(user_data);
 	JabberSIXfer *jsx = JABBER_SI_XFER(xfer);
 	JabberID *dstjid;
+	const JabberID *from_jid, *to_jid;
 	GSocketConnection *conn;
 	GProxy *proxy;
 	GSocketAddress *addr;
 	GInetSocketAddress *inet_addr;
 	GSocketAddress *proxy_addr;
-	gchar *dstaddr, *hash;
+	gchar *dstaddr, *hash_input;
 	GError *error = NULL;
 
 	conn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(source),
@@ -258,7 +259,7 @@ jabber_si_bytestreams_socks5_connect_to_host_cb(GObject *source,
 	addr = g_socket_connection_get_remote_address(conn, &error);
 	if (addr == NULL) {
 		purple_debug_error(
-		        "proxy",
+		        "jabber",
 		        "Unable to retrieve SOCKS5 host address from connection: %s",
 		        error->message);
 		jabber_si_bytestreams_try_next_streamhost(
@@ -273,21 +274,20 @@ jabber_si_bytestreams_socks5_connect_to_host_cb(GObject *source,
 
 	/* unknown file transfer type is assumed to be RECEIVE */
 	if (purple_xfer_get_xfer_type(xfer) == PURPLE_XFER_TYPE_SEND) {
-		dstaddr = g_strdup_printf("%s%s@%s/%s%s@%s/%s", jsx->stream_id,
-		                          jsx->js->user->node, jsx->js->user->domain,
-		                          jsx->js->user->resource, dstjid->node,
-		                          dstjid->domain, dstjid->resource);
+		from_jid = jsx->js->user;
+		to_jid = dstjid;
 	} else {
-		dstaddr = g_strdup_printf(
-		        "%s%s@%s/%s%s@%s/%s", jsx->stream_id, dstjid->node,
-		        dstjid->domain, dstjid->resource, jsx->js->user->node,
-		        jsx->js->user->domain, jsx->js->user->resource);
+		from_jid = dstjid;
+		to_jid = jsx->js->user;
 	}
 
 	/* Per XEP-0065, the 'host' must be SHA1(SID + from JID + to JID) */
-	hash = g_compute_checksum_for_string(G_CHECKSUM_SHA1, dstaddr, -1);
-
-	g_free(dstaddr);
+	hash_input = g_strdup_printf("%s%s@%s/%s%s@%s/%s", jsx->stream_id,
+	                             from_jid->node, from_jid->domain,
+	                             from_jid->resource, to_jid->node,
+	                             to_jid->domain, to_jid->resource);
+	dstaddr = g_compute_checksum_for_string(G_CHECKSUM_SHA1, hash_input, -1);
+	g_free(hash_input);
 	jabber_id_free(dstjid);
 
 	inet_addr = G_INET_SOCKET_ADDRESS(addr);
@@ -295,10 +295,10 @@ jabber_si_bytestreams_socks5_connect_to_host_cb(GObject *source,
 	proxy_addr =
 	        g_proxy_address_new(g_inet_socket_address_get_address(inet_addr),
 	                            g_inet_socket_address_get_port(inet_addr),
-	                            "socks5", hash, 0, NULL, NULL);
+	                            "socks5", dstaddr, 0, NULL, NULL);
 	g_object_unref(inet_addr);
 
-	purple_debug_info("jabber", "Connecting to %s using SOCKS5 proxy", hash);
+	purple_debug_info("jabber", "Connecting to %s using SOCKS5 proxy", dstaddr);
 
 	g_proxy_connect_async(proxy, G_IO_STREAM(conn), G_PROXY_ADDRESS(proxy_addr),
 	                      jsx->cancellable, jabber_si_bytestreams_connect_cb,
@@ -307,7 +307,7 @@ jabber_si_bytestreams_socks5_connect_to_host_cb(GObject *source,
 	g_object_unref(proxy_addr);
 	g_object_unref(conn);
 	g_object_unref(proxy);
-	g_free(hash);
+	g_free(dstaddr);
 }
 
 static void
