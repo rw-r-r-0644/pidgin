@@ -581,12 +581,36 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 {
 	JabberMessage *jm;
 	const char *id, *from, *to, *type;
-	PurpleXmlNode *child;
+	PurpleXmlNode *child = NULL, *received = NULL;
 	gboolean signal_return;
 
+	/* Check if we have a carbons received element. */
+	received = purple_xmlnode_get_child_with_namespace(packet, "received",
+	                                                   NS_MESSAGE_CARBONS);
+	if(received != NULL) {
+		PurpleXmlNode *forwarded = NULL;
+
+		forwarded = purple_xmlnode_get_child_with_namespace(received,
+		                                                    "forwarded",
+		                                                    NS_FORWARD);
+		if(forwarded != NULL) {
+			PurpleXmlNode *fwd_msg = NULL;
+
+			fwd_msg = purple_xmlnode_get_child_with_namespace(forwarded,
+			                                                  "message",
+			                                                  NS_XMPP_CLIENT);
+			if(fwd_msg != NULL) {
+				packet = fwd_msg;
+			}
+		}
+	}
+
+	/* If the message was forward, packet is now pointing to the forwarded
+	 * message.
+	 */
 	from = purple_xmlnode_get_attrib(packet, "from");
-	id   = purple_xmlnode_get_attrib(packet, "id");
-	to   = purple_xmlnode_get_attrib(packet, "to");
+	id = purple_xmlnode_get_attrib(packet, "id");
+	to = purple_xmlnode_get_attrib(packet, "to");
 	type = purple_xmlnode_get_attrib(packet, "type");
 
 	signal_return = GPOINTER_TO_INT(purple_signal_emit_return_1(purple_connection_get_protocol(js->gc),

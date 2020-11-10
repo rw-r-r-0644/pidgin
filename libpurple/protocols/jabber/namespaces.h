@@ -98,6 +98,12 @@
 /* XEP-0264 File Transfer Thumbnails (Thumbs) */
 #define NS_THUMBS "urn:xmpp:thumbs:0"
 
+/* XEP-0280 Message Carbons */
+#define NS_MESSAGE_CARBONS "urn:xmpp:carbons:2"
+
+/* XEP-0297 Stanza Forwarding */
+#define NS_FORWARD "urn:xmpp:forward:0"
+
 /* Google extensions */
 #define NS_GOOGLE_CAMERA "http://www.google.com/xmpp/protocol/camera/v1"
 #define NS_GOOGLE_VIDEO "http://www.google.com/xmpp/protocol/video/v1"
