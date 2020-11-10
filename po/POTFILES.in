@@ -265,6 +265,8 @@ libpurple/purpleprotocolattention.c
 libpurple/purpleprotocolim.c
 libpurple/purpleprotocolmedia.c
 libpurple/purpleprotocolprivacy.c
+libpurple/purplewhiteboard.c
+libpurple/purplewhiteboarduiops.c
 libpurple/queuedoutputstream.c
 libpurple/request.c
 libpurple/request-datasheet.c
@@ -298,7 +300,6 @@ libpurple/trie.c
 libpurple/upnp.c
 libpurple/util.c
 libpurple/version.c
-libpurple/whiteboard.c
 libpurple/win32/libc_interface.c
 libpurple/win32/win32dep.c
 libpurple/xfer.c

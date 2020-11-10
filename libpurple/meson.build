@@ -65,6 +65,8 @@ purple_coresources = [
 	'purpleprotocolmedia.c',
 	'purpleprotocolprivacy.c',
 	'purpleuiinfo.c',
+	'purplewhiteboard.c',
+	'purplewhiteboarduiops.c',
 	'queuedoutputstream.c',
 	'request.c',
 	'request-datasheet.c',
@@ -86,7 +88,6 @@ purple_coresources = [
 	'upnp.c',
 	'util.c',
 	'version.c',
-	'whiteboard.c',
 	'xfer.c',
 	'xmlnode.c'
 ]
@@ -152,6 +153,9 @@ purple_coreheaders = [
 	'purpleprotocolmedia.h',
 	'purpleprotocolprivacy.h',
 	'purpleuiinfo.h',
+	'purplewhiteboard.h',
+	'purplewhiteboardops.h',
+	'purplewhiteboarduiops.h',
 	'queuedoutputstream.h',
 	'request.h',
 	'request-datasheet.h',
@@ -173,7 +177,6 @@ purple_coreheaders = [
 	'trie.h',
 	'upnp.h',
 	'util.h',
-	'whiteboard.h',
 	'xfer.h',
 	'xmlnode.h',
 ]
