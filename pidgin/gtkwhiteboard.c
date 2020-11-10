@@ -38,6 +38,7 @@ typedef enum {
 	PIDGIN_WHITEBOARD_BRUSH_MOTION
 } PidginWhiteboardBrushState;
 
+#define UI_DATA "pidgin-ui-data"
 #define PIDGIN_TYPE_WHITEBOARD (pidgin_whiteboard_get_type())
 G_DECLARE_FINAL_TYPE(PidginWhiteboard, pidgin_whiteboard, PIDGIN, WHITEBOARD,
                      GtkWindow)
@@ -161,7 +162,7 @@ static void
 pidgin_whiteboard_draw_brush_point(PurpleWhiteboard *wb, int x, int y,
                                    int color, int size)
 {
-	PidginWhiteboard *gtkwb = purple_whiteboard_get_ui_data(wb);
+	PidginWhiteboard *gtkwb = g_object_get_data(G_OBJECT(wb), UI_DATA);
 	GtkWidget *widget = gtkwb->drawing_area;
 	cairo_t *gfx_con = gtkwb->cr;
 	GdkRGBA rgba;
@@ -440,7 +441,7 @@ static gboolean pidgin_whiteboard_brush_up(GtkWidget *widget, GdkEventButton *ev
 
 static void pidgin_whiteboard_set_dimensions(PurpleWhiteboard *wb, int width, int height)
 {
-	PidginWhiteboard *gtkwb = purple_whiteboard_get_ui_data(wb);
+	PidginWhiteboard *gtkwb = g_object_get_data(G_OBJECT(wb), UI_DATA);
 
 	gtkwb->width = width;
 	gtkwb->height = height;
@@ -448,7 +449,7 @@ static void pidgin_whiteboard_set_dimensions(PurpleWhiteboard *wb, int width, in
 
 static void pidgin_whiteboard_set_brush(PurpleWhiteboard *wb, int size, int color)
 {
-	PidginWhiteboard *gtkwb = purple_whiteboard_get_ui_data(wb);
+	PidginWhiteboard *gtkwb = g_object_get_data(G_OBJECT(wb), UI_DATA);
 
 	gtkwb->brush_size = size;
 	gtkwb->brush_color = color;
@@ -456,7 +457,7 @@ static void pidgin_whiteboard_set_brush(PurpleWhiteboard *wb, int size, int colo
 
 static void pidgin_whiteboard_clear(PurpleWhiteboard *wb)
 {
-	PidginWhiteboard *gtkwb = purple_whiteboard_get_ui_data(wb);
+	PidginWhiteboard *gtkwb = g_object_get_data(G_OBJECT(wb), UI_DATA);
 	GtkWidget *drawing_area = gtkwb->drawing_area;
 	cairo_t *cr = gtkwb->cr;
 	GtkAllocation allocation;
@@ -566,7 +567,7 @@ pidgin_whiteboard_create(PurpleWhiteboard *wb)
 
 	gtkwb = PIDGIN_WHITEBOARD(g_object_new(PIDGIN_TYPE_WHITEBOARD, NULL));
 	gtkwb->wb = wb;
-	purple_whiteboard_set_ui_data(wb, gtkwb);
+	g_object_set_data_full(G_OBJECT(wb), UI_DATA, gtkwb, g_object_unref);
 
 	/* Get dimensions (default?) for the whiteboard canvas */
 	if (!purple_whiteboard_get_dimensions(wb, &gtkwb->width,
@@ -621,15 +622,13 @@ pidgin_whiteboard_destroy(PurpleWhiteboard *wb)
 	PidginWhiteboard *gtkwb;
 
 	g_return_if_fail(wb != NULL);
-	gtkwb = purple_whiteboard_get_ui_data(wb);
+	gtkwb = g_object_get_data(G_OBJECT(wb), UI_DATA);
 	g_return_if_fail(gtkwb != NULL);
 
 	/* TODO Ask if user wants to save picture before the session is closed
 	 */
 
 	gtkwb->wb = NULL;
-	g_object_unref(gtkwb);
-	purple_whiteboard_set_ui_data(wb, NULL);
 }
 
 /******************************************************************************
