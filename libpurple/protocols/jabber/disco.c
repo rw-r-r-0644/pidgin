@@ -379,6 +379,16 @@ jabber_disco_finish_server_info_result_cb(JabberStream *js)
 		jabber_request_block_list(js);
 	}
 
+	/* If the server supports carbons, enable them! */
+	if(js->server_caps & JABBER_CAP_MESSAGE_CARBONS) {
+		JabberIq *iq = jabber_iq_new(js, JABBER_IQ_SET);
+		PurpleXmlNode *enable = purple_xmlnode_new_child(iq->node, "enable");
+
+		purple_xmlnode_set_namespace(enable, NS_MESSAGE_CARBONS);
+
+		jabber_iq_send(iq);
+	}
+
 	/* If there are manually specified bytestream proxies, query them */
 	ft_proxies = purple_account_get_string(purple_connection_get_account(js->gc), "ft_proxies", NULL);
 	if (ft_proxies) {
@@ -538,6 +548,8 @@ jabber_disco_server_info_result_cb(JabberStream *js, const char *from,
 			js->server_caps |= JABBER_CAP_ADHOC;
 		} else if (purple_strequal(NS_SIMPLE_BLOCKING, var)) {
 			js->server_caps |= JABBER_CAP_BLOCKING;
+		} else if (purple_strequal(NS_MESSAGE_CARBONS, var)) {
+			js->server_caps |= JABBER_CAP_MESSAGE_CARBONS;
 		}
 	}
 
