@@ -328,7 +328,6 @@ pidgin/gtksmiley-manager.c
 pidgin/gtksmiley-theme.c
 pidgin/gtkstatusbox.c
 pidgin/gtkstatus-icon-theme.c
-pidgin/gtkstyle.c
 pidgin/gtkutils.c
 pidgin/gtkwhiteboard.c
 pidgin/gtkxfer.c
@@ -352,6 +351,7 @@ pidgin/pidginlog.c
 pidgin/pidginmenutray.c
 pidgin/pidginmessage.c
 pidgin/pidginstock.c
+pidgin/pidginstyle.c
 pidgin/pidgintalkatu.c
 pidgin/pidgintooltip.c
 pidgin/pidginwindow.c

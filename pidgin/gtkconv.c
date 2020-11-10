@@ -49,7 +49,6 @@
 #include "gtkpounce.h"
 #include "gtkprefs.h"
 #include "gtkprivacy.h"
-#include "gtkstyle.h"
 #include "gtkutils.h"
 #include "pidginclosebutton.h"
 #include "pidginconversationwindow.h"
@@ -60,6 +59,7 @@
 #include "pidginmenutray.h"
 #include "pidginmessage.h"
 #include "pidginstock.h"
+#include "pidginstyle.h"
 #include "pidgintooltip.h"
 #include "pidginwindow.h"
 

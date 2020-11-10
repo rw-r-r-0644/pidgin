@@ -1,4 +1,6 @@
-/* pidgin
+/*
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this library; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
@@ -24,14 +25,16 @@
 #endif
 
 /**
- * SECTION:gtkstyle
- * @section_id: pidgin-gtkstyle
+ * SECTION:pidginstyle
+ * @section_id: pidgin-pidginstyle
  * @short_description: <filename>gtkstyle.h</filename>
  * @title: Style API
+ *
+ * The style API contains some helpers regarding #GtkStyle.
  */
 
-#ifndef _PIDGINSTYLE_H_
-#define _PIDGINSTYLE_H_
+#ifndef PIDGIN_STYLE_H
+#define PIDGIN_STYLE_H
 
 #include <gtk/gtk.h>
 
@@ -39,19 +42,21 @@ G_BEGIN_DECLS
 
 /**
  * pidgin_style_is_dark:
- * @style: The GtkStyle in use, or NULL to use a cached version.
+ * @style: The #GtkStyle in use, or %NULL to use a cached version.
  *
- * Returns whether or not dark mode is enabled.
+ * Gets whether or not dark mode is enabled.
  *
- * Returns: TRUE if dark mode is enabled and foreground colours should be invertred
+ * Returns: %TRUE if dark mode is enabled and foreground colours should be
+ *          inverted.
  */
 
 gboolean pidgin_style_is_dark(GtkStyle *style);
 
 /**
  * pidgin_style_adjust_contrast:
- * @style: The GtkStyle in use.
- * @color: Color to be lightened. Transformed color will be written here.
+ * @style: The #GtkStyle in use.
+ * @color: (inout): Color to be lightened.  Transformed color will be written
+ *         here.
  *
  * Lighten a color if dark mode is enabled.
  */
@@ -60,4 +65,5 @@ void pidgin_style_adjust_contrast(GtkStyle *style, GdkRGBA *color);
 
 G_END_DECLS
 
-#endif /* _PIDGINSTYLE_H_ */
+#endif /* PIDGIN_STYLE_H */
+

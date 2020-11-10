@@ -1,9 +1,6 @@
 /*
- * @file gtkstyle.c GTK+ Style utility functions
- * @ingroup pidgin
- */
-
-/* pidgin
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -20,30 +17,43 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
+ * along with this library; if not, see <https://www.gnu.org/licenses/>.
  */
-#include "gtkstyle.h"
+
+#include "pidgin/pidginstyle.h"
 
 /* Assume light mode */
-static gboolean dark_mode_cache = FALSE;
+static gboolean dark_mode_have_cache = FALSE;
+static gboolean dark_mode_cached_value = FALSE;
 
 gboolean
 pidgin_style_is_dark(GtkStyle *style) {
-	GdkColor bg;
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
-	if (!style) {
-		return dark_mode_cache;
+	GdkColor bg;
+	gdouble luminance = 0.0;
+
+	if(style == NULL) {
+		if(dark_mode_have_cache) {
+			return dark_mode_cached_value;
+		}
+
+		style = gtk_widget_get_default_style();
 	}
 
 	bg = style->base[GTK_STATE_NORMAL];
 
-	if (bg.red != 0xFFFF || bg.green != 0xFFFF || bg.blue != 0xFFFF) {
-		dark_mode_cache =  ((int) bg.red + (int) bg.green + (int) bg.blue) < (65536 * 3 / 2);
-	}
+	/* magic values are taken from https://en.wikipedia.org/wiki/Luma_(video)
+	 * Rec._601_luma_versus_Rec._709_luma_coefficients.
+	 */
+	luminance = (0.299 * bg.red) + (0.587 * bg.green) + (0.114 * bg.blue);
 
-	return dark_mode_cache;
+	G_GNUC_END_IGNORE_DEPRECATIONS
+
+	dark_mode_cached_value = (luminance < 0x7FFF);
+	dark_mode_have_cache = TRUE;
+
+	return dark_mode_cached_value;
 }
 
 void
