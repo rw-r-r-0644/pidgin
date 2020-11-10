@@ -60,6 +60,7 @@ struct _XepXfer
 {
 	PurpleXfer parent;
 
+	GCancellable *cancellable;
 	void *data;
 	char *filename;
 	int filesize;
@@ -68,14 +69,13 @@ struct _XepXfer
 	char *recv_id;
 	char *buddy_ip;
 	int mode;
+	GSocketClient *client;
 	GSocketService *service;
 	GSocketConnection *conn;
 	int sock5_req_state;
 	int rxlen;
 	char rx_buf[0x500];
 	char tx_buf[0x500];
-	PurpleProxyInfo *proxy_info;
-	PurpleProxyConnectData *proxy_connection;
 	char *jid;
 	char *proxy_host;
 	int proxy_port;
@@ -125,7 +125,10 @@ xep_ft_si_reject(BonjourData *bd, const char *id, const char *to, const char *er
 
 static void bonjour_xfer_cancel_send(PurpleXfer *xfer)
 {
+	XepXfer *xf = XEP_XFER(xfer);
+
 	purple_debug_info("bonjour", "Bonjour-xfer-cancel-send.\n");
+	g_cancellable_cancel(xf->cancellable);
 }
 
 static void bonjour_xfer_request_denied(PurpleXfer *xfer)
@@ -141,7 +144,10 @@ static void bonjour_xfer_request_denied(PurpleXfer *xfer)
 
 static void bonjour_xfer_cancel_recv(PurpleXfer *xfer)
 {
+	XepXfer *xf = XEP_XFER(xfer);
+
 	purple_debug_info("bonjour", "Bonjour-xfer-cancel-recv.\n");
+	g_cancellable_cancel(xf->cancellable);
 }
 
 struct socket_cleanup {
@@ -976,29 +982,59 @@ bonjour_bytestreams_init(PurpleXfer *xfer)
 }
 
 static void
-bonjour_bytestreams_connect_cb(gpointer data, gint source, const gchar *error_message)
+bonjour_bytestreams_handle_failure(PurpleXfer *xfer, const gchar *error_message)
 {
-	PurpleXfer *xfer = data;
 	XepXfer *xf = XEP_XFER(xfer);
+	PurpleXmlNode *tmp_node;
+	gboolean ret;
+
+	purple_debug_error("bonjour", "Error connecting via SOCKS5 to %s - %s",
+	                   xf->proxy_host, error_message);
+
+	tmp_node = purple_xmlnode_get_next_twin(xf->streamhost);
+	ret = __xep_bytestreams_parse(xf->pb, xfer, tmp_node, xf->iq_id);
+
+	if (!ret) {
+		xep_ft_si_reject(xf->data, xf->iq_id, purple_xfer_get_remote_user(xfer),
+		                 "404", "cancel");
+		/* Cancel the connection */
+		purple_xfer_cancel_local(xfer);
+	}
+}
+
+static void
+bonjour_bytestreams_connect_cb(GObject *source, GAsyncResult *result,
+                               gpointer user_data)
+{
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
+	XepXfer *xf = XEP_XFER(xfer);
+	GIOStream *stream;
+	GError *error = NULL;
+	GSocket *socket;
 	XepIq *iq;
 	PurpleXmlNode *q_node, *tmp_node;
 	BonjourData *bd;
-	gboolean ret = FALSE;
 
-	xf->proxy_connection = NULL;
-
-	if(source < 0) {
-		purple_debug_error("bonjour", "Error connecting via SOCKS5 to %s - %s\n",
-			xf->proxy_host, error_message ? error_message : "(null)");
-
-		tmp_node = purple_xmlnode_get_next_twin(xf->streamhost);
-		ret = __xep_bytestreams_parse(xf->pb, xfer, tmp_node, xf->iq_id);
-
-		if (!ret) {
-			xep_ft_si_reject(xf->data, xf->iq_id, purple_xfer_get_remote_user(xfer), "404", "cancel");
-			/* Cancel the connection */
-			purple_xfer_cancel_local(xfer);
+	stream = g_proxy_connect_finish(G_PROXY(source), result, &error);
+	if (stream == NULL) {
+		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			purple_debug_error("bonjour",
+			                   "Unable to connect to destination host: %s",
+			                   error->message);
+			bonjour_bytestreams_handle_failure(
+			        xfer, "Unable to connect to destination host.");
 		}
+
+		g_clear_error(&error);
+		return;
+	}
+
+	if (!G_IS_SOCKET_CONNECTION(stream)) {
+		purple_debug_error("bonjour",
+		                   "GProxy didn't return a GSocketConnection.");
+		bonjour_bytestreams_handle_failure(
+		        xfer, "GProxy didn't return a GSocketConnection.");
+		g_object_unref(stream);
 		return;
 	}
 
@@ -1016,70 +1052,135 @@ bonjour_bytestreams_connect_cb(gpointer data, gint source, const gchar *error_me
 	purple_xmlnode_set_attrib(tmp_node, "jid", xf->jid);
 	xep_iq_send_and_free(iq);
 
-	purple_xfer_start(xfer, source, NULL, -1);
+	xf->conn = G_SOCKET_CONNECTION(stream);
+	socket = g_socket_connection_get_socket(xf->conn);
+	purple_xfer_start(xfer, g_socket_get_fd(socket), NULL, -1);
+}
+
+/* This is called when we connect to the SOCKS5 proxy server (through any
+ * relevant account proxy)
+ */
+static void
+bonjour_bytestreams_socks5_connect_to_host_cb(GObject *source,
+                                              GAsyncResult *result,
+                                              gpointer user_data)
+{
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
+	XepXfer *xf = XEP_XFER(xfer);
+	GSocketConnection *conn;
+	GProxy *proxy;
+	GSocketAddress *addr;
+	GInetSocketAddress *inet_addr;
+	GSocketAddress *proxy_addr;
+	PurpleBuddy *pb;
+	gchar *hash_input;
+	gchar *dstaddr;
+	GError *error = NULL;
+
+	conn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(source),
+	                                              result, &error);
+	if (conn == NULL) {
+		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			purple_debug_error("bonjour",
+			                   "Unable to connect to SOCKS5 host: %s",
+			                   error->message);
+			bonjour_bytestreams_handle_failure(
+			        xfer, "Unable to connect to SOCKS5 host.");
+		}
+
+		g_clear_error(&error);
+		return;
+	}
+
+	proxy = g_proxy_get_default_for_protocol("socks5");
+	if (proxy == NULL) {
+		purple_debug_error("bonjour", "SOCKS5 proxy backend missing.");
+		bonjour_bytestreams_handle_failure(xfer,
+		                                   "SOCKS5 proxy backend missing.");
+		g_object_unref(conn);
+		return;
+	}
+
+	addr = g_socket_connection_get_remote_address(conn, &error);
+	if (addr == NULL) {
+		purple_debug_error(
+		        "bonjour",
+		        "Unable to retrieve SOCKS5 host address from connection: %s",
+		        error->message);
+		bonjour_bytestreams_handle_failure(
+		        xfer, "Unable to retrieve SOCKS5 host address from connection");
+		g_object_unref(conn);
+		g_object_unref(proxy);
+		g_clear_error(&error);
+		return;
+	}
+
+	pb = xf->pb;
+	hash_input = g_strdup_printf("%s%s%s", xf->sid, purple_buddy_get_name(pb),
+	                             bonjour_get_jid(purple_buddy_get_account(pb)));
+	dstaddr = g_compute_checksum_for_string(G_CHECKSUM_SHA1, hash_input, -1);
+	g_free(hash_input);
+
+	purple_debug_info("bonjour", "Connecting to %s using SOCKS5 proxy %s:%d",
+	                  dstaddr, xf->proxy_host, xf->proxy_port);
+
+	inet_addr = G_INET_SOCKET_ADDRESS(addr);
+	proxy_addr =
+	        g_proxy_address_new(g_inet_socket_address_get_address(inet_addr),
+	                            g_inet_socket_address_get_port(inet_addr),
+	                            "socks5", dstaddr, 0, NULL, NULL);
+	g_object_unref(inet_addr);
+
+	g_proxy_connect_async(proxy, G_IO_STREAM(conn), G_PROXY_ADDRESS(proxy_addr),
+	                      xf->cancellable, bonjour_bytestreams_connect_cb,
+	                      xfer);
+	g_object_unref(proxy_addr);
+	g_object_unref(conn);
+	g_object_unref(proxy);
+	g_free(dstaddr);
 }
 
 static void
 bonjour_bytestreams_connect(PurpleXfer *xfer)
 {
-	PurpleBuddy *pb;
 	PurpleAccount *account = NULL;
-	GChecksum *hash;
 	XepXfer *xf;
-	char dstaddr[41];
-	const gchar *name = NULL;
-	unsigned char hashval[20];
-	gsize digest_len = 20;
-	char *p;
-	int i;
+	GError *error = NULL;
 
-	if(xfer == NULL)
+	if (xfer == NULL) {
 		return;
+	}
 
-	purple_debug_info("bonjour", "bonjour-bytestreams-connect.\n");
+	purple_debug_info("bonjour", "bonjour-bytestreams-connect.");
 
 	xf = XEP_XFER(xfer);
+	account = purple_buddy_get_account(xf->pb);
 
-	pb = xf->pb;
-	name = purple_buddy_get_name(pb);
-	account = purple_buddy_get_account(pb);
-
-	p = g_strdup_printf("%s%s%s", xf->sid, name, bonjour_get_jid(account));
-
-	hash = g_checksum_new(G_CHECKSUM_SHA1);
-	g_checksum_update(hash, (guchar *)p, -1);
-	g_checksum_get_digest(hash, hashval, &digest_len);
-	g_checksum_free(hash);
-
-	g_free(p);
-
-	memset(dstaddr, 0, 41);
-	p = dstaddr;
-	for (i = 0; i < 20; i++, p += 2) {
-		g_snprintf(p, 3, "%02x", hashval[i]);
-	}
-
-	xf->proxy_info = purple_proxy_info_new();
-	purple_proxy_info_set_proxy_type(xf->proxy_info, PURPLE_PROXY_SOCKS5);
-	purple_proxy_info_set_host(xf->proxy_info, xf->proxy_host);
-	purple_proxy_info_set_port(xf->proxy_info, xf->proxy_port);
-	xf->proxy_connection = purple_proxy_connect_socks5_account(
-							   purple_account_get_connection(account),
-							   account,
-							   xf->proxy_info,
-							   dstaddr, 0,
-							   bonjour_bytestreams_connect_cb, xfer);
-
-	if(xf->proxy_connection == NULL) {
-		xep_ft_si_reject(xf->data, xf->iq_id, purple_xfer_get_remote_user(xfer), "404", "cancel");
+	xf->client = purple_gio_socket_client_new(account, &error);
+	if (xf->client == NULL) {
 		/* Cancel the connection */
+		purple_debug_error("bonjour",
+		                   "Failed to connect to SOCKS5 streamhost proxy: %s",
+		                   error->message);
+		g_clear_error(&error);
+		xep_ft_si_reject(xf->data, xf->iq_id, purple_xfer_get_remote_user(xfer),
+		                 "404", "cancel");
 		purple_xfer_cancel_local(xfer);
+		return;
 	}
+
+	purple_debug_info("bonjour", "Connecting to SOCKS5 proxy %s:%d",
+	                  xf->proxy_host, xf->proxy_port);
+
+	g_socket_client_connect_to_host_async(
+	        xf->client, xf->proxy_host, xf->proxy_port, xf->cancellable,
+	        bonjour_bytestreams_socks5_connect_to_host_cb, xfer);
 }
 
 static void
-xep_xfer_init(XepXfer *xfer) {
-
+xep_xfer_init(XepXfer *xf)
+{
+	xf->cancellable = g_cancellable_new();
 }
 
 static void
@@ -1091,12 +1192,9 @@ xep_xfer_finalize(GObject *obj) {
 		bd->xfer_lists = g_slist_remove(bd->xfer_lists, PURPLE_XFER(xf));
 		purple_debug_misc("bonjour", "B free xfer from lists(%p).\n", bd->xfer_lists);
 	}
-	if (xf->proxy_connection != NULL) {
-		purple_proxy_connect_cancel(xf->proxy_connection);
-	}
-	if (xf->proxy_info != NULL) {
-		purple_proxy_info_destroy(xf->proxy_info);
-	}
+	g_cancellable_cancel(xf->cancellable);
+	g_clear_object(&xf->cancellable);
+	g_clear_object(&xf->client);
 	if (xf->service) {
 		g_socket_service_stop(xf->service);
 	}
