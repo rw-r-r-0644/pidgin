@@ -79,6 +79,9 @@
       <xi:include href="xml/purpleprotocolim.xml" />
       <xi:include href="xml/purpleprotocolmedia.xml" />
       <xi:include href="xml/purpleprotocolprivacy.xml" />
+      <xi:include href="xml/purplewhiteboard.xml" />
+      <xi:include href="xml/purplewhiteboardops.xml" />
+      <xi:include href="xml/purplewhiteboarduiops.xml" />
       <xi:include href="xml/purpleuiinfo.xml" />
       <xi:include href="xml/queuedoutputstream.xml" />
       <xi:include href="xml/signals.xml" />
@@ -127,7 +130,6 @@
 
         <xi:include href="xml/image.xml" />
         <xi:include href="xml/image-store.xml" />
-        <xi:include href="xml/whiteboard.xml" />
     </chapter>
 
     <chapter id="media">

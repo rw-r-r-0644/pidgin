@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -25,11 +26,14 @@
 
 #ifndef PURPLE_PROTOCOL_H
 #define PURPLE_PROTOCOL_H
+
 /**
  * SECTION:protocol
  * @section_id: libpurple-protocol
  * @short_description: <filename>protocol.h</filename>
  * @title: Protocol Object and Interfaces
+ *
+ * #PurpleProtocol is the base type for all protocols in libpurple.
  */
 
 #define PURPLE_TYPE_PROTOCOL            (purple_protocol_get_type())
@@ -56,9 +60,10 @@ typedef struct _PurpleProtocolClass PurpleProtocolClass;
 #include "plugins.h"
 #include "purpleaccountoption.h"
 #include "purpleaccountusersplit.h"
+#include "purplewhiteboard.h"
+#include "purplewhiteboardops.h"
 #include "roomlist.h"
 #include "status.h"
-#include "whiteboard.h"
 
 /**
  * PurpleProtocol:
