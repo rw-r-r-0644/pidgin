@@ -350,12 +350,6 @@ status_selected_cb(GtkTreeSelection *sel, gpointer user_data)
     g_list_free(sel_paths);
 }
 
-static const gchar *
-get_stock_icon_from_primitive(PurpleStatusPrimitive type)
-{
-	return pidgin_stock_id_from_status_primitive(type);
-}
-
 static void
 add_status_to_saved_status_list(GtkListStore *model, PurpleSavedStatus *saved_status)
 {
@@ -371,7 +365,7 @@ add_status_to_saved_status_list(GtkListStore *model, PurpleSavedStatus *saved_st
 	title = purple_savedstatus_get_title(saved_status);
 	type = purple_primitive_get_name_from_type(purple_savedstatus_get_primitive_type(saved_status));
 	message = purple_markup_strip_html(purple_savedstatus_get_message(saved_status));
-	icon = get_stock_icon_from_primitive(purple_savedstatus_get_primitive_type(saved_status));
+	icon = pidgin_stock_id_from_status_primitive(purple_savedstatus_get_primitive_type(saved_status));
 
 	gtk_list_store_append(model, &iter);
 	gtk_list_store_set(model, &iter,
@@ -842,7 +836,7 @@ create_status_type_menu(PurpleStatusPrimitive type)
 
 		gtk_list_store_append(store, &iter);
 		gtk_list_store_set(store, &iter,
-		                   STATUS_COLUMN_ICON, get_stock_icon_from_primitive(i),
+		                   STATUS_COLUMN_ICON, pidgin_stock_id_from_status_primitive(i),
 		                   STATUS_COLUMN_STATUS_ID, purple_primitive_get_id_from_type(i),
 		                   STATUS_COLUMN_STATUS_NAME, purple_primitive_get_name_from_type(i),
 		                   -1);
@@ -1017,7 +1011,7 @@ status_editor_set_account(GtkListStore *store, PurpleAccount *account,
 			STATUS_EDITOR_COLUMN_STATUS_ID, id,
 			STATUS_EDITOR_COLUMN_STATUS_NAME, name,
 			STATUS_EDITOR_COLUMN_STATUS_MESSAGE, message,
-			STATUS_EDITOR_COLUMN_STATUS_ICON, get_stock_icon_from_primitive(prim),
+			STATUS_EDITOR_COLUMN_STATUS_ICON, pidgin_stock_id_from_status_primitive(prim),
 			-1);
 
 	if (pixbuf != NULL)
@@ -1341,7 +1335,7 @@ substatus_editor_ok_cb(GtkButton *button, gpointer user_data)
 		message = talkatu_markup_get_html(dialog->message_buffer, NULL);
 	}
 	name = purple_status_type_get_name(type);
-	stock = get_stock_icon_from_primitive(purple_status_type_get_primitive(type));
+	stock = pidgin_stock_id_from_status_primitive(purple_status_type_get_primitive(type));
 
 	status_editor = dialog->status_editor;
 
