@@ -10,6 +10,7 @@
     <file compressed="true">Accounts/entry.css</file>
     <file compressed="true">Accounts/menu.ui</file>
     <file compressed="true">BuddyList/menu.ui</file>
+    <file compressed="true">BuddyList/window.ui</file>
     <file compressed="true">Conversations/invite_dialog.ui</file>
     <file compressed="true">Conversations/tab-label.css</file>
     <file compressed="true">Conversations/window.ui</file>

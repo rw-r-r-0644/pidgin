@@ -26,8 +26,6 @@
 
 #include <purple.h>
 
-#include "pidgin/pidginpluginsdialog.h"
-
 struct _PidginPluginsMenu {
 	GtkMenu parent;
 
@@ -215,35 +213,12 @@ pidgin_plugins_menu_plugin_unload_cb(PurplePlugin *plugin, gpointer data) {
 }
 
 /******************************************************************************
- * Static Actions
- *****************************************************************************/
-static void
-pidgin_plugins_menu_show_manager(GSimpleAction *action, GVariant *parameter,
-                                 gpointer data)
-{
-	GtkWidget *dialog = pidgin_plugins_dialog_new();
-
-	/* fixme? */
-#if 0
-	gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
-#endif
-
-	gtk_widget_show_all(dialog);
-}
-
-/******************************************************************************
  * GObject Implementation
  *****************************************************************************/
 G_DEFINE_TYPE(PidginPluginsMenu, pidgin_plugins_menu, GTK_TYPE_MENU)
 
 static void
 pidgin_plugins_menu_init(PidginPluginsMenu *menu) {
-	GActionEntry actions[] = {
-		{
-			.name = "manager",
-			.activate = pidgin_plugins_menu_show_manager,
-		}
-	};
 	gpointer handle;
 
 	/* initialize our template */
@@ -251,8 +226,6 @@ pidgin_plugins_menu_init(PidginPluginsMenu *menu) {
 
 	/* create our internal action group and assign it to ourself */
 	menu->action_group = g_simple_action_group_new();
-	g_action_map_add_action_entries(G_ACTION_MAP(menu->action_group), actions,
-	                                G_N_ELEMENTS(actions), NULL);
 	gtk_widget_insert_action_group(GTK_WIDGET(menu),
 	                               PIDGIN_PLUGINS_MENU_ACTION_PREFIX,
 	                               G_ACTION_GROUP(menu->action_group));

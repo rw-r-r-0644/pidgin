@@ -35,8 +35,19 @@
 
 #include "gtkaccount.h"
 #include "gtkblist.h"
+#include "gtkdialogs.h"
+#include "gtkpounce.h"
+#include "gtkprefs.h"
+#include "gtkprivacy.h"
+#include "gtkroomlist.h"
+#include "gtksmiley-manager.h"
+#include "gtkxfer.h"
+#include "pidginabout.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
+#include "pidginlog.h"
+#include "pidginmooddialog.h"
+#include "pidgin/pidginpluginsdialog.h"
 
 struct _PidginApplication {
 	GtkApplication parent;
@@ -67,6 +78,422 @@ static GOptionEntry option_entries[] = {
 G_DEFINE_TYPE(PidginApplication, pidgin_application, GTK_TYPE_APPLICATION)
 
 /******************************************************************************
+ * Actions
+ *****************************************************************************/
+/**< private >
+ * pidgin_application_online_actions:
+ *
+ * This list keeps track of which actions should only be enabled while online.
+ */
+static const gchar *pidgin_application_online_actions[] = {
+	"add-buddy",
+	"add-group",
+	"get-user-info",
+	"new-message",
+	"privacy",
+	"set-mood",
+};
+
+/**< private >
+ * pidgin_application_chat_actions:
+ *
+ * This list keeps track of which actions should only be enabled if a protocol
+ * supporting groups chats is connected.
+ */
+static const gchar *pidgin_application_chat_actions[] = {
+	"add-chat",
+	"join-chat",
+};
+
+/**< private >
+ * pidgin_application_room_list_actions:
+ *
+ * This list keeps track of which actions should only be enabled if an online
+ * account supports room lists.
+ */
+static const gchar *pidgin_application_room_list_actions[] = {
+	"room-list",
+};
+
+/*< private >
+ * pidgin_action_group_actions_set_enable:
+ * @group: The #PidginActionGroup instance.
+ * @actions: The action names.
+ * @n_actions: The number of @actions.
+ * @enabled: Whether or not to enable the actions.
+ *
+ * Sets the enabled property of the named actions to @enabled.
+ */
+static void
+pidgin_application_actions_set_enabled(PidginApplication *application,
+                                       const gchar *const *actions,
+                                       gint n_actions,
+                                       gboolean enabled)
+{
+	gint i = 0;
+
+	for(i = 0; i < n_actions; i++) {
+		GAction *action = NULL;
+		const gchar *name = actions[i];
+
+		action = g_action_map_lookup_action(G_ACTION_MAP(application), name);
+
+		if(action != NULL) {
+			g_simple_action_set_enabled(G_SIMPLE_ACTION(action), enabled);
+		} else {
+			g_warning("Failed to find action named %s", name);
+		}
+	}
+}
+
+static void
+pidgin_application_about(GSimpleAction *simple, GVariant *parameter,
+                         gpointer data)
+{
+	GtkWidget *about = pidgin_about_dialog_new();
+
+	/* fix me? */
+#if 0
+	gtk_window_set_transient_for(GTK_WINDOW(about), GTK_WINDOW(window));
+#endif
+
+	gtk_widget_show_all(about);
+}
+
+static void
+pidgin_application_accounts(GSimpleAction *simple, GVariant *parameter,
+                            gpointer data)
+{
+	pidgin_accounts_window_show();
+}
+
+static void
+pidgin_application_add_buddy(GSimpleAction *simple, GVariant *parameter,
+                             gpointer data)
+{
+	purple_blist_request_add_buddy(NULL, NULL, NULL, NULL);
+}
+
+static void
+pidgin_application_add_chat(GSimpleAction *simple, GVariant *parameter,
+                            gpointer data)
+{
+	purple_blist_request_add_chat(NULL, NULL, NULL, NULL);
+}
+
+static void
+pidgin_application_add_group(GSimpleAction *simple, GVariant *parameter,
+                             gpointer data)
+{
+	purple_blist_request_add_group();
+}
+
+static void
+pidgin_application_buddy_pounces(GSimpleAction *simple, GVariant *parameter,
+                                 gpointer data)
+{
+	pidgin_pounces_manager_show();
+}
+
+static void
+pidgin_application_custom_smiley(GSimpleAction *simple, GVariant *parameter,
+                                 gpointer data)
+{
+	pidgin_smiley_manager_show();
+}
+
+static void
+pidgin_application_debug(GSimpleAction *simple, GVariant *parameter,
+                         gpointer data)
+{
+	gboolean old = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled");
+	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/debug/enabled", !old);
+}
+
+static void
+pidgin_application_file_transfers(GSimpleAction *simple, GVariant *parameter,
+                                  gpointer data)
+{
+	pidgin_xfer_dialog_show(NULL);
+}
+
+static void
+pidgin_application_get_user_info(GSimpleAction *simple, GVariant *parameter,
+                                 gpointer data)
+{
+	pidgin_dialogs_info();
+}
+
+static void
+pidgin_application_join_chat(GSimpleAction *simple, GVariant *parameter,
+                             gpointer data)
+{
+	pidgin_blist_joinchat_show();
+}
+
+static void
+pidgin_application_new_message(GSimpleAction *simple, GVariant *parameter,
+                               gpointer data)
+{
+	pidgin_dialogs_im();
+}
+
+static void
+pidgin_application_online_help(GSimpleAction *simple, GVariant *parameter,
+                               gpointer data)
+{
+	purple_notify_uri(NULL, PURPLE_WEBSITE "help");
+}
+
+static void
+pidgin_application_plugins(GSimpleAction *simple, GVariant *parameter,
+                           gpointer data)
+{
+	GtkWidget *dialog = pidgin_plugins_dialog_new();
+
+	/* fixme? */
+#if 0
+	gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
+#endif
+
+	gtk_widget_show_all(dialog);
+}
+
+static void
+pidgin_application_preferences(GSimpleAction *simple, GVariant *parameter,
+                               gpointer data)
+{
+	pidgin_prefs_show();
+}
+
+static void
+pidgin_application_privacy(GSimpleAction *simple, GVariant *parameter,
+                           gpointer data)
+{
+	pidgin_privacy_dialog_show();
+}
+
+static void
+pidgin_application_quit(GSimpleAction *simple, GVariant *parameter,
+                        gpointer data)
+{
+	purple_core_quit();
+}
+
+static void
+pidgin_application_room_list(GSimpleAction *simple, GVariant *parameter,
+                             gpointer data)
+{
+	pidgin_roomlist_dialog_show();
+}
+
+static void
+pidgin_application_set_mood(GSimpleAction *simple, GVariant *parameter,
+                            gpointer data)
+{
+	pidgin_mood_dialog_show(NULL);
+}
+
+static void
+pidgin_application_system_log(GSimpleAction *simple, GVariant *parameter,
+                              gpointer data)
+{
+	pidgin_syslog_show();
+}
+
+static void
+pidgin_application_view_user_log(GSimpleAction *simple, GVariant *parameter,
+                                 gpointer data)
+{
+	pidgin_dialogs_log();
+}
+
+static GActionEntry app_entries[] = {
+	{
+		.name = "about",
+		.activate = pidgin_application_about,
+	}, {
+		.name = "add-buddy",
+		.activate = pidgin_application_add_buddy,
+	}, {
+		.name = "add-chat",
+		.activate = pidgin_application_add_chat,
+	}, {
+		.name = "add-group",
+		.activate = pidgin_application_add_group,
+	}, {
+		.name = "buddy-pounces",
+		.activate = pidgin_application_buddy_pounces,
+	}, {
+		.name = "custom-smiley",
+		.activate = pidgin_application_custom_smiley,
+	}, {
+		.name = "debug",
+		.activate = pidgin_application_debug,
+	}, {
+		.name = "file-transfers",
+		.activate = pidgin_application_file_transfers,
+	}, {
+		.name = "get-user-info",
+		.activate = pidgin_application_get_user_info,
+	}, {
+		.name = "join-chat",
+		.activate = pidgin_application_join_chat,
+	}, {
+		.name = "manage-accounts",
+		.activate = pidgin_application_accounts,
+	}, {
+		.name = "manage-plugins",
+		.activate = pidgin_application_plugins,
+	}, {
+		.name = "new-message",
+		.activate = pidgin_application_new_message,
+	}, {
+		.name = "online-help",
+		.activate = pidgin_application_online_help,
+	}, {
+		.name = "preferences",
+		.activate = pidgin_application_preferences,
+	}, {
+		.name = "privacy",
+		.activate = pidgin_application_privacy,
+	}, {
+		.name = "quit",
+		.activate = pidgin_application_quit,
+	}, {
+		.name = "room-list",
+		.activate = pidgin_application_room_list,
+	}, {
+		.name = "set-mood",
+		.activate = pidgin_application_set_mood,
+	}, {
+		.name = "system-log",
+		.activate = pidgin_application_system_log,
+	}, {
+		.name = "view-user-log",
+		.activate = pidgin_application_view_user_log,
+	}
+};
+
+/******************************************************************************
+ * Purple Signal Callbacks
+ *****************************************************************************/
+static void
+pidgin_application_online_cb(gpointer data) {
+	gint n_actions = G_N_ELEMENTS(pidgin_application_online_actions);
+
+	pidgin_application_actions_set_enabled(PIDGIN_APPLICATION(data),
+	                                       pidgin_application_online_actions,
+	                                       n_actions,
+	                                       TRUE);
+}
+
+static void
+pidgin_application_offline_cb(gpointer data) {
+	gint n_actions = G_N_ELEMENTS(pidgin_application_online_actions);
+
+	pidgin_application_actions_set_enabled(PIDGIN_APPLICATION(data),
+	                                       pidgin_application_online_actions,
+	                                       n_actions,
+	                                       FALSE);
+}
+
+static void
+pidgin_application_signed_on_cb(PurpleAccount *account, gpointer data) {
+	PidginApplication *application = PIDGIN_APPLICATION(data);
+	PurpleProtocol *protocol = NULL;
+	const gchar *protocol_id = NULL;
+	gboolean should_enable_chat = FALSE, should_enable_room_list = FALSE;
+	gint n_actions = 0;
+
+	protocol_id = purple_account_get_protocol_id(account);
+	protocol = purple_protocols_find(protocol_id);
+
+	/* We assume that the current state is correct, so we don't bother changing
+	 * state unless the newly connected account implements the chat interface,
+	 * which would cause a state change.
+	 */
+	should_enable_chat = PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info);
+	if(should_enable_chat) {
+		n_actions = G_N_ELEMENTS(pidgin_application_chat_actions);
+		pidgin_application_actions_set_enabled(application,
+		                                       pidgin_application_chat_actions,
+		                                       n_actions,
+		                                       TRUE);
+	}
+
+	/* likewise, for the room list, we only care about enabling in this
+	 * handler.
+	 */
+	should_enable_room_list = PURPLE_PROTOCOL_IMPLEMENTS(protocol, ROOMLIST,
+	                                                     get_list);
+	if(should_enable_room_list) {
+		n_actions = G_N_ELEMENTS(pidgin_application_room_list_actions);
+		pidgin_application_actions_set_enabled(application,
+		                                       pidgin_application_room_list_actions,
+		                                       n_actions,
+		                                       TRUE);
+	}
+}
+
+static void
+pidgin_application_signed_off_cb(PurpleAccount *account, gpointer data) {
+	PidginApplication *application = PIDGIN_APPLICATION(data);
+	gboolean should_disable_chat = TRUE, should_disable_room_list = TRUE;
+	GList *connections = NULL, *l = NULL;
+	gint n_actions = 0;
+
+	/* walk through all the connections, looking for online ones that implement
+	 * the chat interface.  We don't bother checking the account that this
+	 * signal was emitted for, because it's already offline and will be
+	 * filtered out by the online check.
+	 */
+	connections = purple_connections_get_all();
+	for(l = connections; l != NULL; l = l->next) {
+		PurpleConnection *connection = PURPLE_CONNECTION(l->data);
+		PurpleProtocol *protocol = NULL;
+
+		/* if the connection isn't online, we don't care about it */
+		if(!PURPLE_CONNECTION_IS_CONNECTED(connection)) {
+			continue;
+		}
+
+		protocol = purple_connection_get_protocol(connection);
+
+		/* check if the protocol implements the chat interface */
+		if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info)) {
+			should_disable_chat = FALSE;
+		}
+
+		/* check if the protocol implements the room list interface */
+		if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, ROOMLIST, get_list)) {
+			should_disable_room_list = FALSE;
+		}
+
+		/* if we can't disable both, we can bail out of the loop */
+		if(!should_disable_chat && !should_disable_room_list) {
+			break;
+		}
+	}
+
+	if(should_disable_chat) {
+		n_actions = G_N_ELEMENTS(pidgin_application_chat_actions);
+		pidgin_application_actions_set_enabled(application,
+		                                       pidgin_application_chat_actions,
+		                                       n_actions,
+		                                       FALSE);
+	}
+
+	if(should_disable_room_list) {
+		n_actions = G_N_ELEMENTS(pidgin_application_room_list_actions);
+		pidgin_application_actions_set_enabled(application,
+		                                       pidgin_application_room_list_actions,
+		                                       n_actions,
+		                                       FALSE);
+	}
+}
+
+/******************************************************************************
  * GApplication Implementation
  *****************************************************************************/
 static void
@@ -75,6 +502,7 @@ pidgin_application_startup(GApplication *application) {
 	GError *error = NULL;
 	GList *active_accounts = NULL;
 	gchar *search_path = NULL;
+	gpointer handle = NULL;
 
 	G_APPLICATION_CLASS(pidgin_application_parent_class)->startup(application);
 
@@ -201,6 +629,29 @@ pidgin_application_startup(GApplication *application) {
 
 	/* TODO: Use GtkApplicationWindow or add a window instead */
 	g_application_hold(application);
+
+	/* connect to the online and offline signals in purple connections.  This
+	 * is used to toggle states of actions that require being online.
+	 */
+	handle = purple_connections_get_handle();
+	purple_signal_connect(handle, "online", application,
+	                      PURPLE_CALLBACK(pidgin_application_online_cb),
+	                      application);
+	purple_signal_connect(handle, "offline", application,
+	                      PURPLE_CALLBACK(pidgin_application_offline_cb),
+	                      application);
+
+	/* connect to account-signed-on and account-signed-off to toggle actions
+	 * that depend on specific interfaces in accounts.
+	 */
+	handle = purple_accounts_get_handle();
+	purple_signal_connect(handle, "account-signed-on", application,
+	                      PURPLE_CALLBACK(pidgin_application_signed_on_cb),
+	                      application);
+	purple_signal_connect(handle, "account-signed-off", application,
+	                      PURPLE_CALLBACK(pidgin_application_signed_off_cb),
+	                      application);
+
 }
 
 static void
@@ -256,10 +707,36 @@ pidgin_application_handle_local_options(GApplication *application,
 static void
 pidgin_application_init(PidginApplication *application) {
 	GApplication *gapp = G_APPLICATION(application);
+	gboolean online = FALSE;
+	gint n_actions = 0;
 
 	g_application_add_main_option_entries(gapp, option_entries);
 	g_application_add_option_group(gapp, purple_get_option_group());
 	g_application_add_option_group(gapp, gplugin_get_option_group());
+
+	g_action_map_add_action_entries(G_ACTION_MAP(application), app_entries,
+	                                G_N_ELEMENTS(app_entries), application);
+
+	/* Set the default state for our actions to match our online state. */
+	online = purple_connections_is_online();
+
+	n_actions = G_N_ELEMENTS(pidgin_application_online_actions);
+	pidgin_application_actions_set_enabled(application,
+	                                       pidgin_application_online_actions,
+	                                       n_actions,
+	                                       online);
+
+	n_actions = G_N_ELEMENTS(pidgin_application_chat_actions);
+	pidgin_application_actions_set_enabled(application,
+	                                       pidgin_application_chat_actions,
+	                                       n_actions,
+	                                       online);
+
+	n_actions = G_N_ELEMENTS(pidgin_application_room_list_actions);
+	pidgin_application_actions_set_enabled(application,
+	                                       pidgin_application_room_list_actions,
+	                                       n_actions,
+	                                       online);
 }
 
 static void

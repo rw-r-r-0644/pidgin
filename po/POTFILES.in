@@ -344,6 +344,7 @@ pidgin/pidgincellrendererexpander.c
 pidgin/pidginclosebutton.c
 pidgin/pidgincontactcompletion.c
 pidgin/pidginconversationwindow.c
+pidgin/pidgincontactlist.c
 pidgin/pidgindebug.c
 pidgin/pidgindialog.c
 pidgin/pidgingdkpixbuf.c

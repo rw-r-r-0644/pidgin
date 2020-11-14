@@ -48,6 +48,7 @@
 #include "pidgin/pidginbuddylistmenu.h"
 #include "pidgin/pidgincellrendererexpander.h"
 #include "pidgin/pidginclosebutton.h"
+#include "pidgin/pidgincontactlist.h"
 #include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
 #include "pidgin/pidgingdkpixbuf.h"
@@ -5225,15 +5226,16 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtkblist->empty_avatar = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, 32, 32);
 	gdk_pixbuf_fill(gtkblist->empty_avatar, 0x00000000);
 
-	gtkblist->window = pidgin_window_new(_("Buddy List"), 0, "buddy_list", TRUE);
+	gtkblist->window = pidgin_contact_list_new();
 	g_signal_connect(G_OBJECT(gtkblist->window), "focus-in-event",
 			 G_CALLBACK(blist_focus_cb), gtkblist);
 	g_signal_connect(G_OBJECT(gtkblist->window), "focus-out-event",
 			 G_CALLBACK(blist_focus_cb), gtkblist);
 
-	gtkblist->main_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_widget_show(gtkblist->main_vbox);
-	gtk_container_add(GTK_CONTAINER(gtkblist->window), gtkblist->main_vbox);
+	/* the main vbox is already packed and shown via glade, we just need a
+	 * reference to it to pack the rest of our widgets here.
+	 */
+	gtkblist->main_vbox = pidgin_contact_list_get_vbox(PIDGIN_CONTACT_LIST(gtkblist->window));
 
 	g_signal_connect(G_OBJECT(gtkblist->window), "delete_event", G_CALLBACK(gtk_blist_delete_cb), NULL);
 	g_signal_connect(G_OBJECT(gtkblist->window), "hide",
@@ -5248,10 +5250,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtk_widget_add_events(gtkblist->window, GDK_VISIBILITY_NOTIFY_MASK);
 
 	/******************************* Menu bar *************************************/
-	actions = pidgin_action_group_new();
-	gtk_widget_insert_action_group(gtkblist->window, "blist",
-	                               G_ACTION_GROUP(actions));
-
 	gtkblist->menu = pidgin_buddy_list_menu_new();
 	gtk_box_pack_start(GTK_BOX(gtkblist->main_vbox), gtkblist->menu, FALSE,
 	                   FALSE, 0);

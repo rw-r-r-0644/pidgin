@@ -19,27 +19,33 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
 
 -->
 <interface>
-  <requires lib="gtk+" version="3.22"/>
+  <requires lib="gtk+" version="3.20"/>
+  <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
-  <template class="PidginPluginsMenu" parent="GtkMenu">
-    <property name="visible">True</property>
+  <template class="PidginContactList" parent="GtkApplicationWindow">
     <property name="can_focus">False</property>
-    <child>
-      <object class="GtkMenuItem">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="action_name">app.manage-plugins</property>
-        <property name="label" translatable="yes">Manage Plu_gins</property>
-        <property name="use_underline">True</property>
-        <accelerator key="u" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-      </object>
+    <property name="title" translatable="yes">Contact List</property>
+    <property name="role">contact_list</property>
+    <child type="titlebar">
+      <placeholder/>
     </child>
     <child>
-      <object class="GtkSeparatorMenuItem" id="separator">
+      <object class="GtkBox" id="vbox">
+        <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
       </object>
     </child>
   </template>
