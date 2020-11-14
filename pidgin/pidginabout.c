@@ -320,6 +320,109 @@ pidgin_about_dialog_load_runtime_info(PidginAboutDialog *about) {
 }
 
 static void
+pidgin_about_dialog_load_gtk_settings(PidginAboutDialog *about) {
+	GtkTreeIter section, iter;
+	gchar *markup = NULL;
+	gchar *cursor_theme_name = NULL, *theme_name = NULL;
+	gchar *icon_theme_name = NULL, *fallback_icon_theme = NULL;
+	gchar *im_module = NULL;
+	gchar *key_theme_name = NULL, *sound_theme_name = NULL;
+	gboolean enable_animations = FALSE;
+	gboolean shell_shows_app_menu = FALSE, shell_shows_menubar = FALSE;
+
+	/* create the section */
+	markup = g_strdup_printf("<b>%s</b>", _("GTK Settings"));
+	gtk_tree_store_append(about->build_info_store, &section, NULL);
+	gtk_tree_store_set(about->build_info_store, &section,
+	                   0, markup,
+	                   -1);
+	g_free(markup);
+
+	/* get the settings we're interested in */
+	g_object_get(
+		gtk_settings_get_default(),
+		"gtk-cursor-theme-name", &cursor_theme_name,
+		"gtk-enable-animations", &enable_animations,
+		"gtk-fallback-icon-theme", &fallback_icon_theme,
+		"gtk-icon-theme-name", &icon_theme_name,
+		"gtk-im-module", &im_module,
+		"gtk-key-theme-name", &key_theme_name,
+		"gtk-shell-shows-app-menu", &shell_shows_app_menu,
+		"gtk-shell-shows-menubar", &shell_shows_menubar,
+		"gtk-sound-theme-name", &sound_theme_name,
+		"gtk-theme-name", &theme_name,
+		NULL);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-cursor-theme-name",
+	                   1, (cursor_theme_name != NULL) ? cursor_theme_name : _("(not set)"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-enable-animations",
+	                   1, enable_animations ? _("yes") : _("no"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-fallback-icon-theme",
+	                   1, (fallback_icon_theme != NULL) ? fallback_icon_theme : _("(not set)"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-icon-theme-name",
+	                   1, (icon_theme_name != NULL) ? icon_theme_name : _("(not set)"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-im-module",
+	                   1, (im_module != NULL) ? im_module : _("(not set)"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-key-theme-name",
+	                   1, (key_theme_name != NULL) ? key_theme_name : _("(not set)"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-shell-shows-app-menu",
+	                   1, shell_shows_app_menu ? _("yes") : _("no"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-shell-shows-menubar",
+	                   1, shell_shows_menubar ? _("yes") : _("no"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-sound-theme-name",
+	                   1, (sound_theme_name != NULL) ? sound_theme_name : _("(not set)"),
+	                   -1);
+
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, "gtk-theme-name",
+	                   1, (theme_name != NULL) ? theme_name : _("(not set)"),
+	                   -1);
+
+	g_free(cursor_theme_name);
+	g_free(fallback_icon_theme);
+	g_free(icon_theme_name);
+	g_free(im_module);
+	g_free(key_theme_name);
+	g_free(sound_theme_name);
+	g_free(theme_name);
+}
+
+static void
 pidgin_about_dialog_load_plugin_search_paths(PidginAboutDialog *about) {
 	GtkTreeIter section;
 	GList *path = NULL;
@@ -352,6 +455,7 @@ pidgin_about_dialog_load_build_configuration(PidginAboutDialog *about) {
 
 	pidgin_about_dialog_load_build_info(about);
 	pidgin_about_dialog_load_runtime_info(about);
+	pidgin_about_dialog_load_gtk_settings(about);
 	pidgin_about_dialog_load_plugin_search_paths(about);
 }
 
