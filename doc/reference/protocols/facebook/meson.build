@@ -17,7 +17,7 @@ content_files = [
     libpurple_version_xml,
 ]
 
-gnome.gtkdoc(DOC_MODULE,
+facebook_doc = gnome.gtkdoc(DOC_MODULE,
     main_xml : DOC_MODULE + '-docs.xml',
     src_dir : facebook_inc,
     dependencies : facebook_dep,

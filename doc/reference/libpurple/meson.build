@@ -54,7 +54,7 @@ content_files = [
     'ui_ops.xml',
 ]
 
-gnome.gtkdoc(DOC_MODULE,
+libpurple_doc = gnome.gtkdoc(DOC_MODULE,
     main_xml : DOC_MODULE + '-docs.xml',
     src_dir : libpurple_inc,
     dependencies : libpurple_dep,
