@@ -242,7 +242,7 @@ pidgin_presence_icon_set_presence(PidginPresenceIcon *icon,
 	 * but to do that, we need to keep a reference to the old presence.
 	 */
 	if(PURPLE_IS_PRESENCE(icon->presence)) {
-		old = g_object_ref(G_OBJECT(icon->presence));
+		old = g_object_ref(icon->presence);
 	}
 
 	if(g_set_object(&icon->presence, presence)) {
