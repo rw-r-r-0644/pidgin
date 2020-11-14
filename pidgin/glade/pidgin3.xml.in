@@ -6,6 +6,7 @@
     <glade-widget-class name="PidginAccountStore" generic-name="account_store" title="AccountStore"/>
     <glade-widget-class name="PidginAccountFilterConnected" generic-name="account_filter_connected" title="FilterConnected"/>
     <glade-widget-class name="PidginAccountFilterProtocol" generic-name="account_filter_protocol" title="FilterProtocol"/>
+    <glade-widget-class name="PidginBuddyListMenu" generic-name="buddy_list_menu" title="BuddyListMenu"/>
     <glade-widget-class name="PidginCloseButton" generic-name="close-button" title="CloseButton"/>
     <glade-widget-class name="PidginConversationWindow" generic-name="conversation_window" title="ConversationWindow"/>
     <glade-widget-class name="PidginDialog" generic-name="dialog" title="Dialog"/>
@@ -13,6 +14,7 @@
     <glade-widget-class name="PidginMenuTray" generic-name="menu_tray" title="MenuTray"/>
     <glade-widget-class name="PidginPluginsMenu" generic-name="plugins_menu" title="PluginsMenu"/>
     <glade-widget-class name="PidginScrollBook" generic-name="scroll_book" title="ScrollBook"/>
+    <glade-widget-class name="PidginStatusBox" generic-name="status_box" title="StatusBox"/>
     <glade-widget-class name="PidginWindow" generic-name="window" title="Window"/>
   </glade-widget-classes>
   <glade-widget-group name="pidgin" title="Pidgin">
@@ -21,6 +23,7 @@
     <glade-widget-class-ref name="PidginAccountStore"/>
     <glade-widget-class-ref name="PidginAccountFilterConnected"/>
     <glade-widget-class-ref name="PidginAccountFilterProtocol"/>
+    <glade-widget-class-ref name="PidginBuddyListMenu"/>
     <glade-widget-class-ref name="PidginCloseButton"/>
     <glade-widget-class-ref name="PidginConversationWindow"/>
     <glade-widget-class-ref name="PidginDialog"/>
@@ -28,6 +31,7 @@
     <glade-widget-class-ref name="PidginMenuTray"/>
     <glade-widget-class-ref name="PidginPluginsMenu"/>
     <glade-widget-class-ref name="PidginScrollBook"/>
+    <glade-widget-class-ref name="PidginStatusBox"/>
     <glade-widget-class-ref name="PidginWindow"/>
   </glade-widget-group>
 </glade-catalog>

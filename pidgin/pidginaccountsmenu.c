@@ -26,7 +26,6 @@
 
 #include "pidginaccountactionsmenu.h"
 
-#include "gtkaccount.h"
 #include "pidgincore.h"
 
 struct _PidginAccountsMenu {
@@ -43,11 +42,6 @@ struct _PidginAccountsMenu {
 /******************************************************************************
  * GSignal Handlers
  *****************************************************************************/
-static void
-pidgin_accounts_menu_open_manager_cb(GtkMenuItem *item, gpointer data) {
-	pidgin_accounts_window_show();
-}
-
 static void
 pidgin_accounts_menu_enable_account(GtkMenuItem *item, gpointer data) {
 	PurpleAccount *account = PURPLE_ACCOUNT(data);
@@ -253,9 +247,6 @@ pidgin_accounts_menu_class_init(PidginAccountsMenuClass *klass) {
 	                                     disabled_menu);
 	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,
 	                                     separator);
-
-	gtk_widget_class_bind_template_callback(widget_class,
-	                                        pidgin_accounts_menu_open_manager_cb);
 }
 
 /******************************************************************************

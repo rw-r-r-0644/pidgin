@@ -369,6 +369,7 @@ int pidgin_start(int argc, char *argv[])
 #endif
 
 	app = pidgin_application_new();
+	g_application_set_default(app);
 
 	ret = g_application_run(app, argc, argv);
 
