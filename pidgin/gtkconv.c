@@ -58,6 +58,7 @@
 #include "pidginlog.h"
 #include "pidginmenutray.h"
 #include "pidginmessage.h"
+#include "pidginpresenceicon.h"
 #include "pidginstock.h"
 #include "pidginstyle.h"
 #include "pidgintooltip.h"
@@ -1871,89 +1872,11 @@ menu_conv_sel_send_cb(GObject *m, gpointer data)
 /**************************************************************************
  * A bunch of buddy icon functions
  **************************************************************************/
-
-static const char *
-pidgin_conv_get_icon_stock(PurpleConversation *conv)
-{
-	PurpleAccount *account = NULL;
-	const char *stock = NULL;
-
-	g_return_val_if_fail(conv != NULL, NULL);
-
-	account = purple_conversation_get_account(conv);
-	g_return_val_if_fail(account != NULL, NULL);
-
-	/* Use the buddy icon, if possible */
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		const char *name = NULL;
-		PurpleBuddy *b;
-		name = purple_conversation_get_name(conv);
-		b = purple_blist_find_buddy(account, name);
-		if (b != NULL) {
-			PurplePresence *p = purple_buddy_get_presence(b);
-			PurpleStatus *active = purple_presence_get_active_status(p);
-			PurpleStatusType *type = purple_status_get_status_type(active);
-			PurpleStatusPrimitive prim = purple_status_type_get_primitive(type);
-			stock = pidgin_stock_id_from_status_primitive(prim);
-		} else {
-			stock = PIDGIN_STOCK_STATUS_PERSON;
-		}
-	} else {
-		stock = PIDGIN_STOCK_STATUS_CHAT;
-	}
-
-	return stock;
-}
-
-static GdkPixbuf *
-pidgin_conv_get_icon(PurpleConversation *conv, GtkWidget *parent, const char *icon_size)
-{
-	PurpleAccount *account = NULL;
-	const char *name = NULL;
-	const char *stock = NULL;
-	GdkPixbuf *status = NULL;
-	GtkIconSize size;
-
-	g_return_val_if_fail(conv != NULL, NULL);
-
-	account = purple_conversation_get_account(conv);
-	name = purple_conversation_get_name(conv);
-
-	g_return_val_if_fail(account != NULL, NULL);
-	g_return_val_if_fail(name != NULL, NULL);
-
-	/* Use the buddy icon, if possible */
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		PurpleBuddy *b = purple_blist_find_buddy(account, name);
-		if (b != NULL) {
-			/* I hate this hack.  It fixes a bug where the pending message icon
-			 * displays in the conv tab even though it shouldn't.
-			 * A better solution would be great. */
-			purple_blist_update_node(NULL, PURPLE_BLIST_NODE(b));
-		}
-	}
-
-	stock = pidgin_conv_get_icon_stock(conv);
-	size = gtk_icon_size_from_name(icon_size);
-	status = gtk_widget_render_icon (parent, stock, size, "GtkWidget");
-	return status;
-}
-
-GdkPixbuf *
-pidgin_conv_get_tab_icon(PurpleConversation *conv, gboolean small_icon)
-{
-	const char *icon_size = small_icon ? PIDGIN_ICON_SIZE_TANGO_MICROSCOPIC : PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL;
-	return pidgin_conv_get_icon(conv, PIDGIN_CONVERSATION(conv)->icon, icon_size);
-}
-
-
 static void
 update_tab_icon(PurpleConversation *conv)
 {
 	PidginConversation *gtkconv;
 	GdkPixbuf *emblem = NULL;
-	const char *status = NULL;
-	const char *infopane_status = NULL;
 
 	g_return_if_fail(conv != NULL);
 
@@ -1961,22 +1884,21 @@ update_tab_icon(PurpleConversation *conv)
 	if (conv != gtkconv->active_conv)
 		return;
 
-	status = infopane_status = pidgin_conv_get_icon_stock(conv);
-
 	if (PURPLE_IS_IM_CONVERSATION(conv)) {
 		PurpleBuddy *b = purple_blist_find_buddy(purple_conversation_get_account(conv), purple_conversation_get_name(conv));
 		if (b)
 			emblem = pidgin_blist_get_emblem((PurpleBlistNode*)b);
 	}
 
-	g_return_if_fail(status != NULL);
-
-	g_object_set(G_OBJECT(gtkconv->icon), "stock", status, NULL);
-	g_object_set(G_OBJECT(gtkconv->menu_icon), "stock", status, NULL);
-
+#if 0
+	/* This was purposely left busted rather than providing an intermitent fix,
+	 * as the infopane will be split out and rewritten as a proper widget
+	 * shortly.
+	 */
 	gtk_list_store_set(GTK_LIST_STORE(gtkconv->infopane_model),
 			&(gtkconv->infopane_iter),
 			CONV_ICON_COLUMN, infopane_status, -1);
+#endif
 
 	gtk_list_store_set(GTK_LIST_STORE(gtkconv->infopane_model),
 			&(gtkconv->infopane_iter),
@@ -2440,13 +2362,14 @@ pidgin_conversations_fill_menu(GtkWidget *menu, GList *convs)
 	for (l = convs; l != NULL ; l = l->next) {
 		PurpleConversation *conv = (PurpleConversation*)l->data;
 		PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
-
-		GtkWidget *icon = gtk_image_new_from_stock(pidgin_conv_get_icon_stock(conv),
-				gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_MICROSCOPIC));
+		GtkWidget *icon = NULL;
 		GtkWidget *item;
 		gchar *text = g_strdup_printf("%s (%d)",
 				gtk_label_get_text(GTK_LABEL(gtkconv->tab_label)),
 				gtkconv->unseen_count);
+
+		icon = pidgin_presence_icon_new(NULL, "chat",
+		                                GTK_ICON_SIZE_MENU);
 
 		item = gtk_image_menu_item_new_with_label(text);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), icon);
@@ -7857,16 +7780,28 @@ pidgin_conv_window_add_gtkconv(PidginConvWindow *win, PidginConversation *gtkcon
 	g_signal_connect(gtkconv->close, "clicked", G_CALLBACK (close_conv_cb), gtkconv);
 
 	/* Status icon. */
-	gtkconv->icon = gtk_image_new();
-	gtkconv->menu_icon = gtk_image_new();
-	g_object_set(G_OBJECT(gtkconv->icon),
-			"icon-size", gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_MICROSCOPIC),
-			NULL);
-	g_object_set(G_OBJECT(gtkconv->menu_icon),
-			"icon-size", gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_MICROSCOPIC),
-			NULL);
+	if(PURPLE_IS_IM_CONVERSATION(conv)) {
+		PurpleBuddy *buddy = NULL;
+		PurplePresence *presence = NULL;
+
+		buddy = purple_blist_find_buddy(purple_conversation_get_account(conv),
+		                                purple_conversation_get_name(conv));
+
+		if(PURPLE_IS_BUDDY(buddy)) {
+			presence = purple_buddy_get_presence(buddy);
+		}
+
+		gtkconv->icon = pidgin_presence_icon_new(presence, "person",
+		                                         GTK_ICON_SIZE_MENU);
+		gtkconv->menu_icon = pidgin_presence_icon_new(presence, "person",
+		                                              GTK_ICON_SIZE_MENU);
+	} else {
+		gtkconv->icon = pidgin_presence_icon_new(NULL, "chat",
+		                                         GTK_ICON_SIZE_MENU);
+		gtkconv->menu_icon = pidgin_presence_icon_new(NULL, "chat",
+		                                              GTK_ICON_SIZE_MENU);
+	}
 	gtk_widget_show(gtkconv->icon);
-	update_tab_icon(conv);
 
 	/* Tab label. */
 	gtkconv->tab_label = gtk_label_new(tmp_lab = purple_conversation_get_title(conv));

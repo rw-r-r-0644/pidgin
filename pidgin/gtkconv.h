@@ -298,15 +298,6 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv);
 PidginConvWindow *pidgin_conv_get_window(PidginConversation *gtkconv);
 
 /**
- * pidgin_conv_get_tab_icon:
- * @conv:       The conversation.
- * @small_icon: Whether to get the small icon.
- *
- * Returns: (transfer full): The tab icon.
- */
-GdkPixbuf *pidgin_conv_get_tab_icon(PurpleConversation *conv, gboolean small_icon);
-
-/**
  * pidgin_conv_new:
  * @conv: The conversation.
  *
