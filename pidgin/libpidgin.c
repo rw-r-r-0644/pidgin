@@ -168,7 +168,8 @@ pidgin_ui_init(void)
 	gchar *path;
 
 	path = g_build_filename(PURPLE_DATADIR, "pidgin", "icons", NULL);
-	gtk_icon_theme_append_search_path(gtk_icon_theme_get_default(), path);
+	gtk_icon_theme_prepend_search_path(gtk_icon_theme_get_default(), path);
+	gtk_icon_theme_add_resource_path(gtk_icon_theme_get_default(), path);
 	g_free(path);
 
 	pidgin_stock_init();

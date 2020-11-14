@@ -632,6 +632,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_check_if_dir
 		* PidginConversation.sg
 		* PidginConvPlacementFunc
+		* pidgin_conv_get_tab_icon, use PidginPresenceIcon instead.
 		* pidgin_conv_placement_get_name
 		* pidgin_conv_placement_add_fnc
 		* pidgin_conv_placement_remove_fnc
