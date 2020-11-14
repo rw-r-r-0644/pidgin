@@ -36,7 +36,7 @@ content_files = [
     'signals_gtklog.xml',
 ]
 
-gnome.gtkdoc(DOC_MODULE,
+pidgin_doc = gnome.gtkdoc(DOC_MODULE,
     main_xml : DOC_MODULE + '-docs.xml',
     src_dir : libpidgin_inc,
     dependencies : libpidgin_dep,

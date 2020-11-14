@@ -23,7 +23,7 @@ configure_file(
     output : 'version.xml',
     configuration : version_conf)
 
-gnome.gtkdoc(DOC_MODULE,
+finch_doc = gnome.gtkdoc(DOC_MODULE,
     main_xml : DOC_MODULE + '-docs.xml',
     src_dir : libfinch_inc,
     dependencies : libfinch_dep,
