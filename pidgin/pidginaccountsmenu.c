@@ -1,5 +1,6 @@
 /*
- * pidgin
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -16,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "pidginaccountsmenu.h"
@@ -32,6 +32,7 @@
 struct _PidginAccountsMenu {
 	GtkMenu parent;
 
+	GtkWidget *enable_account;
 	GtkWidget *disabled_menu;
 	GtkWidget *separator;
 
@@ -87,6 +88,10 @@ pidgin_accounts_menu_add_enabled_account(PidginAccountsMenu *menu,
 	if(found) {
 		g_clear_pointer(&data, gtk_widget_destroy);
 		g_hash_table_remove(menu->disabled_items, account);
+
+		if(g_hash_table_size(menu->disabled_items) == 0) {
+			gtk_widget_set_sensitive(menu->enable_account, FALSE);
+		}
 	}
 
 	item = pidgin_accounts_menu_create_account_menu_item(menu, account);
@@ -126,6 +131,11 @@ pidgin_accounts_menu_add_disabled_account(PidginAccountsMenu *menu,
 	g_hash_table_insert(menu->disabled_items,
 	                    g_object_ref(G_OBJECT(account)),
 	                    item);
+
+	/* We know there's at least one item in the menu, so make sure it is
+	 * sensitive.
+	 */
+	gtk_widget_set_sensitive(menu->enable_account, TRUE);
 }
 
 static void
@@ -237,6 +247,8 @@ pidgin_accounts_menu_class_init(PidginAccountsMenuClass *klass) {
 	    "/im/pidgin/Pidgin/Accounts/menu.ui"
 	);
 
+	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,
+	                                     enable_account);
 	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,
 	                                     disabled_menu);
 	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,
