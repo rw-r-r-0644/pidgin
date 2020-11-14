@@ -72,8 +72,6 @@ struct _XepXfer
 	GSocketClient *client;
 	GSocketService *service;
 	GSocketConnection *conn;
-	int sock5_req_state;
-	int rxlen;
 	char rx_buf[0x500];
 	char tx_buf[0x500];
 	char *jid;
@@ -792,92 +790,123 @@ bonjour_xfer_receive(PurpleConnection *pc, const char *id, const char *sid, cons
 }
 
 static void
-bonjour_sock5_request_cb(gpointer data, gint source, PurpleInputCondition cond)
+bonjour_sock5_request_cb(GObject *source, GAsyncResult *result,
+                         gpointer user_data)
 {
-	PurpleXfer *xfer = data;
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
 	XepXfer *xf = XEP_XFER(xfer);
-	int len = 0;
+	gsize bytes_written = 0;
+	GError *error = NULL;
+	GSocket *sock = NULL;
+	gint fd = -1;
 
-	if(xf == NULL)
+	purple_debug_info("bonjour", "bonjour_sock5_request_cb");
+
+	if (!g_output_stream_write_all_finish(G_OUTPUT_STREAM(source), result,
+	                                      &bytes_written, &error)) {
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			purple_xfer_cancel_remote(xfer);
+		}
+		g_clear_error(&error);
 		return;
-
-	purple_debug_info("bonjour", "bonjour_sock5_request_cb - req_state = 0x%x\n", xf->sock5_req_state);
-
-	switch(xf->sock5_req_state){
-	case 0x01:
-		purple_xfer_set_fd(xfer, source);
-		len = read(source, xf->rx_buf + xf->rxlen, 3);
-		if(len < 0 && errno == EAGAIN)
-			return;
-		else if(len <= 0){
-			purple_xfer_cancel_remote(xfer);
-			return;
-		} else {
-			purple_input_remove(purple_xfer_get_watcher(xfer));
-			purple_xfer_set_watcher(xfer, purple_input_add(source, PURPLE_INPUT_WRITE,
-							 bonjour_sock5_request_cb, xfer));
-			xf->sock5_req_state++;
-			xf->rxlen = 0;
-			bonjour_sock5_request_cb(xfer, source, PURPLE_INPUT_WRITE);
-		}
-		break;
-	case 0x02:
-		xf->tx_buf[0] = 0x05;
-		xf->tx_buf[1] = 0x00;
-		len = write(source, xf->tx_buf, 2);
-		if (len < 0 && errno == EAGAIN)
-			return;
-		else if (len < 0) {
-			close(source);
-			purple_xfer_cancel_remote(xfer);
-			return;
-		} else {
-			purple_input_remove(purple_xfer_get_watcher(xfer));
-			purple_xfer_set_watcher(xfer, purple_input_add(source, PURPLE_INPUT_READ,
-							 bonjour_sock5_request_cb, xfer));
-			xf->sock5_req_state++;
-			xf->rxlen = 0;
-		}
-		break;
-	case 0x03:
-		len = read(source, xf->rx_buf + xf->rxlen, 20);
-		if(len<=0){
-		} else {
-			purple_input_remove(purple_xfer_get_watcher(xfer));
-			purple_xfer_set_watcher(xfer, purple_input_add(source, PURPLE_INPUT_WRITE,
-							 bonjour_sock5_request_cb, xfer));
-			xf->sock5_req_state++;
-			xf->rxlen = 0;
-			bonjour_sock5_request_cb(xfer, source, PURPLE_INPUT_WRITE);
-		}
-		break;
-	case 0x04:
-		xf->tx_buf[0] = 0x05;
-		xf->tx_buf[1] = 0x00;
-		xf->tx_buf[2] = 0x00;
-		xf->tx_buf[3] = 0x03;
-		xf->tx_buf[4] = strlen(xf->buddy_ip);
-		memcpy(xf->tx_buf + 5, xf->buddy_ip, strlen(xf->buddy_ip));
-		xf->tx_buf[5+strlen(xf->buddy_ip)] = 0x00;
-		xf->tx_buf[6+strlen(xf->buddy_ip)] = 0x00;
-		len = write(source, xf->tx_buf, 7 + strlen(xf->buddy_ip));
-		if (len < 0 && errno == EAGAIN) {
-			return;
-		} else if (len < 0) {
-			close(source);
-			purple_xfer_cancel_remote(xfer);
-			return;
-		} else {
-			purple_input_remove(purple_xfer_get_watcher(xfer));
-			purple_xfer_set_watcher(xfer, 0);
-			xf->rxlen = 0;
-			/*close(source);*/
-			purple_xfer_start(xfer, source, NULL, -1);
-		}
-		break;
-	default:
-		break;
 	}
+
+	sock = g_socket_connection_get_socket(xf->conn);
+	fd = g_socket_get_fd(sock);
+	purple_debug_info("bonjour", "Accepted SOCKS5 ft connection - fd=%d", fd);
+
+	_purple_network_set_common_socket_flags(fd);
+	purple_xfer_start(xfer, fd, NULL, -1);
+}
+
+static void
+bonjour_sock5_read_connect_cb(GObject *source, GAsyncResult *result,
+                              gpointer user_data)
+{
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
+	XepXfer *xf = XEP_XFER(xfer);
+	GOutputStream *output = NULL;
+	gsize bytes_read = 0;
+	GError *error = NULL;
+
+	purple_debug_info("bonjour", "bonjour_sock5_request_state4_cb");
+
+	if (!g_input_stream_read_all_finish(G_INPUT_STREAM(source), result,
+	                                    &bytes_read, &error)) {
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			purple_xfer_cancel_remote(xfer);
+		}
+		g_clear_error(&error);
+		return;
+	}
+
+	xf->tx_buf[0] = 0x05;
+	xf->tx_buf[1] = 0x00;
+	xf->tx_buf[2] = 0x00;
+	xf->tx_buf[3] = 0x03;
+	xf->tx_buf[4] = strlen(xf->buddy_ip);
+	memcpy(xf->tx_buf + 5, xf->buddy_ip, strlen(xf->buddy_ip));
+	xf->tx_buf[5 + strlen(xf->buddy_ip)] = 0x00;
+	xf->tx_buf[6 + strlen(xf->buddy_ip)] = 0x00;
+	g_output_stream_write_all_async(
+	        output, xf->tx_buf, 7 + strlen(xf->buddy_ip), G_PRIORITY_DEFAULT,
+	        xf->cancellable, bonjour_sock5_request_cb, xfer);
+}
+
+static void
+bonjour_sock5_write_server_method_cb(GObject *source, GAsyncResult *result,
+                                     gpointer user_data)
+{
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
+	XepXfer *xf = XEP_XFER(xfer);
+	GInputStream *input = NULL;
+	gsize bytes_written = 0;
+	GError *error = NULL;
+
+	purple_debug_info("bonjour", "bonjour_sock5_request_state3_cb");
+
+	if (!g_output_stream_write_all_finish(G_OUTPUT_STREAM(source), result,
+	                                      &bytes_written, &error)) {
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			purple_xfer_cancel_remote(xfer);
+		}
+		g_clear_error(&error);
+		return;
+	}
+
+	input = g_io_stream_get_input_stream(G_IO_STREAM(xf->conn));
+	g_input_stream_read_all_async(input, xf->rx_buf, 20, G_PRIORITY_DEFAULT,
+	                              xf->cancellable,
+	                              bonjour_sock5_read_connect_cb, xfer);
+}
+
+static void
+bonjour_sock5_read_client_version_cb(GObject *source, GAsyncResult *result,
+                                     gpointer user_data)
+{
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
+	XepXfer *xf = XEP_XFER(xfer);
+	GOutputStream *output = NULL;
+	gsize bytes_read = 0;
+	GError *error = NULL;
+
+	purple_debug_info("bonjour", "bonjour_sock5_read_client_version_cb");
+
+	if (!g_input_stream_read_all_finish(G_INPUT_STREAM(source), result,
+	                                    &bytes_read, &error)) {
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			purple_xfer_cancel_remote(xfer);
+		}
+		g_clear_error(&error);
+		return;
+	}
+
+	xf->tx_buf[0] = 0x05;
+	xf->tx_buf[1] = 0x00;
+	output = g_io_stream_get_output_stream(G_IO_STREAM(xf->conn));
+	g_output_stream_write_all_async(output, xf->tx_buf, 2, G_PRIORITY_DEFAULT,
+	                                xf->cancellable,
+	                                bonjour_sock5_write_server_method_cb, xfer);
 }
 
 static void
@@ -887,37 +916,24 @@ bonjour_sock5_incoming_cb(GSocketService *service,
 {
 	PurpleXfer *xfer = PURPLE_XFER(source_object);
 	XepXfer *xf = XEP_XFER(xfer);
-	GSocket *sock;
-	int fd;
+	GInputStream *input = NULL;
 
 	if (xf == NULL) {
 		return;
 	}
 
-	purple_debug_info("bonjour", "bonjour_sock5_incoming_cb - req_state = 0x%x",
-	                  xf->sock5_req_state);
-
-	if (G_UNLIKELY(xf->sock5_req_state != 0x0)) {
-		purple_debug_error("bonjour", "bonjour_sock5_incoming_cb - socks5 "
-		                              "proxy is in invalid state.");
-		purple_xfer_cancel_local(xfer);
-		return;
-	}
+	purple_debug_info("bonjour", "bonjour_sock5_incoming_cb");
 
 	xf->conn = g_object_ref(connection);
 	g_socket_service_stop(xf->service);
 	g_clear_object(&xf->service);
 
-	sock = g_socket_connection_get_socket(connection);
-	fd = g_socket_get_fd(sock);
-	purple_debug_info("bonjour", "Accepted SOCKS5 ft connection - fd=%d", fd);
+	purple_debug_info("bonjour", "Accepted SOCKS5 ft connection");
+	input = g_io_stream_get_input_stream(G_IO_STREAM(xf->conn));
 
-	_purple_network_set_common_socket_flags(fd);
-	purple_xfer_set_watcher(xfer,
-	                        purple_input_add(fd, PURPLE_INPUT_READ,
-	                                         bonjour_sock5_request_cb, xfer));
-	xf->sock5_req_state++;
-	xf->rxlen = 0;
+	g_input_stream_read_all_async(input, xf->rx_buf, 3, G_PRIORITY_DEFAULT,
+	                              xf->cancellable,
+	                              bonjour_sock5_read_client_version_cb, xfer);
 }
 
 static void
