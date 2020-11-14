@@ -5188,7 +5188,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 {
 	PidginBuddyListPrivate *priv;
 	void *handle;
-	GSimpleActionGroup *actions;
 	GtkTreeViewColumn *column;
 	GtkWidget *sep;
 	GtkWidget *infobar;
