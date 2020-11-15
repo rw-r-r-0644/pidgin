@@ -756,6 +756,7 @@ GApplication *
 pidgin_application_new(void) {
 	return g_object_new(
 		PIDGIN_TYPE_APPLICATION,
+		"application-id", "im.pidgin.Pidgin3",
 		"flags", G_APPLICATION_CAN_OVERRIDE_APP_ID |
 		         G_APPLICATION_HANDLES_COMMAND_LINE,
 		"register-session", TRUE,
