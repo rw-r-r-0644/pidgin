@@ -848,6 +848,7 @@ bonjour_sock5_read_connect_cb(GObject *source, GAsyncResult *result,
 	memcpy(xf->tx_buf + 5, xf->buddy_ip, strlen(xf->buddy_ip));
 	xf->tx_buf[5 + strlen(xf->buddy_ip)] = 0x00;
 	xf->tx_buf[6 + strlen(xf->buddy_ip)] = 0x00;
+	output = g_io_stream_get_output_stream(G_IO_STREAM(xf->conn));
 	g_output_stream_write_all_async(
 	        output, xf->tx_buf, 7 + strlen(xf->buddy_ip), G_PRIORITY_DEFAULT,
 	        xf->cancellable, bonjour_sock5_request_cb, xfer);
