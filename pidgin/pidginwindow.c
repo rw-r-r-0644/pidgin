@@ -19,6 +19,8 @@
  * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <glib/gi18n-lib.h>
+
 #include "pidginwindow.h"
 
 #include "pidgincore.h"
