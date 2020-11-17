@@ -38,6 +38,9 @@ purple_minor_version = parts[1]
 purple_micro_version = parts[2]
 
 GETTEXT_PACKAGE=meson.project_name()
+if get_option('nls')
+	find_program('gettext')
+endif
 
 add_project_arguments([
 	'-DHAVE_CONFIG_H=1',
