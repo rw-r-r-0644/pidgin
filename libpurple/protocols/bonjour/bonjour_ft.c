@@ -148,40 +148,16 @@ static void bonjour_xfer_cancel_recv(PurpleXfer *xfer)
 	g_cancellable_cancel(xf->cancellable);
 }
 
-struct socket_cleanup {
-	int fd;
-	guint handle;
-};
-
-static void
-_wait_for_socket_close(gpointer data, gint source, PurpleInputCondition cond)
-{
-	struct socket_cleanup *sc = data;
-	char buf[1];
-	int ret;
-
-	ret = recv(source, buf, 1, 0);
-
-	if (ret == 0 || (ret == -1 && !(errno == EAGAIN || errno == EWOULDBLOCK))) {
-		purple_debug_info("bonjour", "Client completed recieving; closing server socket.\n");
-		purple_input_remove(sc->handle);
-		close(sc->fd);
-		g_free(sc);
-	}
-}
-
 static void bonjour_xfer_end(PurpleXfer *xfer)
 {
-	purple_debug_info("bonjour", "Bonjour-xfer-end.\n");
+	purple_debug_info("bonjour", "Bonjour-xfer-end for xfer %p", xfer);
 
 	/* We can't allow the server side to close the connection until the client is complete,
 	 * otherwise there is a RST resulting in an error on the client side */
 	if (purple_xfer_get_xfer_type(xfer) == PURPLE_XFER_TYPE_SEND && purple_xfer_is_completed(xfer)) {
-		struct socket_cleanup *sc = g_new0(struct socket_cleanup, 1);
-		sc->fd = purple_xfer_get_fd(xfer);
+		XepXfer *xf = XEP_XFER(xfer);
+		g_io_stream_close_async(G_IO_STREAM(xf->conn), G_PRIORITY_DEFAULT, xf->cancellable, NULL, NULL);
 		purple_xfer_set_fd(xfer, -1);
-		sc->handle = purple_input_add(sc->fd, PURPLE_INPUT_READ,
-						 _wait_for_socket_close, sc);
 	}
 }
 
