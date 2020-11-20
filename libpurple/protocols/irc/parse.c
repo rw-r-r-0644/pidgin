@@ -700,16 +700,19 @@ void irc_parse_msg(struct irc_conn *irc, char *input)
 		g_free(msg);
 		return;
 	} else if (!strncmp(input, "ERROR ", 6)) {
+		GError *error;
 		if (g_utf8_validate(input, -1, NULL)) {
-			purple_connection_take_error(gc, g_error_new(
+			error = g_error_new(
 				PURPLE_CONNECTION_ERROR,
 				PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-				"%s\n%s", _("Disconnected."), input));
-		} else
-			purple_connection_take_error(gc, g_error_new_literal(
+				"%s\n%s", _("Disconnected."), input);
+		} else {
+			error = g_error_new_literal(
 				PURPLE_CONNECTION_ERROR,
 				PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-				_("Disconnected.")));
+				_("Disconnected."));
+		}
+		purple_connection_take_error(gc, error);
 		return;
 #ifdef HAVE_CYRUS_SASL
 	} else if (!strncmp(input, "AUTHENTICATE ", 13)) {

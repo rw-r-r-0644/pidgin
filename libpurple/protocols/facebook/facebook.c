@@ -975,7 +975,7 @@ fb_login(PurpleAccount *acct)
 	if (resolver == NULL) {
 		fb_util_debug_error("Unable to get account proxy resolver: %s",
 		                    error->message);
-		purple_connection_g_error(gc, error);
+		purple_connection_take_error(gc, error);
 		return;
 	}
 

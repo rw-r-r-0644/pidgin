@@ -710,7 +710,7 @@ static void ggp_login(PurpleAccount *account)
 	if (resolver == NULL) {
 		purple_debug_error("gg", "Unable to get account proxy resolver: %s",
 		                   error->message);
-		purple_connection_g_error(gc, error);
+		purple_connection_take_error(gc, error);
 		return;
 	}
 
