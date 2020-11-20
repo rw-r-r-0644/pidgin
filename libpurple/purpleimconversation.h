@@ -30,8 +30,8 @@
 #include <glib-object.h>
 
 /**
- * SECTION:imconversation
- * @section_id: libpurple-imconversation
+ * SECTION:purpleimconversation
+ * @section_id: libpurple-purpleimconversation
  * @title: IM Conversation Objects
  */
 

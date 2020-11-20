@@ -55,7 +55,7 @@ typedef struct _PurpleCoreUiOps PurpleCoreUiOps;
  *                 during their initialization.
  * @ui_init:       Called after all of libpurple has been initialized. The UI
  *                 should use this hook to set all other necessary
- *    <link linkend="chapter-ui-ops"><literal>UiOps structures</literal></link>.
+ *                 <link linkend="chapter-ui-ops"><literal>UiOps structures</literal></link>.
  * @quit:          Called after most of libpurple has been uninitialized.
  * @get_ui_info:   Called by purple_core_get_ui_info(); should return the
  *                 information documented there.

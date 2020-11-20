@@ -442,14 +442,14 @@ void purple_account_set_status_types(PurpleAccount *account, GList *status_types
  *             <literal>"message"</literal> followed by
  *             <literal>"hello, talk to me!"</literal>.)
  *
- * Variadic version of purple_account_set_status_list().
+ * Variadic version of purple_account_set_status_attrs().
  */
 void purple_account_set_status(PurpleAccount *account, const char *status_id,
 	gboolean active, ...) G_GNUC_NULL_TERMINATED;
 
 
 /**
- * purple_account_set_status_list:
+ * purple_account_set_status_attrs:
  * @account:   The account.
  * @status_id: The ID of the status.
  * @active:    Whether @a status_id is to be activated (%TRUE) or

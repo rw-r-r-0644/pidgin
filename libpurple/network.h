@@ -126,14 +126,12 @@ const char *purple_network_get_my_ip(int fd);
  * purple_network_get_my_ip_from_gio:
  * @sockconn: The socket connection to use to help figure out the IP, or %NULL.
  *
- * Returns the IP address that should be used anywhere a
- * public IP addresses is needed (listening for an incoming
- * file transfer, etc).
+ * Returns the IP address that should be used anywhere a public IP address is
+ * needed (listening for an incoming file transfer, etc).
  *
- * If the user has manually specified an IP address via
- * preferences, then this IP is returned.  Otherwise the
- * IP address returned by purple_network_get_local_system_ip_from_gio()
- * is returned.
+ * If the user has manually specified an IP address via preferences, then this
+ * IP is returned.  Otherwise STUN, UPNP, NAT-PMP, and finally GIO will be
+ * attempted to discover the local IP address depending on what's available.
  *
  * Returns: The local IP address to be used.
  */

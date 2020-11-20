@@ -255,7 +255,7 @@ gboolean purple_credential_manager_clear_password_finish(PurpleCredentialManager
 
 /**
  * purple_credential_manager_read_settings:
- * @manager: The #PurpleCredentialManagerInstance.
+ * @manager: The #PurpleCredentialManager instance.
  * @error: (out) (optional) (nullable): A return address for a #GError.
  *
  * Reads settings from the active #PurpleCredentialProvider of @manager.
@@ -269,7 +269,7 @@ PurpleRequestFields *purple_credential_manager_read_settings(PurpleCredentialMan
 
 /**
  * purple_credential_manager_write_settings:
- * @provider: The #PurpleCredentialManager instance.
+ * @manager: The #PurpleCredentialManager instance.
  * @fields: (transfer full): Modified settings from
  *          purple_credential_manager_read_settings().
  * @error: (out) (optional) (nullable): A return address for a #GError.
