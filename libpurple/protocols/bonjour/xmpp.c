@@ -44,10 +44,6 @@
 #endif
 #include <fcntl.h>
 
-#ifdef HAVE_GETIFADDRS
-#include <ifaddrs.h>
-#endif
-
 #include "xmpp.h"
 #include "parser.h"
 #include "bonjour.h"

@@ -32,6 +32,8 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <nice.h>
+
 #include <purple.h>
 
 #include "buddy.h"
@@ -1039,7 +1041,7 @@ jabber_si_xfer_bytestreams_send_init(PurpleXfer *xfer)
 		gchar *public_ip;
 
 		/* Include the localhost's IPs (for in-network transfers) */
-		local_ips = purple_network_get_all_local_system_ips();
+		local_ips = nice_interfaces_get_local_ips(FALSE);
 
 		/* Include the public IP (assuming there is a port mapped somehow) */
 		public_ip = purple_network_get_my_ip_from_gio(

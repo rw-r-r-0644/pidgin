@@ -30,6 +30,8 @@
 #endif
 #include <errno.h>
 
+#include <nice.h>
+
 #include <purple.h>
 
 #include "bonjour.h"
@@ -944,7 +946,7 @@ bonjour_bytestreams_init(PurpleXfer *xfer)
 
 	purple_xfer_set_local_port(xfer, port);
 
-	local_ips = purple_network_get_all_local_system_ips();
+	local_ips = nice_interfaces_get_local_ips(FALSE);
 
 	port_str = g_strdup_printf("%hu", port);
 	while(local_ips) {

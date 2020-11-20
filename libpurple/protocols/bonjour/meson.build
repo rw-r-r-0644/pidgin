@@ -26,6 +26,6 @@ endif
 if DYNAMIC_BONJOUR
 	bonjour_prpl = shared_library('bonjour', BONJOURSOURCES,
 	    link_args : bonjour_link_args,
-	    dependencies : [libxml, avahi, libpurple_dep, glib, ws2_32],
+	    dependencies : [libxml, avahi, libpurple_dep, glib, nice, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 endif
