@@ -516,37 +516,23 @@ xep_si_parse(PurpleConnection *pc, PurpleXmlNode *packet, PurpleBuddy *pb)
 static gboolean
 xep_cmp_addr(const char *host, const char *buddy_ip)
 {
-#if defined(AF_INET6) && defined(HAVE_GETADDRINFO)
-	struct addrinfo hint, *res = NULL;
-	common_sockaddr_t addr;
-	int ret;
+	GInetAddress *addr = NULL;
 
-	memset(&hint, 0, sizeof(hint));
-	hint.ai_family = AF_UNSPEC;
-	hint.ai_flags = AI_NUMERICHOST;
+	addr = g_inet_address_new_from_string(host);
+	if (addr != NULL &&
+	    g_inet_address_get_family(addr) == G_SOCKET_FAMILY_IPV6 &&
+	    g_inet_address_get_is_link_local(addr)) {
+		g_clear_object(&addr);
 
-	ret = getaddrinfo(host, NULL, &hint, &res);
-	if(ret)
-		goto out;
-	memcpy(&addr, res->ai_addr, sizeof(addr));
+		if (strlen(buddy_ip) <= strlen(host) || buddy_ip[strlen(host)] != '%') {
+			return FALSE;
+		}
 
-	if (res->ai_family != AF_INET6 ||
-		!IN6_IS_ADDR_LINKLOCAL(&addr.in6.sin6_addr))
-	{
-		freeaddrinfo(res);
-		goto out;
+		return !strncmp(host, buddy_ip, strlen(host));
+	} else {
+		g_clear_object(&addr);
+		return purple_strequal(host, buddy_ip);
 	}
-	freeaddrinfo(res);
-
-	if(strlen(buddy_ip) <= strlen(host) ||
-	   buddy_ip[strlen(host)] != '%')
-		return FALSE;
-
-	return !strncmp(host, buddy_ip, strlen(host));
-
-out:
-#endif
-	return purple_strequal(host, buddy_ip);
 }
 
 static inline gint
