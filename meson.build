@@ -287,6 +287,11 @@ enable_introspection = dependency('gobject-introspection-1.0', version : '>= 1.3
 conf.set('ENABLE_INTROSPECTION', enable_introspection)
 
 #######################################################################
+# Check for libnice
+#######################################################################
+nice = dependency('nice', version : '>=0.1.16')
+
+#######################################################################
 # Check Pidgin dependencies
 #######################################################################
 if get_option('gtkui')
