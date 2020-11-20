@@ -24,8 +24,6 @@
 
 #include <purple.h>
 
-#include "finch.h"
-
 #include <gnt.h>
 
 #include "gntlog.h"

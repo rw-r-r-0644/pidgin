@@ -22,9 +22,15 @@
 #ifndef FINCH_H
 #define FINCH_H
 
+#ifndef __GI_SCANNER__ /* hide this bit from g-ir-scanner */
+# ifdef FINCH_COMPILATION
+#  error "finch source files should not be including finch.h"
+# endif /* FINCH_COMPILATION */
+#endif /* __GI_SCANNER__ */
+
 #ifndef FINCH_GLOBAL_HEADER_INSIDE
-#define FINCH_GLOBAL_HEADER_INSIDE
-#endif
+# define FINCH_GLOBAL_HEADER_INSIDE
+#endif /* FINCH_GLOBAL_HEADER_INSIDE */
 
 @FINCH_H_INCLUDES@
 

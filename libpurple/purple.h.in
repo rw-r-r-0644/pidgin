@@ -23,11 +23,17 @@
 #ifndef PURPLE_PURPLE_H
 #define PURPLE_PURPLE_H
 
+#ifndef __GI_SCANNER__ /* hide this bit from g-ir-scanner */
+# ifdef PURPLE_COMPILATION
+#  error "libpurple source files should not be including purple.h"
+# endif /* PURPLE_COMPILATION */
+#endif /* __GI_SCANNER__ */
+
 #include <glib.h>
 
 #ifndef PURPLE_GLOBAL_HEADER_INSIDE
-#define PURPLE_GLOBAL_HEADER_INSIDE
-#endif
+# define PURPLE_GLOBAL_HEADER_INSIDE
+#endif /* PURPLE_GLOBAL_HEADER_INSIDE */
 
 @PURPLE_H_INCLUDES@
 

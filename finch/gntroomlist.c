@@ -22,7 +22,7 @@
 
 #include <glib/gi18n-lib.h>
 
-#include <finch.h>
+#include <purple.h>
 
 #include <gnt.h>
 

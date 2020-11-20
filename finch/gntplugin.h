@@ -40,8 +40,6 @@
 
 #include <string.h>
 
-#include "finch.h"
-
 #define FINCH_TYPE_PLUGIN_INFO             (finch_plugin_info_get_type())
 #define FINCH_PLUGIN_INFO(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), FINCH_TYPE_PLUGIN_INFO, FinchPluginInfo))
 #define FINCH_PLUGIN_INFO_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), FINCH_TYPE_PLUGIN_INFO, FinchPluginInfoClass))

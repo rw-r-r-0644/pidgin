@@ -37,9 +37,15 @@
 
 #include <glib.h>
 
+#ifndef __GI_SCANNER__
+# ifdef PIDGIN_COMPILATION
+#  error "pidgin source files should not be including pidgin.h"
+# endif /* PIDGIN_COMPILATION */
+#endif /* __GI_SCANNER__ */
+
 #ifndef PIDGIN_GLOBAL_HEADER_INSIDE
-#define PIDGIN_GLOBAL_HEADER_INSIDE
-#endif
+# define PIDGIN_GLOBAL_HEADER_INSIDE
+#endif /* PIDGIN_GLOBAL_HEADER_INSIDE */
 
 @PIDGIN_H_INCLUDES@
 

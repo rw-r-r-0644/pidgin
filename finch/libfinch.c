@@ -27,7 +27,6 @@
 #include <glib/gstdio.h>
 
 #include <locale.h>
-#include "finch.h"
 
 #include <purple.h>
 
@@ -35,6 +34,7 @@
 #include "gntidle.h"
 #include "gntprefs.h"
 #include "gntui.h"
+#include "libfinch.h"
 
 #include "config.h"
 #include "package_revision.h"

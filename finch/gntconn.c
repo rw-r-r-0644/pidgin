@@ -20,14 +20,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include "finch.h"
-
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
 
 #include "gntaccount.h"
 #include "gntconn.h"
+#include "libfinch.h"
 
 #define INITIAL_RECON_DELAY_MIN 8
 #define INITIAL_RECON_DELAY_MAX 60
