@@ -26,6 +26,8 @@
 
 #include <gnt.h>
 
+#include "gntmenuutil.h"
+
 static void
 context_menu_callback(GntMenuItem *item, gpointer data)
 {
