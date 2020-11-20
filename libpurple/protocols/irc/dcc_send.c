@@ -261,7 +261,9 @@ irc_dccsend_send_init(PurpleXfer *xfer)
 	struct irc_conn *irc;
 	const char *arg[2];
 	char *tmp;
-	struct in_addr addr;
+	GInetAddress *addr = NULL;
+	const guint8 *bytes = NULL;
+	guint32 ip = 0;
 	guint16 port;
 	GError *error = NULL;
 
@@ -303,11 +305,14 @@ irc_dccsend_send_init(PurpleXfer *xfer)
 	/* Send the intended recipient the DCC request */
 	arg[0] = purple_xfer_get_remote_user(xfer);
 	tmp = purple_network_get_my_ip_from_gio(irc->conn);
-	inet_aton(tmp, &addr);
+	addr = g_inet_address_new_from_string(tmp);
+	bytes = g_inet_address_to_bytes(addr);
+	ip = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+	g_object_unref(addr);
 	g_free(tmp);
 	arg[1] = tmp = g_strdup_printf(
 	        "\001DCC SEND \"%s\" %u %hu %" G_GOFFSET_FORMAT "\001",
-	        purple_xfer_get_filename(xfer), ntohl(addr.s_addr), port,
+	        purple_xfer_get_filename(xfer), ip, port,
 	        purple_xfer_get_size(xfer));
 
 	irc_cmd_privmsg(purple_connection_get_protocol_data(gc), "msg", NULL, arg);
