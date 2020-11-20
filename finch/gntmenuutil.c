@@ -20,11 +20,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <glib.h>
+
 #include <purple.h>
 
 #include <gnt.h>
-
-#include "finch.h"
 
 static void
 context_menu_callback(GntMenuItem *item, gpointer data)

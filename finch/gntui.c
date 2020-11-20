@@ -26,8 +26,6 @@
 
 #include <purple.h>
 
-#include "finch.h"
-
 #include "gntui.h"
 
 #include "gntaccount.h"

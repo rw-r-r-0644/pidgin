@@ -24,8 +24,6 @@
 
 #include <gnt.h>
 
-#include "finch.h"
-
 #include "gntidle.h"
 
 static time_t

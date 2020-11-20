@@ -26,10 +26,9 @@
 
 #include <gnt.h>
 
-#include "finch.h"
-
 #include "gntplugin.h"
 #include "gntrequest.h"
+#include "libfinch.h"
 
 typedef struct
 {

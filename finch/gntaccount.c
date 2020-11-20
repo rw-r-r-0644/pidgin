@@ -26,10 +26,9 @@
 
 #include <gnt.h>
 
-#include "finch.h"
-
 #include "gntaccount.h"
 #include "gntblist.h"
+#include "libfinch.h"
 
 #include <string.h>
 

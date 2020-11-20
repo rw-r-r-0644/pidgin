@@ -35,6 +35,7 @@
 #include "gntconv.h"
 #include "gntdebug.h"
 #include "gntlog.h"
+#include "gntmenuutil.h"
 #include "gntplugin.h"
 #include "gntpounce.h"
 #include "gntprefs.h"

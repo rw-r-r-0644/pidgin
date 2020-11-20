@@ -23,7 +23,7 @@
 
 #include <glib/gi18n.h>
 
-#include <pidgin.h>
+#include "pidgincore.h"
 
 #ifdef _WIN32
 /* suppress gcc "no previous prototype" warning */

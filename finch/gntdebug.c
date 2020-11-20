@@ -31,7 +31,6 @@
 #include <gnt.h>
 
 #include "gntdebug.h"
-#include "finch.h"
 
 #include <stdio.h>
 #include <string.h>

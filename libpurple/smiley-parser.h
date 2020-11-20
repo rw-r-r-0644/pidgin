@@ -25,6 +25,7 @@
 
 #ifndef PURPLE_SMILEY_PARSER_H
 #define PURPLE_SMILEY_PARSER_H
+
 /**
  * SECTION:smiley-parser
  * @include:smiley-parser.h
@@ -38,7 +39,11 @@
  * smileys > local custom smileys > theme smileys.
  */
 
-#include "purple.h"
+#include <glib.h>
+
+#include "conversation.h"
+#include "smiley.h"
+#include "smiley-list.h"
 
 /**
  * PurpleSmileyParseCb:

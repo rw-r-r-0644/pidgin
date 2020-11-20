@@ -28,9 +28,9 @@
 
 #include <gnt.h>
 
-#include "finch.h"
 #include "gntconv.h"
 #include "gntmedia.h"
+#include "libfinch.h"
 
 /* An incredibly large part of the following is from gtkmedia.c */
 #ifdef USE_VV
