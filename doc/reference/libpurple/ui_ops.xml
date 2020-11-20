@@ -19,7 +19,6 @@
 <listitem><link linkend="PurpleNotifyUiOps"><literal>PurpleNotifyUiOps</literal></link></listitem>
 <listitem><link linkend="PurpleRequestUiOps"><literal>PurpleRequestUiOps</literal></link></listitem>
 <listitem><link linkend="PurpleRoomlistUiOps"><literal>PurpleRoomlistUiOps</literal></link></listitem>
-<listitem><link linkend="PurpleSoundUiOps"><literal>PurpleSoundUiOps</literal></link></listitem>
 <listitem><link linkend="PurpleWhiteboardUiOps"><literal>PurpleWhiteboardUiOps</literal></link></listitem>
 <listitem><link linkend="PurpleXferUiOps"><literal>PurpleXferUiOps</literal></link></listitem>
   </itemizedlist>

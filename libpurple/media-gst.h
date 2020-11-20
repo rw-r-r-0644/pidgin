@@ -232,7 +232,7 @@ void purple_media_manager_set_video_caps(PurpleMediaManager *manager,
  *
  * Returns current set of media formats limiting the output from video source.
  *
- * Returns: #GstCaps limiting the video source's formats.
+ * Returns: GstCaps limiting the video source's formats.
  */
 GstCaps *purple_media_manager_get_video_caps(PurpleMediaManager *manager);
 

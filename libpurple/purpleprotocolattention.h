@@ -101,7 +101,7 @@ GList *purple_protocol_attention_get_types(PurpleProtocolAttention *attention, P
 /**
  * purple_protocol_attention_send_attention:
  * @attention: The #PurpleProtocolAttention instance.
- * @gc: The #PurpleConnection to send on
+ * @pc: The #PurpleConnection to send on
  * @username: The name of the user to send the attention to.
  * @type: The type of attention to send.
  *

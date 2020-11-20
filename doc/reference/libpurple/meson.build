@@ -11,6 +11,7 @@ ignore_hfiles = [
     'backend-fs2.h',
     'glibcompat.h',
     'internal.h',
+    'purple.h',
     'purpleprivate.h',
 ]
 
