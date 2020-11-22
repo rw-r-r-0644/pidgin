@@ -12,21 +12,6 @@
 #include "internal.h"
 #ifdef WIN32
 #include <winsock2.h>
-
-#ifndef ZEPHYR_USES_KERBEROS
-   int gettimeofday(struct timeval* p, struct timezone* tz ){
-     union {
-       long long ns100; /*time since 1 Jan 1601 in 100ns units */
-       FILETIME ft;
-     } _now;
-
-     GetSystemTimeAsFileTime( &(_now.ft) );
-     p->tv_usec=(long)((_now.ns100 / 10LL) % 1000000LL );
-     p->tv_sec= (long)((_now.ns100-(116444736000000000LL))/10000000LL);
-     return 0;
-   }
-#endif
-
 #else
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -192,23 +177,25 @@ Z_ReadEnqueue(void)
 
 static struct _Z_InputQ *Z_SearchQueue(ZUnique_Id_t *uid, ZNotice_Kind_t kind)
 {
-    register struct _Z_InputQ *qptr;
-    struct _Z_InputQ *next;
-    struct timeval tv;
+	register struct _Z_InputQ *qptr;
+	struct _Z_InputQ *next;
+	gint64 now;
 
-    (void) gettimeofday(&tv, (struct timezone *)0);
+	now = g_get_monotonic_time();
 
-    qptr = __Q_Head;
+	qptr = __Q_Head;
 
-    while (qptr) {
-	if (ZCompareUID(uid, &qptr->uid) && qptr->kind == kind)
-	    return (qptr);
-	next = qptr->next;
-	if (qptr->timep && ((time_t)qptr->timep+Z_NOTICETIMELIMIT < tv.tv_sec))
-	    Z_RemQueue(qptr);
-	qptr = next;
-    }
-    return (NULL);
+	while (qptr) {
+		if (ZCompareUID(uid, &qptr->uid) && qptr->kind == kind) {
+			return qptr;
+		}
+		next = qptr->next;
+		if (qptr->time && qptr->time + Z_NOTICETIMELIMIT < now) {
+			Z_RemQueue(qptr);
+		}
+		qptr = next;
+	}
+	return NULL;
 }
 
 /*
@@ -474,16 +461,15 @@ Z_AddNoticeToEntry(struct _Z_InputQ *qptr, ZNotice_t *notice, int part)
 {
     int last, oldfirst, oldlast;
     struct _Z_Hole *hole, *lasthole;
-    struct timeval tv;
 
-    /* Incorporate this notice's checked authentication. */
-    if (notice->z_checked_auth == ZAUTH_FAILED)
-	qptr->auth = ZAUTH_FAILED;
-    else if (notice->z_checked_auth == ZAUTH_NO && qptr->auth != ZAUTH_FAILED)
-	qptr->auth = ZAUTH_NO;
+	/* Incorporate this notice's checked authentication. */
+	if (notice->z_checked_auth == ZAUTH_FAILED) {
+		qptr->auth = ZAUTH_FAILED;
+	} else if (notice->z_checked_auth == ZAUTH_NO && qptr->auth != ZAUTH_FAILED) {
+		qptr->auth = ZAUTH_NO;
+	}
 
-    (void) gettimeofday(&tv, (struct timezone *)0);
-    qptr->timep = tv.tv_sec;
+	qptr->time = g_get_monotonic_time();
 
     last = part+notice->z_message_len-1;
 
@@ -572,7 +558,7 @@ Z_AddNoticeToEntry(struct _Z_InputQ *qptr, ZNotice_t *notice, int part)
 	if (!qptr->complete)
 	    __Q_CompleteLength++;
 	qptr->complete = 1;
-	qptr->timep = 0;		/* don't time out anymore */
+	qptr->time = 0; /* don't time out anymore */
 	qptr->packet_len = qptr->header_len+qptr->msg_len;
 	if (!(qptr->packet = (char *) malloc((unsigned) qptr->packet_len)))
 	    return (ENOMEM);
@@ -590,6 +576,7 @@ Z_FormatHeader(ZNotice_t *notice, char *buffer, int buffer_len, int *len,
 {
     Code_t retval;
     static char version[BUFSIZ]; /* default init should be all \0 */
+	gint64 realtime;
     struct sockaddr_in name;
     socklen_t namelen = sizeof(name);
 
@@ -610,9 +597,12 @@ Z_FormatHeader(ZNotice_t *notice, char *buffer, int buffer_len, int *len,
 
     notice->z_multinotice = "";
 
-    (void) gettimeofday(&notice->z_uid.tv, (struct timezone *)0);
-    notice->z_uid.tv.tv_sec = htonl((unsigned long) notice->z_uid.tv.tv_sec);
-    notice->z_uid.tv.tv_usec = htonl((unsigned long) notice->z_uid.tv.tv_usec);
+	realtime = g_get_real_time();
+	notice->z_uid.tv.tv_sec = realtime / G_USEC_PER_SEC;
+	notice->z_uid.tv.tv_usec =
+	        realtime - notice->z_uid.tv.tv_sec * G_USEC_PER_SEC;
+	notice->z_uid.tv.tv_sec = htonl((unsigned long)notice->z_uid.tv.tv_sec);
+	notice->z_uid.tv.tv_usec = htonl((unsigned long)notice->z_uid.tv.tv_usec);
 
     (void) memcpy(&notice->z_uid.zuid_addr, &__My_addr, sizeof(__My_addr));
 
@@ -867,12 +857,14 @@ Z_SendFragmentedNotice(ZNotice_t *notice, int len, Z_AuthProc cert_func,
 	(void) sprintf(multi, "%d/%d", offset, notice->z_message_len);
 	partnotice.z_multinotice = multi;
 	if (offset > 0) {
-	    (void) gettimeofday(&partnotice.z_uid.tv,
-				(struct timezone *)0);
-	    partnotice.z_uid.tv.tv_sec =
-		htonl((unsigned long) partnotice.z_uid.tv.tv_sec);
-	    partnotice.z_uid.tv.tv_usec =
-		htonl((unsigned long) partnotice.z_uid.tv.tv_usec);
+		gint64 realtime = g_get_real_time();
+		partnotice.z_uid.tv.tv_sec = realtime / G_USEC_PER_SEC;
+		partnotice.z_uid.tv.tv_usec =
+			    realtime - partnotice.z_uid.tv.tv_sec * G_USEC_PER_SEC;
+		partnotice.z_uid.tv.tv_sec =
+			    htonl((unsigned long)partnotice.z_uid.tv.tv_sec);
+		partnotice.z_uid.tv.tv_usec =
+			    htonl((unsigned long)partnotice.z_uid.tv.tv_usec);
 	    (void) memcpy((char *)&partnotice.z_uid.zuid_addr, &__My_addr,
 			  sizeof(__My_addr));
 	}

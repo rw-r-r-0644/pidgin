@@ -11,21 +11,6 @@
 
 #ifdef WIN32
 #include <winsock2.h>
-
-#ifndef ZEPHYR_USES_KERBEROS
-static int  gettimeofday(struct timeval* tv, struct timezone* tz){
-     union {
-     long long ns100; /*time since 1 Jan 1601 in 100ns units */
-       FILETIME ft;
-     } _now;
-
-     GetSystemTimeAsFileTime( &(_now.ft) );
-     tv->tv_usec=(long)((_now.ns100 / 10LL) % 1000000LL );
-     tv->tv_sec= (long)((_now.ns100-(116444736000000000LL))/10000000LL);
-     return 0;
-   }
-#endif
-
 #else
 #include <sys/socket.h>
 #endif
@@ -35,7 +20,8 @@ Z_WaitForNotice(ZNotice_t *notice, int (*pred)(ZNotice_t *, void *), void *arg,
                 int timeout)
 {
   Code_t retval;
-  struct timeval tv, t0;
+  gint64 t0, tdiff;
+  struct timeval tv;
   fd_set fdmask;
   int i, fd;
 
@@ -50,8 +36,7 @@ Z_WaitForNotice(ZNotice_t *notice, int (*pred)(ZNotice_t *, void *), void *arg,
   FD_ZERO (&fdmask);
   tv.tv_sec = timeout;
   tv.tv_usec = 0;
-  gettimeofday (&t0, (struct timezone *)NULL);
-  t0.tv_sec += timeout;
+  t0 = g_get_monotonic_time() + timeout * G_USEC_PER_SEC;
   while (1) {
     FD_SET (fd, &fdmask);
     i = select (fd + 1, &fdmask, (fd_set *) 0, (fd_set *) 0, &tv);
@@ -65,14 +50,9 @@ Z_WaitForNotice(ZNotice_t *notice, int (*pred)(ZNotice_t *, void *), void *arg,
       if (retval != ZERR_NONOTICE) /* includes ZERR_NONE */
 	return retval;
     }
-    gettimeofday (&tv, (struct timezone *) NULL);
-    tv.tv_usec = t0.tv_usec - tv.tv_usec;
-    if (tv.tv_usec < 0) {
-      tv.tv_usec += 1000000;
-      tv.tv_sec = t0.tv_sec - tv.tv_sec - 1;
-    }
-    else
-      tv.tv_sec = t0.tv_sec - tv.tv_sec;
+		tdiff = t0 - g_get_monotonic_time();
+		tv.tv_sec = tdiff / G_USEC_PER_SEC;
+		tv.tv_usec = tdiff - tv.tv_sec * G_USEC_PER_SEC;
   }
   /*NOTREACHED*/
 }
