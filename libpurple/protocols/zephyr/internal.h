@@ -65,7 +65,7 @@ struct _Z_InputQ {
     struct _Z_InputQ	*next;
     struct _Z_InputQ	*prev;
     ZNotice_Kind_t	kind;
-    unsigned ZEPHYR_INT32 timep;
+	gint64 time;
     int			packet_len;
     char		*packet;
     int			complete;
