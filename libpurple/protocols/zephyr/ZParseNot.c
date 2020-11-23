@@ -10,6 +10,8 @@
 
 #include "internal.h"
 
+#include <purple.h>
+
 /* Assume that strlen is efficient on this machine... */
 #define next_field(ptr)	ptr += strlen (ptr) + 1
 
@@ -93,9 +95,7 @@ ZParseNotice(char *buffer, int len, ZNotice_t *notice)
 	return (ZERR_VERS);
     ptr += sizeof(ZVERSIONHDR) - 1;
     if (!*ptr) {
-#ifdef Z_DEBUG
-	Z_debug ("ZParseNotice: null version string");
-#endif
+	purple_debug_error("zephyr", "ZParseNotice: null version string");
 	return ZERR_BADPKT;
     }
     maj = atoi(ptr);
@@ -111,23 +111,13 @@ ZParseNotice(char *buffer, int len, ZNotice_t *notice)
     /*XXX 3 */
     numfields -= 2; /* numfields, version, and checksum */
     if (numfields < 0) {
+	badpkt:
+#if 0
 #ifdef __LINE__
 	lineno = __LINE__;
-      badpkt:
-#ifdef Z_DEBUG
-	Z_debug ("ZParseNotice: bad packet from %s/%d (line %d)",
-		 inet_ntoa (notice->z_uid.zuid_addr.s_addr),
-		 notice->z_port, lineno);
+	purple_debug_error("zephyr", "ZParseNotice: bad packet from %s/%d (line %d)", inet_ntoa (notice->z_uid.zuid_addr.s_addr), notice->z_port, lineno);
 #else
-	/* We won't use lineno anywhere else, so let's silence a warning. */
-	(void)lineno;
-#endif
-#else
-    badpkt:
-#ifdef Z_DEBUG
-	Z_debug ("ZParseNotice: bad packet from %s/%d",
-		 inet_ntoa (notice->z_uid.zuid_addr.s_addr),
-		 notice->z_port);
+	purple_debug_error("zephyr", "ZParseNotice: bad packet from %s/%d", inet_ntoa (notice->z_uid.zuid_addr.s_addr), notice->z_port);
 #endif
 #endif
 	return ZERR_BADPKT;

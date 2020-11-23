@@ -37,8 +37,6 @@ ZEPHYRSOURCES = [
 	'ZSendNot.c',
 	'ZSendPkt.c',
 	'ZSetDest.c',
-	'ZSetFD.c',
-	'ZSetSrv.c',
 	'ZSubs.c',
 	'ZVariables.c',
 	'ZWait4Not.c',

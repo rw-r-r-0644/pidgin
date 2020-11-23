@@ -1,5 +1,5 @@
 /* This file is part of the Project Athena Zephyr Notification System.
- * It contains source for the ZNewLocateUser function.
+ * It contains source for the ZLocateUser function.
  *
  *	Created by:	Robert French
  *

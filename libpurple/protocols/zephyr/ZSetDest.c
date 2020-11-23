@@ -15,7 +15,5 @@ ZSetDestAddr(struct sockaddr_in *addr)
 {
 	__HM_addr = *addr;
 
-	__HM_set = 1;
-
 	return (ZERR_NONE);
 }

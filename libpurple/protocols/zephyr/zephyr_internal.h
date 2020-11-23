@@ -67,7 +67,6 @@ typedef char ZPacket_t[Z_MAXPKTLEN];
 typedef enum {
     UNSAFE, UNACKED, ACKED, HMACK, HMCTL, SERVACK, SERVNAK, CLIENTACK, STAT
 } ZNotice_Kind_t;
-extern const char *ZNoticeKinds[9];
 
 /* Unique ID format */
 typedef struct {
@@ -129,12 +128,6 @@ typedef struct {
     char		*version;
 } ZAsyncLocateData_t;
 
-/* for ZSetDebug */
-#ifdef Z_DEBUG
-void (*__Z_debug_print)(const char *fmt, va_list args, void *closure);
-void *__Z_debug_print_closure;
-#endif
-
 int ZCompareUIDPred(ZNotice_t *, void *);
 int ZCompareMultiUIDPred(ZNotice_t *, void *);
 
@@ -167,8 +160,6 @@ Code_t ZRequestLocations(const char *, ZAsyncLocateData_t *, ZNotice_Kind_t,
                          Z_AuthProc);
 Code_t ZhmStat(struct in_addr *, ZNotice_t *);
 Code_t ZInitialize(void);
-Code_t ZSetServerState(int);
-Code_t ZSetFD(int);
 Code_t ZFormatSmallRawNotice(ZNotice_t *, ZPacket_t, int *);
 int ZCompareUID(ZUnique_Id_t *, ZUnique_Id_t *);
 Code_t ZMakeAscii(char *, int, unsigned char *, int);
@@ -205,12 +196,6 @@ Code_t ZUnsubscribeTo(ZSubscription_t *sublist, int nitems, unsigned int port);
 Code_t ZCancelSubscriptions(unsigned int port);
 int ZPending(void);
 Code_t ZReceiveNotice(ZNotice_t *notice, struct sockaddr_in *from);
-#ifdef Z_DEBUG
-void Z_debug(const char *, ...);
-#endif
-
-/* Compatibility */
-#define	ZNewLocateUser ZLocateUser
 
 /* Macros to retrieve Zephyr library values. */
 extern int __Zephyr_fd;
@@ -221,15 +206,6 @@ extern char __Zephyr_realm[];
 #define ZQLength()	__Q_CompleteLength
 #define ZGetDestAddr()	__HM_addr
 #define ZGetRealm()	__Zephyr_realm
-
-#ifdef Z_DEBUG
-void ZSetDebug(void (*)(const char *, va_list, void *), void *);
-#define ZSetDebug(proc,closure)    (__Z_debug_print=(proc), \
-				    __Z_debug_print_closure=(closure), \
-				    (void) 0)
-#else
-#define	ZSetDebug(proc,closure)
-#endif
 
 /* Maximum queue length */
 #define Z_MAXQLEN 		30

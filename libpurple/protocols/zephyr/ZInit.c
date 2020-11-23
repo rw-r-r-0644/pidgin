@@ -62,39 +62,38 @@ ZInitialize(void)
 
     (void) memcpy((char *)&__HM_addr.sin_addr, addr, 4);
 
-    __HM_set = 0;
-
     /* Initialize the input queue */
     __Q_Tail = NULL;
     __Q_Head = NULL;
 
-    /* if the application is a server, there might not be a zhm.  The
-       code will fall back to something which might not be "right",
-       but this is is ok, since none of the servers call krb_rd_req. */
+	/* If there is no zhm, the code will fall back to something which might
+	 * not be "right", but this is is ok, since none of the servers call
+	 * krb_rd_req. */
 
-    servaddr.s_addr = INADDR_NONE;
-    if (! __Zephyr_server) {
-       if ((code = ZOpenPort(NULL)) != ZERR_NONE)
-	  return(code);
+	servaddr.s_addr = INADDR_NONE;
+	if ((code = ZOpenPort(NULL)) != ZERR_NONE) {
+		return code;
+	}
 
-       if ((code = ZhmStat(NULL, &notice)) != ZERR_NONE)
-	  return(code);
+	if ((code = ZhmStat(NULL, &notice)) != ZERR_NONE) {
+		return code;
+	}
 
-       ZClosePort();
+	ZClosePort();
 
-       /* the first field, which is NUL-terminated, is the server name.
-	  If this code ever support a multiplexing zhm, this will have to
-	  be made smarter, and probably per-message */
+	/* the first field, which is NUL-terminated, is the server name.
+	   If this code ever support a multiplexing zhm, this will have to
+	   be made smarter, and probably per-message */
 
 #ifdef ZEPHYR_USES_KERBEROS
-       krealm = krb_realmofhost(notice.z_message);
+	krealm = krb_realmofhost(notice.z_message);
 #endif
-       hostent = gethostbyname(notice.z_message);
-       if (hostent && hostent->h_addrtype == AF_INET)
-	   memcpy(&servaddr, hostent->h_addr, sizeof(servaddr));
+	hostent = gethostbyname(notice.z_message);
+	if (hostent && hostent->h_addrtype == AF_INET) {
+		memcpy(&servaddr, hostent->h_addr, sizeof(servaddr));
+	}
 
-       ZFreeNotice(&notice);
-    }
+	ZFreeNotice(&notice);
 
 #ifdef ZEPHYR_USES_KERBEROS
     if (krealm) {
