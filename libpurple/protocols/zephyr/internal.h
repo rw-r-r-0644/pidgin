@@ -54,11 +54,10 @@
 #define Z_NOTICETIMELIMIT	30	/* Time to wait for fragments */
 #define Z_INITFILTERSIZE	30	/* Starting size of uid filter */
 
-struct _Z_Hole {
-    struct _Z_Hole	*next;
-    int			first;
-    int			last;
-};
+typedef struct {
+	gint first;
+	gint last;
+} Z_Hole;
 
 struct _Z_InputQ {
     struct _Z_InputQ	*next;
@@ -69,7 +68,7 @@ struct _Z_InputQ {
     char		*packet;
     int			complete;
     struct sockaddr_in	from;
-    struct _Z_Hole	*holelist;
+	GSList *holelist; /* element-type: Z_Hole* */
     ZUnique_Id_t	uid;
     int			auth;
     int			header_len;

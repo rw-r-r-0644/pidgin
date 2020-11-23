@@ -203,6 +203,7 @@ Code_t
 Z_ReadWait(void)
 {
     register struct _Z_InputQ *qptr;
+	Z_Hole *hole = NULL;
     ZNotice_t notice;
     ZPacket_t packet;
     struct sockaddr_in olddest, from;
@@ -387,7 +388,7 @@ Z_ReadWait(void)
      * list. */
     if (part == 0 && notice.z_message_len == partof) {
 	__Q_CompleteLength++;
-	qptr->holelist = (struct _Z_Hole *) 0;
+	qptr->holelist = NULL;
 	qptr->complete = 1;
 	/* allocate a msg buf for this piece */
 	if (notice.z_message_len == 0)
@@ -417,28 +418,43 @@ Z_ReadWait(void)
     qptr->msg_len = partof;
     __Q_Size += partof;
 
-    /*
-     * Well, it's a fragmented notice...allocate a hole list and
-     * initialize it to the full packet size.  Then insert the
-     * current fragment.
-     */
-    if (!(qptr->holelist = (struct _Z_Hole *)
-	  malloc(sizeof(struct _Z_Hole))))
-	return (ENOMEM);
-    qptr->holelist->next = (struct _Z_Hole *) 0;
-    qptr->holelist->first = 0;
-    qptr->holelist->last = partof-1;
-    return (Z_AddNoticeToEntry(qptr, &notice, part));
+	/*
+	 * Well, it's a fragmented notice...allocate a hole list and
+	 * initialize it to the full packet size.  Then insert the
+	 * current fragment.
+	 */
+	hole = g_new0(Z_Hole, 1);
+	if (hole == NULL) {
+		return ENOMEM;
+	}
+	hole->first = 0;
+	hole->last = partof - 1;
+	qptr->holelist = g_slist_prepend(qptr->holelist, hole);
+	return Z_AddNoticeToEntry(qptr, &notice, part);
 }
 
 
 /* Fragment management routines - compliments, more or less, of RFC815 */
 
+static gint
+find_hole(gconstpointer element, gconstpointer data)
+{
+	Z_Hole *thishole = (Z_Hole *)element;
+	Z_Hole *tofind = (Z_Hole *)data;
+
+	if (tofind->first <= thishole->last && tofind->last >= thishole->first) {
+		return 0;
+	}
+
+	return 1;
+}
+
 Code_t
 Z_AddNoticeToEntry(struct _Z_InputQ *qptr, ZNotice_t *notice, int part)
 {
-    int last, oldfirst, oldlast;
-    struct _Z_Hole *hole, *lasthole;
+	GSList *thishole;
+	Z_Hole *hole;
+	gint last;
 
 	/* Incorporate this notice's checked authentication. */
 	if (notice->z_checked_auth == ZAUTH_FAILED) {
@@ -449,103 +465,62 @@ Z_AddNoticeToEntry(struct _Z_InputQ *qptr, ZNotice_t *notice, int part)
 
 	qptr->time = g_get_monotonic_time();
 
-    last = part+notice->z_message_len-1;
+	last = part + notice->z_message_len - 1;
 
-    hole = qptr->holelist;
-    lasthole = (struct _Z_Hole *) 0;
+	/* copy in the message body */
+	(void)memcpy(qptr->msg + part, notice->z_message, notice->z_message_len);
 
-    /* copy in the message body */
-    (void) memcpy(qptr->msg+part, notice->z_message, notice->z_message_len);
+	/* Search for a hole that overlaps with the current fragment */
+	hole = g_new(Z_Hole, 1);
+	hole->first = part;
+	hole->last = last;
+	thishole = g_slist_find_custom(qptr->holelist, hole, find_hole);
+	g_free(hole);
 
-    /* Search for a hole that overlaps with the current fragment */
-    while (hole) {
-	if (part <= hole->last && last >= hole->first)
-	    break;
-	lasthole = hole;
-	hole = hole->next;
-    }
+	/* If we found one, delete it and reconstruct a new hole */
+	if (thishole) {
+		gint oldfirst, oldlast;
 
-    /* If we found one, delete it and reconstruct a new hole */
-    if (hole) {
-	oldfirst = hole->first;
-	oldlast = hole->last;
-	if (lasthole)
-	    lasthole->next = hole->next;
-	else
-	    qptr->holelist = hole->next;
-	free((char *)hole);
-	/*
-	 * Now create a new hole that is the original hole without the
-	 * current fragment.
-	 */
-	if (part > oldfirst) {
-	    /* Search for the end of the hole list */
-	    hole = qptr->holelist;
-	    lasthole = (struct _Z_Hole *) 0;
-	    while (hole) {
-		lasthole = hole;
-		hole = hole->next;
-	    }
-	    if (lasthole) {
-		struct _Z_InputQ *inputq = malloc(sizeof(struct _Z_InputQ));
-		if (!inputq)
-		    return (ENOMEM);
-		lasthole->next = (struct _Z_Hole *)inputq;
-		hole = lasthole->next;
-	    }
-	    else {
-		struct _Z_InputQ *inputq = malloc(sizeof(struct _Z_InputQ));
-		if (!inputq)
-		    return (ENOMEM);
-		qptr->holelist = (struct _Z_Hole *)inputq;
-		hole = qptr->holelist;
-	    }
-	    hole->next = NULL;
-	    hole->first = oldfirst;
-	    hole->last = part-1;
+		hole = (Z_Hole *)thishole->data;
+		oldfirst = hole->first;
+		oldlast = hole->last;
+		qptr->holelist = g_slist_delete_link(qptr->holelist, thishole);
+		g_free(hole);
+
+		/*
+		 * Now create a new hole that is the original hole without the
+		 * current fragment.
+		 */
+		if (part > oldfirst) {
+			hole = g_new0(Z_Hole, 1);
+			qptr->holelist = g_slist_prepend(qptr->holelist, hole);
+			hole->first = oldfirst;
+			hole->last = part - 1;
+		}
+		if (last < oldlast) {
+			hole = g_new0(Z_Hole, 1);
+			qptr->holelist = g_slist_prepend(qptr->holelist, hole);
+			hole->first = last + 1;
+			hole->last = oldlast;
+		}
 	}
-	if (last < oldlast) {
-	    /* Search for the end of the hole list */
-	    hole = qptr->holelist;
-	    lasthole = (struct _Z_Hole *) 0;
-	    while (hole) {
-		lasthole = hole;
-		hole = hole->next;
-	    }
-	    if (lasthole) {
-		struct _Z_InputQ *inputq = malloc(sizeof(struct _Z_InputQ));
-		if (!inputq)
-		    return (ENOMEM);
-		lasthole->next = (struct _Z_Hole *)inputq;
-		hole = lasthole->next;
-	    }
-	    else {
-		struct _Z_InputQ *inputq = malloc(sizeof(struct _Z_InputQ));
-		if (!inputq)
-		    return (ENOMEM);
-		qptr->holelist = (struct _Z_Hole *)inputq;
-		hole = qptr->holelist;
-	    }
-	    hole->next = (struct _Z_Hole *) 0;
-	    hole->first = last+1;
-	    hole->last = oldlast;
+
+	/* If there are no more holes, the packet is complete. */
+	if (qptr->holelist == NULL) {
+		if (!qptr->complete) {
+			__Q_CompleteLength++;
+		}
+		qptr->complete = 1;
+		qptr->time = 0; /* don't time out anymore */
+		qptr->packet_len = qptr->header_len + qptr->msg_len;
+		if (!(qptr->packet = (char *)malloc((unsigned)qptr->packet_len))) {
+			return ENOMEM;
+		}
+		(void)memcpy(qptr->packet, qptr->header, qptr->header_len);
+		(void)memcpy(qptr->packet + qptr->header_len, qptr->msg, qptr->msg_len);
 	}
-    }
 
-    if (!qptr->holelist) {
-	if (!qptr->complete)
-	    __Q_CompleteLength++;
-	qptr->complete = 1;
-	qptr->time = 0; /* don't time out anymore */
-	qptr->packet_len = qptr->header_len+qptr->msg_len;
-	if (!(qptr->packet = (char *) malloc((unsigned) qptr->packet_len)))
-	    return (ENOMEM);
-	(void) memcpy(qptr->packet, qptr->header, qptr->header_len);
-	(void) memcpy(qptr->packet+qptr->header_len, qptr->msg,
-		       qptr->msg_len);
-    }
-
-    return (ZERR_NONE);
+	return ZERR_NONE;
 }
 
 Code_t
@@ -769,8 +744,6 @@ Z_GetNextComplete(struct _Z_InputQ *qptr)
 void
 Z_RemQueue(struct _Z_InputQ *qptr)
 {
-    struct _Z_Hole *hole, *nexthole;
-
     if (qptr->complete)
 	__Q_CompleteLength--;
 
@@ -780,12 +753,7 @@ Z_RemQueue(struct _Z_InputQ *qptr)
     free(qptr->msg);
     free(qptr->packet);
 
-    hole = qptr->holelist;
-    while (hole) {
-	nexthole = hole->next;
-	free((char *)hole);
-	hole = nexthole;
-    }
+	g_slist_free_full(qptr->holelist, g_free);
 
     if (qptr == __Q_Head && __Q_Head == __Q_Tail) {
 	free ((char *)qptr);
