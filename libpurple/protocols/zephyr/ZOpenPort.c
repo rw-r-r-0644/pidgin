@@ -65,7 +65,6 @@ ZOpenPort(unsigned short *port)
     }
 
     __Zephyr_port = bindin.sin_port;
-    __Zephyr_open = 1;
 
     if (port)
 	*port = bindin.sin_port;

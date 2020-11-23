@@ -46,7 +46,6 @@
 #define HM_SVC_FALLBACK		htons((unsigned short) 2104)
 #define HM_SRV_SVC_FALLBACK	htons((unsigned short) 2105)
 
-#define ZAUTH_CKSUM_FAILED	(-2) /* Used only by server. */
 #define ZAUTH_UNSET		(-3) /* Internal to client library. */
 #define Z_MAXFRAGS		500	/* Max number of packet fragments */
 #define Z_MAXNOTICESIZE		400000	/* Max size of incoming notice */
@@ -80,10 +79,6 @@ struct _Z_InputQ {
 };
 
 extern struct _Z_InputQ *__Q_Head, *__Q_Tail;
-
-extern int __Zephyr_open;	/* 0 if FD opened, 1 otherwise */
-extern int __HM_set;		/* 0 if dest addr set, 1 otherwise */
-extern int __Zephyr_server;	/* 0 if normal client, 1 if server or zhm */
 
 extern ZLocations_t *__locate_list;
 extern int __locate_num;

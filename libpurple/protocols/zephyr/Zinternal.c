@@ -18,7 +18,6 @@
 #endif
 
 int __Zephyr_fd = -1;
-int __Zephyr_open;
 int __Zephyr_port = -1;
 struct in_addr __My_addr;
 int __Q_CompleteLength;
@@ -26,8 +25,6 @@ int __Q_Size;
 struct _Z_InputQ *__Q_Head, *__Q_Tail;
 struct sockaddr_in __HM_addr;
 struct sockaddr_in __HM_addr_real;
-int __HM_set;
-int __Zephyr_server;
 ZLocations_t *__locate_list;
 int __locate_num;
 int __locate_next;
@@ -40,11 +37,6 @@ int Z_discarded_packets = 0;
 C_Block __Zephyr_session;
 #endif
 char __Zephyr_realm[REALM_SZ];
-
-#ifdef Z_DEBUG
-void (*__Z_debug_print)(const char *fmt, va_list args, void *closure);
-void *__Z_debug_print_closure;
-#endif
 
 static int Z_AddField(char **ptr, const char *field, char *end);
 static int find_or_insert_uid(ZUnique_Id_t *uid, ZNotice_Kind_t kind);
@@ -254,40 +246,38 @@ Z_ReadWait(void)
 	return (ZERR_NONE);
     }
 
-    /* Parse the notice */
-    if ((retval = ZParseNotice(packet, packet_len, &notice)) != ZERR_NONE)
-	return (retval);
-
-    /*
-     * If we're not a server and the notice is of an appropriate kind,
-     * send back a CLIENTACK to whoever sent it to say we got it.
-     */
-    if (!__Zephyr_server) {
-	if (notice.z_kind != HMACK && notice.z_kind != SERVACK &&
-	    notice.z_kind != SERVNAK && notice.z_kind != CLIENTACK) {
-	    ZNotice_t tmpnotice;
-	    ZPacket_t pkt;
-	    int len;
-
-	    tmpnotice = notice;
-	    tmpnotice.z_kind = CLIENTACK;
-	    tmpnotice.z_message_len = 0;
-	    olddest = __HM_addr;
-	    __HM_addr = from;
-	    if ((retval = ZFormatSmallRawNotice(&tmpnotice, pkt, &len))
-		!= ZERR_NONE)
-		return(retval);
-	    if ((retval = ZSendPacket(pkt, len, 0)) != ZERR_NONE)
-		return (retval);
-	    __HM_addr = olddest;
+	/* Parse the notice */
+	if ((retval = ZParseNotice(packet, packet_len, &notice)) != ZERR_NONE) {
+		return retval;
 	}
-	if (find_or_insert_uid(&notice.z_uid, notice.z_kind))
-	    return(ZERR_NONE);
+
+	/* If the notice is of an appropriate kind, send back a CLIENTACK to
+	 * whoever sent it to say we got it. */
+	if (notice.z_kind != HMACK && notice.z_kind != SERVACK &&
+			notice.z_kind != SERVNAK && notice.z_kind != CLIENTACK) {
+		ZNotice_t tmpnotice;
+		ZPacket_t pkt;
+		int len;
+
+		tmpnotice = notice;
+		tmpnotice.z_kind = CLIENTACK;
+		tmpnotice.z_message_len = 0;
+		olddest = __HM_addr;
+		__HM_addr = from;
+		if ((retval = ZFormatSmallRawNotice(&tmpnotice, pkt, &len)) != ZERR_NONE) {
+			return retval;
+		}
+		if ((retval = ZSendPacket(pkt, len, 0)) != ZERR_NONE) {
+			return retval;
+		}
+		__HM_addr = olddest;
+	}
+	if (find_or_insert_uid(&notice.z_uid, notice.z_kind)) {
+		return ZERR_NONE;
+	}
 
 	/* Check authentication on the notice. */
 	notice.z_checked_auth = ZCheckAuthentication(&notice, &from);
-    }
-
 
     /*
      * Parse apart the z_multinotice field - if the field is blank for
@@ -311,11 +301,8 @@ Z_ReadWait(void)
     if (partof > Z_MAXNOTICESIZE)
 	return (ZERR_NONE);
 
-    /*
-     * If we aren't a server and we can find a notice in the queue
-     * with the same multiuid field, insert the current fragment as
-     * appropriate.
-     */
+    /* If we can find a notice in the queue with the same multiuid field,
+     * insert the current fragment as appropriate. */
     switch (notice.z_kind) {
     case SERVACK:
     case SERVNAK:
@@ -328,17 +315,16 @@ Z_ReadWait(void)
 	   (XXX we assume here that they all carry the same information
 	   regarding failure/success)
 	 */
-	if (!__Zephyr_server &&
-	    !ZCompareUID(&notice.z_multiuid, &notice.z_uid))
+	if (!ZCompareUID(&notice.z_multiuid, &notice.z_uid)) {
 	    /* they're not the same... throw away this packet. */
 	    return(ZERR_NONE);
+	}
 	/* fall thru & process it */
     default:
 	/* for HMACK types, we assume no packet loss (local loopback
 	   connections).  The other types can be fragmented and MUST
 	   run through this code. */
-	if (!__Zephyr_server && (qptr = Z_SearchQueue(&notice.z_multiuid,
-						      notice.z_kind))) {
+	if ((qptr = Z_SearchQueue(&notice.z_multiuid, notice.z_kind)) != NULL) {
 	    /*
 	     * If this is the first fragment, and we haven't already
 	     * gotten a first fragment, grab the header from it.
@@ -354,12 +340,11 @@ Z_ReadWait(void)
 	}
     }
 
-    /*
-     * We'll have to create a new entry...make sure the queue isn't
-     * going to get too big.
-     */
-    if (__Q_Size+(__Zephyr_server ? notice.z_message_len : partof) > Z_MAXQUEUESIZE)
-	return (ZERR_NONE);
+	/* We'll have to create a new entry...make sure the queue isn't going
+	 * to get too big. */
+	if (__Q_Size + partof > Z_MAXQUEUESIZE) {
+		return ZERR_NONE;
+	}
 
     /*
      * This is a notice we haven't heard of, so create a new queue
@@ -387,14 +372,10 @@ Z_ReadWait(void)
     qptr->kind = notice.z_kind;
     qptr->auth = notice.z_checked_auth;
 
-    /*
-     * If this is the first part of the notice, we take the header
-     * from it.  We only take it if this is the first fragment so that
-     * the Unique ID's will be predictable.
-     *
-     * If a Zephyr Server, we always take the header.
-     */
-    if (__Zephyr_server || part == 0) {
+    /* If this is the first part of the notice, we take the header from it.  We
+     * only take it if this is the first fragment so that the Unique ID's will
+     * be predictable. */
+    if (part == 0) {
 	qptr->header_len = packet_len-notice.z_message_len;
 	qptr->header = (char *) malloc((unsigned) qptr->header_len);
 	if (!qptr->header)
@@ -402,12 +383,9 @@ Z_ReadWait(void)
 	(void) memcpy(qptr->header, packet, qptr->header_len);
     }
 
-    /*
-     * If this is not a fragmented notice, then don't bother with a
-     * hole list.
-     * If we are a Zephyr server, all notices are treated as complete.
-     */
-    if (__Zephyr_server || (part == 0 && notice.z_message_len == partof)) {
+    /* If this is not a fragmented notice, then don't bother with a hole
+     * list. */
+    if (part == 0 && notice.z_message_len == partof) {
 	__Q_CompleteLength++;
 	qptr->holelist = (struct _Z_Hole *) 0;
 	qptr->complete = 1;
@@ -848,8 +826,7 @@ Z_SendFragmentedNotice(ZNotice_t *notice, int len, Z_AuthProc cert_func,
 
     offset = 0;
 
-    waitforack = ((notice->z_kind == UNACKED || notice->z_kind == ACKED)
-		  && !__Zephyr_server);
+    waitforack = (notice->z_kind == UNACKED || notice->z_kind == ACKED);
 
     partnotice = *notice;
 
@@ -894,69 +871,3 @@ Z_XmitFragment(ZNotice_t *notice, char *buf, int len, int wait)
 {
 	return(ZSendPacket(buf, len, wait));
 }
-
-#ifdef Z_DEBUG
-/* For debugging printing */
-const char *const ZNoticeKinds[] = {
-    "UNSAFE", "UNACKED", "ACKED", "HMACK", "HMCTL", "SERVACK", "SERVNAK",
-    "CLIENTACK", "STAT"
-};
-#endif
-
-#ifdef Z_DEBUG
-
-#undef Z_debug
-void Z_debug (const char *format, ...)
-{
-    va_list pvar;
-    if (!__Z_debug_print)
-      return;
-    va_start (pvar, format);
-    (*__Z_debug_print) (format, pvar, __Z_debug_print_closure);
-    va_end (pvar);
-}
-
-void
-Z_debug_stderr(const char *format, va_list args, void *closure)
-{
-    vfprintf (stderr, format, args);
-    putc ('\n', stderr);
-}
-
-#undef ZGetFD
-int
-ZGetFD(void)
-{
-	return __Zephyr_fd;
-}
-
-#undef ZQLength
-int
-ZQLength(void)
-{
-	return __Q_CompleteLength;
-}
-
-#undef ZGetDestAddr
-struct sockaddr_in
-ZGetDestAddr(void)
-{
-	return __HM_addr;
-}
-
-#undef ZGetRealm
-Zconst char *
-ZGetRealm(void)
-{
-	return __Zephyr_realm;
-}
-
-#undef ZSetDebug
-void
-ZSetDebug(void (*proc)(const char *, va_list, void *), char *arg)
-{
-    __Z_debug_print = proc;
-    __Z_debug_print_closure = arg;
-}
-#endif /* Z_DEBUG */
-
