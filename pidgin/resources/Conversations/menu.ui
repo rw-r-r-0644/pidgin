@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<interface>
+  <menu id="conversation">
+    <submenu>
+      <attribute name="label" translatable="yes">_Conversation</attribute>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">New Instant _Message...</attribute>
+          <attribute name="action">app.new-message</attribute>
+          <attribute name="accel">&lt;Primary&gt;M</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Join a _Chat...</attribute>
+          <attribute name="action">app.join-chat</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Find...</attribute>
+          <attribute name="action">win.find</attribute>
+          <attribute name="accel">&lt;Primary&gt;F</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">View _Log</attribute>
+          <attribute name="action">win.view-log</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Save As...</attribute>
+          <attribute name="action">win.save-as</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Clea_r Scrollback</attribute>
+          <attribute name="action">win.clear-history</attribute>
+          <attribute name="accel">&lt;Primary&gt;L</attribute>
+        </item>
+      </section>
+      <section>
+        <submenu>
+          <attribute name="label" translatable="yes">M_edia</attribute>
+          <section>
+            <item>
+              <attribute name="label" translatable="yes">_Audio Call</attribute>
+              <attribute name="action">win.audio-call</attribute>
+            </item>
+            <item>
+              <attribute name="label" translatable="yes">_Video Call</attribute>
+              <attribute name="action">win.video-call</attribute>
+            </item>
+            <item>
+              <attribute name="label" translatable="yes">Audio/Video _Call</attribute>
+              <attribute name="action">win.audio-video-call</attribute>
+            </item>
+          </section>
+        </submenu>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Se_nd File...</attribute>
+          <attribute name="action">win.send-file</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Get _Attention</attribute>
+          <attribute name="action">win.get-attention</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Add Buddy _Pounce...</attribute>
+          <attribute name="action">win.add-buddy-pounce</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Get Info</attribute>
+          <attribute name="action">win.clear-history</attribute>
+          <attribute name="accel">&lt;Primary&gt;O</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">In_vite...</attribute>
+          <attribute name="action">win.invite</attribute>
+        </item>
+        <submenu>
+          <attribute name="label" translatable="yes">M_ore</attribute>
+          <section id="more"></section>
+        </submenu>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Al_ias...</attribute>
+          <attribute name="action">win.alias</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Block...</attribute>
+          <attribute name="action">win.block</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Unblock...</attribute>
+          <attribute name="action">win.unblock</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Add...</attribute>
+          <attribute name="action">win.add</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Remove...</attribute>
+          <attribute name="action">win.remove</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Insert Lin_k...</attribute>
+          <attribute name="action">win.insert-link</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Insert Imag_e...</attribute>
+          <attribute name="action">win.insert-image</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Close</attribute>
+          <attribute name="action">win.close</attribute>
+          <attribute name="accel">&lt;Primary&gt;W</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="label" translatable="yes">_Options</attribute>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Enable _Logging</attribute>
+          <attribute name="action">win.toggle-logging</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Show Formatting _Toolbars</attribute>
+          <attribute name="action">win.toggle-formatting-toolbars</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="label" translatable="yes">S_end To</attribute>
+      <section id="send-to"></section>
+    </submenu>
+  </menu>
+</interface>

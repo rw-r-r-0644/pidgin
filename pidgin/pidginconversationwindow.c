@@ -25,6 +25,8 @@
 struct _PidginConversationWindow {
 	GtkApplicationWindow parent;
 
+	GMenu *send_to_menu;
+
 	GtkWidget *vbox;
 };
 
@@ -36,10 +38,26 @@ G_DEFINE_TYPE(PidginConversationWindow, pidgin_conversation_window,
  *****************************************************************************/
 static void
 pidgin_conversation_window_init(PidginConversationWindow *window) {
+	GtkBuilder *builder = NULL;
+	GtkWidget *menubar = NULL;
+	GMenuModel *model = NULL;
+
 	gtk_widget_init_template(GTK_WIDGET(window));
 
 	gtk_window_set_application(GTK_WINDOW(window),
 	                           GTK_APPLICATION(g_application_get_default()));
+
+	/* setup our menu */
+	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin/Conversations/menu.ui");
+
+	model = (GMenuModel *)gtk_builder_get_object(builder, "conversation");
+	menubar = gtk_menu_bar_new_from_model(model);
+	gtk_box_pack_start(GTK_BOX(window->vbox), menubar, FALSE, FALSE, 0);
+	gtk_widget_show(menubar);
+
+	window->send_to_menu = (GMenu *)gtk_builder_get_object(builder, "send-to");
+
+	g_object_unref(G_OBJECT(builder));
 }
 
 static void
