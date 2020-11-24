@@ -7639,7 +7639,6 @@ pidgin_conv_window_new()
 	                 G_CALLBACK(notebook_release_cb), win);
 
 	testidea = pidgin_conversation_window_get_vbox(PIDGIN_CONVERSATION_WINDOW(win->window));
-	gtk_container_add(GTK_CONTAINER(win->window), testidea);
 
 	/* Setup the menubar. */
 	menubar = setup_menubar(win);
