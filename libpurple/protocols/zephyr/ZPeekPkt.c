@@ -14,7 +14,7 @@ Code_t
 ZPeekPacket(char **buffer, int *ret_len, struct sockaddr_in *from)
 {
     Code_t retval;
-    struct _Z_InputQ *nextq;
+    Z_InputQ *nextq;
 
     if ((retval = Z_WaitForComplete()) != ZERR_NONE)
 	return (retval);
