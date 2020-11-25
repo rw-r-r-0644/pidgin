@@ -22,7 +22,7 @@ int __Zephyr_port = -1;
 struct in_addr __My_addr;
 int __Q_CompleteLength;
 int __Q_Size;
-struct _Z_InputQ *__Q_Head, *__Q_Tail;
+GQueue Z_input_queue = G_QUEUE_INIT;
 struct sockaddr_in __HM_addr;
 struct sockaddr_in __HM_addr_real;
 ZLocations_t *__locate_list;
@@ -167,25 +167,27 @@ Z_ReadEnqueue(void)
  * notices that haven't been touched in a while
  */
 
-static struct _Z_InputQ *Z_SearchQueue(ZUnique_Id_t *uid, ZNotice_Kind_t kind)
+static Z_InputQ *
+Z_SearchQueue(ZUnique_Id_t *uid, ZNotice_Kind_t kind)
 {
-	register struct _Z_InputQ *qptr;
-	struct _Z_InputQ *next;
+	register GList *list;
+	GList *next;
 	gint64 now;
 
 	now = g_get_monotonic_time();
 
-	qptr = __Q_Head;
+	list = Z_input_queue.head;
 
-	while (qptr) {
+	while (list) {
+		Z_InputQ *qptr = (Z_InputQ *)list->data;
 		if (ZCompareUID(uid, &qptr->uid) && qptr->kind == kind) {
 			return qptr;
 		}
-		next = qptr->next;
+		next = list->next;
 		if (qptr->time && qptr->time + Z_NOTICETIMELIMIT < now) {
 			Z_RemQueue(qptr);
 		}
-		qptr = next;
+		list = next;
 	}
 	return NULL;
 }
@@ -202,7 +204,7 @@ static struct _Z_InputQ *Z_SearchQueue(ZUnique_Id_t *uid, ZNotice_Kind_t kind)
 Code_t
 Z_ReadWait(void)
 {
-    register struct _Z_InputQ *qptr;
+	register Z_InputQ *qptr;
 	Z_Hole *hole = NULL;
     ZNotice_t notice;
     ZPacket_t packet;
@@ -326,18 +328,13 @@ Z_ReadWait(void)
 	   connections).  The other types can be fragmented and MUST
 	   run through this code. */
 	if ((qptr = Z_SearchQueue(&notice.z_multiuid, notice.z_kind)) != NULL) {
-	    /*
-	     * If this is the first fragment, and we haven't already
-	     * gotten a first fragment, grab the header from it.
-	     */
-	    if (part == 0 && !qptr->header) {
-		qptr->header_len = packet_len-notice.z_message_len;
-		qptr->header = (char *) malloc((unsigned) qptr->header_len);
-		if (!qptr->header)
-		    return (ENOMEM);
-		(void) memcpy(qptr->header, packet, qptr->header_len);
-	    }
-	    return (Z_AddNoticeToEntry(qptr, &notice, part));
+		/* If this is the first fragment, and we haven't already gotten
+		 * a first fragment, grab the header from it. */
+		if (part == 0 && qptr->header == NULL) {
+			qptr->header_len = packet_len - notice.z_message_len;
+			qptr->header = g_memdup(packet, qptr->header_len);
+		}
+		return Z_AddNoticeToEntry(qptr, &notice, part);
 	}
     }
 
@@ -347,25 +344,12 @@ Z_ReadWait(void)
 		return ZERR_NONE;
 	}
 
-    /*
-     * This is a notice we haven't heard of, so create a new queue
-     * entry for it and zero it out.
-     */
-    qptr = (struct _Z_InputQ *)malloc(sizeof(struct _Z_InputQ));
-    if (!qptr)
-	return (ENOMEM);
-    (void) memset((char *)qptr, 0, sizeof(struct _Z_InputQ));
+	/* This is a notice we haven't heard of, so create a new queue entry
+	 * for it and zero it out. */
+	qptr = g_new0(Z_InputQ, 1);
 
-    /* Insert the entry at the end of the queue */
-    qptr->next = NULL;
-    qptr->prev = __Q_Tail;
-    if (__Q_Tail)
-	__Q_Tail->next = qptr;
-    __Q_Tail = qptr;
-
-    if (!__Q_Head)
-	__Q_Head = qptr;
-
+	/* Insert the entry at the end of the queue */
+	g_queue_push_tail(&Z_input_queue, qptr);
 
     /* Copy the from field, multiuid, kind, and checked authentication. */
     qptr->from = from;
@@ -373,50 +357,42 @@ Z_ReadWait(void)
     qptr->kind = notice.z_kind;
     qptr->auth = notice.z_checked_auth;
 
-    /* If this is the first part of the notice, we take the header from it.  We
-     * only take it if this is the first fragment so that the Unique ID's will
-     * be predictable. */
-    if (part == 0) {
-	qptr->header_len = packet_len-notice.z_message_len;
-	qptr->header = (char *) malloc((unsigned) qptr->header_len);
-	if (!qptr->header)
-	    return ENOMEM;
-	(void) memcpy(qptr->header, packet, qptr->header_len);
-    }
+	/* If this is the first part of the notice, we take the header from it.
+	 * We only take it if this is the first fragment so that the Unique
+	 * ID's will be predictable. */
+	if (part == 0) {
+		qptr->header_len = packet_len - notice.z_message_len;
+		qptr->header = g_memdup(packet, qptr->header_len);
+	}
 
-    /* If this is not a fragmented notice, then don't bother with a hole
-     * list. */
-    if (part == 0 && notice.z_message_len == partof) {
-	__Q_CompleteLength++;
-	qptr->holelist = NULL;
-	qptr->complete = 1;
-	/* allocate a msg buf for this piece */
-	if (notice.z_message_len == 0)
-	    qptr->msg = 0;
-	else if (!(qptr->msg = (char *) malloc((unsigned) notice.z_message_len)))
-	    return(ENOMEM);
-	else
-	    (void) memcpy(qptr->msg, notice.z_message, notice.z_message_len);
-	qptr->msg_len = notice.z_message_len;
-	__Q_Size += notice.z_message_len;
-	qptr->packet_len = qptr->header_len+qptr->msg_len;
-	if (!(qptr->packet = (char *) malloc((unsigned) qptr->packet_len)))
-	    return (ENOMEM);
-	(void) memcpy(qptr->packet, qptr->header, qptr->header_len);
-	if(qptr->msg)
-	    (void) memcpy(qptr->packet+qptr->header_len, qptr->msg,
-			   qptr->msg_len);
-	return (ZERR_NONE);
-    }
+	/* If this is not a fragmented notice, then don't bother with a hole
+	 * list. */
+	if (part == 0 && notice.z_message_len == partof) {
+		__Q_CompleteLength++;
+		qptr->holelist = NULL;
+		qptr->complete = TRUE;
+		/* allocate a msg buf for this piece */
+		if (notice.z_message_len == 0) {
+			qptr->msg = NULL;
+		} else {
+			qptr->msg = g_memdup(notice.z_message, notice.z_message_len);
+		}
+		qptr->msg_len = notice.z_message_len;
+		__Q_Size += notice.z_message_len;
+		qptr->packet_len = qptr->header_len + qptr->msg_len;
+		qptr->packet = g_new(gchar, qptr->packet_len);
+		memcpy(qptr->packet, qptr->header, qptr->header_len);
+		if (qptr->msg) {
+			memcpy(qptr->packet + qptr->header_len, qptr->msg, qptr->msg_len);
+		}
+		return ZERR_NONE;
+	}
 
-    /*
-     * We know how long the message is going to be (this is better
-     * than IP fragmentation...), so go ahead and allocate it all.
-     */
-    if (!(qptr->msg = (char *) malloc((unsigned) partof)) && partof)
-	return (ENOMEM);
-    qptr->msg_len = partof;
-    __Q_Size += partof;
+	/* We know how long the message is going to be (this is better than IP
+	 * fragmentation...), so go ahead and allocate it all. */
+	qptr->msg = g_new0(gchar, partof);
+	qptr->msg_len = partof;
+	__Q_Size += partof;
 
 	/*
 	 * Well, it's a fragmented notice...allocate a hole list and
@@ -450,7 +426,7 @@ find_hole(gconstpointer element, gconstpointer data)
 }
 
 Code_t
-Z_AddNoticeToEntry(struct _Z_InputQ *qptr, ZNotice_t *notice, int part)
+Z_AddNoticeToEntry(Z_InputQ *qptr, ZNotice_t *notice, int part)
 {
 	GSList *thishole;
 	Z_Hole *hole;
@@ -468,7 +444,7 @@ Z_AddNoticeToEntry(struct _Z_InputQ *qptr, ZNotice_t *notice, int part)
 	last = part + notice->z_message_len - 1;
 
 	/* copy in the message body */
-	(void)memcpy(qptr->msg + part, notice->z_message, notice->z_message_len);
+	memcpy(qptr->msg + part, notice->z_message, notice->z_message_len);
 
 	/* Search for a hole that overlaps with the current fragment */
 	hole = g_new(Z_Hole, 1);
@@ -510,14 +486,12 @@ Z_AddNoticeToEntry(struct _Z_InputQ *qptr, ZNotice_t *notice, int part)
 		if (!qptr->complete) {
 			__Q_CompleteLength++;
 		}
-		qptr->complete = 1;
+		qptr->complete = TRUE;
 		qptr->time = 0; /* don't time out anymore */
 		qptr->packet_len = qptr->header_len + qptr->msg_len;
-		if (!(qptr->packet = (char *)malloc((unsigned)qptr->packet_len))) {
-			return ENOMEM;
-		}
-		(void)memcpy(qptr->packet, qptr->header, qptr->header_len);
-		(void)memcpy(qptr->packet + qptr->header_len, qptr->msg, qptr->msg_len);
+		qptr->packet = g_new(gchar, qptr->packet_len);
+		memcpy(qptr->packet, qptr->header, qptr->header_len);
+		memcpy(qptr->packet + qptr->header_len, qptr->msg, qptr->msg_len);
 	}
 
 	return ZERR_NONE;
@@ -557,7 +531,7 @@ Z_FormatHeader(ZNotice_t *notice, char *buffer, int buffer_len, int *len,
 	notice->z_uid.tv.tv_sec = htonl((unsigned long)notice->z_uid.tv.tv_sec);
 	notice->z_uid.tv.tv_usec = htonl((unsigned long)notice->z_uid.tv.tv_usec);
 
-    (void) memcpy(&notice->z_uid.zuid_addr, &__My_addr, sizeof(__My_addr));
+	memcpy(&notice->z_uid.zuid_addr, &__My_addr, sizeof(__My_addr));
 
     notice->z_multiuid = notice->z_uid;
 
@@ -712,71 +686,52 @@ Z_AddField(char **ptr, const char *field, char *end)
     return 0;
 }
 
-struct _Z_InputQ *
-Z_GetFirstComplete(void)
+static gint
+find_complete_input(gconstpointer a, G_GNUC_UNUSED gconstpointer b)
 {
-    struct _Z_InputQ *qptr;
-
-    qptr = __Q_Head;
-
-    while (qptr) {
-	if (qptr->complete)
-	    return (qptr);
-	qptr = qptr->next;
-    }
-
-    return ((struct _Z_InputQ *)0);
+	Z_InputQ *qptr = (Z_InputQ *)a;
+	return qptr->complete ? 0 : 1;
 }
 
-struct _Z_InputQ *
-Z_GetNextComplete(struct _Z_InputQ *qptr)
+Z_InputQ *
+Z_GetFirstComplete(void)
 {
-    qptr = qptr->next;
-    while (qptr) {
-	if (qptr->complete)
-	    return (qptr);
-	qptr = qptr->next;
-    }
+	GList *list;
 
-    return ((struct _Z_InputQ *)0);
+	list = g_queue_find_custom(&Z_input_queue, NULL, find_complete_input);
+	return list ? (Z_InputQ *)list->data : NULL;
+}
+
+Z_InputQ *
+Z_GetNextComplete(Z_InputQ *qptr)
+{
+	GList *list = g_queue_find(&Z_input_queue, qptr);
+
+	if (list) {
+		list = list->next;
+		list = g_list_find_custom(list, NULL, find_complete_input);
+	}
+
+	return list ? (Z_InputQ *)list->data : NULL;
 }
 
 void
-Z_RemQueue(struct _Z_InputQ *qptr)
+Z_RemQueue(Z_InputQ *qptr)
 {
-    if (qptr->complete)
-	__Q_CompleteLength--;
+	if (qptr->complete) {
+		__Q_CompleteLength--;
+	}
 
-    __Q_Size -= qptr->msg_len;
+	__Q_Size -= qptr->msg_len;
 
-    free(qptr->header);
-    free(qptr->msg);
-    free(qptr->packet);
+	g_free(qptr->header);
+	g_free(qptr->msg);
+	g_free(qptr->packet);
 
 	g_slist_free_full(qptr->holelist, g_free);
 
-    if (qptr == __Q_Head && __Q_Head == __Q_Tail) {
-	free ((char *)qptr);
-	__Q_Head = (struct _Z_InputQ *)0;
-	__Q_Tail = (struct _Z_InputQ *)0;
-	return;
-    }
-
-    if (qptr == __Q_Head) {
-	__Q_Head = qptr->next;
-	__Q_Head->prev = (struct _Z_InputQ *)0;
-	free ((char *)qptr);
-	return;
-    }
-    if (qptr == __Q_Tail) {
-	__Q_Tail = qptr->prev;
-	__Q_Tail->next = (struct _Z_InputQ *)0;
-	free ((char *)qptr);
-	return;
-    }
-    qptr->prev->next = qptr->next;
-    qptr->next->prev = qptr->prev;
-    free ((char *)qptr);
+	g_queue_remove(&Z_input_queue, qptr);
+	g_free(qptr);
 }
 
 Code_t

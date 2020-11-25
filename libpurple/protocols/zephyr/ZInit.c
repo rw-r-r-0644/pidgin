@@ -62,9 +62,8 @@ ZInitialize(void)
 
     (void) memcpy((char *)&__HM_addr.sin_addr, addr, 4);
 
-    /* Initialize the input queue */
-    __Q_Tail = NULL;
-    __Q_Head = NULL;
+	/* Initialize the input queue */
+	g_queue_init(&Z_input_queue);
 
 	/* If there is no zhm, the code will fall back to something which might
 	 * not be "right", but this is is ok, since none of the servers call

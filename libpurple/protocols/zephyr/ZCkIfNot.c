@@ -17,7 +17,7 @@ ZCheckIfNotice(ZNotice_t *notice, struct sockaddr_in *from,
     ZNotice_t tmpnotice;
     Code_t retval;
     register char *buffer;
-    register struct _Z_InputQ *qptr;
+    register Z_InputQ *qptr;
 
     if ((retval = Z_ReadEnqueue()) != ZERR_NONE)
 	return (retval);

@@ -59,25 +59,23 @@ typedef struct {
 	gint last;
 } Z_Hole;
 
-struct _Z_InputQ {
-    struct _Z_InputQ	*next;
-    struct _Z_InputQ	*prev;
+typedef struct {
     ZNotice_Kind_t	kind;
 	gint64 time;
-    int			packet_len;
-    char		*packet;
-    int			complete;
+	gint packet_len;
+	gchar *packet;
+	gboolean complete;
     struct sockaddr_in	from;
 	GSList *holelist; /* element-type: Z_Hole* */
     ZUnique_Id_t	uid;
     int			auth;
-    int			header_len;
-    char		*header;
-    int			msg_len;
-    char		*msg;
-};
+	gint header_len;
+	gchar *header;
+	gint msg_len;
+	gchar *msg;
+} Z_InputQ;
 
-extern struct _Z_InputQ *__Q_Head, *__Q_Tail;
+extern GQueue Z_input_queue;
 
 extern ZLocations_t *__locate_list;
 extern int __locate_num;
@@ -92,11 +90,11 @@ extern struct in_addr __My_addr;
 
 typedef Code_t (*Z_SendProc)(ZNotice_t *, char *, int, int);
 
-struct _Z_InputQ *Z_GetFirstComplete(void);
-struct _Z_InputQ *Z_GetNextComplete(struct _Z_InputQ *);
+Z_InputQ *Z_GetFirstComplete(void);
+Z_InputQ *Z_GetNextComplete(Z_InputQ *);
 Code_t Z_XmitFragment(ZNotice_t *, char *, int, int);
-void Z_RemQueue(struct _Z_InputQ *);
-Code_t Z_AddNoticeToEntry(struct _Z_InputQ *, ZNotice_t *, int);
+void Z_RemQueue(Z_InputQ *);
+Code_t Z_AddNoticeToEntry(Z_InputQ *, ZNotice_t *, int);
 Code_t Z_FormatAuthHeader(ZNotice_t *, char *, int, int *, Z_AuthProc);
 Code_t Z_FormatHeader(ZNotice_t *, char *, int, int *, Z_AuthProc);
 Code_t Z_FormatRawHeader(ZNotice_t *, char *, gsize, int *, char **, char **);

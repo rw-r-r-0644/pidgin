@@ -17,7 +17,7 @@ ZIfNotice(ZNotice_t *notice, struct sockaddr_in *from,
     ZNotice_t tmpnotice;
     Code_t retval;
     char *buffer;
-    struct _Z_InputQ *qptr;
+    Z_InputQ *qptr;
 
     if ((retval = Z_WaitForComplete()) != ZERR_NONE)
 	return (retval);

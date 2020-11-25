@@ -14,7 +14,7 @@ Code_t
 ZReceiveNotice(ZNotice_t *notice, struct sockaddr_in *from)
 {
     char *buffer;
-    struct _Z_InputQ *nextq;
+    Z_InputQ *nextq;
     int len, auth;
     Code_t retval;
 
