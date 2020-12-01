@@ -7068,171 +7068,6 @@ before_switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 }
 
 static void
-close_window(GtkWidget *w, PidginConvWindow *win)
-{
-	close_win_cb(w, NULL, win);
-}
-
-static void
-detach_tab_cb(GtkWidget *w, PidginConvWindow *win)
-{
-	PidginConvWindow *new_window;
-	PidginConversation *gtkconv;
-
-	gtkconv = win->clicked_tab;
-
-	if (!gtkconv)
-		return;
-
-	/* Nothing to do if there's only one tab in the window */
-	if (pidgin_conv_window_get_gtkconv_count(win) == 1)
-		return;
-
-	pidgin_conv_window_remove_gtkconv(win, gtkconv);
-
-	new_window = pidgin_conv_window_new();
-	pidgin_conv_window_add_gtkconv(new_window, gtkconv);
-	pidgin_conv_window_show(new_window);
-}
-
-static void
-close_others_cb(GtkWidget *w, PidginConvWindow *win)
-{
-	GList *iter;
-	PidginConversation *gtkconv;
-
-	gtkconv = win->clicked_tab;
-
-	if (!gtkconv)
-		return;
-
-	for (iter = pidgin_conv_window_get_gtkconvs(win); iter; )
-	{
-		PidginConversation *gconv = iter->data;
-		iter = iter->next;
-
-		if (gconv != gtkconv)
-		{
-			close_conv_cb(NULL, gconv);
-		}
-	}
-}
-
-static void
-close_tab_cb(GtkWidget *w, PidginConvWindow *win)
-{
-	PidginConversation *gtkconv;
-
-	gtkconv = win->clicked_tab;
-
-	if (gtkconv)
-		close_conv_cb(NULL, gtkconv);
-}
-
-static void
-notebook_menu_switch_cb(GtkWidget *item, GtkWidget *child)
-{
-	GtkNotebook *notebook;
-	int index;
-
-	notebook = GTK_NOTEBOOK(gtk_widget_get_parent(child));
-	index = gtk_notebook_page_num(notebook, child);
-	gtk_notebook_set_current_page(notebook, index);
-}
-
-static void
-notebook_menu_update_label_cb(GtkWidget *child, GParamSpec *pspec,
-                              GtkNotebook *notebook)
-{
-	GtkWidget *item;
-	GtkWidget *label;
-
-	item = g_object_get_data(G_OBJECT(child), "popup-menu-item");
-	label = gtk_bin_get_child(GTK_BIN(item));
-	if (label)
-		gtk_container_remove(GTK_CONTAINER(item), label);
-
-	label = gtk_notebook_get_menu_label(notebook, child);
-	if (label) {
-		gtk_widget_show(label);
-		gtk_container_add(GTK_CONTAINER(item), label);
-		gtk_widget_show(item);
-	} else {
-		gtk_widget_hide(item);
-	}
-}
-
-static void
-notebook_add_tab_to_menu_cb(GtkNotebook *notebook, GtkWidget *child,
-                            guint page_num, PidginConvWindow *win)
-{
-	GtkWidget *item;
-	GtkWidget *label;
-
-	item = gtk_menu_item_new();
-	label = gtk_notebook_get_menu_label(notebook, child);
-	if (label) {
-		gtk_widget_show(label);
-		gtk_container_add(GTK_CONTAINER(item), label);
-		gtk_widget_show(item);
-	}
-
-	g_signal_connect(child, "child-notify::menu-label",
-	                 G_CALLBACK(notebook_menu_update_label_cb), notebook); 
-	g_signal_connect(item, "activate",
-	                 G_CALLBACK(notebook_menu_switch_cb), child);
-	g_object_set_data(G_OBJECT(child), "popup-menu-item", item);
-
-	gtk_menu_shell_insert(GTK_MENU_SHELL(win->notebook_menu), item, page_num);
-}
-
-static void
-notebook_remove_tab_from_menu_cb(GtkNotebook *notebook, GtkWidget *child,
-                                 guint page_num, PidginConvWindow *win)
-{
-	GtkWidget *item;
-
-	/* Disconnecting the "child-notify::menu-label" signal. */
-	g_signal_handlers_disconnect_by_data(child, notebook);
-
-	item = g_object_get_data(G_OBJECT(child), "popup-menu-item");
-	gtk_container_remove(GTK_CONTAINER(win->notebook_menu), item);
-}
-
-
-static void
-notebook_reorder_tab_in_menu_cb(GtkNotebook *notebook, GtkWidget *child,
-                                guint page_num, PidginConvWindow *win)
-{
-	GtkWidget *item;
-
-	item = g_object_get_data(G_OBJECT(child), "popup-menu-item");
-	gtk_menu_reorder_child(GTK_MENU(win->notebook_menu), item, page_num);
-}
-
-static gboolean
-notebook_right_click_menu_cb(GtkNotebook *notebook, GdkEventButton *event,
-                             PidginConvWindow *win)
-{
-	GtkWidget *menu;
-	PidginConversation *gtkconv;
-
-	if (!gdk_event_triggers_context_menu((GdkEvent *)event))
-		return FALSE;
-
-	gtkconv = pidgin_conv_window_get_gtkconv_at_index(win,
-			pidgin_conv_get_tab_at_xy(win, event->x_root, event->y_root, NULL));
-
-	win->clicked_tab = gtkconv;
-
-	menu = win->notebook_menu;
-
-	gtk_menu_popup_at_pointer(GTK_MENU(menu), (GdkEvent *)event);
-
-	return TRUE;
-}
-
-static void
 remove_edit_entry(PidginConversation *gtkconv, GtkWidget *entry)
 {
 	g_signal_handlers_disconnect_matched(G_OBJECT(entry), G_SIGNAL_MATCH_DATA,
@@ -7532,11 +7367,8 @@ PidginConvWindow *
 pidgin_conv_window_new()
 {
 	PidginConvWindow *win;
-	GtkPositionType pos;
 	GtkWidget *testidea;
 	GtkWidget *menubar;
-	GtkWidget *menu;
-	GtkWidget *item;
 	GdkModifierType state;
 
 	win = g_malloc0(sizeof(PidginConvWindow));
@@ -7576,52 +7408,10 @@ pidgin_conv_window_new()
 	/* Create the notebook. */
 	win->notebook = gtk_notebook_new();
 
-	pos = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/tab_side");
-
-	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(win->notebook), pos);
+	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(win->notebook), GTK_POS_LEFT);
 	gtk_notebook_set_scrollable(GTK_NOTEBOOK(win->notebook), TRUE);
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(win->notebook), FALSE);
 	gtk_notebook_set_show_border(GTK_NOTEBOOK(win->notebook), TRUE);
-
-	menu = win->notebook_menu = gtk_menu_new();
-
-	pidgin_separator(GTK_WIDGET(menu));
-
-	item = gtk_menu_item_new_with_label(_("Close other tabs"));
-	gtk_widget_show(item);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	g_signal_connect(G_OBJECT(item), "activate",
-					G_CALLBACK(close_others_cb), win);
-
-	item = gtk_menu_item_new_with_label(_("Close all tabs"));
-	gtk_widget_show(item);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	g_signal_connect(G_OBJECT(item), "activate",
-					G_CALLBACK(close_window), win);
-
-	pidgin_separator(menu);
-
-	item = gtk_menu_item_new_with_label(_("Detach this tab"));
-	gtk_widget_show(item);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	g_signal_connect(G_OBJECT(item), "activate",
-					G_CALLBACK(detach_tab_cb), win);
-
-	item = gtk_menu_item_new_with_label(_("Close this tab"));
-	gtk_widget_show(item);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	g_signal_connect(G_OBJECT(item), "activate",
-					G_CALLBACK(close_tab_cb), win);
-
-	g_signal_connect(G_OBJECT(win->notebook), "page-added",
-	                 G_CALLBACK(notebook_add_tab_to_menu_cb), win);
-	g_signal_connect(G_OBJECT(win->notebook), "page-removed",
-	                 G_CALLBACK(notebook_remove_tab_from_menu_cb), win);
-	g_signal_connect(G_OBJECT(win->notebook), "page-reordered",
-	                 G_CALLBACK(notebook_reorder_tab_in_menu_cb), win);
-
-	g_signal_connect(G_OBJECT(win->notebook), "button-press-event",
-					G_CALLBACK(notebook_right_click_menu_cb), win);
 
 	gtk_widget_show(win->notebook);
 
@@ -7688,7 +7478,6 @@ pidgin_conv_window_destroy(PidginConvWindow *win)
 	purple_prefs_disconnect_by_handle(win);
 	window_list = g_list_remove(window_list, win);
 
-	gtk_widget_destroy(win->notebook_menu);
 	gtk_widget_destroy(win->window);
 
 	g_object_unref(G_OBJECT(win->menu->ui));
