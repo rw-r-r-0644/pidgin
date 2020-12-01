@@ -7518,12 +7518,6 @@ pidgin_conv_window_switch_gtkconv(PidginConvWindow *win, PidginConversation *gtk
 static gboolean
 gtkconv_tab_set_tip(GtkWidget *widget, GdkEventCrossing *event, PidginConversation *gtkconv)
 {
-/* PANGO_VERSION_CHECK macro was introduced in 1.15. So we need this double check. */
-#ifndef PANGO_VERSION_CHECK
-#define pango_layout_is_ellipsized(l) TRUE
-#elif !PANGO_VERSION_CHECK(1,16,0)
-#define pango_layout_is_ellipsized(l) TRUE
-#endif
 	PangoLayout *layout;
 
 	layout = gtk_label_get_layout(GTK_LABEL(gtkconv->tab_label));
