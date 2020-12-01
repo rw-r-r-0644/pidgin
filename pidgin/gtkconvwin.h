@@ -98,7 +98,6 @@ struct _PidginConvWindow
 	/*< public >*/
 	GtkWidget *window;
 	GtkWidget *notebook;
-	GtkWidget *notebook_menu;
 	PidginConversation *clicked_tab;
 	GList *gtkconvs;
 
