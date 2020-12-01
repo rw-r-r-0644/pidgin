@@ -135,9 +135,5 @@
         </item>
       </section>
     </submenu>
-    <submenu>
-      <attribute name="label" translatable="yes">S_end To</attribute>
-      <section id="send-to"></section>
-    </submenu>
   </menu>
 </interface>

@@ -25,8 +25,6 @@
 struct _PidginConversationWindow {
 	GtkApplicationWindow parent;
 
-	GMenu *send_to_menu;
-
 	GtkWidget *vbox;
 };
 
@@ -54,8 +52,6 @@ pidgin_conversation_window_init(PidginConversationWindow *window) {
 	menubar = gtk_menu_bar_new_from_model(model);
 	gtk_box_pack_start(GTK_BOX(window->vbox), menubar, FALSE, FALSE, 0);
 	gtk_widget_show(menubar);
-
-	window->send_to_menu = (GMenu *)gtk_builder_get_object(builder, "send-to");
 
 	g_object_unref(G_OBJECT(builder));
 }
