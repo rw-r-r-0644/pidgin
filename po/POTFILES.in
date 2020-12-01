@@ -244,8 +244,6 @@ libpurple/protocols/zephyr/ZSendList.c
 libpurple/protocols/zephyr/ZSendNot.c
 libpurple/protocols/zephyr/ZSendPkt.c
 libpurple/protocols/zephyr/ZSetDest.c
-libpurple/protocols/zephyr/ZSetFD.c
-libpurple/protocols/zephyr/ZSetSrv.c
 libpurple/protocols/zephyr/ZSubs.c
 libpurple/protocols/zephyr/ZVariables.c
 libpurple/protocols/zephyr/ZWait4Not.c
