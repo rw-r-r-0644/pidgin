@@ -60,8 +60,13 @@
 static PurpleProtocol *my_protocol = NULL;
 static GSList *cmds = NULL;
 
+#ifdef LIBZEPHYR_EXT
+extern char __Zephyr_realm[];
+#else
 extern Code_t ZGetLocations(ZLocations_t *, int *);
 extern Code_t ZGetSubscriptions(ZSubscription_t *, int*);
+#endif
+
 typedef struct _zframe zframe;
 typedef struct _zephyr_triple zephyr_triple;
 typedef struct _zephyr_account zephyr_account;
