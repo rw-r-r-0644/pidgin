@@ -1437,10 +1437,12 @@ pidgin_append_blist_node_proto_menu(GtkWidget *menu, PurpleConnection *gc,
 	GList *l, *ll;
 	PurpleProtocol *protocol = purple_connection_get_protocol(gc);
 
-	if(!protocol || !PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, blist_node_menu))
+	if(!PURPLE_IS_PROTOCOL_CLIENT(protocol)) {
 		return;
+	}
 
-	for(l = ll = purple_protocol_client_iface_blist_node_menu(protocol, node); l; l = l->next) {
+	ll = purple_protocol_client_blist_node_menu(PURPLE_PROTOCOL_CLIENT(protocol), node);
+	for(l = ll; l; l = l->next) {
 		PurpleActionMenu *act = (PurpleActionMenu *) l->data;
 		pidgin_append_menu_action(menu, act, node);
 	}
@@ -3509,7 +3511,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 				protocol)
 		{
 			/* Additional text from the protocol */
-			purple_protocol_client_iface_tooltip_text(protocol, b, user_info, full);
+			purple_protocol_client_tooltip_text(PURPLE_PROTOCOL_CLIENT(protocol), b, user_info, full);
 		}
 
 		/* These are Easter Eggs.  Patches to remove them will be rejected. */
@@ -3674,7 +3676,7 @@ pidgin_blist_get_emblem(PurpleBlistNode *node)
 	if (!protocol)
 		return NULL;
 
-	name = purple_protocol_client_iface_list_emblem(protocol, buddy);
+	name = purple_protocol_client_list_emblem(PURPLE_PROTOCOL_CLIENT(protocol), buddy);
 
 	if (name == NULL) {
 		PurpleStatus *status;
@@ -3874,7 +3876,7 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 
 		if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, status_text) &&
 				purple_account_get_connection(purple_buddy_get_account(b))) {
-			char *tmp = purple_protocol_client_iface_status_text(protocol, b);
+			char *tmp = purple_protocol_client_status_text(PURPLE_PROTOCOL_CLIENT(protocol), b);
 			const char *end;
 
 			if(tmp && !g_utf8_validate(tmp, -1, &end)) {

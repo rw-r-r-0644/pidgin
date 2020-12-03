@@ -1115,8 +1115,8 @@ fb_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 }
 
 static void
-fb_client_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *info,
-                       gboolean full)
+fb_client_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *buddy,
+                       PurpleNotifyUserInfo *info, gboolean full)
 {
 	const gchar *name;
 	PurplePresence *pres;
@@ -1136,7 +1136,7 @@ fb_client_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *info,
 }
 
 static GList *
-fb_client_blist_node_menu(PurpleBlistNode *node)
+fb_client_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node)
 {
 	FbData *fata;
 	GList *acts = NULL;
@@ -1161,7 +1161,7 @@ fb_client_blist_node_menu(PurpleBlistNode *node)
 }
 
 static gboolean
-fb_client_offline_message(const PurpleBuddy *buddy)
+fb_client_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy)
 {
 	return TRUE;
 }

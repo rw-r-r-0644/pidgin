@@ -32,6 +32,7 @@
 #include "prefs.h"
 #include "protocol.h"
 #include "purpleprivate.h"
+#include "purpleprotocolclient.h"
 #include "server.h"
 #include "signals.h"
 #include "util.h"
@@ -1762,8 +1763,14 @@ purple_blist_find_chat(PurpleAccount *account, const char *name)
 
 	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
 
-	if (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, find_blist_chat))
-		return purple_protocol_client_iface_find_blist_chat(protocol, account, name);
+	if(PURPLE_IS_PROTOCOL_CLIENT(protocol)) {
+		chat = purple_protocol_client_find_blist_chat(PURPLE_PROTOCOL_CLIENT(protocol),
+		                                              account, name);
+
+		if(PURPLE_IS_CHAT(chat)) {
+			return chat;
+		}
+	}
 
 	normname = g_strdup(purple_normalize(account, name));
 	for (group = purple_blist_get_default_root(); group != NULL;

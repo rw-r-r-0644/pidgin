@@ -1910,7 +1910,7 @@ static GList *jabber_buddy_menu(PurpleBuddy *buddy)
 }
 
 GList *
-jabber_blist_node_menu(PurpleBlistNode *node)
+jabber_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node)
 {
 	if(PURPLE_IS_BUDDY(node)) {
 		return jabber_buddy_menu((PurpleBuddy *) node);

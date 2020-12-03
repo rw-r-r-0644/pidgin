@@ -2367,7 +2367,8 @@ novell_send_typing(PurpleProtocolIM *im, PurpleConnection * gc, const char *name
 }
 
 static void
-novell_convo_closed(PurpleConnection * gc, const char *who)
+novell_convo_closed(PurpleProtocolClient *client, PurpleConnection * gc,
+                    const char *who)
 {
 	NMUser *user;
 	NMConference *conf;
@@ -2819,7 +2820,8 @@ novell_list_icon(PurpleAccount * account, PurpleBuddy * buddy)
 }
 
 static void
-novell_tooltip_text(PurpleBuddy * buddy, PurpleNotifyUserInfo * user_info, gboolean full)
+novell_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *buddy,
+                    PurpleNotifyUserInfo *user_info, gboolean full)
 {
 	NMUserRecord *user_record = NULL;
 	PurpleConnection *gc;
@@ -2932,7 +2934,7 @@ novell_get_info(PurpleConnection * gc, const char *name)
 }
 
 static char *
-novell_status_text(PurpleBuddy * buddy)
+novell_status_text(PurpleProtocolClient *client, PurpleBuddy * buddy)
 {
 	const char *text = NULL;
 	const char *dn = NULL;
@@ -3441,7 +3443,7 @@ novell_set_permit_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc)
 }
 
 static GList *
-novell_blist_node_menu(PurpleBlistNode *node)
+novell_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node)
 {
 	GList *list = NULL;
 	PurpleActionMenu *act;
@@ -3473,8 +3475,16 @@ novell_keepalive(PurpleConnection *gc)
 	_check_for_disconnect(user, rc);
 }
 
+static const char *
+novell_normalize(PurpleProtocolClient *client, PurpleAccount *account,
+                 const char *who)
+{
+	return purple_normalize_nocase(account, who);
+}
+
 static gssize
-novell_get_max_message_size(PurpleConversation *conv)
+novell_get_max_message_size(PurpleProtocolClient *client,
+                            PurpleConversation *conv)
 {
 	/* XXX: got from pidgin-otr - verify and document it */
 	return 1792;
@@ -3521,7 +3531,7 @@ novell_protocol_client_iface_init(PurpleProtocolClientInterface *client_iface)
 	client_iface->tooltip_text         = novell_tooltip_text;
 	client_iface->blist_node_menu      = novell_blist_node_menu;
 	client_iface->convo_closed         = novell_convo_closed;
-	client_iface->normalize            = purple_normalize_nocase;
+	client_iface->normalize            = novell_normalize;
 	client_iface->get_max_message_size = novell_get_max_message_size;
 }
 

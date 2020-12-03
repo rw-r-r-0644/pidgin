@@ -193,8 +193,8 @@ static void null_input_user_info(PurpleProtocolAction *action)
 /*
  * Protocol functions
  */
-static GList *null_get_actions(PurpleConnection *gc)
-{
+static GList *
+null_get_actions(PurpleProtocolClient *client, PurpleConnection *gc) {
   PurpleProtocolAction *action = purple_protocol_action_new(
     _("Set User Info..."), null_input_user_info);
   return g_list_append(NULL, action);
@@ -205,7 +205,8 @@ static const char *null_list_icon(PurpleAccount *acct, PurpleBuddy *buddy)
   return "null";
 }
 
-static char *null_status_text(PurpleBuddy *buddy) {
+static char *
+null_status_text(PurpleProtocolClient *client, PurpleBuddy *buddy) {
   purple_debug_info("nullprpl", "getting %s's status text for %s\n",
                     purple_buddy_get_name(buddy),
                     purple_account_get_username(purple_buddy_get_account(buddy)));
@@ -232,16 +233,17 @@ static char *null_status_text(PurpleBuddy *buddy) {
   }
 }
 
-static void null_tooltip_text(PurpleBuddy *buddy,
-                                  PurpleNotifyUserInfo *info,
-                                  gboolean full) {
+static void
+null_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *buddy,
+                  PurpleNotifyUserInfo *info, gboolean full)
+{
   PurpleConnection *gc = get_null_gc(purple_buddy_get_name(buddy));
 
   if (gc) {
     /* they're logged in */
     PurplePresence *presence = purple_buddy_get_presence(buddy);
     PurpleStatus *status = purple_presence_get_active_status(presence);
-    char *msg = null_status_text(buddy);
+    char *msg = null_status_text(client, buddy);
   /* TODO: Check whether it's correct to call add_pair_html,
            or if we should be using add_pair_plaintext */
     purple_notify_user_info_add_pair_html(info, purple_status_get_name(status),
@@ -306,7 +308,8 @@ static void blist_example_menu_item(PurpleBlistNode *node, gpointer userdata) {
                      NULL);
 }
 
-static GList *null_blist_node_menu(PurpleBlistNode *node) {
+static GList *
+null_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node) {
   purple_debug_info("nullprpl", "providing buddy list context menu item\n");
 
   if (PURPLE_IS_BUDDY(node)) {
@@ -837,7 +840,10 @@ static void null_rename_group(PurpleConnection *gc, const char *old_name,
                     purple_group_get_name(group));
 }
 
-static void null_convo_closed(PurpleConnection *gc, const char *who) {
+static void
+null_convo_closed(PurpleProtocolClient *client, PurpleConnection *gc,
+                  const char *who)
+{
   purple_debug_info("nullprpl", "%s's conversation with %s was closed\n",
                     purple_account_get_username(purple_connection_get_account(gc)), who);
 }
@@ -845,9 +851,11 @@ static void null_convo_closed(PurpleConnection *gc, const char *who) {
 /* normalize a username (e.g. remove whitespace, add default domain, etc.)
  * for nullprotocol, this is a noop.
  */
-static const char *null_normalize(const PurpleAccount *acct,
-                                      const char *input) {
-  return NULL;
+static const char *
+null_normalize(PurpleProtocolClient *client, PurpleAccount *acct,
+               const char *input)
+{
+  return input;
 }
 
 static void null_set_buddy_icon(PurpleConnection *gc,
@@ -971,13 +979,11 @@ static void null_roomlist_expand_category(PurpleRoomlist *list,
                    purple_roomlist_room_get_name(category));
 }
 
-/* PurpleClientIface->offline_message takes a const PurpleBuddy *, this needs
- * to change, but didn't want to do that in this pull request.
- */
-static gboolean null_offline_message(const PurpleBuddy *buddy) {
+static gboolean
+null_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy) {
   purple_debug_info("nullprpl",
                     "reporting that offline messages are supported for %s\n",
-                    purple_buddy_get_name((PurpleBuddy *)buddy));
+                    purple_buddy_get_name(buddy));
   return TRUE;
 }
 

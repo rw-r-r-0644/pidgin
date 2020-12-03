@@ -312,7 +312,8 @@ bonjour_status_types(PurpleAccount *account)
 }
 
 static void
-bonjour_convo_closed(PurpleConnection *connection, const char *who)
+bonjour_convo_closed(PurpleProtocolClient *client,
+                     PurpleConnection *connection, const char *who)
 {
 	PurpleBuddy *buddy = purple_blist_find_buddy(purple_connection_get_account(connection), who);
 	BonjourBuddy *bb;
@@ -339,7 +340,7 @@ bonjour_set_buddy_icon(PurpleConnection *conn, PurpleImage *img)
 
 
 static char *
-bonjour_status_text(PurpleBuddy *buddy)
+bonjour_status_text(PurpleProtocolClient *client, PurpleBuddy *buddy)
 {
 	PurplePresence *presence;
 	PurpleStatus *status;
@@ -360,7 +361,8 @@ bonjour_status_text(PurpleBuddy *buddy)
 }
 
 static void
-bonjour_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolean full)
+bonjour_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *buddy,
+                     PurpleNotifyUserInfo *user_info, gboolean full)
 {
 	PurplePresence *presence;
 	PurpleStatus *status;
@@ -467,7 +469,7 @@ bonjour_can_receive_file(PurpleProtocolXfer *prplxfer, PurpleConnection *connect
 }
 
 static gssize
-bonjour_get_max_message_size(PurpleConversation *conv)
+bonjour_get_max_message_size(PurpleProtocolClient *client, PurpleConversation *conv)
 {
 	return -1; /* 5MB successfully tested. */
 }

@@ -75,6 +75,7 @@
       <xi:include href="xml/purplemarkup.xml" />
       <xi:include href="xml/purplepresence.xml" />
       <xi:include href="xml/purpleprotocolattention.xml" />
+      <xi:include href="xml/purpleprotocolclient.xml" />
       <xi:include href="xml/purpleprotocolfactory.xml" />
       <xi:include href="xml/purpleprotocolim.xml" />
       <xi:include href="xml/purpleprotocolmedia.xml" />

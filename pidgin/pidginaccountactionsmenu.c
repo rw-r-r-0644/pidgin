@@ -122,12 +122,12 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 		show_separator = TRUE;
 	}
 
-	if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, get_actions)) {
+	if(PURPLE_IS_PROTOCOL_CLIENT(protocol)) {
+		PurpleProtocolClient *client = PURPLE_PROTOCOL_CLIENT(protocol);
 		GtkWidget *item = NULL;
 		GList *actions = NULL;
 
-		actions = purple_protocol_client_iface_get_actions(protocol,
-		                                                   connection);
+		actions = purple_protocol_client_get_actions(client, connection);
 
 		while(actions != NULL) {
 			PurpleProtocolAction *action = (PurpleProtocolAction *)actions->data;

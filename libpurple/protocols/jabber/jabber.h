@@ -398,9 +398,9 @@ void jabber_stream_restart_inactivity_timer(JabberStream *js);
 
 /** Protocol functions */
 const char *jabber_list_icon(PurpleAccount *a, PurpleBuddy *b);
-const char* jabber_list_emblem(PurpleBuddy *b);
-char *jabber_status_text(PurpleBuddy *b);
-void jabber_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full);
+const char* jabber_list_emblem(PurpleProtocolClient *client, PurpleBuddy *b);
+char *jabber_status_text(PurpleProtocolClient *client, PurpleBuddy *b);
+void jabber_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full);
 GList *jabber_status_types(PurpleAccount *account);
 void jabber_login(PurpleAccount *account);
 void jabber_close(PurpleConnection *gc);
@@ -417,11 +417,11 @@ void jabber_register_account(PurpleAccount *account);
 void jabber_unregister_account(PurpleAccount *account, PurpleAccountUnregistrationCb cb, void *user_data);
 gboolean jabber_send_attention(PurpleProtocolAttention *attn, PurpleConnection *gc, const char *username, guint code);
 GList *jabber_attention_types(PurpleProtocolAttention *attn, PurpleAccount *account);
-void jabber_convo_closed(PurpleConnection *gc, const char *who);
-PurpleChat *jabber_find_blist_chat(PurpleAccount *account, const char *name);
-gboolean jabber_offline_message(const PurpleBuddy *buddy);
+void jabber_convo_closed(PurpleProtocolClient *client, PurpleConnection *gc, const char *who);
+PurpleChat *jabber_find_blist_chat(PurpleProtocolClient *client, PurpleAccount *account, const char *name);
+gboolean jabber_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy);
 int jabber_protocol_send_raw(PurpleConnection *gc, const char *buf, int len);
-GList *jabber_get_actions(PurpleConnection *gc);
+GList *jabber_get_actions(PurpleProtocolClient *client, PurpleConnection *gc);
 
 gboolean jabber_audio_enabled(JabberStream *js, const char *unused);
 gboolean jabber_video_enabled(JabberStream *js, const char *unused);

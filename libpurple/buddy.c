@@ -22,6 +22,7 @@
  */
 #include "internal.h"
 #include "purplebuddypresence.h"
+#include "purpleprotocolclient.h"
 #include "util.h"
 
 typedef struct _PurpleBuddyPrivate      PurpleBuddyPrivate;
@@ -593,8 +594,10 @@ purple_buddy_finalize(GObject *object) {
 	 * can free proto_data
 	 */
 	protocol = purple_protocols_find(purple_account_get_protocol_id(priv->account));
-	if (protocol)
-		purple_protocol_client_iface_buddy_free(protocol, buddy);
+	if(protocol) {
+		purple_protocol_client_buddy_free(PURPLE_PROTOCOL_CLIENT(protocol),
+		                                  buddy);
+	}
 
 	g_free(priv->name);
 	g_free(priv->local_alias);

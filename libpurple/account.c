@@ -32,6 +32,7 @@
 #include "prefs.h"
 #include "purpleaccountpresence.h"
 #include "purpleprivate.h"
+#include "purpleprotocolclient.h"
 #include "request.h"
 #include "server.h"
 #include "signals.h"
@@ -3007,14 +3008,16 @@ gboolean purple_account_supports_offline_message(PurpleAccount *account, PurpleB
 	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), FALSE);
 
 	gc = purple_account_get_connection(account);
-	if (gc == NULL)
+	if(gc == NULL) {
 		return FALSE;
+	}
 
 	protocol = purple_connection_get_protocol(gc);
-
-	if (!protocol)
+	if(!protocol) {
 		return FALSE;
-	return purple_protocol_client_iface_offline_message(protocol, buddy);
+	}
+
+	return purple_protocol_client_offline_message(PURPLE_PROTOCOL_CLIENT(protocol), buddy);
 }
 
 const PurpleConnectionErrorInfo *

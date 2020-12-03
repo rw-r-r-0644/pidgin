@@ -23,6 +23,7 @@
 
 #include <libpurple/enums.h>
 #include <libpurple/purpleprivate.h>
+#include <libpurple/purpleprotocolclient.h>
 
 struct _PurpleIMConversation {
 	PurpleConversation parent;
@@ -207,7 +208,8 @@ purple_im_conversation_finalize(GObject *obj) {
 			purple_serv_send_typing(pc, name, PURPLE_IM_NOT_TYPING);
 		}
 
-		purple_protocol_client_iface_convo_closed(protocol, pc, name);
+		purple_protocol_client_convo_closed(PURPLE_PROTOCOL_CLIENT(protocol),
+		                                    pc, name);
 	}
 
 	purple_im_conversation_stop_typing_timeout(im);

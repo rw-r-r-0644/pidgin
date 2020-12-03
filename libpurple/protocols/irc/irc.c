@@ -35,7 +35,7 @@ static void irc_ison_buddy_init(char *name, struct irc_buddy *ib, GList **list);
 
 static const char *irc_blist_icon(PurpleAccount *a, PurpleBuddy *b);
 static GList *irc_status_types(PurpleAccount *account);
-static GList *irc_get_actions(PurpleConnection *gc);
+static GList *irc_get_actions(PurpleProtocolClient *client, PurpleConnection *gc);
 /* static GList *irc_chat_info(PurpleConnection *gc); */
 static void irc_login(PurpleAccount *account);
 static void irc_login_cb(GObject *source, GAsyncResult *res, gpointer user_data);
@@ -375,8 +375,8 @@ static GList *irc_status_types(PurpleAccount *account)
 	return types;
 }
 
-static GList *irc_get_actions(PurpleConnection *gc)
-{
+static GList *
+irc_get_actions(PurpleProtocolClient *client, PurpleConnection *gc) {
 	GList *list = NULL;
 	PurpleProtocolAction *act = NULL;
 
@@ -930,8 +930,16 @@ static void irc_keepalive(PurpleConnection *gc)
 		irc_cmd_ping(irc, NULL, NULL, NULL);
 }
 
+static const char *
+irc_normalize(PurpleProtocolClient *client, PurpleAccount *account,
+              const char *who)
+{
+	return purple_normalize_nocase(account, who);
+}
+
 static gssize
-irc_get_max_message_size(PurpleConversation *conv)
+irc_get_max_message_size(PurpleProtocolClient *client,
+                         PurpleConversation *conv)
 {
 	/* TODO: this static value is got from pidgin-otr, but it depends on
 	 * some factors, for example IRC channel name. */
@@ -1007,7 +1015,7 @@ static void
 irc_protocol_client_iface_init(PurpleProtocolClientInterface *client_iface)
 {
 	client_iface->get_actions          = irc_get_actions;
-	client_iface->normalize            = purple_normalize_nocase;
+	client_iface->normalize            = irc_normalize;
 	client_iface->get_max_message_size = irc_get_max_message_size;
 }
 
