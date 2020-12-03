@@ -2115,8 +2115,8 @@ const char *jabber_list_icon(PurpleAccount *a, PurpleBuddy *b)
 	return "jabber";
 }
 
-const char* jabber_list_emblem(PurpleBuddy *b)
-{
+const char *
+jabber_list_emblem(PurpleProtocolClient *client, PurpleBuddy *b) {
 	JabberStream *js;
 	JabberBuddy *jb = NULL;
 	PurpleConnection *gc = purple_account_get_connection(purple_buddy_get_account(b));
@@ -2158,8 +2158,8 @@ const char* jabber_list_emblem(PurpleBuddy *b)
 	return NULL;
 }
 
-char *jabber_status_text(PurpleBuddy *b)
-{
+char *
+jabber_status_text(PurpleProtocolClient *client, PurpleBuddy *b) {
 	char *ret = NULL;
 	JabberBuddy *jb = NULL;
 	PurpleAccount *account = purple_buddy_get_account(b);
@@ -2236,7 +2236,9 @@ jabber_tooltip_add_resource_text(JabberBuddyResource *jbr,
 	g_free(res);
 }
 
-void jabber_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full)
+void
+jabber_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *b,
+                    PurpleNotifyUserInfo *user_info, gboolean full)
 {
 	JabberBuddy *jb;
 	PurpleAccount *account;
@@ -2289,7 +2291,7 @@ void jabber_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboole
 			if(mood && *mood) {
 				const char *moodtext;
 				/* find the mood */
-				PurpleMood *moods = jabber_get_moods(account);
+				PurpleMood *moods = jabber_get_moods(client, account);
 				const char *description = NULL;
 
 				for (; moods->mood ; moods++) {
@@ -2557,8 +2559,8 @@ static void jabber_password_change(PurpleProtocolAction *action)
 			purple_request_cpar_from_connection(gc), js);
 }
 
-GList *jabber_get_actions(PurpleConnection *gc)
-{
+GList *
+jabber_get_actions(PurpleProtocolClient *client, PurpleConnection *gc) {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 	GList *m = NULL;
 	PurpleProtocolAction *act;
@@ -2588,7 +2590,9 @@ GList *jabber_get_actions(PurpleConnection *gc)
 	return m;
 }
 
-PurpleChat *jabber_find_blist_chat(PurpleAccount *account, const char *name)
+PurpleChat *
+jabber_find_blist_chat(PurpleProtocolClient *client, PurpleAccount *account,
+                       const char *name)
 {
 	PurpleBlistNode *gnode, *cnode;
 	JabberID *jid;
@@ -2628,7 +2632,9 @@ PurpleChat *jabber_find_blist_chat(PurpleAccount *account, const char *name)
 	return NULL;
 }
 
-void jabber_convo_closed(PurpleConnection *gc, const char *who)
+void
+jabber_convo_closed(PurpleProtocolClient *client, PurpleConnection *gc,
+                    const char *who)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 	JabberID *jid;
@@ -2647,6 +2653,12 @@ void jabber_convo_closed(PurpleConnection *gc, const char *who)
 	jabber_id_free(jid);
 }
 
+const char *
+jabber_client_normalize(PurpleProtocolClient *client, PurpleAccount *account,
+                        const gchar *who)
+{
+	return jabber_normalize(account, who);
+}
 
 char *jabber_parse_error(JabberStream *js,
                          PurpleXmlNode *packet,
@@ -3232,8 +3244,8 @@ gboolean jabber_send_attention(PurpleProtocolAttention *attn, PurpleConnection *
 }
 
 
-gboolean jabber_offline_message(const PurpleBuddy *buddy)
-{
+gboolean
+jabber_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy) {
 	return TRUE;
 }
 
@@ -4125,7 +4137,7 @@ jabber_protocol_client_iface_init(PurpleProtocolClientInterface *client_iface)
 	client_iface->tooltip_text    = jabber_tooltip_text;
 	client_iface->blist_node_menu = jabber_blist_node_menu;
 	client_iface->convo_closed    = jabber_convo_closed;
-	client_iface->normalize       = jabber_normalize;
+	client_iface->normalize       = jabber_client_normalize;
 	client_iface->find_blist_chat = jabber_find_blist_chat;
 	client_iface->offline_message = jabber_offline_message;
 	client_iface->get_moods       = jabber_get_moods;

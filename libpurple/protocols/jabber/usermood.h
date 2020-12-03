@@ -45,6 +45,6 @@ void jabber_mood_init(void);
 gboolean
 jabber_mood_set(JabberStream *js, const char *mood, const char *text);
 
-PurpleMood *jabber_get_moods(PurpleAccount *account);
+PurpleMood *jabber_get_moods(PurpleProtocolClient *client, PurpleAccount *account);
 
 #endif /* PURPLE_JABBER_USERMOOD_H */

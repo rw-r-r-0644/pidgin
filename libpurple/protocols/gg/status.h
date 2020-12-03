@@ -60,6 +60,6 @@ void ggp_status_broadcasting_dialog(PurpleConnection *gc);
 /* buddy status */
 
 void ggp_status_got_others(PurpleConnection *gc, struct gg_event *ev);
-char * ggp_status_buddy_text(PurpleBuddy *buddy);
+char * ggp_status_buddy_text(PurpleProtocolClient *client, PurpleBuddy *buddy);
 
 #endif /* PURPLE_GG_STATUS_H */

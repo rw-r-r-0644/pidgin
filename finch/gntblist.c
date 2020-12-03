@@ -933,8 +933,8 @@ append_proto_menu(GntMenu *menu, PurpleConnection *gc, PurpleBlistNode *node)
 		return;
 	}
 
-	for(list = purple_protocol_client_iface_blist_node_menu(protocol, node); list;
-			list = g_list_delete_link(list, list))
+	for(list = purple_protocol_client_blist_node_menu(PURPLE_PROTOCOL_CLIENT(protocol), node);
+			list; list = g_list_delete_link(list, list))
 	{
 		PurpleActionMenu *act = (PurpleActionMenu *) list->data;
 		if (!act)
@@ -1611,7 +1611,7 @@ tooltip_for_buddy(PurpleBuddy *buddy, GString *str, gboolean full)
 
 	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
 	if (protocol) {
-		purple_protocol_client_iface_tooltip_text(protocol, buddy, user_info, full);
+		purple_protocol_client_tooltip_text(PURPLE_PROTOCOL_CLIENT(protocol), buddy, user_info, full);
 	}
 
 	if (purple_prefs_get_bool("/finch/blist/idletime")) {
@@ -2366,8 +2366,8 @@ build_protocol_actions(GntMenuItem *item, PurpleProtocol *protocol,
 	GntMenuItem *menuitem;
 
 	gnt_menuitem_set_submenu(item, GNT_MENU(sub));
-	for (actions = purple_protocol_client_iface_get_actions(protocol, gc); actions;
-			actions = g_list_delete_link(actions, actions)) {
+	for (actions = purple_protocol_client_get_actions(PURPLE_PROTOCOL_CLIENT(protocol), gc);
+			actions; actions = g_list_delete_link(actions, actions)) {
 		if (actions->data) {
 			PurpleProtocolAction *action = actions->data;
 			action->connection = gc;

@@ -609,7 +609,7 @@ const char *purple_normalize_nocase(const PurpleAccount *account, const char *st
  *
  * Returns: TRUE, if string is valid, otherwise FALSE.
  */
-gboolean purple_validate(const PurpleProtocol *protocol, const char *str);
+gboolean purple_validate(PurpleProtocol *protocol, const char *str);
 
 /**
  * purple_str_has_caseprefix:

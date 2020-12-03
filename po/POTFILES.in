@@ -260,6 +260,7 @@ libpurple/purpleimconversation.c
 libpurple/purplemarkup.c
 libpurple/purplepresence.c
 libpurple/purpleprotocolattention.c
+libpurple/purpleprotocolclient.c
 libpurple/purpleprotocolim.c
 libpurple/purpleprotocolmedia.c
 libpurple/purpleprotocolprivacy.c

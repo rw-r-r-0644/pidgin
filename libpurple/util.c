@@ -28,6 +28,7 @@
 #include "notify.h"
 #include "protocol.h"
 #include "prefs.h"
+#include "purpleprotocolclient.h"
 #include "util.h"
 
 #include <json-glib/json-glib.h>
@@ -896,8 +897,9 @@ purple_normalize(PurpleAccount *account, const char *str)
 		PurpleProtocol *protocol =
 				purple_protocols_find(purple_account_get_protocol_id(account));
 
-		if (protocol != NULL)
-			ret = purple_protocol_client_iface_normalize(protocol, account, str);
+		if(PURPLE_IS_PROTOCOL_CLIENT(protocol)) {
+			ret = purple_protocol_client_normalize(PURPLE_PROTOCOL_CLIENT(protocol), account, str);
+		}
 	}
 
 	if (ret == NULL)
@@ -937,7 +939,7 @@ purple_normalize_nocase(const PurpleAccount *account, const char *str)
 }
 
 gboolean
-purple_validate(const PurpleProtocol *protocol, const char *str)
+purple_validate(PurpleProtocol *protocol, const char *str)
 {
 	const char *normalized;
 
@@ -950,8 +952,8 @@ purple_validate(const PurpleProtocol *protocol, const char *str)
 	if (!PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, normalize))
 		return TRUE;
 
-	normalized = purple_protocol_client_iface_normalize(PURPLE_PROTOCOL(protocol),
-			NULL, str);
+	normalized = purple_protocol_client_normalize(PURPLE_PROTOCOL_CLIENT(protocol),
+	                                              NULL, str);
 
 	return (NULL != normalized);
 }

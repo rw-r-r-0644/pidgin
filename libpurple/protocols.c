@@ -551,14 +551,6 @@ purple_protocol_got_media_caps(PurpleAccount *account, const char *name)
 #endif
 }
 
-gssize
-purple_protocol_get_max_message_size(PurpleProtocol *protocol)
-{
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), 0);
-
-	return purple_protocol_client_iface_get_max_message_size(protocol, NULL);
-}
-
 /**************************************************************************
  * Protocols API
  **************************************************************************/

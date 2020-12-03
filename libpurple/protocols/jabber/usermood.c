@@ -218,7 +218,7 @@ jabber_mood_set(JabberStream *js, const char *mood, const char *text)
 	return TRUE;
 }
 
-PurpleMood *jabber_get_moods(PurpleAccount *account)
-{
+PurpleMood *
+jabber_get_moods(PurpleProtocolClient *client, PurpleAccount *account) {
 	return moods;
 }

@@ -3119,16 +3119,18 @@ static const char *mw_protocol_list_icon(PurpleAccount *a, PurpleBuddy *b) {
 }
 
 
-static const char* mw_protocol_list_emblem(PurpleBuddy *b)
-{
-  if(buddy_is_external(b))
+static const char *
+mw_protocol_list_emblem(PurpleProtocolClient *client, PurpleBuddy *b) {
+  if(buddy_is_external(b)) {
     return "external";
+  }
 
   return NULL;
 }
 
 
-static char *mw_protocol_status_text(PurpleBuddy *b) {
+static char *
+mw_protocol_status_text(PurpleProtocolClient * client, PurpleBuddy *b) {
   PurpleConnection *gc;
   struct mwPurpleProtocolData *pd;
   struct mwAwareIdBlock t = { mwAware_USER, (char *)purple_buddy_get_name(b), NULL };
@@ -3188,7 +3190,10 @@ static char *user_supports_text(struct mwServiceAware *srvc, const char *who) {
 }
 
 
-static void mw_protocol_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full) {
+static void
+mw_protocol_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *b,
+                         PurpleNotifyUserInfo *user_info, gboolean full)
+{
   PurpleConnection *gc;
   struct mwPurpleProtocolData *pd = NULL;
   struct mwAwareIdBlock idb = { mwAware_USER, (char *)purple_buddy_get_name(b), NULL };
@@ -3461,7 +3466,10 @@ static void blist_menu_conf(PurpleBlistNode *node, gpointer data) {
 }
 
 
-static GList *mw_protocol_blist_node_menu(PurpleBlistNode *node) {
+static GList *
+mw_protocol_blist_node_menu(PurpleProtocolClient *client,
+                            PurpleBlistNode *node)
+{
   GList *l = NULL;
   PurpleActionMenu *act;
 
@@ -4577,13 +4585,17 @@ static void mw_protocol_rename_group(PurpleConnection *gc,
 }
 
 
-static void mw_protocol_buddy_free(PurpleBuddy *buddy) {
+static void
+mw_protocol_buddy_free(PurpleProtocolClient *client, PurpleBuddy *buddy) {
   /* I don't think we have any cleanup for buddies yet */
   ;
 }
 
 
-static void mw_protocol_convo_closed(PurpleConnection *gc, const char *who) {
+static void
+mw_protocol_convo_closed(PurpleProtocolClient *client, PurpleConnection *gc,
+                         const char *who)
+{
   struct mwPurpleProtocolData *pd = purple_connection_get_protocol_data(gc);
   struct mwServiceIm *srvc;
   struct mwConversation *conv;
@@ -4602,8 +4614,10 @@ static void mw_protocol_convo_closed(PurpleConnection *gc, const char *who) {
 }
 
 
-static const char *mw_protocol_normalize(const PurpleAccount *account,
-				     const char *id) {
+static const gchar *
+mw_protocol_normalize(PurpleProtocolClient *client, PurpleAccount *account,
+                      const gchar *id)
+{
 
   /* code elsewhere assumes that the return value points to different
      memory than the passed value, but it won't free the normalized
@@ -5116,7 +5130,8 @@ static void search_action(PurpleProtocolAction *act) {
 }
 
 
-static GList *mw_protocol_get_actions(PurpleConnection *gc) {
+static GList *
+mw_protocol_get_actions(PurpleProtocolClient *client, PurpleConnection *gc) {
   PurpleProtocolAction *act;
   GList *l = NULL;
 

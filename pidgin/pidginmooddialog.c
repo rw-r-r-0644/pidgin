@@ -151,7 +151,7 @@ pidgin_mood_get_global_moods(void) {
 				PurpleProtocol *protocol = purple_connection_get_protocol(gc);
 				PurpleMood *mood = NULL;
 
-				for (mood = purple_protocol_client_iface_get_moods(protocol, account) ;
+				for (mood = purple_protocol_client_get_moods(PURPLE_PROTOCOL_CLIENT(protocol), account) ;
 				    mood->mood != NULL ; mood++) {
 					int mood_count =
 							GPOINTER_TO_INT(g_hash_table_lookup(mood_counts, mood->mood));
@@ -263,12 +263,15 @@ pidgin_mood_dialog_show(PurpleAccount *account) {
 
 	/* TODO: rlaager wants this sorted. */
 	/* TODO: darkrain wants it sorted post-translation */
-	if (account && PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, get_moods)) {
-		mood = purple_protocol_client_iface_get_moods(protocol, account);
-	} else {
+	if (account && PURPLE_IS_PROTOCOL_CLIENT(protocol)) {
+		mood = purple_protocol_client_get_moods(PURPLE_PROTOCOL_CLIENT(protocol), account);
+	}
+
+	if(mood == NULL) {
 		mood = global_moods = pidgin_mood_get_global_moods();
 	}
-	for ( ; mood->mood != NULL ; mood++) {
+
+	for ( ; mood != NULL && mood->mood != NULL ; mood++) {
 		char *path;
 
 		if (mood->description == NULL) {

@@ -64,12 +64,14 @@ ggp_buddy_data * ggp_buddy_get_data(PurpleBuddy *buddy)
 	return buddy_data;
 }
 
-static void ggp_buddy_free(PurpleBuddy *buddy)
+static void
+ggp_buddy_free(PurpleProtocolClient *client, PurpleBuddy *buddy)
 {
 	ggp_buddy_data *buddy_data = purple_buddy_get_protocol_data(buddy);
 
-	if (!buddy_data)
+	if (!buddy_data) {
 		return;
+	}
 
 	g_free(buddy_data);
 	purple_buddy_set_protocol_data(buddy, NULL);
@@ -644,13 +646,16 @@ static const char *ggp_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 	return "gadu-gadu";
 }
 
-static const char *ggp_normalize(const PurpleAccount *account, const char *who)
+static const char *
+ggp_normalize(PurpleProtocolClient *client, PurpleAccount *account,
+              const char *who)
 {
 	static char normalized[21]; /* maximum unsigned long long int size */
 
 	uin_t uin = ggp_str_to_uin(who);
-	if (uin <= 0)
+	if(uin <= 0) {
 		return NULL;
+	}
 
 	g_snprintf(normalized, sizeof(normalized), "%u", uin);
 
@@ -661,7 +666,9 @@ static const char *ggp_normalize(const PurpleAccount *account, const char *who)
  * - move to status.c ?
  * - add information about not adding to his buddy list (not_a_friend)
  */
-static void ggp_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full)
+static void
+ggp_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *b,
+                 PurpleNotifyUserInfo *user_info, gboolean full)
 {
 	PurpleStatus *status;
 	char *tmp;
@@ -942,8 +949,8 @@ static void ggp_action_set_info(PurpleProtocolAction *action)
 	ggp_pubdir_set_info(action->connection);
 }
 
-static GList *ggp_get_actions(PurpleConnection *gc)
-{
+static GList *
+ggp_get_actions(PurpleProtocolClient *client, PurpleConnection *gc) {
 	GList *m = NULL;
 	PurpleProtocolAction *act;
 
@@ -978,8 +985,8 @@ static GList *ggp_get_actions(PurpleConnection *gc)
 	return m;
 }
 
-static const char* ggp_list_emblem(PurpleBuddy *buddy)
-{
+static const char *
+ggp_list_emblem(PurpleProtocolClient *client, PurpleBuddy *buddy) {
 	ggp_buddy_data *buddy_data = ggp_buddy_get_data(buddy);
 
 	if (buddy_data->blocked)
@@ -990,12 +997,14 @@ static const char* ggp_list_emblem(PurpleBuddy *buddy)
 	return NULL;
 }
 
-static gboolean ggp_offline_message(const PurpleBuddy *buddy)
-{
+static gboolean
+ggp_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy) {
 	return TRUE;
 }
 
-static GHashTable * ggp_get_account_text_table(PurpleAccount *account)
+static GHashTable *
+ggp_get_account_text_table(PurpleProtocolClient *client,
+                           PurpleAccount *account)
 {
 	GHashTable *table;
 	table = g_hash_table_new(g_str_hash, g_str_equal);
@@ -1004,7 +1013,8 @@ static GHashTable * ggp_get_account_text_table(PurpleAccount *account)
 }
 
 static gssize
-ggp_get_max_message_size(PurpleConversation *conv)
+ggp_get_max_message_size(PurpleProtocolClient *client,
+                         PurpleConversation *conv)
 {
 	/* TODO: it may depend on protocol version or other factors */
 	return 1200; /* no more than 1232 */

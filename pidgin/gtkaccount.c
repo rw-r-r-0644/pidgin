@@ -493,7 +493,7 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 			&& PURPLE_PROTOCOL_IMPLEMENTS(dialog->protocol, CLIENT, get_account_text_table)) {
 		GHashTable *table;
 		const char *label;
-		table = purple_protocol_client_iface_get_account_text_table(dialog->protocol, NULL);
+		table = purple_protocol_client_get_account_text_table(PURPLE_PROTOCOL_CLIENT(dialog->protocol), NULL);
 		label = g_hash_table_lookup(table, "login_label");
 
 		gtk_entry_set_placeholder_text(GTK_ENTRY(dialog->username_entry), label);

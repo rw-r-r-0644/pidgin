@@ -445,8 +445,8 @@ void ggp_status_got_others_buddy(PurpleConnection *gc, uin_t uin, int status,
 	g_free(status_message);
 }
 
-char * ggp_status_buddy_text(PurpleBuddy *buddy)
-{
+char *
+ggp_status_buddy_text(PurpleProtocolClient *client, PurpleBuddy *buddy) {
 	ggp_buddy_data *buddy_data = ggp_buddy_get_data(buddy);
 	const gchar *purple_message;
 

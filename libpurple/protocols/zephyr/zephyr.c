@@ -2263,7 +2263,9 @@ char *local_zephyr_normalize(zephyr_account *zephyr,const char *orig)
 	return buf;
 }
 
-static const char *zephyr_normalize(const PurpleAccount *account, const char *who)
+static const char *
+zephyr_normalize(PurpleProtocolClient *client, PurpleAccount *account,
+                 const char *who)
 {
 	static char buf[BUF_LEN];
 	PurpleConnection *gc;
@@ -2541,7 +2543,9 @@ static void zephyr_chat_leave(PurpleConnection * gc, int id)
 	}
 }
 
-static PurpleChat *zephyr_find_blist_chat(PurpleAccount *account, const char *name)
+static PurpleChat *
+zephyr_find_blist_chat(PurpleProtocolClient *client, PurpleAccount *account,
+                       const char *name)
 {
 	PurpleBlistNode *gnode, *cnode;
 
@@ -2922,8 +2926,8 @@ static void zephyr_action_get_subs_from_server(PurpleProtocolAction *action)
 }
 
 
-static GList *zephyr_get_actions(PurpleConnection *gc)
-{
+static GList *
+zephyr_get_actions(PurpleProtocolClient *client, PurpleConnection *gc) {
 	GList *list = NULL;
 	PurpleProtocolAction *act = NULL;
 

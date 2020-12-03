@@ -34,6 +34,7 @@
 #include "protocol.h"
 #include "purplemarkup.h"
 #include "purpleprivate.h"
+#include "purpleprotocolclient.h"
 #include "request.h"
 #include "signals.h"
 #include "smiley-list.h"
@@ -798,7 +799,7 @@ purple_conversation_get_max_message_size(PurpleConversation *conv)
 
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), 0);
 
-	return purple_protocol_client_iface_get_max_message_size(protocol, conv);
+	return purple_protocol_client_get_max_message_size(PURPLE_PROTOCOL_CLIENT(protocol), conv);
 }
 
 void
