@@ -27,6 +27,7 @@ struct _PurpleAccountPresence {
 	PurplePresence parent;
 
 	PurpleAccount *account;
+	GList *statuses;
 };
 
 enum {
@@ -102,7 +103,16 @@ static GList *
 purple_account_presence_get_statuses(PurplePresence *presence) {
 	PurpleAccountPresence *account_presence = PURPLE_ACCOUNT_PRESENCE(presence);
 
-	return purple_protocol_get_statuses(account_presence->account, presence);
+	/* We cache purple_protocol_get_statuses because it creates all new
+	 * statuses which loses at least the active attribute, which breaks all
+	 * sorts of things.
+	 */
+	if(account_presence->statuses == NULL) {
+		account_presence->statuses =
+			purple_protocol_get_statuses(account_presence->account, presence);
+	}
+
+	return account_presence->statuses;
 }
 
 /******************************************************************************
@@ -150,6 +160,7 @@ purple_account_presence_finalize(GObject *obj) {
 	PurpleAccountPresence *presence = PURPLE_ACCOUNT_PRESENCE(obj);
 
 	g_clear_object(&presence->account);
+	g_list_free_full(presence->statuses, g_object_unref);
 
 	G_OBJECT_CLASS(purple_account_presence_parent_class)->finalize(obj);
 }
