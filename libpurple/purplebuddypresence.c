@@ -29,6 +29,8 @@ struct _PurpleBuddyPresence {
 	PurplePresence parent;
 
 	PurpleBuddy *buddy;
+
+	GList *statuses;
 };
 
 enum {
@@ -197,13 +199,24 @@ purple_buddy_presence_update_idle(PurplePresence *presence, gboolean old_idle)
 
 static GList *
 purple_buddy_presence_get_statuses(PurplePresence *presence) {
-	PurpleAccount *account = NULL;
 	PurpleBuddyPresence *buddy_presence = NULL;
 
 	buddy_presence = PURPLE_BUDDY_PRESENCE(presence);
-	account = purple_buddy_get_account(buddy_presence->buddy);
 
-	return purple_protocol_get_statuses(account, presence);
+	/* We cache purple_protocol_get_statuses because it creates all new
+	 * statuses which loses at least the active attribute, which breaks all
+	 * sorts of things.
+	 */
+	if(buddy_presence->statuses == NULL) {
+		PurpleAccount *account = NULL;
+
+		account = purple_buddy_get_account(buddy_presence->buddy);
+
+		buddy_presence->statuses = purple_protocol_get_statuses(account,
+		                                                        presence);
+	}
+
+	return buddy_presence->statuses;
 }
 
 /******************************************************************************
@@ -250,6 +263,7 @@ purple_buddy_presence_finalize(GObject *obj) {
 	PurpleBuddyPresence *presence = PURPLE_BUDDY_PRESENCE(obj);
 
 	g_clear_object(&presence->buddy);
+	g_list_free_full(presence->statuses, g_object_unref);
 
 	G_OBJECT_CLASS(purple_buddy_presence_parent_class)->finalize(obj);
 }
