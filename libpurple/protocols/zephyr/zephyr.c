@@ -41,8 +41,6 @@
 #include "internal.h"
 #include "zephyr.h"
 
-#include <strings.h>
-
 #define ZEPHYR_FALLBACK_CHARSET "ISO-8859-1"
 
 #define BUF_LEN (2048)
@@ -116,12 +114,6 @@ parse_tree null_parse_tree = {
 	0,
 };
 
-#define use_none(zephyr) ((zephyr->connection_type == PURPLE_ZEPHYR_NONE)?1:0)
-#define use_krb4(zephyr) ((zephyr->connection_type == PURPLE_ZEPHYR_KRB4)?1:0)
-#define use_tzc(zephyr) ((zephyr->connection_type == PURPLE_ZEPHYR_TZC)?1:0)
-
-#define use_zeph02(zephyr) (  (zephyr->connection_type == PURPLE_ZEPHYR_NONE)?1: ((zephyr->connection_type == PURPLE_ZEPHYR_KRB4)?1:0))
-
 /* struct I need for zephyr_to_html */
 struct _zframe {
 	/* true for everything but @color, since inside the parens of that one is
@@ -166,23 +158,45 @@ struct _zephyr_triple {
 extern const char *username;
 #endif
 
+static inline gboolean
+use_tzc(const zephyr_account *zephyr)
+{
+	return zephyr->connection_type == PURPLE_ZEPHYR_TZC;
+}
+
+static inline gboolean
+use_zeph02(const zephyr_account *zephyr)
+{
+	return zephyr->connection_type == PURPLE_ZEPHYR_NONE ||
+	       zephyr->connection_type == PURPLE_ZEPHYR_KRB4;
+}
+
+static gboolean
+zephyr_write_message(zephyr_account *zephyr, const gchar *message)
+{
+	GError *error = NULL;
+	gboolean success;
+
+	success = g_output_stream_write_all(zephyr->tzc_stdin, message, strlen(message),
+	                                    NULL, NULL, &error);
+	if (!success) {
+		purple_debug_error("zephyr", "Unable to write a message: %s", error->message);
+		g_error_free(error);
+	}
+	return success;
+}
+
 static Code_t zephyr_subscribe_to(zephyr_account* zephyr, char* class, char *instance, char *recipient, char* galaxy) {
 	Code_t ret_val = -1;
 
 	if (use_tzc(zephyr)) {
 		/* ((tzcfodder . subscribe) ("class" "instance" "recipient")) */
 		gchar *zsubstr;
-		GError *error = NULL;
 
 		zsubstr = g_strdup_printf(
 		        "((tzcfodder . subscribe) (\"%s\" \"%s\" \"%s\"))\n", class,
 		        instance, recipient);
-		if (!g_output_stream_write_all(zephyr->tzc_stdin, zsubstr,
-		                               strlen(zsubstr), NULL, NULL, &error)) {
-			purple_debug_error("zephyr", "Unable to write a message: %s",
-			                   error->message);
-			g_error_free(error);
-		} else {
+		if (zephyr_write_message(zephyr, zsubstr)) {
 			ret_val = ZERR_NONE;
 		}
 		g_free(zsubstr);
@@ -211,19 +225,14 @@ static char *zephyr_strip_local_realm(zephyr_account* zephyr,const char* user){
 	  or:
 	  username@realm if there is a realm and it is foreign
 	*/
-	char *tmp = g_strdup(user);
-	char *at = strchr(tmp,'@');
+	char *at = strchr(user, '@');
 	if (at && !g_ascii_strcasecmp(at+1,zephyr->realm)) {
 		/* We're passed in a username of the form user@users-realm */
-		char* tmp2;
-		*at = '\0';
-		tmp2 = g_strdup(tmp);
-		g_free(tmp);
-		return tmp2;
+		return g_strndup(user, at - user);
 	}
 	else {
 		/* We're passed in a username of the form user or user@foreign-realm */
-		return tmp;
+		return g_strdup(user);
 	}
 }
 
@@ -379,6 +388,16 @@ static gchar *zephyr_recv_convert(PurpleConnection *gc, gchar *string)
 	}
 }
 
+static gboolean
+zframe_href_has_prefix(const zframe *frame, const gchar *prefix)
+{
+	gsize prefix_len = strlen(prefix);
+
+	return (frame->href->len == (prefix_len + frame->text->len)) &&
+	       !strncmp(frame->href->str, prefix, prefix_len) &&
+	       purple_strequal(frame->href->str + prefix_len, frame->text->str);
+}
+
 /* This parses HTML formatting (put out by one of the gtkimhtml widgets
    And converts it to zephyr formatting.
    It currently deals properly with <b>, <br>, <i>, <font face=...>, <font color=...>,
@@ -410,7 +429,7 @@ static char *html_to_zephyr(const char *message)
 
 	purple_debug_info("zephyr","html received %s\n",message);
 	while (*message) {
-		if (frames->closing && !g_ascii_strncasecmp(message, frames->closing, strlen(frames->closing))) {
+		if (frames->closing && purple_str_has_caseprefix(message, frames->closing)) {
 			zframe *popped;
 			message += strlen(frames->closing);
 			popped = frames;
@@ -429,12 +448,9 @@ static char *html_to_zephyr(const char *message)
 				g_string_append(frames->text, popped->text->str);
 				if (popped->href)
 				{
-					int text_len = strlen(popped->text->str), href_len = strlen(popped->href->str);
-					if (!((text_len == href_len && !strncmp(popped->href->str, popped->text->str, text_len)) ||
-					      (7 + text_len == href_len && !strncmp(popped->href->str, "http://", 7) &&
-					       !strncmp(popped->href->str + 7, popped->text->str, text_len)) ||
-					      (7 + text_len == href_len && !strncmp(popped->href->str, "mailto:", 7) &&
-					       !strncmp(popped->href->str + 7, popped->text->str, text_len)))) {
+					if (!purple_strequal(popped->href->str, popped->text->str) &&
+					    !zframe_href_has_prefix(popped, "http://") &&
+					    !zframe_href_has_prefix(popped, "mailto:")) {
 						g_string_append(frames->text, " <");
 						g_string_append(frames->text, popped->href->str);
 						if (popped->closer_mask & ~8) {
@@ -624,12 +640,31 @@ static char *html_to_zephyr(const char *message)
 	return ret;
 }
 
+static zframe *
+zframe_pop(zframe *frames, gboolean *last_had_closer)
+{
+	zframe *popped = frames;
+
+	frames = frames->enclosing;
+	g_string_append(frames->text, popped->text->str);
+	g_string_append(frames->text, popped->closing);
+
+	if (last_had_closer != NULL) {
+		*last_had_closer = popped->has_closer;
+	}
+
+	g_string_free(popped->text, TRUE);
+	g_free(popped);
+
+	return frames;
+}
+
 /* this parses zephyr formatting and converts it to html. For example, if
  * you pass in "@{@color(blue)@i(hello)}" you should get out
  * "<font color=blue><i>hello</i></font>". */
 static char *zephyr_to_html(const char *message)
 {
-	zframe *frames, *curr;
+	zframe *frames;
 	char *ret;
 
 	frames = g_new(zframe, 1);
@@ -710,20 +745,13 @@ static char *zephyr_to_html(const char *message)
 				/* Not a formatting tag, add the character as normal. */
 				g_string_append_c(frames->text, *message++);
 			}
-		} else if (frames->closer && !g_ascii_strncasecmp(message, frames->closer, strlen(frames->closer))) {
-			zframe *popped;
+		} else if (frames->closer && purple_str_has_caseprefix(message, frames->closer)) {
 			gboolean last_had_closer;
 
 			message += strlen(frames->closer);
 			if (frames->enclosing) {
 				do {
-					popped = frames;
-					frames = frames->enclosing;
-					g_string_append(frames->text, popped->text->str);
-					g_string_append(frames->text, popped->closing);
-					g_string_free(popped->text, TRUE);
-					last_had_closer = popped->has_closer;
-					g_free(popped);
+					frames = zframe_pop(frames, &last_had_closer);
 				} while (frames->enclosing && !last_had_closer);
 			} else {
 				g_string_append_c(frames->text, *message);
@@ -737,12 +765,7 @@ static char *zephyr_to_html(const char *message)
 	}
 	/* go through all the stuff that they didn't close */
 	while (frames->enclosing) {
-		curr = frames;
-		g_string_append(frames->enclosing->text, frames->text->str);
-		g_string_append(frames->enclosing->text, frames->closing);
-		g_string_free(frames->text, TRUE);
-		frames = frames->enclosing;
-		g_free(curr);
+		frames = zframe_pop(frames, NULL);
 	}
 	ret = frames->text->str;
 	g_string_free(frames->text, FALSE);
@@ -1289,6 +1312,31 @@ static gint check_notify_zeph02(gpointer data)
 	return TRUE;
 }
 
+static gboolean
+zephyr_request_locations(zephyr_account *zephyr, const gchar *who)
+{
+	if (use_zeph02(zephyr)) {
+		ZAsyncLocateData_t ald;
+		Code_t zerr;
+
+		zerr = ZRequestLocations(who, &ald, UNACKED, ZAUTH);
+		g_free(ald.user);
+		g_free(ald.version);
+		return zerr == ZERR_NONE;
+	}
+
+	if (use_tzc(zephyr)) {
+		gchar *zlocstr;
+
+		zlocstr = g_strdup_printf("((tzcfodder . zlocate) \"%s\")\n", who);
+		zephyr_write_message(zephyr, zlocstr);
+		g_free(zlocstr);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 #ifdef WIN32
 
 static gint check_loc(gpointer data)
@@ -1306,7 +1354,7 @@ static gint check_loc(gpointer data)
 		PurpleBuddy *b = buddies->data;
 		char *chk;
 		const char *bname = purple_buddy_get_name(b);
-		chk = local_zephyr_normalize(bname);
+		chk = local_zephyr_normalize(zephyr, bname);
 		ZLocateUser(chk,&numlocs, ZAUTH);
 		if (numlocs) {
 			int i;
@@ -1325,46 +1373,23 @@ static gint check_loc(gpointer data)
 static gint check_loc(gpointer data)
 {
 	GSList *buddies;
-	ZAsyncLocateData_t ald;
 	PurpleConnection *gc = (PurpleConnection *)data;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 	PurpleAccount *account = purple_connection_get_account(gc);
-
-	if (use_zeph02(zephyr)) {
-		ald.user = NULL;
-		memset(&(ald.uid), 0, sizeof(ZUnique_Id_t));
-		ald.version = NULL;
-	}
 
 	for (buddies = purple_blist_find_buddies(account, NULL); buddies;
 			buddies = g_slist_delete_link(buddies, buddies)) {
 		PurpleBuddy *b = buddies->data;
 
-		const char *chk;
+		char *chk;
 		const char *name = purple_buddy_get_name(b);
 
 		chk = local_zephyr_normalize(zephyr,name);
 		purple_debug_info("zephyr","chk: %s b->name %s\n",chk,name);
 		/* XXX add real error reporting */
 		/* doesn't matter if this fails or not; we'll just move on to the next one */
-		if (use_zeph02(zephyr)) {
-			ZRequestLocations(chk, &ald, UNACKED, ZAUTH);
-			g_free(ald.user);
-			g_free(ald.version);
-		} else if (use_tzc(zephyr)) {
-			gchar *zlocstr;
-			GError *error = NULL;
-
-			zlocstr = g_strdup_printf("((tzcfodder . zlocate) \"%s\")\n", chk);
-			if (!g_output_stream_write_all(zephyr->tzc_stdin, zlocstr,
-			                               strlen(zlocstr), NULL, NULL,
-			                               &error)) {
-				purple_debug_error("zephyr", "Unable to write a message: %s",
-				                   error->message);
-				g_error_free(error);
-			}
-			g_free(zlocstr);
-		}
+		zephyr_request_locations(zephyr, chk);
+		g_free(chk);
 	}
 
 	return TRUE;
@@ -1378,18 +1403,23 @@ get_exposure_level(void)
 	/* XXX add real error reporting */
 	const gchar *exposure = ZGetVariable("exposure");
 
-	if (!exposure)
-		return EXPOSE_REALMVIS;
-	if (!g_ascii_strcasecmp(exposure, EXPOSE_NONE))
-		return EXPOSE_NONE;
-	if (!g_ascii_strcasecmp(exposure, EXPOSE_OPSTAFF))
-		return EXPOSE_OPSTAFF;
-	if (!g_ascii_strcasecmp(exposure, EXPOSE_REALMANN))
-		return EXPOSE_REALMANN;
-	if (!g_ascii_strcasecmp(exposure, EXPOSE_NETVIS))
-		return EXPOSE_NETVIS;
-	if (!g_ascii_strcasecmp(exposure, EXPOSE_NETANN))
-		return EXPOSE_NETANN;
+	if (exposure) {
+		if (!g_ascii_strcasecmp(exposure, EXPOSE_NONE)) {
+			return EXPOSE_NONE;
+		}
+		if (!g_ascii_strcasecmp(exposure, EXPOSE_OPSTAFF)) {
+			return EXPOSE_OPSTAFF;
+		}
+		if (!g_ascii_strcasecmp(exposure, EXPOSE_REALMANN)) {
+			return EXPOSE_REALMANN;
+		}
+		if (!g_ascii_strcasecmp(exposure, EXPOSE_NETVIS)) {
+			return EXPOSE_NETVIS;
+		}
+		if (!g_ascii_strcasecmp(exposure, EXPOSE_NETANN)) {
+			return EXPOSE_NETANN;
+		}
+	}
 	return EXPOSE_REALMVIS;
 }
 
@@ -1559,13 +1589,13 @@ normalize_zephyr_exposure(const gchar *exposure)
 {
 	gchar *exp2 = g_strstrip(g_ascii_strup(exposure, -1));
 
-	if (!exp2) {
-		return g_strdup(EXPOSE_REALMVIS);
-	}
-	if (g_str_equal(exp2, EXPOSE_NONE) || g_str_equal(exp2, EXPOSE_OPSTAFF) ||
-	    g_str_equal(exp2, EXPOSE_REALMANN) ||
-	    g_str_equal(exp2, EXPOSE_NETVIS) || g_str_equal(exp2, EXPOSE_NETANN)) {
-		return exp2;
+	if (exp2) {
+		if (purple_strequal(exp2, EXPOSE_NONE) || purple_strequal(exp2, EXPOSE_OPSTAFF) ||
+		    purple_strequal(exp2, EXPOSE_REALMANN) ||
+		    purple_strequal(exp2, EXPOSE_NETVIS) || purple_strequal(exp2, EXPOSE_NETANN)) {
+			return exp2;
+		}
+		g_free(exp2);
 	}
 	return g_strdup(EXPOSE_REALMVIS);
 }
@@ -1671,7 +1701,7 @@ static void zephyr_login(PurpleAccount * account)
 			return;
 		}
 		for (i = 0; tzc_cmd_array[i] != NULL; i++) {
-			if (g_str_equal(tzc_cmd_array[i], "%s")) {
+			if (purple_strequal(tzc_cmd_array[i], "%s")) {
 				g_free(tzc_cmd_array);
 				tzc_cmd_array[i] = g_strdup(zephyr->exposure);
 				found_ps = TRUE;
@@ -1857,12 +1887,12 @@ static void zephyr_login(PurpleAccount * account)
 		g_free(buf);
 	}
 	else if ( use_zeph02(zephyr)) {
-		gchar* realm;
+		const gchar* realm;
 		z_call_s(ZInitialize(), "Couldn't initialize zephyr");
 		z_call_s(ZOpenPort(&(zephyr->port)), "Couldn't open port");
 		z_call_s(ZSetLocation((char *)zephyr->exposure), "Couldn't set location");
 
-		realm = (gchar *)purple_account_get_string(purple_connection_get_account(gc),"realm","");
+		realm = purple_account_get_string(purple_connection_get_account(gc),"realm","");
 		if (!*realm) {
 			realm = ZGetRealm();
 		}
@@ -2185,26 +2215,24 @@ zephyr_send_message(zephyr_account *zephyr, gchar *zclass, gchar *instance,
 	 *  (message . ("Harry Bovik" "my zgram"))
 	 * )
 	 */
+	char *tmp_buf;
 	char *html_buf;
-	char *html_buf2;
-	html_buf = html_to_zephyr(im);
-	html_buf2 = purple_unescape_html(html_buf);
+	tmp_buf = html_to_zephyr(im);
+	html_buf = purple_unescape_html(tmp_buf);
+	g_free(tmp_buf);
 
 	if(use_tzc(zephyr)) {
 		char* zsendstr;
 		/* CMU cclub tzc doesn't grok opcodes for now  */
 		char* tzc_sig = zephyr_tzc_escape_msg(sig);
-		char *tzc_body = zephyr_tzc_escape_msg(html_buf2);
+		char *tzc_body = zephyr_tzc_escape_msg(html_buf);
 		zsendstr = g_strdup_printf("((tzcfodder . send) (class . \"%s\") (auth . t) (recipients (\"%s\" . \"%s\")) (message . (\"%s\" \"%s\"))	) \n",
 					   zclass, instance, recipient, tzc_sig, tzc_body);
-		/*		fprintf(stderr,"zsendstr = %s\n",zsendstr); */
 
-		if (!g_output_stream_write_all(zephyr->tzc_stdin, zsendstr,
-		                               strlen(zsendstr), NULL, NULL, NULL)) {
+		if (!zephyr_write_message(zephyr, zsendstr)) {
 			g_free(tzc_sig);
 			g_free(tzc_body);
 			g_free(zsendstr);
-			g_free(html_buf2);
 			g_free(html_buf);
 			return FALSE;
 		}
@@ -2213,7 +2241,7 @@ zephyr_send_message(zephyr_account *zephyr, gchar *zclass, gchar *instance,
 		g_free(zsendstr);
 	} else if (use_zeph02(zephyr)) {
 		ZNotice_t notice;
-		char *buf = g_strdup_printf("%s%c%s", sig, '\0', html_buf2);
+		char *buf = g_strdup_printf("%s%c%s", sig, '\0', html_buf);
 		memset((char *)&notice, 0, sizeof(notice));
 
 		notice.z_kind = ACKED;
@@ -2223,14 +2251,13 @@ zephyr_send_message(zephyr_account *zephyr, gchar *zclass, gchar *instance,
 		notice.z_recipient = recipient;
 		notice.z_sender = 0;
 		notice.z_default_format = "Class $class, Instance $instance:\n" "To: @bold($recipient) at $time $date\n" "From: @bold($1) <$sender>\n\n$2";
-		notice.z_message_len = strlen(html_buf2) + strlen(sig) + 2;
+		notice.z_message_len = strlen(html_buf) + strlen(sig) + 2;
 		notice.z_message = buf;
 		notice.z_opcode = g_strdup(opcode);
 		purple_debug_info("zephyr","About to send notice\n");
 		if (ZSendNotice(&notice, ZAUTH) != ZERR_NONE) {
 			/* XXX handle errors here */
 			g_free(buf);
-			g_free(html_buf2);
 			g_free(html_buf);
 			return FALSE;
 		}
@@ -2238,7 +2265,6 @@ zephyr_send_message(zephyr_account *zephyr, gchar *zclass, gchar *instance,
 		g_free(buf);
 	}
 
-	g_free(html_buf2);
 	g_free(html_buf);
 
 	return TRUE;
@@ -2249,18 +2275,16 @@ char *local_zephyr_normalize(zephyr_account *zephyr,const char *orig)
 	/*
 	   Basically the inverse of zephyr_strip_local_realm
 	*/
-	char* buf;
 
 	if (!g_ascii_strcasecmp(orig, "")) {
 		return g_strdup("");
 	}
 
-	if (strchr(orig,'@')) {
-		buf = g_strdup_printf("%s",orig);
-	} else {
-		buf = g_strdup_printf("%s@%s",orig,zephyr->realm);
+	if (strchr(orig, '@')) {
+		return g_strdup_printf("%s", orig);
 	}
-	return buf;
+
+	return g_strdup_printf("%s@%s", orig, zephyr->realm);
 }
 
 static const char *
@@ -2296,31 +2320,28 @@ zephyr_normalize(PurpleProtocolClient *client, PurpleAccount *account,
 
 static void zephyr_zloc(PurpleConnection *gc, const char *who)
 {
-	ZAsyncLocateData_t ald;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 	gchar* normalized_who = local_zephyr_normalize(zephyr,who);
 
-	if (use_zeph02(zephyr)) {
-		if (ZRequestLocations(normalized_who, &ald, UNACKED, ZAUTH) == ZERR_NONE) {
-			zephyr->pending_zloc_names = g_list_append(zephyr->pending_zloc_names,
-								   g_strdup(normalized_who));
-		} else {
-			/* XXX deal with errors somehow */
-		}
-	} else if (use_tzc(zephyr)) {
-		GError *error = NULL;
-		gchar *zlocstr;
+	if (zephyr_request_locations(zephyr, normalized_who)) {
+		zephyr->pending_zloc_names = g_list_append(zephyr->pending_zloc_names, normalized_who);
+	} else {
+		/* XXX deal with errors somehow */
+		g_free(normalized_who);
+	}
+}
 
-		zephyr->pending_zloc_names = g_list_append(zephyr->pending_zloc_names, g_strdup(normalized_who));
-		zlocstr = g_strdup_printf("((tzcfodder . zlocate) \"%s\")\n",
-		                          normalized_who);
-		if (!g_output_stream_write_all(zephyr->tzc_stdin, zlocstr,
-		                               strlen(zlocstr), NULL, NULL, &error)) {
-			purple_debug_error("zephyr", "Unable to write a message: %s",
-			                   error->message);
-			g_error_free(error);
-		}
-		g_free(zlocstr);
+static void
+zephyr_set_location(zephyr_account *zephyr, char *exposure)
+{
+	if (use_zeph02(zephyr)) {
+		ZSetLocation(exposure);
+	}
+	else {
+		gchar *zexpstr = g_strdup_printf("((tzcfodder . set-location) (hostname . \"%s\") (exposure . \"%s\"))\n",
+		                                 zephyr->ourhost, exposure);
+		zephyr_write_message(zephyr, zexpstr);
+		g_free(zexpstr);
 	}
 }
 
@@ -2336,44 +2357,11 @@ static void zephyr_set_status(PurpleAccount *account, PurpleStatus *status) {
 		zephyr->away = g_strdup(purple_status_get_attr_string(status,"message"));
 	}
 	else if (primitive == PURPLE_STATUS_AVAILABLE) {
-		if (use_zeph02(zephyr)) {
-			ZSetLocation(zephyr->exposure);
-		}
-		else {
-			GError *error = NULL;
-			gchar *zexpstr = g_strdup_printf("((tzcfodder . set-location)"
-			                                 " (hostname . \"%s\")"
-			                                 " (exposure . \"%s\"))\n",
-			                                 zephyr->ourhost, zephyr->exposure);
-			if (g_output_stream_write_all(zephyr->tzc_stdin, zexpstr,
-			                              strlen(zexpstr), NULL, NULL,
-			                              &error)) {
-				purple_debug_error("zephyr", "Unable to write message: %s",
-				                   error->message);
-				g_error_free(error);
-			}
-			g_free(zexpstr);
-		}
+		zephyr_set_location(zephyr, zephyr->exposure);
 	}
 	else if (primitive == PURPLE_STATUS_INVISIBLE) {
 		/* XXX handle errors */
-		if (use_zeph02(zephyr)) {
-			ZSetLocation(EXPOSE_OPSTAFF);
-		} else {
-			GError *error = NULL;
-			gchar *zexpstr = g_strdup_printf("((tzcfodder . set-location)"
-			                                 " (hostname . \"%s\")"
-			                                 " (exposure . \"%s\"))\n",
-			                                 zephyr->ourhost, EXPOSE_OPSTAFF);
-			if (g_output_stream_write_all(zephyr->tzc_stdin, zexpstr,
-			                              strlen(zexpstr), NULL, NULL,
-			                              &error)) {
-				purple_debug_error("zephyr", "Unable to write message: %s",
-				                   error->message);
-				g_error_free(error);
-			}
-			g_free(zexpstr);
-		}
+		zephyr_set_location(zephyr, EXPOSE_OPSTAFF);
 	}
 }
 
