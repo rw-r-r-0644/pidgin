@@ -2653,7 +2653,7 @@ jabber_convo_closed(PurpleProtocolClient *client, PurpleConnection *gc,
 	jabber_id_free(jid);
 }
 
-const char *
+static const gchar *
 jabber_client_normalize(PurpleProtocolClient *client, PurpleAccount *account,
                         const gchar *who)
 {
