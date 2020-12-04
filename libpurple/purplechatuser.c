@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -25,22 +26,18 @@
 struct _PurpleChatUser {
 	GObject parent;
 
-	gpointer ui_data;
-
 	PurpleChatConversation *chat;  /* The chat                              */
 	gchar *name;                   /* The chat participant's name in the
 	                                  chat.                                 */
 	gchar *alias;                  /* The chat participant's alias, if known;
 	                                  NULL otherwise.                       */
-	gchar *alias_key;              /* A string by which this user will be
-	                                  sorted, or @c NULL if the user should be
-	                                  sorted by its @name.
-	                                  (This is currently always NULL.       */
 	gboolean buddy;                /* TRUE if this chat participant is on
 	                                  the buddy list; FALSE otherwise.      */
 	PurpleChatUserFlags flags;     /* A bitwise OR of flags for this
 	                                  participant, such as whether they
 	                                  are a channel operator.               */
+
+	gboolean constructed;
 };
 
 enum {
@@ -133,6 +130,7 @@ purple_chat_user_get_property(GObject *obj, guint param_id, GValue *value,
 
 static void
 purple_chat_user_init(PurpleChatUser *user) {
+	user->constructed = FALSE;
 }
 
 static void
@@ -148,6 +146,8 @@ purple_chat_user_constructed(GObject *object) {
 	if(purple_blist_find_buddy(account, chat_user->name) != NULL) {
 		chat_user->buddy = TRUE;
 	}
+
+	chat_user->constructed = TRUE;
 }
 
 static void
@@ -155,7 +155,6 @@ purple_chat_user_finalize(GObject *object) {
 	PurpleChatUser *chat_user = PURPLE_CHAT_USER(object);
 
 	g_free(chat_user->alias);
-	g_free(chat_user->alias_key);
 	g_free(chat_user->name);
 
 	G_OBJECT_CLASS(purple_chat_user_parent_class)->finalize(object);
@@ -253,9 +252,15 @@ purple_chat_user_set_flags(PurpleChatUser *chat_user,
 
 	g_object_notify_by_pspec(G_OBJECT(chat_user), properties[PROP_FLAGS]);
 
-	ops = purple_conversation_get_ui_ops(PURPLE_CONVERSATION(chat_user->chat));
-	if(ops != NULL && ops->chat_update_user != NULL) {
-		ops->chat_update_user(chat_user);
+	/* Only update the UI once the object is fully constructed.  This avoids an
+	 * issue where at least with XMPP, user names will be duplicated in the
+	 * chat user list.
+	 */
+	if(chat_user->constructed) {
+		ops = purple_conversation_get_ui_ops(PURPLE_CONVERSATION(chat_user->chat));
+		if(ops != NULL && ops->chat_update_user != NULL) {
+			ops->chat_update_user(chat_user);
+		}
 	}
 
 	purple_signal_emit(purple_conversations_get_handle(),
@@ -323,15 +328,15 @@ purple_chat_user_compare(PurpleChatUser *a, PurpleChatUser *b) {
 	}
 
 	/* figure out what name we need to check for user a */
-	if(a->alias_key) {
-		namea = a->alias_key;
+	if(a->alias) {
+		namea = a->alias;
 	} else if (a->name) {
 		namea = a->name;
 	}
 
 	/* figure out what name we need to check for user b */
-	if(b->alias_key) {
-		nameb = b->alias_key;
+	if(b->alias) {
+		nameb = b->alias;
 	} else if(b->name) {
 		nameb = b->name;
 	}

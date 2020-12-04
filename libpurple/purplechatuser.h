@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -63,7 +64,6 @@ typedef enum /*< flags >*/
 	PURPLE_CHAT_USER_FOUNDER  = 0x0008,
 	PURPLE_CHAT_USER_TYPING   = 0x0010,
 	PURPLE_CHAT_USER_AWAY     = 0x0020
-
 } PurpleChatUserFlags;
 
 /**
@@ -83,6 +83,8 @@ G_DECLARE_FINAL_TYPE(PurpleChatUser, purple_chat_user, PURPLE, CHAT_USER,
                      GObject)
 
 #include <libpurple/conversationtypes.h>
+
+G_BEGIN_DECLS
 
 /**
  * purple_chat_user_new:
@@ -191,5 +193,7 @@ gboolean purple_chat_user_is_buddy(PurpleChatUser *chat_user);
  * Returns: The sorting order of @a and @b.
  */
 gint purple_chat_user_compare(PurpleChatUser *a, PurpleChatUser *b);
+
+G_END_DECLS
 
 #endif /* PURPLE_CHAT_USER_H */
