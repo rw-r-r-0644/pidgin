@@ -587,7 +587,6 @@ const char *purple_normalize(PurpleAccount *account, const char *str);
 
 /**
  * purple_normalize_nocase:
- * @account:  The account the string belongs to.
  * @str:      The string to normalize.
  *
  * Normalizes a string, so that it is suitable for comparison.
@@ -598,7 +597,7 @@ const char *purple_normalize(PurpleAccount *account, const char *str);
  *
  * Returns: A pointer to the normalized version stored in a static buffer.
  */
-const char *purple_normalize_nocase(const PurpleAccount *account, const char *str);
+const char *purple_normalize_nocase(const char *str);
 
 /**
  * purple_validate:
