@@ -922,7 +922,7 @@ purple_normalize(PurpleAccount *account, const char *str)
  * comments in util.h.
  */
 const char *
-purple_normalize_nocase(const PurpleAccount *account, const char *str)
+purple_normalize_nocase(const char *str)
 {
 	static char buf[BUF_LEN];
 	char *tmp1, *tmp2;

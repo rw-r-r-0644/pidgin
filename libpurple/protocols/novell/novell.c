@@ -3479,7 +3479,7 @@ static const char *
 novell_normalize(PurpleProtocolClient *client, PurpleAccount *account,
                  const char *who)
 {
-	return purple_normalize_nocase(account, who);
+	return purple_normalize_nocase(who);
 }
 
 static gssize

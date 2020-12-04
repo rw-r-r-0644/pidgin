@@ -159,7 +159,6 @@ purple_protocol_client_normalize(PurpleProtocolClient *client,
 	PurpleProtocolClientInterface *iface = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL_CLIENT(client), NULL);
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(who != NULL, NULL);
 
 	iface = PURPLE_PROTOCOL_CLIENT_GET_IFACE(client);

@@ -263,7 +263,7 @@ void purple_protocol_client_convo_closed(PurpleProtocolClient *client, PurpleCon
 /**
  * purple_protocol_client_normalize:
  * @client: The #PurpleProtocolClient instance.
- * @account: A #PurpleAccount instance.
+ * @account: (nullable): A #PurpleAccount instance.
  * @who: The name to normalize.
  *
  * Normalizes a @who to the canonical form for the protocol.  For example, many
