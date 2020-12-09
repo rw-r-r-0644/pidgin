@@ -282,8 +282,11 @@ gnome = import('gnome')
 # Check for GObject Introspection
 #######################################################################
 
-enable_introspection = dependency('gobject-introspection-1.0', version : '>= 1.30.0',
-                                  required : get_option('introspection')).found()
+if get_option('introspection')
+	enable_introspection = dependency('gobject-introspection-1.0', version : '>= 1.30.0').found()
+else
+	enable_introspection = false
+endif
 conf.set('ENABLE_INTROSPECTION', enable_introspection)
 
 #######################################################################
@@ -310,7 +313,7 @@ if get_option('gtkui')
 		talkatu_proj = subproject('talkatu',
 		    default_options : [
 		        'doc=' + get_option('doc').to_string(),
-		        'gobject-introspection=' + enable_introspection.to_string(),
+		        'introspection=' + enable_introspection.to_string(),
 		        'nls=' + get_option('nls').to_string(),
 		    ]
 		)
@@ -629,7 +632,7 @@ else
 	gplugin_proj = subproject('gplugin',
 	    default_options : [
 	        'doc=' + get_option('doc').to_string(),
-	        'gobject-introspection=' + enable_introspection.to_string(),
+	        'introspection=' + enable_introspection.to_string(),
 	        'nls=' + get_option('nls').to_string(),
 	        'gtk3=' + get_option('gtkui').to_string(),
 	    ]
