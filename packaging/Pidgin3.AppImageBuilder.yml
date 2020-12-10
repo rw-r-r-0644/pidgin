@@ -45,12 +45,12 @@ AppDir:
       # - libkf5wallet5 # 57mb
       - liblua5.3-0
       - libmeanwhile1
-      - libperl5.30
       - libpython3.8
       - libsecret-1-0
       - libsoup2.4-1
       - libxss1
       - lua-lgi
+      - perl
       - python3-gi
     exclude:
       - adwaita-icon-theme
