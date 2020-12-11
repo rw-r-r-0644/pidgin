@@ -56,29 +56,8 @@ typedef enum {
 } PurpleStunStatus;
 
 /**
- * PurpleStunNatType:
- * @PURPLE_STUN_NAT_TYPE_PUBLIC_IP: No NAT
- * @PURPLE_STUN_NAT_TYPE_UNKNOWN_NAT: NAT is unknown
- * @PURPLE_STUN_NAT_TYPE_FULL_CONE: NAT is a full cone
- * @PURPLE_STUN_NAT_TYPE_RESTRICTED_CONE: NAT is a restricted cone
- * @PURPLE_STUN_NAT_TYPE_PORT_RESTRICTED_CONE: NAT is a port restricted cone
- * @PURPLE_STUN_NAT_TYPE_SYMMETRIC: NAT is symmetric
- *
- * The type of NAT that was discovered.
- */
-typedef enum {
-	PURPLE_STUN_NAT_TYPE_PUBLIC_IP,
-	PURPLE_STUN_NAT_TYPE_UNKNOWN_NAT,
-	PURPLE_STUN_NAT_TYPE_FULL_CONE,
-	PURPLE_STUN_NAT_TYPE_RESTRICTED_CONE,
-	PURPLE_STUN_NAT_TYPE_PORT_RESTRICTED_CONE,
-	PURPLE_STUN_NAT_TYPE_SYMMETRIC
-} PurpleStunNatType;
-
-/**
  * PurpleStunNatDiscovery:
  * @status: The #PurpleStunStatus
- * @type: The #PurpleStunNatType
  * @publicip: The public ip
  * @servername: The name of the stun server
  * @lookup_time: The time when the lookup occurred
@@ -87,7 +66,6 @@ typedef enum {
  */
 struct _PurpleStunNatDiscovery {
 	PurpleStunStatus status;
-	PurpleStunNatType type;
 	char publicip[16];
 	char *servername;
 	gint64 lookup_time;

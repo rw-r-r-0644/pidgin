@@ -486,6 +486,8 @@ version 3.0.0 (??/??/????):
 		* purple_srv_cancel
 		* purple_srv_resolve_account
 		* purple_srv_txt_query_destroy
+		* PurpleStunNatType
+		* PurpleStunNatDiscovery.type
 		* PURPLE_SSL_DEFAULT_PORT
 		* PurpleSslConnection
 		* PurpleSslErrorFunction
