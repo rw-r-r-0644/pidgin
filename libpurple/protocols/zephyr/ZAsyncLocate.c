@@ -21,9 +21,12 @@ ZRequestLocations(const char *user, ZAsyncLocateData_t *zald,
     ZNotice_t notice;
     size_t userlen, versionlen;
 
-    if (ZGetFD() < 0)
-	if ((retval = ZOpenPort((unsigned short *)0)) != ZERR_NONE)
-	    return (retval);
+	if (ZGetSocket() == NULL) {
+		retval = ZOpenPort(NULL);
+		if (retval != ZERR_NONE) {
+			return retval;
+		}
+	}
 
     (void) memset((char *)&notice, 0, sizeof(notice));
     notice.z_kind = kind;

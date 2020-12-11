@@ -10,6 +10,8 @@
 
 #include "internal.h"
 
+#include <gio/gio.h>
+
 #include <purple.h>
 
 /* Assume that strlen is efficient on this machine... */
@@ -111,15 +113,23 @@ ZParseNotice(char *buffer, int len, ZNotice_t *notice)
     /*XXX 3 */
     numfields -= 2; /* numfields, version, and checksum */
     if (numfields < 0) {
+	GInetAddress *inet_addr = NULL;
+	gchar *inet_addr_str = NULL;
 	badpkt:
-#if 0
+	inet_addr = g_inet_address_new_from_bytes(
+	        (const guint8 *)&notice->z_uid.zuid_addr,
+	        G_SOCKET_FAMILY_IPV4);
+	inet_addr_str = g_inet_address_to_string(inet_addr);
 #ifdef __LINE__
 	lineno = __LINE__;
-	purple_debug_error("zephyr", "ZParseNotice: bad packet from %s/%d (line %d)", inet_ntoa (notice->z_uid.zuid_addr.s_addr), notice->z_port, lineno);
+	purple_debug_error("zephyr", "ZParseNotice: bad packet from %s/%d (line %d)",
+	                   inet_addr_str, notice->z_port, lineno);
 #else
-	purple_debug_error("zephyr", "ZParseNotice: bad packet from %s/%d", inet_ntoa (notice->z_uid.zuid_addr.s_addr), notice->z_port);
+	purple_debug_error("zephyr", "ZParseNotice: bad packet from %s/%d",
+	                   inet_addr_str, notice->z_port);
 #endif
-#endif
+	g_free(inet_addr_str);
+	g_object_unref(inet_addr);
 	return ZERR_BADPKT;
     }
 

@@ -16,59 +16,57 @@
 #include <sys/socket.h>
 #endif
 
-#ifndef INADDR_LOOPBACK
-#define INADDR_LOOPBACK 0x7f000001
-#endif
-
 Code_t
-ZhmStat(struct in_addr *hostaddr, ZNotice_t *notice)
+ZhmStat(ZNotice_t *notice)
 {
-    struct servent *sp;
-    struct sockaddr_in sin;
-    ZNotice_t req;
-    Code_t code;
-    struct timeval tv;
-    fd_set readers;
+	struct servent *sp;
+	GInetAddress *inet_addr = NULL;
+	GSocketAddress *addr = NULL;
+	ZNotice_t req;
+	Code_t code;
+	GError *error = NULL;
 
-    (void) memset((char *)&sin, 0, sizeof(struct sockaddr_in));
+	sp = getservbyname(HM_SVCNAME, "udp");
 
-    sp = getservbyname(HM_SVCNAME, "udp");
+	memset(&req, 0, sizeof(req));
+	req.z_kind = STAT;
+	req.z_port = 0;
+	req.z_class = HM_STAT_CLASS;
+	req.z_class_inst = HM_STAT_CLIENT;
+	req.z_opcode = HM_GIMMESTATS;
+	req.z_sender = "";
+	req.z_recipient = "";
+	req.z_default_format = "";
+	req.z_message_len = 0;
 
-    sin.sin_port = (sp) ? sp->s_port : HM_SVC_FALLBACK;
-    sin.sin_family = AF_INET;
+	inet_addr = g_inet_address_new_loopback(G_SOCKET_FAMILY_IPV4);
+	addr = g_inet_socket_address_new(inet_addr,
+	                                 sp ? sp->s_port : HM_SVC_FALLBACK);
+	code = ZSetDestAddr(addr);
+	g_object_unref(inet_addr);
+	g_object_unref(addr);
+	if (code != ZERR_NONE) {
+		return code;
+	}
 
-    if (hostaddr)
-	sin.sin_addr = *hostaddr;
-    else
-	sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	if ((code = ZSendNotice(&req, ZNOAUTH)) != ZERR_NONE) {
+		return code;
+	}
 
-    (void) memset((char *)&req, 0, sizeof(req));
-    req.z_kind = STAT;
-    req.z_port = 0;
-    req.z_class = HM_STAT_CLASS;
-    req.z_class_inst = HM_STAT_CLIENT;
-    req.z_opcode = HM_GIMMESTATS;
-    req.z_sender = "";
-    req.z_recipient = "";
-    req.z_default_format = "";
-    req.z_message_len = 0;
+	/* Wait up to ten seconds for a response. */
+	if (!g_socket_condition_timed_wait(ZGetSocket(), G_IO_IN,
+	                                   10 * G_USEC_PER_SEC, NULL, &error)) {
+		gint ret = ZERR_INTERNAL;
+		if (error->code == G_IO_ERROR_TIMED_OUT) {
+			ret = ETIMEDOUT;
+		}
+		g_error_free(error);
+		return ret;
+	}
 
-    if ((code = ZSetDestAddr(&sin)) != ZERR_NONE)
-	return(code);
+	if (ZPending() == 0) {
+		return ZERR_HMDEAD;
+	}
 
-    if ((code = ZSendNotice(&req, ZNOAUTH)) != ZERR_NONE)
-	return(code);
-
-    /* Wait up to ten seconds for a response. */
-    FD_ZERO(&readers);
-    FD_SET(ZGetFD(), &readers);
-    tv.tv_sec = 10;
-    tv.tv_usec = 0;
-    code = select(ZGetFD() + 1, &readers, NULL, NULL, &tv);
-    if (code < 0 && errno != EINTR)
-	return(errno);
-    if (code == 0 || (code < 0 && errno == EINTR) || ZPending() == 0)
-	return(ZERR_HMDEAD);
-
-    return(ZReceiveNotice(notice, (struct sockaddr_in *) 0));
+	return ZReceiveNotice(notice, NULL);
 }

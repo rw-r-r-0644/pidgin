@@ -13,11 +13,8 @@
 Code_t
 ZClosePort(void)
 {
-	if (__Zephyr_fd >= 0) {
-		(void) close(__Zephyr_fd);
-	}
+	g_clear_object(&__Zephyr_socket);
+	ZSetDestAddr(NULL);
 
-    __Zephyr_fd = -1;
-
-    return (ZERR_NONE);
+	return ZERR_NONE;
 }

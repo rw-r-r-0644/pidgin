@@ -19,55 +19,49 @@
 Code_t
 ZOpenPort(unsigned short *port)
 {
-    struct sockaddr_in bindin;
-    socklen_t len;
+	GSocketAddress *bindin = NULL;
+	GError *error = NULL;
 
-    (void) ZClosePort();
-    memset(&bindin, 0, sizeof(bindin));
+	ZClosePort();
 
-    if ((__Zephyr_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-	__Zephyr_fd = -1;
-	return (errno);
-    }
-
-#ifdef SO_BSDCOMPAT
-	{
-		int on = 1;
-
-		if (setsockopt(__Zephyr_fd, SOL_SOCKET, SO_BSDCOMPAT,
-			(char *)&on, sizeof(on)) != 0)
-		{
-			purple_debug_warning("zephyr", "couldn't setsockopt\n");
-		}
+	__Zephyr_socket = g_socket_new(G_SOCKET_FAMILY_IPV4, G_SOCKET_TYPE_DATAGRAM,
+	                               G_SOCKET_PROTOCOL_DEFAULT, &error);
+	if (__Zephyr_socket == NULL) {
+		purple_debug_error("zephyr", "Failed to open socket: %s",
+		                   error->message);
+		g_error_free(error);
+		return ZERR_INTERNAL;
 	}
-#endif
 
-    bindin.sin_family = AF_INET;
+	bindin = g_inet_socket_address_new_from_string("0.0.0.0", port ? *port : 0);
+	if (!g_socket_bind(__Zephyr_socket, bindin, FALSE, &error)) {
+		gint err = ZERR_INTERNAL;
+		if (error->code == G_IO_ERROR_ADDRESS_IN_USE && port && *port) {
+			err = ZERR_PORTINUSE;
+		}
+		purple_debug_error("zephyr", "Failed to bind socket to port %d: %s",
+		                   port ? *port : 0, error->message);
+		g_error_free(error);
+		g_object_unref(bindin);
+		g_clear_object(&__Zephyr_socket);
+		return err;
+	}
+	g_object_unref(bindin);
 
-    if (port && *port)
-	bindin.sin_port = *port;
-    else
-	bindin.sin_port = 0;
+	bindin = g_socket_get_local_address(__Zephyr_socket, &error);
+	if (bindin == NULL) {
+		purple_debug_error("zephyr", "Failed to get bound socket port: %s",
+		                   error->message);
+		g_error_free(error);
+		g_clear_object(&__Zephyr_socket);
+		return ZERR_INTERNAL;
+	}
+	__Zephyr_port =
+	        g_inet_socket_address_get_port(G_INET_SOCKET_ADDRESS(bindin));
+	if (port) {
+		*port = __Zephyr_port;
+	}
+	g_object_unref(bindin);
 
-    bindin.sin_addr.s_addr = INADDR_ANY;
-
-    if (bind(__Zephyr_fd, (struct sockaddr *)&bindin, sizeof(bindin)) < 0) {
-	if (errno == EADDRINUSE && port && *port)
-	    return (ZERR_PORTINUSE);
-	else
-	    return (errno);
-    }
-
-    if (!bindin.sin_port) {
-	len = sizeof(bindin);
-	if (getsockname(__Zephyr_fd, (struct sockaddr *)&bindin, &len))
-	    return (errno);
-    }
-
-    __Zephyr_port = bindin.sin_port;
-
-    if (port)
-	*port = bindin.sin_port;
-
-    return (ZERR_NONE);
+	return ZERR_NONE;
 }

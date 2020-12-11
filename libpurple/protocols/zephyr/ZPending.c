@@ -15,7 +15,7 @@ ZPending(void)
 {
 	int retval;
 
-	if (ZGetFD() < 0) {
+	if (ZGetSocket() == NULL) {
 		errno = ZERR_NOPORT;
 		return (-1);
 	}

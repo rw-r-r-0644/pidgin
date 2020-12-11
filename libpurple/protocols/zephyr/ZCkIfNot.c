@@ -11,7 +11,7 @@
 #include "internal.h"
 
 Code_t
-ZCheckIfNotice(ZNotice_t *notice, struct sockaddr_in *from,
+ZCheckIfNotice(ZNotice_t *notice, GSocketAddress **from,
                register int (*predicate)(ZNotice_t *, void *), void *args)
 {
     ZNotice_t tmpnotice;
@@ -32,8 +32,9 @@ ZCheckIfNotice(ZNotice_t *notice, struct sockaddr_in *from,
 	    if (!(buffer = (char *) malloc((unsigned) qptr->packet_len)))
 		return (ENOMEM);
 	    (void) memcpy(buffer, qptr->packet, qptr->packet_len);
-	    if (from)
-		*from = qptr->from;
+	    if (from) {
+		*from = g_object_ref(qptr->from);
+	    }
 	    if ((retval = ZParseNotice(buffer, qptr->packet_len,
 				       notice)) != ZERR_NONE) {
 		free(buffer);

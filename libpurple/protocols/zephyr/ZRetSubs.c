@@ -49,9 +49,12 @@ Z_RetSubs(register ZNotice_t *notice, int *nsubs, Z_AuthProc auth_routine)
 	if (retval != ZERR_NONE && retval != ZERR_NOSUBSCRIPTIONS)
 		return (retval);
 
-	if (ZGetFD() < 0)
-		if ((retval = ZOpenPort((unsigned short *)0)) != ZERR_NONE)
-			return (retval);
+	if (ZGetSocket() == NULL) {
+		retval = ZOpenPort(NULL);
+		if (retval != ZERR_NONE) {
+			return retval;
+		}
+	}
 
 	notice->z_kind = ACKED;
 	notice->z_port = __Zephyr_port;

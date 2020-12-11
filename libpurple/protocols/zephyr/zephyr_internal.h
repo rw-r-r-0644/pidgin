@@ -16,6 +16,7 @@
 #endif
 
 #include <glib.h>
+#include <gio/gio.h>
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -61,9 +62,9 @@ struct in_addr
 #define ZAUTH_YES       	1
 #define ZAUTH_NO        	0
 
-#define SERVER_SVC_FALLBACK	htons((unsigned short) 2103)
-#define HM_SVC_FALLBACK		htons((unsigned short) 2104)
-#define HM_SRV_SVC_FALLBACK	htons((unsigned short) 2105)
+#define SERVER_SVC_FALLBACK (2103)
+#define HM_SVC_FALLBACK (2104)
+#define HM_SRV_SVC_FALLBACK (2105)
 
 #define ZAUTH_UNSET		(-3) /* Internal to client library. */
 #define Z_MAXFRAGS		500	/* Max number of packet fragments */
@@ -82,7 +83,7 @@ typedef enum {
 
 /* Unique ID format */
 typedef struct {
-    struct	in_addr zuid_addr;
+	guint32 zuid_addr;
     struct	timeval	tv;
 } ZUnique_Id_t;
 
@@ -151,7 +152,7 @@ typedef struct {
 	gint packet_len;
 	gchar *packet;
 	gboolean complete;
-	struct sockaddr_in from;
+	GSocketAddress *from;
 	GSList *holelist; /* element-type: Z_Hole* */
 	ZUnique_Id_t uid;
 	int auth;
@@ -173,7 +174,7 @@ const gchar *ZGetVariable(const gchar *);
 Code_t ZSetVariable(char *var, char *value);
 Code_t ZUnsetVariable(char *var);
 int ZGetWGPort(void);
-Code_t ZSetDestAddr(struct sockaddr_in *);
+Code_t ZSetDestAddr(GSocketAddress *);
 Code_t ZFormatNoticeList(ZNotice_t *, char **, int, char **, int *, Z_AuthProc);
 Code_t ZParseNotice(char *, int, ZNotice_t *);
 Code_t ZReadAscii(char *, int, unsigned char *, int);
@@ -191,15 +192,15 @@ Code_t ZFormatRawNoticeList(ZNotice_t *notice, char *list[], int nitems,
 Code_t ZLocateUser(char *, int *, Z_AuthProc);
 Code_t ZRequestLocations(const char *, ZAsyncLocateData_t *, ZNotice_Kind_t,
                          Z_AuthProc);
-Code_t ZhmStat(struct in_addr *, ZNotice_t *);
+Code_t ZhmStat(ZNotice_t *);
 Code_t ZInitialize(void);
 Code_t ZFormatSmallRawNotice(ZNotice_t *, ZPacket_t, int *);
 int ZCompareUID(ZUnique_Id_t *, ZUnique_Id_t *);
 Code_t ZMakeAscii(char *, int, unsigned char *, int);
 Code_t ZMakeAscii32(char *, int, unsigned long);
 Code_t ZMakeAscii16(char *, int, unsigned int);
-Code_t ZReceivePacket(ZPacket_t, int *, struct sockaddr_in *);
-Code_t ZCheckAuthentication(ZNotice_t *, struct sockaddr_in *);
+Code_t ZReceivePacket(ZPacket_t, int *, GSocketAddress **);
+Code_t ZCheckAuthentication(ZNotice_t *);
 Code_t ZSetLocation(char *exposure);
 Code_t ZUnsetLocation(void);
 Code_t ZFlushMyLocations(void);
@@ -215,12 +216,12 @@ Code_t ZParseLocations(register ZNotice_t *notice,
                        char **user);
 int ZCompareALDPred(ZNotice_t *notice, void *zald);
 void ZFreeALD(register ZAsyncLocateData_t *zald);
-Code_t ZCheckIfNotice(ZNotice_t *notice, struct sockaddr_in *from,
+Code_t ZCheckIfNotice(ZNotice_t *notice, GSocketAddress **from,
                       register int (*predicate)(ZNotice_t *, void *),
                       void *args);
-Code_t ZPeekPacket(char **buffer, int *ret_len, struct sockaddr_in *from);
-Code_t ZPeekNotice(ZNotice_t *notice, struct sockaddr_in *from);
-Code_t ZIfNotice(ZNotice_t *notice, struct sockaddr_in *from,
+Code_t ZPeekPacket(char **buffer, int *ret_len, GSocketAddress **from);
+Code_t ZPeekNotice(ZNotice_t *notice, GSocketAddress **from);
+Code_t ZIfNotice(ZNotice_t *notice, GSocketAddress **from,
                  int (*predicate)(ZNotice_t *, void *), void *args);
 Code_t ZSubscribeTo(ZSubscription_t *sublist, int nitems, unsigned int port);
 Code_t ZSubscribeToSansDefaults(ZSubscription_t *sublist, int nitems,
@@ -228,7 +229,7 @@ Code_t ZSubscribeToSansDefaults(ZSubscription_t *sublist, int nitems,
 Code_t ZUnsubscribeTo(ZSubscription_t *sublist, int nitems, unsigned int port);
 Code_t ZCancelSubscriptions(unsigned int port);
 int ZPending(void);
-Code_t ZReceiveNotice(ZNotice_t *notice, struct sockaddr_in *from);
+Code_t ZReceiveNotice(ZNotice_t *notice, GSocketAddress **from);
 
 typedef Code_t (*Z_SendProc)(ZNotice_t *, char *, int, int);
 
@@ -259,15 +260,15 @@ extern ZSubscription_t *__subscriptions_list;
 extern int __subscriptions_num;
 extern int __subscriptions_next;
 
-extern int __Zephyr_port;		/* Port number */
-extern struct in_addr __My_addr;
+extern gint __Zephyr_port; /* Port number */
+extern guint32 __My_addr;
 
 /* Macros to retrieve Zephyr library values. */
-extern int __Zephyr_fd;
+extern GSocket *__Zephyr_socket;
 extern int __Q_CompleteLength;
-extern struct sockaddr_in __HM_addr;
+extern GSocketAddress *__HM_addr;
 extern char __Zephyr_realm[];
-#define ZGetFD()	__Zephyr_fd
+#define ZGetSocket() __Zephyr_socket
 #define ZQLength()	__Q_CompleteLength
 #define ZGetDestAddr()	__HM_addr
 #define ZGetRealm()	__Zephyr_realm

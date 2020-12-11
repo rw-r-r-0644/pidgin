@@ -11,7 +11,7 @@
 #include "internal.h"
 
 Code_t
-ZPeekNotice(ZNotice_t *notice, struct sockaddr_in *from)
+ZPeekNotice(ZNotice_t *notice, GSocketAddress **from)
 {
     char *buffer;
     int len;

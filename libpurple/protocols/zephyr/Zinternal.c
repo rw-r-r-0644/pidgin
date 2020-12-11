@@ -9,6 +9,8 @@
  *	"mit-copyright.h".
  */
 
+#include <purple.h>
+
 #include "internal.h"
 #ifdef WIN32
 #include <winsock2.h>
@@ -17,14 +19,13 @@
 #include <sys/socket.h>
 #endif
 
-int __Zephyr_fd = -1;
-int __Zephyr_port = -1;
-struct in_addr __My_addr;
+GSocket *__Zephyr_socket = NULL;
+gint __Zephyr_port = -1;
+guint32 __My_addr;
 int __Q_CompleteLength;
 int __Q_Size;
 GQueue Z_input_queue = G_QUEUE_INIT;
-struct sockaddr_in __HM_addr;
-struct sockaddr_in __HM_addr_real;
+GSocketAddress *__HM_addr;
 ZLocations_t *__locate_list;
 int __locate_num;
 int __locate_next;
@@ -112,21 +113,6 @@ find_or_insert_uid(ZUnique_Id_t *uid, ZNotice_Kind_t kind)
     return 0;
 }
 
-
-/* Return 1 if there is a packet waiting, 0 otherwise */
-
-static int Z_PacketWaiting(void)
-{
-    struct timeval tv;
-    fd_set read;
-
-    tv.tv_sec = tv.tv_usec = 0;
-    FD_ZERO(&read);
-    FD_SET(ZGetFD(), &read);
-    return (select(ZGetFD() + 1, &read, NULL, NULL, &tv));
-}
-
-
 /* Wait for a complete notice to become available */
 
 Code_t Z_WaitForComplete(void)
@@ -149,16 +135,18 @@ Code_t Z_WaitForComplete(void)
 Code_t
 Z_ReadEnqueue(void)
 {
-    Code_t retval;
+	if (ZGetSocket() == NULL) {
+		return ZERR_NOPORT;
+	}
 
-    if (ZGetFD() < 0)
-	return (ZERR_NOPORT);
+	while (g_socket_condition_check(ZGetSocket(), G_IO_IN)) {
+		Code_t retval = Z_ReadWait();
+		if (retval != ZERR_NONE) {
+			return retval;
+		}
+	}
 
-    while (Z_PacketWaiting())
-	if ((retval = Z_ReadWait()) != ZERR_NONE)
-	    return (retval);
-
-    return (ZERR_NONE);
+	return ZERR_NONE;
 }
 
 
@@ -208,49 +196,52 @@ Z_ReadWait(void)
 	Z_Hole *hole = NULL;
     ZNotice_t notice;
     ZPacket_t packet;
-    struct sockaddr_in olddest, from;
+	GSocketAddress *from = NULL;
     int packet_len, zvlen, part, partof;
-    socklen_t from_len;
     char *slash;
     Code_t retval;
-    fd_set fds;
-    struct timeval tv;
+	GError *error = NULL;
 
-    if (ZGetFD() < 0)
-	return (ZERR_NOPORT);
+	if (ZGetSocket() == NULL) {
+		return ZERR_NOPORT;
+	}
 
-    FD_ZERO(&fds);
-    FD_SET(ZGetFD(), &fds);
-    tv.tv_sec = 60;
-    tv.tv_usec = 0;
+	if (!g_socket_condition_timed_wait(ZGetSocket(), G_IO_IN,
+	                                   60 * G_USEC_PER_SEC, NULL, &error)) {
+		gint ret = ZERR_INTERNAL;
+		if (error->code == G_IO_ERROR_TIMED_OUT) {
+			ret = ETIMEDOUT;
+		}
+		g_error_free(error);
+		return ret;
+	}
 
-    if (select(ZGetFD() + 1, &fds, NULL, NULL, &tv) < 0)
-      return (errno);
-    if (!FD_ISSET(ZGetFD(), &fds))
-      return ETIMEDOUT;
+	packet_len = g_socket_receive_from(ZGetSocket(), &from, packet,
+	                                   sizeof(packet) - 1, NULL, &error);
+	if (packet_len < 0) {
+		purple_debug_error("zephyr", "Unable to receive from socket: %s",
+		                   error->message);
+		g_error_free(error);
+		return ZERR_INTERNAL;
+	}
 
-    from_len = sizeof(struct sockaddr_in);
+	if (packet_len == 0) {
+		return ZERR_EOF;
+	}
 
-    packet_len = recvfrom(ZGetFD(), packet, sizeof(packet) - 1, 0,
-			  (struct sockaddr *)&from, &from_len);
+	packet[packet_len] = '\0';
 
-    if (packet_len < 0)
-      return (errno);
-
-    if (!packet_len)
-      return (ZERR_EOF);
-
-    packet[packet_len] = '\0';
-
-    /* Ignore obviously non-Zephyr packets. */
-    zvlen = sizeof(ZVERSIONHDR) - 1;
-    if (packet_len < zvlen || memcmp(packet, ZVERSIONHDR, zvlen) != 0) {
-	Z_discarded_packets++;
-	return (ZERR_NONE);
-    }
+	/* Ignore obviously non-Zephyr packets. */
+	zvlen = sizeof(ZVERSIONHDR) - 1;
+	if (packet_len < zvlen || memcmp(packet, ZVERSIONHDR, zvlen) != 0) {
+		Z_discarded_packets++;
+		g_object_unref(from);
+		return ZERR_NONE;
+	}
 
 	/* Parse the notice */
 	if ((retval = ZParseNotice(packet, packet_len, &notice)) != ZERR_NONE) {
+		g_object_unref(from);
 		return retval;
 	}
 
@@ -258,6 +249,7 @@ Z_ReadWait(void)
 	 * whoever sent it to say we got it. */
 	if (notice.z_kind != HMACK && notice.z_kind != SERVACK &&
 			notice.z_kind != SERVNAK && notice.z_kind != CLIENTACK) {
+		GSocketAddress *olddest = NULL;
 		ZNotice_t tmpnotice;
 		ZPacket_t pkt;
 		int len;
@@ -268,19 +260,24 @@ Z_ReadWait(void)
 		olddest = __HM_addr;
 		__HM_addr = from;
 		if ((retval = ZFormatSmallRawNotice(&tmpnotice, pkt, &len)) != ZERR_NONE) {
+			__HM_addr = olddest;
+			g_object_unref(from);
 			return retval;
 		}
 		if ((retval = ZSendPacket(pkt, len, 0)) != ZERR_NONE) {
+			__HM_addr = olddest;
+			g_object_unref(from);
 			return retval;
 		}
 		__HM_addr = olddest;
 	}
 	if (find_or_insert_uid(&notice.z_uid, notice.z_kind)) {
+		g_object_unref(from);
 		return ZERR_NONE;
 	}
 
 	/* Check authentication on the notice. */
-	notice.z_checked_auth = ZCheckAuthentication(&notice, &from);
+	notice.z_checked_auth = ZCheckAuthentication(&notice);
 
     /*
      * Parse apart the z_multinotice field - if the field is blank for
@@ -300,9 +297,11 @@ Z_ReadWait(void)
 	partof = notice.z_message_len;
     }
 
-    /* Too big a packet...just ignore it! */
-    if (partof > Z_MAXNOTICESIZE)
-	return (ZERR_NONE);
+	/* Too big a packet...just ignore it! */
+	if (partof > Z_MAXNOTICESIZE) {
+		g_object_unref(from);
+		return ZERR_NONE;
+	}
 
     /* If we can find a notice in the queue with the same multiuid field,
      * insert the current fragment as appropriate. */
@@ -319,8 +318,9 @@ Z_ReadWait(void)
 	   regarding failure/success)
 	 */
 	if (!ZCompareUID(&notice.z_multiuid, &notice.z_uid)) {
-	    /* they're not the same... throw away this packet. */
-	    return(ZERR_NONE);
+		/* they're not the same... throw away this packet. */
+		g_object_unref(from);
+		return ZERR_NONE;
 	}
 	/* fall thru & process it */
     default:
@@ -334,6 +334,7 @@ Z_ReadWait(void)
 			qptr->header_len = packet_len - notice.z_message_len;
 			qptr->header = g_memdup(packet, qptr->header_len);
 		}
+		g_object_unref(from);
 		return Z_AddNoticeToEntry(qptr, &notice, part);
 	}
     }
@@ -341,6 +342,7 @@ Z_ReadWait(void)
 	/* We'll have to create a new entry...make sure the queue isn't going
 	 * to get too big. */
 	if (__Q_Size + partof > Z_MAXQUEUESIZE) {
+		g_object_unref(from);
 		return ZERR_NONE;
 	}
 
@@ -351,11 +353,11 @@ Z_ReadWait(void)
 	/* Insert the entry at the end of the queue */
 	g_queue_push_tail(&Z_input_queue, qptr);
 
-    /* Copy the from field, multiuid, kind, and checked authentication. */
-    qptr->from = from;
-    qptr->uid = notice.z_multiuid;
-    qptr->kind = notice.z_kind;
-    qptr->auth = notice.z_checked_auth;
+	/* Copy the from field, multiuid, kind, and checked authentication. */
+	qptr->from = from;
+	qptr->uid = notice.z_multiuid;
+	qptr->kind = notice.z_kind;
+	qptr->auth = notice.z_checked_auth;
 
 	/* If this is the first part of the notice, we take the header from it.
 	 * We only take it if this is the first fragment so that the Unique
@@ -501,28 +503,38 @@ Code_t
 Z_FormatHeader(ZNotice_t *notice, char *buffer, int buffer_len, int *len,
                Z_AuthProc cert_routine)
 {
-    Code_t retval;
-    static char version[BUFSIZ]; /* default init should be all \0 */
+	static char version[BUFSIZ]; /* default init should be all \0 */
 	gint64 realtime;
-    struct sockaddr_in name;
-    socklen_t namelen = sizeof(name);
 
-    if (!notice->z_sender)
-	notice->z_sender = ZGetSender();
-
-    if (notice->z_port == 0) {
-	if (ZGetFD() < 0) {
-	    retval = ZOpenPort((unsigned short *)0);
-	    if (retval != ZERR_NONE)
-		return (retval);
+	if (!notice->z_sender) {
+		notice->z_sender = ZGetSender();
 	}
-	retval = getsockname(ZGetFD(), (struct sockaddr *) &name, &namelen);
-	if (retval != 0)
-	    return (retval);
-	notice->z_port = name.sin_port;
-    }
 
-    notice->z_multinotice = "";
+	if (notice->z_port == 0) {
+		GSocketAddress *addr = NULL;
+		GError *error = NULL;
+
+		if (ZGetSocket() == NULL) {
+			Code_t retval = ZOpenPort(NULL);
+			if (retval != ZERR_NONE) {
+				return retval;
+			}
+		}
+
+		addr = g_socket_get_local_address(ZGetSocket(), &error);
+		if (addr == NULL) {
+			purple_debug_error("zephyr",
+			                   "Unable to determine socket local address: %s",
+			                   error->message);
+			g_error_free(error);
+			return ZERR_INTERNAL;
+		}
+		notice->z_port =
+		        g_inet_socket_address_get_port(G_INET_SOCKET_ADDRESS(addr));
+		g_object_unref(addr);
+	}
+
+	notice->z_multinotice = "";
 
 	realtime = g_get_real_time();
 	notice->z_uid.tv.tv_sec = realtime / G_USEC_PER_SEC;
@@ -533,14 +545,14 @@ Z_FormatHeader(ZNotice_t *notice, char *buffer, int buffer_len, int *len,
 
 	memcpy(&notice->z_uid.zuid_addr, &__My_addr, sizeof(__My_addr));
 
-    notice->z_multiuid = notice->z_uid;
+	notice->z_multiuid = notice->z_uid;
 
-    if (!version[0])
-	    (void) sprintf(version, "%s%d.%d", ZVERSIONHDR, ZVERSIONMAJOR,
-			   ZVERSIONMINOR);
-    notice->z_version = version;
+	if (!version[0]) {
+		sprintf(version, "%s%d.%d", ZVERSIONHDR, ZVERSIONMAJOR, ZVERSIONMINOR);
+	}
+	notice->z_version = version;
 
-    return Z_FormatAuthHeader(notice, buffer, buffer_len, len, cert_routine);
+	return Z_FormatAuthHeader(notice, buffer, buffer_len, len, cert_routine);
 }
 
 Code_t
@@ -728,6 +740,8 @@ Z_RemQueue(Z_InputQ *qptr)
 	g_free(qptr->msg);
 	g_free(qptr->packet);
 
+	g_clear_object(&qptr->from);
+
 	g_slist_free_full(qptr->holelist, g_free);
 
 	g_queue_remove(&Z_input_queue, qptr);
@@ -765,8 +779,7 @@ Z_SendFragmentedNotice(ZNotice_t *notice, int len, Z_AuthProc cert_func,
 			    htonl((unsigned long)partnotice.z_uid.tv.tv_sec);
 		partnotice.z_uid.tv.tv_usec =
 			    htonl((unsigned long)partnotice.z_uid.tv.tv_usec);
-	    (void) memcpy((char *)&partnotice.z_uid.zuid_addr, &__My_addr,
-			  sizeof(__My_addr));
+		memcpy(&partnotice.z_uid.zuid_addr, &__My_addr, sizeof(__My_addr));
 	}
 	message_len = MIN(notice->z_message_len - offset, fragsize);
 	partnotice.z_message = (char*)notice->z_message+offset;
