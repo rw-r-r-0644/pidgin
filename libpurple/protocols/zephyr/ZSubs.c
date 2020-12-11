@@ -162,10 +162,11 @@ subscr_sendoff(ZNotice_t *notice, char **lyst, int num, int authit)
 
     if (retval != ZERR_NONE)
 	return (retval);
-    if ((retval = ZIfNotice(&retnotice, (struct sockaddr_in *)0,
-				ZCompareUIDPred, (char *)&notice->z_uid)) !=
-	ZERR_NONE)
-	return (retval);
+    retval = ZIfNotice(&retnotice, NULL, ZCompareUIDPred,
+                       (char *)&notice->z_uid);
+    if (retval != ZERR_NONE) {
+	return retval;
+    }
     if (retnotice.z_kind == SERVNAK) {
 	ZFreeNotice(&retnotice);
 	return (ZERR_SERVNAK);

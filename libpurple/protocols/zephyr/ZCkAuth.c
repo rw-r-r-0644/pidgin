@@ -18,7 +18,7 @@
    When not using Kerberos, return true if the notice claims to be authentic.
  */
 Code_t
-ZCheckAuthentication(ZNotice_t *notice, struct sockaddr_in *from)
+ZCheckAuthentication(ZNotice_t *notice)
 {
 #ifdef ZEPHYR_USES_KERBEROS
     int result;

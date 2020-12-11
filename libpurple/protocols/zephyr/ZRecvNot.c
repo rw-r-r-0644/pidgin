@@ -11,7 +11,7 @@
 #include "internal.h"
 
 Code_t
-ZReceiveNotice(ZNotice_t *notice, struct sockaddr_in *from)
+ZReceiveNotice(ZNotice_t *notice, GSocketAddress **from)
 {
     char *buffer;
     Z_InputQ *nextq;
@@ -31,8 +31,9 @@ ZReceiveNotice(ZNotice_t *notice, struct sockaddr_in *from)
     if (!(buffer = (char *) malloc((unsigned) len)))
 	return (ENOMEM);
 
-    if (from)
-	*from = nextq->from;
+    if (from) {
+	*from = g_object_ref(nextq->from);
+    }
 
     (void) memcpy(buffer, nextq->packet, len);
 

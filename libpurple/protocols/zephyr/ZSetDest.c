@@ -11,9 +11,9 @@
 #include "internal.h"
 
 Code_t
-ZSetDestAddr(struct sockaddr_in *addr)
+ZSetDestAddr(GSocketAddress *addr)
 {
-	__HM_addr = *addr;
+	g_set_object(&__HM_addr, addr);
 
-	return (ZERR_NONE);
+	return ZERR_NONE;
 }

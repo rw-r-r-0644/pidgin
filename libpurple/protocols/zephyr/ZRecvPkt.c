@@ -11,7 +11,7 @@
 #include "internal.h"
 
 Code_t
-ZReceivePacket(ZPacket_t buffer, int *ret_len, struct sockaddr_in *from)
+ZReceivePacket(ZPacket_t buffer, int *ret_len, GSocketAddress **from)
 {
     Code_t retval;
     Z_InputQ *nextq;
@@ -27,8 +27,9 @@ ZReceivePacket(ZPacket_t buffer, int *ret_len, struct sockaddr_in *from)
 
     (void) memcpy(buffer, nextq->packet, *ret_len);
 
-    if (from)
-	*from = nextq->from;
+    if (from) {
+	*from = g_object_ref(nextq->from);
+    }
 
     Z_RemQueue(nextq);
 

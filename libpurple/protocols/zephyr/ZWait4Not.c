@@ -19,40 +19,44 @@ Code_t
 Z_WaitForNotice(ZNotice_t *notice, int (*pred)(ZNotice_t *, void *), void *arg,
                 int timeout)
 {
-  Code_t retval;
-  gint64 t0, tdiff;
-  struct timeval tv;
-  fd_set fdmask;
-  int i, fd;
+	Code_t retval;
+	gint64 t0, tdiff, timeout_us;
+	GError *error = NULL;
 
-  retval = ZCheckIfNotice (notice, (struct sockaddr_in *) 0, pred,
-			   (char *) arg);
-  if (retval == ZERR_NONE)
-    return ZERR_NONE;
-  if (retval != ZERR_NONOTICE)
-    return retval;
+	retval = ZCheckIfNotice(notice, NULL, pred, (char *)arg);
+	if (retval == ZERR_NONE) {
+		return ZERR_NONE;
+	}
+	if (retval != ZERR_NONOTICE) {
+		return retval;
+	}
 
-  fd = ZGetFD ();
-  FD_ZERO (&fdmask);
-  tv.tv_sec = timeout;
-  tv.tv_usec = 0;
-  t0 = g_get_monotonic_time() + timeout * G_USEC_PER_SEC;
-  while (1) {
-    FD_SET (fd, &fdmask);
-    i = select (fd + 1, &fdmask, (fd_set *) 0, (fd_set *) 0, &tv);
-    if (i == 0)
-      return ETIMEDOUT;
-    if (i < 0 && errno != EINTR)
-      return errno;
-    if (i > 0) {
-      retval = ZCheckIfNotice (notice, (struct sockaddr_in *) 0, pred,
-			       (char *) arg);
-      if (retval != ZERR_NONOTICE) /* includes ZERR_NONE */
-	return retval;
-    }
+	timeout_us = timeout * G_USEC_PER_SEC;
+	t0 = g_get_monotonic_time() + timeout_us;
+	while (TRUE) {
+		if (!g_socket_condition_timed_wait(ZGetSocket(), G_IO_IN, timeout_us,
+		                                   NULL, &error)) {
+			gint ret = ZERR_INTERNAL;
+			if (error->code == G_IO_ERROR_TIMED_OUT) {
+				ret = ETIMEDOUT;
+			}
+			g_error_free(error);
+			return ret;
+		}
+
+		retval = ZCheckIfNotice(notice, NULL, pred, (char *)arg);
+		if (retval != ZERR_NONOTICE) {
+			/* includes ZERR_NONE */
+			return retval;
+		}
+
 		tdiff = t0 - g_get_monotonic_time();
-		tv.tv_sec = tdiff / G_USEC_PER_SEC;
-		tv.tv_usec = tdiff - tv.tv_sec * G_USEC_PER_SEC;
-  }
-  /*NOTREACHED*/
+		if (tdiff < 0) {
+			return ETIMEDOUT;
+		}
+		/* g_socket_condition_timed_wait requires timeout to be an integral
+		 * number of milliseconds. */
+		timeout_us = (tdiff / 1000 + 1) * 1000;
+	}
+	/* NOTREACHED */
 }

@@ -11,7 +11,7 @@
 #include "internal.h"
 
 Code_t
-ZPeekPacket(char **buffer, int *ret_len, struct sockaddr_in *from)
+ZPeekPacket(char **buffer, int *ret_len, GSocketAddress **from)
 {
     Code_t retval;
     Z_InputQ *nextq;
@@ -28,8 +28,9 @@ ZPeekPacket(char **buffer, int *ret_len, struct sockaddr_in *from)
 
     (void) memcpy(*buffer, nextq->packet, *ret_len);
 
-    if (from)
-	*from = nextq->from;
+    if (from) {
+	*from = g_object_ref(nextq->from);
+    }
 
     return (ZERR_NONE);
 }

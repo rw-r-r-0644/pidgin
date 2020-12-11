@@ -790,7 +790,8 @@ static gboolean pending_zloc(zephyr_account *zephyr, const char *who)
 
 /* Called when the server notifies us a message couldn't get sent */
 
-static void message_failed(PurpleConnection *gc, ZNotice_t *notice, struct sockaddr_in from)
+static void
+message_failed(PurpleConnection *gc, ZNotice_t *notice)
 {
 	if (g_ascii_strcasecmp(notice->z_class, "message")) {
 		gchar* chat_failed = g_strdup_printf(
@@ -948,17 +949,18 @@ static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 
 			gcc = purple_conversations_find_chat_with_account(
 														 zt2->name, purple_connection_get_account(gc));
-#ifndef INET_ADDRSTRLEN
-#define INET_ADDRSTRLEN 16
-#endif
 			if (!purple_chat_conversation_has_user(gcc, stripped_sender)) {
-				gchar ipaddr[INET_ADDRSTRLEN];
-#ifdef HAVE_INET_NTOP
-				inet_ntop(AF_INET, &notice.z_sender_addr.s_addr, ipaddr, sizeof(ipaddr));
-#else
-				memcpy(ipaddr,inet_ntoa(notice.z_sender_addr),sizeof(ipaddr));
-#endif
-				purple_chat_conversation_add_user(gcc, stripped_sender, ipaddr, PURPLE_CHAT_USER_NONE, TRUE);
+				GInetAddress *inet_addr = NULL;
+				gchar *ipaddr = NULL;
+
+				inet_addr = g_inet_address_new_from_bytes(
+				        (const guint8 *)&notice.z_sender_addr,
+				        G_SOCKET_FAMILY_IPV4);
+				ipaddr = g_inet_address_to_string(inet_addr);
+				purple_chat_conversation_add_user(gcc, stripped_sender, ipaddr,
+				                                  PURPLE_CHAT_USER_NONE, TRUE);
+				g_free(ipaddr);
+				g_object_unref(inet_addr);
 			}
 			purple_serv_got_chat_in(gc, zt2->id, send_inst_utf8,
 				PURPLE_MESSAGE_RECV, buf3, time(NULL));
@@ -1279,10 +1281,9 @@ static gint check_notify_zeph02(gpointer data)
 	PurpleConnection *gc = (PurpleConnection*) data;
 	while (ZPending()) {
 		ZNotice_t notice;
-		struct sockaddr_in from;
 		/* XXX add real error reporting */
 
-		z_call_r(ZReceiveNotice(&notice, &from));
+		z_call_r(ZReceiveNotice(&notice, NULL));
 
 		switch (notice.z_kind) {
 		case UNSAFE:
@@ -1292,7 +1293,7 @@ static gint check_notify_zeph02(gpointer data)
 			break;
 		case SERVACK:
 			if (!(g_ascii_strcasecmp(notice.z_message, ZSRVACK_NOTSENT))) {
-				message_failed(gc, &notice, from);
+				message_failed(gc, &notice);
 			}
 			break;
 		case CLIENTACK:
