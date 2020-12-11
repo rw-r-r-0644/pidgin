@@ -75,7 +75,6 @@ struct stun_conn {
 
 static PurpleStunNatDiscovery nattype = {
 	PURPLE_STUN_STATUS_UNDISCOVERED,
-	PURPLE_STUN_NAT_TYPE_PUBLIC_IP,
 	"\0", NULL, 0};
 
 static GSList *callbacks = NULL;
@@ -149,18 +148,11 @@ reply_cb(GSocket *socket, GIOCondition condition, gpointer data)
 {
 	struct stun_conn *sc = data;
 	gchar buffer[65536];
-	struct ifreq buffer_ifr[1000];
-	gchar *it, *it_end;
+	gchar *it;
 	gssize len;
-	struct in_addr in;
 	struct stun_attrib attrib;
 	struct stun_header hdr;
-	struct ifconf ifc;
-	struct ifreq *ifr;
-	struct sockaddr_in *sinptr;
 	GError *error = NULL;
-
-	memset(&in, 0, sizeof(in));
 
 	len = g_socket_receive(socket, buffer, sizeof(buffer) - 1, NULL, &error);
 	if (len <= 0) {
@@ -179,7 +171,7 @@ reply_cb(GSocket *socket, GIOCondition condition, gpointer data)
 	}
 
 	memcpy(&hdr, buffer, sizeof(hdr));
-	if ((gsize)len != (ntohs(hdr.len) + sizeof(struct stun_header))) {
+	if ((gsize)len != (g_ntohs(hdr.len) + sizeof(struct stun_header))) {
 		purple_debug_warning("stun", "got incomplete response\n");
 		sc->incb = 0;
 		return FALSE;
@@ -207,52 +199,31 @@ reply_cb(GSocket *socket, GIOCondition condition, gpointer data)
 		memcpy(&attrib, it, sizeof(attrib));
 		it += sizeof(struct stun_attrib);
 
-		if (!((buffer + len) > (it + ntohs(attrib.len)))) {
+		if (!((buffer + len) > (it + g_ntohs(attrib.len)))) {
 			break;
 		}
 
-		if (attrib.type == htons(ATTRIB_MAPPEDADDRESS) &&
-		    ntohs(attrib.len) == 8) {
-			char *ip;
+		if (attrib.type == g_htons(ATTRIB_MAPPEDADDRESS) &&
+		    g_ntohs(attrib.len) == 8) {
+			GInetAddress *inet_addr = NULL;
 			/* Skip the first unused byte,
 			 * the family(1 byte), and the port(2 bytes);
 			 * then read the 4 byte IPv4 address */
-			memcpy(&in.s_addr, it + 4, 4);
-			ip = inet_ntoa(in);
-			if (ip) {
+			inet_addr = g_inet_address_new_from_bytes((const guint8 *)it + 4,
+			                                          G_SOCKET_FAMILY_IPV4);
+			if (inet_addr) {
+				gchar *ip = g_inet_address_to_string(inet_addr);
 				g_strlcpy(nattype.publicip, ip, sizeof(nattype.publicip));
+				g_free(ip);
+				g_object_unref(inet_addr);
 			}
 		}
 
-		it += ntohs(attrib.len);
+		it += g_ntohs(attrib.len);
 	}
 	purple_debug_info("stun", "got public ip %s\n", nattype.publicip);
 	nattype.status = PURPLE_STUN_STATUS_DISCOVERED;
-	nattype.type = PURPLE_STUN_NAT_TYPE_UNKNOWN_NAT;
 	nattype.lookup_time = g_get_monotonic_time();
-
-	/* is it a NAT? */
-
-	ifc.ifc_len = sizeof(buffer_ifr);
-	ifc.ifc_req = buffer_ifr;
-	ioctl(g_socket_get_fd(socket), SIOCGIFCONF, &ifc);
-
-	it = (gchar *)buffer_ifr;
-	it_end = it + ifc.ifc_len;
-	while (it < it_end) {
-		ifr = (struct ifreq *)(gpointer)it;
-		it += _SIZEOF_ADDR_IFREQ(*ifr);
-
-		if (ifr->ifr_addr.sa_family == AF_INET) {
-			/* we only care about ipv4 interfaces */
-			sinptr = (struct sockaddr_in *)(gpointer)&ifr->ifr_addr;
-			if (sinptr->sin_addr.s_addr == in.s_addr) {
-				/* no NAT */
-				purple_debug_info("stun", "no nat\n");
-				nattype.type = PURPLE_STUN_NAT_TYPE_PUBLIC_IP;
-			}
-		}
-	}
 
 	do_callbacks();
 
@@ -332,11 +303,11 @@ hbn_cb(GObject *sender, GAsyncResult *res, gpointer data)
 	g_source_unref(read_source);
 
 	hdr_data = g_new0(struct stun_header, 1);
-	hdr_data->type = htons(MSGTYPE_BINDINGREQUEST);
+	hdr_data->type = g_htons(MSGTYPE_BINDINGREQUEST);
 	hdr_data->len = 0;
 	hdr_data->transid[0] = g_random_int();
-	hdr_data->transid[1] = ntohl(((int)'g' << 24) + ((int)'a' << 16) +
-	                             ((int)'i' << 8) + (int)'m');
+	hdr_data->transid[1] = g_ntohl(((int)'g' << 24) + ((int)'a' << 16) +
+	                               ((int)'i' << 8) + (int)'m');
 	hdr_data->transid[2] = g_random_int();
 	hdr_data->transid[3] = g_random_int();
 	sc->packet = hdr_data;
