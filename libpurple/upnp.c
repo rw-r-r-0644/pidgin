@@ -593,7 +593,7 @@ purple_upnp_discover_send_broadcast(UPnPDiscoveryData *dd)
 			                      G_SOURCE_FUNC(purple_upnp_discover_udp_read),
 			                      dd, NULL);
 			dd->inpa = g_source_attach(source, NULL);
-			g_object_unref(source);
+			g_source_unref(source);
 			dd->tima = g_timeout_add_seconds(DISCOVERY_TIMEOUT,
 			                                 purple_upnp_discover_timeout, dd);
 			return;
