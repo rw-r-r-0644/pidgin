@@ -29,6 +29,7 @@
 #include "eventloop.h"
 #include "network.h"
 #include "proxy.h"
+#include "purple-gio.h"
 #include "signals.h"
 #include "util.h"
 #include "xmlnode.h"
@@ -113,14 +114,14 @@ typedef struct {
 	gchar service_type[20];
 	char publicip[16];
 	char internalip[16];
-	time_t lookup_time;
+	gint64 lookup_time;
 } PurpleUPnPControlInfo;
 
 typedef struct {
 	guint inpa;	/* purple_input_add handle */
 	guint tima;	/* g_timeout_add handle */
-	int fd;
-	struct sockaddr_in server;
+	GSocket *socket;
+	GSocketAddress *server;
 	gchar service_type[20];
 	int retry_count;
 	gchar *full_url;
@@ -386,7 +387,7 @@ upnp_parse_description_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 
 	control_info.status = control_url ? PURPLE_UPNP_STATUS_DISCOVERED
 		: PURPLE_UPNP_STATUS_UNABLE_TO_DISCOVER;
-	control_info.lookup_time = time(NULL);
+	control_info.lookup_time = g_get_monotonic_time();
 	control_info.control_url = control_url;
 	g_strlcpy(control_info.service_type, dd->service_type,
 		sizeof(control_info.service_type));
@@ -399,11 +400,17 @@ upnp_parse_description_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 		lookup_internal_ip();
 	}
 
-	if (dd->inpa > 0)
-		purple_input_remove(dd->inpa);
-	if (dd->tima > 0)
+	if (dd->inpa > 0) {
+		g_source_remove(dd->inpa);
+		dd->inpa = 0;
+	}
+	if (dd->tima > 0) {
 		g_source_remove(dd->tima);
+		dd->tima = 0;
+	}
 
+	g_clear_object(&dd->socket);
+	g_clear_object(&dd->server);
 	g_free(dd);
 }
 
@@ -486,29 +493,30 @@ purple_upnp_discover_timeout(gpointer data)
 {
 	UPnPDiscoveryData* dd = data;
 
-	if (dd->inpa)
-		purple_input_remove(dd->inpa);
-	if (dd->tima > 0)
+	if (dd->inpa > 0) {
+		g_source_remove(dd->inpa);
+		dd->inpa = 0;
+	}
+	if (dd->tima > 0) {
 		g_source_remove(dd->tima);
-	dd->inpa = 0;
-	dd->tima = 0;
+		dd->tima = 0;
+	}
 
 	if (dd->retry_count < NUM_UDP_ATTEMPTS) {
 		/* TODO: We probably shouldn't be incrementing retry_count in two places */
 		dd->retry_count++;
 		purple_upnp_discover_send_broadcast(dd);
 	} else {
-		if (dd->fd != -1)
-			close(dd->fd);
-
 		control_info.status = PURPLE_UPNP_STATUS_UNABLE_TO_DISCOVER;
-		control_info.lookup_time = time(NULL);
+		control_info.lookup_time = g_get_monotonic_time();
 		control_info.service_type[0] = '\0';
 		g_free(control_info.control_url);
 		control_info.control_url = NULL;
 
 		fire_discovery_callbacks(FALSE);
 
+		g_clear_object(&dd->socket);
+		g_clear_object(&dd->server);
 		g_free(dd);
 	}
 
@@ -516,30 +524,23 @@ purple_upnp_discover_timeout(gpointer data)
 }
 
 static void
-purple_upnp_discover_udp_read(gpointer data, gint sock, PurpleInputCondition cond)
+purple_upnp_discover_udp_read(GSocket *socket, GIOCondition condition,
+                              gpointer data)
 {
-	int len;
 	UPnPDiscoveryData *dd = data;
 	gchar buf[65536];
+	gssize len;
 
-	do {
-		len = recv(dd->fd, buf,
-			sizeof(buf) - 1, 0);
+	len = g_socket_receive(dd->socket, buf, sizeof(buf) - 1, NULL, NULL);
+	if (len >= 0) {
+		buf[len] = '\0';
+	} else {
+		/* We'll either get called again, or time out */
+		return;
+	}
 
-		if(len >= 0) {
-			buf[len] = '\0';
-			break;
-		} else if(errno != EINTR) {
-			/* We'll either get called again, or time out */
-			return;
-		}
-	} while (errno == EINTR);
-
-	purple_input_remove(dd->inpa);
+	g_source_remove(dd->inpa);
 	dd->inpa = 0;
-
-	close(dd->fd);
-	dd->fd = -1;
 
 	/* parse the response, and see if it was a success */
 	purple_upnp_parse_discover_response(buf, len, dd);
@@ -553,6 +554,7 @@ purple_upnp_discover_send_broadcast(UPnPDiscoveryData *dd)
 	gchar *sendMessage = NULL;
 	size_t totalSize;
 	gboolean sentSuccess;
+	GError *error = NULL;
 
 	/* because we are sending over UDP, if there is a failure
 	   we should retry the send NUM_UDP_ATTEMPTS times. Also,
@@ -571,23 +573,29 @@ purple_upnp_discover_send_broadcast(UPnPDiscoveryData *dd)
 		totalSize = strlen(sendMessage);
 
 		do {
-			gssize sent = sendto(dd->fd, sendMessage, totalSize, 0,
-				(struct sockaddr*) &(dd->server),
-				sizeof(struct sockaddr_in));
+			gssize sent;
+			g_clear_error(&error);
+			sent = g_socket_send_to(dd->socket, dd->server, sendMessage,
+			                        totalSize, NULL, &error);
 			if (sent >= 0 && (gsize)sent == totalSize) {
 				sentSuccess = TRUE;
 				break;
 			}
-		} while (errno == EINTR || errno == EAGAIN);
+		} while (error != NULL && error->code == G_IO_ERROR_WOULD_BLOCK);
 
+		g_clear_error(&error);
 		g_free(sendMessage);
 
 		if(sentSuccess) {
+			GSource *source;
+			source = g_socket_create_source(dd->socket, G_IO_IN, NULL);
+			g_source_set_callback(source,
+			                      G_SOURCE_FUNC(purple_upnp_discover_udp_read),
+			                      dd, NULL);
+			dd->inpa = g_source_attach(source, NULL);
+			g_object_unref(source);
 			dd->tima = g_timeout_add_seconds(DISCOVERY_TIMEOUT,
 			                                 purple_upnp_discover_timeout, dd);
-			dd->inpa = purple_input_add(dd->fd, PURPLE_INPUT_READ,
-				purple_upnp_discover_udp_read, dd);
-
 			return;
 		}
 	}
@@ -601,8 +609,8 @@ void
 purple_upnp_discover(PurpleUPnPCallback cb, gpointer cb_data)
 {
 	/* Socket Setup Variables */
-	int sock;
-	struct hostent* hp;
+	GSocket *socket;
+	GError *error = NULL;
 
 	/* UDP RECEIVE VARIABLES */
 	UPnPDiscoveryData *dd;
@@ -625,30 +633,22 @@ purple_upnp_discover(PurpleUPnPCallback cb, gpointer cb_data)
 	}
 
 	/* Set up the sockets */
-	dd->fd = sock = socket(AF_INET, SOCK_DGRAM, 0);
-	if(sock == -1) {
-		purple_debug_error("upnp",
-			"purple_upnp_discover(): Failed In sock creation\n");
+	dd->socket = socket =
+	        g_socket_new(G_SOCKET_FAMILY_IPV4, G_SOCKET_TYPE_DATAGRAM,
+	                     G_SOCKET_PROTOCOL_DEFAULT, &error);
+	if (socket == NULL) {
+		purple_debug_error(
+		        "upnp", "purple_upnp_discover(): Failed in sock creation: %s",
+		        error->message);
+		g_error_free(error);
 		/* Short circuit the retry attempts */
 		dd->retry_count = NUM_UDP_ATTEMPTS;
 		dd->tima = g_timeout_add(10, purple_upnp_discover_timeout, dd);
 		return;
 	}
 
-	/* TODO: Non-blocking! */
-	if((hp = gethostbyname(HTTPMU_HOST_ADDRESS)) == NULL) {
-		purple_debug_error("upnp",
-			"purple_upnp_discover(): Failed In gethostbyname\n");
-		/* Short circuit the retry attempts */
-		dd->retry_count = NUM_UDP_ATTEMPTS;
-		dd->tima = g_timeout_add(10, purple_upnp_discover_timeout, dd);
-		return;
-	}
-
-	memset(&(dd->server), 0, sizeof(struct sockaddr));
-	dd->server.sin_family = AF_INET;
-	memcpy(&(dd->server.sin_addr), hp->h_addr_list[0], hp->h_length);
-	dd->server.sin_port = htons(HTTPMU_HOST_PORT);
+	dd->server = g_inet_socket_address_new_from_string(HTTPMU_HOST_ADDRESS,
+	                                                   HTTPMU_HOST_PORT);
 
 	control_info.status = PURPLE_UPNP_STATUS_DISCOVERING;
 
@@ -691,9 +691,11 @@ purple_upnp_get_public_ip()
 
 	/* Trigger another UPnP discovery if 5 minutes have elapsed since the
 	 * last one, and it wasn't successful */
-	if (control_info.status < PURPLE_UPNP_STATUS_DISCOVERING
-			&& (time(NULL) - control_info.lookup_time) > 300)
+	if (control_info.status < PURPLE_UPNP_STATUS_DISCOVERING &&
+	    (g_get_monotonic_time() - control_info.lookup_time) >
+	            300 * G_USEC_PER_SEC) {
 		purple_upnp_discover(NULL, NULL);
+	}
 
 	return NULL;
 }
@@ -754,32 +756,66 @@ purple_upnp_get_internal_ip(void)
 
 	/* Trigger another UPnP discovery if 5 minutes have elapsed since the
 	 * last one, and it wasn't successful */
-	if (control_info.status < PURPLE_UPNP_STATUS_DISCOVERING
-			&& (time(NULL) - control_info.lookup_time) > 300)
+	if (control_info.status < PURPLE_UPNP_STATUS_DISCOVERING &&
+	    (g_get_monotonic_time() - control_info.lookup_time) >
+	            300 * G_USEC_PER_SEC) {
 		purple_upnp_discover(NULL, NULL);
+	}
 
 	return NULL;
 }
 
 static void
-looked_up_internal_ip_cb(gpointer data, gint source, const gchar *error_message)
+looked_up_internal_ip_cb(GObject *source, GAsyncResult *result,
+                         G_GNUC_UNUSED gpointer user_data)
 {
-	if (source != -1) {
-		g_strlcpy(control_info.internalip,
-			purple_network_get_local_system_ip(source),
-			sizeof(control_info.internalip));
-		purple_debug_info("upnp", "Local IP: %s\n",
-				control_info.internalip);
-		close(source);
-	} else
-		purple_debug_error("upnp", "Unable to look up local IP\n");
+	GSocketConnection *conn;
+	GSocketAddress *addr;
+	GInetSocketAddress *inetsockaddr;
+	GError *error = NULL;
 
+	conn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(source),
+	                                              result, &error);
+	if (conn == NULL) {
+		purple_debug_error("upnp", "Unable to look up local IP: %s",
+		                   error->message);
+		g_clear_error(&error);
+		return;
+	}
+
+	g_strlcpy(control_info.internalip, "0.0.0.0",
+	          sizeof(control_info.internalip));
+
+	addr = g_socket_connection_get_local_address(conn, &error);
+	if ((inetsockaddr = G_INET_SOCKET_ADDRESS(addr)) != NULL) {
+		GInetAddress *inetaddr =
+		        g_inet_socket_address_get_address(inetsockaddr);
+		if (g_inet_address_get_family(inetaddr) == G_SOCKET_FAMILY_IPV4 &&
+		    !g_inet_address_get_is_loopback(inetaddr))
+		{
+			gchar *ip = g_inet_address_to_string(inetaddr);
+			g_strlcpy(control_info.internalip, ip,
+			          sizeof(control_info.internalip));
+			g_free(ip);
+		}
+	} else {
+		purple_debug_error(
+		        "upnp", "Unable to get local address of connection: %s",
+		        error ? error->message : "unknown socket address type");
+		g_clear_error(&error);
+	}
+	g_object_unref(addr);
+
+	purple_debug_info("upnp", "Local IP: %s", control_info.internalip);
+	g_object_unref(conn);
 }
 
 static void
 lookup_internal_ip()
 {
 	SoupURI *uri;
+	GSocketClient *client;
+	GError *error = NULL;
 
 	uri = soup_uri_new(control_info.control_url);
 	if (!uri) {
@@ -788,13 +824,21 @@ lookup_internal_ip()
 		return;
 	}
 
-	if (purple_proxy_connect(NULL, NULL, uri->host, uri->port,
-	                         looked_up_internal_ip_cb, NULL) == NULL) {
-		purple_debug_error(
-		        "upnp", "Get Local IP Connect Failed: Address: %s @@@ Port %d",
-		        uri->host, uri->port);
+	client = purple_gio_socket_client_new(NULL, &error);
+	if (client == NULL) {
+		purple_debug_error("upnp", "Get Local IP Connect to %s:%d Failed: %s",
+		                   uri->host, uri->port, error->message);
+		g_clear_error(&error);
+		soup_uri_free(uri);
+		return;
 	}
 
+	purple_debug_info("upnp", "Attempting connection to %s:%u\n", uri->host,
+	                  uri->port);
+	g_socket_client_connect_to_host_async(client, uri->host, uri->port, NULL,
+	                                      looked_up_internal_ip_cb, NULL);
+
+	g_object_unref(client);
 	soup_uri_free(uri);
 }
 
@@ -926,15 +970,16 @@ purple_upnp_set_port_mapping(unsigned short portmap, const gchar* protocol,
 		return ar;
 	}
 
-	/* If we haven't had a successful UPnP discovery, check if 5 minutes has
-	 * elapsed since the last try, try again */
-	if(control_info.status == PURPLE_UPNP_STATUS_UNDISCOVERED ||
-			(control_info.status == PURPLE_UPNP_STATUS_UNABLE_TO_DISCOVER
-			 && (time(NULL) - control_info.lookup_time) > 300)) {
+	if (control_info.status == PURPLE_UPNP_STATUS_UNDISCOVERED) {
 		purple_upnp_discover(do_port_mapping_cb, ar);
 		return ar;
-	} else if(control_info.status == PURPLE_UPNP_STATUS_UNABLE_TO_DISCOVER) {
-		if (cb) {
+	} else if (control_info.status == PURPLE_UPNP_STATUS_UNABLE_TO_DISCOVER) {
+		if (g_get_monotonic_time() - control_info.lookup_time >
+		    300 * G_USEC_PER_SEC) {
+			/* If we haven't had a successful UPnP discovery, check if 5 minutes
+			 * has elapsed since the last try, try again */
+			purple_upnp_discover(do_port_mapping_cb, ar);
+		} else if (cb) {
 			/* Asynchronously trigger a failed response */
 			ar->tima = g_timeout_add(10, fire_port_mapping_failure_cb, ar);
 		} else {
@@ -971,15 +1016,16 @@ purple_upnp_remove_port_mapping(unsigned short portmap, const char* protocol,
 		return ar;
 	}
 
-	/* If we haven't had a successful UPnP discovery, check if 5 minutes has
-	 * elapsed since the last try, try again */
-	if(control_info.status == PURPLE_UPNP_STATUS_UNDISCOVERED ||
-			(control_info.status == PURPLE_UPNP_STATUS_UNABLE_TO_DISCOVER
-			 && (time(NULL) - control_info.lookup_time) > 300)) {
+	if (control_info.status == PURPLE_UPNP_STATUS_UNDISCOVERED) {
 		purple_upnp_discover(do_port_mapping_cb, ar);
 		return ar;
-	} else if(control_info.status == PURPLE_UPNP_STATUS_UNABLE_TO_DISCOVER) {
-		if (cb) {
+	} else if (control_info.status == PURPLE_UPNP_STATUS_UNABLE_TO_DISCOVER) {
+		if (g_get_monotonic_time() - control_info.lookup_time >
+		    300 * G_USEC_PER_SEC) {
+			/* If we haven't had a successful UPnP discovery, check if 5 minutes
+			 * has elapsed since the last try, try again */
+			purple_upnp_discover(do_port_mapping_cb, ar);
+		} else if (cb) {
 			/* Asynchronously trigger a failed response */
 			ar->tima = g_timeout_add(10, fire_port_mapping_failure_cb, ar);
 		} else {
