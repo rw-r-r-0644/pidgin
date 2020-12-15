@@ -70,6 +70,8 @@ typedef struct _zephyr_triple zephyr_triple;
 typedef struct _zephyr_account zephyr_account;
 typedef struct _parse_tree parse_tree;
 
+typedef gssize (*PollableInputStreamReadFunc)(GPollableInputStream *stream, void *bufcur, GError **error);
+
 typedef enum {
 	PURPLE_ZEPHYR_NONE, /* Non-kerberized ZEPH0.2 */
 	PURPLE_ZEPHYR_KRB4, /* ZEPH0.2 w/ KRB4 support */
@@ -1115,21 +1117,20 @@ static parse_tree *parse_buffer(gchar* source, gboolean do_parse) {
 	}
 }
 
-static parse_tree  *read_from_tzc(zephyr_account* zephyr){
+static gchar *
+read_from_tzc(zephyr_account *zephyr, PollableInputStreamReadFunc read_func)
+{
 	GPollableInputStream *stream = G_POLLABLE_INPUT_STREAM(zephyr->tzc_stdout);
 	gsize bufsize = 2048;
 	gchar *buf = g_new(gchar, bufsize);
 	gchar *bufcur = buf;
 	gboolean selected = FALSE;
-	parse_tree *incoming_msg;
-
-	incoming_msg = NULL;
 
 	while (TRUE) {
 		GError *error = NULL;
-		if (g_pollable_input_stream_read_nonblocking(stream, bufcur, 1, NULL,
-		                                             &error) < 0) {
-			if (error->code == G_IO_ERROR_WOULD_BLOCK) {
+		if (read_func(stream, bufcur, &error) < 0) {
+			if (error->code == G_IO_ERROR_WOULD_BLOCK ||
+			    error->code == G_IO_ERROR_TIMED_OUT) {
 				g_error_free(error);
 				break;
 			}
@@ -1153,18 +1154,31 @@ static parse_tree  *read_from_tzc(zephyr_account* zephyr){
 	}
 	*bufcur = '\0';
 
-	if (selected) {
-		incoming_msg = parse_buffer(buf,TRUE);
+	if (!selected) {
+		g_free(buf);
+		buf = NULL;
 	}
-	g_free(buf);
-	return incoming_msg;
+	return buf;
+}
+
+static gssize
+pollable_input_stream_read(GPollableInputStream *stream, void *bufcur, GError **error)
+{
+	return g_pollable_input_stream_read_nonblocking(stream, bufcur, 1, NULL, error);
 }
 
 static gint check_notify_tzc(gpointer data)
 {
 	PurpleConnection *gc = (PurpleConnection *)data;
 	zephyr_account* zephyr = purple_connection_get_protocol_data(gc);
-	parse_tree *newparsetree = read_from_tzc(zephyr);
+	parse_tree *newparsetree = NULL;
+	gchar *buf = read_from_tzc(zephyr, pollable_input_stream_read);
+
+	if (buf != NULL) {
+		newparsetree = parse_buffer(buf, TRUE);
+		g_free(buf);
+	}
+
 	if (newparsetree != NULL) {
 		gchar *spewtype;
 		if ( (spewtype =  tree_child(find_node(newparsetree,"tzcspew"),2)->contents) ) {
@@ -1603,9 +1617,9 @@ normalize_zephyr_exposure(const gchar *exposure)
 
 static gssize
 pollable_input_stream_read_with_timeout(GPollableInputStream *stream,
-                                        void *bufcur, gint64 timeout,
-                                        GError **error)
+                                        void *bufcur, GError **error)
 {
+	const gint64 timeout = 10 * G_USEC_PER_SEC;
 	gint64 now = g_get_monotonic_time();
 
 	while (g_get_monotonic_time() < now + timeout) {
@@ -1670,8 +1684,6 @@ static void zephyr_login(PurpleAccount * account)
 	if (use_tzc(zephyr)) {
 		gboolean found_ps = FALSE;
 		gchar **tzc_cmd_array = NULL;
-		GPollableInputStream *stream = NULL;
-		gsize bufsize;
 		gchar *buf = NULL;
 		gchar *bufcur = NULL;
 		gchar *ptr;
@@ -1735,42 +1747,12 @@ static void zephyr_login(PurpleAccount * account)
 		zephyr->tzc_stdin = g_subprocess_get_stdin_pipe(zephyr->tzc_proc);
 		zephyr->tzc_stdout = g_subprocess_get_stdout_pipe(zephyr->tzc_proc);
 
-		stream = G_POLLABLE_INPUT_STREAM(zephyr->tzc_stdout);
-		bufsize = 2048;
-		buf = g_new(gchar, bufsize);
-		bufcur = buf;
-		parenlevel = 0;
-
 		purple_debug_info("zephyr", "about to read from tzc");
-
-		while (TRUE) {
-			if (pollable_input_stream_read_with_timeout(
-			            stream, bufcur, 10 * G_USEC_PER_SEC, &error) < 0) {
-				if (error->code == G_IO_ERROR_WOULD_BLOCK ||
-				    error->code == G_IO_ERROR_TIMED_OUT) {
-					g_clear_error(&error);
-					break;
-				}
-				purple_debug_error("zephyr", "couldn't read: %s",
-				                   error->message);
-				purple_connection_error(gc,
-				                        PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-				                        "couldn't read");
-				g_error_free(error);
-				g_free(buf);
-				return;
-			}
-			bufcur++;
-			if ((bufcur - buf) > (bufsize - 1)) {
-				if ((buf = g_realloc(buf, bufsize * 2)) == NULL) {
-					exit(-1);
-				} else {
-					bufcur = buf + bufsize;
-					bufsize *= 2;
-				}
-			}
+		buf = read_from_tzc(zephyr, pollable_input_stream_read_with_timeout);
+		if (buf == NULL) {
+			return;
 		}
-		*bufcur = '\0';
+		bufcur = buf + strlen(buf);
 		ptr = buf;
 
 		/* ignore all tzcoutput till we've received the first (*/
