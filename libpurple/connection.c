@@ -894,8 +894,6 @@ purple_connection_finalize(GObject *object)
 		buddies = g_slist_delete_link(buddies, buddies);
 	}
 
-	purple_proxy_connect_cancel_with_handle(gc);
-
 	connections = g_list_remove(connections, gc);
 
 	purple_connection_set_state(gc, PURPLE_CONNECTION_DISCONNECTED);
