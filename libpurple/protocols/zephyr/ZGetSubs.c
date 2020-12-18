@@ -10,9 +10,6 @@
 
 #include "internal.h"
 
-/* Prototype for -Wmissing-prototypes */
-Code_t ZGetSubscriptions(ZSubscription_t *subscription, int *numsubs);
-
 Code_t ZGetSubscriptions(ZSubscription_t *subscription, int *numsubs)
 {
 	int i;

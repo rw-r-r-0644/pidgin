@@ -206,11 +206,13 @@ Code_t ZUnsetLocation(void);
 Code_t ZFlushMyLocations(void);
 Code_t ZFormatRawNotice(ZNotice_t *, char **, int *);
 Code_t ZRetrieveSubscriptions(unsigned short, int *);
+Code_t ZGetSubscriptions(ZSubscription_t *, int *);
 Code_t ZOpenPort(unsigned short *port);
 Code_t ZClosePort(void);
 Code_t ZFlushLocations(void);
 Code_t ZFlushSubscriptions(void);
 Code_t ZFreeNotice(ZNotice_t *notice);
+Code_t ZGetLocations(ZLocations_t *, int *);
 Code_t ZParseLocations(register ZNotice_t *notice,
                        register ZAsyncLocateData_t *zald, int *nlocs,
                        char **user);

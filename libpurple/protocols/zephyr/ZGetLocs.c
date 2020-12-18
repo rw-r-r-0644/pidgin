@@ -10,9 +10,6 @@
 
 #include "internal.h"
 
-/* Prototype for -Wmissing-prototypes */
-Code_t ZGetLocations(ZLocations_t *location, int *numlocs);
-
 Code_t ZGetLocations(ZLocations_t *location, int *numlocs)
 {
 	int i;
