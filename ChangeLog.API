@@ -434,6 +434,11 @@ version 3.0.0 (??/??/????):
 		* purple_plugins_unload
 		* purple_plugins_unload_all
 		* purple_pounces_load
+		* PurpleProxyConnectData
+		* PurpleProxyConnectFunction
+		* purple_proxy_connect
+		* purple_proxy_connect_cancel
+		* purple_proxy_connect_cancel_with_handle
 		* purple_prefs_set_generic
 		* purple_prefs_update_old
 		* purple_presence_add_status

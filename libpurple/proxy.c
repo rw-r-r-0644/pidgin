@@ -20,11 +20,6 @@
  *
  */
 
-/* this is a little piece of code to handle proxy connection */
-/* it is intended to : 1st handle http proxy, using the CONNECT command
- , 2nd provide an easy way to add socks support
- , 3rd draw women to it like flies to honey */
-
 #include <glib/gi18n-lib.h>
 
 #include "internal.h"
@@ -48,27 +43,7 @@ struct _PurpleProxyInfo
 	char *password;       /* The password.    */
 };
 
-struct _PurpleProxyConnectData {
-	void *handle;
-	PurpleProxyConnectFunction connect_cb;
-	gpointer data;
-	gchar *host;
-	int port;
-	int fd;
-	PurpleProxyInfo *gpi;
-
-	GCancellable *cancellable;
-};
-
 static PurpleProxyInfo *global_proxy_info = NULL;
-
-static GSList *handles = NULL;
-
-/*
- * TODO: Eventually (GObjectification) this bad boy will be removed, because it is
- *       a gross fix for a crashy problem.
- */
-#define PURPLE_PROXY_CONNECT_DATA_IS_VALID(connect_data) g_slist_find(handles, connect_data)
 
 /**************************************************************************
  * Proxy structure API
@@ -547,84 +522,6 @@ purple_win32_proxy_get_info(void)
  * Proxy API
  **************************************************************************/
 
-/*
- * Whoever calls this needs to have called
- * purple_proxy_connect_data_disconnect() beforehand.
- */
-static void
-purple_proxy_connect_data_destroy(PurpleProxyConnectData *connect_data)
-{
-	if (!PURPLE_PROXY_CONNECT_DATA_IS_VALID(connect_data))
-		return;
-
-	handles = g_slist_remove(handles, connect_data);
-
-	if(G_IS_CANCELLABLE(connect_data->cancellable)) {
-		g_cancellable_cancel(connect_data->cancellable);
-
-		g_object_unref(G_OBJECT(connect_data->cancellable));
-
-		connect_data->cancellable = NULL;
-	}
-
-	g_free(connect_data->host);
-	g_free(connect_data);
-}
-
-/*
- * purple_proxy_connect_data_disconnect:
- * @error_message: An error message explaining why the connection
- *        failed.  This will be passed to the callback function
- *        specified in the call to purple_proxy_connect().  If the
- *        connection was successful then pass in null.
- *
- * Free all information dealing with a connection attempt and
- * reset the connect_data to prepare for it to try to connect
- * to another IP address.
- *
- * If an error message is passed in, then we know the connection
- * attempt failed. If so, we call the callback with the given
- * error message, then destroy the connect_data.
- */
-static void
-purple_proxy_connect_data_disconnect(PurpleProxyConnectData *connect_data, const gchar *error_message)
-{
-	if (connect_data->fd >= 0)
-	{
-		close(connect_data->fd);
-		connect_data->fd = -1;
-	}
-
-	if (error_message != NULL)
-	{
-		purple_debug_error("proxy", "Connection attempt failed: %s\n",
-				error_message);
-
-		/* Everything failed!  Tell the originator of the request. */
-		connect_data->connect_cb(connect_data->data, -1, error_message);
-		purple_proxy_connect_data_destroy(connect_data);
-	}
-}
-
-static void
-purple_proxy_connect_data_connected(PurpleProxyConnectData *connect_data)
-{
-	purple_debug_info("proxy", "Connected to %s:%d.\n",
-	                  connect_data->host, connect_data->port);
-
-	connect_data->connect_cb(connect_data->data, connect_data->fd, NULL);
-
-	/*
-	 * We've passed the file descriptor to the protocol, so it's no longer
-	 * our responsibility, and we should be careful not to free it when
-	 * we destroy the connect_data.
-	 */
-	connect_data->fd = -1;
-
-	purple_proxy_connect_data_disconnect(connect_data, NULL);
-	purple_proxy_connect_data_destroy(connect_data);
-}
-
 PurpleProxyInfo *
 purple_proxy_get_setup(PurpleAccount *account)
 {
@@ -702,148 +599,6 @@ purple_proxy_get_setup(PurpleAccount *account)
 	}
 
 	return gpi;
-}
-
-/* Grabbed duplicate_fd() from GLib's testcases (gio/tests/socket.c).
- * Can be dropped once this API has been converted to Gio.
- */
-static int
-duplicate_fd (int fd)
-{
-#ifdef G_OS_WIN32
-  HANDLE newfd;
-
-  if (!DuplicateHandle (GetCurrentProcess (),
-                        (HANDLE)fd,
-                        GetCurrentProcess (),
-                        &newfd,
-                        0,
-                        FALSE,
-                        DUPLICATE_SAME_ACCESS))
-    {
-      return -1;
-    }
-
-  return (int)newfd;
-#else
-  return dup (fd);
-#endif
-}
-/* End function grabbed from GLib */
-
-static void
-connect_to_host_cb(GObject *source, GAsyncResult *res, gpointer user_data)
-{
-	PurpleProxyConnectData *connect_data = user_data;
-	GSocketConnection *conn;
-	GError *error = NULL;
-	GSocket *socket;
-
-	conn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(source),
-			res, &error);
-	if (conn == NULL) {
-		/* Ignore cancelled error as that signifies connect_data has
-		 * been freed
-		 */
-		if (!g_error_matches(error, G_IO_ERROR,
-				G_IO_ERROR_CANCELLED)) {
-			purple_debug_error("proxy", "Unable to connect to "
-					"destination host: %s\n",
-					error->message);
-			purple_proxy_connect_data_disconnect(connect_data,
-					"Unable to connect to destination "
-					"host.\n");
-		}
-
-		g_clear_error(&error);
-		return;
-	}
-
-	socket = g_socket_connection_get_socket(conn);
-	g_assert(socket != NULL);
-
-	/* Duplicate the file descriptor, and then free the connection.
-	 * libpurple's proxy code doesn't keep an object around for the
-	 * lifetime of the connection. Therefore, in order to not leak
-	 * memory, the GSocketConnection must be freed here. In order
-	 * to avoid the double close/free of the file descriptor, the 
-	 * file descriptor is duplicated.
-	 */
-	connect_data->fd = duplicate_fd(g_socket_get_fd(socket));
-	g_object_unref(conn);
-
-	purple_proxy_connect_data_connected(connect_data);
-}
-
-PurpleProxyConnectData *
-purple_proxy_connect(void *handle, PurpleAccount *account,
-				   const char *host, int port,
-				   PurpleProxyConnectFunction connect_cb, gpointer data)
-{
-	PurpleProxyConnectData *connect_data;
-	GSocketClient *client;
-	GError *error = NULL;
-
-	g_return_val_if_fail(host       != NULL, NULL);
-	g_return_val_if_fail(port       >  0,    NULL);
-	g_return_val_if_fail(connect_cb != NULL, NULL);
-
-	client = purple_gio_socket_client_new(account, &error);
-
-	if (client == NULL) {
-		/* Assume it's a proxy error */
-		purple_notify_error(NULL, NULL, _("Invalid proxy settings"),
-			error->message,
-			purple_request_cpar_from_account(account));
-		g_clear_error(&error);
-		return NULL;
-	}
-
-	connect_data = g_new0(PurpleProxyConnectData, 1);
-	connect_data->fd = -1;
-	connect_data->handle = handle;
-	connect_data->connect_cb = connect_cb;
-	connect_data->data = data;
-	connect_data->host = g_strdup(host);
-	connect_data->port = port;
-	connect_data->gpi = purple_proxy_get_setup(account);
-	connect_data->cancellable = g_cancellable_new();
-
-	purple_debug_info("proxy", "Attempting connection to %s:%u\n",
-			host, port);
-
-	g_socket_client_connect_to_host_async(client, host, port,
-			connect_data->cancellable, connect_to_host_cb,
-			connect_data);
-	g_object_unref(client);
-
-	handles = g_slist_prepend(handles, connect_data);
-
-	return connect_data;
-}
-
-void
-purple_proxy_connect_cancel(PurpleProxyConnectData *connect_data)
-{
-	g_return_if_fail(connect_data != NULL);
-
-	purple_proxy_connect_data_disconnect(connect_data, NULL);
-	purple_proxy_connect_data_destroy(connect_data);
-}
-
-void
-purple_proxy_connect_cancel_with_handle(void *handle)
-{
-	GSList *l, *l_next;
-
-	for (l = handles; l != NULL; l = l_next) {
-		PurpleProxyConnectData *connect_data = l->data;
-
-		l_next = l->next;
-
-		if (connect_data->handle == handle)
-			purple_proxy_connect_cancel(connect_data);
-	}
 }
 
 GProxyResolver *
@@ -1011,12 +766,6 @@ purple_proxy_init(void)
 void
 purple_proxy_uninit(void)
 {
-	while (handles != NULL)
-	{
-		purple_proxy_connect_data_disconnect(handles->data, NULL);
-		purple_proxy_connect_data_destroy(handles->data);
-	}
-
 	purple_prefs_disconnect_by_handle(purple_proxy_get_handle());
 
 	purple_proxy_info_destroy(global_proxy_info);
