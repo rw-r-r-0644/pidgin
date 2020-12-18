@@ -22,6 +22,8 @@
 
 #include "pidgin/pidginpresenceicon.h"
 
+#include "pidgin/pidginpresence.h"
+
 struct _PidginPresenceIcon {
 	GtkImage parent;
 
@@ -46,49 +48,9 @@ G_DEFINE_TYPE(PidginPresenceIcon, pidgin_presence_icon, GTK_TYPE_IMAGE)
  *****************************************************************************/
 static void
 pidgin_presence_icon_update(PidginPresenceIcon *icon) {
-	const gchar *icon_name = icon->fallback;
+	const gchar *icon_name = NULL;
 
-	/* Sorry for the pyramid of doom, couldn't come up with a better way to do
-	 * this...
-	 */
-	if(PURPLE_IS_PRESENCE(icon->presence)) {
-		PurpleStatus *status = NULL;
-
-		status = purple_presence_get_active_status(icon->presence);
-		if(PURPLE_IS_STATUS(status)) {
-			PurpleStatusType *type = purple_status_get_status_type(status);
-
-			if(type != NULL) {
-				switch(purple_status_type_get_primitive(type)) {
-					case PURPLE_STATUS_OFFLINE:
-						icon_name = "pidgin-user-offline";
-						break;
-					case PURPLE_STATUS_AVAILABLE:
-						icon_name = "pidgin-user-available";
-						break;
-					case PURPLE_STATUS_UNAVAILABLE:
-						icon_name = "pidgin-user-unavailable";
-						break;
-					case PURPLE_STATUS_AWAY:
-						icon_name = "pidgin-user-away";
-						break;
-					case PURPLE_STATUS_INVISIBLE:
-						icon_name = "pidgin-user-invisible";
-						break;
-					case PURPLE_STATUS_EXTENDED_AWAY:
-						icon_name = "pidgin-user-extended-away";
-						break;
-					case PURPLE_STATUS_MOBILE:
-					case PURPLE_STATUS_TUNE:
-					case PURPLE_STATUS_MOOD:
-					case PURPLE_STATUS_UNSET:
-					default:
-						/* Use the fallback which was set above. */
-						break;
-				}
-			}
-		}
-	}
+	icon_name = pidgin_presence_get_icon_name(icon->presence, icon->fallback);
 
 	gtk_image_set_from_icon_name(GTK_IMAGE(icon), icon_name, icon->icon_size);
 }
