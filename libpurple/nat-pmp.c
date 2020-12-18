@@ -152,7 +152,7 @@ is_default_route(struct sockaddr *sa, struct sockaddr *mask)
     sin = (struct sockaddr_in *)sa;
     if ((sin->sin_addr.s_addr == INADDR_ANY) &&
 		mask &&
-		(ntohl(((struct sockaddr_in *)mask)->sin_addr.s_addr) == 0L ||
+		(g_ntohl(((struct sockaddr_in *)mask)->sin_addr.s_addr) == 0L ||
 #ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
 		 mask->sa_len == 0
 #else
@@ -297,7 +297,7 @@ purple_pmp_get_public_ip()
 
 	/* Default port for NAT-PMP is 5351 */
 	if (gateway->sin_port != PMP_PORT)
-		gateway->sin_port = htons(PMP_PORT);
+		gateway->sin_port = g_htons(PMP_PORT);
 
 	req_timeout.tv_sec = 0;
 	req_timeout.tv_usec = PMP_TIMEOUT;
@@ -374,8 +374,8 @@ purple_pmp_get_public_ip()
 	purple_debug_info("nat-pmp", "Response received from NAT-PMP device:\n");
 	purple_debug_info("nat-pmp", "version: %d\n", resp.version);
 	purple_debug_info("nat-pmp", "opcode: %d\n", resp.opcode);
-	purple_debug_info("nat-pmp", "resultcode: %d\n", ntohs(resp.resultcode));
-	purple_debug_info("nat-pmp", "epoch: %d\n", ntohl(resp.epoch));
+	purple_debug_info("nat-pmp", "resultcode: %d\n", g_ntohs(resp.resultcode));
+	purple_debug_info("nat-pmp", "epoch: %d\n", g_ntohl(resp.epoch));
 	struct in_addr in;
 	in.s_addr = resp.address;
 	purple_debug_info("nat-pmp", "address: %s\n", inet_ntoa(in));
@@ -412,7 +412,7 @@ purple_pmp_create_map(PurplePmpType type, unsigned short privateport, unsigned s
 
 	/* Default port for NAT-PMP is 5351 */
 	if (gateway->sin_port != PMP_PORT)
-		gateway->sin_port = htons(PMP_PORT);
+		gateway->sin_port = g_htons(PMP_PORT);
 
 	resp = g_new0(PurplePmpMapResponse, 1);
 
@@ -425,9 +425,9 @@ purple_pmp_create_map(PurplePmpType type, unsigned short privateport, unsigned s
 	memset(&req, 0, sizeof(PurplePmpMapRequest));
 	req.version = 0;
 	req.opcode = ((type == PURPLE_PMP_TYPE_UDP) ? PMP_MAP_OPCODE_UDP : PMP_MAP_OPCODE_TCP);
-	req.privateport = htons(privateport); /* What a difference byte ordering makes...d'oh! */
-	req.publicport = htons(publicport);
-	req.lifetime = htonl(lifetime);
+	req.privateport = g_htons(privateport); /* What a difference byte ordering makes...d'oh! */
+	req.publicport = g_htons(publicport);
+	req.lifetime = g_htonl(lifetime);
 
 	/* The NAT-PMP spec says we should attempt to contact the gateway 9 times, doubling the time we wait each time.
 	 * Even starting with a timeout of 0.1 seconds, that means that we have a total waiting of 204.6 seconds.
@@ -478,11 +478,11 @@ purple_pmp_create_map(PurplePmpType type, unsigned short privateport, unsigned s
 		purple_debug_info("nat-pmp", "Response received from NAT-PMP device:\n");
 		purple_debug_info("nat-pmp", "version: %d\n", resp->version);
 		purple_debug_info("nat-pmp", "opcode: %d\n", resp->opcode);
-		purple_debug_info("nat-pmp", "resultcode: %d\n", ntohs(resp->resultcode));
-		purple_debug_info("nat-pmp", "epoch: %d\n", ntohl(resp->epoch));
-		purple_debug_info("nat-pmp", "privateport: %d\n", ntohs(resp->privateport));
-		purple_debug_info("nat-pmp", "publicport: %d\n", ntohs(resp->publicport));
-		purple_debug_info("nat-pmp", "lifetime: %d\n", ntohl(resp->lifetime));
+		purple_debug_info("nat-pmp", "resultcode: %d\n", g_ntohs(resp->resultcode));
+		purple_debug_info("nat-pmp", "epoch: %d\n", g_ntohl(resp->epoch));
+		purple_debug_info("nat-pmp", "privateport: %d\n", g_ntohs(resp->privateport));
+		purple_debug_info("nat-pmp", "publicport: %d\n", g_ntohs(resp->publicport));
+		purple_debug_info("nat-pmp", "lifetime: %d\n", g_ntohl(resp->lifetime));
 	}
 #endif
 

@@ -279,7 +279,7 @@ _mdns_service_resolve_callback(DNSServiceRef sdRef, DNSServiceFlags flags, uint3
 			args->full_service_name = g_strdup(fullname);
 
 			/* TODO: Should this be per resolver? */
-			args->bb->port_p2pj = ntohs(port);
+			args->bb->port_p2pj = g_ntohs(port);
 
 			/* We don't want to hit the cleanup code */
 			return;
@@ -496,7 +496,7 @@ gboolean _mdns_publish(BonjourDnsSd *data, PublishType type, GSList *records) {
 				purple_debug_info("bonjour", "Registering presence on port %d\n", data->port_p2pj);
 				errorCode = DNSServiceRegister(&presence_sr, kDNSServiceInterfaceIndexAny,
 					0, bonjour_get_jid(data->account), LINK_LOCAL_RECORD_NAME,
-					NULL, NULL, htons(data->port_p2pj), TXTRecordGetLength(&dns_data), TXTRecordGetBytesPtr(&dns_data),
+					NULL, NULL, g_htons(data->port_p2pj), TXTRecordGetLength(&dns_data), TXTRecordGetBytesPtr(&dns_data),
 					_mdns_service_register_callback, NULL);
 				break;
 

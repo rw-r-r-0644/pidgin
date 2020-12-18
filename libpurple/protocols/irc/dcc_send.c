@@ -65,7 +65,7 @@ static void irc_dccsend_recv_ack(PurpleXfer *xfer, const guchar *data, size_t si
 		return;
 	}
 
-	l = htonl(purple_xfer_get_bytes_sent(xfer));
+	l = g_htonl(purple_xfer_get_bytes_sent(xfer));
 	result = purple_xfer_write(xfer, (guchar *)&l, sizeof(l));
 	if (result != sizeof(l)) {
 		purple_debug_error("irc", "unable to send acknowledgement: %s\n", g_strerror(errno));
@@ -133,7 +133,7 @@ void irc_dccsend_recv(struct irc_conn *irc, const char *from, const char *msg) {
 
 	nip = strtoul(token[i], NULL, 10);
 	if (nip) {
-		addr.s_addr = htonl(nip);
+		addr.s_addr = g_htonl(nip);
 		xfer->ip = g_strdup(inet_ntoa(addr));
 	} else {
 		xfer->ip = g_strdup(token[i]);
@@ -184,7 +184,7 @@ static void irc_dccsend_send_read(gpointer data, int source, PurpleInputConditio
 			break;
 
 		memcpy(&val, xd->rxqueue, sizeof(val));
-		acked = ntohl(val);
+		acked = g_ntohl(val);
 
 		xd->rxlen -= 4;
 		if (xd->rxlen) {

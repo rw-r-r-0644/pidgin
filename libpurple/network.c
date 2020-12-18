@@ -114,7 +114,7 @@ purple_network_get_local_system_ip(int fd)
 	struct ifconf ifc;
 	struct ifreq *ifr;
 	struct sockaddr_in *sinptr;
-	guint32 lhost = htonl((127 << 24) + 1); /* 127.0.0.1 */
+	guint32 lhost = g_htonl((127 << 24) + 1); /* 127.0.0.1 */
 	long unsigned int add;
 	int source = fd;
 
@@ -144,7 +144,7 @@ purple_network_get_local_system_ip(int fd)
 			sinptr = (struct sockaddr_in *)(gpointer)&ifr->ifr_addr;
 			if (sinptr->sin_addr.s_addr != lhost)
 			{
-				add = ntohl(sinptr->sin_addr.s_addr);
+				add = g_ntohl(sinptr->sin_addr.s_addr);
 				g_snprintf(ip, 16, "%lu.%lu.%lu.%lu",
 					((add >> 24) & 255),
 					((add >> 16) & 255),
@@ -417,7 +417,7 @@ purple_network_do_listen(unsigned short port, int socket_family, int socket_type
 
 	memset(&sockin, 0, sizeof(struct sockaddr_in));
 	sockin.sin_family = PF_INET;
-	sockin.sin_port = htons(port);
+	sockin.sin_port = g_htons(port);
 
 	if (bind(listenfd, (struct sockaddr *)&sockin, sizeof(struct sockaddr_in)) != 0) {
 		purple_debug_warning("network", "bind: %s\n", g_strerror(errno));
@@ -532,7 +532,7 @@ purple_network_get_port_from_fd(int fd)
 		return 0;
 	}
 
-	return ntohs(addr.sin_port);
+	return g_ntohs(addr.sin_port);
 }
 
 gboolean
