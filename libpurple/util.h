@@ -371,12 +371,13 @@ purple_util_write_data_to_data_file(const char *filename, const char *data, gssi
  *
  * This exists for Glib backwards compatibility reasons.
  *
- *  See purple_util_write_data_to_file()
+ * See purple_util_write_data_to_file()
  *
  * Returns: TRUE if the file was written successfully.  FALSE otherwise.
+ *
+ * Deprecated: 3.0.0: Use g_file_set_contents() instead.
  */
-/* TODO: Remove this function (use g_file_set_contents instead) when 3.0.0
- *       rolls around. */
+G_DEPRECATED_FOR(g_file_set_contents)
 gboolean
 purple_util_write_data_to_file_absolute(const char *filename_full, const char *data, gssize size);
 

@@ -253,7 +253,7 @@ purple_image_save(PurpleImage *image, const gchar *path) {
 	g_return_val_if_fail(data != NULL, FALSE);
 	g_return_val_if_fail(len > 0, FALSE);
 
-	succ = purple_util_write_data_to_file_absolute(path, data, len);
+	succ = g_file_set_contents(path, data, len, NULL);
 	if (succ && priv->path == NULL)
 		priv->path = g_strdup(path);
 
