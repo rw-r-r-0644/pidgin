@@ -60,25 +60,6 @@
 #  define HX_SIZE_OF_IFREQ(a) sizeof(a)
 #endif
 
-typedef union
-{
-	struct sockaddr sa;
-	struct sockaddr_in in;
-	struct sockaddr_in6 in6;
-	struct sockaddr_storage storage;
-} common_sockaddr_t;
-
-struct _PurpleNetworkListenData {
-	int listenfd;
-	int socket_type;
-	gboolean retry;
-	gboolean adding;
-	PurpleNetworkListenCallback cb;
-	gpointer cb_data;
-	PurpleUPnPMappingAddRemove *mapping_data;
-	int timer;
-};
-
 static gboolean force_online = FALSE;
 
 /* Cached IP addresses for STUN and TURN servers (set globally in prefs) */
@@ -272,269 +253,6 @@ purple_network_get_my_ip_from_gio(GSocketConnection *sockconn)
 	return purple_network_get_local_system_ip_from_gio(sockconn);
 }
 
-static void
-purple_network_set_upnp_port_mapping_cb(gboolean success, gpointer data)
-{
-	PurpleNetworkListenData *listen_data;
-
-	listen_data = data;
-	/* TODO: Once we're keeping track of upnp requests... */
-	/* listen_data->pnp_data = NULL; */
-
-	if (!success) {
-		purple_debug_warning("network", "Couldn't create UPnP mapping\n");
-		if (listen_data->retry) {
-			listen_data->retry = FALSE;
-			listen_data->adding = FALSE;
-			listen_data->mapping_data = purple_upnp_remove_port_mapping(
-						purple_network_get_port_from_fd(listen_data->listenfd),
-						(listen_data->socket_type == SOCK_STREAM) ? "TCP" : "UDP",
-						purple_network_set_upnp_port_mapping_cb, listen_data);
-			return;
-		}
-	} else if (!listen_data->adding) {
-		/* We've tried successfully to remove the port mapping.
-		 * Try to add it again */
-		listen_data->adding = TRUE;
-		listen_data->mapping_data = purple_upnp_set_port_mapping(
-					purple_network_get_port_from_fd(listen_data->listenfd),
-					(listen_data->socket_type == SOCK_STREAM) ? "TCP" : "UDP",
-					purple_network_set_upnp_port_mapping_cb, listen_data);
-		return;
-	}
-
-	if (success) {
-		/* add port mapping to hash table */
-		gint key = purple_network_get_port_from_fd(listen_data->listenfd);
-		gint value = listen_data->socket_type;
-		g_hash_table_insert(upnp_port_mappings, GINT_TO_POINTER(key), GINT_TO_POINTER(value));
-	}
-
-	if (listen_data->cb)
-		listen_data->cb(listen_data->listenfd, listen_data->cb_data);
-
-	/* Clear the UPnP mapping data, since it's complete and purple_network_listen_cancel() will try to cancel
-	 * it otherwise. */
-	listen_data->mapping_data = NULL;
-	purple_network_listen_cancel(listen_data);
-}
-
-static gboolean
-purple_network_finish_pmp_map_cb(gpointer data)
-{
-	PurpleNetworkListenData *listen_data;
-	gint key;
-	gint value;
-
-	listen_data = data;
-	listen_data->timer = 0;
-
-	/* add port mapping to hash table */
-	key = purple_network_get_port_from_fd(listen_data->listenfd);
-	value = listen_data->socket_type;
-	g_hash_table_insert(nat_pmp_port_mappings, GINT_TO_POINTER(key), GINT_TO_POINTER(value));
-
-	if (listen_data->cb)
-		listen_data->cb(listen_data->listenfd, listen_data->cb_data);
-
-	purple_network_listen_cancel(listen_data);
-
-	return FALSE;
-}
-
-static PurpleNetworkListenData *
-purple_network_do_listen(unsigned short port, int socket_family, int socket_type, gboolean map_external,
-                             PurpleNetworkListenCallback cb, gpointer cb_data)
-{
-	int listenfd = -1;
-	const int on = 1;
-	PurpleNetworkListenData *listen_data;
-	unsigned short actual_port;
-#ifdef HAVE_GETADDRINFO
-	int errnum;
-	struct addrinfo hints, *res, *next;
-	char serv[6];
-
-	/*
-	 * Get a list of addresses on this machine.
-	 */
-	g_snprintf(serv, sizeof(serv), "%hu", port);
-	memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_flags = AI_PASSIVE;
-	hints.ai_family = socket_family;
-	hints.ai_socktype = socket_type;
-	errnum = getaddrinfo(NULL /* any IP */, serv, &hints, &res);
-	if (errnum != 0) {
-#ifndef _WIN32
-		purple_debug_warning("network", "getaddrinfo: %s\n", purple_gai_strerror(errnum));
-		if (errnum == EAI_SYSTEM)
-			purple_debug_warning("network", "getaddrinfo: system error: %s\n", g_strerror(errno));
-#else
-		purple_debug_warning("network", "getaddrinfo: Error Code = %d\n", errnum);
-#endif
-		return NULL;
-	}
-
-	/*
-	 * Go through the list of addresses and attempt to listen on
-	 * one of them.
-	 * XXX - Try IPv6 addresses first?
-	 */
-	for (next = res; next != NULL; next = next->ai_next) {
-		listenfd = socket(next->ai_family, next->ai_socktype, next->ai_protocol);
-		if (listenfd < 0)
-			continue;
-		if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) != 0)
-			purple_debug_warning("network", "setsockopt(SO_REUSEADDR): %s\n", g_strerror(errno));
-		if (bind(listenfd, next->ai_addr, next->ai_addrlen) == 0)
-			break; /* success */
-		/* XXX - It is unclear to me (datallah) whether we need to be
-		   using a new socket each time */
-		close(listenfd);
-	}
-
-	freeaddrinfo(res);
-
-	if (next == NULL)
-		return NULL;
-#else
-	struct sockaddr_in sockin;
-
-	if (socket_family != AF_INET && socket_family != AF_UNSPEC) {
-		purple_debug_warning("network", "Address family %d only "
-		                     "supported when built with getaddrinfo() "
-		                     "support\n", socket_family);
-		return NULL;
-	}
-
-	if ((listenfd = socket(AF_INET, socket_type, 0)) < 0) {
-		purple_debug_warning("network", "socket: %s\n", g_strerror(errno));
-		return NULL;
-	}
-
-	if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) != 0)
-		purple_debug_warning("network", "setsockopt: %s\n", g_strerror(errno));
-
-	memset(&sockin, 0, sizeof(struct sockaddr_in));
-	sockin.sin_family = PF_INET;
-	sockin.sin_port = g_htons(port);
-
-	if (bind(listenfd, (struct sockaddr *)&sockin, sizeof(struct sockaddr_in)) != 0) {
-		purple_debug_warning("network", "bind: %s\n", g_strerror(errno));
-		close(listenfd);
-		return NULL;
-	}
-#endif
-
-	if (socket_type == SOCK_STREAM && listen(listenfd, 4) != 0) {
-		purple_debug_warning("network", "listen: %s\n", g_strerror(errno));
-		close(listenfd);
-		return NULL;
-	}
-	_purple_network_set_common_socket_flags(listenfd);
-	actual_port = purple_network_get_port_from_fd(listenfd);
-
-	purple_debug_info("network", "Listening on port: %hu\n", actual_port);
-
-	listen_data = g_new0(PurpleNetworkListenData, 1);
-	listen_data->listenfd = listenfd;
-	listen_data->adding = TRUE;
-	listen_data->retry = TRUE;
-	listen_data->cb = cb;
-	listen_data->cb_data = cb_data;
-	listen_data->socket_type = socket_type;
-
-	if (!purple_socket_speaks_ipv4(listenfd) || !map_external ||
-			!purple_prefs_get_bool("/purple/network/map_ports"))
-	{
-		purple_debug_info("network", "Skipping external port mapping.\n");
-		/* The pmp_map_cb does what we want to do */
-		listen_data->timer = g_timeout_add(0, purple_network_finish_pmp_map_cb, listen_data);
-	}
-	/* Attempt a NAT-PMP Mapping, which will return immediately */
-	else if (purple_pmp_create_map(((socket_type == SOCK_STREAM) ? PURPLE_PMP_TYPE_TCP : PURPLE_PMP_TYPE_UDP),
-							  actual_port, actual_port, PURPLE_PMP_LIFETIME))
-	{
-		purple_debug_info("network", "Created NAT-PMP mapping on port %i\n", actual_port);
-		/* We want to return listen_data now, and on the next run loop trigger the cb and destroy listen_data */
-		listen_data->timer = g_timeout_add(0, purple_network_finish_pmp_map_cb, listen_data);
-	}
-	else
-	{
-		/* Attempt a UPnP Mapping */
-		listen_data->mapping_data = purple_upnp_set_port_mapping(
-						 actual_port,
-						 (socket_type == SOCK_STREAM) ? "TCP" : "UDP",
-						 purple_network_set_upnp_port_mapping_cb, listen_data);
-	}
-
-	return listen_data;
-}
-
-PurpleNetworkListenData *
-purple_network_listen(unsigned short port, int socket_family, int socket_type,
-                             gboolean map_external, PurpleNetworkListenCallback cb,
-                             gpointer cb_data)
-{
-	g_return_val_if_fail(port != 0, NULL);
-
-	return purple_network_do_listen(port, socket_family, socket_type, map_external,
-	                                cb, cb_data);
-}
-
-PurpleNetworkListenData *
-purple_network_listen_range(unsigned short start, unsigned short end,
-                                   int socket_family, int socket_type, gboolean map_external,
-                                   PurpleNetworkListenCallback cb,
-                                   gpointer cb_data)
-{
-	PurpleNetworkListenData *ret = NULL;
-
-	if (purple_prefs_get_bool("/purple/network/ports_range_use")) {
-		start = purple_prefs_get_int("/purple/network/ports_range_start");
-		end = purple_prefs_get_int("/purple/network/ports_range_end");
-	} else {
-		if (end < start)
-			end = start;
-	}
-
-	for (; start <= end; start++) {
-		ret = purple_network_do_listen(start, AF_UNSPEC, socket_type, map_external, cb, cb_data);
-		if (ret != NULL)
-			break;
-	}
-
-	return ret;
-}
-
-void purple_network_listen_cancel(PurpleNetworkListenData *listen_data)
-{
-	if (listen_data->mapping_data != NULL)
-		purple_upnp_cancel_port_mapping(listen_data->mapping_data);
-
-	if (listen_data->timer > 0)
-		g_source_remove(listen_data->timer);
-
-	g_free(listen_data);
-}
-
-unsigned short
-purple_network_get_port_from_fd(int fd)
-{
-	struct sockaddr_in addr;
-	socklen_t len;
-
-	g_return_val_if_fail(fd >= 0, 0);
-
-	len = sizeof(addr);
-	if (getsockname(fd, (struct sockaddr *) &addr, &len) == -1) {
-		purple_debug_warning("network", "getsockname: %s\n", g_strerror(errno));
-		return 0;
-	}
-
-	return g_ntohs(addr.sin_port);
-}
-
 gboolean
 purple_network_is_available(void)
 {
@@ -680,9 +398,21 @@ purple_network_nat_pmp_mapping_remove(gpointer key, gpointer value,
 void
 purple_network_remove_port_mapping(gint fd)
 {
-	int port = purple_network_get_port_from_fd(fd);
-	gint protocol = GPOINTER_TO_INT(g_hash_table_lookup(upnp_port_mappings, GINT_TO_POINTER(port)));
+	gint port, protocol;
+	struct sockaddr_in addr;
+	socklen_t len;
 
+	g_return_if_fail(fd >= 0);
+
+	len = sizeof(addr);
+	if (getsockname(fd, (struct sockaddr *) &addr, &len) == -1) {
+		purple_debug_warning("network", "getsockname: %s", g_strerror(errno));
+		port = 0;
+	} else {
+		port = g_ntohs(addr.sin_port);
+	}
+
+	protocol = GPOINTER_TO_INT(g_hash_table_lookup(upnp_port_mappings, GINT_TO_POINTER(port)));
 	if (protocol) {
 		purple_network_upnp_mapping_remove(GINT_TO_POINTER(port), GINT_TO_POINTER(protocol), NULL);
 	} else {
