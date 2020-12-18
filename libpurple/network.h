@@ -75,7 +75,6 @@ const char *purple_network_get_public_ip(void);
 
 /**
  * purple_network_get_local_system_ip:
- * @fd: The fd to use to help figure out the IP, or else -1.
  *
  * Returns the IP address of the local system.
  *
@@ -87,11 +86,10 @@ const char *purple_network_get_public_ip(void);
  *
  * Returns: The local IP address.
  */
-const char *purple_network_get_local_system_ip(int fd);
+const gchar *purple_network_get_local_system_ip(void);
 
 /**
  * purple_network_get_my_ip:
- * @fd: The fd to use to help figure out the IP, or -1.
  *
  * Returns the IP address that should be used anywhere a
  * public IP addresses is needed (listening for an incoming
@@ -108,7 +106,7 @@ const char *purple_network_get_local_system_ip(int fd);
  *
  * Returns: The local IP address to be used.
  */
-const char *purple_network_get_my_ip(int fd);
+const gchar *purple_network_get_my_ip(void);
 
 /**
  * purple_network_get_my_ip_from_gio:

@@ -1778,7 +1778,7 @@ auto_ip_button_clicked_cb(GtkWidget *button, gpointer null)
 				ip = purple_pmp_get_public_ip();
 				if (ip == NULL) {
 					/* Just fetch the IP of the local system */
-					ip = purple_network_get_local_system_ip(-1);
+					ip = purple_network_get_local_system_ip();
 				}
 			}
 		}

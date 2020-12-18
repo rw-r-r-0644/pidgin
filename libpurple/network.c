@@ -105,8 +105,8 @@ purple_network_get_public_ip(void)
 	return purple_prefs_get_string("/purple/network/public_ip");
 }
 
-const char *
-purple_network_get_local_system_ip(int fd)
+const gchar *
+purple_network_get_local_system_ip(void)
 {
 	struct ifreq buffer[100];
 	guchar *it, *it_end;
@@ -116,17 +116,17 @@ purple_network_get_local_system_ip(int fd)
 	struct sockaddr_in *sinptr;
 	guint32 lhost = g_htonl((127 << 24) + 1); /* 127.0.0.1 */
 	long unsigned int add;
-	int source = fd;
+	int source;
 
-	if (fd < 0)
-		source = socket(PF_INET,SOCK_STREAM, 0);
+	source = socket(PF_INET, SOCK_STREAM, 0);
 
 	ifc.ifc_len = sizeof(buffer);
 	ifc.ifc_req = buffer;
 	ioctl(source, SIOCGIFCONF, &ifc);
 
-	if (fd < 0 && source >= 0)
+	if (source >= 0) {
 		close(source);
+	}
 
 	it = (guchar*)buffer;
 	it_end = it + ifc.ifc_len;
@@ -202,8 +202,8 @@ purple_network_is_ipv4(const gchar *hostname)
 	return g_hostname_is_ip_address(hostname);
 }
 
-const char *
-purple_network_get_my_ip(int fd)
+const gchar *
+purple_network_get_my_ip(void)
 {
 	const char *ip = NULL;
 	PurpleStunNatDiscovery *stun;
@@ -232,7 +232,7 @@ purple_network_get_my_ip(int fd)
 	}
 
 	/* Just fetch the IP of the local system */
-	return purple_network_get_local_system_ip(fd);
+	return purple_network_get_local_system_ip();
 }
 
 gchar *
