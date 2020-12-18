@@ -3045,7 +3045,7 @@ static gboolean
 pidgin_blist_create_tooltip_for_node(GtkWidget *widget, gpointer data, int *w, int *h)
 {
 	PurpleBlistNode *node = data;
-	int width, height;
+	int width = 0, height = 0;
 	GList *list;
 	int max_text_width = 0;
 	int max_avatar_width = 0;
@@ -3097,7 +3097,6 @@ pidgin_blist_create_tooltip_for_node(GtkWidget *widget, gpointer data, int *w, i
 		return FALSE;
 	}
 
-	height = width = 0;
 	for (list = gtkblist->tooltipdata; list; list = list->next) {
 		struct tooltip_data *td = list->data;
 		max_text_width = MAX(max_text_width, MAX(td->width, td->name_width));

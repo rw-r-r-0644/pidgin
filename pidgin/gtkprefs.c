@@ -3211,7 +3211,7 @@ pidgin_prefs_update_old(void)
 	video_sink = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/vvconfig/video/sink/device");
 	if (purple_strequal(video_sink, "glimagesink") || purple_strequal(video_sink, "directdrawsink")) {
 		/* Accelerated sinks move to GTK GL. */
-		video_sink = "gtkglsink";
+		/* video_sink = "gtkglsink"; */
 		/* FIXME: I haven't been able to get gtkglsink to work yet: */
 		video_sink = "gtksink";
 	} else {
