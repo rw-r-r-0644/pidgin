@@ -27,16 +27,17 @@
 
 #include <glib/gstdio.h>
 
+#include "debug.h"
 #include "enums.h"
 #include "image-store.h"
-#include "xfer.h"
 #include "network.h"
 #include "notify.h"
 #include "prefs.h"
 #include "proxy.h"
+#include "purple-gio.h"
 #include "request.h"
 #include "util.h"
-#include "debug.h"
+#include "xfer.h"
 
 #define FT_INITIAL_BUFFER_SIZE 4096
 #define FT_MAX_BUFFER_SIZE     65535
@@ -66,6 +67,7 @@ struct _PurpleXferPrivate {
 	guint16 local_port;          /* The local port.                     */
 	guint16 remote_port;         /* The remote port.                    */
 
+	GSocketConnection *conn;     /* The socket connection.              */
 	int fd;                      /* The socket file descriptor.         */
 	int watcher;                 /* Watcher.                            */
 
@@ -1556,16 +1558,25 @@ begin_transfer(PurpleXfer *xfer, PurpleInputCondition cond)
 }
 
 static void
-connect_cb(gpointer data, gint source, const gchar *error_message)
+connect_cb(GObject *source, GAsyncResult *result, gpointer user_data)
 {
-	PurpleXfer *xfer = PURPLE_XFER(data);
+	PurpleXfer *xfer = PURPLE_XFER(user_data);
+	PurpleXferPrivate *priv = purple_xfer_get_instance_private(xfer);
+	GSocket *socket;
+	GError *error = NULL;
 
-	if (source < 0) {
+	priv->conn = g_socket_client_connect_to_host_finish(G_SOCKET_CLIENT(source),
+	                                                    result, &error);
+	if (priv->conn == NULL) {
+		purple_debug_error("xfer", "Unable to connect to destination host: %s",
+		                   error ? error->message : "unknown error");
 		purple_xfer_cancel_local(xfer);
+		g_clear_error(&error);
 		return;
 	}
 
-	purple_xfer_set_fd(xfer, source);
+	socket = g_socket_connection_get_socket(priv->conn);
+	purple_xfer_set_fd(xfer, g_socket_get_fd(socket));
 	begin_transfer(xfer, PURPLE_INPUT_READ);
 }
 
@@ -1647,6 +1658,9 @@ purple_xfer_start(PurpleXfer *xfer, int fd, const char *ip, guint16 port)
 		cond = PURPLE_INPUT_READ;
 
 		if (ip != NULL) {
+			GSocketClient *client;
+			GError *error = NULL;
+
 			priv->remote_ip   = g_strdup(ip);
 			priv->remote_port = port;
 
@@ -1656,15 +1670,22 @@ purple_xfer_start(PurpleXfer *xfer, int fd, const char *ip, guint16 port)
 			g_object_notify_by_pspec(obj, properties[PROP_REMOTE_PORT]);
 			g_object_thaw_notify(obj);
 
-			/* Establish a file descriptor. */
-			purple_proxy_connect(
-				NULL,
-				priv->account,
-				priv->remote_ip,
-				priv->remote_port,
-				connect_cb,
-				xfer
-			);
+			client = purple_gio_socket_client_new(priv->account, &error);
+			if (client == NULL) {
+				/* Assume it's a proxy error */
+				purple_notify_error(
+				        NULL, NULL, _("Invalid proxy settings"), error->message,
+				        purple_request_cpar_from_account(priv->account));
+				g_clear_error(&error);
+				return;
+			}
+
+			purple_debug_info("xfer", "Attempting connection to %s:%u\n", ip,
+			                  port);
+
+			g_socket_client_connect_to_host_async(client, ip, port, NULL,
+			                                      connect_cb, xfer);
+			g_object_unref(client);
 
 			return;
 		} else {
@@ -2124,6 +2145,7 @@ purple_xfer_finalize(GObject *object)
 	g_free(priv->filename);
 	g_free(priv->remote_ip);
 	g_free(priv->local_filename);
+	g_clear_object(&priv->conn);
 
 	if (priv->buffer) {
 		g_byte_array_free(priv->buffer, TRUE);
