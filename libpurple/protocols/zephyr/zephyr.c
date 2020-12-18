@@ -60,9 +60,6 @@ static GSList *cmds = NULL;
 
 #ifdef LIBZEPHYR_EXT
 extern char __Zephyr_realm[];
-#else
-extern Code_t ZGetLocations(ZLocations_t *, int *);
-extern Code_t ZGetSubscriptions(ZSubscription_t *, int*);
 #endif
 
 typedef struct _zframe zframe;
@@ -1328,7 +1325,7 @@ static gint check_notify_zeph02(gpointer data)
 }
 
 static gboolean
-zephyr_request_locations(zephyr_account *zephyr, const gchar *who)
+zephyr_request_locations(zephyr_account *zephyr, gchar *who)
 {
 	if (use_zeph02(zephyr)) {
 		ZAsyncLocateData_t ald;
