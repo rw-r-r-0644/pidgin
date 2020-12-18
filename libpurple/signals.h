@@ -61,7 +61,7 @@ typedef void (*PurpleCallback)(void);
  * @cb: The #PurpleCallback to call.
  * @args: The arguments to the function.
  * @data: Userdata to pass to @cb.
- * @return_val: (optional) (nullable): A return address for a return value.
+ * @return_val: (optional) (out): A return address for a return value.
  *
  * A generic function pointer type used to register signals.
  */
