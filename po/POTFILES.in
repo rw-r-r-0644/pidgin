@@ -351,6 +351,7 @@ pidgin/pidgininvitedialog.c
 pidgin/pidginlog.c
 pidgin/pidginmenutray.c
 pidgin/pidginmessage.c
+pidgin/pidginpresence.c
 pidgin/pidginpresenceicon.c
 pidgin/pidginstock.c
 pidgin/pidginstyle.c
