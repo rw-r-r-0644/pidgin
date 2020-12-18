@@ -3367,7 +3367,7 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	gtkchat = gtkconv->u.chat;
 	gc      = purple_conversation_get_connection(conv);
 
-	if (!gc || !(protocol = purple_connection_get_protocol(gc)))
+	if (!gc || !purple_connection_get_protocol(gc))
 		return;
 
 	tm = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));

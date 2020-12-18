@@ -239,7 +239,7 @@ pidgin_mood_dialog_show(PurpleAccount *account) {
 	PurpleRequestField *f;
 	PurpleConnection *gc = NULL;
 	PurpleProtocol *protocol = NULL;
-	PurpleMood *mood;
+	PurpleMood *mood = NULL;
 	PurpleMood *global_moods = NULL;
 
 	if (account) {
