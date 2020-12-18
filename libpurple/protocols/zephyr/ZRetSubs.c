@@ -24,7 +24,7 @@ Code_t ZRetrieveSubscriptions(unsigned short port, int *nsubs)
 	if (!port)			/* use default port */
 	    port = __Zephyr_port;
 
-	retval = ZMakeAscii16(asciiport, sizeof(asciiport), ntohs(port));
+	retval = ZMakeAscii16(asciiport, sizeof(asciiport), g_ntohs(port));
 	if (retval != ZERR_NONE)
 		return (retval);
 

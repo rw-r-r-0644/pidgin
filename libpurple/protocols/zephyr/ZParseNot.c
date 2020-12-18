@@ -147,8 +147,8 @@ ZParseNotice(char *buffer, int len, ZNotice_t *notice)
 	if (ZReadAscii(ptr, end-ptr, (unsigned char *)&notice->z_uid,
 		       sizeof(ZUnique_Id_t)) == ZERR_BADFIELD)
 	    BAD_PACKET;
-	notice->z_time.tv_sec = ntohl((unsigned long) notice->z_uid.tv.tv_sec);
-	notice->z_time.tv_usec = ntohl((unsigned long) notice->z_uid.tv.tv_usec);
+	notice->z_time.tv_sec = GUINT64_FROM_BE((guint64)notice->z_uid.tv.tv_sec);
+	notice->z_time.tv_usec = GUINT64_FROM_BE((guint64)notice->z_uid.tv.tv_usec);
 	numfields--;
 	next_field (ptr);
     }
@@ -158,7 +158,7 @@ ZParseNotice(char *buffer, int len, ZNotice_t *notice)
     if (numfields) {
 	if (ZReadAscii16(ptr, end-ptr, &notice->z_port) == ZERR_BADFIELD)
 	    BAD_PACKET;
-	notice->z_port = htons(notice->z_port);
+	notice->z_port = g_htons(notice->z_port);
 	numfields--;
 	next_field (ptr);
     }
@@ -261,8 +261,8 @@ ZParseNotice(char *buffer, int len, ZNotice_t *notice)
 	if (ZReadAscii(ptr, end-ptr, (unsigned char *)&notice->z_multiuid,
 		       sizeof(ZUnique_Id_t)) == ZERR_BADFIELD)
 	    BAD_PACKET;
-	notice->z_time.tv_sec = ntohl((unsigned long) notice->z_multiuid.tv.tv_sec);
-	notice->z_time.tv_usec = ntohl((unsigned long) notice->z_multiuid.tv.tv_usec);
+	notice->z_time.tv_sec = GUINT64_FROM_BE((guint64)notice->z_multiuid.tv.tv_sec);
+	notice->z_time.tv_usec = GUINT64_FROM_BE((guint64)notice->z_multiuid.tv.tv_usec);
 	numfields--;
 	next_field (ptr);
     }

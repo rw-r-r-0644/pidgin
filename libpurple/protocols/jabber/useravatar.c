@@ -129,14 +129,14 @@ void jabber_avatar_set(JabberStream *js, PurpleImage *img)
 		   png->signature[5] == 0x0a &&
 		   png->signature[6] == 0x1a &&
 		   png->signature[7] == 0x0a &&
-		   ntohl(png->ihdr.length) == 0x0d &&
+		   GUINT32_FROM_BE(png->ihdr.length) == 0x0d &&
 		   png->ihdr.type[0] == 'I' &&
 		   png->ihdr.type[1] == 'H' &&
 		   png->ihdr.type[2] == 'D' &&
 		   png->ihdr.type[3] == 'R') {
 			/* parse PNG header to get the size of the image (yes, this is required) */
-			guint32 width = ntohl(png->ihdr.width);
-			guint32 height = ntohl(png->ihdr.height);
+			guint32 width = GUINT32_FROM_BE(png->ihdr.width);
+			guint32 height = GUINT32_FROM_BE(png->ihdr.height);
 			PurpleXmlNode *data, *info;
 			char *lengthstring, *widthstring, *heightstring;
 

@@ -540,8 +540,8 @@ Z_FormatHeader(ZNotice_t *notice, char *buffer, int buffer_len, int *len,
 	notice->z_uid.tv.tv_sec = realtime / G_USEC_PER_SEC;
 	notice->z_uid.tv.tv_usec =
 	        realtime - notice->z_uid.tv.tv_sec * G_USEC_PER_SEC;
-	notice->z_uid.tv.tv_sec = htonl((unsigned long)notice->z_uid.tv.tv_sec);
-	notice->z_uid.tv.tv_usec = htonl((unsigned long)notice->z_uid.tv.tv_usec);
+	notice->z_uid.tv.tv_sec = GUINT64_TO_BE((guint64)notice->z_uid.tv.tv_sec);
+	notice->z_uid.tv.tv_usec = GUINT64_TO_BE((guint64)notice->z_uid.tv.tv_usec);
 
 	memcpy(&notice->z_uid.zuid_addr, &__My_addr, sizeof(__My_addr));
 
@@ -617,7 +617,7 @@ Z_FormatRawHeader(ZNotice_t *notice, char *buffer, gsize buffer_len, int *len,
 	return (ZERR_HEADERLEN);
     ptr += strlen(ptr)+1;
 
-    if (ZMakeAscii16(ptr, end-ptr, ntohs(notice->z_port)) == ZERR_FIELDLEN)
+    if (ZMakeAscii16(ptr, end-ptr, g_ntohs(notice->z_port)) == ZERR_FIELDLEN)
 	return (ZERR_HEADERLEN);
     ptr += strlen(ptr)+1;
 
@@ -776,9 +776,9 @@ Z_SendFragmentedNotice(ZNotice_t *notice, int len, Z_AuthProc cert_func,
 		partnotice.z_uid.tv.tv_usec =
 			    realtime - partnotice.z_uid.tv.tv_sec * G_USEC_PER_SEC;
 		partnotice.z_uid.tv.tv_sec =
-			    htonl((unsigned long)partnotice.z_uid.tv.tv_sec);
+			    GUINT64_TO_BE((guint64)partnotice.z_uid.tv.tv_sec);
 		partnotice.z_uid.tv.tv_usec =
-			    htonl((unsigned long)partnotice.z_uid.tv.tv_usec);
+			    GUINT64_TO_BE((guint64)partnotice.z_uid.tv.tv_usec);
 		memcpy(&partnotice.z_uid.zuid_addr, &__My_addr, sizeof(__My_addr));
 	}
 	message_len = MIN(notice->z_message_len - offset, fragsize);
