@@ -121,7 +121,7 @@ static void ggp_callback_buddylist_save_ok(PurpleConnection *gc, const char *fil
 		return;
 	}
 
-	if (purple_util_write_data_to_file_absolute(filename, buddylist, -1)) {
+	if (g_file_set_contents(filename, buddylist, -1, NULL)) {
 		purple_notify_info(account, _("Save Buddylist..."),
 			_("Buddylist saved successfully!"), NULL,
 			purple_request_cpar_from_connection(gc));

@@ -852,7 +852,7 @@ purple_xmlnode_from_file(const char *dir, const char *filename, const char *desc
 
 			purple_debug_error("util", "Error parsing file %s.  Renaming old "
 							 "file to %s\n", filename_full, filename_temp);
-			purple_util_write_data_to_file_absolute(filename_temp_full, contents, length);
+			g_file_set_contents(filename_temp_full, contents, length, NULL);
 
 			g_free(filename_temp_full);
 			g_free(filename_temp);

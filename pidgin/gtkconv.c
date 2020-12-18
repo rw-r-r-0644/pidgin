@@ -2052,7 +2052,7 @@ saveicon_writefile_cb(void *user_data, const char *filename)
 	icon = purple_im_conversation_get_icon(im);
 	data = purple_buddy_icon_get_data(icon, &len);
 
-	if ((len <= 0) || (data == NULL) || !purple_util_write_data_to_file_absolute(filename, data, len)) {
+	if ((len <= 0) || (data == NULL) || !g_file_set_contents(filename, data, len, NULL)) {
 		purple_notify_error(gtkconv, NULL, _("Unable to save icon file to disk."), NULL, NULL);
 	}
 }
