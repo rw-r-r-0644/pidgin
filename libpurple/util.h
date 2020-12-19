@@ -519,30 +519,6 @@ gboolean purple_running_kde(void);
  */
 gboolean purple_running_osx(void);
 
-/**
- * purple_socket_get_family:
- * @fd: The socket file descriptor.
- *
- * Returns the address family of a socket.
- *
- * Returns: The address family of the socket (AF_INET, AF_INET6, etc) or -1
- *         on error.
- */
-int purple_socket_get_family(int fd);
-
-/**
- * purple_socket_speaks_ipv4:
- * @fd: The socket file descriptor
- *
- * Returns TRUE if a socket is capable of speaking IPv4.
- *
- * This is the case for IPv4 sockets and, on some systems, IPv6 sockets
- * (due to the IPv4-mapped address functionality).
- *
- * Returns: TRUE if a socket can speak IPv4.
- */
-gboolean purple_socket_speaks_ipv4(int fd);
-
 
 /**************************************************************************/
 /* String Functions                                                       */
