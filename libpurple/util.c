@@ -828,57 +828,6 @@ purple_running_osx(void)
 #endif
 }
 
-typedef union purple_sockaddr {
-	struct sockaddr         sa;
-	struct sockaddr_in      sa_in;
-#if defined(AF_INET6)
-	struct sockaddr_in6     sa_in6;
-#endif
-	struct sockaddr_storage sa_stor;
-} PurpleSockaddr;
-
-int
-purple_socket_get_family(int fd)
-{
-	PurpleSockaddr addr;
-	socklen_t len = sizeof(addr);
-
-	g_return_val_if_fail(fd >= 0, -1);
-
-	if (getsockname(fd, &(addr.sa), &len))
-		return -1;
-
-	return addr.sa.sa_family;
-}
-
-gboolean
-purple_socket_speaks_ipv4(int fd)
-{
-	int family;
-
-	g_return_val_if_fail(fd >= 0, FALSE);
-
-	family = purple_socket_get_family(fd);
-
-	switch (family) {
-	case AF_INET:
-		return TRUE;
-#if defined(IPV6_V6ONLY)
-	case AF_INET6:
-	{
-		int val = 0;
-		socklen_t len = sizeof(val);
-
-		if (getsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &val, &len) != 0)
-			return FALSE;
-		return !val;
-	}
-#endif
-	default:
-		return FALSE;
-	}
-}
-
 /**************************************************************************
  * String Functions
  **************************************************************************/
