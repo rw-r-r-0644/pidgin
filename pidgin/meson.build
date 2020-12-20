@@ -208,6 +208,7 @@ if ENABLE_GTK
 		IOKIT,
 		json,
 		math,
+		nice,
 		libsoup,
 		talkatu_dep,
 		libpurple_dep,

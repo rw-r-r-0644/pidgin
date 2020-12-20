@@ -86,60 +86,6 @@ purple_network_get_public_ip(void)
 	return purple_prefs_get_string("/purple/network/public_ip");
 }
 
-const gchar *
-purple_network_get_local_system_ip(void)
-{
-	struct ifreq buffer[100];
-	guchar *it, *it_end;
-	static char ip[16];
-	struct ifconf ifc;
-	struct ifreq *ifr;
-	struct sockaddr_in *sinptr;
-	guint32 lhost = g_htonl((127 << 24) + 1); /* 127.0.0.1 */
-	long unsigned int add;
-	int source;
-
-	source = socket(PF_INET, SOCK_STREAM, 0);
-
-	ifc.ifc_len = sizeof(buffer);
-	ifc.ifc_req = buffer;
-	ioctl(source, SIOCGIFCONF, &ifc);
-
-	if (source >= 0) {
-		close(source);
-	}
-
-	it = (guchar*)buffer;
-	it_end = it + ifc.ifc_len;
-	while (it < it_end) {
-		/* in this case "it" is:
-		 *  a) (struct ifreq)-aligned
-		 *  b) not aligned, because of OS quirks (see
-		 *     _SIZEOF_ADDR_IFREQ), so the OS should deal with it.
-		 */
-		ifr = (struct ifreq *)(gpointer)it;
-		it += HX_SIZE_OF_IFREQ(*ifr);
-
-		if (ifr->ifr_addr.sa_family == AF_INET)
-		{
-			sinptr = (struct sockaddr_in *)(gpointer)&ifr->ifr_addr;
-			if (sinptr->sin_addr.s_addr != lhost)
-			{
-				add = g_ntohl(sinptr->sin_addr.s_addr);
-				g_snprintf(ip, 16, "%lu.%lu.%lu.%lu",
-					((add >> 24) & 255),
-					((add >> 16) & 255),
-					((add >> 8) & 255),
-					add & 255);
-
-				return ip;
-			}
-		}
-	}
-
-	return "0.0.0.0";
-}
-
 static gchar *
 purple_network_get_local_system_ip_from_gio(GSocketConnection *sockconn)
 {
@@ -183,8 +129,8 @@ purple_network_is_ipv4(const gchar *hostname)
 	return g_hostname_is_ip_address(hostname);
 }
 
-const gchar *
-purple_network_get_my_ip(void)
+void
+purple_network_discover_my_ip(void)
 {
 	const char *ip = NULL;
 	PurpleStunNatDiscovery *stun;
@@ -193,27 +139,28 @@ purple_network_get_my_ip(void)
 	if (!purple_prefs_get_bool("/purple/network/auto_ip")) {
 		ip = purple_network_get_public_ip();
 		/* Make sure the IP address entered by the user is valid */
-		if ((ip != NULL) && (purple_network_is_ipv4(ip)))
-			return ip;
-	} else {
-		/* Check if STUN discovery was already done */
-		stun = purple_stun_discover(NULL);
-		if ((stun != NULL) && (stun->status == PURPLE_STUN_STATUS_DISCOVERED))
-			return stun->publicip;
-
-		/* Attempt to get the IP from a NAT device using UPnP */
-		ip = purple_upnp_get_public_ip();
-		if (ip != NULL)
-			return ip;
-
-		/* Attempt to get the IP from a NAT device using NAT-PMP */
-		ip = purple_pmp_get_public_ip();
-		if (ip != NULL)
-			return ip;
+		if (ip != NULL && purple_network_is_ipv4(ip)) {
+			return;
+		}
 	}
 
-	/* Just fetch the IP of the local system */
-	return purple_network_get_local_system_ip();
+	/* Check if STUN discovery was already done */
+	stun = purple_stun_discover(NULL);
+	if (stun != NULL && stun->status == PURPLE_STUN_STATUS_DISCOVERED) {
+		return;
+	}
+
+	/* Attempt to get the IP from a NAT device using UPnP */
+	ip = purple_upnp_get_public_ip();
+	if (ip != NULL) {
+		return;
+	}
+
+	/* Attempt to get the IP from a NAT device using NAT-PMP */
+	ip = purple_pmp_get_public_ip();
+	if (ip != NULL) {
+		return;
+	}
 }
 
 gchar *
