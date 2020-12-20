@@ -214,7 +214,9 @@ char *local_zephyr_normalize(zephyr_account* zephyr,const char *);
 static void zephyr_chat_set_topic(PurpleConnection * gc, int id, const char *topic);
 char* zephyr_tzc_deescape_str(const char *message);
 
-static char *zephyr_strip_local_realm(zephyr_account* zephyr,const char* user){
+static char *
+zephyr_strip_local_realm(const zephyr_account *zephyr, const char *user)
+{
 	/*
 	  Takes in a username of the form username or username@realm
 	  and returns:
@@ -1527,9 +1529,9 @@ static void process_zsubs(zephyr_account *zephyr)
 	g_free(fname);
 }
 
-static void process_anyone(PurpleConnection *gc)
+static void
+process_anyone(const zephyr_account *zephyr)
 {
-	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 	FILE *fd;
 	gchar buff[BUFSIZ], *filename;
 	PurpleGroup *g;
@@ -1545,11 +1547,11 @@ static void process_anyone(PurpleConnection *gc)
 		while (fgets(buff, BUFSIZ, fd)) {
 			strip_comments(buff);
 			if (buff[0]) {
-				if (!purple_blist_find_buddy(purple_connection_get_account(gc), buff)) {
+				if (!purple_blist_find_buddy(zephyr->account, buff)) {
 					char *stripped_user = zephyr_strip_local_realm(zephyr,buff);
 					purple_debug_info("zephyr","stripped_user %s\n",stripped_user);
-					if (!purple_blist_find_buddy(purple_connection_get_account(gc),stripped_user)) {
-						b = purple_buddy_new(purple_connection_get_account(gc), stripped_user, NULL);
+					if (!purple_blist_find_buddy(zephyr->account, stripped_user)) {
+						b = purple_buddy_new(zephyr->account, stripped_user, NULL);
 						purple_blist_add_buddy(b, NULL, g, NULL);
 					}
 					g_free(stripped_user);
@@ -1562,14 +1564,21 @@ static void process_anyone(PurpleConnection *gc)
 }
 
 static gchar *
-normalize_zephyr_exposure(const gchar *exposure)
+get_zephyr_exposure(PurpleAccount *account)
 {
-	gchar *exp2 = g_strstrip(g_ascii_strup(exposure, -1));
+	const gchar *exposure;
+	gchar *exp2;
 
+	exposure = purple_account_get_string(account, "exposure_level", EXPOSE_REALMVIS);
+
+	/* Make sure that the exposure (visibility) is set to a sane value */
+	exp2 = g_strstrip(g_ascii_strup(exposure, -1));
 	if (exp2) {
-		if (purple_strequal(exp2, EXPOSE_NONE) || purple_strequal(exp2, EXPOSE_OPSTAFF) ||
+		if (purple_strequal(exp2, EXPOSE_NONE) ||
+		    purple_strequal(exp2, EXPOSE_OPSTAFF) ||
 		    purple_strequal(exp2, EXPOSE_REALMANN) ||
-		    purple_strequal(exp2, EXPOSE_NETVIS) || purple_strequal(exp2, EXPOSE_NETANN)) {
+		    purple_strequal(exp2, EXPOSE_NETVIS) ||
+		    purple_strequal(exp2, EXPOSE_NETANN)) {
 			return exp2;
 		}
 		g_free(exp2);
@@ -1610,14 +1619,13 @@ static void zephyr_login(PurpleAccount * account)
 {
 	PurpleConnection *gc;
 	zephyr_account *zephyr;
+	GSourceFunc check_notify;
 	gboolean read_anyone;
 	gboolean read_zsubs;
-	gchar *exposure;
 
 	gc = purple_account_get_connection(account);
-	read_anyone = purple_account_get_bool(purple_connection_get_account(gc),"read_anyone",TRUE);
-	read_zsubs = purple_account_get_bool(purple_connection_get_account(gc),"read_zsubs",TRUE);
-	exposure = (gchar *)purple_account_get_string(purple_connection_get_account(gc), "exposure_level", EXPOSE_REALMVIS);
+	read_anyone = purple_account_get_bool(account, "read_anyone", TRUE);
+	read_zsubs = purple_account_get_bool(account, "read_zsubs", TRUE);
 
 #ifdef WIN32
 	username = purple_account_get_username(account);
@@ -1629,17 +1637,17 @@ static void zephyr_login(PurpleAccount * account)
 	purple_connection_set_protocol_data(gc, zephyr);
 
 	zephyr->account = account;
+	zephyr->exposure = get_zephyr_exposure(account);
 
-	/* Make sure that the exposure (visibility) is set to a sane value */
-	zephyr->exposure = normalize_zephyr_exposure(exposure);
-
-	if (purple_account_get_bool(purple_connection_get_account(gc),"use_tzc",0)) {
+	if (purple_account_get_bool(account, "use_tzc", 0)) {
 		zephyr->connection_type = PURPLE_ZEPHYR_TZC;
+		check_notify = check_notify_tzc;
 	} else {
 		zephyr->connection_type = PURPLE_ZEPHYR_KRB4;
+		check_notify = check_notify_zeph02;
 	}
 
-	zephyr->encoding = (char *)purple_account_get_string(purple_connection_get_account(gc), "encoding", ZEPHYR_FALLBACK_CHARSET);
+	zephyr->encoding = (char *)purple_account_get_string(account, "encoding", ZEPHYR_FALLBACK_CHARSET);
 	purple_connection_update_progress(gc, _("Connecting"), 0, 8);
 
 	/* XXX z_call_s should actually try to report the com_err determined error */
@@ -1664,8 +1672,7 @@ static void zephyr_login(PurpleAccount * account)
 		   fsh username@hostname pathtotzc -e %s
 		*/
 		if (!g_shell_parse_argv(purple_account_get_string(
-		                                purple_connection_get_account(gc),
-		                                "tzc_command", "/usr/bin/tzc -e %s"),
+		                                account, "tzc_command", "/usr/bin/tzc -e %s"),
 		                        NULL, &tzc_cmd_array, &error)) {
 			purple_debug_error("zephyr", "Unable to parse tzc_command: %s",
 			                   error->message);
@@ -1677,7 +1684,7 @@ static void zephyr_login(PurpleAccount * account)
 		}
 		for (i = 0; tzc_cmd_array[i] != NULL; i++) {
 			if (purple_strequal(tzc_cmd_array[i], "%s")) {
-				g_free(tzc_cmd_array);
+				g_free(tzc_cmd_array[i]);
 				tzc_cmd_array[i] = g_strdup(zephyr->exposure);
 				found_ps = TRUE;
 			}
@@ -1780,7 +1787,7 @@ static void zephyr_login(PurpleAccount * account)
 					if (!g_ascii_strncasecmp(tempstr,"zephyrid",8)) {
 						gchar* username = g_malloc0(100);
 						int username_idx=0;
-						char *realm;
+						const char *realm;
 						purple_debug_info("zephyr", "zephyrid found");
 						i += 8;
 						while (i < 20000 && tempstr[i] != '"') {
@@ -1795,7 +1802,7 @@ static void zephyr_login(PurpleAccount * account)
 						if ((realm = strchr(username,'@')))
 							zephyr->realm = g_strdup_printf("%s",realm+1);
 						else {
-							realm = (gchar *)purple_account_get_string(purple_connection_get_account(gc),"realm","");
+							realm = purple_account_get_string(account, "realm", "");
 							if (!*realm) {
 								realm = "local-realm";
 							}
@@ -1837,7 +1844,7 @@ static void zephyr_login(PurpleAccount * account)
 		z_call_s(ZOpenPort(&(zephyr->port)), "Couldn't open port");
 		z_call_s(ZSetLocation((char *)zephyr->exposure), "Couldn't set location");
 
-		realm = purple_account_get_string(purple_connection_get_account(gc),"realm","");
+		realm = purple_account_get_string(account, "realm", "");
 		if (!*realm) {
 			realm = ZGetRealm();
 		}
@@ -1863,7 +1870,7 @@ static void zephyr_login(PurpleAccount * account)
 	if (zephyr_subscribe_to(zephyr,"MESSAGE","PERSONAL",zephyr->username,NULL) != ZERR_NONE) {
 		/* XXX don't translate this yet. It could be written better */
 		/* XXX error messages could be handled with more detail */
-		purple_notify_error(purple_account_get_connection(account), NULL,
+		purple_notify_error(gc, NULL,
 			"Unable to subscribe to messages", "Unable to subscribe to initial messages",
 			purple_request_cpar_from_connection(gc));
 		return;
@@ -1872,15 +1879,11 @@ static void zephyr_login(PurpleAccount * account)
 	purple_connection_set_state(gc, PURPLE_CONNECTION_CONNECTED);
 
 	if (read_anyone)
-		process_anyone(gc);
+		process_anyone(zephyr);
 	if (read_zsubs)
 		process_zsubs(zephyr);
 
-	if (use_zeph02(zephyr)) {
-		zephyr->nottimer = g_timeout_add(100, check_notify_zeph02, gc);
-	} else if (use_tzc(zephyr)) {
-		zephyr->nottimer = g_timeout_add(100, check_notify_tzc, gc);
-	}
+	zephyr->nottimer = g_timeout_add(100, check_notify, gc);
 	zephyr->loctimer = g_timeout_add_seconds(20, check_loc, gc);
 
 }
