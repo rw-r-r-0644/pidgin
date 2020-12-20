@@ -1,7 +1,6 @@
 pidginpixmapdir = get_option('datadir') / 'pixmaps/pidgin'
 
-subdir('emotes/default/24')
-subdir('emotes/small/16')
+subdir('emotes')
 
 if INSTALL_PIXMAPS
 	install_data('logo.png', 'arrow-down.xpm', 'arrow-left.xpm', 'arrow-right.xpm', 'arrow-up.xpm',

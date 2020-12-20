@@ -191,14 +191,9 @@ if INSTALL_PIXMAPS
 	custom_target('default-theme',
 	    input : 'default.theme.in',
 	    output : 'theme',
-	    capture : true,
-	    command : [sedpath,
-	               '-e', 's/^_Name=/Name=/',
-	               '-e', 's/^_Description=/Description=/',
-	               '-e', 's/^_Author=/Author=/',
-	               '@INPUT@'],
-	   install : true,
-	   install_dir : pidginsmileypixdir)
+	    command : [smiley_theme_generator, '@INPUT@', '@OUTPUT@'],
+	    install : true,
+	    install_dir : pidginsmileypixdir)
 
 	install_data(SMILEYS, install_dir : pidginsmileypixdir)
 endif

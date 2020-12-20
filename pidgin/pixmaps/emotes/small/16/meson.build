@@ -91,12 +91,7 @@ if INSTALL_PIXMAPS
 	custom_target('small-theme',
 	    input : 'small.theme.in',
 	    output : 'theme',
-	    capture : true,
-	    command : [sedpath,
-	               '-e', 's/^_Name=/Name=/',
-	               '-e', 's/^_Description=/Description=/',
-	               '-e', 's/^_Author=/Author=/',
-	               '@INPUT@'],
+	    command : [smiley_theme_generator, '@INPUT@', '@OUTPUT@'],
 	    install : true,
 	    install_dir : pidginsmileypixdir)
 

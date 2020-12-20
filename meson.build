@@ -82,8 +82,6 @@ man_conf.set('prefix', get_option('prefix'))
 # Used for pkg-config files.
 pkgconfig = import('pkgconfig')
 
-sedpath = find_program('sed')
-
 # Storing build arguments
 meson.add_postconf_script('mkmesonconf.py')
 conf.set('HAVE_MESON_CONFIG', true)
