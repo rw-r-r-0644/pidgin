@@ -276,10 +276,11 @@ status_to_xmlnode(PurpleSavedStatus *status)
 		purple_xmlnode_set_attrib(node, "transient", "true");
 	}
 
-	g_snprintf(buf, sizeof(buf), "%lu", status->creation_time);
+	g_snprintf(buf, sizeof(buf), "%" G_GINT64_FORMAT,
+	           (gint64)status->creation_time);
 	purple_xmlnode_set_attrib(node, "created", buf);
 
-	g_snprintf(buf, sizeof(buf), "%lu", status->lastused);
+	g_snprintf(buf, sizeof(buf), "%" G_GINT64_FORMAT, (gint64)status->lastused);
 	purple_xmlnode_set_attrib(node, "lastused", buf);
 
 	g_snprintf(buf, sizeof(buf), "%u", status->usage_count);
@@ -471,11 +472,12 @@ parse_status(PurpleXmlNode *status)
 
 	/* Read the creation time */
 	attrib = purple_xmlnode_get_attrib(status, "created");
-	set_creation_time(ret, (attrib != NULL ? atol(attrib) : 0));
+	set_creation_time(ret,
+	                  (attrib != NULL ? g_ascii_strtoll(attrib, NULL, 10) : 0));
 
 	/* Read the last used time */
 	attrib = purple_xmlnode_get_attrib(status, "lastused");
-	ret->lastused = (attrib != NULL ? atol(attrib) : 0);
+	ret->lastused = (attrib != NULL ? g_ascii_strtoll(attrib, NULL, 10) : 0);
 
 	/* Read the usage count */
 	attrib = purple_xmlnode_get_attrib(status, "usage_count");
