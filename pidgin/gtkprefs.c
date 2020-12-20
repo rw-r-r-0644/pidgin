@@ -29,7 +29,7 @@
 
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
-
+#include <nice.h>
 #include <talkatu.h>
 
 #include <purple.h>
@@ -1760,11 +1760,9 @@ auto_ip_button_clicked_cb(GtkWidget *button, gpointer null)
 	const char *ip;
 	PurpleStunNatDiscovery *stun;
 	char *auto_ip_text;
+	GList *list = NULL;
 
-	/* purple_network_get_my_ip will return the IP that was set by the user with
-	   purple_network_set_public_ip, so make a lookup for the auto-detected IP
-	   ourselves. */
-
+	/* Make a lookup for the auto-detected IP ourselves. */
 	if (purple_prefs_get_bool("/purple/network/auto_ip")) {
 		/* Check if STUN discovery was already done */
 		stun = purple_stun_discover(NULL);
@@ -1777,18 +1775,24 @@ auto_ip_button_clicked_cb(GtkWidget *button, gpointer null)
 				/* Attempt to get the IP from a NAT device using NAT-PMP */
 				ip = purple_pmp_get_public_ip();
 				if (ip == NULL) {
-					/* Just fetch the IP of the local system */
-					ip = purple_network_get_local_system_ip();
+					/* Just fetch the first IP of the local system */
+					list = nice_interfaces_get_local_ips(FALSE);
+					if (list) {
+						ip = list->data;
+					} else {
+						ip = "0.0.0.0";
+					}
 				}
 			}
 		}
-	}
-	else
+	} else{
 		ip = _("Disabled");
+	}
 
 	auto_ip_text = g_strdup_printf(_("Use _automatically detected IP address: %s"), ip);
 	gtk_button_set_label(GTK_BUTTON(button), auto_ip_text);
 	g_free(auto_ip_text);
+	g_list_free_full(list, g_free);
 }
 
 static void

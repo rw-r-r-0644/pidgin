@@ -63,46 +63,24 @@ void purple_network_set_public_ip(const char *ip);
  * Returns the IP address of the local system set in preferences.
  *
  * This returns the value set via purple_network_set_public_ip().
- * You probably want to use purple_network_get_my_ip() instead.
  *
  * Returns: The local IP address set in preferences.
  */
 const char *purple_network_get_public_ip(void);
 
 /**
- * purple_network_get_local_system_ip:
+ * purple_network_discover_my_ip:
  *
- * Returns the IP address of the local system.
+ * Discovers the IP address that should be used anywhere a public IP addresses
+ * is needed (listening for an incoming file transfer, etc).
  *
- * You probably want to use purple_network_get_my_ip() instead.
+ * If the user has manually specified an IP address via preferences, then this
+ * is used.  Otherwise STUN, UPnP, and NAT-PMP will be attempted to discover
+ * the local IP address depending on what's available.
  *
- * Note: The returned string is a pointer to a static buffer. If this
- *       function is called twice, it may be important to make a copy
- *       of the returned string.
- *
- * Returns: The local IP address.
+ * Since: 3.0.0
  */
-const gchar *purple_network_get_local_system_ip(void);
-
-/**
- * purple_network_get_my_ip:
- *
- * Returns the IP address that should be used anywhere a
- * public IP addresses is needed (listening for an incoming
- * file transfer, etc).
- *
- * If the user has manually specified an IP address via
- * preferences, then this IP is returned.  Otherwise the
- * IP address returned by purple_network_get_local_system_ip()
- * is returned.
- *
- * Note: The returned string is a pointer to a static buffer. If this
- *       function is called twice, it may be important to make a copy
- *       of the returned string.
- *
- * Returns: The local IP address to be used.
- */
-const gchar *purple_network_get_my_ip(void);
+void purple_network_discover_my_ip(void);
 
 /**
  * purple_network_get_my_ip_from_gio:
@@ -112,7 +90,7 @@ const gchar *purple_network_get_my_ip(void);
  * needed (listening for an incoming file transfer, etc).
  *
  * If the user has manually specified an IP address via preferences, then this
- * IP is returned.  Otherwise STUN, UPNP, NAT-PMP, and finally GIO will be
+ * IP is returned.  Otherwise STUN, UPnP, NAT-PMP, and finally GIO will be
  * attempted to discover the local IP address depending on what's available.
  *
  * Returns: The local IP address to be used.

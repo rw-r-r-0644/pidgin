@@ -188,10 +188,6 @@ version 3.0.0 (??/??/????):
 		* PurpleLog, purple_log_new, purple_log_write and
 		  PurpleLogLogger->write take a GDateTime instead of a time_t
 		  and struct tm
-		* purple_network_get_local_system_ip no longer takes a file
-		  descriptor as first parameter
-		* purple_network_get_my_ip no longer takes a file descriptor
-		  as first parameter
 		* PurpleNotifyMsgType renamed to PurpleNotifyMessageType
 		* purple_notify_user_info_add_pair renamed to
 		  purple_notify_user_info_add_pair_html
@@ -395,6 +391,8 @@ version 3.0.0 (??/??/????):
 		* purple_network_convert_idn_to_ascii. Use g_hostname_to_ascii,
 		  instead.
 		* purple_network_get_all_local_system_ips.  Use libnice instead.
+		* purple_network_get_my_ip
+		* purple_network_get_local_system_ip.  Use libnice instead.
 		* purple_network_get_port_from_fd
 		* purple_network_ip_atoi
 		* PurpleNetworkListenData
