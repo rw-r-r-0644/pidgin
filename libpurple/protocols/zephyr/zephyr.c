@@ -107,12 +107,6 @@ struct _parse_tree {
 	int num_children;
 };
 
-parse_tree null_parse_tree = {
-	"",
-	{NULL},
-	0,
-};
-
 /* struct I need for html<->zephyr */
 struct _zframe {
 	/* common part */
@@ -955,31 +949,35 @@ static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 	}
 }
 
-static int  free_parse_tree(parse_tree* tree) {
+static void
+free_parse_tree(parse_tree *tree)
+{
+	int i;
+
 	if (!tree) {
-		return 0;
+		return;
 	}
-	else {
-		int i;
-		for(i=0;i<tree->num_children;i++){
-			if (tree->children[i]) {
-				free_parse_tree(tree->children[i]);
-			}
-		}
-		if (tree != &null_parse_tree) {
-			g_free(tree->contents);
-			g_free(tree);
-		}
+
+	for (i = 0; i < tree->num_children; i++) {
+		free_parse_tree(tree->children[i]);
 	}
-	return 0;
+
+	g_free(tree->contents);
+	g_free(tree);
 }
 
-static parse_tree *tree_child(parse_tree* tree,int index) {
-	if (index < tree->num_children) {
-		return tree->children[index];
-	} else {
-		return &null_parse_tree;
-	}
+static parse_tree *
+tree_child(const parse_tree *tree, int index)
+{
+	g_return_val_if_fail(tree && tree->num_children > index, NULL);
+	return tree->children[index];
+}
+
+static gchar *
+tree_child_contents(const parse_tree *tree, int index)
+{
+	parse_tree *child = tree_child(tree, index);
+	return child ? child->contents : "";
 }
 
 static parse_tree *find_node(parse_tree* ptree,gchar* key)
@@ -987,19 +985,19 @@ static parse_tree *find_node(parse_tree* ptree,gchar* key)
 	gchar* tc;
 
 	if (!ptree || ! key)
-		return &null_parse_tree;
+		return NULL;
 
-	tc = tree_child(ptree,0)->contents;
+	tc = tree_child_contents(ptree, 0);
 
 	/* g_strcasecmp() is deprecated.  What is the encoding here??? */
 	if (ptree->num_children > 0  &&	tc && !g_ascii_strcasecmp(tc, key)) {
 		return ptree;
 	} else {
-		parse_tree *result = &null_parse_tree;
+		parse_tree *result = NULL;
 		int i;
 		for(i = 0; i < ptree->num_children; i++) {
 			result = find_node(ptree->children[i],key);
-			if(result != &null_parse_tree) {
+			if(result != NULL) {
 				break;
 			}
 		}
@@ -1161,37 +1159,30 @@ static gint check_notify_tzc(gpointer data)
 
 	if (newparsetree != NULL) {
 		gchar *spewtype;
-		if ( (spewtype =  tree_child(find_node(newparsetree,"tzcspew"),2)->contents) ) {
+		if ( (spewtype =  tree_child_contents(find_node(newparsetree, "tzcspew"), 2)) ) {
 			if (!g_ascii_strncasecmp(spewtype,"message",7)) {
 				ZNotice_t notice;
 				parse_tree *msgnode = tree_child(find_node(newparsetree,"message"),2);
-				parse_tree *bodynode = tree_child(msgnode,1);
-				/*				char *zsig = g_strdup(" "); */ /* purple doesn't care about zsigs */
-				char *msg  = zephyr_tzc_deescape_str(bodynode->contents);
+				/*char *zsig = g_strdup(" ");*/ /* purple doesn't care about zsigs */
+				char *msg  = zephyr_tzc_deescape_str(tree_child_contents(msgnode, 1));
 				size_t bufsize = strlen(msg) + 3;
 				char *buf = g_new0(char,bufsize);
 				g_snprintf(buf,1+strlen(msg)+2," %c%s",'\0',msg);
 				memset((char *)&notice, 0, sizeof(notice));
 				notice.z_kind = ACKED;
 				notice.z_port = 0;
-				notice.z_opcode = tree_child(find_node(newparsetree,"opcode"),2)->contents;
-				notice.z_class = zephyr_tzc_deescape_str(tree_child(find_node(newparsetree,"class"),2)->contents);
-				notice.z_class_inst = tree_child(find_node(newparsetree,"instance"),2)->contents;
-				notice.z_recipient = local_zephyr_normalize(zephyr,tree_child(find_node(newparsetree,"recipient"),2)->contents);
-				notice.z_sender = local_zephyr_normalize(zephyr,tree_child(find_node(newparsetree,"sender"),2)->contents);
+				notice.z_opcode = tree_child_contents(find_node(newparsetree, "opcode"), 2);
+				notice.z_class = zephyr_tzc_deescape_str(tree_child_contents(find_node(newparsetree, "class"), 2));
+				notice.z_class_inst = tree_child_contents(find_node(newparsetree, "instance"), 2);
+				notice.z_recipient = local_zephyr_normalize(zephyr, tree_child_contents(find_node(newparsetree, "recipient"), 2));
+				notice.z_sender = local_zephyr_normalize(zephyr, tree_child_contents(find_node(newparsetree, "sender"), 2));
 				notice.z_default_format = "Class $class, Instance $instance:\n" "To: @bold($recipient) at $time $date\n" "From: @bold($1) <$sender>\n\n$2";
 				notice.z_message_len = strlen(msg) + 3;
 				notice.z_message = buf;
 				handle_message(gc, &notice);
 				g_free(msg);
-				/*				  g_free(zsig); */
+				/*g_free(zsig);*/
 				g_free(buf);
-				/* free_parse_tree(msgnode);
-				   free_parse_tree(bodynode);
-				   g_free(msg);
-				   g_free(zsig);
-				   g_free(buf);
-				*/
 			}
 			else if (!g_ascii_strncasecmp(spewtype,"zlocation",9)) {
 				/* check_loc or zephyr_zloc respectively */
@@ -1199,10 +1190,11 @@ static gint check_notify_tzc(gpointer data)
 				char *user;
 				PurpleBuddy *b;
 				const char *bname;
-				int nlocs = 0;
+				const gchar *name;
+				gboolean has_locations;
 				parse_tree *locations;
 				gchar *locval;
-				user = tree_child(find_node(newparsetree,"user"),2)->contents;
+				user = tree_child_contents(find_node(newparsetree, "user"), 2);
 
 				if ((b = purple_blist_find_buddy(purple_connection_get_account(gc), user)) == NULL) {
 					gchar *stripped_user = zephyr_strip_local_realm(zephyr,user);
@@ -1210,15 +1202,10 @@ static gint check_notify_tzc(gpointer data)
 					g_free(stripped_user);
 				}
 				locations = find_node(newparsetree,"locations");
-				locval = tree_child(tree_child(tree_child(tree_child(locations,2),0),0),2)->contents;
-
-				if (!locval || !g_ascii_strcasecmp(locval," ") || !*locval) {
-					nlocs = 0;
-				} else {
-					nlocs = 1;
-				}
-
+				locval = tree_child_contents(tree_child(tree_child(tree_child(locations, 2), 0), 0), 2);
+				has_locations = (locval && *locval && !purple_strequal(locval, " "));
 				bname = b ? purple_buddy_get_name(b) : NULL;
+				name = b ? bname : user;
 				if ((b && pending_zloc(zephyr,bname)) || pending_zloc(zephyr,user) || pending_zloc(zephyr,local_zephyr_normalize(zephyr,user))){
 					PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
 					char *tmp;
@@ -1226,31 +1213,26 @@ static gint check_notify_tzc(gpointer data)
 
 					/* TODO: Check whether it's correct to call add_pair_html,
 					         or if we should be using add_pair_plaintext */
-					purple_notify_user_info_add_pair_html(user_info, _("User"), (b ? bname : user));
+					purple_notify_user_info_add_pair_html(user_info, _("User"), name);
 
 					balias = b ? purple_buddy_get_local_alias(b) : NULL;
 					if (balias)
 						purple_notify_user_info_add_pair_plaintext(user_info, _("Alias"), balias);
 
-					if (!nlocs) {
+					if (!has_locations) {
 						purple_notify_user_info_add_pair_plaintext(user_info, NULL, _("Hidden or not logged-in"));
 					} else {
 						/* TODO: Need to escape the two strings that make up tmp? */
-						tmp = g_strdup_printf(_("<br>At %s since %s"),
-									  tree_child(tree_child(tree_child(tree_child(locations,2),0),0),2)->contents,
-									  tree_child(tree_child(tree_child(tree_child(locations,2),0),2),2)->contents);
+						tmp = g_strdup_printf(_("<br>At %s since %s"), locval,
+						                      tree_child_contents(tree_child(tree_child(tree_child(locations, 2), 0), 2), 2));
 						purple_notify_user_info_add_pair_html(user_info, _("Location"), tmp);
 						g_free(tmp);
 					}
 
-					purple_notify_userinfo(gc, b ? bname : user,
-							     user_info, NULL, NULL);
+					purple_notify_userinfo(gc, name, user_info, NULL, NULL);
 					purple_notify_user_info_destroy(user_info);
 				} else {
-					if (nlocs>0)
-						purple_protocol_got_user_status(purple_connection_get_account(gc), b ? bname : user, "available", NULL);
-					else
-						purple_protocol_got_user_status(purple_connection_get_account(gc), b ? bname : user, "offline", NULL);
+					purple_protocol_got_user_status(purple_connection_get_account(gc), name, has_locations ? "available" : "offline", NULL);
 				}
 			}
 			else if (!g_ascii_strncasecmp(spewtype,"subscribed",10)) {
