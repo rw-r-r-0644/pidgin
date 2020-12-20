@@ -425,7 +425,7 @@ int irc_cmd_ping(struct irc_conn *irc, const char *cmd, const char *target, cons
 		buf = irc_format(irc, "v:", "PING", stamp);
 		g_free(stamp);
 	} else {
-		stamp = g_strdup_printf("%lu", time(NULL));
+		stamp = g_strdup_printf("%" G_GUINT64_FORMAT, g_get_monotonic_time());
 		buf = irc_format(irc, "vv", "PING", stamp);
 		g_free(stamp);
 	}

@@ -168,7 +168,9 @@ static void jabber_iq_last_parse(JabberStream *js, const char *from,
 
 		query = purple_xmlnode_get_child(iq->node, "query");
 
-		idle_time = g_strdup_printf("%ld", js->idle ? time(NULL) - js->idle : 0);
+		idle_time =
+		        g_strdup_printf("%" G_GINT64_FORMAT,
+		                        (gint64)(js->idle ? time(NULL) - js->idle : 0));
 		purple_xmlnode_set_attrib(query, "seconds", idle_time);
 		g_free(idle_time);
 
