@@ -83,7 +83,6 @@ static void irc_dccsend_recv_init(PurpleXfer *xfer) {
 void irc_dccsend_recv(struct irc_conn *irc, const char *from, const char *msg) {
 	IrcXfer *xfer;
 	gchar **token;
-	struct in_addr addr;
 	GString *filename;
 	int i = 0;
 	guint32 nip;
@@ -133,8 +132,10 @@ void irc_dccsend_recv(struct irc_conn *irc, const char *from, const char *msg) {
 
 	nip = strtoul(token[i], NULL, 10);
 	if (nip) {
-		addr.s_addr = g_htonl(nip);
-		xfer->ip = g_strdup(inet_ntoa(addr));
+		GInetAddress *addr = g_inet_address_new_from_bytes(
+		        (const guchar *)&nip, G_SOCKET_FAMILY_IPV4);
+		xfer->ip = g_inet_address_to_string(addr);
+		g_object_unref(addr);
 	} else {
 		xfer->ip = g_strdup(token[i]);
 	}

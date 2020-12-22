@@ -198,17 +198,27 @@ _mdns_resolve_host_callback(DNSServiceRef sdRef, DNSServiceFlags flags,
 		delete_buddy = TRUE;
 	} else {
 		DNSServiceRef txt_query_sr;
+		gchar *ip = NULL;
 
 		/* finally, set up the continuous txt record watcher, and add the buddy to purple */
 		errorCode = DNSServiceQueryRecord(&txt_query_sr, kDNSServiceFlagsLongLivedQuery,
 				kDNSServiceInterfaceIndexAny, args->full_service_name, kDNSServiceType_TXT,
 				kDNSServiceClass_IN, _mdns_record_query_callback, args->bb);
 		if (errorCode == kDNSServiceErr_NoError) {
-			const char *ip = inet_ntoa(((struct sockaddr_in *) address)->sin_addr);
+			GSocketAddress *addr = g_socket_address_new_from_native(
+			        (gpointer)address, sizeof(struct sockaddr_in));
+			if (G_IS_INET_SOCKET_ADDRESS(addr)) {
+				GInetAddress *inet_addr = g_inet_socket_address_get_address(
+				        G_INET_SOCKET_ADDRESS(addr));
+				ip = g_inet_address_to_string(inet_addr);
+			}
+			g_clear_object(&addr);
+		}
 
+		if (ip) {
 			purple_debug_info("bonjour", "Found buddy %s at %s:%d\n", args->bb->name, ip, args->bb->port_p2pj);
 
-			args->bb->ips = g_slist_prepend(args->bb->ips, g_strdup(ip));
+			args->bb->ips = g_slist_prepend(args->bb->ips, ip);
 			args->res_data->ip = args->bb->ips->data;
 
 			args->res_data->txt_query = g_new(DnsSDServiceRefHandlerData, 1);
@@ -223,7 +233,6 @@ _mdns_resolve_host_callback(DNSServiceRef sdRef, DNSServiceFlags flags,
 			purple_debug_error("bonjour", "Unable to set up record watcher for buddy %s (%d)\n", args->bb->name, errorCode);
 			delete_buddy = TRUE;
 		}
-
 	}
 
 	cleanup:
