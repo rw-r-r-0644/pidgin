@@ -174,43 +174,6 @@ conf.set_quoted('PIDGIN_PLUGINDIR', PIDGIN_PLUGINDIR)
 FINCH_PLUGINDIR = abslibdir / 'finch-@0@'.format(purple_major_version)
 conf.set_quoted('FINCH_PLUGINDIR', FINCH_PLUGINDIR)
 
-# Check for inet_aton
-if not IS_WIN32
-	if not compiler.has_function('inet_aton')
-		if not compiler.has_function('inet_aton', args : '-lresolv')
-			# FIXME: Someone needs to link with -lresolv if needed.
-			error('inet_aton not found')
-		endif
-	endif
-endif
-if compiler.has_function('gethostent', args : '-lnsl')
-	conf.set('HAVE_LIBNSL', true)
-endif
-if IS_WIN32
-	conf.set('HAVE_GETADDRINFO', true)
-	conf.set('HAVE_INET_NTOP', true)
-else
-	if not compiler.has_function('socket')
-		if not compiler.has_function('socket', args : '-lsocket')
-			error('socket not found')
-		endif
-	endif
-	# If all goes well, by this point the previous two checks will have
-	# pulled in -lsocket and -lnsl if we need them.
-	if compiler.has_function('getaddrinfo')
-		conf.set('HAVE_GETADDRINFO', true)
-	else
-		if compiler.has_function('getaddrinfo', args : '-lsocket -lnsl')
-			conf.set('HAVE_GETADDRINFO', true)
-			# FIXME: LIBS += declare_dependency(link_with : ['socket', 'nsl'])
-		endif
-	endif
-	conf.set('HAVE_INET_NTOP',
-	    compiler.has_function('inet_ntop'))
-endif
-conf.set('HAVE_GETIFADDRS',
-    compiler.has_function('getifaddrs'))
-
 # Check for socklen_t (in Unix98)
 if IS_WIN32
 	socket_header = 'ws2tcpip.h'
@@ -235,15 +198,6 @@ endif
 conf.set('HAVE_STRUCT_SOCKADDR_SA_LEN',
     compiler.has_member('struct sockaddr', 'sa_len',
         prefix : '#include <@0@>'.format(socket_header)))
-
-# Check for v6-only sockets
-if IS_WIN32
-	header = 'ws2tcpip.h'
-else
-	header = 'netinet/in.h'
-endif
-conf.set('HAVE_IPV6_V6ONLY',
-    compiler.has_header_symbol(header, 'IPV6_V6ONLY'))
 
 # Windows and Haiku do not use libm for the math functions, they are part
 # of the C library
@@ -664,7 +618,7 @@ conf.set('HAVE_NETTLE', nettle.found())
 #######################################################################
 # Check for Cyrus-SASL (for xmpp/irc)
 #######################################################################
-foreach func : ['snprintf', 'connect']
+foreach func : ['snprintf']
 	conf.set('HAVE_' + func.to_upper(),
 	    compiler.has_function(func))
 endforeach

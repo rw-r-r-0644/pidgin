@@ -30,9 +30,6 @@
 #include <netinet/in.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
-#ifdef HAVE_GETIFADDRS
-#include <ifaddrs.h>
-#endif
 #else
 #include <nspapi.h>
 #endif
@@ -49,16 +46,6 @@
 #include "prefs.h"
 #include "stun.h"
 #include "upnp.h"
-
-/*
- * Calling sizeof(struct ifreq) isn't always correct on
- * Mac OS X (and maybe others).
- */
-#ifdef _SIZEOF_ADDR_IFREQ
-#  define HX_SIZE_OF_IFREQ(a) _SIZEOF_ADDR_IFREQ(a)
-#else
-#  define HX_SIZE_OF_IFREQ(a) sizeof(a)
-#endif
 
 static gboolean force_online = FALSE;
 

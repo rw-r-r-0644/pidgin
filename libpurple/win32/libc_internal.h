@@ -27,22 +27,7 @@
 G_BEGIN_DECLS
 
 /* sys/socket.h */
-int wpurple_socket(int domain, int style, int protocol);
-int wpurple_connect(int socket, struct sockaddr *addr, u_long length);
-int wpurple_getsockopt(int socket, int level, int optname, void *optval, socklen_t *optlenptr);
-int wpurple_setsockopt(int socket, int level, int optname, const void *optval, socklen_t optlen);
 int wpurple_getsockname (int socket, struct sockaddr *addr, socklen_t *lenptr);
-int wpurple_bind(int socket, struct sockaddr *addr, socklen_t length);
-int wpurple_listen(int socket, unsigned int n);
-int wpurple_sendto(int socket, const void *buf, size_t len, int flags, const struct sockaddr *to, socklen_t tolen);
-int wpurple_recv(int fd, void *buf, size_t len, int flags);
-int wpurple_send(int fd, const void *buf, unsigned int size, int flags);
-
-/* arpa/inet.h */
-int wpurple_inet_aton(const char *name, struct in_addr *addr);
-const char *
-wpurple_inet_ntop (int af, const void *src, char *dst, socklen_t cnt);
-int wpurple_inet_pton(int af, const char *src, void *dst);
 
 /* netdb.h */
 struct hostent* wpurple_gethostbyname(const char *name);
@@ -99,9 +84,6 @@ struct timezone {
 int wpurple_gettimeofday(struct timeval *p, struct timezone *z);
 
 /* unistd.h */
-int wpurple_read(int fd, void *buf, unsigned int size);
-int wpurple_write(int fd, const void *buf, unsigned int size);
-int wpurple_close(int fd);
 int wpurple_gethostname(char *name, size_t size);
 
 G_END_DECLS

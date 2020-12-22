@@ -42,100 +42,13 @@
 # define S_ISDIR(m) (((m)&S_IFDIR)==S_IFDIR)
 #endif
 
-/* helpers */
-static int wpurple_is_socket( int fd ) {
-	int optval;
-	int optlen = sizeof(int);
-
-	if( (getsockopt(fd, SOL_SOCKET, SO_TYPE, (void*)&optval, &optlen)) == SOCKET_ERROR ) {
-		int error = WSAGetLastError();
-		if( error == WSAENOTSOCK )
-			return FALSE;
-		else {
-                        purple_debug(PURPLE_DEBUG_WARNING, "wpurple", "wpurple_is_socket: getsockopt returned error: %d\n", error);
-			return FALSE;
-		}
-	}
-	return TRUE;
-}
-
 /* socket.h */
-int wpurple_socket (int namespace, int style, int protocol) {
-	int ret;
-
-	ret = socket( namespace, style, protocol );
-
-	if (ret == (int)INVALID_SOCKET) {
-		errno = WSAGetLastError();
-		return -1;
-	}
-	return ret;
-}
-
-int wpurple_connect(int socket, struct sockaddr *addr, u_long length) {
-	int ret;
-
-	ret = connect( socket, addr, length );
-
-	if( ret == SOCKET_ERROR ) {
-		errno = WSAGetLastError();
-		if( errno == WSAEWOULDBLOCK )
-			errno = WSAEINPROGRESS;
-		return -1;
-	}
-	return 0;
-}
-
-int wpurple_getsockopt(int socket, int level, int optname, void *optval, socklen_t *optlenptr) {
-	if(getsockopt(socket, level, optname, optval, optlenptr) == SOCKET_ERROR ) {
-		errno = WSAGetLastError();
-		return -1;
-	}
-	return 0;
-}
-
-int wpurple_setsockopt(int socket, int level, int optname, const void *optval, socklen_t optlen) {
-	if(setsockopt(socket, level, optname, optval, optlen) == SOCKET_ERROR ) {
-		errno = WSAGetLastError();
-		return -1;
-	}
-	return 0;
-}
-
 int wpurple_getsockname(int socket, struct sockaddr *addr, socklen_t *lenptr) {
         if(getsockname(socket, addr, lenptr) == SOCKET_ERROR) {
                 errno = WSAGetLastError();
                 return -1;
         }
         return 0;
-}
-
-int wpurple_bind(int socket, struct sockaddr *addr, socklen_t length) {
-        if(bind(socket, addr, length) == SOCKET_ERROR) {
-                errno = WSAGetLastError();
-                return -1;
-        }
-        return 0;
-}
-
-int wpurple_listen(int socket, unsigned int n) {
-        if(listen(socket, n) == SOCKET_ERROR) {
-                errno = WSAGetLastError();
-                return -1;
-        }
-        return 0;
-}
-
-int wpurple_sendto(int socket, const void *buf, size_t len, int flags, const struct sockaddr *to, socklen_t tolen) {
-	int ret;
-	if ((ret = sendto(socket, buf, len, flags, to, tolen)
-			) == SOCKET_ERROR) {
-		errno = WSAGetLastError();
-		if(errno == WSAEWOULDBLOCK || errno == WSAEINPROGRESS)
-			errno = EAGAIN;
-		return -1;
-	}
-	return ret;
 }
 
 /* fcntl.h */
@@ -238,96 +151,6 @@ int wpurple_ioctl(int fd, int command, void* val) {
 	}/*end switch*/
 }
 
-/* arpa/inet.h */
-int wpurple_inet_aton(const char *name, struct in_addr *addr) {
-	if((addr->s_addr = inet_addr(name)) == INADDR_NONE)
-		return 0;
-	else
-		return 1;
-}
-
-/* Thanks to GNU wget for this inet_ntop() implementation */
-const char *
-wpurple_inet_ntop (int af, const void *src, char *dst, socklen_t cnt)
-{
-  /* struct sockaddr can't accomodate struct sockaddr_in6. */
-  union {
-    struct sockaddr_in6 sin6;
-    struct sockaddr_in sin;
-  } sa;
-  DWORD dstlen = cnt;
-  size_t srcsize;
-
-  ZeroMemory(&sa, sizeof(sa));
-  switch (af)
-    {
-    case AF_INET:
-      sa.sin.sin_family = AF_INET;
-      sa.sin.sin_addr = *(struct in_addr *) src;
-      srcsize = sizeof (sa.sin);
-      break;
-    case AF_INET6:
-      sa.sin6.sin6_family = AF_INET6;
-      sa.sin6.sin6_addr = *(struct in6_addr *) src;
-      srcsize = sizeof (sa.sin6);
-      break;
-    default:
-      abort ();
-    }
-
-  if (WSAAddressToString ((struct sockaddr *) &sa, srcsize, NULL, dst, &dstlen) != 0)
-    {
-      errno = WSAGetLastError();
-      return NULL;
-    }
-  return (const char *) dst;
-}
-
-int
-wpurple_inet_pton(int af, const char *src, void *dst)
-{
-	/* struct sockaddr can't accomodate struct sockaddr_in6. */
-	union {
-		struct sockaddr_in6 sin6;
-		struct sockaddr_in sin;
-	} sa;
-	int srcsize;
-	
-	switch(af)
-	{
-		case AF_INET:
-			sa.sin.sin_family = AF_INET;
-			srcsize = sizeof (sa.sin);
-		break;
-		case AF_INET6:
-			sa.sin6.sin6_family = AF_INET6;
-			srcsize = sizeof (sa.sin6);
-		break;
-		default:
-			errno = WSAEPFNOSUPPORT;
-			return -1;
-	}
-	
-	if (WSAStringToAddress((LPTSTR)src, af, NULL, (struct sockaddr *) &sa, &srcsize) != 0)
-	{
-		errno = WSAGetLastError();
-		return -1;
-	}
-	
-	switch(af)
-	{
-		case AF_INET:
-			memcpy(dst, &sa.sin.sin_addr, sizeof(sa.sin.sin_addr));
-		break;
-		case AF_INET6:
-			memcpy(dst, &sa.sin6.sin6_addr, sizeof(sa.sin6.sin6_addr));
-		break;
-	}
-	
-	return 1;
-}
-
-
 /* netdb.h */
 struct hostent* wpurple_gethostbyname(const char *name) {
 	struct hostent *hp;
@@ -341,119 +164,10 @@ struct hostent* wpurple_gethostbyname(const char *name) {
 
 /* unistd.h */
 
-/*
- *  We need to figure out whether fd is a file or socket handle.
- */
-int wpurple_read(int fd, void *buf, unsigned int size) {
-	int ret;
-
-	if (fd < 0) {
-		errno = EBADF;
-		g_return_val_if_reached(-1);
-	}
-
-	if(wpurple_is_socket(fd)) {
-		if((ret = recv(fd, buf, size, 0)) == SOCKET_ERROR) {
-			errno = WSAGetLastError();
-			if(errno == WSAEWOULDBLOCK || errno == WSAEINPROGRESS)
-				errno = EAGAIN;
-			return -1;
-		}
-		else {
-			/* success reading socket */
-			return ret;
-		}
-	} else {
-		/* fd is not a socket handle.. pass it off to read */
-		return _read(fd, buf, size);
-	}
-}
-
-int wpurple_send(int fd, const void *buf, unsigned int size, int flags) {
-	int ret;
-
-	ret = send(fd, buf, size, flags);
-
-	if (ret == SOCKET_ERROR) {
-		errno = WSAGetLastError();
-		if(errno == WSAEWOULDBLOCK || errno == WSAEINPROGRESS)
-			errno = EAGAIN;
-		return -1;
-	}
-	return ret;
-}
-
-int wpurple_write(int fd, const void *buf, unsigned int size) {
-
-	if (fd < 0) {
-		errno = EBADF;
-		g_return_val_if_reached(-1);
-	}
-
-	if(wpurple_is_socket(fd))
-		return wpurple_send(fd, buf, size, 0);
-	else
-		return _write(fd, buf, size);
-}
-
-int wpurple_recv(int fd, void *buf, size_t len, int flags) {
-	int ret;
-
-	if((ret = recv(fd, buf, len, flags)) == SOCKET_ERROR) {
-			errno = WSAGetLastError();
-			if(errno == WSAEWOULDBLOCK || errno == WSAEINPROGRESS)
-				errno = EAGAIN;
-			return -1;
-	} else {
-		return ret;
-	}
-}
-
-int wpurple_close(int fd) {
-	int ret;
-
-	if (fd < 0) {
-		errno = EBADF;
-		g_return_val_if_reached(-1);
-	}
-
-	if( wpurple_is_socket(fd) ) {
-		if( (ret = closesocket(fd)) == SOCKET_ERROR ) {
-			errno = WSAGetLastError();
-			return -1;
-		}
-		else
-			return 0;
-	}
-	else
-		return _close(fd);
-}
-
 int wpurple_gethostname(char *name, size_t size) {
         if(gethostname(name, size) == SOCKET_ERROR) {
                 errno = WSAGetLastError();
 			return -1;
         }
         return 0;
-}
-
-/* sys/time.h */
-
-int wpurple_gettimeofday(struct timeval *p, struct timezone *z) {
-	int res = 0;
-	struct _timeb timebuffer;
-
-	if (z != 0) {
-		_tzset();
-		z->tz_minuteswest = _timezone/60;
-		z->tz_dsttime = _daylight;
-	}
-
-	if (p != 0) {
-		_ftime(&timebuffer);
-		p->tv_sec = timebuffer.time;			/* seconds since 1-1-1970 */
-		p->tv_usec = timebuffer.millitm*1000; 	/* microseconds */
-	}
-
-	return res;
 }

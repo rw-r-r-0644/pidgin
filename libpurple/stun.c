@@ -31,11 +31,6 @@
 
 #include <gio/gio.h>
 
-/* Solaris */
-#if defined (__SVR4) && defined (__sun)
-#include <sys/sockio.h>
-#endif
-
 #include "debug.h"
 #include "account.h"
 #include "network.h"
@@ -47,10 +42,6 @@
 #define MSGTYPE_BINDINGRESPONSE 0x0101
 
 #define ATTRIB_MAPPEDADDRESS 0x0001
-
-#ifndef _SIZEOF_ADDR_IFREQ
-#  define _SIZEOF_ADDR_IFREQ(a) sizeof(a)
-#endif
 
 struct stun_header {
 	guint16 type;
