@@ -23,12 +23,6 @@
 #include <config.h>
 
 #include <sys/types.h>
-#ifndef _WIN32
-# include <arpa/inet.h>
-# include <netdb.h>
-# include <sys/socket.h>
-#endif
-#include <errno.h>
 
 #include <nice.h>
 
@@ -36,14 +30,6 @@
 
 #include "bonjour.h"
 #include "bonjour_ft.h"
-
-typedef union
-{
-	struct sockaddr sa;
-	struct sockaddr_in in;
-	struct sockaddr_in6 in6;
-	struct sockaddr_storage storage;
-} common_sockaddr_t;
 
 static void
 bonjour_bytestreams_init(PurpleXfer *xfer);

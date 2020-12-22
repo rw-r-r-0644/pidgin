@@ -46,35 +46,8 @@ G_BEGIN_DECLS
 #endif
 
 /* sys/socket.h */
-#define socket( domain, style, protocol ) \
-wpurple_socket( domain, style, protocol )
-
-#define connect( socket, addr, length ) \
-wpurple_connect( socket, addr, length )
-
-#define getsockopt( socket, level, optname, optval, optlenptr ) \
-wpurple_getsockopt( socket, level, optname, optval, optlenptr )
-
-#define setsockopt( socket, level, optname, optval, optlen ) \
-wpurple_setsockopt( socket, level, optname, optval, optlen )
-
 #define getsockname( socket, addr, lenptr ) \
 wpurple_getsockname( socket, addr, lenptr )
-
-#define bind( socket, addr, length ) \
-wpurple_bind( socket, addr, length )
-
-#define listen( socket, n ) \
-wpurple_listen( socket, n )
-
-#define sendto(socket, buf, len, flags, to, tolen) \
-wpurple_sendto(socket, buf, len, flags, to, tolen)
-
-#define recv(fd, buf, len, flags) \
-wpurple_recv(fd, buf, len, flags)
-
-#define send(socket, buf, buflen, flags) \
-wpurple_send(socket, buf, buflen, flags)
 
 /* sys/ioctl.h */
 #define ioctl( fd, command, val ) \
@@ -84,33 +57,9 @@ wpurple_ioctl( fd, command, val )
 #define fcntl( fd, command, ... ) \
 wpurple_fcntl( fd, command, ##__VA_ARGS__ )
 
-/* arpa/inet.h */
-#define inet_aton( name, addr ) \
-wpurple_inet_aton( name, addr )
-
-#define inet_ntop( af, src, dst, cnt ) \
-wpurple_inet_ntop( af, src, dst, cnt )
-
-#define inet_pton( af, src, dst ) \
-wpurple_inet_pton( af, src, dst )
-
 /* netdb.h */
 #define gethostbyname( name ) \
 wpurple_gethostbyname( name )
-
-/* netinet/in.h */
-#define ntohl( netlong ) \
-(unsigned int)ntohl( netlong )
-
-/* unistd.h */
-#define read( fd, buf, buflen ) \
-wpurple_read( fd, buf, buflen )
-
-#define write( socket, buf, buflen ) \
-wpurple_write( socket, buf, buflen )
-
-#define close( fd ) \
-wpurple_close( fd )
 
 #define gethostname( name, size ) \
 wpurple_gethostname( name, size )

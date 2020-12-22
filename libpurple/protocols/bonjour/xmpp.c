@@ -24,37 +24,18 @@
 
 #include <purple.h>
 
-#ifndef _WIN32
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#endif
 #include <sys/types.h>
-
-/* Solaris */
-#if defined (__SVR4) && defined (__sun)
-#include <sys/sockio.h>
-#endif
 
 #include <glib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <fcntl.h>
 
 #include "xmpp.h"
 #include "parser.h"
 #include "bonjour.h"
 #include "buddy.h"
 #include "bonjour_ft.h"
-
-#ifdef _SIZEOF_ADDR_IFREQ
-#  define HX_SIZE_OF_IFREQ(a) _SIZEOF_ADDR_IFREQ(a)
-#else
-#  define HX_SIZE_OF_IFREQ(a) sizeof(a)
-#endif
 
 #define STREAM_END "</stream:stream>"
 /* TODO: specify version='1.0' and send stream features */
