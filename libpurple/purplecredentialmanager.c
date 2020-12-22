@@ -28,6 +28,7 @@
 enum {
 	SIG_PROVIDER_REGISTERED,
 	SIG_PROVIDER_UNREGISTERED,
+	SIG_ACTIVE_PROVIDER_CHANGED,
 	N_SIGNALS,
 };
 static guint signals[N_SIGNALS] = {0, };
@@ -186,6 +187,8 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 	 * @provider: The #PurpleCredentialProvider that was registered.
 	 *
 	 * Emitted after @provider has been registered in @manager.
+	 *
+	 * Since: 3.0.0
 	 */
 	signals[SIG_PROVIDER_REGISTERED] = g_signal_new(
 		"provider-registered",
@@ -205,6 +208,8 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 	 * @provider: The #PurpleCredentialProvider that was unregistered.
 	 *
 	 * Emitted after @provider has been unregistered from @manager.
+	 *
+	 * Since: 3.0.0
 	 */
 	signals[SIG_PROVIDER_UNREGISTERED] = g_signal_new(
 		"provider-unregistered",
@@ -216,6 +221,29 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 		NULL,
 		G_TYPE_NONE,
 		1,
+		PURPLE_TYPE_CREDENTIAL_PROVIDER);
+
+	/**
+	 * PurpleCredentialManager::active-provider-changed:
+	 * @manager: The #PurpleCredentialManager instance.
+	 * @old: The #PurpleCredentialProvider that was previously active.
+	 * @current: The #PurpleCredenetialProvider that is now currently active.
+	 *
+	 * Emitted after @provider has become the active provider for @manager.
+	 *
+	 * Since: 3.0.0
+	 */
+	signals[SIG_ACTIVE_PROVIDER_CHANGED] = g_signal_new(
+		"active-provider-changed",
+		G_OBJECT_CLASS_TYPE(klass),
+		G_SIGNAL_RUN_LAST,
+		G_STRUCT_OFFSET(PurpleCredentialManagerClass, active_provider_changed),
+		NULL,
+		NULL,
+		NULL,
+		G_TYPE_NONE,
+		2,
+		PURPLE_TYPE_CREDENTIAL_PROVIDER,
 		PURPLE_TYPE_CREDENTIAL_PROVIDER);
 }
 
@@ -316,28 +344,33 @@ purple_credential_manager_set_active_provider(PurpleCredentialManager *manager,
                                               const gchar *id, GError **error)
 {
 	PurpleCredentialManagerPrivate *priv = NULL;
-	PurpleCredentialProvider *provider = NULL;
+	PurpleCredentialProvider *old = NULL, *provider = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), FALSE);
 
 	priv = purple_credential_manager_get_instance_private(manager);
 
-	/* Unset the active provider if the id is NULL. */
-	if(id == NULL) {
-		g_clear_object(&priv->active_provider);
+	/* First look up the new provider if we're given one. */
+	if(id != NULL) {
+		provider = g_hash_table_lookup(priv->providers, id);
+		if(!PURPLE_IS_CREDENTIAL_PROVIDER(provider)) {
+			g_set_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
+			            "no credential provider found with id %s", id);
 
-		return TRUE;
+			return FALSE;
+		}
 	}
 
-	provider = g_hash_table_lookup(priv->providers, id);
-	if(!PURPLE_IS_CREDENTIAL_PROVIDER(provider)) {
-		g_set_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
-		            "no credential provider found with id %s", id);
-
-		return FALSE;
+	if(PURPLE_IS_CREDENTIAL_PROVIDER(priv->active_provider)) {
+		old = PURPLE_CREDENTIAL_PROVIDER(g_object_ref(priv->active_provider));
 	}
 
-	g_set_object(&priv->active_provider, provider);
+	if(g_set_object(&priv->active_provider, provider)) {
+		g_signal_emit(G_OBJECT(manager), signals[SIG_ACTIVE_PROVIDER_CHANGED],
+		              0, old, priv->active_provider);
+	}
+
+	g_clear_object(&old);
 
 	return TRUE;
 }
