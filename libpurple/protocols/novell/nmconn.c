@@ -19,7 +19,9 @@
  */
 
 #include <glib.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <string.h>
 #include <ctype.h>
 

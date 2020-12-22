@@ -23,6 +23,8 @@
 # include <config.h>
 #endif
 
+#include <purple.h>
+
 #include "gtkdnd-hints.h"
 
 #include <gdk/gdk.h>

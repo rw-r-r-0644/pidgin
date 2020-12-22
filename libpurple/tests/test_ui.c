@@ -114,6 +114,6 @@ test_ui_purple_init(void) {
 	purple_prefs_load();
 
 	/* Load the desired plugins. The client should save the list of loaded plugins in
-	 * the preferences using purple_plugins_save_loaded(PLUGIN_SAVE_PREF) */
-	purple_plugins_load_saved(TEST_DATA_DIR);
+	 * the preferences using purple_plugins_save_loaded() */
+	purple_plugins_load_saved("/purple/test_ui/plugins/saved");
 }
