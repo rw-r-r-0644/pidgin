@@ -2315,7 +2315,7 @@ on_volume_change_cb(GtkWidget *w, gdouble value, gpointer data)
 
 	volume = gst_bin_get_by_name(GST_BIN(win->vv.voice.pipeline), "volume");
 	g_object_set(volume, "volume",
-	             gtk_scale_button_get_value(GTK_SCALE_BUTTON(w)) * 10.0, NULL);
+	             gtk_scale_button_get_value(GTK_SCALE_BUTTON(w)) / 100.0, NULL);
 }
 
 static gdouble
