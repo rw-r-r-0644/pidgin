@@ -115,8 +115,9 @@ endif
 # Checks for header files.
 # AC_HEADER_SYS_WAIT:
 conf.set('HAVE_SYS_WAIT_H', compiler.has_header('sys/wait.h'))
+conf.set('HAVE_UNISTD_H', compiler.has_header('unistd.h'))
 
-foreach h : ['fcntl.h', 'unistd.h', 'stdint.h']
+foreach h : ['fcntl.h', 'stdint.h']
 	if compiler.has_header(h)
 		conf.set('HAVE_' + h.to_upper().underscorify(), true)
 	else
@@ -201,7 +202,7 @@ conf.set('HAVE_STRUCT_SOCKADDR_SA_LEN',
 
 # Windows and Haiku do not use libm for the math functions, they are part
 # of the C library
-math = compiler.find_library('m')
+math = compiler.find_library('m', required: false)
 
 # before gettexting, in case iconv matters
 IOKIT = []

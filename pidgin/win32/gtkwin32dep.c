@@ -18,11 +18,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
-#include "internal.h"
-
 #include <io.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <windows.h>
 #include <winuser.h>
 #include <shellapi.h>
 

@@ -20,9 +20,7 @@
 #ifndef PURPLE_BONJOUR_DNS_SD_PROXY_H
 #define PURPLE_BONJOUR_DNS_SD_PROXY_H
 
-#ifndef _MSC_VER
 #include <stdint.h>
-#endif
 
 /* The following is a subset of Apple's dns_sd.h file
  * http://www.opensource.apple.com/source/mDNSResponder/mDNSResponder-333.10/mDNSShared/dns_sd.h

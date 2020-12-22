@@ -76,10 +76,12 @@
 #  include <unistd.h>
 # endif
 #endif
-#include "untar.h"
 #include <glib.h>
-
 #include <glib/gstdio.h>
+
+#include <purple.h>
+
+#include "untar.h"
 
 #define untar_error( error, args... )      purple_debug(PURPLE_DEBUG_ERROR, "untar", error, ## args )
 #define untar_warning( warning, args... )  purple_debug(PURPLE_DEBUG_WARNING, "untar", warning, ## args )

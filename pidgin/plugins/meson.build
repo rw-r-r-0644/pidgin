@@ -34,7 +34,8 @@ if PLUGINS
 		transparency = library('transparency', 'transparency.c',
 			dependencies : [libpurple_dep, libpidgin_dep, glib],
 			name_prefix : '',
-			install : true, install_dir : PIDGIN_PLUGINDIR)
+			build_by_default : false,
+			install : false, install_dir : PIDGIN_PLUGINDIR)
 	endif
 
 	if enable_unity

@@ -21,6 +21,7 @@
 
 #include "smiley-custom.h"
 
+#include "internal.h"
 #include "debug.h"
 #include "util.h"
 
