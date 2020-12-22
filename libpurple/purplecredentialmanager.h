@@ -92,6 +92,7 @@ struct _PurpleCredentialManagerClass {
 	/*< public >*/
 	void (*provider_registered)(PurpleCredentialManager *manager, PurpleCredentialProvider *provider);
 	void (*provider_unregistered)(PurpleCredentialManager *manager, PurpleCredentialProvider *provider);
+	void (*active_provider_changed)(PurpleCredentialManager *manager, PurpleCredentialProvider *old, PurpleCredentialProvider *current);
 
 	/*< private >*/
 	gpointer reserved[8];
