@@ -1367,15 +1367,21 @@ xep_iq_send_and_free(XepIq *iq)
 
 void
 append_iface_if_linklocal(char *ip, guint32 interface_param) {
-	struct in6_addr in6_addr;
+	GInetAddress *addr;
 	int len_remain = INET6_ADDRSTRLEN - strlen(ip);
 
 	if (len_remain <= 1)
 		return;
 
-	if (inet_pton(AF_INET6, ip, &in6_addr) != 1 ||
-	    !IN6_IS_ADDR_LINKLOCAL(&in6_addr))
+	addr = g_inet_address_new_from_string(ip);
+	if (addr == NULL ||
+	    g_inet_address_get_family(addr) != G_SOCKET_FAMILY_IPV6 ||
+	    !g_inet_address_get_is_link_local(addr))
+	{
+		g_clear_object(&addr);
 		return;
+	}
+	g_clear_object(&addr);
 
 	g_snprintf(ip + strlen(ip), len_remain, "%%%d", interface_param);
 }

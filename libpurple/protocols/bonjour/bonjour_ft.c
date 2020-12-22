@@ -592,14 +592,20 @@ add_ipv6_link_local_ifaces(PurpleXmlNode *cur_streamhost, const char *host,
 			   PurpleBuddy *pb)
 {
 	PurpleXmlNode *new_streamhost = NULL;
-	struct in6_addr in6_addr;
+	GInetAddress *addr;
 	BonjourBuddy *bb;
 	GSList *ip_elem;
 
-	if (inet_pton(AF_INET6, host, &in6_addr) != 1 ||
-	    !IN6_IS_ADDR_LINKLOCAL(&in6_addr) ||
+	addr = g_inet_address_new_from_string(host);
+	if (addr == NULL ||
+	    g_inet_address_get_family(addr) != G_SOCKET_FAMILY_IPV6 ||
+	    !g_inet_address_get_is_link_local(addr) ||
 	    strchr(host, '%'))
+	{
+		g_clear_object(&addr);
 		return FALSE;
+	}
+	g_clear_object(&addr);
 
 	bb = purple_buddy_get_protocol_data(pb);
 
