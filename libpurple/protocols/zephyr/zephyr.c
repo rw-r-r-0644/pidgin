@@ -786,6 +786,20 @@ message_failed(PurpleConnection *gc, ZNotice_t *notice)
 	}
 }
 
+static PurpleBuddy *
+find_buddy(const zephyr_account *zephyr, const char *user)
+{
+	PurpleBuddy *buddy = purple_blist_find_buddy(zephyr->account, user);
+
+	if (buddy == NULL) {
+		char *stripped_user = zephyr_strip_local_realm(zephyr, user);
+		buddy = purple_blist_find_buddy(zephyr->account, stripped_user);
+		g_free(stripped_user);
+	}
+
+	return buddy;
+}
+
 static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 {
 	ZNotice_t notice;
@@ -806,12 +820,7 @@ static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 			if (ZParseLocations(&notice, NULL, &nlocs, &user) != ZERR_NONE)
 				return;
 
-			if ((b = purple_blist_find_buddy(purple_connection_get_account(gc), user)) == NULL) {
-				char* stripped_user = zephyr_strip_local_realm(zephyr,user);
-				b = purple_blist_find_buddy(purple_connection_get_account(gc),stripped_user);
-				g_free(stripped_user);
-			}
-
+			b = find_buddy(zephyr, user);
 			bname = b ? purple_buddy_get_name(b) : NULL;
 			if ((b && pending_zloc(zephyr,bname)) || pending_zloc(zephyr,user)) {
 				ZLocations_t locs;
@@ -1196,19 +1205,16 @@ static gint check_notify_tzc(gpointer data)
 				gboolean has_locations;
 				parse_tree *locations;
 				gchar *locval;
-				user = tree_child_contents(find_node(newparsetree, "user"), 2);
 
-				if ((b = purple_blist_find_buddy(purple_connection_get_account(gc), user)) == NULL) {
-					gchar *stripped_user = zephyr_strip_local_realm(zephyr,user);
-					b = purple_blist_find_buddy(purple_connection_get_account(gc), stripped_user);
-					g_free(stripped_user);
-				}
+				user = tree_child_contents(find_node(newparsetree, "user"), 2);
+				b = find_buddy(zephyr, user);
+				bname = b ? purple_buddy_get_name(b) : NULL;
+				name = b ? bname : user;
+
 				locations = find_node(newparsetree,"locations");
 				locval = tree_child_contents(tree_child(tree_child(tree_child(locations, 2), 0), 0), 2);
 				has_locations = (locval && *locval && !purple_strequal(locval, " "));
-				bname = b ? purple_buddy_get_name(b) : NULL;
-				name = b ? bname : user;
-				if ((b && pending_zloc(zephyr,bname)) || pending_zloc(zephyr,user) || pending_zloc(zephyr,local_zephyr_normalize(zephyr,user))){
+				if ((b && pending_zloc(zephyr, bname)) || pending_zloc(zephyr, user)) {
 					PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
 					char *tmp;
 					const char *balias;
@@ -1546,16 +1552,12 @@ process_anyone(const zephyr_account *zephyr)
 	if ((fd = g_fopen(filename, "r")) != NULL) {
 		while (fgets(buff, BUFSIZ, fd)) {
 			strip_comments(buff);
-			if (buff[0]) {
-				if (!purple_blist_find_buddy(zephyr->account, buff)) {
-					char *stripped_user = zephyr_strip_local_realm(zephyr,buff);
-					purple_debug_info("zephyr","stripped_user %s\n",stripped_user);
-					if (!purple_blist_find_buddy(zephyr->account, stripped_user)) {
-						b = purple_buddy_new(zephyr->account, stripped_user, NULL);
-						purple_blist_add_buddy(b, NULL, g, NULL);
-					}
-					g_free(stripped_user);
-				}
+			if (*buff && !find_buddy(zephyr, buff)) {
+				char *stripped_user = zephyr_strip_local_realm(zephyr, buff);
+				purple_debug_info("zephyr", "stripped_user %s\n", stripped_user);
+				b = purple_buddy_new(zephyr->account, stripped_user, NULL);
+				purple_blist_add_buddy(b, NULL, g, NULL);
+				g_free(stripped_user);
 			}
 		}
 		fclose(fd);
