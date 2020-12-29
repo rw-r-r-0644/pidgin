@@ -1,4 +1,4 @@
-IRCSOURCES = [
+IRC_SOURCES = [
 	'cmds.c',
 	'dcc_send.c',
 	'irc.c',
@@ -8,7 +8,7 @@ IRCSOURCES = [
 ]
 
 if DYNAMIC_IRC
-	irc_prpl = shared_library('irc', IRCSOURCES,
+	irc_prpl = shared_library('irc', IRC_SOURCES,
 	    dependencies : [sasl, libpurple_dep, glib, gio, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 endif

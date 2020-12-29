@@ -1,4 +1,4 @@
-SILCSOURCES = [
+SILC_SOURCES = [
 	'buddy.c',
 	'chat.c',
 	'ft.c',
@@ -12,7 +12,7 @@ SILCSOURCES = [
 ]
 
 if DYNAMIC_SILC
-	silc_prpl = shared_library('silcpurple', SILCSOURCES,
+	silc_prpl = shared_library('silcpurple', SILC_SOURCES,
 	    dependencies : [silc, libpurple_dep, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 endif

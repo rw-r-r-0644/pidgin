@@ -2,7 +2,7 @@
 # Check for Internationalized Domain Name support
 #######################################################################
 
-JABBERSOURCES = [
+JABBER_SOURCES = [
 	'adhoccommands.c',
 	'adhoccommands.h',
 	'auth.c',
@@ -97,7 +97,7 @@ JABBERSOURCES = [
 ]
 
 if sasl.found()
-	JABBERSOURCES += ['auth_cyrus.c']
+	JABBER_SOURCES += ['auth_cyrus.c']
 endif
 
 if IS_WIN32
@@ -109,7 +109,7 @@ endif
 if DYNAMIC_JABBER
 	idn = dependency('libidn', version : '>= 0.0.0')
 
-	jabber_prpl = shared_library('jabber', JABBERSOURCES,
+	jabber_prpl = shared_library('jabber', JABBER_SOURCES,
 	    link_args : jabber_link_args,
 	    dependencies : [gstreamer, idn, libxml, sasl, libpurple_dep, libsoup, glib, gio, math, nice, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)

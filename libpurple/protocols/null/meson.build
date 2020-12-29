@@ -1,11 +1,11 @@
-NULLSOURCES = [
+NULL_SOURCES = [
 	'nullprpl.h',
 	'nullprpl.c'
 ]
 
 # nullprpl isn't built by default; when it is built, it's dynamically linked
 if DYNAMIC_NULL
-	null_prpl = shared_library('null', NULLSOURCES,
+	null_prpl = shared_library('null', NULL_SOURCES,
 	    dependencies : [libpurple_dep, glib],
 	    install : false, install_dir : PURPLE_PLUGINDIR)
 endif

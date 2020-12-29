@@ -1,4 +1,4 @@
-NOVELLSOURCES = [
+NOVELL_SOURCES = [
 	'nmfield.h',
 	'nmfield.c',
 	'nmconn.h',
@@ -24,7 +24,7 @@ NOVELLSOURCES = [
 ]
 
 if DYNAMIC_NOVELL
-	novell_prpl = shared_library('novell', NOVELLSOURCES,
+	novell_prpl = shared_library('novell', NOVELL_SOURCES,
 	    dependencies : [libpurple_dep, glib, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 endif

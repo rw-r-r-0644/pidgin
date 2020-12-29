@@ -1,4 +1,4 @@
-BONJOURSOURCES = [
+BONJOUR_SOURCES = [
 	'bonjour.c',
 	'bonjour.h',
 	'buddy.c',
@@ -16,15 +16,15 @@ BONJOURSOURCES = [
 ]
 
 if IS_WIN32
-	BONJOURSOURCES += ['dns_sd_proxy.c', 'mdns_dns_sd.c']
+	BONJOUR_SOURCES += ['dns_sd_proxy.c', 'mdns_dns_sd.c']
 	bonjour_link_args = ['-lnetapi32']
 else
-	BONJOURSOURCES += ['mdns_avahi.c']
+	BONJOUR_SOURCES += ['mdns_avahi.c']
 	bonjour_link_args = []
 endif
 
 if DYNAMIC_BONJOUR
-	bonjour_prpl = shared_library('bonjour', BONJOURSOURCES,
+	bonjour_prpl = shared_library('bonjour', BONJOUR_SOURCES,
 	    link_args : bonjour_link_args,
 	    dependencies : [libxml, avahi, libpurple_dep, glib, nice, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
