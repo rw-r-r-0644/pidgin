@@ -1,4 +1,4 @@
-GGSOURCES = [
+GG_SOURCES = [
 	'avatar.c',
 	'avatar.h',
 	'blist.c',
@@ -52,7 +52,7 @@ GGSOURCES = [
 ]
 
 if DYNAMIC_GG
-	gg_prpl = shared_library('gg', GGSOURCES,
+	gg_prpl = shared_library('gg', GG_SOURCES,
 	    dependencies : [libgadu, json, libpurple_dep, libsoup, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 endif

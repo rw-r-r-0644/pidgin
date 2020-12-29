@@ -1,4 +1,4 @@
-FACEBOOKSOURCES = [
+FACEBOOK_SOURCES = [
 	'api.c',
 	'api.h',
 	'data.c',
@@ -19,7 +19,7 @@ FACEBOOKSOURCES = [
 ]
 
 if DYNAMIC_FACEBOOK
-	facebook_prpl = shared_library('facebook', FACEBOOKSOURCES,
+	facebook_prpl = shared_library('facebook', FACEBOOK_SOURCES,
 	    dependencies : [json, libpurple_dep, libsoup, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 
