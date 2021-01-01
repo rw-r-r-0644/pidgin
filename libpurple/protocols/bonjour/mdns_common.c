@@ -19,10 +19,22 @@
 #include <purple.h>
 
 #include "mdns_common.h"
-#include "mdns_interface.h"
 #include "bonjour.h"
 #include "buddy.h"
 
+
+/****************************
+ * mdns_interface functions *
+ ****************************/
+
+mdns_init_session_func *_mdns_init_session = NULL;
+mdns_publish_func *_mdns_publish = NULL;
+mdns_browse_func *_mdns_browse = NULL;
+mdns_stop_func *_mdns_stop = NULL;
+mdns_set_buddy_icon_data_func *_mdns_set_buddy_icon_data = NULL;
+mdns_init_buddy_func *_mdns_init_buddy = NULL;
+mdns_delete_buddy_func *_mdns_delete_buddy = NULL;
+mdns_retrieve_buddy_icon_func *_mdns_retrieve_buddy_icon = NULL;
 
 /**
  * Allocate space for the dns-sd data.

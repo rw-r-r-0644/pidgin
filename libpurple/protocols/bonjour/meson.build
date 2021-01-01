@@ -7,7 +7,6 @@ BONJOUR_SOURCES = [
 	'xmpp.h',
 	'mdns_common.c',
 	'mdns_common.h',
-	'mdns_interface.h',
 	'mdns_types.h',
 	'parser.c',
 	'parser.h',
@@ -16,7 +15,10 @@ BONJOUR_SOURCES = [
 ]
 
 if IS_WIN32
-	BONJOUR_SOURCES += ['dns_sd_proxy.c', 'mdns_dns_sd.c']
+	BONJOUR_SOURCES += [
+		'dns_sd_proxy.c', 'dns_sd_proxy.h', 'mdns_dns_sd.c', 'mdns_dns_sd.h',
+		'mdns_win32.c'
+	]
 	bonjour_link_args = ['-lnetapi32']
 else
 	BONJOUR_SOURCES += ['mdns_avahi.c']
