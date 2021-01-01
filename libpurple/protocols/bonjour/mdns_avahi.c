@@ -16,7 +16,6 @@
 
 #include <purple.h>
 
-#include "mdns_interface.h"
 #include "buddy.h"
 #include "bonjour.h"
 
@@ -398,7 +397,9 @@ _buddy_icon_record_cb(AvahiRecordBrowser *b, AvahiIfIndex interface, AvahiProtoc
  * mdns_interface functions *
  ****************************/
 
-gboolean _mdns_init_session(BonjourDnsSd *data) {
+static gboolean
+avahi_mdns_init_session(BonjourDnsSd *data)
+{
 	AvahiSessionImplData *idata = g_new0(AvahiSessionImplData, 1);
 	const AvahiPoll *poll_api;
 	int error;
@@ -429,7 +430,9 @@ gboolean _mdns_init_session(BonjourDnsSd *data) {
 	return TRUE;
 }
 
-gboolean _mdns_publish(BonjourDnsSd *data, PublishType type, GSList *records) {
+static gboolean
+avahi_mdns_publish(BonjourDnsSd *data, PublishType type, GSList *records)
+{
 	int publish_result = 0;
 	AvahiSessionImplData *idata = data->mdns_impl_data;
 	AvahiStringList *lst = NULL;
@@ -492,7 +495,9 @@ gboolean _mdns_publish(BonjourDnsSd *data, PublishType type, GSList *records) {
 	return TRUE;
 }
 
-gboolean _mdns_browse(BonjourDnsSd *data) {
+static gboolean
+avahi_mdns_browse(BonjourDnsSd *data)
+{
 	AvahiSessionImplData *idata = data->mdns_impl_data;
 
 	g_return_val_if_fail(idata != NULL, FALSE);
@@ -509,7 +514,9 @@ gboolean _mdns_browse(BonjourDnsSd *data) {
 	return TRUE;
 }
 
-gboolean _mdns_set_buddy_icon_data(BonjourDnsSd *data, gconstpointer avatar_data, gsize avatar_len) {
+static gboolean
+avahi_mdns_set_buddy_icon_data(BonjourDnsSd *data, gconstpointer avatar_data, gsize avatar_len)
+{
 	AvahiSessionImplData *idata = data->mdns_impl_data;
 
 	if (idata == NULL || idata->client == NULL)
@@ -574,7 +581,9 @@ gboolean _mdns_set_buddy_icon_data(BonjourDnsSd *data, gconstpointer avatar_data
 	return TRUE;
 }
 
-void _mdns_stop(BonjourDnsSd *data) {
+static void
+avahi_mdns_stop(BonjourDnsSd *data)
+{
 	AvahiSessionImplData *idata = data->mdns_impl_data;
 
 	if (idata == NULL || idata->client == NULL)
@@ -591,11 +600,15 @@ void _mdns_stop(BonjourDnsSd *data) {
 	data->mdns_impl_data = NULL;
 }
 
-void _mdns_init_buddy(BonjourBuddy *buddy) {
+static void
+avahi_mdns_init_buddy(BonjourBuddy *buddy)
+{
 	buddy->mdns_impl_data = g_new0(AvahiBuddyImplData, 1);
 }
 
-void _mdns_delete_buddy(BonjourBuddy *buddy) {
+static void
+avahi_mdns_delete_buddy(BonjourBuddy *buddy)
+{
 	AvahiBuddyImplData *idata = buddy->mdns_impl_data;
 
 	g_return_if_fail(idata != NULL);
@@ -610,7 +623,9 @@ void _mdns_delete_buddy(BonjourBuddy *buddy) {
 	buddy->mdns_impl_data = NULL;
 }
 
-void _mdns_retrieve_buddy_icon(BonjourBuddy* buddy) {
+static void
+avahi_mdns_retrieve_buddy_icon(BonjourBuddy* buddy)
+{
 	PurpleConnection *conn = purple_account_get_connection(buddy->account);
 	BonjourData *bd = purple_connection_get_protocol_data(conn);
 	AvahiSessionImplData *session_idata = bd->dns_sd_data->mdns_impl_data;
@@ -638,3 +653,17 @@ void _mdns_retrieve_buddy_icon(BonjourBuddy* buddy) {
 
 }
 
+gboolean
+mdns_available(void)
+{
+	_mdns_init_session = avahi_mdns_init_session;
+	_mdns_publish = avahi_mdns_publish;
+	_mdns_browse = avahi_mdns_browse;
+	_mdns_stop = avahi_mdns_stop;
+	_mdns_set_buddy_icon_data = avahi_mdns_set_buddy_icon_data;
+	_mdns_init_buddy = avahi_mdns_init_buddy;
+	_mdns_delete_buddy = avahi_mdns_delete_buddy;
+	_mdns_retrieve_buddy_icon = avahi_mdns_retrieve_buddy_icon;
+
+	return TRUE;
+}

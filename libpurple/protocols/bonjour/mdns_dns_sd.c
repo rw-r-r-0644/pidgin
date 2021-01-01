@@ -23,13 +23,13 @@
 #include <purple.h>
 
 #include "buddy.h"
-#include "mdns_interface.h"
 #ifdef __APPLE_CC__
 #include <dns_sd.h>
 #else
 #include "dns_sd_proxy.h"
 #endif
 #include "mdns_common.h"
+#include "mdns_dns_sd.h"
 #include "bonjour.h"
 
 static GSList *pending_buddies = NULL;
@@ -467,7 +467,9 @@ _mdns_service_browse_callback(DNSServiceRef sdRef, DNSServiceFlags flags, uint32
  * mdns_interface functions *
  ****************************/
 
-gboolean _mdns_init_session(BonjourDnsSd *data) {
+static gboolean
+dns_sd_mdns_init_session(BonjourDnsSd *data)
+{
 	data->mdns_impl_data = g_new0(Win32SessionImplData, 1);
 
 	bonjour_dns_sd_set_jid(data->account, g_get_host_name());
@@ -475,7 +477,9 @@ gboolean _mdns_init_session(BonjourDnsSd *data) {
 	return TRUE;
 }
 
-gboolean _mdns_publish(BonjourDnsSd *data, PublishType type, GSList *records) {
+static gboolean
+dns_sd_mdns_publish(BonjourDnsSd *data, PublishType type, GSList *records)
+{
 	TXTRecordRef dns_data;
 	gboolean ret = TRUE;
 	DNSServiceErrorType errorCode = kDNSServiceErr_NoError;
@@ -536,7 +540,9 @@ gboolean _mdns_publish(BonjourDnsSd *data, PublishType type, GSList *records) {
 	return ret;
 }
 
-gboolean _mdns_browse(BonjourDnsSd *data) {
+static gboolean
+dns_sd_mdns_browse(BonjourDnsSd *data)
+{
 	DNSServiceErrorType errorCode;
 	Win32SessionImplData *idata = data->mdns_impl_data;
 	DNSServiceRef browser_sr;
@@ -560,7 +566,9 @@ gboolean _mdns_browse(BonjourDnsSd *data) {
 	return FALSE;
 }
 
-void _mdns_stop(BonjourDnsSd *data) {
+static void
+dns_sd_mdns_stop(BonjourDnsSd *data)
+{
 	Win32SessionImplData *idata = data->mdns_impl_data;
 
 	if (idata == NULL)
@@ -583,7 +591,9 @@ void _mdns_stop(BonjourDnsSd *data) {
 	data->mdns_impl_data = NULL;
 }
 
-gboolean _mdns_set_buddy_icon_data(BonjourDnsSd *data, gconstpointer avatar_data, gsize avatar_len) {
+static gboolean
+dns_sd_mdns_set_buddy_icon_data(BonjourDnsSd *data, gconstpointer avatar_data, gsize avatar_len)
+{
 	Win32SessionImplData *idata = data->mdns_impl_data;
 	DNSServiceErrorType errorCode = kDNSServiceErr_NoError;
 
@@ -611,11 +621,15 @@ gboolean _mdns_set_buddy_icon_data(BonjourDnsSd *data, gconstpointer avatar_data
 	return TRUE;
 }
 
-void _mdns_init_buddy(BonjourBuddy *buddy) {
+static void
+dns_sd_mdns_init_buddy(BonjourBuddy *buddy)
+{
 	buddy->mdns_impl_data = g_new0(Win32BuddyImplData, 1);
 }
 
-void _mdns_delete_buddy(BonjourBuddy *buddy) {
+static void
+dns_sd_mdns_delete_buddy(BonjourBuddy *buddy)
+{
 	Win32BuddyImplData *idata = buddy->mdns_impl_data;
 
 	g_return_if_fail(idata != NULL);
@@ -637,7 +651,9 @@ void _mdns_delete_buddy(BonjourBuddy *buddy) {
 	buddy->mdns_impl_data = NULL;
 }
 
-void _mdns_retrieve_buddy_icon(BonjourBuddy* buddy) {
+static void
+dns_sd_mdns_retrieve_buddy_icon(BonjourBuddy* buddy)
+{
 	Win32BuddyImplData *idata = buddy->mdns_impl_data;
 	char svc_name[kDNSServiceMaxDomainName];
 
@@ -670,6 +686,23 @@ void _mdns_retrieve_buddy_icon(BonjourBuddy* buddy) {
 		} else
 			purple_debug_error("bonjour", "Unable to query buddy icon record for %s. (%d)\n", buddy->name, errorCode);
 	}
-
 }
 
+gboolean
+dns_sd_mdns_available(void)
+{
+	if (!dns_sd_available()) {
+		return FALSE;
+	}
+
+	_mdns_init_session = dns_sd_mdns_init_session;
+	_mdns_publish = dns_sd_mdns_publish;
+	_mdns_browse = dns_sd_mdns_browse;
+	_mdns_stop = dns_sd_mdns_stop;
+	_mdns_set_buddy_icon_data = dns_sd_mdns_set_buddy_icon_data;
+	_mdns_init_buddy = dns_sd_mdns_init_buddy;
+	_mdns_delete_buddy = dns_sd_mdns_delete_buddy;
+	_mdns_retrieve_buddy_icon = dns_sd_mdns_retrieve_buddy_icon;
+
+	return TRUE;
+}

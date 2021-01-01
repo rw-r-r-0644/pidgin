@@ -30,7 +30,6 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <lm.h>
-#include "dns_sd_proxy.h"
 #endif
 
 #include <purple.h>
@@ -96,15 +95,13 @@ bonjour_login(PurpleAccount *account)
 	PurpleStatus *status;
 	PurplePresence *presence;
 
-#ifdef _WIN32
-	if (!dns_sd_available()) {
+	if (!mdns_available()) {
 		purple_connection_error(gc,
 				PURPLE_CONNECTION_ERROR_OTHER_ERROR,
 				_("Unable to find Apple's \"Bonjour for Windows\" toolkit, see "
 				  "https://developer.pidgin.im/BonjourWindows for more information."));
 		return;
 	}
-#endif /* _WIN32 */
 
 	purple_connection_set_flags(gc, PURPLE_CONNECTION_FLAG_HTML |
 		PURPLE_CONNECTION_FLAG_NO_IMAGES);

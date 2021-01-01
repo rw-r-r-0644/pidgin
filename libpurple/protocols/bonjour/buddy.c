@@ -21,7 +21,6 @@
 
 #include "buddy.h"
 #include "bonjour.h"
-#include "mdns_interface.h"
 
 /**
  * Creates a new buddy.
