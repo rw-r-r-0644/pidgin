@@ -67,15 +67,9 @@ static void pidgin_status_box_get_preferred_height (GtkWidget *widget,
 	gint *minimum_height, gint *natural_height);
 static gboolean pidgin_status_box_draw (GtkWidget *widget, cairo_t *cr);
 static void pidgin_status_box_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
-static void pidgin_status_box_redisplay_buddy_icon(PidginStatusBox *status_box);
 static void pidgin_status_box_forall (GtkContainer *container, gboolean include_internals, GtkCallback callback, gpointer callback_data);
 static void pidgin_status_box_popup(PidginStatusBox *box, GdkEvent *event);
 static void pidgin_status_box_popdown(PidginStatusBox *box, GdkEvent *event);
-
-static void do_colorshift (GdkPixbuf *dest, GdkPixbuf *src, int shift);
-static void icon_choose_cb(const char *filename, gpointer data);
-static void remove_buddy_icon_cb(GtkWidget *w, PidginStatusBox *box);
-static void choose_buddy_icon_cb(GtkWidget *w, PidginStatusBox *box);
 
 enum {
 	/* A PidginStatusBoxItemType */
@@ -125,7 +119,6 @@ enum {
 enum {
 	PROP_0,
 	PROP_ACCOUNT,
-	PROP_ICON_SEL,
 };
 
 static char *typing_stock_ids[7] = {
@@ -224,9 +217,6 @@ pidgin_status_box_get_property(GObject *object, guint param_id,
 	case PROP_ACCOUNT:
 		g_value_set_pointer(value, statusbox->account);
 		break;
-	case PROP_ICON_SEL:
-		g_value_set_boolean(value, statusbox->icon_box != NULL);
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, psec);
 		break;
@@ -291,167 +281,6 @@ account_status_changed_cb(PurpleAccount *account, PurpleStatus *oldstatus, Purpl
 		status_menu_refresh_iter(status_box, TRUE);
 }
 
-static gboolean
-icon_box_press_cb(GtkWidget *widget, GdkEventButton *event, PidginStatusBox *box)
-{
-	if (gdk_event_triggers_context_menu((GdkEvent *)event)) {
-		GtkWidget *menu_item;
-		const char *path;
-
-		if (box->icon_box_menu)
-			gtk_widget_destroy(box->icon_box_menu);
-
-		box->icon_box_menu = gtk_menu_new();
-
-		pidgin_new_menu_item(box->icon_box_menu,
-			_("Select Buddy Icon"), GTK_STOCK_ADD,
-			G_CALLBACK(choose_buddy_icon_cb), box);
-
-		menu_item = pidgin_new_menu_item(box->icon_box_menu, _("Remove"), GTK_STOCK_REMOVE,
-                                G_CALLBACK(remove_buddy_icon_cb), box);
-		if (!(path = purple_prefs_get_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon"))
-				|| !*path)
-			gtk_widget_set_sensitive(menu_item, FALSE);
-
-		gtk_menu_popup_at_pointer(GTK_MENU(box->icon_box_menu), (GdkEvent *)event);
-
-	} else {
-		choose_buddy_icon_cb(widget, box);
-	}
-	return FALSE;
-}
-
-static void
-icon_box_dnd_cb(GtkWidget *widget, GdkDragContext *dc, gint x, gint y,
-		GtkSelectionData *sd, guint info, guint t, PidginStatusBox *box)
-{
-	gchar *name = (gchar *) gtk_selection_data_get_data(sd);
-
-	if ((gtk_selection_data_get_length(sd) >= 0)
-	  && (gtk_selection_data_get_format(sd) == 8)) {
-		/* Well, it looks like the drag event was cool.
-		 * Let's do something with it */
-		if (!g_ascii_strncasecmp(name, "file://", 7)) {
-			GError *converr = NULL;
-			gchar *tmp, *rtmp;
-
-			if(!(tmp = g_filename_from_uri(name, NULL, &converr))) {
-				purple_debug(PURPLE_DEBUG_ERROR, "buddyicon", "%s\n",
-					   (converr ? converr->message :
-					    "g_filename_from_uri error"));
-				return;
-			}
-			if ((rtmp = strchr(tmp, '\r')) || (rtmp = strchr(tmp, '\n')))
-				*rtmp = '\0';
-			icon_choose_cb(tmp, box);
-			g_free(tmp);
-		}
-		gtk_drag_finish(dc, TRUE, FALSE, t);
-	}
-	gtk_drag_finish(dc, FALSE, FALSE, t);
-}
-
-static gboolean
-icon_box_enter_cb(GtkWidget *widget, GdkEventCrossing *event, PidginStatusBox *box)
-{
-	gdk_window_set_cursor(gtk_widget_get_window(widget), box->hand_cursor);
-	gtk_image_set_from_pixbuf(GTK_IMAGE(box->icon), box->buddy_icon_hover);
-	return FALSE;
-}
-
-static gboolean
-icon_box_leave_cb(GtkWidget *widget, GdkEventCrossing *event, PidginStatusBox *box)
-{
-	gdk_window_set_cursor(gtk_widget_get_window(widget), box->arrow_cursor);
-	gtk_image_set_from_pixbuf(GTK_IMAGE(box->icon), box->buddy_icon) ;
-	return FALSE;
-}
-
-
-static const GtkTargetEntry dnd_targets[] = {
-	{"text/plain", 0, 0},
-	{"text/uri-list", 0, 1},
-	{"STRING", 0, 2}
-};
-
-static void
-setup_icon_box(PidginStatusBox *status_box)
-{
-	GdkDisplay *display;
-
-	if (status_box->icon_box != NULL)
-		return;
-
-	status_box->icon = gtk_image_new();
-	status_box->icon_box = gtk_event_box_new();
-	gtk_widget_set_parent(status_box->icon_box, GTK_WIDGET(status_box));
-	gtk_widget_show(status_box->icon_box);
-
-	gtk_widget_set_tooltip_text(status_box->icon_box,
-			status_box->account ? _("Click to change your buddyicon for this account.") :
-				_("Click to change your buddyicon for all accounts."));
-
-	if (status_box->account &&
-		!purple_account_get_bool(status_box->account, "use-global-buddyicon", TRUE))
-	{
-		PurpleImage *img = purple_buddy_icons_find_account_icon(status_box->account);
-		pidgin_status_box_set_buddy_icon(status_box, img);
-		g_object_unref(img);
-	}
-	else
-	{
-		const char *filename = purple_prefs_get_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon");
-		PurpleImage *img = NULL;
-
-		if (filename && *filename)
-			img = purple_image_new_from_file(filename, NULL);
-
-		pidgin_status_box_set_buddy_icon(status_box, img);
-		if (img)
-			g_object_unref(img);
-	}
-
-	display = gtk_widget_get_display(status_box->icon_box);
-	status_box->hand_cursor = gdk_cursor_new_for_display(display, GDK_HAND2);
-	status_box->arrow_cursor = gdk_cursor_new_for_display(display, GDK_LEFT_PTR);
-
-	/* Set up DND */
-	gtk_drag_dest_set(status_box->icon_box,
-			  GTK_DEST_DEFAULT_MOTION |
-			  GTK_DEST_DEFAULT_DROP,
-			  dnd_targets,
-			  sizeof(dnd_targets) / sizeof(GtkTargetEntry),
-			  GDK_ACTION_COPY);
-
-	g_signal_connect(G_OBJECT(status_box->icon_box), "drag_data_received", G_CALLBACK(icon_box_dnd_cb), status_box);
-	g_signal_connect(G_OBJECT(status_box->icon_box), "enter-notify-event", G_CALLBACK(icon_box_enter_cb), status_box);
-	g_signal_connect(G_OBJECT(status_box->icon_box), "leave-notify-event", G_CALLBACK(icon_box_leave_cb), status_box);
-	g_signal_connect(G_OBJECT(status_box->icon_box), "button-press-event", G_CALLBACK(icon_box_press_cb), status_box);
-
-	gtk_container_add(GTK_CONTAINER(status_box->icon_box), status_box->icon);
-	gtk_widget_show(status_box->icon);
-}
-
-static void
-destroy_icon_box(PidginStatusBox *statusbox)
-{
-	g_clear_pointer(&statusbox->icon_box, gtk_widget_destroy);
-
-	g_clear_object(&statusbox->hand_cursor);
-	g_clear_object(&statusbox->arrow_cursor);
-
-	g_clear_object(&statusbox->buddy_icon_img);
-
-	g_clear_object(&statusbox->buddy_icon);
-	g_clear_object(&statusbox->buddy_icon_hover);
-
-	g_clear_object(&statusbox->buddy_icon_sel);
-
-	g_clear_pointer(&statusbox->icon_box_menu, gtk_widget_destroy);
-
-	statusbox->icon = NULL;
-}
-
 static void
 pidgin_status_box_set_property(GObject *object, guint param_id,
                                const GValue *value, GParamSpec *pspec)
@@ -459,23 +288,6 @@ pidgin_status_box_set_property(GObject *object, guint param_id,
 	PidginStatusBox *statusbox = PIDGIN_STATUS_BOX(object);
 
 	switch (param_id) {
-	case PROP_ICON_SEL:
-		if (g_value_get_boolean(value)) {
-			if (statusbox->account) {
-				PurpleBuddyIconSpec *icon_spec = NULL;
-				PurpleProtocol *protocol =
-						purple_protocols_find(purple_account_get_protocol_id(statusbox->account));
-				if (protocol)
-					icon_spec = purple_protocol_get_icon_spec(protocol);
-				if (icon_spec && icon_spec->format != NULL)
-					setup_icon_box(statusbox);
-			} else {
-				setup_icon_box(statusbox);
-			}
-		} else {
-			destroy_icon_box(statusbox);
-		}
-		break;
 	case PROP_ACCOUNT:
 		statusbox->account = g_value_get_pointer(value);
 		if (statusbox->account)
@@ -490,15 +302,6 @@ pidgin_status_box_set_property(GObject *object, guint param_id,
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
 		break;
 	}
-}
-
-static void
-pidgin_status_box_dispose(GObject *obj)
-{
-	PidginStatusBox *statusbox = PIDGIN_STATUS_BOX(obj);
-
-	destroy_icon_box(statusbox);
-	G_OBJECT_CLASS(parent_class)->dispose(obj);
 }
 
 static void
@@ -554,7 +357,6 @@ pidgin_status_box_class_init (PidginStatusBoxClass *klass)
 
 	object_class = (GObjectClass *)klass;
 
-	object_class->dispose = pidgin_status_box_dispose;
 	object_class->finalize = pidgin_status_box_finalize;
 
 	object_class->get_property = pidgin_status_box_get_property;
@@ -565,15 +367,6 @@ pidgin_status_box_class_init (PidginStatusBoxClass *klass)
 	                                g_param_spec_pointer("account",
 	                                                     "Account",
 	                                                     "The account, or NULL for all accounts",
-	                                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS
-	                                                     )
-	                               );
-	g_object_class_install_property(object_class,
-	                                PROP_ICON_SEL,
-	                                g_param_spec_boolean("iconsel",
-	                                                     "Icon Selector",
-	                                                     "Whether the icon selector should be displayed or not.",
-														 FALSE,
 	                                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS
 	                                                     )
 	                               );
@@ -1322,108 +1115,6 @@ toggled_cb(GtkWidget *widget, GdkEventButton *event, PidginStatusBox *box)
 }
 
 static void
-buddy_icon_set_cb(const char *filename, PidginStatusBox *box)
-{
-	PurpleImage *img = NULL;
-	PurpleBuddyIconSpec *icon_spec = NULL;
-
-	if (box->account) {
-		PurpleProtocol *protocol =
-				purple_protocols_find(purple_account_get_protocol_id(box->account));
-		if (protocol)
-			icon_spec = purple_protocol_get_icon_spec(protocol);
-		if (icon_spec && icon_spec->format) {
-			gpointer data = NULL;
-			size_t len = 0;
-			if (filename)
-				data = pidgin_convert_buddy_icon(protocol, filename, &len);
-			img = purple_buddy_icons_set_account_icon(box->account, data, len);
-			if (img) {
-				/*
-				 * set_account_icon doesn't give us a reference, but we
-				 * unref one below (for the other code path)
-				 */
-				g_object_ref(img);
-			}
-
-			purple_account_set_buddy_icon_path(box->account, filename);
-
-			purple_account_set_bool(box->account, "use-global-buddyicon", (filename != NULL));
-		}
-	} else {
-		GList *accounts;
-		for (accounts = purple_accounts_get_all(); accounts != NULL; accounts = accounts->next) {
-			PurpleAccount *account = accounts->data;
-			PurpleProtocol *protocol =
-					purple_protocols_find(purple_account_get_protocol_id(account));
-			if (protocol)
-				icon_spec = purple_protocol_get_icon_spec(protocol);
-			if (icon_spec && icon_spec->format &&
-			    purple_account_get_bool(account, "use-global-buddyicon", TRUE)) {
-				gpointer data = NULL;
-				size_t len = 0;
-				if (filename)
-					data = pidgin_convert_buddy_icon(protocol, filename, &len);
-				purple_buddy_icons_set_account_icon(account, data, len);
-				purple_account_set_buddy_icon_path(account, filename);
-			}
-		}
-
-		/* Even if no accounts were processed, load the icon that was set. */
-		if (filename != NULL)
-			img = purple_image_new_from_file(filename, NULL);
-	}
-
-	pidgin_status_box_set_buddy_icon(box, img);
-	if (img)
-		g_object_unref(img);
-}
-
-static void
-remove_buddy_icon_cb(GtkWidget *w, PidginStatusBox *box)
-{
-	if (box->account == NULL)
-		/* The pref-connect callback does the actual work */
-		purple_prefs_set_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon", NULL);
-	else
-		buddy_icon_set_cb(NULL, box);
-
-	gtk_widget_destroy(box->icon_box_menu);
-	box->icon_box_menu = NULL;
-}
-
-static void
-choose_buddy_icon_cb(GtkWidget *w, PidginStatusBox *box)
-{
-	if (box->buddy_icon_sel == NULL) {
-		box->buddy_icon_sel = pidgin_buddy_icon_chooser_new(GTK_WINDOW(gtk_widget_get_toplevel(w)), icon_choose_cb, box);
-	}
-	gtk_native_dialog_show(GTK_NATIVE_DIALOG(box->buddy_icon_sel));
-}
-
-static void
-icon_choose_cb(const char *filename, gpointer data)
-{
-	PidginStatusBox *box = data;
-	if (filename) {
-		if (box->account == NULL)
-			/* The pref-connect callback does the actual work */
-			purple_prefs_set_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon", filename);
-		else
-			buddy_icon_set_cb(filename, box);
-	}
-
-	g_clear_object(&box->buddy_icon_sel);
-}
-
-static void
-update_buddyicon_cb(const char *name, PurplePrefType type,
-		    gconstpointer value, gpointer data)
-{
-	buddy_icon_set_cb(value, (PidginStatusBox*) data);
-}
-
-static void
 treeview_activate_current_selection(PidginStatusBox *status_box, GtkTreePath *path, GdkEvent *event)
 {
 	if (status_box->active_row)
@@ -1773,9 +1464,6 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 						PURPLE_CALLBACK(account_status_changed_cb),
 						status_box);
 
-	purple_prefs_connect_callback(status_box, PIDGIN_PREFS_ROOT "/accounts/buddyicon",
-	                            update_buddyicon_cb, status_box);
-
 	g_signal_connect(G_OBJECT(g_network_monitor_get_default()),
 	                 "network-changed",
 	                 G_CALLBACK(pidgin_status_box_network_changed_cb),
@@ -1808,53 +1496,13 @@ pidgin_status_box_get_preferred_height(GtkWidget *widget, gint *minimum_height,
 	}
 }
 
-/* From gnome-panel */
-static void
-do_colorshift (GdkPixbuf *dest, GdkPixbuf *src, int shift)
-{
-	gint i, j;
-	gint width, height, has_alpha, srcrowstride, destrowstride;
-	guchar *target_pixels;
-	guchar *original_pixels;
-	guchar *pixsrc;
-	guchar *pixdest;
-	int val;
-	guchar r,g,b;
-
-	has_alpha = gdk_pixbuf_get_has_alpha (src);
-	width = gdk_pixbuf_get_width (src);
-	height = gdk_pixbuf_get_height (src);
-	srcrowstride = gdk_pixbuf_get_rowstride (src);
-	destrowstride = gdk_pixbuf_get_rowstride (dest);
-	target_pixels = gdk_pixbuf_get_pixels (dest);
-	original_pixels = gdk_pixbuf_get_pixels (src);
-
-	for (i = 0; i < height; i++) {
-		pixdest = target_pixels + i*destrowstride;
-		pixsrc = original_pixels + i*srcrowstride;
-		for (j = 0; j < width; j++) {
-			r = *(pixsrc++);
-			g = *(pixsrc++);
-			b = *(pixsrc++);
-			val = r + shift;
-			*(pixdest++) = CLAMP(val, 0, 255);
-			val = g + shift;
-			*(pixdest++) = CLAMP(val, 0, 255);
-			val = b + shift;
-			*(pixdest++) = CLAMP(val, 0, 255);
-			if (has_alpha)
-				*(pixdest++) = *(pixsrc++);
-		}
-	}
-}
-
 static void
 pidgin_status_box_size_allocate(GtkWidget *widget,
 				  GtkAllocation *allocation)
 {
 	PidginStatusBox *status_box = PIDGIN_STATUS_BOX(widget);
 	GtkRequisition req = {0,0};
-	GtkAllocation parent_alc, box_alc, icon_alc;
+	GtkAllocation parent_alc, box_alc;
 	gint border_width = gtk_container_get_border_width(GTK_CONTAINER (widget));
 
 	gtk_widget_get_preferred_size(status_box->toggle_button, NULL, &req);
@@ -1877,22 +1525,6 @@ pidgin_status_box_size_allocate(GtkWidget *widget,
 	parent_alc.x += border_width;
 	parent_alc.y += border_width;
 
-	if (status_box->icon_box)
-	{
-		parent_alc.width -= (parent_alc.height + border_width);
-		icon_alc = parent_alc;
-		icon_alc.height = MAX(1, icon_alc.height) - 2;
-		icon_alc.width = icon_alc.height;
-		icon_alc.x += allocation->width - (icon_alc.width + border_width + 1);
-		icon_alc.y += 1;
-
-		if (status_box->icon_size != icon_alc.height)
-		{
-			status_box->icon_size = icon_alc.height;
-			pidgin_status_box_redisplay_buddy_icon(status_box);
-		}
-		gtk_widget_size_allocate(status_box->icon_box, &icon_alc);
-	}
 	gtk_widget_size_allocate(status_box->toggle_button, &parent_alc);
 	gtk_widget_set_allocation(GTK_WIDGET(status_box), allocation);
 }
@@ -1905,20 +1537,6 @@ pidgin_status_box_draw(GtkWidget *widget, cairo_t *cr)
 
 	gtk_container_propagate_draw(GTK_CONTAINER(widget), status_box->vbox, cr);
 
-	if (status_box->icon_box) {
-		gtk_container_propagate_draw(GTK_CONTAINER(widget),
-				status_box->icon_box, cr);
-
-		if (status_box->icon_opaque) {
-			GtkAllocation allocation;
-			GtkStyleContext *context;
-
-			gtk_widget_get_allocation(status_box->icon_box, &allocation);
-			context = gtk_widget_get_style_context(widget);
-			gtk_style_context_add_class(context, GTK_STYLE_CLASS_BUTTON);
-			gtk_render_frame(context, cr, allocation.x-1, allocation.y-1, 34, 34);
-		}
-	}
 	return FALSE;
 }
 
@@ -1935,8 +1553,6 @@ pidgin_status_box_forall(GtkContainer *container,
 	  	(* callback) (status_box->vbox, callback_data);
 		(* callback) (status_box->toggle_button, callback_data);
 		(* callback) (status_box->arrow, callback_data);
-		if (status_box->icon_box)
-			(* callback) (status_box->icon_box, callback_data);
 	}
 }
 
@@ -2062,110 +1678,6 @@ pidgin_status_box_set_connecting(PidginStatusBox *status_box, gboolean connectin
 		return;
 	status_box->connecting = connecting;
 	pidgin_status_box_refresh(status_box);
-}
-
-static void
-pixbuf_size_prepared_cb(GdkPixbufLoader *loader, int width, int height, gpointer data)
-{
-	int w, h;
-	GtkIconSize icon_size = gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_MEDIUM);
-	gtk_icon_size_lookup(icon_size, &w, &h);
-	if (height > width)
-		w = width * h  / height;
-	else if (width > height)
-		h = height * w / width;
-	gdk_pixbuf_loader_set_size(loader, w, h);
-}
-
-static void
-pidgin_status_box_redisplay_buddy_icon(PidginStatusBox *status_box)
-{
-
-	/* This is sometimes called before the box is shown, and we will not have a size */
-	if (status_box->icon_size <= 0)
-		return;
-
-	if (status_box->buddy_icon)
-		g_object_unref(status_box->buddy_icon);
-	if (status_box->buddy_icon_hover)
-		g_object_unref(status_box->buddy_icon_hover);
-	status_box->buddy_icon = NULL;
-	status_box->buddy_icon_hover = NULL;
-
-	if (status_box->buddy_icon_img != NULL)
-	{
-		GdkPixbufLoader *loader;
-		GError *error = NULL;
-
-		loader = gdk_pixbuf_loader_new();
-
-		g_signal_connect(G_OBJECT(loader), "size-prepared", G_CALLBACK(pixbuf_size_prepared_cb), NULL);
-		if (!gdk_pixbuf_loader_write(loader,
-				purple_image_get_data(status_box->buddy_icon_img),
-				purple_image_get_data_size(status_box->buddy_icon_img),
-				&error) || error)
-		{
-			purple_debug_warning("gtkstatusbox",
-				"gdk_pixbuf_loader_write() failed with size=%"
-				G_GSIZE_FORMAT ": %s", purple_image_get_data_size(
-					status_box->buddy_icon_img),
-				error ? error->message : "(no error message)");
-			if (error)
-				g_error_free(error);
-		} else if (!gdk_pixbuf_loader_close(loader, &error) || error) {
-			purple_debug_warning("gtkstatusbox",
-				"gdk_pixbuf_loader_close() failed for image of "
-				"size %" G_GSIZE_FORMAT ": %s",
-				purple_image_get_data_size(status_box->buddy_icon_img),
-				error ? error->message : "(no error message)");
-			if (error)
-				g_error_free(error);
-		} else {
-			GdkPixbuf *buf, *scale;
-			int scale_width, scale_height;
-
-			buf = gdk_pixbuf_loader_get_pixbuf(loader);
-			scale_width = gdk_pixbuf_get_width(buf);
-			scale_height = gdk_pixbuf_get_height(buf);
-			scale = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, scale_width, scale_height);
-			gdk_pixbuf_fill(scale, 0x00000000);
-			gdk_pixbuf_copy_area(buf, 0, 0, scale_width, scale_height, scale, 0, 0);
-			if (pidgin_gdk_pixbuf_is_opaque(scale))
-				pidgin_gdk_pixbuf_make_round(scale);
-			status_box->buddy_icon = scale;
-		}
-
-		g_object_unref(loader);
-	}
-
-	if (status_box->buddy_icon == NULL)
-	{
-		/* Show a placeholder icon */
-		GtkIconSize icon_size = gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_SMALL);
-		status_box->buddy_icon = gtk_widget_render_icon(GTK_WIDGET(status_box),
-		                                                PIDGIN_STOCK_TOOLBAR_SELECT_AVATAR,
-		                                                icon_size, "PidginStatusBox");
-	}
-
-	if (status_box->buddy_icon != NULL) {
-		status_box->icon_opaque = pidgin_gdk_pixbuf_is_opaque(status_box->buddy_icon);
-		gtk_image_set_from_pixbuf(GTK_IMAGE(status_box->icon), status_box->buddy_icon);
-		status_box->buddy_icon_hover = gdk_pixbuf_copy(status_box->buddy_icon);
-		do_colorshift(status_box->buddy_icon_hover, status_box->buddy_icon_hover, 32);
-		gtk_widget_queue_resize(GTK_WIDGET(status_box));
-	}
-}
-
-void
-pidgin_status_box_set_buddy_icon(PidginStatusBox *status_box, PurpleImage *img)
-{
-	if (status_box->buddy_icon_img)
-		g_object_unref(status_box->buddy_icon_img);
-	status_box->buddy_icon_img = img;
-	if (status_box->buddy_icon_img != NULL)
-		g_object_ref(status_box->buddy_icon_img);
-
-	pidgin_status_box_redisplay_buddy_icon(status_box);
 }
 
 void
