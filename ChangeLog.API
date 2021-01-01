@@ -671,6 +671,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_sound_get_handle
 		* pidgin_sound_get_ui_ops
 		* pidgin_sound_is_customized
+		* pidgin_status_box_set_buddy_icon
 		* pidgin_stock_id_from_presence
 		* pidgin_text_combo_box_entry_set_text
 		* pidgin_toggle_sensitive, pidgin_toggle_sensitive_array, and

@@ -97,13 +97,6 @@ struct _PidginStatusBox
 	GtkWidget *input;
 	GtkTextBuffer *buffer;
 
-	PurpleImage *buddy_icon_img;
-	GdkPixbuf *buddy_icon;
-	GdkPixbuf *buddy_icon_hover;
-	GtkFileChooserNative *buddy_icon_sel;
-	GtkWidget *icon;
-	GtkWidget *icon_box;
-	GtkWidget *icon_box_menu;
 	GdkCursor *hand_cursor;
 	GdkCursor *arrow_cursor;
 	int icon_size;
@@ -181,9 +174,6 @@ pidgin_status_box_set_connecting(PidginStatusBox *status_box, gboolean connectin
 
 void
 pidgin_status_box_pulse_connecting(PidginStatusBox *status_box);
-
-void
-pidgin_status_box_set_buddy_icon(PidginStatusBox *status_box, PurpleImage *img);
 
 char *pidgin_status_box_get_message(PidginStatusBox *status_box);
 
