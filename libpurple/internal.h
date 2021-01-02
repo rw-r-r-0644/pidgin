@@ -126,12 +126,4 @@
 
 #include <glib-object.h>
 
-#ifdef __COVERITY__
-
-/* avoid TAINTED_SCALAR warning */
-#undef g_utf8_next_char
-#define g_utf8_next_char(p) (char *)((p) + 1)
-
-#endif
-
 #endif /* PURPLE_INTERNAL_H */
