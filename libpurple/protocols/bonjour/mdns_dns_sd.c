@@ -507,10 +507,13 @@ dns_sd_mdns_publish(BonjourDnsSd *data, PublishType type, GSList *records)
 		switch (type) {
 			case PUBLISH_START:
 				purple_debug_info("bonjour", "Registering presence on port %d\n", data->port_p2pj);
-				errorCode = DNSServiceRegister(&presence_sr, kDNSServiceInterfaceIndexAny,
-					0, bonjour_get_jid(data->account), LINK_LOCAL_RECORD_NAME,
-					NULL, NULL, g_htons(data->port_p2pj), TXTRecordGetLength(&dns_data), TXTRecordGetBytesPtr(&dns_data),
-					_mdns_service_register_callback, NULL);
+				errorCode = DNSServiceRegister(
+				        &presence_sr, 0, kDNSServiceInterfaceIndexAny,
+				        bonjour_get_jid(data->account), LINK_LOCAL_RECORD_NAME,
+				        NULL, NULL, g_htons(data->port_p2pj),
+				        TXTRecordGetLength(&dns_data),
+				        TXTRecordGetBytesPtr(&dns_data),
+				        _mdns_service_register_callback, NULL);
 				break;
 
 			case PUBLISH_UPDATE:
