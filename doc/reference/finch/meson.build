@@ -18,6 +18,12 @@ mkdb_args = [
     '--ignore-files=' + ' '.join(ignore_hfiles),
 ]
 
+# Extra options to supply to fixxrefs
+fixxref_args = [
+    '--extra-dir=@0@'.format(libgnt_docpath),
+    '--extra-dir=../libpurple',
+]
+
 configure_file(
     input : 'version.xml.in',
     output : 'version.xml',
@@ -30,4 +36,5 @@ finch_doc = gnome.gtkdoc(DOC_MODULE,
     install : true,
     scan_args : scan_args,
     mkdb_args : mkdb_args,
+    fixxref_args : fixxref_args,
     gobject_typesfile : DOC_MODULE + '.types')

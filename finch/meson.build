@@ -2,6 +2,8 @@ enable_consoleui = false
 if get_option('consoleui')
 	libgnt_dep = dependency('gnt3', version : '>= 3.0.0', required : false)
 	if libgnt_dep.found()
+		libgnt_docpath = libgnt_dep.get_pkgconfig_variable('prefix') / 'share/gtk-doc/html'
+
 		if enable_introspection
 			libgnt_gir = ['Gnt-3.0']
 		endif
@@ -14,6 +16,7 @@ if get_option('consoleui')
 		)
 		libgnt_dep = libgnt_proj.get_variable('libgnt_dep')
 
+		libgnt_docpath = meson.build_root() / 'subprojects/libgnt/doc/'
 		if enable_introspection
 			libgnt_gir = libgnt_proj.get_variable('libgnt_gir')
 		endif

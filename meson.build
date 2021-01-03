@@ -255,6 +255,8 @@ if get_option('gtkui')
 
 	talkatu_dep = dependency('talkatu', version: '>=0.1.0', required : false)
 	if talkatu_dep.found()
+		talkatu_docpath = talkatu_dep.get_pkgconfig_variable('prefix') / 'share/gtk-doc/html'
+
 		if enable_introspection
 			talkatu_gir = 'Talkatu-0.0'
 			talkatu_include_directories = include_directories(
@@ -271,6 +273,8 @@ if get_option('gtkui')
 		    ]
 		)
 		talkatu_dep = talkatu_proj.get_variable('talkatu_dep')
+
+		talkatu_docpath = meson.build_root() / 'subprojects/talkatu/talkatu/reference/'
 		if enable_introspection
 			talkatu_gir = talkatu_proj.get_variable('talkatu_gir')[0]
 		endif
@@ -562,6 +566,8 @@ endif
 #######################################################################
 gplugin_dep = dependency('gplugin', version : '>= 0.29.1', required : false)
 if gplugin_dep.found()
+	gplugin_docpath = gplugin_dep.get_pkgconfig_variable('prefix') / 'share/gtk-doc/html'
+
 	if enable_introspection
 		gplugin_gir = 'GPlugin-1.0'
 		gplugin_include_directories = include_directories(
@@ -573,6 +579,7 @@ if gplugin_dep.found()
 	if get_option('gtkui')
 		gplugin_gtk_dep = dependency('gplugin-gtk', required : true)
 
+		gplugin_gtk_docpath = gplugin_gtk_dep.get_pkgconfig_variable('prefix') / 'share/gtk-doc/html'
 		if enable_introspection
 			gplugin_gtk_gir = 'GPluginGtk-1.0'
 			gplugin_gtk_include_directories = include_directories(
@@ -592,6 +599,9 @@ else
 	)
 
 	gplugin_dep = gplugin_proj.get_variable('gplugin_dep')
+
+	gplugin_docpath = meson.build_root() / 'subprojects/gplugin/gplugin/reference/'
+
 	if enable_introspection
 		gplugin_gir = gplugin_proj.get_variable('gplugin_gir')[0]
 	endif
@@ -599,6 +609,8 @@ else
 
 	if get_option('gtkui')
 		gplugin_gtk_dep = gplugin_proj.get_variable('gplugin_gtk_dep')
+
+		gplugin_gtk_docpath = meson.build_root() / 'subprojects/gplugin/gplugin-gtk/reference/'
 
 		if enable_introspection
 			gplugin_gtk_gir = gplugin_proj.get_variable('gplugin_gtk_gir')[0]
