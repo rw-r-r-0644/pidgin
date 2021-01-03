@@ -39,6 +39,7 @@ test_queued_output_stream_new(void) {
 	GOutputStream *output;
 	PurpleQueuedOutputStream *queued;
 	GError *err = NULL;
+	gboolean ret = FALSE;
 
 	output = g_memory_output_stream_new_resizable();
 	g_assert_nonnull(output);
@@ -46,9 +47,9 @@ test_queued_output_stream_new(void) {
 	queued = purple_queued_output_stream_new(output);
 	g_assert_true(PURPLE_IS_QUEUED_OUTPUT_STREAM(queued));
 
-	g_assert_true(g_output_stream_close(
-			G_OUTPUT_STREAM(queued), NULL, &err));
+	ret = g_output_stream_close(G_OUTPUT_STREAM(queued), NULL, &err);
 	g_assert_no_error(err);
+	g_assert_true(ret);
 
 	g_clear_object(&queued);
 	g_clear_object(&output);
@@ -61,10 +62,11 @@ test_queued_output_stream_push_bytes_async_cb(GObject *source,
 	PurpleQueuedOutputStream *queued = PURPLE_QUEUED_OUTPUT_STREAM(source);
 	gboolean *done = user_data;
 	GError *err = NULL;
+	gboolean ret = FALSE;
 
-	g_assert_true(purple_queued_output_stream_push_bytes_finish(queued,
-			res, &err));
+	ret = purple_queued_output_stream_push_bytes_finish(queued, res, &err);
 	g_assert_no_error(err);
+	g_assert_true(ret);
 
 	*done = TRUE;
 }
@@ -75,7 +77,7 @@ test_queued_output_stream_push_bytes_async(void) {
 	PurpleQueuedOutputStream *queued;
 	GBytes *bytes;
 	GError *err = NULL;
-	gboolean done = FALSE;
+	gboolean done = FALSE, ret = FALSE;
 
 	output = G_MEMORY_OUTPUT_STREAM(g_memory_output_stream_new_resizable());
 	g_assert_nonnull(output);
@@ -97,9 +99,9 @@ test_queued_output_stream_push_bytes_async(void) {
 			g_memory_output_stream_get_data_size(output),
 			test_bytes_data, test_bytes_data_len);
 
-	g_assert_true(g_output_stream_close(
-			G_OUTPUT_STREAM(queued), NULL, &err));
+	ret = g_output_stream_close(G_OUTPUT_STREAM(queued), NULL, &err);
 	g_assert_no_error(err);
+	g_assert_true(ret);
 
 	g_clear_object(&queued);
 	g_clear_object(&output);
@@ -112,10 +114,11 @@ test_queued_output_stream_push_bytes_async_multiple_cb(GObject *source,
 	PurpleQueuedOutputStream *queued = PURPLE_QUEUED_OUTPUT_STREAM(source);
 	gint *done = user_data;
 	GError *err = NULL;
+	gboolean ret = FALSE;
 
-	g_assert_true(purple_queued_output_stream_push_bytes_finish(queued,
-			res, &err));
+	ret = purple_queued_output_stream_push_bytes_finish(queued, res, &err);
 	g_assert_no_error(err);
+	g_assert_true(ret);
 
 	--*done;
 }
@@ -128,6 +131,7 @@ test_queued_output_stream_push_bytes_async_multiple(void) {
 	gchar *all_test_bytes_data;
 	GError *err = NULL;
 	int done = 3;
+	gboolean ret = FALSE;
 
 	output = G_MEMORY_OUTPUT_STREAM(g_memory_output_stream_new_resizable());
 	g_assert_nonnull(output);
@@ -171,9 +175,9 @@ test_queued_output_stream_push_bytes_async_multiple(void) {
 
 	g_free(all_test_bytes_data);
 
-	g_assert_true(g_output_stream_close(
-			G_OUTPUT_STREAM(queued), NULL, &err));
+	ret = g_output_stream_close(G_OUTPUT_STREAM(queued), NULL, &err);
 	g_assert_no_error(err);
+	g_assert_true(ret);
 
 	g_clear_object(&queued);
 	g_clear_object(&output);
@@ -204,6 +208,7 @@ test_queued_output_stream_push_bytes_async_error(void) {
 	GCancellable *cancellable;
 	GError *err = NULL;
 	gint done = 3;
+	gboolean ret = FALSE;
 
 	output = G_MEMORY_OUTPUT_STREAM(g_memory_output_stream_new_resizable());
 	g_assert_nonnull(output);
@@ -246,9 +251,9 @@ test_queued_output_stream_push_bytes_async_error(void) {
 			g_memory_output_stream_get_data_size(output),
 			NULL, 0);
 
-	g_assert_true(g_output_stream_close(
-			G_OUTPUT_STREAM(queued), NULL, &err));
+	ret = g_output_stream_close(G_OUTPUT_STREAM(queued), NULL, &err);
 	g_assert_no_error(err);
+	g_assert_true(ret);
 
 	g_clear_object(&queued);
 	g_clear_object(&output);

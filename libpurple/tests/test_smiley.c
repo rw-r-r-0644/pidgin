@@ -124,7 +124,6 @@ test_smiley_new_from_file(void) {
 
 	path = g_build_filename(TEST_DATA_DIR, "test-image.png", NULL);
 	smiley = purple_smiley_new("^_^", path);
-	g_assert_no_error(error);
 
 	g_file_get_contents(path, &edata, &elen, &error);
 	g_assert_no_error(error);
