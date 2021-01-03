@@ -41,7 +41,6 @@
 #include "gtkidle.h"
 #include "gtkmedia.h"
 #include "gtknotify.h"
-#include "gtkpounce.h"
 #include "gtkprefs.h"
 #include "gtkprivacy.h"
 #include "gtkrequest.h"
@@ -190,7 +189,6 @@ pidgin_ui_init(void)
 	pidgin_blist_init();
 	pidgin_status_init();
 	pidgin_conversations_init();
-	pidgin_pounces_init();
 	pidgin_privacy_init();
 	pidgin_xfers_init();
 	pidgin_roomlist_init();

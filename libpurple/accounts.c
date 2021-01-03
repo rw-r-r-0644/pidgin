@@ -27,7 +27,6 @@
 #include "debug.h"
 #include "enums.h"
 #include "network.h"
-#include "pounce.h"
 #include "purplecredentialmanager.h"
 #include "purpleprivate.h"
 
@@ -658,9 +657,6 @@ purple_accounts_delete(PurpleAccount *account)
 		if (purple_conversation_get_account(conv) == account)
 			g_object_unref(conv);
 	}
-
-	/* Remove this account's pounces */
-	purple_pounce_destroy_all_by_account(account);
 
 	/* This will cause the deletion of an old buddy icon. */
 	purple_buddy_icons_set_account_icon(account, NULL, 0);

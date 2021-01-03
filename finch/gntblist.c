@@ -34,7 +34,6 @@
 #include "gntconv.h"
 #include "gntlog.h"
 #include "gntmenuutil.h"
-#include "gntpounce.h"
 #include "gntstatus.h"
 
 #define PREF_ROOT "/finch/blist"
@@ -1106,17 +1105,6 @@ finch_blist_menu_send_file_cb(PurpleBlistNode *selected, PurpleBuddy *buddy)
 }
 
 static void
-finch_blist_pounce_node_cb(PurpleBlistNode *selected, PurpleBlistNode *node)
-{
-	PurpleBuddy *b;
-	if (PURPLE_IS_CONTACT(node))
-		b = purple_contact_get_priority_buddy((PurpleContact *)node);
-	else
-		b = (PurpleBuddy *)node;
-	finch_pounce_editor_show(purple_buddy_get_account(b), purple_buddy_get_name(b), NULL);
-}
-
-static void
 toggle_block_buddy(GntMenuItem *item, gpointer buddy)
 {
 	gboolean block = gnt_menuitem_check_get_checked(GNT_MENU_ITEM_CHECK(item));
@@ -1153,9 +1141,6 @@ create_buddy_menu(GntMenu *menu, PurpleBuddy *buddy)
 		add_custom_action(menu, _("Get Info"),
 				PURPLE_CALLBACK(finch_blist_get_buddy_info_cb), buddy);
 	}
-
-	add_custom_action(menu, _("Add Buddy Pounce"),
-			PURPLE_CALLBACK(finch_blist_pounce_node_cb), buddy);
 
 	if (PURPLE_IS_PROTOCOL_XFER(protocol))
 	{

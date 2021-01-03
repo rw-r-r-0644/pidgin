@@ -38,7 +38,6 @@
 #include "gntmedia.h"
 #include "gntnotify.h"
 #include "gntplugin.h"
-#include "gntpounce.h"
 #include "gntprefs.h"
 #include "gntrequest.h"
 #include "gntroomlist.h"
@@ -80,9 +79,6 @@ void finch_ui_init()
 	finch_request_init();
 	purple_request_set_ui_ops(finch_request_get_ui_ops());
 
-	/* Pounce */
-	finch_pounces_init();
-
 	/* Log */
 	finch_log_init();
 
@@ -99,7 +95,6 @@ void finch_ui_init()
 
 	gnt_register_action(_("Accounts"), finch_accounts_show_all);
 	gnt_register_action(_("Buddy List"), finch_blist_show);
-	gnt_register_action(_("Buddy Pounces"), finch_pounces_manager_show);
 	gnt_register_action(_("Debug Window"), finch_debug_window_show);
 	gnt_register_action(_("File Transfers"), finch_xfer_dialog_show);
 	gnt_register_action(_("Plugins"), finch_plugins_show_all);
@@ -130,8 +125,6 @@ void finch_ui_uninit()
 
 	purple_request_set_ui_ops(NULL);
 	finch_request_uninit();
-
-	finch_pounces_uninit();
 
 	finch_log_uninit();
 

@@ -224,15 +224,6 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkMenuItem" id="buddy_pounces">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="action_name">app.buddy-pounces</property>
-                <property name="label" translatable="yes">Buddy _Pounces</property>
-                <property name="use_underline">True</property>
-              </object>
-            </child>
-            <child>
               <object class="GtkMenuItem" id="custom_smileys">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>

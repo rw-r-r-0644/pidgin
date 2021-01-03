@@ -35,7 +35,6 @@
 #include "network.h"
 #include "notify.h"
 #include "plugins.h"
-#include "pounce.h"
 #include "prefs.h"
 #include "proxy.h"
 #include "purpleprivate.h"
@@ -176,7 +175,6 @@ purple_core_init(const char *ui)
 	purple_blist_init();
 	purple_log_init();
 	purple_network_init();
-	purple_pounces_init();
 	purple_proxy_init();
 	purple_stun_init();
 	purple_xfers_init();
@@ -223,7 +221,6 @@ purple_core_quit(void)
 	_purple_smiley_custom_uninit();
 	_purple_smiley_parser_uninit();
 	purple_idle_uninit();
-	purple_pounces_uninit();
 	purple_conversations_uninit();
 	purple_blist_uninit();
 	purple_notify_uninit();
@@ -373,7 +370,6 @@ purple_core_migrate_to_xdg_base_dirs(void)
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "blist.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "fs-codec.conf");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "fs-element.conf");
-		MIGRATE_TO_XDG_DIR(purple_config_dir(), "pounces.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "prefs.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "smileys.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "status.xml");

@@ -28,7 +28,6 @@
 
 #include "gtkblist.h"
 #include "gtknotify.h"
-#include "gtkpounce.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidginstock.h"
@@ -47,14 +46,6 @@ typedef struct
 	int count;
 	gboolean purple_has_handle;
 } PidginNotifyMailData;
-
-typedef struct
-{
-	PurpleAccount *account;
-	PurplePounce *pounce;
-	char *pouncee;
-} PidginNotifyPounceData;
-
 
 typedef struct
 {
@@ -82,18 +73,6 @@ enum
 	COLUMNS_PIDGIN_MAIL
 };
 
-enum
-{
-	PIDGIN_POUNCE_ICON,
-	PIDGIN_POUNCE_ALIAS,
-	PIDGIN_POUNCE_EVENT,
-	PIDGIN_POUNCE_TEXT,
-	PIDGIN_POUNCE_DATE,
-	PIDGIN_POUNCE_DATA,
-	COLUMNS_PIDGIN_POUNCE
-};
-
-
 typedef struct
 {
 	/*
@@ -114,12 +93,10 @@ typedef struct
 typedef enum
 {
 	PIDGIN_NOTIFY_MAIL,
-	PIDGIN_NOTIFY_POUNCE,
 	PIDGIN_NOTIFY_TYPES
 } PidginNotifyType;
 
 static PidginNotifyDialog *mail_dialog = NULL;
-static PidginNotifyDialog *pounce_dialog = NULL;
 
 static PidginNotifyDialog *pidgin_create_notification_dialog(PidginNotifyType type);
 static void *pidgin_notify_emails(PurpleConnection *gc, size_t count, gboolean detailed,
@@ -133,225 +110,6 @@ static void
 message_response_cb(GtkDialog *dialog, gint id, GtkWidget *widget)
 {
 	purple_notify_close(PURPLE_NOTIFY_MESSAGE, widget);
-}
-
-static void
-pounce_response_close(PidginNotifyDialog *dialog)
-{
-	GtkTreeIter iter;
-	PidginNotifyPounceData *pounce_data;
-
-	while (gtk_tree_model_get_iter_first(
-				GTK_TREE_MODEL(pounce_dialog->treemodel), &iter)) {
-		gtk_tree_model_get(GTK_TREE_MODEL(pounce_dialog->treemodel), &iter,
-				PIDGIN_POUNCE_DATA, &pounce_data,
-				-1);
-		gtk_tree_store_remove(dialog->treemodel, &iter);
-
-		g_free(pounce_data->pouncee);
-		g_free(pounce_data);
-	}
-
-	gtk_widget_destroy(pounce_dialog->dialog);
-	g_free(pounce_dialog);
-	pounce_dialog = NULL;
-}
-
-static void
-delete_foreach(GtkTreeModel *model, GtkTreePath *path,
-		GtkTreeIter *iter, gpointer data)
-{
-	PidginNotifyPounceData *pounce_data;
-
-	gtk_tree_model_get(model, iter,
-			PIDGIN_POUNCE_DATA, &pounce_data,
-			-1);
-
-	if (pounce_data != NULL) {
-		g_free(pounce_data->pouncee);
-		g_free(pounce_data);
-	}
-}
-
-static void
-open_im_foreach(GtkTreeModel *model, GtkTreePath *path,
-		GtkTreeIter *iter, gpointer data)
-{
-	PidginNotifyPounceData *pounce_data;
-
-	gtk_tree_model_get(model, iter,
-			PIDGIN_POUNCE_DATA, &pounce_data,
-			-1);
-
-	if (pounce_data != NULL) {
-		PurpleIMConversation *im;
-
-		im = purple_im_conversation_new(pounce_data->account, pounce_data->pouncee);
-		purple_conversation_present(PURPLE_CONVERSATION(im));
-	}
-}
-
-static void
-append_to_list(GtkTreeModel *model, GtkTreePath *path,
-		GtkTreeIter *iter, gpointer data)
-{
-	GList **list = data;
-	*list = g_list_prepend(*list, gtk_tree_path_copy(path));
-}
-
-static void
-pounce_response_dismiss()
-{
-	GtkTreeModel *model = GTK_TREE_MODEL(pounce_dialog->treemodel);
-	GtkTreeSelection *selection;
-	GtkTreeIter iter;
-	GtkTreeIter new_selection;
-	GList *list = NULL;
-	gboolean found_selection = FALSE;
-
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(pounce_dialog->treeview));
-	gtk_tree_selection_selected_foreach(selection, delete_foreach, pounce_dialog);
-	gtk_tree_selection_selected_foreach(selection, append_to_list, &list);
-
-	g_return_if_fail(list != NULL);
-
-	if (list->next == NULL) {
-		gtk_tree_model_get_iter(model, &new_selection, list->data);
-		if (gtk_tree_model_iter_next(model, &new_selection))
-			found_selection = TRUE;
-		else {
-			/* This is the last thing in the list */
-			GtkTreePath *path;
-
-			/* Because gtk_tree_model_iter_prev doesn't exist... */
-			gtk_tree_model_get_iter(model, &new_selection, list->data);
-			path = gtk_tree_model_get_path(model, &new_selection);
-			if (gtk_tree_path_prev(path)) {
-				gtk_tree_model_get_iter(model, &new_selection, path);
-				found_selection = TRUE;
-			}
-
-			gtk_tree_path_free(path);
-		}
-	}
-
-	while (list) {
-		if (gtk_tree_model_get_iter(model, &iter, list->data)) {
-			gtk_tree_store_remove(GTK_TREE_STORE(pounce_dialog->treemodel), &iter);
-		}
-		gtk_tree_path_free(list->data);
-		list = g_list_delete_link(list, list);
-	}
-
-	if (gtk_tree_model_get_iter_first(model, &iter)) {
-		if (found_selection)
-			gtk_tree_selection_select_iter(selection, &new_selection);
-		else
-			gtk_tree_selection_select_iter(selection, &iter);
-	} else
-		pounce_response_close(pounce_dialog);
-}
-
-static void
-pounce_response_open_ims()
-{
-	GtkTreeSelection *selection;
-
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(pounce_dialog->treeview));
-	gtk_tree_selection_selected_foreach(selection, open_im_foreach, pounce_dialog);
-
-	pounce_response_dismiss();
-}
-
-static void
-pounce_response_edit_cb(GtkTreeModel *model, GtkTreePath *path,
-		GtkTreeIter *iter, gpointer data)
-{
-	PidginNotifyPounceData *pounce_data;
-	PidginNotifyDialog *dialog = (PidginNotifyDialog*)data;
-	GList *list;
-
-	list = purple_pounces_get_all();
-
-	gtk_tree_model_get(GTK_TREE_MODEL(dialog->treemodel), iter,
-			PIDGIN_POUNCE_DATA, &pounce_data,
-			-1);
-
-	if (g_list_find(list, pounce_data->pounce) != NULL) {
-		pidgin_pounce_editor_show(pounce_data->account, NULL, pounce_data->pounce);
-		return;
-	}
-
-	purple_debug_warning("gtknotify", "Pounce was destroyed.\n");
-}
-
-static void
-pounce_response_cb(GtkDialog *dlg, gint id, PidginNotifyDialog *dialog)
-{
-	GtkTreeSelection *selection = NULL;
-
-	switch (id) {
-		case GTK_RESPONSE_CLOSE:
-		case GTK_RESPONSE_DELETE_EVENT:
-			pounce_response_close(dialog);
-			break;
-		case GTK_RESPONSE_YES:
-			pounce_response_open_ims();
-			break;
-		case GTK_RESPONSE_NO:
-			pounce_response_dismiss();
-			break;
-		case GTK_RESPONSE_APPLY:
-			selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->treeview));
-			gtk_tree_selection_selected_foreach(selection, pounce_response_edit_cb,
-					dialog);
-			break;
-	}
-}
-
-static void
-pounce_row_selected_cb(GtkTreeView *tv, GtkTreePath *path,
-	GtkTreeViewColumn *col, gpointer data)
-{
-	GtkTreeSelection *selection;
-	int count;
-
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(pounce_dialog->treeview));
-
-	count = gtk_tree_selection_count_selected_rows(selection);
-
-	if (count == 0) {
-		gtk_widget_set_sensitive(pounce_dialog->open_button, FALSE);
-		gtk_widget_set_sensitive(pounce_dialog->edit_button, FALSE);
-		gtk_widget_set_sensitive(pounce_dialog->dismiss_button, FALSE);
-	} else if (count == 1) {
-		GList *pounces;
-		GList *list;
-		PidginNotifyPounceData *pounce_data;
-		GtkTreeIter iter;
-
-		list = gtk_tree_selection_get_selected_rows(selection, NULL);
-		gtk_tree_model_get_iter(GTK_TREE_MODEL(pounce_dialog->treemodel),
-				&iter, list->data);
-		gtk_tree_model_get(GTK_TREE_MODEL(pounce_dialog->treemodel), &iter,
-				PIDGIN_POUNCE_DATA, &pounce_data,
-				-1);
-		g_list_free_full(list, (GDestroyNotify)gtk_tree_path_free);
-
-		pounces = purple_pounces_get_all();
-		if (g_list_find(pounces, pounce_data->pounce) != NULL) {
-			gtk_widget_set_sensitive(pounce_dialog->edit_button, TRUE);
-		}
-
-		gtk_widget_set_sensitive(pounce_dialog->open_button, TRUE);
-		gtk_widget_set_sensitive(pounce_dialog->dismiss_button, TRUE);
-	} else {
-		gtk_widget_set_sensitive(pounce_dialog->open_button, TRUE);
-		gtk_widget_set_sensitive(pounce_dialog->edit_button, FALSE);
-		gtk_widget_set_sensitive(pounce_dialog->dismiss_button, TRUE);
-	}
-
-
 }
 
 static void
@@ -1236,49 +994,6 @@ pidgin_notify_uri(const char *uri) {
 	return NULL;
 }
 
-void
-pidgin_notify_pounce_add(PurpleAccount *account, PurplePounce *pounce,
-		const char *alias, const char *event, const char *message, const char *date)
-{
-	GdkPixbuf *icon;
-	GtkTreeIter iter;
-	PidginNotifyPounceData *pounce_data;
-	gboolean first = (pounce_dialog == NULL);
-
-	if (pounce_dialog == NULL)
-		pounce_dialog = pidgin_create_notification_dialog(PIDGIN_NOTIFY_POUNCE);
-
-	icon = pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_SMALL);
-
-	pounce_data = g_new(PidginNotifyPounceData, 1);
-
-	pounce_data->account = account;
-	pounce_data->pounce = pounce;
-	pounce_data->pouncee = g_strdup(purple_pounce_get_pouncee(pounce));
-
-	gtk_tree_store_append(pounce_dialog->treemodel, &iter, NULL);
-
-	gtk_tree_store_set(pounce_dialog->treemodel, &iter,
-			PIDGIN_POUNCE_ICON, icon,
-			PIDGIN_POUNCE_ALIAS, alias,
-			PIDGIN_POUNCE_EVENT, event,
-			PIDGIN_POUNCE_TEXT, (message != NULL)? message : _("No message"),
-			PIDGIN_POUNCE_DATE, date,
-			PIDGIN_POUNCE_DATA, pounce_data,
-			-1);
-
-	if (first) {
-		GtkTreeSelection *selection =
-				gtk_tree_view_get_selection(GTK_TREE_VIEW(pounce_dialog->treeview));
-		gtk_tree_selection_select_iter(selection, &iter);
-	}
-
-	if (icon)
-		g_object_unref(icon);
-
-	gtk_widget_show_all(pounce_dialog->dialog);
-}
-
 static PidginNotifyDialog *
 pidgin_create_notification_dialog(PidginNotifyType type)
 {
@@ -1300,12 +1015,6 @@ pidgin_create_notification_dialog(PidginNotifyType type)
 		model = gtk_tree_store_new(COLUMNS_PIDGIN_MAIL,
 						GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER);
 
-	} else if (type == PIDGIN_NOTIFY_POUNCE) {
-		g_return_val_if_fail(pounce_dialog == NULL, pounce_dialog);
-
-		model = gtk_tree_store_new(COLUMNS_PIDGIN_POUNCE,
-				GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-				G_TYPE_STRING, G_TYPE_POINTER);
 	}
 
 	dialog = gtk_dialog_new();
@@ -1368,80 +1077,6 @@ pidgin_create_notification_dialog(PidginNotifyType type)
 
 		label = gtk_label_new(NULL);
 		gtk_label_set_markup(GTK_LABEL(label), _("<span weight=\"bold\" size=\"larger\">You have mail!</span>"));
-
-	} else if (type == PIDGIN_NOTIFY_POUNCE) {
-		gtk_window_set_title(GTK_WINDOW(dialog), _("New Pounces"));
-
-		button = gtk_dialog_add_button(GTK_DIALOG(dialog),
-						_("IM"), GTK_RESPONSE_YES);
-		gtk_widget_set_sensitive(button, FALSE);
-		spec_dialog->open_button = button;
-
-		button = gtk_dialog_add_button(GTK_DIALOG(dialog),
-						PIDGIN_STOCK_MODIFY, GTK_RESPONSE_APPLY);
-		gtk_widget_set_sensitive(button, FALSE);
-		spec_dialog->edit_button = button;
-
-		/* Translators: Make sure you translate "Dismiss" differently than
-		   "close"!  This string is used in the "You have pounced" dialog
-		   that appears when one of your Buddy Pounces is triggered.  In
-		   this context "Dismiss" means "I acknowledge that I've seen that
-		   this pounce was triggered--remove it from this list."  Translating
-		   it as "Remove" is acceptable if you can't think of a more precise
-		   word. */
-		button = gtk_dialog_add_button(GTK_DIALOG(dialog), _("Dismiss"),
-				GTK_RESPONSE_NO);
-		gtk_widget_set_sensitive(button, FALSE);
-		spec_dialog->dismiss_button = button;
-
-		g_signal_connect(G_OBJECT(dialog), "response",
-						 G_CALLBACK(pounce_response_cb), spec_dialog);
-
-		column = gtk_tree_view_column_new();
-		gtk_tree_view_column_set_title(column, _("Buddy"));
-		gtk_tree_view_column_set_resizable(column, TRUE);
-		rend = gtk_cell_renderer_pixbuf_new();
-		gtk_tree_view_column_pack_start(column, rend, FALSE);
-
-		gtk_tree_view_column_set_attributes(column, rend, "pixbuf", PIDGIN_POUNCE_ICON, NULL);
-		rend = gtk_cell_renderer_text_new();
-		gtk_tree_view_column_pack_start(column, rend, FALSE);
-		gtk_tree_view_column_add_attribute(column, rend, "text", PIDGIN_POUNCE_ALIAS);
-		gtk_tree_view_append_column(GTK_TREE_VIEW(spec_dialog->treeview), column);
-
-		column = gtk_tree_view_column_new();
-		gtk_tree_view_column_set_title(column, _("Event"));
-		gtk_tree_view_column_set_resizable(column, TRUE);
-		rend = gtk_cell_renderer_text_new();
-		gtk_tree_view_column_pack_start(column, rend, FALSE);
-		gtk_tree_view_column_add_attribute(column, rend, "text", PIDGIN_POUNCE_EVENT);
-		gtk_tree_view_append_column(GTK_TREE_VIEW(spec_dialog->treeview), column);
-
-		column = gtk_tree_view_column_new();
-		gtk_tree_view_column_set_title(column, _("Message"));
-		gtk_tree_view_column_set_resizable(column, TRUE);
-		rend = gtk_cell_renderer_text_new();
-		gtk_tree_view_column_pack_start(column, rend, FALSE);
-		gtk_tree_view_column_add_attribute(column, rend, "text", PIDGIN_POUNCE_TEXT);
-		gtk_tree_view_append_column(GTK_TREE_VIEW(spec_dialog->treeview), column);
-
-		column = gtk_tree_view_column_new();
-		gtk_tree_view_column_set_title(column, _("Date"));
-		gtk_tree_view_column_set_resizable(column, TRUE);
-		rend = gtk_cell_renderer_text_new();
-		gtk_tree_view_column_pack_start(column, rend, FALSE);
-		gtk_tree_view_column_add_attribute(column, rend, "text", PIDGIN_POUNCE_DATE);
-		gtk_tree_view_append_column(GTK_TREE_VIEW(spec_dialog->treeview), column);
-
-		label = gtk_label_new(NULL);
-		gtk_label_set_markup(GTK_LABEL(label), _("<span weight=\"bold\" size=\"larger\">You have pounced!</span>"));
-
-		sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(spec_dialog->treeview));
-		gtk_tree_selection_set_mode(sel, GTK_SELECTION_MULTIPLE);
-		g_signal_connect(G_OBJECT(sel), "changed",
-			G_CALLBACK(pounce_row_selected_cb), NULL);
-		g_signal_connect(G_OBJECT(spec_dialog->treeview), "row-activated",
-			G_CALLBACK(pounce_response_open_ims), NULL);
 	}
 
 	gtk_dialog_add_button(GTK_DIALOG(dialog),

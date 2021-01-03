@@ -373,6 +373,7 @@ version 3.0.0 (??/??/????):
 		* PurpleEventLoopUiOps. Manually drive the GLib event loop
 		  yourself. See GLib Main Event Loop docs.
 		* purple_fd_get_ip.  Use GSocket instead.
+		* purple_find_pounce
 		* purple_get_host_name. Use g_get_host_name, instead.
 		* purple_get_tzoff_str(). Use g_date_time_format, instead.
 		* purple_ip_address_is_valid, purple_ipv4_address_is_valid, and
@@ -436,7 +437,39 @@ version 3.0.0 (??/??/????):
 		* purple_plugins_unregister_unload_notify_cb
 		* purple_plugins_unload
 		* purple_plugins_unload_all
+		* purple_pounce_action_get_attribute
+		* purple_pounce_action_is_enabled
+		* purple_pounce_action_register
+		* purple_pounce_action_set_attribute
+		* purple_pounce_action_set_enabled
+		* purple_pounce_destroy
+		* purple_pounce_destroy_all_by_account
+		* purple_pounce_destroy_all_by_buddy
+		* purple_pounce_execute
+		* purple_pounce_get_data
+		* purple_pounce_get_events
+		* purple_pounce_get_options
+		* purple_pounce_get_pouncee
+		* purple_pounce_get_pouncer
+		* purple_pounce_get_save
+		* purple_pounce_new
+		* purple_pounce_set_data
+		* purple_pounce_set_events
+		* purple_pounce_set_options
+		* purple_pounce_set_pouncee
+		* purple_pounce_set_pouncer
+		* purple_pounce_set_save
+		* purple_pounces_get_all
+		* purple_pounces_get_all_for_ui
+		* purple_pounces_get_handle
+		* purple_pounces_init
 		* purple_pounces_load
+		* purple_pounces_register_handler
+		* purple_pounces_uninit
+		* purple_pounces_unregister_handler
+		* PurplePounceCb
+		* PurplePounceEvent
+		* PurplePounceOption
 		* PurpleProxyConnectData
 		* PurpleProxyConnectFunction
 		* purple_proxy_connect
@@ -665,6 +698,11 @@ version 3.0.0 (??/??/????):
 		* pidgin_menu_position_func_helper
 		* pidgin_mini_dialog_links_supported
 		* pidgin_pixbuf_toolbar_button_from_stock
+		* pidgin_pounce_editor_show
+		* pidgin_pounces_get_handle
+		* pidgin_pounces_init
+		* pidgin_pounces_manager_hide
+		* pidgin_pounces_manager_show
 		* pidgin_protocol_option_menu_get_selected
 		* pidgin_set_custom_buddy_icon
 		* pidgin_set_sensitive_if_input
@@ -705,6 +743,12 @@ version 3.0.0 (??/??/????):
 		* gnt_ui_uninit renamed to finch_ui_uninit
 
 		Removed:
+		* finch_pounce_editor_show
+		* finch_pounces_get_handle
+		* finch_pounces_init
+		* finch_pounces_manager_hide
+		* finch_pounces_manager_show
+		* finch_pounces_uninit
 		* finch_sound_get_active_profile
 		* finch_sound_get_profiles
 		* finch_sound_get_ui_ops

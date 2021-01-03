@@ -37,20 +37,6 @@
 G_BEGIN_DECLS
 
 /**
- * pidgin_notify_pounce_add:
- * @account:	The account
- * @pounce:	The pounce
- * @alias:		The buddy alias
- * @event:		Event description
- * @message:	Pounce message
- * @date:		Pounce date
- *
- * Adds a buddy pounce to the buddy pounce dialog
- */
-void pidgin_notify_pounce_add(PurpleAccount *account, PurplePounce *pounce,
-		const char *alias, const char *event, const char *message, const char *date);
-
-/**
  * pidgin_notify_get_ui_ops:
  *
  * Returns the UI operations structure for GTK+ notification functions.

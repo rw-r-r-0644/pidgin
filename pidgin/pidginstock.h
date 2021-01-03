@@ -61,7 +61,6 @@
 #define PIDGIN_STOCK_ADD             "pidgin-add"
 #define PIDGIN_STOCK_OPEN_MAIL       "pidgin-stock-open-mail"
 #define PIDGIN_STOCK_PAUSE           "pidgin-pause"
-#define PIDGIN_STOCK_POUNCE          "pidgin-pounce"
 #define PIDGIN_STOCK_SIGN_OFF        "pidgin-sign-off"
 #define PIDGIN_STOCK_SIGN_ON         "pidgin-sign-on"
 #define PIDGIN_STOCK_TEXT_NORMAL     "pidgin-text-normal"

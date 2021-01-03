@@ -212,7 +212,7 @@ window-names = conversation-window
 into this workspace. These are matched as substrings. Window titles take precedence over
 names.
 .br
-window-titles = Preferences;Pounce
+window-titles = Preferences
 .br
 
 .br
