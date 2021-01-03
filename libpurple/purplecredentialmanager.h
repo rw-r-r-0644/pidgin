@@ -2,10 +2,6 @@
  * Purple - Internet Messaging Library
  * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
- * Purple is the legal property of its developers, whose names are too numerous
- * to list here.  Please refer to the COPYRIGHT file distributed with this
- * source distribution.
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -172,7 +168,6 @@ void purple_credential_manager_read_password_async(PurpleCredentialManager *mana
 /**
  * purple_credential_manager_read_password_finish:
  * @manager: The #PurpleCredentialManager instance.
- * @account: The #PurpleAccount whose password we're looking up.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_manager_read_password_async() call.
  * @error: (out) (optional): Return address for a #GError.
@@ -184,7 +179,7 @@ void purple_credential_manager_read_password_async(PurpleCredentialManager *mana
  *
  * Since: 3.0.0
  */
-gchar *purple_credential_manager_read_password_finish(PurpleCredentialManager *manager, PurpleAccount *account, GAsyncResult *result, GError **error);
+gchar *purple_credential_manager_read_password_finish(PurpleCredentialManager *manager, GAsyncResult *result, GError **error);
 
 /**
  * purple_credential_manager_write_password_async:
@@ -206,7 +201,6 @@ void purple_credential_manager_write_password_async(PurpleCredentialManager *man
 /**
  * purple_credential_manager_write_password_finish:
  * @manager: The #PurpleCredentialManager instance.
- * @account: The #PurpleAccount whose password we're writing.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_provider_write_password_async() call.
  * @error: (out) (optional) (nullable): Return address for a #GError.
@@ -218,7 +212,7 @@ void purple_credential_manager_write_password_async(PurpleCredentialManager *man
  *
  * Since: 3.0.0
  */
-gboolean purple_credential_manager_write_password_finish(PurpleCredentialManager *manager, PurpleAccount *account, GAsyncResult *result, GError **error);
+gboolean purple_credential_manager_write_password_finish(PurpleCredentialManager *manager, GAsyncResult *result, GError **error);
 
 /**
  * purple_credential_manager_clear_password_async:
@@ -239,7 +233,6 @@ void purple_credential_manager_clear_password_async(PurpleCredentialManager *man
 /**
  * purple_credential_manager_clear_password_finish:
  * @manager: The #PurpleCredentialManager instance.
- * @account: The #PurpleAccount whose password we're clearing.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_provider_clear_password_async() call.
  * @error: (out) (optional) (nullable): Return address for a #GError.
@@ -252,7 +245,7 @@ void purple_credential_manager_clear_password_async(PurpleCredentialManager *man
  *
  * Since: 3.0.0
  */
-gboolean purple_credential_manager_clear_password_finish(PurpleCredentialManager *manager, PurpleAccount *account, GAsyncResult *result, GError **error);
+gboolean purple_credential_manager_clear_password_finish(PurpleCredentialManager *manager, GAsyncResult *result, GError **error);
 
 /**
  * purple_credential_manager_read_settings:

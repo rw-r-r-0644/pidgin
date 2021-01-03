@@ -28,6 +28,7 @@
 #include "enums.h"
 #include "network.h"
 #include "pounce.h"
+#include "purplecredentialmanager.h"
 #include "purpleprivate.h"
 
 static PurpleAccountUiOps *account_ui_ops = NULL;
@@ -580,8 +581,18 @@ purple_accounts_remove(PurpleAccount *account)
 }
 
 static void
-purple_accounts_delete_set(PurpleAccount *account, GError *error, gpointer data)
-{
+purple_accounts_delete_set(GObject *obj, GAsyncResult *res, gpointer d) {
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
+	PurpleAccount *account = PURPLE_ACCOUNT(d);
+	gboolean r = FALSE;
+
+	r = purple_credential_manager_clear_password_finish(manager, res, NULL);
+	if(r != TRUE) {
+		purple_debug_warning("accounts",
+		                     "Failed to remove password for account %s",
+		                     purple_account_get_name_for_display(account));
+	}
+
 	g_object_unref(G_OBJECT(account));
 }
 
@@ -589,6 +600,7 @@ void
 purple_accounts_delete(PurpleAccount *account)
 {
 	PurpleBlistNode *gnode, *cnode, *bnode;
+	PurpleCredentialManager *manager = NULL;
 	GList *iter;
 
 	g_return_if_fail(account != NULL);
@@ -656,8 +668,10 @@ purple_accounts_delete(PurpleAccount *account)
 	/* This is async because we do not want the
 	 * account being overwritten before we are done.
 	 */
-	purple_keyring_set_password(account, NULL,
-		purple_accounts_delete_set, NULL);
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_clear_password_async(manager, account, NULL,
+	                                               purple_accounts_delete_set,
+	                                               NULL);
 }
 
 void

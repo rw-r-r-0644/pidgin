@@ -326,6 +326,10 @@ version 3.0.0 (??/??/????):
 		* PurpleAccountPrefsUiOps
 		* purple_account_add_buddies_with_invite
 		* purple_account_add_buddy_with_invite
+		* purple_account_get_password.  Use
+		  purple_credential_manager_read_password_async instead.
+		* purple_account_set_password.  Use
+		  purple_credential_manager_write_password_async instead.
 		* purple_account_set_current_error
 		* purple_base16_*
 		* purple_base64_*. Use g_base64_* instead

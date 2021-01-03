@@ -1266,8 +1266,18 @@ jabber_register_cb(JabberRegisterCBData *cbdata, PurpleRequestFields *fields)
 					g_free(cbdata->js->user->node);
 					cbdata->js->user->node = g_strdup(value);
 				}
-				if(cbdata->js->registration && purple_strequal(id, "password"))
-					purple_account_set_password(purple_connection_get_account(cbdata->js->gc), value, NULL, NULL);
+				if(cbdata->js->registration && purple_strequal(id, "password")) {
+					PurpleCredentialManager *manager = NULL;
+					PurpleAccount *account = NULL;
+
+					account = purple_connection_get_account(cbdata->js->gc);
+					manager = purple_credential_manager_get_default();
+
+					purple_credential_manager_write_password_async(manager,
+					                                               account,
+					                                               value, NULL,
+					                                               NULL, NULL);
+				}
 			}
 		}
 	}
@@ -2477,11 +2487,17 @@ jabber_password_change_result_cb(JabberStream *js, const char *from,
                                  PurpleXmlNode *packet, gpointer data)
 {
 	if (type == JABBER_IQ_RESULT) {
+		PurpleAccount *account = purple_connection_get_account(js->gc);
+		PurpleCredentialManager *manager = NULL;
+
 		purple_notify_info(js->gc, _("Password Changed"), _("Password "
 			"Changed"), _("Your password has been changed."),
 			purple_request_cpar_from_connection(js->gc));
 
-		purple_account_set_password(purple_connection_get_account(js->gc), (const char *)data, NULL, NULL);
+		manager = purple_credential_manager_get_default();
+		purple_credential_manager_write_password_async(manager, account,
+		                                               (const gchar *)data,
+		                                               NULL, NULL, NULL);
 	} else {
 		char *msg = jabber_parse_error(js, packet, NULL);
 
@@ -2743,8 +2759,15 @@ char *jabber_parse_error(JabberStream *js,
 		} else if(purple_xmlnode_get_child(packet, "not-authorized")) {
 			SET_REASON(PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED);
 			/* Clear the pasword if it isn't being saved */
-			if (!purple_account_get_remember_password(purple_connection_get_account(js->gc)))
-				purple_account_set_password(purple_connection_get_account(js->gc), NULL, NULL, NULL);
+			if (!purple_account_get_remember_password(purple_connection_get_account(js->gc))) {
+				PurpleAccount *account = purple_connection_get_account(js->gc);
+				PurpleCredentialManager *manager = NULL;
+
+				manager = purple_credential_manager_get_default();
+				purple_credential_manager_clear_password_async(manager, account,
+				                                               NULL, NULL,
+				                                               NULL);
+			}
 			text = _("Not Authorized");
 		} else if(purple_xmlnode_get_child(packet, "temporary-auth-failure")) {
 			text = _("Temporary Authentication Failure");

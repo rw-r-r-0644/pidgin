@@ -311,23 +311,6 @@ void purple_account_request_change_user_info(PurpleAccount *account);
 void purple_account_set_username(PurpleAccount *account, const char *username);
 
 /**
- * purple_account_set_password:
- * @account:  The account.
- * @password: The password.
- * @cb:       (scope call): A callback for once the password is saved.
- * @data:     A pointer to be passed to the callback.
- *
- * Sets the account's password.
- *
- * The password in the keyring might not be immediately updated, but the cached
- * version will be, and it is therefore safe to read the password back before
- * the callback has been triggered. One can also set a %NULL callback if
- * notification of saving to the keyring is not required.
- */
-void purple_account_set_password(PurpleAccount *account, const gchar *password,
-	PurpleKeyringSaveCallback cb, gpointer data);
-
-/**
  * purple_account_set_private_alias:
  * @account: The account.
  * @alias:   The alias.
@@ -651,22 +634,6 @@ gboolean purple_account_is_disconnected(PurpleAccount *account);
  * Returns: The username.
  */
 const char *purple_account_get_username(PurpleAccount *account);
-
-/**
- * purple_account_get_password:
- * @account: The account.
- * @cb:      (scope call): The callback to give the password.
- * @data:    A pointer passed to the callback.
- *
- * Reads the password for the account.
- *
- * This is an asynchronous call, that will return the password in a callback
- * once it has been read from the keyring. If the account is connected, and you
- * require the password immediately, then consider using @ref
- * purple_connection_get_password instead.
- */
-void purple_account_get_password(PurpleAccount *account,
-	PurpleKeyringReadCallback cb, gpointer data);
 
 /**
  * purple_account_get_private_alias:

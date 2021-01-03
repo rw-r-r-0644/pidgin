@@ -149,10 +149,15 @@ static void auth_pass_cb(PurpleConnection *gc, PurpleRequestFields *fields)
 		return;
 	}
 
-	if (remember)
+	if(remember) {
+		PurpleCredentialManager *manager = NULL;
+
 		purple_account_set_remember_password(account, TRUE);
 
-	purple_account_set_password(account, entry, NULL, NULL);
+		manager = purple_credential_manager_get_default();
+		purple_credential_manager_write_password_async(manager, account, entry,
+		                                               NULL, NULL, NULL);
+	}
 
 	js->sasl_password = g_strdup(entry);
 

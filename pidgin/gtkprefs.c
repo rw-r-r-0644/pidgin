@@ -2060,8 +2060,10 @@ static void
 keyring_page_settings_apply(GtkButton *button, gpointer data)
 {
 	PidginPrefsWindow *win = PIDGIN_PREFS_WINDOW(data);
+	PurpleRequestFields *fields= win->keyring.settings;
+	PurpleCredentialManager *manager = purple_credential_manager_get_default();
 
-	if (!purple_keyring_apply_settings(win, win->keyring.settings)) {
+	if(!purple_credential_manager_write_settings(manager, fields, NULL)) {
 		return;
 	}
 
@@ -2071,8 +2073,11 @@ keyring_page_settings_apply(GtkButton *button, gpointer data)
 static void
 keyring_page_update_settings(PidginPrefsWindow *win)
 {
+	PurpleCredentialManager *manager = purple_credential_manager_get_default();
+
 	g_clear_pointer(&win->keyring.settings, purple_request_fields_destroy);
-	win->keyring.settings = purple_keyring_read_settings();
+	win->keyring.settings = purple_credential_manager_read_settings(manager,
+	                                                                NULL);
 	if (!win->keyring.settings) {
 		return;
 	}
