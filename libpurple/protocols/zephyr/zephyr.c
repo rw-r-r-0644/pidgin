@@ -61,7 +61,6 @@ extern char __Zephyr_realm[];
 
 typedef struct _zephyr_triple zephyr_triple;
 typedef struct _zephyr_account zephyr_account;
-typedef struct _parse_tree parse_tree;
 
 typedef gssize (*PollableInputStreamReadFunc)(GPollableInputStream *stream, void *bufcur, GError **error);
 
@@ -96,12 +95,6 @@ struct _zephyr_account {
 };
 
 #define MAXCHILDREN 20
-
-struct _parse_tree {
-	gchar* contents;
-	parse_tree *children[MAXCHILDREN];
-	int num_children;
-};
 
 struct _zephyr_triple {
 	char *class;
@@ -567,54 +560,33 @@ static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 	}
 }
 
-static void
-free_parse_tree(parse_tree *tree)
-{
-	int i;
-
-	if (!tree) {
-		return;
-	}
-
-	for (i = 0; i < tree->num_children; i++) {
-		free_parse_tree(tree->children[i]);
-	}
-
-	g_free(tree->contents);
-	g_free(tree);
-}
-
-static parse_tree *
-tree_child(const parse_tree *tree, int index)
-{
-	g_return_val_if_fail(tree && tree->num_children > index, NULL);
-	return tree->children[index];
-}
-
 static gchar *
-tree_child_contents(const parse_tree *tree, int index)
+tree_child_contents(GNode *tree, int index)
 {
-	parse_tree *child = tree_child(tree, index);
-	return child ? child->contents : "";
+	GNode *child = g_node_nth_child(tree, index);
+	return child ? child->data : "";
 }
 
-static parse_tree *find_node(parse_tree* ptree,gchar* key)
+static GNode *
+find_node(GNode *ptree, gchar *key)
 {
+	guint num_children;
 	gchar* tc;
 
 	if (!ptree || ! key)
 		return NULL;
 
+	num_children = g_node_n_children(ptree);
 	tc = tree_child_contents(ptree, 0);
 
 	/* g_strcasecmp() is deprecated.  What is the encoding here??? */
-	if (ptree->num_children > 0  &&	tc && !g_ascii_strcasecmp(tc, key)) {
+	if (num_children > 0 && tc && !g_ascii_strcasecmp(tc, key)) {
 		return ptree;
 	} else {
-		parse_tree *result = NULL;
-		int i;
-		for(i = 0; i < ptree->num_children; i++) {
-			result = find_node(ptree->children[i],key);
+		GNode *result = NULL;
+		guint i;
+		for (i = 0; i < num_children; i++) {
+			result = find_node(g_node_nth_child(ptree, i), key);
 			if(result != NULL) {
 				break;
 			}
@@ -623,11 +595,11 @@ static parse_tree *find_node(parse_tree* ptree,gchar* key)
 	}
 }
 
-static parse_tree *parse_buffer(gchar* source, gboolean do_parse) {
+static GNode *
+parse_buffer(const gchar *source, gboolean do_parse)
+{
+	GNode *ptree = g_node_new(NULL);
 
-	parse_tree *ptree = g_new0(parse_tree,1);
-	ptree->contents = NULL;
-	ptree->num_children=0;
 	if (do_parse) {
 		unsigned int p = 0;
 		while(p < strlen(source)) {
@@ -696,21 +668,21 @@ static parse_tree *parse_buffer(gchar* source, gboolean do_parse) {
 			}
 			newstr = g_new0(gchar, end+1-p);
 			strncpy(newstr,source+p,end-p);
-			if (ptree->num_children < MAXCHILDREN) {
+			if (g_node_n_children(ptree) < MAXCHILDREN) {
 				/* In case we surpass maxchildren, ignore this */
-				ptree->children[ptree->num_children++] = parse_buffer( newstr, do_parse);
+				g_node_append(ptree, parse_buffer(newstr, do_parse));
 			} else {
 				purple_debug_error("zephyr","too many children in tzc output. skipping\n");
 			}
 			g_free(newstr);
 			p = end + 1;
 		}
-		return ptree;
 	} else {
 		/* XXX does this have to be strdup'd */
-		ptree->contents = g_strdup(source);
-		return ptree;
+		ptree->data = g_strdup(source);
 	}
+
+	return ptree;
 }
 
 static gchar *
@@ -767,7 +739,7 @@ static gint check_notify_tzc(gpointer data)
 {
 	PurpleConnection *gc = (PurpleConnection *)data;
 	zephyr_account* zephyr = purple_connection_get_protocol_data(gc);
-	parse_tree *newparsetree = NULL;
+	GNode *newparsetree = NULL;
 	gchar *buf = read_from_tzc(zephyr, pollable_input_stream_read);
 
 	if (buf != NULL) {
@@ -780,7 +752,7 @@ static gint check_notify_tzc(gpointer data)
 		if ( (spewtype =  tree_child_contents(find_node(newparsetree, "tzcspew"), 2)) ) {
 			if (!g_ascii_strncasecmp(spewtype,"message",7)) {
 				ZNotice_t notice;
-				parse_tree *msgnode = tree_child(find_node(newparsetree,"message"),2);
+				GNode *msgnode = g_node_nth_child(find_node(newparsetree, "message"), 2);
 				/*char *zsig = g_strdup(" ");*/ /* purple doesn't care about zsigs */
 				char *msg  = zephyr_tzc_deescape_str(tree_child_contents(msgnode, 1));
 				size_t bufsize = strlen(msg) + 3;
@@ -810,7 +782,7 @@ static gint check_notify_tzc(gpointer data)
 				const char *bname;
 				const gchar *name;
 				gboolean has_locations;
-				parse_tree *locations;
+				GNode *locations;
 				gchar *locval;
 
 				user = tree_child_contents(find_node(newparsetree, "user"), 2);
@@ -818,8 +790,8 @@ static gint check_notify_tzc(gpointer data)
 				bname = b ? purple_buddy_get_name(b) : NULL;
 				name = b ? bname : user;
 
-				locations = find_node(newparsetree,"locations");
-				locval = tree_child_contents(tree_child(tree_child(tree_child(locations, 2), 0), 0), 2);
+				locations = g_node_nth_child(g_node_nth_child(find_node(newparsetree, "locations"), 2), 0);
+				locval = tree_child_contents(g_node_nth_child(locations, 0), 2);
 				has_locations = (locval && *locval && !purple_strequal(locval, " "));
 				if ((b && pending_zloc(zephyr, bname)) || pending_zloc(zephyr, user)) {
 					PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
@@ -839,7 +811,7 @@ static gint check_notify_tzc(gpointer data)
 					} else {
 						/* TODO: Need to escape the two strings that make up tmp? */
 						tmp = g_strdup_printf(_("<br>At %s since %s"), locval,
-						                      tree_child_contents(tree_child(tree_child(tree_child(locations, 2), 0), 2), 2));
+						                      tree_child_contents(g_node_nth_child(locations, 2), 2));
 						purple_notify_user_info_add_pair_html(user_info, _("Location"), tmp);
 						g_free(tmp);
 					}
@@ -847,7 +819,7 @@ static gint check_notify_tzc(gpointer data)
 					purple_notify_userinfo(gc, name, user_info, NULL, NULL);
 					purple_notify_user_info_destroy(user_info);
 				} else {
-					purple_protocol_got_user_status(purple_connection_get_account(gc), name, has_locations ? "available" : "offline", NULL);
+					purple_protocol_got_user_status(zephyr->account, name, has_locations ? "available" : "offline", NULL);
 				}
 			}
 			else if (!g_ascii_strncasecmp(spewtype,"subscribed",10)) {
@@ -862,7 +834,7 @@ static gint check_notify_tzc(gpointer data)
 	} else {
 	}
 
-	free_parse_tree(newparsetree);
+	g_node_destroy(newparsetree);
 	return TRUE;
 }
 
