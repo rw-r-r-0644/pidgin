@@ -212,8 +212,8 @@ test_purple_credential_manager_registration(void) {
 
 	/* Register the first time cleanly. */
 	r = purple_credential_manager_register_provider(manager, provider, &error);
-	g_assert_true(r);
 	g_assert_no_error(error);
+	g_assert_true(r);
 
 	/* Register again and verify the error. */
 	r = purple_credential_manager_register_provider(manager, provider, &error);
@@ -224,8 +224,8 @@ test_purple_credential_manager_registration(void) {
 	/* Unregister the provider. */
 	r = purple_credential_manager_unregister_provider(manager, provider,
 	                                                  &error);
-	g_assert_true(r);
 	g_assert_no_error(error);
+	g_assert_true(r);
 
 	/* Unregister the provider again and verify the error. */
 	r = purple_credential_manager_unregister_provider(manager, provider,
@@ -251,8 +251,8 @@ test_purple_credential_manager_set_active_null(void) {
 
 	ret = purple_credential_manager_set_active_provider(manager, NULL, &error);
 
-	g_assert_true(ret);
 	g_assert_no_error(error);
+	g_assert_true(ret);
 
 }
 
@@ -283,14 +283,14 @@ test_purple_credential_manager_set_active_normal(void) {
 	/* Create the provider and register it in the manager. */
 	provider = test_purple_credential_provider_new();
 	r = purple_credential_manager_register_provider(manager, provider, &error);
-	g_assert_true(r);
 	g_assert_no_error(error);
+	g_assert_true(r);
 
 	/* Set the provider as active and verify it was successful. */
 	r = purple_credential_manager_set_active_provider(manager, "test-provider",
 	                                                  &error);
-	g_assert_true(r);
 	g_assert_no_error(error);
+	g_assert_true(r);
 
 	/* Verify that unregistering the provider fails. */
 	r = purple_credential_manager_unregister_provider(manager, provider,
@@ -301,14 +301,14 @@ test_purple_credential_manager_set_active_normal(void) {
 
 	/* Now unset the active provider. */
 	r = purple_credential_manager_set_active_provider(manager, NULL, &error);
-	g_assert_true(r);
 	g_assert_no_error(error);
+	g_assert_true(r);
 
 	/* Finally unregister the provider now that it's no longer active. */
 	r = purple_credential_manager_unregister_provider(manager, provider,
 	                                                  &error);
-	g_assert_true(r);
 	g_assert_no_error(error);
+	g_assert_true(r);
 
 	/* And our final cleanup. */
 	g_clear_object(&provider);
@@ -343,6 +343,7 @@ test_purple_credential_manager_no_provider_read_password_idle(gpointer data) {
 	PurpleAccount *account = NULL;
 
 	account = purple_account_new("test", "test");
+	purple_account_set_remember_password(account, TRUE);
 
 	purple_credential_manager_read_password_async(m, account, NULL,
 	                                              test_purple_credential_manager_no_provider_read_password_cb,
@@ -386,6 +387,7 @@ test_purple_credential_manager_no_provider_write_password_idle(gpointer data) {
 	PurpleAccount *account = NULL;
 
 	account = purple_account_new("test", "test");
+	purple_account_set_remember_password(account, TRUE);
 
 	purple_credential_manager_write_password_async(m, account, NULL, NULL,
 	                                               test_purple_credential_manager_no_provider_write_password_cb,
@@ -430,6 +432,7 @@ test_purple_credential_manager_no_provider_clear_password_idle(gpointer data) {
 	PurpleAccount *account = NULL;
 
 	account = purple_account_new("test", "test");
+	purple_account_set_remember_password(account, TRUE);
 
 	purple_credential_manager_clear_password_async(m, account, NULL,
 	                                               test_purple_credential_manager_no_provider_clear_password_cb,
@@ -508,6 +511,7 @@ test_purple_credential_manager_read_password_idle(gpointer data) {
 	PurpleAccount *account = NULL;
 
 	account = purple_account_new("test", "test");
+	purple_account_set_remember_password(account, TRUE);
 
 	purple_credential_manager_read_password_async(m, account, NULL,
 	                                              test_purple_credential_manager_read_password_cb,
@@ -524,12 +528,12 @@ test_purple_credential_manager_read_password_async(void) {
 	gboolean r = FALSE;
 
 	r = purple_credential_manager_register_provider(m, p, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	r = purple_credential_manager_set_active_provider(m, "test-provider", &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	g_idle_add(test_purple_credential_manager_read_password_idle, m);
 	g_timeout_add_seconds(10, test_purple_credential_manager_timeout_cb, loop);
@@ -537,12 +541,12 @@ test_purple_credential_manager_read_password_async(void) {
 	g_main_loop_run(loop);
 
 	r = purple_credential_manager_set_active_provider(m, NULL, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	r = purple_credential_manager_unregister_provider(m, p, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	g_clear_object(&p);
 }
@@ -557,8 +561,8 @@ test_purple_credential_manager_write_password_cb(GObject *obj,
 	gboolean r = FALSE;
 
 	r = purple_credential_manager_write_password_finish(manager, res, &error);
-	g_assert_true(r);
 	g_assert_no_error(error);
+	g_assert_true(r);
 
 	g_clear_object(&account);
 
@@ -571,6 +575,7 @@ test_purple_credential_manager_write_password_idle(gpointer data) {
 	PurpleAccount *account = NULL;
 
 	account = purple_account_new("test", "test");
+	purple_account_set_remember_password(account, TRUE);
 
 	purple_credential_manager_write_password_async(m, account, NULL, NULL,
 	                                               test_purple_credential_manager_write_password_cb,
@@ -587,12 +592,12 @@ test_purple_credential_manager_write_password_async(void) {
 	gboolean r = FALSE;
 
 	r = purple_credential_manager_register_provider(m, p, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	r = purple_credential_manager_set_active_provider(m, "test-provider", &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	g_idle_add(test_purple_credential_manager_write_password_idle, m);
 	g_timeout_add_seconds(10, test_purple_credential_manager_timeout_cb, loop);
@@ -600,12 +605,12 @@ test_purple_credential_manager_write_password_async(void) {
 	g_main_loop_run(loop);
 
 	r = purple_credential_manager_set_active_provider(m, NULL, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	r = purple_credential_manager_unregister_provider(m, p, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	g_clear_object(&p);
 }
@@ -620,8 +625,8 @@ test_purple_credential_manager_clear_password_cb(GObject *obj,
 	gboolean r = FALSE;
 
 	r = purple_credential_manager_clear_password_finish(manager, res, &error);
-	g_assert_true(r);
 	g_assert_no_error(error);
+	g_assert_true(r);
 
 	g_clear_object(&account);
 
@@ -634,6 +639,7 @@ test_purple_credential_manager_clear_password_idle(gpointer data) {
 	PurpleAccount *account = NULL;
 
 	account = purple_account_new("test", "test");
+	purple_account_set_remember_password(account, TRUE);
 
 	purple_credential_manager_clear_password_async(m, account, NULL,
 	                                               test_purple_credential_manager_clear_password_cb,
@@ -650,12 +656,12 @@ test_purple_credential_manager_clear_password_async(void) {
 	gboolean r = FALSE;
 
 	r = purple_credential_manager_register_provider(m, p, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	r = purple_credential_manager_set_active_provider(m, "test-provider", &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	g_idle_add(test_purple_credential_manager_clear_password_idle, m);
 	g_timeout_add_seconds(10, test_purple_credential_manager_timeout_cb, loop);
@@ -663,12 +669,12 @@ test_purple_credential_manager_clear_password_async(void) {
 	g_main_loop_run(loop);
 
 	r = purple_credential_manager_set_active_provider(m, NULL, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	r = purple_credential_manager_unregister_provider(m, p, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	g_clear_object(&p);
 }
@@ -683,23 +689,23 @@ test_purple_credential_manager_settings(void) {
 	gboolean r = FALSE;
 
 	r = purple_credential_manager_register_provider(m, p, &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	r = purple_credential_manager_set_active_provider(m, "test-provider", &e);
-	g_assert_true(r);
 	g_assert_no_error(e);
+	g_assert_true(r);
 
 	fields = purple_credential_manager_read_settings(m, &e);
-	g_assert_nonnull(fields);
 	g_assert_no_error(e);
+	g_assert_nonnull(fields);
 	purple_request_fields_destroy(fields);
 
 	fields = purple_request_fields_new();
 	r = purple_credential_manager_write_settings(m, fields, &e);
+	g_assert_no_error(e);
 	g_assert_true(r);
 	g_assert_true(tp->fields == fields);
-	g_assert_no_error(e);
 
 	purple_request_fields_destroy(fields);
 

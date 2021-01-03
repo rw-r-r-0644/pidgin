@@ -406,7 +406,7 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
 
 	if(!purple_account_get_remember_password(account)) {
 		GError *error = NULL;
-		const gchar *name = purple_account_get_name_for_display(account);
+		const gchar *name = purple_account_get_username(account);
 
 		error = g_error_new(PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
 		                    _("account \"%s\" is not marked to be stored"),
