@@ -28,7 +28,6 @@
 #include "debug.h"
 #include "network.h"
 #include "notify.h"
-#include "pounce.h"
 #include "prefs.h"
 #include "purpleaccountpresence.h"
 #include "purplecredentialmanager.h"

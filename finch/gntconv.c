@@ -37,7 +37,6 @@
 #include "gntlog.h"
 #include "gntmenuutil.h"
 #include "gntplugin.h"
-#include "gntpounce.h"
 #include "gntprefs.h"
 #include "gntrequest.h"
 #include "gntstatus.h"
@@ -406,15 +405,6 @@ send_file_cb(GntMenuItem *item, gpointer ggconv)
 }
 
 static void
-add_pounce_cb(GntMenuItem *item, gpointer ggconv)
-{
-	FinchConv *ggc = ggconv;
-	finch_pounce_editor_show(
-			purple_conversation_get_account(ggc->active_conv),
-			purple_conversation_get_name(ggc->active_conv), NULL);
-}
-
-static void
 get_info_cb(GntMenuItem *item, gpointer ggconv)
 {
 	FinchConv *ggc = ggconv;
@@ -613,10 +603,6 @@ gg_create_menu(FinchConv *ggc)
 			gnt_menu_add_item(GNT_MENU(sub), item);
 			gnt_menuitem_set_callback(item, get_info_cb, ggc);
 		}
-
-		item = gnt_menuitem_new(_("Add Buddy Pounce..."));
-		gnt_menu_add_item(GNT_MENU(sub), item);
-		gnt_menuitem_set_callback(item, add_pounce_cb, ggc);
 
 		if (PURPLE_IS_PROTOCOL_XFER(protocol) &&
 			purple_protocol_xfer_can_receive(

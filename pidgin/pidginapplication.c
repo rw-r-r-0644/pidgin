@@ -36,7 +36,6 @@
 #include "gtkaccount.h"
 #include "gtkblist.h"
 #include "gtkdialogs.h"
-#include "gtkpounce.h"
 #include "gtkprefs.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
@@ -189,13 +188,6 @@ pidgin_application_add_group(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
-pidgin_application_buddy_pounces(GSimpleAction *simple, GVariant *parameter,
-                                 gpointer data)
-{
-	pidgin_pounces_manager_show();
-}
-
-static void
 pidgin_application_custom_smiley(GSimpleAction *simple, GVariant *parameter,
                                  gpointer data)
 {
@@ -321,9 +313,6 @@ static GActionEntry app_entries[] = {
 	}, {
 		.name = "add-group",
 		.activate = pidgin_application_add_group,
-	}, {
-		.name = "buddy-pounces",
-		.activate = pidgin_application_buddy_pounces,
 	}, {
 		.name = "custom-smiley",
 		.activate = pidgin_application_custom_smiley,

@@ -46,7 +46,6 @@
 #include "gtkconv.h"
 #include "gtkconvwin.h"
 #include "gtkdialogs.h"
-#include "gtkpounce.h"
 #include "gtkprefs.h"
 #include "gtkprivacy.h"
 #include "gtkutils.h"
@@ -940,18 +939,6 @@ menu_get_attention_cb(GObject *obj, gpointer data)
 		purple_protocol_send_attention(purple_conversation_get_connection(conv),
 			purple_conversation_get_name(conv), index);
 	}
-}
-
-static void
-menu_add_pounce_cb(GtkAction *action, gpointer data)
-{
-	PidginConvWindow *win = data;
-	PurpleConversation *conv;
-
-	conv = pidgin_conv_window_get_active_gtkconv(win)->active_conv;
-
-	pidgin_pounce_editor_show(purple_conversation_get_account(conv),
-								purple_conversation_get_name(conv), NULL);
 }
 
 static void
@@ -2423,7 +2410,6 @@ static GtkActionEntry menu_entries[] =
 
 	{ "SendFile", PIDGIN_STOCK_TOOLBAR_SEND_FILE, N_("Se_nd File..."), NULL, NULL, G_CALLBACK(menu_send_file_cb) },
 	{ "GetAttention", PIDGIN_STOCK_TOOLBAR_SEND_ATTENTION, N_("Get _Attention"), NULL, NULL, G_CALLBACK(menu_get_attention_cb) },
-	{ "AddBuddyPounce", NULL, N_("Add Buddy _Pounce..."), NULL, NULL, G_CALLBACK(menu_add_pounce_cb) },
 	{ "GetInfo", PIDGIN_STOCK_TOOLBAR_USER_INFO, N_("_Get Info"), "<control>O", NULL, G_CALLBACK(menu_get_info_cb) },
 	{ "Invite", NULL, N_("In_vite..."), NULL, NULL, G_CALLBACK(menu_invite_cb) },
 	{ "MoreMenu", NULL, N_("M_ore"), NULL, NULL, NULL },
@@ -2467,7 +2453,6 @@ static const char *conversation_menu =
 #endif
 			"<menuitem action='SendFile'/>"
 			"<menuitem action='GetAttention'/>"
-			"<menuitem action='AddBuddyPounce'/>"
 			"<menuitem action='GetInfo'/>"
 			"<menuitem action='Invite'/>"
 			"<menu action='MoreMenu'/>"
@@ -2863,10 +2848,6 @@ setup_menubar(PidginConvWindow *win)
 	win->menu->get_attention =
 		gtk_ui_manager_get_action(win->menu->ui,
 		                          "/Conversation/ConversationMenu/GetAttention");
-
-	win->menu->add_pounce =
-		gtk_ui_manager_get_action(win->menu->ui,
-		                          "/Conversation/ConversationMenu/AddBuddyPounce");
 
 	/* --- */
 
@@ -4848,7 +4829,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 		gtk_action_set_visible(win->menu->view_log, TRUE);
 		gtk_action_set_visible(win->menu->send_file, TRUE);
 		gtk_action_set_visible(win->menu->get_attention, TRUE);
-		gtk_action_set_visible(win->menu->add_pounce, TRUE);
 		gtk_action_set_visible(win->menu->get_info, TRUE);
 		gtk_action_set_visible(win->menu->invite, FALSE);
 		gtk_action_set_visible(win->menu->alias, TRUE);
@@ -4877,7 +4857,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 		gtk_action_set_visible(win->menu->view_log, TRUE);
 		gtk_action_set_visible(win->menu->send_file, FALSE);
 		gtk_action_set_visible(win->menu->get_attention, FALSE);
-		gtk_action_set_visible(win->menu->add_pounce, FALSE);
 		gtk_action_set_visible(win->menu->get_info, FALSE);
 		gtk_action_set_visible(win->menu->invite, TRUE);
 		gtk_action_set_visible(win->menu->alias, TRUE);
@@ -4939,7 +4918,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 
 		/* Deal with menu items */
 		gtk_action_set_sensitive(win->menu->view_log, TRUE);
-		gtk_action_set_sensitive(win->menu->add_pounce, TRUE);
 		gtk_action_set_sensitive(win->menu->get_info, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, get_info)));
 		gtk_action_set_sensitive(win->menu->invite, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, invite)));
 		gtk_action_set_sensitive(win->menu->insert_link, (features & PURPLE_CONNECTION_FLAG_HTML));
@@ -4981,7 +4959,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 		gtk_action_set_sensitive(win->menu->view_log, TRUE);
 		gtk_action_set_sensitive(win->menu->send_file, FALSE);
 		gtk_action_set_sensitive(win->menu->get_attention, FALSE);
-		gtk_action_set_sensitive(win->menu->add_pounce, TRUE);
 		gtk_action_set_sensitive(win->menu->get_info, FALSE);
 		gtk_action_set_sensitive(win->menu->invite, FALSE);
 		gtk_action_set_sensitive(win->menu->alias, FALSE);
@@ -6464,7 +6441,6 @@ pidgin_conversation_get_type(void)
 #include "gtkblist.h"
 #include "gtkconv.h"
 #include "gtkdialogs.h"
-#include "gtkpounce.h"
 #include "gtkprefs.h"
 #include "gtkprivacy.h"
 #include "gtkutils.h"

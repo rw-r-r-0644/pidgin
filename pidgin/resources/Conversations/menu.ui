@@ -63,10 +63,6 @@
           <attribute name="action">win.get-attention</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">Add Buddy _Pounce...</attribute>
-          <attribute name="action">win.add-buddy-pounce</attribute>
-        </item>
-        <item>
           <attribute name="label" translatable="yes">_Get Info</attribute>
           <attribute name="action">win.clear-history</attribute>
           <attribute name="accel">&lt;Primary&gt;O</attribute>

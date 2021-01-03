@@ -27,11 +27,6 @@ if PLUGINS
 	    name_prefix : '',
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 
-	offlinemsg = library('offlinemsg', 'offlinemsg.c',
-	    dependencies : [libpurple_dep],
-	    name_prefix : '',
-	    install : true, install_dir : PURPLE_PLUGINDIR)
-
 	psychic = library('psychic', 'psychic.c',
 	    dependencies : [libpurple_dep],
 	    name_prefix : '',

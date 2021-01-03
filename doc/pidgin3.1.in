@@ -116,11 +116,6 @@ Opens a new \fBConversation\fR window to the selected buddy.
 Sends a file to the selected buddy (only available on protocols that support
 file transfer).
 .TP
-.B Add Buddy Pounce
-A Buddy Pounce is a configurable automated action to be performed when the
-buddy's state changes.  This will open the \fBBuddy Pounce\fR dialog, which
-will be discussed later.
-.TP
 .B View Log
 Pidgin is capable of automatically logging messages.  These logs are
 either plain text files (with a .txt extension) or html files (with a
@@ -479,19 +474,6 @@ buttons here allow operation on the status selected from the list; the \fAdd\fR
 button allows creation of a new saved status, and the \fIClose\fR button closes
 the window.
 
-.SH BUDDY POUNCE
-A Buddy Pounce is an automated trigger that occurs when a buddy returns to
-a normal state from an away state.  The \fBBuddy Pounce\fR dialog box
-can be activated by selecting the \fIBuddy Pounce\fR option from the
-\fBTools\fR menu. From this dialog, new pounces can be created with the
-\fBAdd\fR button and existing pounces can be removed with the \fBDelete\fR
-button.  A pounce can be set to occur on any combination of the
-events listed, and any combination of actions can result.  If \fIPounce
-only when my status is not Available\fR is checked, the pounce will occur
-only if the user is set to a non-available status, such as invisible, do not
-disturb, away, etc.  If \fIRecurring\fR is checked, the pounce will remain
-until removed by the \fBDelete\fR button.
-
 .SH CUSTOM SMILIES
 Pidgin 2.5.0 introduced support for custom smilies on those protocols for which
 interested contributors have developed support.  The custom smiley manager can
@@ -529,8 +511,6 @@ about this interaction exists.
   \fI~/.purple/blist.xml\fR: the buddy list.
 .br
   \fI~/.purple/accounts.xml\fR: information about the user's accounts.
-.br
-  \fI~/.purple/pounces.xml\fR: stores the user's buddy pounces.
 .br
   \fI~/.purple/prefs.xml\fR: Pidgin's configuration file.
 .br

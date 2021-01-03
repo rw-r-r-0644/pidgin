@@ -10,7 +10,6 @@ finch/gntmedia.c
 finch/gntmenuutil.c
 finch/gntnotify.c
 finch/gntplugin.c
-finch/gntpounce.c
 finch/gntprefs.c
 finch/gntrequest.c
 finch/gntroomlist.c
@@ -74,10 +73,8 @@ libpurple/plugins/keyrings/kwallet/purplekwallet.cpp
 libpurple/plugins/keyrings/secretservice.c
 libpurple/plugins/keyrings/wincred.c
 libpurple/plugins/log_reader.c
-libpurple/plugins/offlinemsg.c
 libpurple/plugins/psychic.c
 libpurple/plugins/statenotify.c
-libpurple/pounce.c
 libpurple/prefs.c
 libpurple/protocol.c
 libpurple/protocols/bonjour/bonjour.c
@@ -317,7 +314,6 @@ pidgin/gtkidle.c
 pidgin/gtkmedia.c
 pidgin/gtknotify.c
 pidgin/gtkpluginpref.c
-pidgin/gtkpounce.c
 pidgin/gtkprefs.c
 pidgin/gtkprivacy.c
 pidgin/gtkrequest.c

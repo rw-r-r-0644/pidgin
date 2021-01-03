@@ -28,7 +28,6 @@
 #include "conversation.h"
 #include "debug.h"
 #include "notify.h"
-#include "pounce.h"
 #include "prefs.h"
 #include "protocol.h"
 #include "purpleprivate.h"
@@ -1494,9 +1493,6 @@ void purple_blist_remove_buddy(PurpleBuddy *buddy)
 	if (klass && klass->remove_node) {
 		klass->remove_node(purplebuddylist, node);
 	}
-
-	/* Remove this buddy's pounces */
-	purple_pounce_destroy_all_by_buddy(buddy);
 
 	/* Signal that the buddy has been removed before freeing the memory for it */
 	purple_signal_emit(purple_blist_get_handle(), "blist-node-removed",

@@ -32,7 +32,6 @@
 #include "gtkconv.h"
 #include "gtkdialogs.h"
 #include "gtkxfer.h"
-#include "gtkpounce.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
 #include "gtkstatusbox.h"
@@ -711,12 +710,6 @@ static void gtk_blist_menu_alias_cb(GtkWidget *w, PurpleBlistNode *node)
 	gtk_tree_view_set_cursor_on_cell(GTK_TREE_VIEW(gtkblist->treeview), path,
 			gtkblist->text_column, gtkblist->text_rend, TRUE);
 	gtk_tree_path_free(path);
-}
-
-static void gtk_blist_menu_bp_cb(GtkWidget *w, PurpleBuddy *b)
-{
-	pidgin_pounce_editor_show(purple_buddy_get_account(b),
-	                          purple_buddy_get_name(b), NULL);
 }
 
 static void gtk_blist_menu_showlog_cb(GtkWidget *w, PurpleBlistNode *node)
@@ -1556,9 +1549,6 @@ pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean sub) 
                                         buddy);
 		}
 	}
-
-	pidgin_new_menu_item(menu, _("Add Buddy _Pounce..."), NULL,
-			G_CALLBACK(gtk_blist_menu_bp_cb), buddy);
 
 	if (node->parent && node->parent->child->next &&
 	      !sub && !contact_expanded) {

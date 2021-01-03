@@ -35,7 +35,6 @@
       <xi:include href="xml/buddy.xml" />
       <xi:include href="xml/buddylist.xml" />
       <xi:include href="xml/buddyicon.xml" />
-      <xi:include href="xml/pounce.xml" />
       <xi:include href="xml/chat.xml" />
       <xi:include href="xml/circularbuffer.xml" />
       <xi:include href="xml/contact.xml" />

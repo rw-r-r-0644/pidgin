@@ -72,7 +72,6 @@ static struct StockIcon
 	{ PIDGIN_STOCK_MODIFY,          NULL,      GTK_STOCK_PREFERENCES      },
 	{ PIDGIN_STOCK_ADD,             NULL,	   GTK_STOCK_ADD              },
 	{ PIDGIN_STOCK_PAUSE,           NULL,      GTK_STOCK_MEDIA_PAUSE      },
-	{ PIDGIN_STOCK_POUNCE,          NULL,      GTK_STOCK_REDO             },
 	{ PIDGIN_STOCK_OPEN_MAIL,       NULL,      GTK_STOCK_JUMP_TO          },
 	{ PIDGIN_STOCK_SIGN_ON,         NULL,      GTK_STOCK_EXECUTE          },
 	{ PIDGIN_STOCK_SIGN_OFF,        NULL,      GTK_STOCK_CLOSE            },
