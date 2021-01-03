@@ -30,6 +30,7 @@
 #include "notify.h"
 #include "protocol.h"
 #include "purpleaccountoption.h"
+#include "purplecredentialmanager.h"
 #include "purpleprotocolattention.h"
 #include "purpleprotocolmedia.h"
 #include "request.h"
@@ -285,8 +286,14 @@ do_protocol_change_account_status(PurpleAccount *account,
 		if (!purple_account_is_disconnected(account))
 			purple_account_disconnect(account);
 		/* Clear out the unsaved password if we switch to offline status */
-		if (!purple_account_get_remember_password(account))
-			purple_account_set_password(account, NULL, NULL, NULL);
+		if (!purple_account_get_remember_password(account)) {
+			PurpleCredentialManager *manager = NULL;
+
+			manager = purple_credential_manager_get_default();
+
+			purple_credential_manager_clear_password_async(manager, account,
+			                                               NULL, NULL, NULL);
+		}
 
 		return;
 	}

@@ -333,55 +333,6 @@ purple_keyring_export_password(PurpleAccount *account, const gchar **keyring_id,
 	const gchar **mode, gchar **data, GError **error,
 	GDestroyNotify *destroy);
 
-/**
- * purple_keyring_get_password:
- * @account:          The account.
- * @cb: (scope call): A callback for once the password is read.
- * @data:             Data passed to the callback.
- *
- * Read a password from the current keyring.
- */
-void
-purple_keyring_get_password(PurpleAccount *account,
-	PurpleKeyringReadCallback cb, gpointer data);
-
-/**
- * purple_keyring_set_password:
- * @account:          The account.
- * @password:         The password to save.
- * @cb: (scope call): A callback for once the password is saved.
- * @data:             Data to be passed to the callback.
- *
- * Save a password to the current keyring.
- */
-void
-purple_keyring_set_password(PurpleAccount *account, const gchar *password,
-	PurpleKeyringSaveCallback cb, gpointer data);
-
-/**
- * purple_keyring_read_settings:
- *
- * Reads settings from current keyring.
- *
- * Returns: (transfer full): New copy of current settings (must be free'd with
- *         purple_request_fields_destroy).
- */
-PurpleRequestFields *
-purple_keyring_read_settings(void);
-
-/**
- * purple_keyring_apply_settings:
- * @notify_handle: A handle that can be passed to purple_notify_message.
- * @fields:        Modified settings (originally taken from
- *                      PurpleKeyringReadSettings).
- *
- * Applies modified settings to current keyring.
- *
- * Returns: TRUE, if succeeded, FALSE otherwise.
- */
-gboolean
-purple_keyring_apply_settings(void *notify_handle, PurpleRequestFields *fields);
-
 /**************************************************************************/
 /* PurpleKeyring accessors                                                */
 /**************************************************************************/

@@ -160,6 +160,7 @@ getpass(const gchar *prompt)
 
 int main(int argc, char *argv[])
 {
+	PurpleCredentialManager *manager = NULL;
 	GList *list, *iter;
 	int i, num;
 	GList *names = NULL;
@@ -225,7 +226,10 @@ int main(int argc, char *argv[])
 
 	/* Get the password for the account */
 	password = getpass("Password: ");
-	purple_account_set_password(account, password, NULL, NULL);
+
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_write_password_async(manager, account, password,
+	                                               NULL, NULL, NULL);
 
 	/* It's necessary to enable the account first. */
 	purple_account_set_enabled(account, UI_ID, TRUE);

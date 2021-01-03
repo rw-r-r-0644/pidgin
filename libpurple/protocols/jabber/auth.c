@@ -99,10 +99,15 @@ auth_old_pass_cb(PurpleConnection *gc, PurpleRequestFields *fields)
 		return;
 	}
 
-	if (remember)
+	if(remember) {
+		PurpleCredentialManager *manager = NULL;
+
 		purple_account_set_remember_password(account, TRUE);
 
-	purple_account_set_password(account, entry, NULL, NULL);
+		manager = purple_credential_manager_get_default();
+		purple_credential_manager_write_password_async(manager, account, entry,
+		                                               NULL, NULL, NULL);
+	}
 
 	/* Restart our connection */
 	jabber_auth_start_old(js);
@@ -215,8 +220,15 @@ static void auth_old_result_cb(JabberStream *js, const char *from,
 					purple_strequal(err_code, "401")) {
 			reason = PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED;
 			/* Clear the pasword if it isn't being saved */
-			if (!purple_account_get_remember_password(account))
-				purple_account_set_password(account, NULL, NULL, NULL);
+			if(!purple_account_get_remember_password(account)) {
+				PurpleCredentialManager *manager = NULL;
+
+				manager = purple_credential_manager_get_default();
+
+				purple_credential_manager_clear_password_async(manager, account,
+				                                               NULL, NULL,
+				                                               NULL);
+			}
 		}
 
 		purple_connection_error(js->gc, reason, msg);

@@ -270,9 +270,11 @@ void finch_prefs_show_all()
 static void
 finch_prefs_keyring_save(void *data, PurpleRequestFields *fields)
 {
+	PurpleCredentialManager *manager = purple_credential_manager_get_default();
+
 	pref_request.keyring_window = NULL;
 
-	purple_keyring_apply_settings(NULL, fields);
+	purple_credential_manager_write_settings(manager, fields, NULL);
 }
 
 static void
@@ -284,13 +286,15 @@ finch_prefs_keyring_cancel(void)
 void finch_prefs_show_keyring(void)
 {
 	PurpleRequestFields *fields;
+	PurpleCredentialManager *manager = NULL;
 
 	if (pref_request.keyring_window != NULL) {
 		gnt_window_present(pref_request.keyring_window);
 		return;
 	}
 
-	fields = purple_keyring_read_settings();
+	manager = purple_credential_manager_get_default();
+	fields = purple_credential_manager_read_settings(manager, NULL);
 	if (fields == NULL) {
 		purple_notify_info(NULL, _("Keyring settings"),
 			_("Selected keyring doesn't allow any configuration"),

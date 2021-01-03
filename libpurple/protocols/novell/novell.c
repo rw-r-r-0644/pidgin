@@ -127,8 +127,18 @@ _login_resp_cb(NMUser * user, NMERR_T ret_code,
 				/* Don't attempt to auto-reconnect if our
 				 * password was invalid.
 				 */
-				if (!purple_account_get_remember_password(purple_connection_get_account(gc)))
-					purple_account_set_password(purple_connection_get_account(gc), NULL, NULL, NULL);
+				if (!purple_account_get_remember_password(purple_connection_get_account(gc))) {
+					PurpleAccount *account = NULL;
+					PurpleCredentialManager *manager = NULL;
+
+					account = purple_connection_get_account(gc);
+					manager = purple_credential_manager_get_default();
+
+					purple_credential_manager_clear_password_async(manager,
+					                                               account,
+					                                               NULL, NULL,
+					                                               NULL);
+				}
 				reason = PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED;
 				break;
 			default:
@@ -2030,8 +2040,14 @@ _evt_user_disconnect(NMUser * user, NMEvent * event)
 	gc = purple_account_get_connection(account);
 	if (gc)
 	{
-		if (!purple_account_get_remember_password(account))
-			purple_account_set_password(account, NULL, NULL, NULL);
+		if (!purple_account_get_remember_password(account)) {
+			PurpleCredentialManager *manager = NULL;
+
+			manager = purple_credential_manager_get_default();
+
+			purple_credential_manager_clear_password_async(manager, account,
+			                                               NULL, NULL, NULL);
+		}
 		purple_connection_error(gc,
 			PURPLE_CONNECTION_ERROR_NAME_IN_USE,
 			_("You have signed on from another location"));

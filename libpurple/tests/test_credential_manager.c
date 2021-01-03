@@ -327,8 +327,8 @@ test_purple_credential_manager_no_provider_read_password_cb(GObject *obj,
 	GError *error = NULL;
 	gchar *password = NULL;
 
-	password = purple_credential_manager_read_password_finish(manager, account,
-	                                                          res, &error);
+	password = purple_credential_manager_read_password_finish(manager, res,
+	                                                          &error);
 	g_assert_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0);
 	g_assert_null(password);
 
@@ -371,8 +371,7 @@ test_purple_credential_manager_no_provider_write_password_cb(GObject *obj,
 	GError *error = NULL;
 	gboolean r = FALSE;
 
-	r = purple_credential_manager_write_password_finish(manager, account, res,
-	                                                    &error);
+	r = purple_credential_manager_write_password_finish(manager, res, &error);
 	g_assert_false(r);
 	g_assert_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0);
 
@@ -416,8 +415,7 @@ test_purple_credential_manager_no_provider_clear_password_cb(GObject *obj,
 	GError *error = NULL;
 	gboolean r = FALSE;
 
-	r = purple_credential_manager_clear_password_finish(manager, account, res,
-	                                                    &error);
+	r = purple_credential_manager_clear_password_finish(manager, res, &error);
 	g_assert_false(r);
 	g_assert_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0);
 
@@ -493,8 +491,8 @@ test_purple_credential_manager_read_password_cb(GObject *obj, GAsyncResult *res,
 	GError *error = NULL;
 	gchar *password = NULL;
 
-	password = purple_credential_manager_read_password_finish(manager, account,
-	                                                          res, &error);
+	password = purple_credential_manager_read_password_finish(manager, res,
+	                                                          &error);
 	g_assert_no_error(error);
 	g_assert_cmpstr(password, ==, "password");
 	g_free(password);
@@ -558,8 +556,7 @@ test_purple_credential_manager_write_password_cb(GObject *obj,
 	GError *error = NULL;
 	gboolean r = FALSE;
 
-	r = purple_credential_manager_write_password_finish(manager, account, res,
-	                                                    &error);
+	r = purple_credential_manager_write_password_finish(manager, res, &error);
 	g_assert_true(r);
 	g_assert_no_error(error);
 
@@ -622,8 +619,7 @@ test_purple_credential_manager_clear_password_cb(GObject *obj,
 	GError *error = NULL;
 	gboolean r = FALSE;
 
-	r = purple_credential_manager_clear_password_finish(manager, account, res,
-	                                                    &error);
+	r = purple_credential_manager_clear_password_finish(manager, res, &error);
 	g_assert_true(r);
 	g_assert_no_error(error);
 

@@ -90,11 +90,14 @@ static void
 save_account_cb(AccountEditDialog *dialog)
 {
 	PurpleAccount *account;
+	PurpleCredentialManager *manager = NULL;
 	PurpleProtocol *protocol;
 	const char *value;
 	GString *username;
 
 	/* XXX: Do some error checking first. */
+
+	manager = purple_credential_manager_get_default();
 
 	protocol = gnt_combo_box_get_selected_data(GNT_COMBO_BOX(dialog->protocol));
 
@@ -186,10 +189,13 @@ save_account_cb(AccountEditDialog *dialog)
 	purple_account_set_remember_password(account,
 			gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->remember)));
 	value = gnt_entry_get_text(GNT_ENTRY(dialog->password));
-	if (value && *value)
-		purple_account_set_password(account, value, NULL, NULL);
-	else
-		purple_account_set_password(account, NULL, NULL, NULL);
+	if (value && *value) {
+		purple_credential_manager_write_password_async(manager, account, value,
+		                                               NULL, NULL, NULL);
+	} else {
+		purple_credential_manager_clear_password_async(manager, account, NULL,
+		                                               NULL, NULL);
+	}
 
 	/* Mail notification */
 	purple_account_set_check_mail(account,
@@ -521,14 +527,19 @@ protocol_changed_cb(GntWidget *combo, PurpleProtocol *old, PurpleProtocol *new, 
 }
 
 static void
-edit_account_continue(PurpleAccount *account, 
-	const gchar *password, GError *error, gpointer user_data)
+edit_account_continue(GObject *obj, GAsyncResult *res, gpointer data)
 {
+	PurpleAccount *account = PURPLE_ACCOUNT(data);
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
 	GntWidget *window, *hbox;
 	GntWidget *combo, *button, *entry;
 	GList *list, *iter;
 	AccountEditDialog *dialog;
 	PurpleProtocol *protocol;
+	gchar *password = NULL;
+
+	password = purple_credential_manager_read_password_finish(manager, res,
+	                                                          NULL);
 
 	if (account)
 	{
@@ -605,8 +616,9 @@ edit_account_continue(PurpleAccount *account,
 	gnt_entry_set_masked(GNT_ENTRY(entry), TRUE);
 	gnt_box_add_widget(GNT_BOX(hbox), gnt_label_new(_("Password:")));
 	gnt_box_add_widget(GNT_BOX(hbox), entry);
-	if (account)
+	if (account) {
 		gnt_entry_set_text(GNT_ENTRY(entry), password);
+	}
 
 	hbox = gnt_hbox_new(TRUE);
 	gnt_box_set_pad(GNT_BOX(hbox), 0);
@@ -654,13 +666,19 @@ edit_account_continue(PurpleAccount *account,
 	gnt_box_readjust(GNT_BOX(window));
 	gnt_widget_draw(window);
 
+	g_free(password);
 	g_list_free(list);
 }
 
 static void
 edit_account(PurpleAccount *account)
 {
-	purple_account_get_password(account, edit_account_continue, account);
+	PurpleCredentialManager *manager = NULL;
+
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_read_password_async(manager, account, NULL,
+	                                              edit_account_continue,
+	                                              account);
 }
 
 static void

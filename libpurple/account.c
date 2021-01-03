@@ -31,6 +31,7 @@
 #include "pounce.h"
 #include "prefs.h"
 #include "purpleaccountpresence.h"
+#include "purplecredentialmanager.h"
 #include "purpleprivate.h"
 #include "purpleprotocolclient.h"
 #include "request.h"
@@ -52,7 +53,6 @@ typedef struct
 {
 	char *username;             /* The username.                          */
 	char *alias;                /* How you appear to yourself.            */
-	char *password;             /* The account password.                  */
 	char *user_info;            /* User information.                      */
 
 	char *buddy_icon_path;      /* The buddy icon's non-cached path.      */
@@ -119,6 +119,7 @@ typedef struct
 
 typedef struct
 {
+	PurpleAccount *account;
 	PurpleCallback cb;
 	gpointer data;
 } PurpleCallbackBundle;
@@ -148,36 +149,54 @@ G_DEFINE_TYPE_WITH_PRIVATE(PurpleAccount, purple_account, G_TYPE_OBJECT);
  * Helpers
  *****************************************************************************/
 static void
-purple_account_register_got_password_cb(PurpleAccount *account,
-	const gchar *password, GError *error, gpointer data)
+purple_account_register_got_password_cb(GObject *obj, GAsyncResult *res,
+                                        gpointer data)
 {
-	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
+	PurpleAccount *account = PURPLE_ACCOUNT(data);
+	gchar *password = NULL;
+
+	password = purple_credential_manager_read_password_finish(manager, res,
+	                                                          NULL);
 
 	_purple_connection_new(account, TRUE, password);
+
+	g_free(password);
 }
 
 void
 purple_account_register(PurpleAccount *account)
 {
+	PurpleCredentialManager *manager = NULL;
+
 	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
 
 	purple_debug_info("account", "Registering account %s\n",
 					purple_account_get_username(account));
 
-	purple_keyring_get_password(account,
-		purple_account_register_got_password_cb, NULL);
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_read_password_async(manager, account, NULL,
+	                                              purple_account_register_got_password_cb,
+	                                              account);
 }
 
 static void
-purple_account_unregister_got_password_cb(PurpleAccount *account,
-	const gchar *password, GError *error, gpointer data)
+purple_account_unregister_got_password_cb(GObject *obj, GAsyncResult *res,
+                                          gpointer data)
 {
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
 	PurpleCallbackBundle *cbb = data;
 	PurpleAccountUnregistrationCb cb;
+	gchar *password = NULL;
 
 	cb = (PurpleAccountUnregistrationCb)cbb->cb;
-	_purple_connection_new_unregister(account, password, cb, cbb->data);
 
+	password = purple_credential_manager_read_password_finish(manager, res,
+	                                                          NULL);
+
+	_purple_connection_new_unregister(cbb->account, password, cb, cbb->data);
+
+	g_free(password);
 	g_free(cbb);
 }
 
@@ -206,6 +225,37 @@ purple_account_register_completed_cb(gpointer data)
 }
 
 static void
+request_password_write_cb(GObject *obj, GAsyncResult *res, gpointer data) {
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
+	PurpleAccount *account = PURPLE_ACCOUNT(data);
+	GError *error = NULL;
+	gchar *password = NULL;
+
+	/* We stash the password on the account to get it to this call back... It's
+	 * kind of gross but shouldn't be a big deal because any plugin has access
+	 * to the credential store, so it's not really a security leak.
+	 */
+	password = (gchar *)g_object_get_data(G_OBJECT(account), "_tmp_password");
+	g_object_set_data(G_OBJECT(account), "_tmp_password", NULL);
+
+	if(!purple_credential_manager_write_password_finish(manager, res, &error)) {
+		const gchar *name = purple_account_get_name_for_display(account);
+
+		/* we can't error an account without a connection, so we just drop a
+		 * debug message for now and continue to connect the account.
+		 */
+		purple_debug_info("account",
+		                  "failed to save password for account \"%s\": %s",
+		                  name,
+		                  error != NULL ? error->message : "unknown error");
+	}
+
+	_purple_connection_new(account, FALSE, password);
+
+	g_free(password);
+}
+
+static void
 request_password_ok_cb(PurpleAccount *account, PurpleRequestFields *fields)
 {
 	const char *entry;
@@ -224,8 +274,23 @@ request_password_ok_cb(PurpleAccount *account, PurpleRequestFields *fields)
 
 	purple_account_set_remember_password(account, remember);
 
-	purple_account_set_password(account, entry, NULL, NULL);
-	_purple_connection_new(account, FALSE, entry);
+	if(remember) {
+		PurpleCredentialManager *manager = NULL;
+
+		manager = purple_credential_manager_get_default();
+
+		/* The requests field can be invalidated by the time we write the
+		 * password and we want to use it in the write callback, so we need to
+		 * duplicate it for that callback.
+		 */
+		g_object_set_data(G_OBJECT(account), "_tmp_password", g_strdup(entry));
+		purple_credential_manager_write_password_async(manager, account, entry,
+		                                               NULL,
+		                                               request_password_write_cb,
+		                                               account);
+	} else {
+		_purple_connection_new(account, FALSE, entry);
+	}
 }
 
 static void
@@ -237,19 +302,31 @@ request_password_cancel_cb(PurpleAccount *account, PurpleRequestFields *fields)
 
 
 static void
-purple_account_connect_got_password_cb(PurpleAccount *account,
-	const gchar *password, GError *error, gpointer data)
+purple_account_connect_got_password_cb(GObject *obj, GAsyncResult *res,
+                                       gpointer data)
 {
-	PurpleProtocol *protocol = data;
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
+	PurpleAccount *account = PURPLE_ACCOUNT(data);
+	PurpleProtocol *protocol = NULL;
+	gchar *password = NULL;
 
-	if ((password == NULL || *password == '\0') &&
+	password = purple_credential_manager_read_password_finish(manager, res,
+	                                                          NULL);
+
+	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+
+	if((password == NULL || *password == '\0') &&
 		!(purple_protocol_get_options(protocol) & OPT_PROTO_NO_PASSWORD) &&
 		!(purple_protocol_get_options(protocol) & OPT_PROTO_PASSWORD_OPTIONAL))
+	{
 		purple_account_request_password(account,
 			G_CALLBACK(request_password_ok_cb),
 			G_CALLBACK(request_password_cancel_cb), account);
-	else
+	} else {
 		_purple_connection_new(account, FALSE, password);
+	}
+
+	g_free(password);
 }
 
 static PurpleAccountRequestInfo *
@@ -429,28 +506,6 @@ purple_account_get_state(PurpleAccount *account)
 		return PURPLE_CONNECTION_DISCONNECTED;
 
 	return purple_connection_get_state(gc);
-}
-
-static void
-purple_account_get_password_got(PurpleAccount *account,
-	const gchar *password, GError *error, gpointer data)
-{
-	PurpleCallbackBundle *cbb = data;
-	PurpleKeyringReadCallback cb;
-	PurpleAccountPrivate *priv = purple_account_get_instance_private(account);
-
-	purple_debug_info("account",
-		"Read password for account %s from async keyring.\n",
-		purple_account_get_username(account));
-
-	purple_str_wipe(priv->password);
-	priv->password = g_strdup(password);
-
-	cb = (PurpleKeyringReadCallback)cbb->cb;
-	if (cb != NULL)
-		cb(account, password, error, cbb->data);
-
-	g_free(cbb);
 }
 
 /*
@@ -1070,7 +1125,6 @@ purple_account_finalize(GObject *object)
 
 	g_free(priv->username);
 	g_free(priv->alias);
-	purple_str_wipe(priv->password);
 	g_free(priv->user_info);
 	g_free(priv->buddy_icon_path);
 	g_free(priv->protocol_id);
@@ -1171,9 +1225,9 @@ purple_account_new(const char *username, const char *protocol_id)
 void
 purple_account_connect(PurpleAccount *account)
 {
-	const char *username;
-	PurpleProtocol *protocol;
-	PurpleAccountPrivate *priv;
+	PurpleCredentialManager *manager = NULL;
+	PurpleProtocol *protocol = NULL;
+	const char *username = NULL;
 
 	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
 
@@ -1197,17 +1251,12 @@ purple_account_connect(PurpleAccount *account)
 		return;
 	}
 
-	priv = purple_account_get_instance_private(account);
-
 	purple_debug_info("account", "Connecting to account %s.\n", username);
 
-	if (priv->password != NULL) {
-		purple_account_connect_got_password_cb(account,
-			priv->password, NULL, protocol);
-	} else {
-		purple_keyring_get_password(account,
-			purple_account_connect_got_password_cb, protocol);
-	}
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_read_password_async(manager, account, NULL,
+	                                              purple_account_connect_got_password_cb,
+	                                              account);
 }
 
 void
@@ -1238,9 +1287,11 @@ purple_account_register_completed(PurpleAccount *account, gboolean succeeded)
 }
 
 void
-purple_account_unregister(PurpleAccount *account, PurpleAccountUnregistrationCb cb, void *user_data)
+purple_account_unregister(PurpleAccount *account,
+                          PurpleAccountUnregistrationCb cb, gpointer user_data)
 {
 	PurpleCallbackBundle *cbb;
+	PurpleCredentialManager *manager = NULL;
 
 	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
 
@@ -1248,11 +1299,14 @@ purple_account_unregister(PurpleAccount *account, PurpleAccountUnregistrationCb 
 					  purple_account_get_username(account));
 
 	cbb = g_new0(PurpleCallbackBundle, 1);
+	cbb->account = account;
 	cbb->cb = PURPLE_CALLBACK(cb);
 	cbb->data = user_data;
 
-	purple_keyring_get_password(account,
-		purple_account_unregister_got_password_cb, cbb);
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_read_password_async(manager, account, NULL,
+	                                              purple_account_unregister_got_password_cb,
+	                                              cbb);
 }
 
 void
@@ -1564,33 +1618,6 @@ purple_account_set_username(PurpleAccount *account, const char *username)
 	/* if the name changes, we should re-write the buddy list
 	 * to disk with the new name */
 	purple_blist_save_account(purple_blist_get_default(), account);
-}
-
-void
-purple_account_set_password(PurpleAccount *account, const gchar *password,
-	PurpleKeyringSaveCallback cb, gpointer data)
-{
-	PurpleAccountPrivate *priv;
-
-	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
-
-	priv = purple_account_get_instance_private(account);
-
-	purple_str_wipe(priv->password);
-	priv->password = g_strdup(password);
-
-	purple_accounts_schedule_save();
-
-	if (!purple_account_get_remember_password(account)) {
-		purple_debug_info("account",
-			"Password for %s set, not sent to keyring.\n",
-			purple_account_get_username(account));
-
-		if (cb != NULL)
-			cb(account, NULL, data);
-	} else {
-		purple_keyring_set_password(account, password, cb, data);
-	}
 }
 
 void
@@ -2092,37 +2119,6 @@ purple_account_get_username(PurpleAccount *account)
 
 	priv = purple_account_get_instance_private(account);
 	return priv->username;
-}
-
-void
-purple_account_get_password(PurpleAccount *account,
-	PurpleKeyringReadCallback cb, gpointer data)
-{
-	PurpleAccountPrivate *priv;
-
-	if (account == NULL) {
-		cb(NULL, NULL, NULL, data);
-		return;
-	}
-
-	priv = purple_account_get_instance_private(account);
-
-	if (priv->password != NULL) {
-		purple_debug_info("account",
-			"Reading password for account %s from cache.\n",
-			purple_account_get_username(account));
-		cb(account, priv->password, NULL, data);
-	} else {
-		PurpleCallbackBundle *cbb = g_new0(PurpleCallbackBundle, 1);
-		cbb->cb = PURPLE_CALLBACK(cb);
-		cbb->data = data;
-
-		purple_debug_info("account",
-			"Reading password for account %s from async keyring.\n",
-			purple_account_get_username(account));
-		purple_keyring_get_password(account, 
-			purple_account_get_password_got, cbb);
-	}
 }
 
 const char *
@@ -2987,10 +2983,16 @@ void
 purple_account_change_password(PurpleAccount *account, const char *orig_pw,
 		const char *new_pw)
 {
+	PurpleCredentialManager *manager = NULL;
 	PurpleProtocol *protocol = NULL;
 	PurpleConnection *gc = purple_account_get_connection(account);
 
-	purple_account_set_password(account, new_pw, NULL, NULL);
+	/* just going to fire and forget this for now as not many protocols even
+	 * implement the change password stuff.
+	 */
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_write_password_async(manager, account, new_pw,
+	                                               NULL, NULL, NULL);
 
 	if (gc != NULL)
 		protocol = purple_connection_get_protocol(gc);

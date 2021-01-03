@@ -2,10 +2,6 @@
  * Purple - Internet Messaging Library
  * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
- * Purple is the legal property of its developers, whose names are too numerous
- * to list here.  Please refer to the COPYRIGHT file distributed with this
- * source distribution.
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -196,7 +192,7 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 	 * PurpleCredentialManager::active-provider-changed:
 	 * @manager: The #PurpleCredentialManager instance.
 	 * @old: The #PurpleCredentialProvider that was previously active.
-	 * @current: The #PurpleCredenetialProvider that is now currently active.
+	 * @current: The #PurpleCredentialProvider that is now currently active.
 	 *
 	 * Emitted after @provider has become the active provider for @manager.
 	 *
@@ -382,12 +378,10 @@ purple_credential_manager_read_password_async(PurpleCredentialManager *manager,
 
 gchar *
 purple_credential_manager_read_password_finish(PurpleCredentialManager *manager,
-                                               PurpleAccount *account,
                                                GAsyncResult *result,
                                                GError **error)
 {
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), NULL);
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 
 	return g_task_propagate_pointer(G_TASK(result), error);
 }
@@ -410,6 +404,19 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
 
 	task = g_task_new(manager, cancellable, callback, data);
 
+	if(!purple_account_get_remember_password(account)) {
+		GError *error = NULL;
+		const gchar *name = purple_account_get_name_for_display(account);
+
+		error = g_error_new(PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
+		                    _("account \"%s\" is not marked to be stored"),
+		                    name);
+
+		g_task_return_error(task, error);
+
+		return;
+	}
+
 	if(priv->active_provider == NULL) {
 		GError *error = NULL;
 
@@ -431,12 +438,10 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
 
 gboolean
 purple_credential_manager_write_password_finish(PurpleCredentialManager *manager,
-                                                PurpleAccount *account,
                                                 GAsyncResult *result,
                                                 GError **error)
 {
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), FALSE);
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
 
 	return g_task_propagate_boolean(G_TASK(result), error);
 }
@@ -479,12 +484,10 @@ purple_credential_manager_clear_password_async(PurpleCredentialManager *manager,
 
 gboolean
 purple_credential_manager_clear_password_finish(PurpleCredentialManager *manager,
-                                                PurpleAccount *account,
                                                 GAsyncResult *result,
                                                 GError **error)
 {
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), FALSE);
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
 
 	return g_task_propagate_boolean(G_TASK(result), error);
 }

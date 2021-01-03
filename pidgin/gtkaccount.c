@@ -141,6 +141,11 @@ typedef struct
 
 } AccountPrefsDialog;
 
+typedef struct {
+	PurpleAccount *account;
+	PidginAccountDialogType type;
+} PidginAccountDialogShowData;
+
 static AccountsWindow *accounts_window = NULL;
 static GHashTable *account_pref_wins;
 
@@ -1277,6 +1282,7 @@ account_register_cb(PurpleAccount *account, gboolean succeeded, void *user_data)
 static void
 ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 {
+	PurpleCredentialManager *manager = NULL;
 	PurpleProxyInfo *proxy_info = NULL;
 	GList *l, *l2;
 	const char *value;
@@ -1286,6 +1292,8 @@ ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 	PurpleAccount *account;
 	gboolean remember;
 	PurpleBuddyIconSpec *icon_spec = NULL;
+
+	manager = purple_credential_manager_get_default();
 
 	/* Build the username string. */
 	username = g_strdup(gtk_entry_get_text(GTK_ENTRY(dialog->username_entry)));
@@ -1402,8 +1410,10 @@ ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 	/* Remember Password */
 	remember = gtk_toggle_button_get_active(
 		GTK_TOGGLE_BUTTON(dialog->remember_pass_check));
-	if(!remember)
-		purple_keyring_set_password(account, NULL, NULL, NULL);
+	if(!remember) {
+		purple_credential_manager_clear_password_async(manager, account, NULL,
+		                                               NULL, NULL);
+	}
 
 	purple_account_set_remember_password(account, remember);
 
@@ -1422,10 +1432,15 @@ ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 	 * the account editor (but has not checked the 'save' box), then we
 	 * don't want to prompt them.
 	 */
-	if ((purple_account_get_remember_password(account) || new_acct) && (*value != '\0'))
-		purple_account_set_password(account, value, NULL, NULL);
-	else
-		purple_account_set_password(account, NULL, NULL, NULL);
+	if ((purple_account_get_remember_password(account) || new_acct) &&
+	    (*value != '\0'))
+	{
+		purple_credential_manager_write_password_async(manager, account, value,
+		                                               NULL, NULL, NULL);
+	} else {
+		purple_credential_manager_clear_password_async(manager, account, NULL,
+		                                               NULL, NULL);
+	}
 
 	purple_account_set_username(account, username);
 	g_free(username);
@@ -1568,10 +1583,13 @@ static const GtkTargetEntry dnd_targets[] = {
 };
 
 static void
-pidgin_account_dialog_show_continue(PurpleAccount *account,
-	const gchar *password, GError *error, gpointer _type)
+pidgin_account_dialog_show_continue(GObject *obj, GAsyncResult *res,
+                                    gpointer data)
 {
-	PidginAccountDialogType type = GPOINTER_TO_INT(_type);
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
+	PidginAccountDialogShowData *d = (PidginAccountDialogShowData *)data;
+	PurpleAccount *account = NULL;
+	PidginAccountDialogType type = 0;
 	AccountPrefsDialog *dialog;
 	GtkWidget *win;
 	GtkWidget *main_vbox;
@@ -1579,6 +1597,14 @@ pidgin_account_dialog_show_continue(PurpleAccount *account,
 	GtkWidget *dbox;
 	GtkWidget *notebook;
 	GtkWidget *button;
+	gchar *password = NULL;
+
+	/* we needed a struct to pass multiple pointers to here, but now that we
+	 * have them, we can free it.
+	 */
+	account = d->account;
+	type = d->type;
+	g_free(d);
 
 	if (accounts_window != NULL && account != NULL &&
 		(dialog = g_hash_table_lookup(account_pref_wins, account)) != NULL)
@@ -1615,8 +1641,12 @@ pidgin_account_dialog_show_continue(PurpleAccount *account,
 		g_hash_table_insert(account_pref_wins, account, dialog);
 	}
 
+	/* The dialog will take ownership of this pointer */
+	password = purple_credential_manager_read_password_finish(manager, res,
+	                                                          NULL);
+
 	dialog->account = account;
-	dialog->password = g_strdup(password);
+	dialog->password = password;
 	dialog->type = type;
 	dialog->sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 	dialog->protocol = purple_protocols_find(dialog->protocol_id);
@@ -1703,9 +1733,22 @@ pidgin_account_dialog_show_continue(PurpleAccount *account,
 void
 pidgin_account_dialog_show(PidginAccountDialogType type, PurpleAccount *account)
 {
+	PurpleCredentialManager *manager = NULL;
+	PidginAccountDialogShowData *data = NULL;
+
+	/* this is kind of dangerous, but it's no worse than the old version.
+	 * Regardless this dialog needs a lot of TLC.
+	 */
+	data = g_new0(PidginAccountDialogShowData, 1);
+	data->account = account;
+	data->type = type;
+
+	manager = purple_credential_manager_get_default();
+
 	/* this is to make sure the password will be cached */
-	purple_account_get_password(account,
-		pidgin_account_dialog_show_continue, GINT_TO_POINTER(type));
+	purple_credential_manager_read_password_async(manager, account, NULL,
+	                                              pidgin_account_dialog_show_continue,
+	                                              data);
 }
 
 /**************************************************************************
