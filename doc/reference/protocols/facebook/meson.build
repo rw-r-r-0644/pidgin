@@ -12,6 +12,11 @@ scan_args = [
     '--ignore-headers=' + ' '.join(ignore_hfiles),
 ]
 
+# Extra options to supply to fixxref
+fixxref_args = [
+    '--extra-dir=../../libpurple',
+]
+
 # Extra SGML files that are included by $(DOC_MAIN_XML_FILE).
 content_files = [
     libpurple_version_xml,
@@ -23,5 +28,6 @@ facebook_doc = gnome.gtkdoc(DOC_MODULE,
     dependencies : facebook_dep,
     install : true,
     scan_args : scan_args,
+    fixxref_args : fixxref_args,
     gobject_typesfile : DOC_MODULE + '.types',
     content_files : content_files)
