@@ -1,4 +1,6 @@
-/* pidgin
+/*
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 /*
@@ -53,12 +54,81 @@
 /* Timeout for typing notifications in seconds */
 #define TYPING_TIMEOUT 4
 
-static void remove_typing_cb(PidginStatusBox *box);
+typedef enum {
+	PIDGIN_STATUS_BOX_TYPE_SEPARATOR,
+	PIDGIN_STATUS_BOX_TYPE_PRIMITIVE,
+	PIDGIN_STATUS_BOX_TYPE_POPULAR,
+	PIDGIN_STATUS_BOX_TYPE_SAVED_POPULAR,
+	PIDGIN_STATUS_BOX_TYPE_CUSTOM,
+	PIDGIN_STATUS_BOX_TYPE_SAVED,
+	PIDGIN_STATUS_BOX_NUM_TYPES
+} PidginStatusBoxItemType;
+
+struct _PidginStatusBox {
+	GtkContainer parent_instance;
+
+	/*< public >*/
+	GtkListStore *store;
+	GtkListStore *dropdown_store;
+
+	PurpleAccount *account;
+
+	PurpleAccount *token_status_account;
+
+	GtkWidget *vbox;
+	gboolean editor_visible;
+	GtkWidget *editor;
+	GtkWidget *input;
+	GtkTextBuffer *buffer;
+
+	GdkCursor *hand_cursor;
+	GdkCursor *arrow_cursor;
+	int icon_size;
+	gboolean icon_opaque;
+
+
+	GtkWidget *cell_view;
+	GtkCellRenderer *icon_rend;
+	GtkCellRenderer *text_rend;
+
+	GdkPixbuf *error_pixbuf;
+
+	gboolean network_available;
+	gboolean connecting;
+
+	GtkTreeIter iter;
+	char *error;
+
+	/*
+	 * These widgets are made for renderin'
+	 * That's just what they'll do
+	 * One of these days these widgets
+	 * Are gonna render all over you
+	 */
+	GtkWidget *hbox;
+	GtkWidget *toggle_button;
+	GtkWidget *vsep;
+	GtkWidget *arrow;
+
+	GtkWidget *popup_window;
+	GtkWidget *popup_frame;
+	GtkWidget *scrolled_window;
+	GtkWidget *cell_view_frame;
+	GtkTreeViewColumn *column;
+	GtkWidget *tree_view;
+	gboolean popup_in_progress;
+	GtkTreeRowReference *active_row;
+};
+
+static void pidgin_status_box_add(PidginStatusBox *status_box, PidginStatusBoxItemType type, GdkPixbuf *pixbuf, const char *text, const char *sec_text, gpointer data);
+static void pidgin_status_box_add_separator(PidginStatusBox *status_box);
+static void pidgin_status_box_set_network_available(PidginStatusBox *status_box, gboolean available);
+static void activate_currently_selected_status(PidginStatusBox *status_box);
+
 static void update_size (PidginStatusBox *box);
 static gint get_statusbox_index(PidginStatusBox *box, PurpleSavedStatus *saved_status);
 static PurpleAccount* check_active_accounts_for_identical_statuses(void);
 
-static void pidgin_status_box_pulse_typing(PidginStatusBox *status_box);
 static void pidgin_status_box_refresh(PidginStatusBox *status_box);
 static void status_menu_refresh_iter(PidginStatusBox *status_box, gboolean status_changed);
 static void pidgin_status_box_regenerate(PidginStatusBox *status_box, gboolean status_changed);
@@ -119,50 +189,6 @@ enum {
 enum {
 	PROP_0,
 	PROP_ACCOUNT,
-};
-
-static char *typing_stock_ids[7] = {
-	PIDGIN_STOCK_ANIMATION_TYPING0,
-	PIDGIN_STOCK_ANIMATION_TYPING1,
-	PIDGIN_STOCK_ANIMATION_TYPING2,
-	PIDGIN_STOCK_ANIMATION_TYPING3,
-	PIDGIN_STOCK_ANIMATION_TYPING4,
-	NULL
-};
-
-static char *connecting_stock_ids[] = {
-	PIDGIN_STOCK_ANIMATION_CONNECT0,
-	PIDGIN_STOCK_ANIMATION_CONNECT1,
-	PIDGIN_STOCK_ANIMATION_CONNECT2,
-	PIDGIN_STOCK_ANIMATION_CONNECT3,
-	PIDGIN_STOCK_ANIMATION_CONNECT4,
-	PIDGIN_STOCK_ANIMATION_CONNECT5,
-	PIDGIN_STOCK_ANIMATION_CONNECT6,
-	PIDGIN_STOCK_ANIMATION_CONNECT7,
-	PIDGIN_STOCK_ANIMATION_CONNECT8,
-	PIDGIN_STOCK_ANIMATION_CONNECT9,
-	PIDGIN_STOCK_ANIMATION_CONNECT10,
-	PIDGIN_STOCK_ANIMATION_CONNECT11,
-	PIDGIN_STOCK_ANIMATION_CONNECT12,
-	PIDGIN_STOCK_ANIMATION_CONNECT13,
-	PIDGIN_STOCK_ANIMATION_CONNECT14,
-	PIDGIN_STOCK_ANIMATION_CONNECT15,
-	PIDGIN_STOCK_ANIMATION_CONNECT16,
-	PIDGIN_STOCK_ANIMATION_CONNECT17,
-	PIDGIN_STOCK_ANIMATION_CONNECT18,
-	PIDGIN_STOCK_ANIMATION_CONNECT19,
-	PIDGIN_STOCK_ANIMATION_CONNECT20,
-	PIDGIN_STOCK_ANIMATION_CONNECT21,
-	PIDGIN_STOCK_ANIMATION_CONNECT22,
-	PIDGIN_STOCK_ANIMATION_CONNECT23,
-	PIDGIN_STOCK_ANIMATION_CONNECT24,
-	PIDGIN_STOCK_ANIMATION_CONNECT25,
-	PIDGIN_STOCK_ANIMATION_CONNECT26,
-	PIDGIN_STOCK_ANIMATION_CONNECT27,
-	PIDGIN_STOCK_ANIMATION_CONNECT28,
-	PIDGIN_STOCK_ANIMATION_CONNECT29,
-	PIDGIN_STOCK_ANIMATION_CONNECT30,
-	NULL
 };
 
 static GtkContainerClass *parent_class = NULL;
@@ -308,23 +334,12 @@ static void
 pidgin_status_box_finalize(GObject *obj)
 {
 	PidginStatusBox *statusbox = PIDGIN_STATUS_BOX(obj);
-	gsize i;
 
 	purple_signals_disconnect_by_handle(statusbox);
 	purple_prefs_disconnect_by_handle(statusbox);
 
 	if (statusbox->active_row)
 		gtk_tree_row_reference_free(statusbox->active_row);
-
-	for (i = 0; i < G_N_ELEMENTS(statusbox->connecting_pixbufs); i++) {
-		if (statusbox->connecting_pixbufs[i] != NULL)
-			g_object_unref(G_OBJECT(statusbox->connecting_pixbufs[i]));
-	}
-
-	for (i = 0; i < G_N_ELEMENTS(statusbox->typing_pixbufs); i++) {
-		if (statusbox->typing_pixbufs[i] != NULL)
-			g_object_unref(G_OBJECT(statusbox->typing_pixbufs[i]));
-	}
 
 	g_object_unref(G_OBJECT(statusbox->store));
 	g_object_unref(G_OBJECT(statusbox->dropdown_store));
@@ -396,29 +411,7 @@ pidgin_status_box_refresh(PidginStatusBox *status_box)
 		account_status = TRUE;
 
 	/* Primary */
-	if (status_box->typing != 0)
-	{
-		GtkTreeIter iter;
-		PidginStatusBoxItemType type;
-		gpointer data;
-
-		/* Primary (get the status selected in the dropdown) */
-		path = gtk_tree_row_reference_get_path(status_box->active_row);
-		if (!gtk_tree_model_get_iter (GTK_TREE_MODEL(status_box->dropdown_store), &iter, path))
-			return;
-		gtk_tree_path_free(path);
-
-		gtk_tree_model_get(GTK_TREE_MODEL(status_box->dropdown_store), &iter,
-						   TYPE_COLUMN, &type,
-						   DATA_COLUMN, &data,
-						   -1);
-		if (type == PIDGIN_STATUS_BOX_TYPE_PRIMITIVE)
-			primary = g_strdup(purple_primitive_get_name_from_type(GPOINTER_TO_INT(data)));
-		else
-			/* This should never happen, but just in case... */
-			primary = g_strdup("New status");
-	}
-	else if (account_status)
+	if (account_status)
 		primary = g_strdup(purple_status_get_name(purple_account_get_active_status(acct)));
 	else if (purple_savedstatus_is_transient(saved_status))
 		primary = g_strdup(purple_primitive_get_name_from_type(purple_savedstatus_get_primitive_type(saved_status)));
@@ -426,9 +419,7 @@ pidgin_status_box_refresh(PidginStatusBox *status_box)
 		primary = g_markup_escape_text(purple_savedstatus_get_title(saved_status), -1);
 
 	/* Secondary */
-	if (status_box->typing != 0)
-		secondary = g_strdup(_("Typing"));
-	else if (status_box->connecting)
+	if (status_box->connecting)
 		secondary = g_strdup(_("Connecting"));
 	else if (!status_box->network_available)
 		secondary = g_strdup(_("Waiting for network connection"));
@@ -451,12 +442,7 @@ pidgin_status_box_refresh(PidginStatusBox *status_box)
 	}
 
 	/* Pixbuf */
-	if (status_box->typing != 0)
-		stock = typing_stock_ids[status_box->typing_index];
-	else if (status_box->connecting)
-		stock = connecting_stock_ids[status_box->connecting_index];
-	else
-	  {
+	{
 	    PurpleStatusType *status_type;
 	    PurpleStatusPrimitive prim;
 	    if (account_status) {
@@ -845,7 +831,9 @@ static gboolean
 editor_remove_focus(GtkWidget *w, GdkEventKey *event, PidginStatusBox *status_box)
 {
 	if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-		remove_typing_cb(status_box);
+		activate_currently_selected_status(status_box);
+		pidgin_status_box_refresh(status_box);
+
 		return TRUE;
 	}
 	else if (event->keyval == GDK_KEY_Tab || event->keyval == GDK_KEY_KP_Tab || event->keyval == GDK_KEY_ISO_Left_Tab)
@@ -857,15 +845,10 @@ editor_remove_focus(GtkWidget *w, GdkEventKey *event, PidginStatusBox *status_bo
 				                  GTK_DIR_TAB_BACKWARD: GTK_DIR_TAB_FORWARD);
 		return TRUE;
 	}
-	if (status_box->typing == 0)
-		return FALSE;
 
 	/* Reset the status if Escape was pressed */
 	if (event->keyval == GDK_KEY_Escape)
 	{
-		g_source_remove(status_box->typing);
-		status_box->typing = 0;
-
 		if (status_box->account != NULL)
 			update_to_reflect_account_status(status_box, status_box->account,
 							purple_account_get_active_status(status_box->account));
@@ -875,10 +858,6 @@ editor_remove_focus(GtkWidget *w, GdkEventKey *event, PidginStatusBox *status_bo
 		}
 		return TRUE;
 	}
-
-	pidgin_status_box_pulse_typing(status_box);
-	g_source_remove(status_box->typing);
-	status_box->typing = g_timeout_add_seconds(TYPING_TIMEOUT, (GSourceFunc)remove_typing_cb, status_box);
 
 	return FALSE;
 }
@@ -895,39 +874,6 @@ dropdown_store_row_separator_func(GtkTreeModel *model,
 		return TRUE;
 
 	return FALSE;
-}
-
-static void
-cache_pixbufs(PidginStatusBox *status_box)
-{
-	GtkIconSize icon_size;
-	gsize i;
-
-	g_object_set(G_OBJECT(status_box->icon_rend), "xpad", 3, NULL);
-	icon_size = gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL);
-
-	for (i = 0; i < G_N_ELEMENTS(status_box->connecting_pixbufs); i++) {
-		if (status_box->connecting_pixbufs[i] != NULL)
-			g_object_unref(G_OBJECT(status_box->connecting_pixbufs[i]));
-		if (connecting_stock_ids[i])
-			status_box->connecting_pixbufs[i] = gtk_widget_render_icon (GTK_WIDGET(status_box->vbox),
-					connecting_stock_ids[i], icon_size, "PidginStatusBox");
-		else
-			status_box->connecting_pixbufs[i] = NULL;
-	}
-	status_box->connecting_index = 0;
-
-
-	for (i = 0; i < G_N_ELEMENTS(status_box->typing_pixbufs); i++) {
-		if (status_box->typing_pixbufs[i] != NULL)
-			g_object_unref(G_OBJECT(status_box->typing_pixbufs[i]));
-		if (typing_stock_ids[i])
-			status_box->typing_pixbufs[i] =  gtk_widget_render_icon (GTK_WIDGET(status_box->vbox),
-					typing_stock_ids[i], icon_size, "PidginStatusBox");
-		else
-			status_box->typing_pixbufs[i] = NULL;
-	}
-	status_box->typing_index = 0;
 }
 
 static void account_enabled_cb(PurpleAccount *acct, PidginStatusBox *status_box)
@@ -1291,31 +1237,33 @@ treeview_cursor_changed_cb(GtkTreeView *treeview, gpointer data)
 static void
 pidgin_status_box_buffer_changed_cb(GtkTextBuffer *buffer, gpointer data) {
 	PidginStatusBox *status_box = (PidginStatusBox*)data;
-	if (gtk_widget_get_sensitive(GTK_WIDGET(status_box)))
-	{
-		if (status_box->typing != 0) {
-			pidgin_status_box_pulse_typing(status_box);
-			g_source_remove(status_box->typing);
-		}
-		status_box->typing = g_timeout_add_seconds(TYPING_TIMEOUT, (GSourceFunc)remove_typing_cb, status_box);
-	}
+
+	pidgin_status_box_refresh(status_box);
+}
+
+static void
+pidgin_status_box_save_message_cb(TalkatuInput *input, gpointer data) {
+	PidginStatusBox *status_box = PIDGIN_STATUS_BOX(data);
+
+	activate_currently_selected_status(status_box);
 	pidgin_status_box_refresh(status_box);
 }
 
 static void
 pidgin_status_box_init (PidginStatusBox *status_box)
 {
+	GNetworkMonitor *monitor = NULL;
 	GtkCellRenderer *text_rend;
 	GtkCellRenderer *icon_rend;
 	GtkCellRenderer *emblem_rend;
 	GtkWidget *toplevel;
 	GtkTreeSelection *sel;
+	gboolean network_available = FALSE;
 
 	gtk_widget_set_has_window(GTK_WIDGET(status_box), FALSE);
 	status_box->editor_visible = FALSE;
 	status_box->network_available = purple_network_is_available();
 	status_box->connecting = FALSE;
-	status_box->typing = 0;
 	status_box->toggle_button = gtk_toggle_button_new();
 	status_box->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	status_box->cell_view = gtk_cell_view_new();
@@ -1407,6 +1355,7 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 	status_box->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, FALSE);
 	status_box->editor = talkatu_editor_new();
 	status_box->input = talkatu_editor_get_input(TALKATU_EDITOR(status_box->editor));
+
 	status_box->buffer = talkatu_html_buffer_new();
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(status_box->input), status_box->buffer);
 
@@ -1438,7 +1387,6 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 
 	status_box->token_status_account = check_active_accounts_for_identical_statuses();
 
-	cache_pixbufs(status_box);
 	pidgin_status_box_regenerate(status_box, TRUE);
 
 	purple_signal_connect(purple_savedstatuses_get_handle(), "savedstatus-changed",
@@ -1464,10 +1412,12 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 						PURPLE_CALLBACK(account_status_changed_cb),
 						status_box);
 
-	g_signal_connect(G_OBJECT(g_network_monitor_get_default()),
-	                 "network-changed",
+	monitor = g_network_monitor_get_default();
+	g_signal_connect(G_OBJECT(monitor), "network-changed",
 	                 G_CALLBACK(pidgin_status_box_network_changed_cb),
 	                 status_box);
+	network_available = g_network_monitor_get_network_available(monitor);
+	pidgin_status_box_set_network_available(status_box, network_available);
 }
 
 static void
@@ -1559,15 +1509,13 @@ pidgin_status_box_forall(GtkContainer *container,
 GtkWidget *
 pidgin_status_box_new()
 {
-	return g_object_new(PIDGIN_TYPE_STATUS_BOX, "account", NULL,
-	                    "iconsel", TRUE, NULL);
+	return g_object_new(PIDGIN_TYPE_STATUS_BOX, "account", NULL, NULL);
 }
 
 GtkWidget *
 pidgin_status_box_new_with_account(PurpleAccount *account)
 {
-	return g_object_new(PIDGIN_TYPE_STATUS_BOX, "account", account,
-	                    "iconsel", TRUE, NULL);
+	return g_object_new(PIDGIN_TYPE_STATUS_BOX, "account", account, NULL);
 }
 
 /*
@@ -1677,24 +1625,6 @@ pidgin_status_box_set_connecting(PidginStatusBox *status_box, gboolean connectin
 	if (!status_box)
 		return;
 	status_box->connecting = connecting;
-	pidgin_status_box_refresh(status_box);
-}
-
-void
-pidgin_status_box_pulse_connecting(PidginStatusBox *status_box)
-{
-	if (!status_box)
-		return;
-	if (!connecting_stock_ids[++status_box->connecting_index])
-		status_box->connecting_index = 0;
-	pidgin_status_box_refresh(status_box);
-}
-
-static void
-pidgin_status_box_pulse_typing(PidginStatusBox *status_box)
-{
-	if (!typing_stock_ids[++status_box->typing_index])
-		status_box->typing_index = 0;
 	pidgin_status_box_refresh(status_box);
 }
 
@@ -1904,22 +1834,6 @@ static void update_size(PidginStatusBox *status_box)
 	gtk_widget_set_size_request(status_box->vbox, -1, -1);
 }
 
-static void remove_typing_cb(PidginStatusBox *status_box)
-{
-	if (status_box->typing == 0)
-	{
-		/* Nothing has changed, so we don't need to do anything */
-		status_menu_refresh_iter(status_box, FALSE);
-		return;
-	}
-
-	g_source_remove(status_box->typing);
-	status_box->typing = 0;
-
-	activate_currently_selected_status(status_box);
-	pidgin_status_box_refresh(status_box);
-}
-
 static void pidgin_status_box_changed(PidginStatusBox *status_box)
 {
 	GtkTreePath *path = gtk_tree_row_reference_get_path(status_box->active_row);
@@ -1941,9 +1855,6 @@ static void pidgin_status_box_changed(PidginStatusBox *status_box)
 			   TYPE_COLUMN, &type,
 			   DATA_COLUMN, &data,
 			   -1);
-	if ((wastyping = (status_box->typing != 0)))
-		g_source_remove(status_box->typing);
-	status_box->typing = 0;
 
 	if (gtk_widget_get_sensitive(GTK_WIDGET(status_box)))
 	{
@@ -2014,7 +1925,6 @@ static void pidgin_status_box_changed(PidginStatusBox *status_box)
 			GtkTextIter start, end;
 
 			gtk_widget_show_all(status_box->vbox);
-			status_box->typing = g_timeout_add_seconds(TYPING_TIMEOUT, (GSourceFunc)remove_typing_cb, status_box);
 			gtk_widget_grab_focus(status_box->input);
 
 			gtk_text_buffer_get_start_iter(status_box->buffer, &start);

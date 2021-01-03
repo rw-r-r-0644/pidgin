@@ -56,7 +56,6 @@ pidgin_connection_connect_progress(PurpleConnection *gc,
 		return;
 	pidgin_status_box_set_connecting(PIDGIN_STATUS_BOX(gtkblist->statusbox),
 					   (purple_connections_get_connecting() != NULL));
-	pidgin_status_box_pulse_connecting(PIDGIN_STATUS_BOX(gtkblist->statusbox));
 }
 
 static void
@@ -159,10 +158,6 @@ pidgin_connection_report_disconnect(PurpleConnection *gc,
 static void pidgin_connection_network_connected (void)
 {
 	GList *list, *l;
-	PidginBuddyList *gtkblist = pidgin_blist_get_default_gtk_blist();
-
-	if(gtkblist)
-		pidgin_status_box_set_network_available(PIDGIN_STATUS_BOX(gtkblist->statusbox), TRUE);
 
 	l = list = purple_accounts_get_all_active();
 	while (l) {
@@ -178,10 +173,6 @@ static void pidgin_connection_network_connected (void)
 static void pidgin_connection_network_disconnected (void)
 {
 	GList *list, *l;
-	PidginBuddyList *gtkblist = pidgin_blist_get_default_gtk_blist();
-
-	if(gtkblist)
-		pidgin_status_box_set_network_available(PIDGIN_STATUS_BOX(gtkblist->statusbox), FALSE);
 
 	l = list = purple_accounts_get_all_active();
 	while (l) {
