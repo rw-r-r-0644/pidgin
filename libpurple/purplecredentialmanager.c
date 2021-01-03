@@ -39,34 +39,10 @@ typedef struct {
 	PurpleCredentialProvider *active_provider;
 } PurpleCredentialManagerPrivate;
 
-typedef struct {
-	GTask *task;
-	PurpleAccount *account;
-} PurpleCredentialManagerCallbackData;
-
 G_DEFINE_TYPE_WITH_PRIVATE(PurpleCredentialManager, purple_credential_manager,
                            G_TYPE_OBJECT);
 
 static PurpleCredentialManager *default_manager = NULL;
-
-static PurpleCredentialManagerCallbackData *
-purple_credential_manager_callback_data_new(GTask *task, PurpleAccount *account)
-{
-	PurpleCredentialManagerCallbackData *d = NULL;
-
-	d = g_new(PurpleCredentialManagerCallbackData, 1);
-	d->task = task;
-	d->account = PURPLE_ACCOUNT(g_object_ref(G_OBJECT(account)));
-
-	return d;
-}
-
-static void
-purple_credential_manager_callback_data_free(PurpleCredentialManagerCallbackData * d)
-{
-	g_object_unref(G_OBJECT(d->account));
-	g_free(d);
-}
 
 /******************************************************************************
  * Async Callbacks
@@ -77,24 +53,21 @@ purple_credential_manager_read_password_callback(GObject *obj,
                                                  gpointer data)
 {
 	PurpleCredentialProvider *provider = PURPLE_CREDENTIAL_PROVIDER(obj);
-	PurpleCredentialManagerCallbackData *d = NULL;
 	GError *error = NULL;
+	GTask *task = G_TASK(data);
 	gchar *password = NULL;
 
-	d = (PurpleCredentialManagerCallbackData *)data;
-
-	password = purple_credential_provider_read_password_finish(provider,
-	                                                           d->account, res,
+	password = purple_credential_provider_read_password_finish(provider, res,
 	                                                           &error);
 
 	if(error != NULL) {
-		g_task_return_error(d->task, error);
+		g_task_return_error(task, error);
 	} else {
-		g_task_return_pointer(d->task, password, g_free);
+		g_task_return_pointer(task, password, g_free);
 	}
 
 	/* Clean up our initial reference to the task. */
-	g_object_unref(G_OBJECT(d->task));
+	g_object_unref(G_OBJECT(task));
 }
 
 static void
@@ -103,23 +76,21 @@ purple_credential_manager_write_password_callback(GObject *obj,
                                                   gpointer data)
 {
 	PurpleCredentialProvider *provider = PURPLE_CREDENTIAL_PROVIDER(obj);
-	PurpleCredentialManagerCallbackData *d = NULL;
 	GError *error = NULL;
+	GTask *task = G_TASK(data);
 	gboolean ret = FALSE;
 
-	d = (PurpleCredentialManagerCallbackData *)data;
-
-	ret = purple_credential_provider_write_password_finish(provider, d->account,
-	                                                       res, &error);
+	ret = purple_credential_provider_write_password_finish(provider, res,
+	                                                       &error);
 
 	if(error != NULL) {
-		g_task_return_error(d->task, error);
+		g_task_return_error(task, error);
 	} else {
-		g_task_return_boolean(d->task, ret);
+		g_task_return_boolean(task, ret);
 	}
 
 	/* Clean up our initial reference to the task. */
-	g_object_unref(G_OBJECT(d->task));
+	g_object_unref(G_OBJECT(task));
 }
 
 static void
@@ -128,23 +99,21 @@ purple_credential_manager_clear_password_callback(GObject *obj,
                                                   gpointer data)
 {
 	PurpleCredentialProvider *provider = PURPLE_CREDENTIAL_PROVIDER(obj);
-	PurpleCredentialManagerCallbackData *d = NULL;
 	GError *error = NULL;
+	GTask *task = G_TASK(data);
 	gboolean ret = FALSE;
 
-	d = (PurpleCredentialManagerCallbackData *)data;
-
-	ret = purple_credential_provider_clear_password_finish(provider, d->account,
-	                                                       res, &error);
+	ret = purple_credential_provider_clear_password_finish(provider, res,
+	                                                       &error);
 
 	if(error != NULL) {
-		g_task_return_error(d->task, error);
+		g_task_return_error(task, error);
 	} else {
-		g_task_return_boolean(d->task, ret);
+		g_task_return_boolean(task, ret);
 	}
 
 	/* Clean up our initial reference to the task. */
-	g_object_unref(G_OBJECT(d->task));
+	g_object_unref(G_OBJECT(task));
 }
 
 
@@ -383,7 +352,6 @@ purple_credential_manager_read_password_async(PurpleCredentialManager *manager,
                                               gpointer data)
 {
 	PurpleCredentialManagerPrivate *priv = NULL;
-	PurpleCredentialManagerCallbackData *d = NULL;
 	GTask *task = NULL;
 
 	g_return_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager));
@@ -392,10 +360,6 @@ purple_credential_manager_read_password_async(PurpleCredentialManager *manager,
 	priv = purple_credential_manager_get_instance_private(manager);
 
 	task = g_task_new(manager, cancellable, callback, data);
-
-	d = purple_credential_manager_callback_data_new(task, account);
-	g_task_set_task_data(task, d,
-	                     (GDestroyNotify)purple_credential_manager_callback_data_free);
 
 	if(priv->active_provider == NULL) {
 		GError *error = NULL;
@@ -413,7 +377,7 @@ purple_credential_manager_read_password_async(PurpleCredentialManager *manager,
 	                                               account,
 	                                               cancellable,
 	                                               purple_credential_manager_read_password_callback,
-	                                               d);
+	                                               task);
 }
 
 gchar *
@@ -422,14 +386,10 @@ purple_credential_manager_read_password_finish(PurpleCredentialManager *manager,
                                                GAsyncResult *result,
                                                GError **error)
 {
-	PurpleCredentialManagerCallbackData *d = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), NULL);
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 
-	d = g_task_get_task_data(G_TASK(result));
-
-	return g_task_propagate_pointer(d->task, error);
+	return g_task_propagate_pointer(G_TASK(result), error);
 }
 
 void
@@ -441,7 +401,6 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
                                                gpointer data)
 {
 	PurpleCredentialManagerPrivate *priv = NULL;
-	PurpleCredentialManagerCallbackData *d = NULL;
 	GTask *task = NULL;
 
 	g_return_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager));
@@ -450,9 +409,6 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
 	priv = purple_credential_manager_get_instance_private(manager);
 
 	task = g_task_new(manager, cancellable, callback, data);
-	d = purple_credential_manager_callback_data_new(task, account);
-	g_task_set_task_data(task, d,
-	                     (GDestroyNotify)purple_credential_manager_callback_data_free);
 
 	if(priv->active_provider == NULL) {
 		GError *error = NULL;
@@ -470,7 +426,7 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
 	                                                account, password,
 	                                                cancellable,
 	                                                purple_credential_manager_write_password_callback,
-	                                                d);
+	                                                task);
 }
 
 gboolean
@@ -479,14 +435,10 @@ purple_credential_manager_write_password_finish(PurpleCredentialManager *manager
                                                 GAsyncResult *result,
                                                 GError **error)
 {
-	PurpleCredentialManagerCallbackData *d = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
 
-	d = g_task_get_task_data(G_TASK(result));
-
-	return g_task_propagate_boolean(d->task, error);
+	return g_task_propagate_boolean(G_TASK(result), error);
 }
 
 void
@@ -497,7 +449,6 @@ purple_credential_manager_clear_password_async(PurpleCredentialManager *manager,
                                                gpointer data)
 {
 	PurpleCredentialManagerPrivate *priv = NULL;
-	PurpleCredentialManagerCallbackData *d = NULL;
 	GTask *task = NULL;
 
 	g_return_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager));
@@ -506,9 +457,6 @@ purple_credential_manager_clear_password_async(PurpleCredentialManager *manager,
 	priv = purple_credential_manager_get_instance_private(manager);
 
 	task = g_task_new(manager, cancellable, callback, data);
-	d = purple_credential_manager_callback_data_new(task, account);
-	g_task_set_task_data(task, d,
-	                     (GDestroyNotify)purple_credential_manager_callback_data_free);
 
 	if(priv->active_provider == NULL) {
 		GError *error = NULL;
@@ -526,7 +474,7 @@ purple_credential_manager_clear_password_async(PurpleCredentialManager *manager,
 	                                                account,
 	                                                cancellable,
 	                                                purple_credential_manager_clear_password_callback,
-	                                                d);
+	                                                task);
 }
 
 gboolean
@@ -535,14 +483,10 @@ purple_credential_manager_clear_password_finish(PurpleCredentialManager *manager
                                                 GAsyncResult *result,
                                                 GError **error)
 {
-	PurpleCredentialManagerCallbackData *d = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
 
-	d = g_task_get_task_data(G_TASK(result));
-
-	return g_task_propagate_boolean(d->task, error);
+	return g_task_propagate_boolean(G_TASK(result), error);
 }
 
 PurpleRequestFields *

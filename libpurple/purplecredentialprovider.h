@@ -83,13 +83,13 @@ struct _PurpleCredentialProviderClass {
 
 	/*< public >*/
 	void (*read_password_async)(PurpleCredentialProvider *provider, PurpleAccount *account, GCancellable *cancellable, GAsyncReadyCallback callback, gpointer data);
-	gchar *(*read_password_finish)(PurpleCredentialProvider *provider, PurpleAccount *account, GAsyncResult *result, GError **error);
+	gchar *(*read_password_finish)(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
 
 	void (*write_password_async)(PurpleCredentialProvider *provider, PurpleAccount *account, const gchar *password, GCancellable *cancellable, GAsyncReadyCallback callback, gpointer data);
-	gboolean (*write_password_finish)(PurpleCredentialProvider *provider, PurpleAccount *account, GAsyncResult *result, GError **error);
+	gboolean (*write_password_finish)(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
 
 	void (*clear_password_async)(PurpleCredentialProvider *provider, PurpleAccount *account, GCancellable *cancellable, GAsyncReadyCallback callback, gpointer data);
-	gboolean (*clear_password_finish)(PurpleCredentialProvider *provider, PurpleAccount *account, GAsyncResult *result, GError **error);
+	gboolean (*clear_password_finish)(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
 
 	void (*close)(PurpleCredentialProvider *provider);
 
@@ -159,7 +159,6 @@ void purple_credential_provider_read_password_async(PurpleCredentialProvider *pr
 /**
  * purple_credential_provider_read_password_finish:
  * @provider: The #PurpleCredentialProvider instance.
- * @account: The #PurpleAccount whose password we're looking up.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_provider_read_password_async() call.
  * @error: (out) (optional) (nullable): Return address for a #GError.
@@ -171,7 +170,7 @@ void purple_credential_provider_read_password_async(PurpleCredentialProvider *pr
  *
  * Since: 3.0.0
  */
-gchar *purple_credential_provider_read_password_finish(PurpleCredentialProvider *provider, PurpleAccount *account, GAsyncResult *result, GError **error);
+gchar *purple_credential_provider_read_password_finish(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
 
 /**
  * purple_credential_provider_write_password_async:
@@ -192,7 +191,6 @@ void purple_credential_provider_write_password_async(PurpleCredentialProvider *p
 /**
  * purple_credential_provider_write_password_finish:
  * @provider: The #PurpleCredentialProvider instance.
- * @account: The #PurpleAccount whose password we're writing.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_provider_write_password_async() call.
  * @error: (out) (optional) (nullable): Return address for a #GError.
@@ -205,7 +203,7 @@ void purple_credential_provider_write_password_async(PurpleCredentialProvider *p
  *
  * Since: 3.0.0
  */
-gboolean purple_credential_provider_write_password_finish(PurpleCredentialProvider *provider, PurpleAccount *account, GAsyncResult *result, GError **error);
+gboolean purple_credential_provider_write_password_finish(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
 
 /**
  * purple_credential_provider_clear_password_async:
@@ -225,7 +223,6 @@ void purple_credential_provider_clear_password_async(PurpleCredentialProvider *p
 /**
  * purple_credential_provider_clear_password_finish:
  * @provider: The #PurpleCredentialProvider instance.
- * @account: The #PurpleAccount whose password we're clearing.
  * @result: The #GAsyncResult from the previous
  *          purple_credential_provider_clear_password_async() call.
  * @error: (out) (optional) (nullable): Return address for a #GError.
@@ -238,7 +235,7 @@ void purple_credential_provider_clear_password_async(PurpleCredentialProvider *p
  *
  * Since: 3.0.0
  */
-gboolean purple_credential_provider_clear_password_finish(PurpleCredentialProvider *provider, PurpleAccount *account, GAsyncResult *result, GError **error);
+gboolean purple_credential_provider_clear_password_finish(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
 
 /**
  * purple_credential_provider_close:

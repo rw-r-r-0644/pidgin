@@ -249,7 +249,6 @@ purple_credential_provider_read_password_async(PurpleCredentialProvider *provide
 
 gchar *
 purple_credential_provider_read_password_finish(PurpleCredentialProvider *provider,
-                                                PurpleAccount *account,
                                                 GAsyncResult *result,
                                                 GError **error)
 {
@@ -260,7 +259,7 @@ purple_credential_provider_read_password_finish(PurpleCredentialProvider *provid
 
 	klass = PURPLE_CREDENTIAL_PROVIDER_GET_CLASS(provider);
 	if(klass && klass->read_password_finish) {
-		return klass->read_password_finish(provider, account, result, error);
+		return klass->read_password_finish(provider, result, error);
 	}
 
 	return NULL;
@@ -288,19 +287,17 @@ purple_credential_provider_write_password_async(PurpleCredentialProvider *provid
 
 gboolean
 purple_credential_provider_write_password_finish(PurpleCredentialProvider *provider,
-                                                 PurpleAccount *account,
                                                  GAsyncResult *result,
                                                  GError **error)
 {
 	PurpleCredentialProviderClass *klass = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
 	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
 
 	klass = PURPLE_CREDENTIAL_PROVIDER_GET_CLASS(provider);
 	if(klass && klass->write_password_finish) {
-		return klass->write_password_finish(provider, account, result, error);
+		return klass->write_password_finish(provider, result, error);
 	}
 
 	return FALSE;
@@ -327,19 +324,17 @@ purple_credential_provider_clear_password_async(PurpleCredentialProvider *provid
 
 gboolean
 purple_credential_provider_clear_password_finish(PurpleCredentialProvider *provider,
-                                                 PurpleAccount *account,
                                                  GAsyncResult *result,
                                                  GError **error)
 {
 	PurpleCredentialProviderClass *klass = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
 	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
 
 	klass = PURPLE_CREDENTIAL_PROVIDER_GET_CLASS(provider);
 	if(klass && klass->clear_password_finish) {
-		return klass->clear_password_finish(provider, account, result, error);
+		return klass->clear_password_finish(provider, result, error);
 	}
 
 	return FALSE;

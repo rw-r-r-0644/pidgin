@@ -78,7 +78,6 @@ test_purple_credential_provider_read_password_async(PurpleCredentialProvider *p,
 
 static gchar *
 test_purple_credential_provider_read_password_finish(PurpleCredentialProvider *p,
-                                                     PurpleAccount *account,
                                                      GAsyncResult *result,
                                                      GError **error)
 {
@@ -104,7 +103,6 @@ test_purple_credential_provider_write_password_async(PurpleCredentialProvider *p
 
 static gboolean
 test_purple_credential_provider_write_password_finish(PurpleCredentialProvider *p,
-                                                      PurpleAccount *account,
                                                       GAsyncResult *result,
                                                       GError **error)
 {
@@ -129,7 +127,6 @@ test_purple_credential_provider_clear_password_async(PurpleCredentialProvider *p
 
 static gboolean
 test_purple_credential_provider_clear_password_finish(PurpleCredentialProvider *p,
-                                                      PurpleAccount *account,
                                                       GAsyncResult *result,
                                                       GError **error)
 {
