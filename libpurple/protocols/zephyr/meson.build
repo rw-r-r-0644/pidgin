@@ -1,4 +1,4 @@
-ZEPHYRSOURCES = [
+ZEPHYR_INTERNAL_SOURCES = [
 	'ZAsyncLocate.c',
 	'ZCkAuth.c',
 	'ZCkIfNot.c',
@@ -42,26 +42,30 @@ ZEPHYRSOURCES = [
 	'ZWait4Not.c',
 	'ZhmStat.c',
 	'Zinternal.c',
-	'internal.h',
 	'mit-copyright.h',
 	'mit-sipb-copyright.h',
-	'sysdep.h',
 	'zephyr_err.h',
-	'zephyr_internal.h',
-	'zephyr.c',
-	'zephyr.h'
+	'zephyr_internal.h'
 ]
 
-ZEPHYRSOURCESEXT = ['zephyr.c', 'zephyr.h']
+ZEPHYR_SOURCES = [
+	'internal.h',
+	'sysdep.h',
+	'zephyr.c',
+	'zephyr.h',
+	'zephyr_html.c',
+	'zephyr_html.h'
+]
 
 extdep = krb4
 if EXTERNAL_LIBZEPHYR
-	ZEPHYRSOURCES = ZEPHYRSOURCESEXT
 	extdep = ext_zephyr
+else
+	ZEPHYR_SOURCES += ZEPHYR_INTERNAL_SOURCES
 endif
 
 if DYNAMIC_ZEPHYR
-	zephyr_prpl = shared_library('zephyr', ZEPHYRSOURCES,
+	zephyr_prpl = shared_library('zephyr', ZEPHYR_SOURCES,
 	    c_args : '-Dlint',
 	    dependencies : [extdep, libpurple_dep, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
