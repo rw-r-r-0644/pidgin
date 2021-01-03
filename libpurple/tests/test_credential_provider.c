@@ -185,6 +185,7 @@ test_purple_credential_provider_is_valid_valid(void) {
 	PurpleCredentialProvider *provider = NULL;
 	PurpleCredentialProviderClass *klass = NULL;
 	GError *error = NULL;
+	gboolean ret = FALSE;
 
 	provider = g_object_new(
 		TEST_PURPLE_TYPE_CREDENTIAL_PROVIDER_EMPTY,
@@ -198,8 +199,9 @@ test_purple_credential_provider_is_valid_valid(void) {
 	klass->write_password_async = test_purple_credential_provider_empty_write_password_async;
 	klass->write_password_finish = test_purple_credential_provider_empty_write_password_finish;
 
-	g_assert_true(purple_credential_provider_is_valid(provider, &error));
+	ret = purple_credential_provider_is_valid(provider, &error);
 	g_assert_no_error(error);
+	g_assert_true(ret);
 
 	g_object_unref(G_OBJECT(provider));
 }
