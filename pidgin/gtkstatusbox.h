@@ -1,4 +1,6 @@
-/* pidgin
+/*
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,16 +17,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef __PIDGIN_STATUS_BOX_H__
-#define __PIDGIN_STATUS_BOX_H__
+#ifndef PIDGIN_STATUS_BOX_H
+#define PIDGIN_STATUS_BOX_H
+
 /**
  * SECTION:gtkstatusbox
  * @section_id: pidgin-gtkstatusbox
@@ -40,143 +42,17 @@
 
 G_BEGIN_DECLS
 
-#define PIDGIN_TYPE_STATUS_BOX             (pidgin_status_box_get_type ())
-#define PIDGIN_STATUS_BOX(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), PIDGIN_TYPE_STATUS_BOX, PidginStatusBox))
-#define PIDGIN_STATUS_BOX_CLASS(vtable)    (G_TYPE_CHECK_CLASS_CAST ((vtable), PIDGIN_TYPE_STATUS_BOX, PidginStatusBoxClass))
-#define PIDGIN_IS_STATUS_BOX(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PIDGIN_TYPE_STATUS_BOX))
-#define PIDGIN_IS_STATUS_BOX_CLASS(vtable) (G_TYPE_CHECK_CLASS_TYPE ((vtable), PIDGIN_TYPE_STATUS_BOX))
-#define PIDGIN_STATUS_BOX_GET_CLASS(inst)  (G_TYPE_INSTANCE_GET_CLASS ((inst), PIDGIN_TYPE_STATUS_BOX, PidginStatusBoxClass))
+#define PIDGIN_TYPE_STATUS_BOX (pidgin_status_box_get_type ())
+G_DECLARE_FINAL_TYPE(PidginStatusBox, pidgin_status_box, PIDGIN, STATUS_BOX,
+                     GtkContainer);
 
-/**
- * PidginStatusBoxItemType:
- *
- * This is a hidden field in the GtkStatusBox that identifies the
- * item in the list store.  The item could be a normal
- * PurpleStatusPrimitive, or it could be something special like the
- * "Custom..." item, or "Saved..." or a GtkSeparator.
- */
-typedef enum
-{
-	PIDGIN_STATUS_BOX_TYPE_SEPARATOR,
-	PIDGIN_STATUS_BOX_TYPE_PRIMITIVE,
-	PIDGIN_STATUS_BOX_TYPE_POPULAR,
-	PIDGIN_STATUS_BOX_TYPE_SAVED_POPULAR,
-	PIDGIN_STATUS_BOX_TYPE_CUSTOM,
-	PIDGIN_STATUS_BOX_TYPE_SAVED,
-	PIDGIN_STATUS_BOX_NUM_TYPES
-} PidginStatusBoxItemType;
+GtkWidget *pidgin_status_box_new(void);
+GtkWidget *pidgin_status_box_new_with_account(PurpleAccount *account);
 
-typedef struct _PidginStatusBox      PidginStatusBox;
-typedef struct _PidginStatusBoxClass PidginStatusBoxClass;
+void pidgin_status_box_set_connecting(PidginStatusBox *status_box, gboolean connecting);
 
-/**
- * PidginStatusBox:
- * @store:          This GtkListStore contains only one row--the currently
- *                  selected status.
- * @dropdown_store: This is the dropdown GtkListStore that contains the
- *                  available statuses, plus some recently used statuses, plus
- *                  the "Custom..." and "Saved..." options.
- * @token_status_account: This will be non-NULL and contain a sample account
- *                        when all enabled accounts use the same statuses
- */
-struct _PidginStatusBox
-{
-	GtkContainer parent_instance;
-
-	/*< public >*/
-	GtkListStore *store;
-	GtkListStore *dropdown_store;
-
-	PurpleAccount *account;
-
-	PurpleAccount *token_status_account;
-
-	GtkWidget *vbox;
-	gboolean editor_visible;
-	GtkWidget *editor;
-	GtkWidget *input;
-	GtkTextBuffer *buffer;
-
-	GdkCursor *hand_cursor;
-	GdkCursor *arrow_cursor;
-	int icon_size;
-	gboolean icon_opaque;
-
-
-	GtkWidget *cell_view;
-	GtkCellRenderer *icon_rend;
-	GtkCellRenderer *text_rend;
-
-	GdkPixbuf *error_pixbuf;
-	int connecting_index;
-	GdkPixbuf *connecting_pixbufs[9];
-	int typing_index;
-	GdkPixbuf *typing_pixbufs[6];
-
-	gboolean network_available;
-	gboolean connecting;
-	guint typing;
-
-	GtkTreeIter iter;
-	char *error;
-
-	/*
-	 * These widgets are made for renderin'
-	 * That's just what they'll do
-	 * One of these days these widgets
-	 * Are gonna render all over you
-	 */
-	GtkWidget *hbox;
-	GtkWidget *toggle_button;
-	GtkWidget *vsep;
-	GtkWidget *arrow;
-
-	GtkWidget *popup_window;
-	GtkWidget *popup_frame;
-	GtkWidget *scrolled_window;
-	GtkWidget *cell_view_frame;
-	GtkTreeViewColumn *column;
-	GtkWidget *tree_view;
-	gboolean popup_in_progress;
-	GtkTreeRowReference *active_row;
-};
-
-struct _PidginStatusBoxClass
-{
-	GtkContainerClass parent_class;
-
-	/* signals */
-	void     (* changed)          (GtkComboBox *combo_box);
-
-	/*< private >*/
-	void (*_gtk_reserved0) (void);
-	void (*_gtk_reserved1) (void);
-	void (*_gtk_reserved2) (void);
-	void (*_gtk_reserved3) (void);
-};
-
-
-GType         pidgin_status_box_get_type         (void) G_GNUC_CONST;
-GtkWidget    *pidgin_status_box_new              (void);
-GtkWidget    *pidgin_status_box_new_with_account (PurpleAccount *account);
-
-void
-pidgin_status_box_add(PidginStatusBox *status_box, PidginStatusBoxItemType type, GdkPixbuf *pixbuf, const char *text, const char *sec_text, gpointer data);
-
-void
-pidgin_status_box_add_separator(PidginStatusBox *status_box);
-
-void
-pidgin_status_box_set_network_available(PidginStatusBox *status_box, gboolean available);
-
-void
-pidgin_status_box_set_connecting(PidginStatusBox *status_box, gboolean connecting);
-
-void
-pidgin_status_box_pulse_connecting(PidginStatusBox *status_box);
-
-char *pidgin_status_box_get_message(PidginStatusBox *status_box);
+gchar *pidgin_status_box_get_message(PidginStatusBox *status_box);
 
 G_END_DECLS
 
-#endif /* __GTK_PIDGIN_STATUS_COMBO_BOX_H__ */
+#endif /* PIDGIN_STATUS_BOX_H */
