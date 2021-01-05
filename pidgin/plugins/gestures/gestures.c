@@ -207,7 +207,7 @@ get_config_frame(PurplePlugin *plugin)
 	return ret;
 }
 
-static GPluginPluginInfo *
+static PidginPluginInfo *
 plugin_query(GError **error)
 {
 	const gchar * const authors[] = {
@@ -215,7 +215,7 @@ plugin_query(GError **error)
 		NULL
 	};
 
-	return gplugin_plugin_info_new(
+	return pidgin_plugin_info_new(
 		"id",                   GESTURES_PLUGIN_ID,
 		"name",                 N_("Mouse Gestures"),
 		"version",              DISPLAY_VERSION,
