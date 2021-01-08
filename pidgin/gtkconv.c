@@ -6288,66 +6288,6 @@ pidgin_conversations_init(void)
 			PURPLE_CALLBACK(wrote_msg_update_unseen_cb), NULL);
 }
 
-/* Invalidate the first tab color set */
-static gboolean tab_color_fuse = TRUE;
-
-static void
-pidgin_conversations_set_tab_colors(void)
-{
-	/* Set default tab colors */
-	GString *str;
-	GtkSettings *settings;
-	GtkStyle *parent, *now;
-	struct {
-		const char *stylename;
-		const char *labelname;
-		const char *color;
-	} styles[] = {
-		{"pidgin_tab_label_typing_default", "tab-label-typing", "#4e9a06"},
-		{"pidgin_tab_label_typed_default", "tab-label-typed", "#c4a000"},
-		{"pidgin_tab_label_attention_default", "tab-label-attention", "#006aff"},
-		{"pidgin_tab_label_unreadchat_default", "tab-label-unreadchat", "#cc0000"},
-		{"pidgin_tab_label_event_default", "tab-label-event", "#888a85"},
-		{NULL, NULL, NULL}
-	};
-	int iter;
-
-	if(tab_color_fuse) {
-		tab_color_fuse = FALSE;
-		return;
-	}
-
-	str = g_string_new(NULL);
-	settings = gtk_settings_get_default();
-	parent = gtk_rc_get_style_by_paths(settings, "tab-container.tab-label*",
-	                                   NULL, G_TYPE_NONE);
-
-	for (iter = 0; styles[iter].stylename; iter++) {
-		now = gtk_rc_get_style_by_paths(settings, styles[iter].labelname, NULL, G_TYPE_NONE);
-		if (parent == now ||
-				(parent && now && parent->rc_style == now->rc_style)) {
-			GdkRGBA color;
-			gchar *color_str;
-
-			gdk_rgba_parse(&color, styles[iter].color);
-			pidgin_style_adjust_contrast(gtk_widget_get_default_style(), &color);
-
-			color_str = gdk_rgba_to_string(&color);
-			g_string_append_printf(str, "style \"%s\" {\n"
-					"fg[ACTIVE] = \"%s\"\n"
-					"}\n"
-					"widget \"*%s\" style \"%s\"\n",
-					styles[iter].stylename,
-					color_str,
-					styles[iter].labelname, styles[iter].stylename);
-			g_free(color_str);
-		}
-	}
-	gtk_rc_parse_string(str->str);
-	g_string_free(str, TRUE);
-	gtk_rc_reset_styles(settings);
-}
-
 void
 pidgin_conversations_uninit(void)
 {
@@ -7431,9 +7371,6 @@ pidgin_conv_window_new()
 
 	purple_signal_emit(pidgin_conversations_get_handle(),
 		"conversation-window-created", win);
-
-	/* Fix colours */
-	pidgin_conversations_set_tab_colors();
 
 	return win;
 }
