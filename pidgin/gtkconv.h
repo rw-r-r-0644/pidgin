@@ -33,8 +33,6 @@
  * @see_also: <link linkend="chapter-signals-gtkconv">Conversation signals</link>
  */
 
-#define PIDGIN_TYPE_CONVERSATION (pidgin_conversation_get_type())
-
 typedef struct _PidginImPane       PidginImPane;
 typedef struct _PidginChatPane     PidginChatPane;
 typedef struct _PidginConversation PidginConversation;
@@ -92,10 +90,7 @@ enum {
  */
 struct _PidginConversation
 {
-	gint box_count;
-
 	PurpleConversation *active_conv;
-	PurpleConversation *last_conversed;
 	GList *convs;
 	GList *send_history;
 
@@ -119,8 +114,6 @@ struct _PidginConversation
 	GtkWidget *menu_icon;
 	GtkWidget *menu_label;
 
-	GtkWidget *lower_hbox;
-
 	PidginUnseenState unseen_state;
 	guint unseen_count;
 
@@ -141,12 +134,6 @@ struct _PidginConversation
 	 * with message history */
 	int attach_timer;
 	GList *attach_current;
-
-	/*
-	 * Quick Find.
-	 */
-	GtkWidget *quickfind_entry;
-	GtkWidget *quickfind_container;
 };
 
 G_BEGIN_DECLS
@@ -154,13 +141,6 @@ G_BEGIN_DECLS
 /**************************************************************************
  * GTK+ Conversation API
  **************************************************************************/
-
-/**
- * pidgin_conversation_get_type:
- *
- * Returns: The #GType for the #PidginConversation boxed structure.
- */
-GType pidgin_conversation_get_type(void);
 
 /**
  * pidgin_conversations_get_conv_ui_ops:

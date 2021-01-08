@@ -745,18 +745,6 @@ invite_cb(GtkWidget *widget, PidginConversation *gtkconv)
 }
 
 static void
-menu_new_conv_cb(GtkAction *action, gpointer data)
-{
-	pidgin_dialogs_im();
-}
-
-static void
-menu_join_chat_cb(GtkAction *action, gpointer data)
-{
-	pidgin_blist_joinchat_show();
-}
-
-static void
 savelog_writefile_cb(void *user_data, const char *filename)
 {
 	PurpleConversation *conv = (PurpleConversation *)user_data;
@@ -884,15 +872,6 @@ menu_clear_cb(GtkAction *action, gpointer data)
 
 	conv = pidgin_conv_window_get_active_conversation(win);
 	purple_conversation_clear_message_history(conv);
-}
-
-static void
-menu_find_cb(GtkAction *action, gpointer data)
-{
-	PidginConvWindow *gtkwin = data;
-	PidginConversation *gtkconv = pidgin_conv_window_get_active_gtkconv(gtkwin);
-	gtk_widget_show_all(gtkconv->quickfind_container);
-	gtk_widget_grab_focus(gtkconv->quickfind_entry);
 }
 
 #ifdef USE_VV
@@ -2394,9 +2373,6 @@ static GtkActionEntry menu_entries[] =
 {
 	/* Conversation menu */
 	{ "ConversationMenu", NULL, N_("_Conversation"), NULL, NULL, NULL },
-	{ "NewInstantMessage", PIDGIN_STOCK_TOOLBAR_MESSAGE_NEW, N_("New Instant _Message..."), "<control>M", NULL, G_CALLBACK(menu_new_conv_cb) },
-	{ "JoinAChat", PIDGIN_STOCK_CHAT, N_("Join a _Chat..."), NULL, NULL, G_CALLBACK(menu_join_chat_cb) },
-	{ "Find", GTK_STOCK_FIND, N_("_Find..."), NULL, NULL, G_CALLBACK(menu_find_cb) },
 	{ "ViewLog", NULL, N_("View _Log"), NULL, NULL, G_CALLBACK(menu_view_log_cb) },
 	{ "SaveAs", GTK_STOCK_SAVE_AS, N_("_Save As..."), NULL, NULL, G_CALLBACK(menu_save_as_cb) },
 	{ "ClearScrollback", GTK_STOCK_CLEAR, N_("Clea_r Scrollback"), "<control>L", NULL, G_CALLBACK(menu_clear_cb) },
@@ -2436,10 +2412,6 @@ static const char *conversation_menu =
 "<ui>"
 	"<menubar name='Conversation'>"
 		"<menu action='ConversationMenu'>"
-			"<menuitem action='NewInstantMessage'/>"
-			"<menuitem action='JoinAChat'/>"
-			"<separator/>"
-			"<menuitem action='Find'/>"
 			"<menuitem action='ViewLog'/>"
 			"<menuitem action='SaveAs'/>"
 			"<menuitem action='ClearScrollback'/>"
@@ -4016,14 +3988,10 @@ setup_common_pane(PidginConversation *gtkconv)
 	g_signal_connect(G_OBJECT(gtkconv->history), "key_release_event",
 	                 G_CALLBACK(refocus_entry_cb), gtkconv);
 
-	gtkconv->lower_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
-	gtk_box_pack_start(GTK_BOX(vbox), gtkconv->lower_hbox, FALSE, FALSE, 0);
-	gtk_widget_show(gtkconv->lower_hbox);
-
 	/* Setup the entry widget and all signals */
 	gtkconv->editor = talkatu_editor_new();
 	talkatu_editor_set_buffer(TALKATU_EDITOR(gtkconv->editor), talkatu_html_buffer_new());
-	gtk_box_pack_start(GTK_BOX(gtkconv->lower_hbox), gtkconv->editor, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), gtkconv->editor, FALSE, FALSE, 0);
 
 	input = talkatu_editor_get_input(TALKATU_EDITOR(gtkconv->editor));
 	gtk_widget_set_name(input, "pidgin_conv_entry");
@@ -6296,45 +6264,6 @@ pidgin_conversations_uninit(void)
 	purple_signals_unregister_by_instance(pidgin_conversations_get_handle());
 }
 
-/**************************************************************************
- * PidginConversation GBoxed code
- **************************************************************************/
-static PidginConversation *
-pidgin_conversation_ref(PidginConversation *gtkconv)
-{
-	g_return_val_if_fail(gtkconv != NULL, NULL);
-
-	gtkconv->box_count++;
-
-	return gtkconv;
-}
-
-static void
-pidgin_conversation_unref(PidginConversation *gtkconv)
-{
-	g_return_if_fail(gtkconv != NULL);
-	g_return_if_fail(gtkconv->box_count >= 0);
-
-	if (!gtkconv->box_count--)
-		pidgin_conv_destroy(gtkconv->active_conv);
-}
-
-GType
-pidgin_conversation_get_type(void)
-{
-	static GType type = 0;
-
-	if (type == 0) {
-		type = g_boxed_type_register_static("PidginConversation",
-				(GBoxedCopyFunc)pidgin_conversation_ref,
-				(GBoxedFreeFunc)pidgin_conversation_unref);
-	}
-
-	return type;
-}
-
-
-
 
 
 
@@ -7994,41 +7923,4 @@ generate_nick_colors(guint numcolors, GdkRGBA background)
 	}
 
 	return colors;
-}
-
-/**************************************************************************
- * PidginConvWindow GBoxed code
- **************************************************************************/
-static PidginConvWindow *
-pidgin_conv_window_ref(PidginConvWindow *win)
-{
-	g_return_val_if_fail(win != NULL, NULL);
-
-	win->box_count++;
-
-	return win;
-}
-
-static void
-pidgin_conv_window_unref(PidginConvWindow *win)
-{
-	g_return_if_fail(win != NULL);
-	g_return_if_fail(win->box_count >= 0);
-
-	if (!win->box_count--)
-		pidgin_conv_window_destroy(win);
-}
-
-GType
-pidgin_conv_window_get_type(void)
-{
-	static GType type = 0;
-
-	if (type == 0) {
-		type = g_boxed_type_register_static("PidginConvWindow",
-				(GBoxedCopyFunc)pidgin_conv_window_ref,
-				(GBoxedFreeFunc)pidgin_conv_window_unref);
-	}
-
-	return type;
 }
