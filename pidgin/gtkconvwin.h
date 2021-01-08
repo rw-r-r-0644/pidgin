@@ -91,9 +91,6 @@ struct _PidginConvWindowMenu
  */
 struct _PidginConvWindow
 {
-	/*< private >*/
-	gint box_count;
-
 	/*< public >*/
 	GtkWidget *window;
 	GtkWidget *notebook;
@@ -119,13 +116,6 @@ G_BEGIN_DECLS
 /**************************************************************************
  * GTK+ Conversation Window API
  **************************************************************************/
-
-/**
- * pidgin_conv_window_get_type:
- *
- * Returns: The #GType for the #PidginConvWindow boxed structure.
- */
-GType pidgin_conv_window_get_type(void);
 
 /**
  * pidgin_conv_window_new:
