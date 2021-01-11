@@ -26,7 +26,6 @@
 
 #include "buddy.h"
 #include "disco.h"
-#include "google/gmail.h"
 #include "google/google.h"
 #include "google/jingleinfo.h"
 #include "google/google_session.h"
@@ -546,10 +545,6 @@ void jabber_iq_init(void)
 	signal_iq_handlers = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
 	jabber_iq_register_handler("jingle", JINGLE, jingle_parse);
-	jabber_iq_register_handler("mailbox", NS_GOOGLE_MAIL_NOTIFY,
-			jabber_gmail_poke);
-	jabber_iq_register_handler("new-mail", NS_GOOGLE_MAIL_NOTIFY,
-			jabber_gmail_poke);
 	jabber_iq_register_handler("ping", NS_PING, jabber_ping_parse);
 	jabber_iq_register_handler("query", NS_GOOGLE_JINGLE_INFO,
 			jabber_google_handle_jingle_info);

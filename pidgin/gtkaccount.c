@@ -114,7 +114,6 @@ typedef struct
 
 	/* User Options */
 	GtkWidget *user_frame;
-	GtkWidget *new_mail_check;
 	GtkWidget *icon_hbox;
 	GtkWidget *icon_check;
 	GtkWidget *icon_entry;
@@ -660,12 +659,6 @@ add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	dialog->alias_entry = gtk_entry_new();
 	add_pref_box(dialog, vbox, _("_Local alias:"), dialog->alias_entry);
 
-	/* New mail notifications */
-	dialog->new_mail_check =
-		gtk_check_button_new_with_mnemonic(_("New _mail notifications"));
-	gtk_box_pack_start(GTK_BOX(vbox), dialog->new_mail_check, FALSE, FALSE, 0);
-	gtk_widget_show(dialog->new_mail_check);
-
 	/* Buddy icon */
 	dialog->icon_check = gtk_check_button_new_with_mnemonic(_("Use this buddy _icon for this account:"));
 	g_signal_connect(G_OBJECT(dialog->icon_check), "toggled", G_CALLBACK(icon_check_cb), dialog);
@@ -713,8 +706,6 @@ add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 
 	if (dialog->protocol != NULL) {
 		PurpleBuddyIconSpec *icon_spec = purple_protocol_get_icon_spec(dialog->protocol);
-		if (!(purple_protocol_get_options(dialog->protocol) & OPT_PROTO_MAIL_CHECK))
-			gtk_widget_hide(dialog->new_mail_check);
 
 		if (!icon_spec || icon_spec->format == NULL) {
 			gtk_widget_hide(dialog->icon_check);
@@ -730,9 +721,6 @@ add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 		if (purple_account_get_private_alias(dialog->account))
 			gtk_entry_set_text(GTK_ENTRY(dialog->alias_entry),
 							   purple_account_get_private_alias(dialog->account));
-
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->new_mail_check),
-					     purple_account_get_check_mail(dialog->account));
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->icon_check),
 					     !purple_account_get_bool(dialog->account, "use-global-buddyicon",
@@ -1416,12 +1404,6 @@ ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 	}
 
 	purple_account_set_remember_password(account, remember);
-
-	/* Check Mail */
-	if (dialog->protocol && purple_protocol_get_options(dialog->protocol) & OPT_PROTO_MAIL_CHECK)
-		purple_account_set_check_mail(account,
-			gtk_toggle_button_get_active(
-					GTK_TOGGLE_BUTTON(dialog->new_mail_check)));
 
 	/* Password */
 	value = gtk_entry_get_text(GTK_ENTRY(dialog->password_entry));

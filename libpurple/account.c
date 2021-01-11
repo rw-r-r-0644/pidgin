@@ -135,7 +135,6 @@ enum
 	PROP_USER_INFO,
 	PROP_BUDDY_ICON_PATH,
 	PROP_REMEMBER_PASSWORD,
-	PROP_CHECK_MAIL,
 	PROP_LAST
 };
 
@@ -961,9 +960,6 @@ purple_account_set_property(GObject *obj, guint param_id, const GValue *value,
 			purple_account_set_remember_password(account,
 					g_value_get_boolean(value));
 			break;
-		case PROP_CHECK_MAIL:
-			purple_account_set_check_mail(account, g_value_get_boolean(value));
-			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
 			break;
@@ -1003,9 +999,6 @@ purple_account_get_property(GObject *obj, guint param_id, GValue *value,
 		case PROP_REMEMBER_PASSWORD:
 			g_value_set_boolean(value,
 					purple_account_get_remember_password(account));
-			break;
-		case PROP_CHECK_MAIL:
-			g_value_set_boolean(value, purple_account_get_check_mail(account));
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
@@ -1177,11 +1170,6 @@ purple_account_class_init(PurpleAccountClass *klass)
 				"remember-password", "Remember password",
 				"Whether to remember and store the password for this account.",
 				FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-
-	properties[PROP_CHECK_MAIL] = g_param_spec_boolean("check-mail",
-				"Check mail",
-				"Whether to check mails for this account.", FALSE,
-				G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_CONNECTION] = g_param_spec_object("connection",
 				"Connection",
@@ -1733,16 +1721,6 @@ purple_account_set_remember_password(PurpleAccount *account, gboolean value)
 }
 
 void
-purple_account_set_check_mail(PurpleAccount *account, gboolean value)
-{
-	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
-
-	purple_account_set_bool(account, "check-mail", value);
-
-	g_object_notify_by_pspec(G_OBJECT(account), properties[PROP_CHECK_MAIL]);
-}
-
-void
 purple_account_set_enabled(PurpleAccount *account, const char *ui,
 			 gboolean value)
 {
@@ -2233,14 +2211,6 @@ purple_account_get_remember_password(PurpleAccount *account)
 
 	priv = purple_account_get_instance_private(account);
 	return priv->remember_pass;
-}
-
-gboolean
-purple_account_get_check_mail(PurpleAccount *account)
-{
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
-
-	return purple_account_get_bool(account, "check-mail", FALSE);
 }
 
 gboolean
