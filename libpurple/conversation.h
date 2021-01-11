@@ -112,7 +112,7 @@ typedef enum
 
 #include <glib.h>
 #include <glib-object.h>
-#include "message.h"
+#include "purplemessage.h"
 
 /**************************************************************************/
 /* PurpleConversation                                                     */

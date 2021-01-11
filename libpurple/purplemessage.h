@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -27,15 +28,12 @@
 #define PURPLE_MESSAGE_H
 
 /**
- * SECTION:message
- * @include:message.h
- * @section_id: libpurple-message
- * @short_description: serializable messages
- * @title: Message model
+ * SECTION:purplemessage
+ * @section_id: libpurple-purplemessage
+ * @short_description: Message Object
+ * @title: Message Object
  *
- * #PurpleMessage object collects data about a certain (incoming or outgoing) message.
- * It (TODO: will be) serializable, so it can be stored in log and retrieved
- * with any metadata.
+ * #PurpleMessage represents any message passed between users in libpurple.
  */
 
 #include <glib-object.h>
@@ -51,29 +49,29 @@ G_BEGIN_DECLS
  *
  * Since: 3.0.0
  */
-#define PURPLE_TYPE_MESSAGE  purple_message_get_type()
+#define PURPLE_TYPE_MESSAGE purple_message_get_type()
 
 /**
  * PurpleMessageFlags:
- * @PURPLE_MESSAGE_SEND:        Outgoing message.
- * @PURPLE_MESSAGE_RECV:        Incoming message.
- * @PURPLE_MESSAGE_SYSTEM:      System message.
- * @PURPLE_MESSAGE_AUTO_RESP:   Auto response.
+ * @PURPLE_MESSAGE_SEND: Outgoing message.
+ * @PURPLE_MESSAGE_RECV: Incoming message.
+ * @PURPLE_MESSAGE_SYSTEM: System message.
+ * @PURPLE_MESSAGE_AUTO_RESP: Auto response.
  * @PURPLE_MESSAGE_ACTIVE_ONLY: Hint to the UI that this message should not be
  *                              shown in conversations which are only open for
  *                              internal UI purposes (e.g. for contact-aware
  *                              conversations).
- * @PURPLE_MESSAGE_NICK:        Contains your nick.
- * @PURPLE_MESSAGE_NO_LOG:      Do not log.
- * @PURPLE_MESSAGE_ERROR:       Error message.
- * @PURPLE_MESSAGE_DELAYED:     Delayed message.
- * @PURPLE_MESSAGE_RAW:         "Raw" message - don't apply formatting
- * @PURPLE_MESSAGE_IMAGES:      Message contains images
- * @PURPLE_MESSAGE_NOTIFY:      Message is a notification
- * @PURPLE_MESSAGE_NO_LINKIFY:  Message should not be auto-linkified
- * @PURPLE_MESSAGE_INVISIBLE:   Message should not be displayed
- * @PURPLE_MESSAGE_REMOTE_SEND: Message sent from another location,
- *                              not an echo of a local one
+ * @PURPLE_MESSAGE_NICK: Contains your nick.
+ * @PURPLE_MESSAGE_NO_LOG: Do not log.
+ * @PURPLE_MESSAGE_ERROR: Error message.
+ * @PURPLE_MESSAGE_DELAYED: Delayed message.
+ * @PURPLE_MESSAGE_RAW: "Raw" message - don't apply formatting.
+ * @PURPLE_MESSAGE_IMAGES: Message contains images.
+ * @PURPLE_MESSAGE_NOTIFY: Message is a notification.
+ * @PURPLE_MESSAGE_NO_LINKIFY: Message should not be auto-linkified.
+ * @PURPLE_MESSAGE_INVISIBLE: Message should not be displayed.
+ * @PURPLE_MESSAGE_REMOTE_SEND: Message sent from another location, not an echo
+ *                              of a local one.
  *                              Since: 2.12.0
  *
  * Flags applicable to a message. Most will have send, recv or system.
