@@ -88,7 +88,7 @@ GtkWidget *pidgin_dialog_get_vbox(GtkDialog *dialog);
 /**
  * pidgin_dialog_add_button:
  * @dialog: The dialog window
- * @label: The stock-id or the label for the button
+ * @label: The label for the button
  * @callback: (scope call): The callback function for the button
  * @callbackdata: The user data for the callback function
  *

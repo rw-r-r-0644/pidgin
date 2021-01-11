@@ -584,13 +584,13 @@ pidgin_status_window_show(void)
 	gtk_widget_set_sensitive(button, FALSE);
 
 	/* Delete button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), GTK_STOCK_DELETE,
+	button = pidgin_dialog_add_button(GTK_DIALOG(win), _("Delete"),
 			G_CALLBACK(status_window_delete_cb), dialog);
 	dialog->delete_button = button;
 	gtk_widget_set_sensitive(button, FALSE);
 
 	/* Close button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), GTK_STOCK_CLOSE,
+	pidgin_dialog_add_button(GTK_DIALOG(win), _("Close"),
 			G_CALLBACK(status_window_close_cb), dialog);
 
 	purple_signal_connect(purple_savedstatuses_get_handle(),
@@ -1192,7 +1192,7 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
 
 	/* Cancel button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), GTK_STOCK_CANCEL,
+	pidgin_dialog_add_button(GTK_DIALOG(win), _("Cancel"),
 			G_CALLBACK(status_editor_cancel_cb), dialog);
 
 	/* Use button */
@@ -1213,7 +1213,7 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 					 G_CALLBACK(status_editor_ok_cb), dialog);
 
 	/* Save button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), GTK_STOCK_SAVE,
+	button = pidgin_dialog_add_button(GTK_DIALOG(win), _("Save"),
 			G_CALLBACK(status_editor_ok_cb), dialog);
 	if (dialog->original_title == NULL)
 		gtk_widget_set_sensitive(button, FALSE);
@@ -1459,11 +1459,11 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(dialog->message_view), dialog->message_buffer);
 
 	/* Cancel button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), GTK_STOCK_CANCEL,
+	pidgin_dialog_add_button(GTK_DIALOG(win), _("Cancel"),
 			G_CALLBACK(substatus_editor_cancel_cb), dialog);
 
 	/* OK button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), GTK_STOCK_OK,
+	pidgin_dialog_add_button(GTK_DIALOG(win), _("Okay"),
 			G_CALLBACK(substatus_editor_ok_cb), dialog);
 
 	/* Seed the input widgets with the current values */

@@ -1152,7 +1152,7 @@ pidgin_blist_joinchat_show(void)
 		chat_account_filter_func, (GCallback)do_joinchat);
 	gtk_dialog_add_buttons(GTK_DIALOG(data->rq_data.window),
 		_("Room _List"), 1,
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		_("Cancel"), GTK_RESPONSE_CANCEL,
 		PIDGIN_STOCK_CHAT, GTK_RESPONSE_OK, NULL);
 	gtk_dialog_set_default_response(GTK_DIALOG(data->rq_data.window),
 		GTK_RESPONSE_OK);
@@ -6380,8 +6380,8 @@ pidgin_blist_request_add_buddy(PurpleBuddyList *list, PurpleAccount *account,
 		G_CALLBACK(add_buddy_select_account_cb), add_buddy_account_filter_func,
 		G_CALLBACK(add_buddy_cb));
 	gtk_dialog_add_buttons(GTK_DIALOG(data->rq_data.window),
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_ADD, GTK_RESPONSE_OK,
+			_("Cancel"), GTK_RESPONSE_CANCEL,
+			_("Add"), GTK_RESPONSE_OK,
 			NULL);
 	gtk_dialog_set_default_response(GTK_DIALOG(data->rq_data.window),
 			GTK_RESPONSE_OK);
@@ -6567,8 +6567,8 @@ pidgin_blist_request_add_chat(PurpleBuddyList *list, PurpleAccount *account,
 			G_CALLBACK(add_chat_resp_cb)));
 	gtk_dialog_add_buttons(GTK_DIALOG(data->chat_data.rq_data.window),
 		_("Room List"), 1,
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		GTK_STOCK_ADD, GTK_RESPONSE_OK,
+		_("Cancel"), GTK_RESPONSE_CANCEL,
+		_("Add"), GTK_RESPONSE_OK,
 		NULL);
 	gtk_dialog_set_default_response(GTK_DIALOG(data->chat_data.rq_data.window),
 			GTK_RESPONSE_OK);
