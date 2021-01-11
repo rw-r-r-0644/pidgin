@@ -57,7 +57,6 @@ libpurple/media/codec.c
 libpurple/media/enum-types.c
 libpurple/mediamanager.c
 libpurple/memorypool.c
-libpurple/message.c
 libpurple/nat-pmp.c
 libpurple/network.c
 libpurple/notify.c
@@ -255,6 +254,7 @@ libpurple/purplecredentialmanager.c
 libpurple/purplecredentialprovider.c
 libpurple/purpleimconversation.c
 libpurple/purplemarkup.c
+libpurple/purplemessage.c
 libpurple/purplepresence.c
 libpurple/purpleprotocolattention.c
 libpurple/purpleprotocolclient.c
