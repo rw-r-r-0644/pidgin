@@ -644,7 +644,7 @@ add_chat_cb(void *data, PurpleRequestFields *allfields)
 
 	gc = purple_account_get_connection(account);
 	protocol = purple_connection_get_protocol(gc);
-	hash = purple_protocol_chat_iface_info_defaults(protocol, gc, name);
+	hash = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), gc, name);
 
 	chat = purple_chat_new(account, name, hash);
 
@@ -985,13 +985,15 @@ chat_components_edit(PurpleBlistNode *selected, PurpleChat *chat)
 	PurpleRequestFieldGroup *group = purple_request_field_group_new(NULL);
 	PurpleRequestField *field;
 	GList *parts, *iter;
+	PurpleProtocol *protocol;
 	PurpleProtocolChatEntry *pce;
 	PurpleConnection *gc;
 
 	purple_request_fields_add_group(fields, group);
 
 	gc = purple_account_get_connection(purple_chat_get_account(chat));
-	parts = purple_protocol_chat_iface_info(purple_connection_get_protocol(gc), gc);
+	protocol = purple_connection_get_protocol(gc);
+	parts = purple_protocol_chat_info(PURPLE_PROTOCOL_CHAT(protocol), gc);
 
 	for (iter = parts; iter; iter = iter->next) {
 		pce = iter->data;
@@ -1275,7 +1277,7 @@ static void showlog_cb(PurpleBlistNode *sel, PurpleBlistNode *node)
 		account = purple_chat_get_account(c);
 		protocol = purple_protocols_find(purple_account_get_protocol_id(account));
 		if (protocol) {
-			name = purple_protocol_chat_iface_get_name(protocol, purple_chat_get_components(c));
+			name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol), purple_chat_get_components(c));
 		}
 	} else if (PURPLE_IS_CONTACT(node)) {
 		finch_log_show_contact((PurpleContact *)node);
@@ -2669,7 +2671,7 @@ join_chat_select_cb(gpointer data, PurpleRequestFields *fields)
 	chat = purple_blist_find_chat(account, name);
 	if (chat == NULL) {
 		PurpleProtocol *protocol = purple_connection_get_protocol(gc);
-		hash = purple_protocol_chat_iface_info_defaults(protocol, gc, name);
+		hash = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), gc, name);
 	} else {
 		hash = purple_chat_get_components(chat);
 	}

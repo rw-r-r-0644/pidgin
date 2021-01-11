@@ -4193,14 +4193,37 @@ jabber_protocol_im_iface_init(PurpleProtocolIMInterface *im_iface)
 	im_iface->send_typing = jabber_send_typing;
 }
 
+static GHashTable *
+jabber_protocol_chat_info_defaults(PurpleProtocolChat *protocol_chat,
+                                   PurpleConnection *connection,
+                                   const gchar *name)
+{
+	return jabber_chat_info_defaults(connection, name);
+}
+
+static void
+jabber_protocol_chat_join(PurpleProtocolChat *protocol_chat,
+                          PurpleConnection *connection, GHashTable *components)
+{
+	jabber_chat_join(connection, components);
+}
+
+static void
+jabber_protocol_chat_invite(PurpleProtocolChat *protocol_chat,
+                            PurpleConnection *connection,  gint id,
+                            const gchar *message, const gchar *who)
+{
+	jabber_chat_invite(connection, id, message, who);
+}
+
 static void
 jabber_protocol_chat_iface_init(PurpleProtocolChatInterface *chat_iface)
 {
 	chat_iface->info               = jabber_chat_info;
-	chat_iface->info_defaults      = jabber_chat_info_defaults;
-	chat_iface->join               = jabber_chat_join;
+	chat_iface->info_defaults      = jabber_protocol_chat_info_defaults;
+	chat_iface->join               = jabber_protocol_chat_join;
 	chat_iface->get_name           = jabber_get_chat_name;
-	chat_iface->invite             = jabber_chat_invite;
+	chat_iface->invite             = jabber_protocol_chat_invite;
 	chat_iface->leave              = jabber_chat_leave;
 	chat_iface->send               = jabber_message_send_chat;
 	chat_iface->get_user_real_name = jabber_chat_user_real_name;

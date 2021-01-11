@@ -1226,7 +1226,9 @@ int jabber_message_send_im(PurpleProtocolIM *pim, PurpleConnection *gc,
 	return 1;
 }
 
-int jabber_message_send_chat(PurpleConnection *gc, int id, PurpleMessage *msg)
+gint
+jabber_message_send_chat(PurpleProtocolChat *protocol_chat,
+                         PurpleConnection *gc, gint id, PurpleMessage *msg)
 {
 	JabberChat *chat;
 	JabberMessage *jm;

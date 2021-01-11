@@ -3491,7 +3491,10 @@ mw_protocol_blist_node_menu(PurpleProtocolClient *client,
 }
 
 
-static GList *mw_protocol_chat_info(PurpleConnection *gc) {
+static GList *
+mw_protocol_chat_info(PurpleProtocolChat *protocol_chat,
+                      PurpleConnection *gc)
+{
   GList *l = NULL;
   PurpleProtocolChatEntry *pce;
 
@@ -3504,8 +3507,11 @@ static GList *mw_protocol_chat_info(PurpleConnection *gc) {
 }
 
 
-static GHashTable *mw_protocol_chat_info_defaults(PurpleConnection *gc,
-					      const char *name) {
+static GHashTable *
+mw_protocol_chat_info_defaults(PurpleProtocolChat *protocol_chat,
+                               PurpleConnection *gc,
+                               const char *name)
+{
   GHashTable *table;
 
   g_return_val_if_fail(gc != NULL, NULL);
@@ -4362,8 +4368,10 @@ static struct mwConference *conf_find(struct mwServiceConference *srvc,
 }
 
 
-static void mw_protocol_join_chat(PurpleConnection *gc,
-			      GHashTable *components) {
+static void
+mw_protocol_join_chat(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                      GHashTable *components)
+{
 
   struct mwPurpleProtocolData *pd;
   char *c, *t;
@@ -4403,9 +4411,11 @@ static void mw_protocol_join_chat(PurpleConnection *gc,
 }
 
 
-static void mw_protocol_reject_chat(PurpleConnection *gc,
-				GHashTable *components) {
-
+static void
+mw_protocol_reject_chat(PurpleProtocolChat *protocol_chat,
+                        PurpleConnection *gc,
+                        GHashTable *components)
+{
   struct mwPurpleProtocolData *pd;
   struct mwServiceConference *srvc;
   char *c;
@@ -4427,16 +4437,18 @@ static void mw_protocol_reject_chat(PurpleConnection *gc,
 }
 
 
-static char *mw_protocol_get_chat_name(GHashTable *components) {
+static char *
+mw_protocol_get_chat_name(PurpleProtocolChat *protocol_chat,
+                          GHashTable *components)
+{
   return g_hash_table_lookup(components, CHAT_KEY_NAME);
 }
 
 
-static void mw_protocol_chat_invite(PurpleConnection *gc,
-				int id,
-				const char *invitation,
-				const char *who) {
-
+static void
+mw_protocol_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                        int id, const char *invitation, const char *who)
+{
   struct mwPurpleProtocolData *pd;
   struct mwConference *conf;
   struct mwPlace *place;
@@ -4460,9 +4472,10 @@ static void mw_protocol_chat_invite(PurpleConnection *gc,
 }
 
 
-static void mw_protocol_chat_leave(PurpleConnection *gc,
-			       int id) {
-
+static void
+mw_protocol_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                       int id)
+{
   struct mwPurpleProtocolData *pd;
   struct mwConference *conf;
 
@@ -4483,7 +4496,9 @@ static void mw_protocol_chat_leave(PurpleConnection *gc,
 }
 
 
-static int mw_protocol_chat_send(PurpleConnection *gc, int id, PurpleMessage *pmsg)
+static int
+mw_protocol_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                      int id, PurpleMessage *pmsg)
 {
   struct mwPurpleProtocolData *pd;
   struct mwConference *conf;

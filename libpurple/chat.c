@@ -22,6 +22,7 @@
  */
 #include "internal.h"
 #include "chat.h"
+#include "purpleprotocolchat.h"
 #include "util.h"
 
 typedef struct _PurpleChatPrivate       PurpleChatPrivate;
@@ -86,7 +87,8 @@ const char *purple_chat_get_name_only(PurpleChat *chat)
 
 	if (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info)) {
 		PurpleProtocolChatEntry *pce;
-		GList *parts = purple_protocol_chat_iface_info(protocol, purple_account_get_connection(priv->account));
+		GList *parts = purple_protocol_chat_info(PURPLE_PROTOCOL_CHAT(protocol),
+		                                         purple_account_get_connection(priv->account));
 		pce = parts->data;
 		ret = g_hash_table_lookup(priv->components, pce->identifier);
 		g_list_free_full(parts, g_free);

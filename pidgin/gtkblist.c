@@ -380,8 +380,10 @@ static void gtk_blist_join_chat(PurpleChat *chat)
 
 	components = purple_chat_get_components(chat);
 
-	if (protocol)
-		chat_name = purple_protocol_chat_iface_get_name(protocol, components);
+	if(protocol) {
+		chat_name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol),
+		                                          components);
+	}
 
 	if (chat_name)
 		name = chat_name;
@@ -651,13 +653,15 @@ static void chat_components_edit(GtkWidget *w, PurpleBlistNode *node)
 	PurpleRequestField *field;
 	GList *parts, *iter;
 	PurpleProtocolChatEntry *pce;
+	PurpleProtocol *protocol;
 	PurpleConnection *gc;
 	PurpleChat *chat = (PurpleChat*)node;
 
 	purple_request_fields_add_group(fields, group);
 
 	gc = purple_account_get_connection(purple_chat_get_account(chat));
-	parts = purple_protocol_chat_iface_info(purple_connection_get_protocol(gc), gc);
+	protocol = purple_connection_get_protocol(gc);
+	parts = purple_protocol_chat_info(PURPLE_PROTOCOL_CHAT(protocol), gc);
 
 	for (iter = parts; iter; iter = iter->next) {
 		pce = iter->data;
@@ -732,7 +736,8 @@ static void gtk_blist_menu_showlog_cb(GtkWidget *w, PurpleBlistNode *node)
 		account = purple_chat_get_account(c);
 		protocol = purple_protocols_find(purple_account_get_protocol_id(account));
 		if (protocol) {
-			name = purple_protocol_chat_iface_get_name(protocol, purple_chat_get_components(c));
+			name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol),
+			                                     purple_chat_get_components(c));
 		}
 	} else if (PURPLE_IS_CONTACT(node)) {
 		pidgin_log_show_contact(PURPLE_CONTACT(node));
@@ -1056,8 +1061,9 @@ rebuild_chat_entries(PidginChatData *data, const char *default_chat_name)
 	g_list_free(data->entries);
 	data->entries = NULL;
 
-	list = purple_protocol_chat_iface_info(protocol, gc);
-	defaults = purple_protocol_chat_iface_info_defaults(protocol, gc, default_chat_name);
+	list = purple_protocol_chat_info(PURPLE_PROTOCOL_CHAT(protocol), gc);
+	defaults = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol),
+	                                              gc, default_chat_name);
 
 	for (tmp = list; tmp; tmp = tmp->next)
 	{
@@ -3289,10 +3295,12 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 			conv = PURPLE_CHAT_CONVERSATION(bnode->conv.conv);
 		} else {
 			char *chat_name;
-			if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, get_name))
-				chat_name = purple_protocol_chat_iface_get_name(protocol, purple_chat_get_components(chat));
-			else
+			if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, get_name)) {
+				chat_name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol),
+				                                          purple_chat_get_components(chat));
+			} else {
 				chat_name = g_strdup(purple_chat_get_name(chat));
+			}
 
 			conv = purple_conversations_find_chat_with_account(chat_name,
 					purple_chat_get_account(chat));
@@ -3311,8 +3319,10 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 			}
 		}
 
-		if (protocol)
-			cur = purple_protocol_chat_iface_info(protocol, purple_account_get_connection(purple_chat_get_account(chat)));
+		if(protocol) {
+			cur = purple_protocol_chat_info(PURPLE_PROTOCOL_CHAT(protocol),
+			                                purple_account_get_connection(purple_chat_get_account(chat)));
+		}
 
 		while (cur != NULL)
 		{

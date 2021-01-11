@@ -31,6 +31,7 @@
 #include "prefs.h"
 #include "protocol.h"
 #include "purpleprivate.h"
+#include "purpleprotocolchat.h"
 #include "purpleprotocolclient.h"
 #include "server.h"
 #include "signals.h"
@@ -1779,7 +1780,7 @@ purple_blist_find_chat(PurpleAccount *account, const char *name)
 				if (account != purple_chat_get_account(chat))
 					continue;
 
-				parts = purple_protocol_chat_iface_info(protocol, 
+				parts = purple_protocol_chat_info(PURPLE_PROTOCOL_CHAT(protocol),
 					purple_account_get_connection(purple_chat_get_account(chat)));
 
 				pce = parts->data;

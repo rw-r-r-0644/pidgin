@@ -1231,7 +1231,7 @@ fb_im_send_typing(PurpleProtocolIM *im, PurpleConnection *gc,
 }
 
 static GList *
-fb_chat_info()
+fb_chat_info(PurpleProtocolChat *protocol_chat, PurpleConnection *connection)
 {
 	GList *pces = NULL;
 	PurpleProtocolChatEntry *pce;
@@ -1246,7 +1246,8 @@ fb_chat_info()
 }
 
 static GHashTable *
-fb_chat_info_defaults(PurpleConnection *gc, const gchar *name)
+fb_chat_info_defaults(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                      const gchar *name)
 {
 	GHashTable *data;
 
@@ -1257,7 +1258,8 @@ fb_chat_info_defaults(PurpleConnection *gc, const gchar *name)
 }
 
 static void
-fb_chat_join(PurpleConnection *gc, GHashTable *data)
+fb_chat_join(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+             GHashTable *data)
 {
 	const gchar *name;
 	FbApi *api;
@@ -1295,7 +1297,7 @@ fb_chat_join(PurpleConnection *gc, GHashTable *data)
 }
 
 static gchar *
-fb_chat_get_name(GHashTable *data)
+fb_chat_get_name(PurpleProtocolChat *protocol_chat, GHashTable *data)
 {
 	const gchar *name;
 
@@ -1306,8 +1308,8 @@ fb_chat_get_name(GHashTable *data)
 }
 
 static void
-fb_chat_invite(PurpleConnection *gc, gint id, const gchar *msg,
-               const gchar *who)
+fb_chat_invite(PurpleProtocolChat *protocol_chat,  PurpleConnection *gc,
+               gint id, const gchar *msg, const gchar *who)
 {
 	const gchar *name;
 	FbApi *api;
@@ -1339,7 +1341,8 @@ fb_chat_invite(PurpleConnection *gc, gint id, const gchar *msg,
 }
 
 static gint
-fb_chat_send(PurpleConnection *gc, gint id, PurpleMessage *msg)
+fb_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, gint id,
+             PurpleMessage *msg)
 {
 	const gchar *name;
 	const gchar *text;
@@ -1372,7 +1375,8 @@ fb_chat_send(PurpleConnection *gc, gint id, PurpleMessage *msg)
 }
 
 static void
-fb_chat_set_topic(PurpleConnection *gc, gint id, const gchar *topic)
+fb_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                  gint id, const gchar *topic)
 {
 	const gchar *name;
 	FbApi *api;
