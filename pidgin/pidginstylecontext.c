@@ -20,35 +20,39 @@
  * along with this library; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "pidgin/pidginstyle.h"
+#include "pidgin/pidginstylecontext.h"
 
 /* Assume light mode */
 static gboolean dark_mode_have_cache = FALSE;
 static gboolean dark_mode_cached_value = FALSE;
 
+/******************************************************************************
+ * Public API
+ *****************************************************************************/
 gboolean
-pidgin_style_is_dark(GtkStyle *style) {
-	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-
-	GdkColor bg;
+pidgin_style_context_is_dark(GtkStyleContext *context) {
+	GdkRGBA bg;
 	gdouble luminance = 0.0;
 
-	if(style == NULL) {
+	if(context == NULL) {
 		if(dark_mode_have_cache) {
 			return dark_mode_cached_value;
 		}
 
-		style = gtk_widget_get_default_style();
+		context = gtk_style_context_new();
+	} else {
+		g_object_ref(G_OBJECT(context));
 	}
 
-	bg = style->base[GTK_STATE_NORMAL];
+	gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL,
+	                      GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &bg,
+	                      NULL);
+	g_object_unref(G_OBJECT(context));
 
 	/* magic values are taken from https://en.wikipedia.org/wiki/Luma_(video)
 	 * Rec._601_luma_versus_Rec._709_luma_coefficients.
 	 */
 	luminance = (0.299 * bg.red) + (0.587 * bg.green) + (0.114 * bg.blue);
-
-	G_GNUC_END_IGNORE_DEPRECATIONS
 
 	dark_mode_cached_value = (luminance < 0x7FFF);
 	dark_mode_have_cache = TRUE;
@@ -57,8 +61,8 @@ pidgin_style_is_dark(GtkStyle *style) {
 }
 
 void
-pidgin_style_adjust_contrast(GtkStyle *style, GdkRGBA *rgba) {
-	if (pidgin_style_is_dark(style)) {
+pidgin_style_context_adjust_contrast(GtkStyleContext *context, GdkRGBA *rgba) {
+	if(pidgin_style_context_is_dark(context)) {
 		gdouble h, s, v;
 
 		gtk_rgb_to_hsv(rgba->red, rgba->green, rgba->blue, &h, &s, &v);

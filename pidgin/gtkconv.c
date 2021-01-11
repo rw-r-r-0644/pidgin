@@ -59,7 +59,7 @@
 #include "pidginmessage.h"
 #include "pidginpresenceicon.h"
 #include "pidginstock.h"
-#include "pidginstyle.h"
+#include "pidginstylecontext.h"
 #include "pidgintooltip.h"
 #include "pidginwindow.h"
 
@@ -7869,8 +7869,8 @@ generate_nick_colors(guint numcolors, GdkRGBA background)
 	gdk_rgba_parse(&nick_highlight, DEFAULT_HIGHLIGHT_COLOR);
 	gdk_rgba_parse(&send_color, DEFAULT_SEND_COLOR);
 
-	pidgin_style_adjust_contrast(NULL, &nick_highlight);
-	pidgin_style_adjust_contrast(NULL, &send_color);
+	pidgin_style_context_adjust_contrast(NULL, &nick_highlight);
+	pidgin_style_context_adjust_contrast(NULL, &send_color);
 
 	srand(background.red * 65535 + background.green * 65535 + background.blue * 65535 + 1);
 
