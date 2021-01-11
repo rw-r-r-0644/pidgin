@@ -321,8 +321,8 @@ edit_dialog_show(SmileyManager *manager, PurpleSmiley *smiley)
 		smiley ? _("Edit Smiley") : _("Add Smiley"),
 		manager ? GTK_WINDOW(manager->window) : NULL,
 		GTK_DIALOG_DESTROY_WITH_PARENT,
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		smiley ? GTK_STOCK_SAVE : GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT,
+		_("Cancel"), GTK_RESPONSE_CANCEL,
+		smiley ? _("Save") : _("Add"), GTK_RESPONSE_ACCEPT,
 		NULL));
 	gtk_dialog_set_default_response(
 		edit_dialog->window, GTK_RESPONSE_ACCEPT);
@@ -767,8 +767,8 @@ pidgin_smiley_manager_show(void)
 		GTK_DIALOG_DESTROY_WITH_PARENT,
 		PIDGIN_STOCK_ADD, GTK_RESPONSE_YES,
 		PIDGIN_STOCK_MODIFY, PIDGIN_RESPONSE_MODIFY,
-		GTK_STOCK_DELETE, GTK_RESPONSE_NO,
-		GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
+		_("Delete"), GTK_RESPONSE_NO,
+		_("Close"), GTK_RESPONSE_CLOSE,
 		NULL));
 
 	gtk_window_set_default_size(GTK_WINDOW(win), 50, 400);

@@ -312,7 +312,7 @@ pidgin_notify_message(PurpleNotifyMessageType type, const char *title,
 	}
 
 	dialog = gtk_dialog_new_with_buttons(title ? title : PIDGIN_ALERT_TITLE,
-										 NULL, 0, GTK_STOCK_CLOSE,
+										 NULL, 0, _("Close"),
 										 GTK_RESPONSE_CLOSE, NULL);
 
 	gtk_window_set_role(GTK_WINDOW(dialog), "notify_dialog");
@@ -669,7 +669,7 @@ pidgin_notify_formatted(const char *title, const char *primary,
 	gtk_widget_show_all(sw);
 
 	/* Add the Close button. */
-	button = gtk_dialog_add_button(GTK_DIALOG(window), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE);
+	button = gtk_dialog_add_button(GTK_DIALOG(window), _("Close"), GTK_RESPONSE_CLOSE);
 	gtk_widget_grab_focus(button);
 
 	g_signal_connect_swapped(G_OBJECT(button), "clicked",
@@ -844,10 +844,10 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 				}
 				break;
 			case PURPLE_NOTIFY_BUTTON_CONTINUE:
-				button = gtk_dialog_add_button(GTK_DIALOG(window), GTK_STOCK_GO_FORWARD, GTK_RESPONSE_NONE);
+				button = gtk_dialog_add_button(GTK_DIALOG(window), _("Forward"), GTK_RESPONSE_NONE);
 				break;
 			case PURPLE_NOTIFY_BUTTON_ADD:
-				button = gtk_dialog_add_button(GTK_DIALOG(window), GTK_STOCK_ADD, GTK_RESPONSE_NONE);
+				button = gtk_dialog_add_button(GTK_DIALOG(window), _("Add"), GTK_RESPONSE_NONE);
 				break;
 			case PURPLE_NOTIFY_BUTTON_INFO:
 				button = gtk_dialog_add_button(GTK_DIALOG(window), PIDGIN_STOCK_TOOLBAR_USER_INFO, GTK_RESPONSE_NONE);
@@ -878,7 +878,7 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 	}
 
 	/* Add the Close button */
-	close_button = gtk_dialog_add_button(GTK_DIALOG(window), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE);
+	close_button = gtk_dialog_add_button(GTK_DIALOG(window), _("Close"), GTK_RESPONSE_CLOSE);
 
 	g_signal_connect_swapped(G_OBJECT(close_button), "clicked",
 	                         G_CALLBACK(searchresults_close_cb), data);
@@ -1080,7 +1080,7 @@ pidgin_create_notification_dialog(PidginNotifyType type)
 	}
 
 	gtk_dialog_add_button(GTK_DIALOG(dialog),
-		GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE);
+		_("Close"), GTK_RESPONSE_CLOSE);
 
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	gtk_label_set_xalign(GTK_LABEL(label), 0);

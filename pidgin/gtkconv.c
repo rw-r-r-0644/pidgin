@@ -6335,8 +6335,8 @@ build_warn_close_dialog(PidginConvWindow *gtkwin)
 
 	warn_close_dialog = gtk_dialog_new_with_buttons(_("Confirm close"),
 							GTK_WINDOW(gtkwin->window), GTK_DIALOG_MODAL,
-							GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-							GTK_STOCK_CLOSE, GTK_RESPONSE_OK, NULL);
+							_("Cancel"), GTK_RESPONSE_CANCEL,
+							_("Close"), GTK_RESPONSE_OK, NULL);
 
 	gtk_dialog_set_default_response(GTK_DIALOG(warn_close_dialog),
 	                                GTK_RESPONSE_OK);
