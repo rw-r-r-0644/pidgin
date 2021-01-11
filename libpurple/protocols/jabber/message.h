@@ -71,7 +71,7 @@ void jabber_message_send(JabberMessage *jm);
 
 void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet);
 int jabber_message_send_im(PurpleProtocolIM *pim, PurpleConnection *gc, PurpleMessage *msg);
-int jabber_message_send_chat(PurpleConnection *gc, int id, PurpleMessage *msg);
+int jabber_message_send_chat(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, PurpleMessage *msg);
 
 unsigned int jabber_send_typing(PurpleProtocolIM *pim, PurpleConnection *gc, const char *who, PurpleIMTypingState state);
 

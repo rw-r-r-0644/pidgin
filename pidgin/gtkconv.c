@@ -1114,9 +1114,10 @@ chat_do_im(PidginConversation *gtkconv, const char *who)
 
 	protocol = purple_connection_get_protocol(gc);
 
-	if (protocol)
-		real_who = purple_protocol_chat_iface_get_user_real_name(protocol, gc,
+	if(protocol) {
+		real_who = purple_protocol_chat_get_user_real_name(PURPLE_PROTOCOL_CHAT(protocol), gc,
 				purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv)), who);
+	}
 
 	if(!who && !real_who)
 		return;
@@ -1168,9 +1169,10 @@ menu_chat_send_file_cb(GtkWidget *w, PidginConversation *gtkconv)
 
 	protocol = purple_connection_get_protocol(gc);
 
-	if (protocol)
-		real_who = purple_protocol_chat_iface_get_user_real_name(protocol, gc,
+	if(protocol) {
+		real_who = purple_protocol_chat_get_user_real_name(PURPLE_PROTOCOL_CHAT(protocol), gc,
 				purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv)), who);
+	}
 
 	purple_serv_send_file(gc, real_who ? real_who : who, NULL);
 	g_free(real_who);
@@ -1256,7 +1258,7 @@ create_chat_menu(PurpleChatConversation *chat, const char *who, PurpleConnection
 				can_receive_file = FALSE;
 			} else {
 				gchar *real_who = NULL;
-				real_who = purple_protocol_chat_iface_get_user_real_name(protocol, gc,
+				real_who = purple_protocol_chat_get_user_real_name(PURPLE_PROTOCOL_CHAT(protocol), gc,
 					purple_chat_conversation_get_id(chat), who);
 
 				if (!purple_protocol_xfer_can_receive(
@@ -2477,7 +2479,7 @@ populate_menu_with_options(GtkWidget *menu, PidginConversation *gtkconv, gboolea
 					purple_protocols_find(purple_account_get_protocol_id(account));
 			if (purple_account_get_connection(account) != NULL &&
 					PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info_defaults)) {
-				components = purple_protocol_chat_iface_info_defaults(protocol, purple_account_get_connection(account),
+				components = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), purple_account_get_connection(account),
 						purple_conversation_get_name(conv));
 			} else {
 				components = g_hash_table_new_full(g_str_hash, g_str_equal,
@@ -3298,7 +3300,6 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	PurpleConversation *conv;
 	PidginChatPane *gtkchat;
 	PurpleConnection *gc;
-	PurpleProtocol *protocol;
 	GtkTreeModel *tm;
 	GtkListStore *ls;
 	GtkTreePath *newpath;
@@ -3417,7 +3418,7 @@ static void topic_callback(GtkWidget *w, PidginConversation *gtkconv)
 	else
 		gtk_entry_set_text(GTK_ENTRY(gtkchat->topic_text), "");
 
-	purple_protocol_chat_iface_set_topic(protocol, gc, purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv)),
+	purple_protocol_chat_set_topic(PURPLE_PROTOCOL_CHAT(protocol), gc, purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv)),
 			new_topic);
 
 	g_free(new_topic);
@@ -5730,7 +5731,7 @@ account_signed_off_cb(PurpleConnection *gc, gpointer event)
 			PurpleChat *chat = purple_blist_find_chat(purple_conversation_get_account(conv), purple_conversation_get_name(conv));
 			if (chat == NULL) {
 				PurpleProtocol *protocol = purple_connection_get_protocol(gc);
-				comps = purple_protocol_chat_iface_info_defaults(protocol, gc, purple_conversation_get_name(conv));
+				comps = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), gc, purple_conversation_get_name(conv));
 			} else {
 				comps = purple_chat_get_components(chat);
 			}

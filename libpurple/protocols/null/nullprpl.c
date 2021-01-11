@@ -324,7 +324,8 @@ null_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node) {
   }
 }
 
-static GList *null_chat_info(PurpleConnection *gc) {
+static GList *
+null_chat_info(PurpleProtocolChat *protocol_chat, PurpleConnection *gc) {
   PurpleProtocolChatEntry *pce; /* defined in protocols.h */
 
   purple_debug_info("nullprpl", "returning chat setting 'room'\n");
@@ -337,8 +338,10 @@ static GList *null_chat_info(PurpleConnection *gc) {
   return g_list_append(NULL, pce);
 }
 
-static GHashTable *null_chat_info_defaults(PurpleConnection *gc,
-                                               const char *room) {
+static GHashTable *
+null_chat_info_defaults(PurpleProtocolChat *protocol_chat,
+                        PurpleConnection *gc, const gchar *room)
+{
   GHashTable *defaults;
 
   purple_debug_info("nullprpl", "returning chat default setting "
@@ -676,7 +679,10 @@ static void joined_chat(PurpleChatConversation *from, PurpleChatConversation *to
   }
 }
 
-static void null_join_chat(PurpleConnection *gc, GHashTable *components) {
+static void
+null_join_chat(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+               GHashTable *components)
+{
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
   const char *room = g_hash_table_lookup(components, "room");
   int chat_id = g_str_hash(room);
@@ -699,7 +705,10 @@ static void null_join_chat(PurpleConnection *gc, GHashTable *components) {
   }
 }
 
-static void null_reject_chat(PurpleConnection *gc, GHashTable *components) {
+static void
+null_reject_chat(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                 GHashTable *components)
+{
   const char *invited_by = g_hash_table_lookup(components, "invited_by");
   const char *room = g_hash_table_lookup(components, "room");
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
@@ -722,14 +731,17 @@ static void null_reject_chat(PurpleConnection *gc, GHashTable *components) {
   g_free(message);
 }
 
-static char *null_get_chat_name(GHashTable *components) {
+static gchar *
+null_get_chat_name(PurpleProtocolChat *protocol_chat, GHashTable *components) {
   const char *room = g_hash_table_lookup(components, "room");
   purple_debug_info("nullprpl", "reporting chat room name '%s'\n", room);
   return g_strdup(room);
 }
 
-static void null_chat_invite(PurpleConnection *gc, int id,
-                                 const char *message, const char *who) {
+static void
+null_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                 gint id, const gchar *message, const gchar *who)
+{
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
   PurpleChatConversation *chat = purple_conversations_find_chat(gc, id);
   const char *room = purple_conversation_get_name(PURPLE_CONVERSATION(chat));
@@ -771,7 +783,10 @@ static void left_chat_room(PurpleChatConversation *from, PurpleChatConversation 
   }
 }
 
-static void null_chat_leave(PurpleConnection *gc, int id) {
+static void
+null_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                gint id)
+{
   PurpleChatConversation *chat = purple_conversations_find_chat(gc, id);
   purple_debug_info("nullprpl", "%s is leaving chat room %s\n",
                     purple_account_get_username(purple_connection_get_account(gc)),
@@ -793,7 +808,10 @@ static void receive_chat_message(PurpleChatConversation *from, PurpleChatConvers
                    time(NULL));
 }
 
-static int null_chat_send(PurpleConnection *gc, int id, PurpleMessage *msg) {
+static gint
+null_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+               gint id, PurpleMessage *msg)
+{
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
   PurpleChatConversation *chat = purple_conversations_find_chat(gc, id);
   const gchar *message = purple_message_get_contents(msg);
@@ -890,8 +908,10 @@ static void set_chat_topic_fn(PurpleChatConversation *from, PurpleChatConversati
   g_free(msg);
 }
 
-static void null_set_chat_topic(PurpleConnection *gc, int id,
-                                    const char *topic) {
+static void
+null_set_chat_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                    gint id, const gchar *topic)
+{
   PurpleChatConversation *chat = purple_conversations_find_chat(gc, id);
   const char *last_topic;
 

@@ -293,8 +293,8 @@ static void ggp_chat_left(ggp_chat_local_info *chat, uin_t uin)
 	purple_chat_conversation_remove_user(chat->conv, ggp_uin_to_str(uin), NULL);
 }
 
-GList * ggp_chat_info(PurpleConnection *gc)
-{
+GList *
+ggp_chat_info(PurpleProtocolChat *protocol_chat, PurpleConnection *gc) {
 	GList *m = NULL;
 	PurpleProtocolChatEntry *pce;
 
@@ -307,7 +307,9 @@ GList * ggp_chat_info(PurpleConnection *gc)
 	return m;
 }
 
-GHashTable * ggp_chat_info_defaults(PurpleConnection *gc, const char *chat_name)
+GHashTable *
+ggp_chat_info_defaults(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                       const gchar *chat_name)
 {
 	GHashTable *defaults;
 
@@ -319,8 +321,8 @@ GHashTable * ggp_chat_info_defaults(PurpleConnection *gc, const char *chat_name)
 	return defaults;
 }
 
-char * ggp_chat_get_name(GHashTable *components)
-{
+gchar *
+ggp_chat_get_name(PurpleProtocolChat *protocol_chat, GHashTable *components) {
 	return g_strdup((gchar*)g_hash_table_lookup(components, "id"));
 }
 
@@ -347,7 +349,9 @@ static uint64_t ggp_chat_get_id_from_name(const gchar * name)
 	return id;
 }
 
-void ggp_chat_join(PurpleConnection *gc, GHashTable *components)
+void
+ggp_chat_join(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+              GHashTable *components)
 {
 	ggp_chat_session_data *sdata = ggp_chat_get_sdata(gc);
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
@@ -394,6 +398,8 @@ void ggp_chat_join(PurpleConnection *gc, GHashTable *components)
 static void ggp_chat_join_id(PurpleConnection *gc, uint64_t id)
 {
 	GHashTable *components;
+	PurpleProtocol *protocol = purple_connection_get_protocol(gc);
+
 	ggp_chat_local_info *chat = ggp_chat_get(gc, id);
 
 	if (chat && !chat->left) {
@@ -416,12 +422,15 @@ static void ggp_chat_join_id(PurpleConnection *gc, uint64_t id)
 			"participant"), NULL);
 	}
 
-	components = ggp_chat_info_defaults(gc, ggp_chat_get_name_from_id(id));
+	components = ggp_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), gc,
+	                                    ggp_chat_get_name_from_id(id));
 	purple_serv_got_join_chat_failed(gc, components);
 	g_hash_table_destroy(components);
 }
 
-void ggp_chat_leave(PurpleConnection *gc, int local_id)
+void
+ggp_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+               gint local_id)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	ggp_chat_local_info *chat;
@@ -448,8 +457,9 @@ void ggp_chat_leave(PurpleConnection *gc, int local_id)
 	chat->left = TRUE;
 }
 
-void ggp_chat_invite(PurpleConnection *gc, int local_id, const char *message,
-	const char *who)
+void
+ggp_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                gint local_id, const gchar *message, const gchar *who)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	ggp_chat_local_info *chat;
@@ -470,7 +480,9 @@ void ggp_chat_invite(PurpleConnection *gc, int local_id, const char *message,
 	}
 }
 
-int ggp_chat_send(PurpleConnection *gc, int local_id, PurpleMessage *msg)
+gint
+ggp_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+              gint local_id, PurpleMessage *msg)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	GDateTime *dt = NULL;

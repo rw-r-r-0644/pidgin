@@ -35,6 +35,7 @@
 #include "protocol.h"
 #include "purpleprivate.h"
 #include "purpleprotocolattention.h"
+#include "purpleprotocolchat.h"
 #include "purpleprotocolim.h"
 #include "purpleprotocolprivacy.h"
 #include "request.h"
@@ -412,7 +413,7 @@ void purple_serv_join_chat(PurpleConnection *gc, GHashTable *data)
 
 	if (gc) {
 		protocol = purple_connection_get_protocol(gc);
-		purple_protocol_chat_iface_join(protocol, gc, data);
+		purple_protocol_chat_join(PURPLE_PROTOCOL_CHAT(protocol), gc, data);
 	}
 }
 
@@ -423,7 +424,7 @@ void purple_serv_reject_chat(PurpleConnection *gc, GHashTable *data)
 
 	if (gc) {
 		protocol = purple_connection_get_protocol(gc);
-		purple_protocol_chat_iface_reject(protocol, gc, data);
+		purple_protocol_chat_reject(PURPLE_PROTOCOL_CHAT(protocol), gc, data);
 	}
 }
 
@@ -445,8 +446,10 @@ void purple_serv_chat_invite(PurpleConnection *gc, int id, const char *message, 
 	purple_signal_emit(purple_conversations_get_handle(), "chat-inviting-user",
 					 chat, name, &buffy);
 
-	if (protocol)
-		purple_protocol_chat_iface_invite(protocol, gc, id, buffy, name);
+	if(protocol) {
+		purple_protocol_chat_invite(PURPLE_PROTOCOL_CHAT(protocol), gc, id,
+		                            buffy, name);
+	}
 
 	purple_signal_emit(purple_conversations_get_handle(), "chat-invited-user",
 					 chat, name, buffy);
@@ -464,7 +467,7 @@ void purple_serv_chat_leave(PurpleConnection *gc, int id)
 	PurpleProtocol *protocol;
 
 	protocol = purple_connection_get_protocol(gc);
-	purple_protocol_chat_iface_leave(protocol, gc, id);
+	purple_protocol_chat_leave(PURPLE_PROTOCOL_CHAT(protocol), gc, id);
 }
 
 int purple_serv_chat_send(PurpleConnection *gc, int id, PurpleMessage *msg)
@@ -474,8 +477,10 @@ int purple_serv_chat_send(PurpleConnection *gc, int id, PurpleMessage *msg)
 
 	g_return_val_if_fail(msg != NULL, -EINVAL);
 
-	if (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, send))
-		return purple_protocol_chat_iface_send(protocol, gc, id, msg);
+	if (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, send)) {
+		return purple_protocol_chat_send(PURPLE_PROTOCOL_CHAT(protocol), gc,
+		                                 id, msg);
+	}
 
 	return -EINVAL;
 }

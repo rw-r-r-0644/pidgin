@@ -306,7 +306,7 @@ account_signed_on_off(PurpleConnection *gc, gpointer null)
 			chat = find_chat_for_conversation(conv);
 			if (chat == NULL) {
 				PurpleProtocol *protocol = purple_connection_get_protocol(gc);
-				comps = purple_protocol_chat_iface_info_defaults(protocol, gc,
+				comps = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), gc,
 						purple_conversation_get_name(conv));
 			} else {
 				comps = purple_chat_get_components(chat);
@@ -658,7 +658,7 @@ create_conv_from_userlist(GntWidget *widget, FinchConv *fc)
 
 	protocol = purple_connection_get_protocol(gc);
 	if (protocol)
-		realname = purple_protocol_chat_iface_get_user_real_name(protocol, gc,
+		realname = purple_protocol_chat_get_user_real_name(PURPLE_PROTOCOL_CHAT(protocol), gc,
 				purple_chat_conversation_get_id(
 				PURPLE_CHAT_CONVERSATION(fc->active_conv)), name);
 

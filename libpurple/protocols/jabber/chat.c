@@ -31,7 +31,9 @@
 #include "xdata.h"
 #include "data.h"
 
-GList *jabber_chat_info(PurpleConnection *gc)
+GList *
+jabber_chat_info(PurpleProtocolChat *protocol_chat,
+                 PurpleConnection *connection)
 {
 	GList *m = NULL;
 	PurpleProtocolChatEntry *pce;
@@ -203,7 +205,8 @@ void jabber_chat_invite(PurpleConnection *gc, int id, const char *msg,
 
 void jabber_chat_member_free(JabberChatMember *jcm);
 
-char *jabber_get_chat_name(GHashTable *data) {
+gchar *
+jabber_get_chat_name(PurpleProtocolChat *protocol_chat, GHashTable *data) {
 	char *room, *server, *chat_name = NULL;
 
 	room = g_hash_table_lookup(data, "room");
@@ -414,7 +417,9 @@ void jabber_chat_join(PurpleConnection *gc, GHashTable *data)
 	jabber_id_free(jid);
 }
 
-void jabber_chat_leave(PurpleConnection *gc, int id)
+void
+jabber_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                  gint id)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 	JabberChat *chat = jabber_chat_find_by_id(js, id);
@@ -454,7 +459,9 @@ gboolean jabber_chat_find_buddy(PurpleChatConversation *conv, const char *name)
 	return purple_chat_conversation_has_user(conv, name);
 }
 
-char *jabber_chat_user_real_name(PurpleConnection *gc, int id, const char *who)
+gchar *
+jabber_chat_user_real_name(PurpleProtocolChat *protocol_chat,
+                           PurpleConnection *gc, gint id, const gchar *who)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 	JabberChat *chat;
@@ -736,7 +743,9 @@ void jabber_chat_change_topic(JabberChat *chat, const char *topic)
 	jabber_message_free(jm);
 }
 
-void jabber_chat_set_topic(PurpleConnection *gc, int id, const char *topic)
+void
+jabber_chat_set_topic(PurpleProtocolChat *protocol_chat,
+                      PurpleConnection *gc, gint id, const gchar *topic)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 	JabberChat *chat = jabber_chat_find_by_id(js, id);

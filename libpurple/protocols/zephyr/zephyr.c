@@ -1623,7 +1623,9 @@ static const char * zephyr_get_signature(void)
 	return sig;
 }
 
-static int zephyr_chat_send(PurpleConnection * gc, int id, PurpleMessage *msg)
+static int
+zephyr_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                 int id, PurpleMessage *msg)
 {
 	zephyr_triple *zt;
 	const char *sig;
@@ -1931,8 +1933,8 @@ static GList *zephyr_status_types(PurpleAccount *account)
 	return types;
 }
 
-static GList *zephyr_chat_info(PurpleConnection * gc)
-{
+static GList *
+zephyr_chat_info(PurpleProtocolChat *protocol_chat, PurpleConnection * gc) {
 	GList *m = NULL;
 	PurpleProtocolChatEntry *pce;
 
@@ -1966,7 +1968,8 @@ static void zephyr_subscribe_failed(PurpleConnection *gc,char * z_class, char *z
 	g_free(subscribe_failed);
 }
 
-static char *zephyr_get_chat_name(GHashTable *data) {
+static char *
+zephyr_get_chat_name(PurpleProtocolChat *protocol_chat, GHashTable *data) {
 	gchar* zclass = g_hash_table_lookup(data,"class");
 	gchar* inst = g_hash_table_lookup(data,"instance");
 	gchar* recipient = g_hash_table_lookup(data, "recipient");
@@ -2048,7 +2051,16 @@ static void zephyr_join_chat(PurpleConnection * gc, GHashTable * data)
 	zephyr_chat_set_topic(gc,zt1->id,instname);
 }
 
-static void zephyr_chat_leave(PurpleConnection * gc, int id)
+static void
+zephyr_protocol_chat_join(PurpleProtocolChat *protocol_chat,
+                          PurpleConnection *gc, GHashTable * data)
+{
+	zephyr_join_chat(gc, data);
+}
+
+static void
+zephyr_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection * gc,
+                  int id)
 {
 	zephyr_triple *zt;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
@@ -2161,6 +2173,13 @@ static void zephyr_chat_set_topic(PurpleConnection * gc, int id, const char *top
 	topic_utf8 = zephyr_recv_convert(gc,(gchar *)topic);
 	purple_chat_conversation_set_topic(gcc,sender,topic_utf8);
 	g_free(topic_utf8);
+}
+
+static void
+zephyr_protocol_chat_set_topic(PurpleProtocolChat *protocol_chat,
+                               PurpleConnection *gc, int id, const char *topic)
+{
+	zephyr_chat_set_topic(gc, id, topic);
 }
 
 /*  commands */
@@ -2549,11 +2568,11 @@ static void
 zephyr_protocol_chat_iface_init(PurpleProtocolChatInterface *chat_iface)
 {
 	chat_iface->info      = zephyr_chat_info;
-	chat_iface->join      = zephyr_join_chat;
+	chat_iface->join      = zephyr_protocol_chat_join;
 	chat_iface->get_name  = zephyr_get_chat_name;
 	chat_iface->leave     = zephyr_chat_leave;
 	chat_iface->send      = zephyr_chat_send;
-	chat_iface->set_topic = zephyr_chat_set_topic;
+	chat_iface->set_topic = zephyr_protocol_chat_set_topic;
 
 	chat_iface->get_user_real_name = NULL; /* XXX */
 }

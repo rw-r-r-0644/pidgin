@@ -2405,7 +2405,8 @@ novell_convo_closed(PurpleProtocolClient *client, PurpleConnection * gc,
 }
 
 static void
-novell_chat_leave(PurpleConnection * gc, int id)
+novell_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                  gint id)
 {
 	NMConference *conference;
 	NMUser *user;
@@ -2435,8 +2436,8 @@ novell_chat_leave(PurpleConnection * gc, int id)
 }
 
 static void
-novell_chat_invite(PurpleConnection *gc, int id,
-				   const char *message, const char *who)
+novell_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                   gint id, const gchar *message, const gchar *who)
 {
 	NMConference *conference;
 	NMUser *user;
@@ -2472,8 +2473,9 @@ novell_chat_invite(PurpleConnection *gc, int id,
 	}
 }
 
-static int
-novell_chat_send(PurpleConnection * gc, int id, PurpleMessage *msg)
+static gint
+novell_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
+                 gint id, PurpleMessage *msg)
 {
 	NMConference *conference;
 	PurpleChatConversation *chat;
