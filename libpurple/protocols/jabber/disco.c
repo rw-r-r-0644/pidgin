@@ -27,7 +27,6 @@
 #include "buddy.h"
 #include "disco.h"
 #include "google/google.h"
-#include "google/gmail.h"
 #include "google/jingleinfo.h"
 #include "iq.h"
 #include "jabber.h"
@@ -539,10 +538,7 @@ jabber_disco_server_info_result_cb(JabberStream *js, const char *from,
 		if (!var)
 			continue;
 
-		if (purple_strequal(NS_GOOGLE_MAIL_NOTIFY, var)) {
-			js->server_caps |= JABBER_CAP_GMAIL_NOTIFY;
-			jabber_gmail_init(js);
-		} else if (purple_strequal(NS_GOOGLE_ROSTER, var)) {
+		if (purple_strequal(NS_GOOGLE_ROSTER, var)) {
 			js->server_caps |= JABBER_CAP_GOOGLE_ROSTER;
 		} else if (purple_strequal("http://jabber.org/protocol/commands", var)) {
 			js->server_caps |= JABBER_CAP_ADHOC;

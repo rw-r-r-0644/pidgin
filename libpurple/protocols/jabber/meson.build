@@ -25,8 +25,6 @@ JABBER_SOURCES = [
 	'data.h',
 	'disco.c',
 	'disco.h',
-	'google/gmail.c',
-	'google/gmail.h',
 	'google/google.c',
 	'google/google.h',
 	'google/google_p2p.c',

@@ -366,15 +366,6 @@ void purple_account_set_connection(PurpleAccount *account, PurpleConnection *gc)
 void purple_account_set_remember_password(PurpleAccount *account, gboolean value);
 
 /**
- * purple_account_set_check_mail:
- * @account: The account.
- * @value:   %TRUE if it should check for mail.
- *
- * Sets whether or not this account should check for mail.
- */
-void purple_account_set_check_mail(PurpleAccount *account, gboolean value);
-
-/**
  * purple_account_set_enabled:
  * @account: The account.
  * @ui:      The UI.
@@ -717,16 +708,6 @@ const gchar *purple_account_get_name_for_display(PurpleAccount *account);
  * Returns: %TRUE if it should remember the password.
  */
 gboolean purple_account_get_remember_password(PurpleAccount *account);
-
-/**
- * purple_account_get_check_mail:
- * @account: The account.
- *
- * Returns whether or not this account should check for mail.
- *
- * Returns: %TRUE if it should check for mail.
- */
-gboolean purple_account_get_check_mail(PurpleAccount *account);
 
 /**
  * purple_account_get_enabled:

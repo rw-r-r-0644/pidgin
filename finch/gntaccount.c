@@ -57,7 +57,6 @@ typedef struct
 	GList *protocol_entries;
 	GntWidget *protocols;
 
-	GntWidget *newmail;
 	GntWidget *remember;
 	GntWidget *regserver;
 } AccountEditDialog;
@@ -196,10 +195,6 @@ save_account_cb(AccountEditDialog *dialog)
 		purple_credential_manager_clear_password_async(manager, account, NULL,
 		                                               NULL, NULL);
 	}
-
-	/* Mail notification */
-	purple_account_set_check_mail(account,
-			gnt_check_box_get_checked(GNT_CHECK_BOX(dialog->newmail)));
 
 	/* Protocol options */
 	if (protocol)
@@ -498,17 +493,6 @@ update_user_options(AccountEditDialog *dialog)
 	if (!protocol)
 		return;
 
-	if (dialog->newmail == NULL)
-		dialog->newmail = gnt_check_box_new(_("New mail notifications"));
-	if (dialog->account)
-		gnt_check_box_set_checked(GNT_CHECK_BOX(dialog->newmail),
-				purple_account_get_check_mail(dialog->account));
-	if (!(purple_protocol_get_options(protocol) & OPT_PROTO_MAIL_CHECK)) {
-		gnt_widget_set_visible(dialog->newmail, FALSE);
-	} else {
-		gnt_widget_set_visible(dialog->newmail, TRUE);
-	}
-
 	if (dialog->remember == NULL)
 		dialog->remember = gnt_check_box_new(_("Remember password"));
 	if (dialog->account)
@@ -633,7 +617,6 @@ edit_account_continue(GObject *obj, GAsyncResult *res, gpointer data)
 	/* User options */
 	update_user_options(dialog);
 	gnt_box_add_widget(GNT_BOX(window), dialog->remember);
-	gnt_box_add_widget(GNT_BOX(window), dialog->newmail);
 
 	/* Register checkbox */
 	dialog->regserver = gnt_check_box_new(_("Create this account on the server"));
