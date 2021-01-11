@@ -25,24 +25,24 @@
 #endif
 
 /**
- * SECTION:pidginstyle
- * @section_id: pidgin-pidginstyle
- * @short_description: <filename>gtkstyle.h</filename>
- * @title: Style API
+ * SECTION:pidginstylecontext
+ * @section_id: pidgin-pidginstylecontext
+ * @short_description: Dark theme helpers.
+ * @title: GtkStyleContext Helpers
  *
- * The style API contains some helpers regarding #GtkStyle.
+ * A collection of API to help with handling dark themes.
  */
 
-#ifndef PIDGIN_STYLE_H
-#define PIDGIN_STYLE_H
+#ifndef PIDGIN_STYLE_CONTEXT_H
+#define PIDGIN_STYLE_CONTEXT_H
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
 /**
- * pidgin_style_is_dark:
- * @style: The #GtkStyle in use, or %NULL to use a cached version.
+ * pidgin_style_context_is_dark:
+ * @context: The #GtkStyleContext to use, or %NULL to use a cached version.
  *
  * Gets whether or not dark mode is enabled.
  *
@@ -50,20 +50,20 @@ G_BEGIN_DECLS
  *          inverted.
  */
 
-gboolean pidgin_style_is_dark(GtkStyle *style);
+gboolean pidgin_style_context_is_dark(GtkStyleContext *context);
 
 /**
- * pidgin_style_adjust_contrast:
- * @style: The #GtkStyle in use.
- * @color: (inout): Color to be lightened.  Transformed color will be written
+ * pidgin_style_context_adjust_contrast:
+ * @context: The #GtkStyleContext in use.
+ * @color: (inout): Color to be lightened. Transformed color will be written
  *         here.
  *
  * Lighten a color if dark mode is enabled.
  */
 
-void pidgin_style_adjust_contrast(GtkStyle *style, GdkRGBA *color);
+void pidgin_style_context_adjust_contrast(GtkStyleContext *context, GdkRGBA *color);
 
 G_END_DECLS
 
-#endif /* PIDGIN_STYLE_H */
+#endif /* PIDGIN_STYLE_CONTEXT_H */
 

@@ -79,7 +79,7 @@
       <xi:include href="xml/pidginpresence.xml" />
       <xi:include href="xml/pidginpresenceicon.xml" />
       <xi:include href="xml/pidginstock.xml" />
-      <xi:include href="xml/pidginstyle.xml" />
+      <xi:include href="xml/pidginstylecontext.xml" />
       <xi:include href="xml/pidgintalkatu.xml" />
       <xi:include href="xml/pidgintooltip.xml" />
       <xi:include href="xml/pidginwindow.xml" />

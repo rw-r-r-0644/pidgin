@@ -350,7 +350,7 @@ pidgin/pidginmessage.c
 pidgin/pidginpresence.c
 pidgin/pidginpresenceicon.c
 pidgin/pidginstock.c
-pidgin/pidginstyle.c
+pidgin/pidginstylecontext.c
 pidgin/pidgintalkatu.c
 pidgin/pidgintooltip.c
 pidgin/pidginwindow.c
