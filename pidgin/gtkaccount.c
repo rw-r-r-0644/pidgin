@@ -1583,13 +1583,10 @@ static const GtkTargetEntry dnd_targets[] = {
 };
 
 static void
-pidgin_account_dialog_show_continue(GObject *obj, GAsyncResult *res,
-                                    gpointer data)
+pidgin_account_dialog_show_continue(PidginAccountDialogType type,
+                                    PurpleAccount *account,
+                                    const gchar *password)
 {
-	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
-	PidginAccountDialogShowData *d = (PidginAccountDialogShowData *)data;
-	PurpleAccount *account = NULL;
-	PidginAccountDialogType type = 0;
 	AccountPrefsDialog *dialog;
 	GtkWidget *win;
 	GtkWidget *main_vbox;
@@ -1597,14 +1594,6 @@ pidgin_account_dialog_show_continue(GObject *obj, GAsyncResult *res,
 	GtkWidget *dbox;
 	GtkWidget *notebook;
 	GtkWidget *button;
-	gchar *password = NULL;
-
-	/* we needed a struct to pass multiple pointers to here, but now that we
-	 * have them, we can free it.
-	 */
-	account = d->account;
-	type = d->type;
-	g_free(d);
 
 	if (accounts_window != NULL && account != NULL &&
 		(dialog = g_hash_table_lookup(account_pref_wins, account)) != NULL)
@@ -1615,16 +1604,14 @@ pidgin_account_dialog_show_continue(GObject *obj, GAsyncResult *res,
 
 	dialog = g_new0(AccountPrefsDialog, 1);
 
-	if (account == NULL) {
+	if(account == NULL) {
 		/* Select the first protocol in the list*/
 		GList *protocol_list = purple_protocols_get_all();
 		if (protocol_list != NULL) {
 			dialog->protocol_id = g_strdup(purple_protocol_get_id(PURPLE_PROTOCOL(protocol_list->data)));
 			g_list_free(protocol_list);
 		}
-	}
-	else
-	{
+	} else {
 		dialog->protocol_id =
 			g_strdup(purple_account_get_protocol_id(account));
 	}
@@ -1641,12 +1628,8 @@ pidgin_account_dialog_show_continue(GObject *obj, GAsyncResult *res,
 		g_hash_table_insert(account_pref_wins, account, dialog);
 	}
 
-	/* The dialog will take ownership of this pointer */
-	password = purple_credential_manager_read_password_finish(manager, res,
-	                                                          NULL);
-
 	dialog->account = account;
-	dialog->password = password;
+	dialog->password = g_strdup(password);
 	dialog->type = type;
 	dialog->sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 	dialog->protocol = purple_protocols_find(dialog->protocol_id);
@@ -1730,6 +1713,23 @@ pidgin_account_dialog_show_continue(GObject *obj, GAsyncResult *res,
 		gtk_widget_grab_focus(dialog->protocol_menu);
 }
 
+static void
+pidgin_account_dialog_read_password_cb(GObject *obj, GAsyncResult *res,
+                                       gpointer data)
+{
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
+	PidginAccountDialogShowData *d = (PidginAccountDialogShowData *)data;
+	gchar *password;
+
+	password = purple_credential_manager_read_password_finish(manager, res,
+	                                                          NULL);
+
+	pidgin_account_dialog_show_continue(d->type, d->account, password);
+
+	g_free(password);
+	g_free(d);
+}
+
 void
 pidgin_account_dialog_show(PidginAccountDialogType type, PurpleAccount *account)
 {
@@ -1745,10 +1745,13 @@ pidgin_account_dialog_show(PidginAccountDialogType type, PurpleAccount *account)
 
 	manager = purple_credential_manager_get_default();
 
-	/* this is to make sure the password will be cached */
-	purple_credential_manager_read_password_async(manager, account, NULL,
-	                                              pidgin_account_dialog_show_continue,
-	                                              data);
+	if(PURPLE_IS_ACCOUNT(account)) {
+		purple_credential_manager_read_password_async(manager, account, NULL,
+		                                              pidgin_account_dialog_read_password_cb,
+		                                              data);
+	} else {
+		pidgin_account_dialog_show_continue(type, account, NULL);
+	}
 }
 
 /**************************************************************************
