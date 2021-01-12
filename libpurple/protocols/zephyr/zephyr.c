@@ -63,6 +63,7 @@ typedef struct _zephyr_triple zephyr_triple;
 typedef struct _zephyr_account zephyr_account;
 
 typedef gssize (*PollableInputStreamReadFunc)(GPollableInputStream *stream, void *bufcur, GError **error);
+typedef gboolean (*ZephyrLoginFunc)(zephyr_account *zephyr);
 
 typedef enum {
 	PURPLE_ZEPHYR_NONE, /* Non-kerberized ZEPH0.2 */
@@ -111,8 +112,10 @@ struct _zephyr_triple {
 					return TRUE;
 
 #define z_call_s(func, err)	if (func != ZERR_NONE) {\
-					purple_connection_error(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, err);\
-					return;\
+					purple_connection_error(\
+						purple_account_get_connection(zephyr->account),\
+						PURPLE_CONNECTION_ERROR_NETWORK_ERROR, err);\
+					return FALSE;\
 				}
 
 #ifdef WIN32
@@ -1196,17 +1199,228 @@ pollable_input_stream_read_with_timeout(GPollableInputStream *stream,
 	return -1;
 }
 
+static GSubprocess *
+get_tzc_process(const zephyr_account *zephyr)
+{
+	GSubprocess *tzc_process = NULL;
+	const gchar *tzc_cmd;
+	gchar **tzc_cmd_array = NULL;
+	GError *error = NULL;
+	gboolean found_ps = FALSE;
+	gint i;
+
+	/* tzc_command should really be of the form
+	   path/to/tzc -e %s
+	   or
+	   ssh username@hostname pathtotzc -e %s
+	   -- this should not require a password, and ideally should be
+	   kerberized ssh --
+	   or
+	   fsh username@hostname pathtotzc -e %s
+	*/
+	tzc_cmd = purple_account_get_string(zephyr->account, "tzc_command", "/usr/bin/tzc -e %s");
+	if (!g_shell_parse_argv(tzc_cmd, NULL, &tzc_cmd_array, &error)) {
+		purple_debug_error("zephyr", "Unable to parse tzc_command: %s", error->message);
+		purple_connection_error(
+		        purple_account_get_connection(zephyr->account),
+		        PURPLE_CONNECTION_ERROR_INVALID_SETTINGS,
+		        "invalid tzc_command setting");
+		g_error_free(error);
+		return NULL;
+	}
+	for (i = 0; tzc_cmd_array[i] != NULL; i++) {
+		if (purple_strequal(tzc_cmd_array[i], "%s")) {
+			g_free(tzc_cmd_array[i]);
+			tzc_cmd_array[i] = g_strdup(zephyr->exposure);
+			found_ps = TRUE;
+		}
+	}
+
+	if (!found_ps) {
+		purple_debug_error("zephyr", "tzc exited early");
+		purple_connection_error(
+		        purple_account_get_connection(zephyr->account),
+		        PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+		        "invalid output by tzc (or bad parsing code)");
+		g_strfreev(tzc_cmd_array);
+		return NULL;
+	}
+
+	tzc_process = g_subprocess_newv(
+	        (const gchar *const *)tzc_cmd_array,
+	        G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDOUT_PIPE,
+	        &error);
+	if (tzc_process == NULL) {
+		purple_debug_error("zephyr", "tzc exited early: %s", error->message);
+		purple_connection_error(
+		        purple_account_get_connection(zephyr->account),
+		        PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+		        "invalid output by tzc (or bad parsing code)");
+		g_error_free(error);
+	}
+
+	g_strfreev(tzc_cmd_array);
+	return tzc_process;
+}
+
+static gint
+get_paren_level(gint paren_level, gchar ch)
+{
+	switch (ch) {
+		case '(': return paren_level + 1;
+		case ')': return paren_level - 1;
+		default: return paren_level;
+	}
+}
+
+static gchar *
+get_zephyr_realm(PurpleAccount *account, const gchar *local_realm)
+{
+	const char *realm = purple_account_get_string(account, "realm", "");
+	if (!*realm) {
+		realm = local_realm;
+	}
+	g_strlcpy(__Zephyr_realm, realm, REALM_SZ - 1);
+	return g_strdup(realm);
+}
+
+static void
+parse_tzc_login_data(zephyr_account *zephyr, const gchar *buf, gint buflen)
+{
+	gchar *str = g_strndup(buf, buflen);
+
+	purple_debug_info("zephyr", "tempstr parsed");
+
+	/* str should now be a string containing all characters from
+	 * buf after the first ( to the one before the last paren ).
+	 * We should have the following possible lisp strings but we don't care
+	 * (tzcspew . start) (version . "something") (pid . number)
+	 * We care about 'zephyrid . "username@REALM.NAME"' and
+	 * 'exposure . "SOMETHING"' */
+	if (!g_ascii_strncasecmp(str, "zephyrid", 8)) {
+		gchar **strv;
+		gchar *username;
+		const char *at;
+
+		purple_debug_info("zephyr", "zephyrid found");
+
+		strv = g_strsplit(str + 8, "\"", -1);
+		username = strv[1] ? strv[1] : "";
+		zephyr->username = g_strdup(username);
+
+		at = strchr(username, '@');
+		if (at != NULL) {
+			zephyr->realm = g_strdup(at + 1);
+		} else {
+			zephyr->realm = get_zephyr_realm(zephyr->account, "local-realm");
+		}
+
+		g_strfreev(strv);
+	} else {
+		purple_debug_info("zephyr", "something that's not zephyr id found %s", str);
+	}
+
+	/* We don't care about anything else yet */
+	g_free(str);
+}
+
+static gboolean
+login_tzc(zephyr_account *zephyr)
+{
+	gchar *buf = NULL;
+	const gchar *bufend = NULL;
+	const gchar *ptr;
+	const gchar *tmp;
+	gint parenlevel = 0;
+
+	zephyr->tzc_proc = get_tzc_process(zephyr);
+	if (zephyr->tzc_proc == NULL) {
+		return FALSE;
+	}
+	zephyr->tzc_stdin = g_subprocess_get_stdin_pipe(zephyr->tzc_proc);
+	zephyr->tzc_stdout = g_subprocess_get_stdout_pipe(zephyr->tzc_proc);
+
+	purple_debug_info("zephyr", "about to read from tzc");
+	buf = read_from_tzc(zephyr, pollable_input_stream_read_with_timeout);
+	if (buf == NULL) {
+		return FALSE;
+	}
+	bufend = buf + strlen(buf);
+	ptr = buf;
+
+	/* ignore all tzcoutput till we've received the first ( */
+	while (ptr < bufend && (*ptr != '(')) {
+		ptr++;
+	}
+	if (ptr >= bufend) {
+		purple_connection_error(
+		        purple_account_get_connection(zephyr->account),
+		        PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+		        "invalid output by tzc (or bad parsing code)");
+		g_free(buf);
+		return FALSE;
+	}
+
+	do {
+		parenlevel = get_paren_level(parenlevel, *ptr);
+		purple_debug_info("zephyr", "tzc parenlevel is %d", parenlevel);
+		switch (parenlevel) {
+			case 1:
+				/* Search for next beginning (, or for the ending */
+				do {
+					ptr++;
+				} while ((ptr < bufend) && (*ptr != '(') && (*ptr != ')'));
+				if (ptr >= bufend) {
+					purple_debug_error("zephyr", "tzc parsing error");
+				}
+				break;
+			case 2:
+				/* You are probably at
+				   (foo . bar ) or (foo . "bar") or (foo . chars) or (foo . numbers) or (foo . () )
+				   Parse all the data between the first and last f, and move past )
+				*/
+				tmp = ptr;
+				do {
+					ptr++;
+					parenlevel = get_paren_level(parenlevel, *ptr);
+				} while (parenlevel > 1);
+				parse_tzc_login_data(zephyr, tmp + 1, ptr - tmp);
+				ptr++;
+				break;
+			default:
+				purple_debug_info("zephyr", "parenlevel is not 1 or 2");
+				/* This shouldn't be happening */
+				break;
+		}
+	} while (ptr < bufend && parenlevel != 0);
+	purple_debug_info("zephyr", "tzc startup done");
+	g_free(buf);
+
+	return TRUE;
+}
+
+static gboolean
+login_zeph02(zephyr_account *zephyr)
+{
+	/* XXX z_call_s should actually try to report the com_err determined error */
+	z_call_s(ZInitialize(), "Couldn't initialize zephyr");
+	z_call_s(ZOpenPort(&(zephyr->port)), "Couldn't open port");
+	z_call_s(ZSetLocation(zephyr->exposure), "Couldn't set location");
+
+	zephyr->username = g_strdup(ZGetSender());
+	zephyr->realm = get_zephyr_realm(zephyr->account, ZGetRealm());
+
+	return TRUE;
+}
+
 static void zephyr_login(PurpleAccount * account)
 {
 	PurpleConnection *gc;
 	zephyr_account *zephyr;
+	ZephyrLoginFunc login;
 	GSourceFunc check_notify;
-	gboolean read_anyone;
-	gboolean read_zsubs;
 
 	gc = purple_account_get_connection(account);
-	read_anyone = purple_account_get_bool(account, "read_anyone", TRUE);
-	read_zsubs = purple_account_get_bool(account, "read_zsubs", TRUE);
 
 #ifdef WIN32
 	username = purple_account_get_username(account);
@@ -1220,224 +1434,20 @@ static void zephyr_login(PurpleAccount * account)
 	zephyr->account = account;
 	zephyr->exposure = get_zephyr_exposure(account);
 
-	if (purple_account_get_bool(account, "use_tzc", 0)) {
+	if (purple_account_get_bool(account, "use_tzc", FALSE)) {
 		zephyr->connection_type = PURPLE_ZEPHYR_TZC;
+		login = login_tzc;
 		check_notify = check_notify_tzc;
 	} else {
 		zephyr->connection_type = PURPLE_ZEPHYR_KRB4;
+		login = login_zeph02;
 		check_notify = check_notify_zeph02;
 	}
 
 	zephyr->encoding = (char *)purple_account_get_string(account, "encoding", ZEPHYR_FALLBACK_CHARSET);
 	purple_connection_update_progress(gc, _("Connecting"), 0, 8);
 
-	/* XXX z_call_s should actually try to report the com_err determined error */
-	if (use_tzc(zephyr)) {
-		gboolean found_ps = FALSE;
-		gchar **tzc_cmd_array = NULL;
-		gchar *buf = NULL;
-		gchar *bufcur = NULL;
-		gchar *ptr;
-		gint parenlevel = 0;
-		gchar *tempstr;
-		gint i;
-		GError *error = NULL;
-
-		/* tzc_command should really be of the form
-		   path/to/tzc -e %s
-		   or
-		   ssh username@hostname pathtotzc -e %s
-		   -- this should not require a password, and ideally should be
-		   kerberized ssh --
-		   or
-		   fsh username@hostname pathtotzc -e %s
-		*/
-		if (!g_shell_parse_argv(purple_account_get_string(
-		                                account, "tzc_command", "/usr/bin/tzc -e %s"),
-		                        NULL, &tzc_cmd_array, &error)) {
-			purple_debug_error("zephyr", "Unable to parse tzc_command: %s",
-			                   error->message);
-			purple_connection_error(gc,
-			                        PURPLE_CONNECTION_ERROR_INVALID_SETTINGS,
-			                        "invalid tzc_command setting");
-			g_error_free(error);
-			return;
-		}
-		for (i = 0; tzc_cmd_array[i] != NULL; i++) {
-			if (purple_strequal(tzc_cmd_array[i], "%s")) {
-				g_free(tzc_cmd_array[i]);
-				tzc_cmd_array[i] = g_strdup(zephyr->exposure);
-				found_ps = TRUE;
-			}
-		}
-
-		if (!found_ps) {
-			purple_debug_error("zephyr", "tzc exited early");
-			purple_connection_error(
-			        gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-			        "invalid output by tzc (or bad parsing code)");
-			g_strfreev(tzc_cmd_array);
-			return;
-		}
-
-		zephyr->tzc_proc = g_subprocess_newv(
-		        (const gchar *const *)tzc_cmd_array,
-		        G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDOUT_PIPE,
-		        &error);
-		g_strfreev(tzc_cmd_array);
-		if (zephyr->tzc_proc == NULL) {
-			purple_debug_error("zephyr", "tzc exited early: %s",
-			                   error->message);
-			purple_connection_error(
-			        gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-			        "invalid output by tzc (or bad parsing code)");
-			g_error_free(error);
-			return;
-		}
-		zephyr->tzc_stdin = g_subprocess_get_stdin_pipe(zephyr->tzc_proc);
-		zephyr->tzc_stdout = g_subprocess_get_stdout_pipe(zephyr->tzc_proc);
-
-		purple_debug_info("zephyr", "about to read from tzc");
-		buf = read_from_tzc(zephyr, pollable_input_stream_read_with_timeout);
-		if (buf == NULL) {
-			return;
-		}
-		bufcur = buf + strlen(buf);
-		ptr = buf;
-
-		/* ignore all tzcoutput till we've received the first (*/
-		while (ptr < bufcur && (*ptr != '(')) {
-			ptr++;
-		}
-		if (ptr >= bufcur) {
-			purple_connection_error(
-			        gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-			        "invalid output by tzc (or bad parsing code)");
-			g_free(buf);
-			return;
-		}
-
-		while (ptr < bufcur) {
-			if (*ptr == '(') {
-				parenlevel++;
-			} else if (*ptr == ')') {
-				parenlevel--;
-			}
-			purple_debug_info("zephyr", "tzc parenlevel is %d", parenlevel);
-			switch (parenlevel) {
-				case 0:
-					break;
-				case 1:
-					/* Search for next beginning (, or for the ending */
-					ptr++;
-					while ((*ptr != '(') && (*ptr != ')') && (ptr < bufcur)) {
-						ptr++;
-					}
-					if (ptr >= bufcur) {
-						purple_debug_error("zephyr", "tzc parsing error");
-					}
-					break;
-				case 2:
-					/* You are probably at
-					   (foo . bar ) or (foo . "bar") or (foo . chars) or (foo . numbers) or (foo . () )
-					   Parse all the data between the first and last f, and move past )
-					*/
-					tempstr = g_new0(gchar, 20000);
-					i = 0;
-					while(parenlevel >1) {
-						ptr++;
-						if (*ptr == '(')
-							parenlevel++;
-						if (*ptr == ')')
-							parenlevel--;
-						if (parenlevel > 1) {
-							tempstr[i++] = *ptr;
-						} else {
-							ptr++;
-						}
-					}
-					purple_debug_info("zephyr", "tempstr parsed");
-					/* tempstr should now be a i-length string containing all
-					 * characters from that after the first ( to the one before
-					 * the last paren ). We should have the following possible
-					 * lisp strings but we don't care
-					 * (tzcspew . start) (version . "something") (pid . number)
-					 * We care about 'zephyrid . "username@REALM.NAME"' and
-					 * 'exposure . "SOMETHING"' */
-					i = 0;
-					if (!g_ascii_strncasecmp(tempstr,"zephyrid",8)) {
-						gchar* username = g_malloc0(100);
-						int username_idx=0;
-						const char *realm;
-						purple_debug_info("zephyr", "zephyrid found");
-						i += 8;
-						while (i < 20000 && tempstr[i] != '"') {
-							i++;
-						}
-						i++;
-						while (i < 20000 && tempstr[i] != '"') {
-							username[username_idx++] = tempstr[i++];
-						}
-
-						zephyr->username = g_strdup_printf("%s",username);
-						if ((realm = strchr(username,'@')))
-							zephyr->realm = g_strdup_printf("%s",realm+1);
-						else {
-							realm = purple_account_get_string(account, "realm", "");
-							if (!*realm) {
-								realm = "local-realm";
-							}
-							zephyr->realm = g_strdup(realm);
-							g_strlcpy(__Zephyr_realm,
-							          (const gchar *)zephyr->realm,
-							          REALM_SZ - 1);
-						}
-						/* else {
-						   zephyr->realm = g_strdup("local-realm");
-						   }*/
-
-						g_free(username);
-					}  else {
-						purple_debug_info(
-						        "zephyr",
-						        "something that's not zephyr id found %s",
-						        tempstr);
-					}
-
-					/* We don't care about anything else yet */
-					g_free(tempstr);
-					break;
-				default:
-					purple_debug_info("zephyr", "parenlevel is not 1 or 2");
-					/* This shouldn't be happening */
-					break;
-			}
-			if (parenlevel == 0) {
-				break;
-			}
-		} /* while (ptr < bufcur) */
-		purple_debug_info("zephyr", "tzc startup done");
-		g_free(buf);
-	}
-	else if ( use_zeph02(zephyr)) {
-		const gchar* realm;
-		z_call_s(ZInitialize(), "Couldn't initialize zephyr");
-		z_call_s(ZOpenPort(&(zephyr->port)), "Couldn't open port");
-		z_call_s(ZSetLocation((char *)zephyr->exposure), "Couldn't set location");
-
-		realm = purple_account_get_string(account, "realm", "");
-		if (!*realm) {
-			realm = ZGetRealm();
-		}
-		zephyr->realm = g_strdup(realm);
-		g_strlcpy(__Zephyr_realm, (const char*)zephyr->realm, REALM_SZ-1);
-		zephyr->username = g_strdup(ZGetSender());
-
-		/*		zephyr->realm = g_strdup(ZGetRealm()); */
-		purple_debug_info("zephyr","realm: %s\n",zephyr->realm);
-	}
-	else {
-		purple_connection_error(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, "Only ZEPH0.2 supported currently");
+	if (!login(zephyr)) {
 		return;
 	}
 	purple_debug_info("zephyr","does it get here\n");
@@ -1459,14 +1469,15 @@ static void zephyr_login(PurpleAccount * account)
 
 	purple_connection_set_state(gc, PURPLE_CONNECTION_CONNECTED);
 
-	if (read_anyone)
+	if (purple_account_get_bool(account, "read_anyone", TRUE)) {
 		process_anyone(zephyr);
-	if (read_zsubs)
+	}
+	if (purple_account_get_bool(account, "read_zsubs", TRUE)) {
 		process_zsubs(zephyr);
+	}
 
 	zephyr->nottimer = g_timeout_add(100, check_notify, gc);
 	zephyr->loctimer = g_timeout_add_seconds(20, check_loc, gc);
-
 }
 
 static void write_zsubs(zephyr_account *zephyr)
