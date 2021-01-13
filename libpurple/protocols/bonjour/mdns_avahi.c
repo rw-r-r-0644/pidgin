@@ -189,12 +189,11 @@ _resolver_callback(AvahiServiceResolver *r, AvahiIfIndex interface, AvahiProtoco
 					bb->ips = g_slist_remove(bb->ips, rd->ip);
 					g_free((gchar *) rd->ip);
 				}
+				rd->ip = g_strdup(ip);
 				/* IPv6 goes at the front of the list and IPv4 at the end so that we "prefer" IPv6, if present */
 				if (protocol == AVAHI_PROTO_INET6) {
-					rd->ip = g_strdup_printf("%s", ip);
 					bb->ips = g_slist_prepend(bb->ips, (gchar *) rd->ip);
 				} else {
-					rd->ip = g_strdup(ip);
 					bb->ips = g_slist_append(bb->ips, (gchar *) rd->ip);
 				}
 			}

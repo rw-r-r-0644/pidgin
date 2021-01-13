@@ -1047,13 +1047,13 @@ static void process_zsubs(zephyr_account *zephyr)
 			if (buff[0]) {
 				triple = g_strsplit(buff, ",", 3);
 				if (triple[0] && triple[1]) {
-					char *tmp = g_strdup_printf("%s", zephyr->username);
+					char *tmp = g_strdup(zephyr->username);
 					char *atptr;
 
 					if (triple[2] == NULL) {
 						recip = g_malloc0(1);
 					} else if (!g_ascii_strcasecmp(triple[2], "%me%")) {
-						recip = g_strdup_printf("%s", zephyr->username);
+						recip = g_strdup(zephyr->username);
 					} else if (!g_ascii_strcasecmp(triple[2], "*")) {
 						/* wildcard
 						 * form of class,instance,* */
@@ -1814,16 +1814,10 @@ zephyr_send_message(zephyr_account *zephyr, gchar *zclass, gchar *instance,
 
 char *local_zephyr_normalize(zephyr_account *zephyr,const char *orig)
 {
-	/*
-	   Basically the inverse of zephyr_strip_local_realm
-	*/
+	/* Basically the inverse of zephyr_strip_local_realm */
 
-	if (!g_ascii_strcasecmp(orig, "")) {
-		return g_strdup("");
-	}
-
-	if (strchr(orig, '@')) {
-		return g_strdup_printf("%s", orig);
+	if (*orig == '\0' || strchr(orig, '@')) {
+		return g_strdup(orig);
 	}
 
 	return g_strdup_printf("%s@%s", orig, zephyr->realm);

@@ -307,7 +307,7 @@ display_log_viewer(struct log_viewer_hash *ht, GList *logs, const char *title,
 	gnt_box_add_widget(GNT_BOX(lv->window), vbox);
 
 	/* Label ************/
-	text = g_strdup_printf("%s", title);
+	text = g_strdup(title);
 	lv->label = gnt_label_new_with_format(text, GNT_TEXT_FLAG_BOLD);
 	g_free(text);
 	gnt_box_add_widget(GNT_BOX(vbox), lv->label);
