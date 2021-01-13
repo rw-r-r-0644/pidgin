@@ -920,7 +920,7 @@ finch_write_conv(PurpleConversation *conv, PurpleMessage *msg)
 				msgflags = gnt_color_pair(color_message_action);
 			me = TRUE;
 		} else {
-			name =  g_strdup_printf("%s", purple_message_get_author_alias(msg));
+			name =  g_strdup(purple_message_get_author_alias(msg));
 			if (flags & PURPLE_MESSAGE_SEND)
 				msgflags = gnt_color_pair(color_message_send);
 			else if (flags & PURPLE_MESSAGE_NICK)

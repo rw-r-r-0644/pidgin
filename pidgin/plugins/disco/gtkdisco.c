@@ -221,7 +221,7 @@ static void browse_button_cb(GtkWidget *button, PidginDiscoDialog *dialog)
 	at = strchr(username, '@');
 	slash = strchr(username, '/');
 	if (at && !slash) {
-		server = g_strdup_printf("%s", at + 1);
+		server = g_strdup(at + 1);
 	} else if (at && slash && at + 1 < slash) {
 		server = g_strdup_printf("%.*s", (int)(slash - (at + 1)), at + 1);
 	}
