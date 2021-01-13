@@ -106,18 +106,6 @@ struct _zephyr_triple {
 	int id;
 };
 
-#define z_call(func)		if (func != ZERR_NONE)\
-					return;
-#define z_call_r(func)		if (func != ZERR_NONE)\
-					return TRUE;
-
-#define z_call_s(func, err)	if (func != ZERR_NONE) {\
-					purple_connection_error(\
-						purple_account_get_connection(zephyr->account),\
-						PURPLE_CONNECTION_ERROR_NETWORK_ERROR, err);\
-					return FALSE;\
-				}
-
 #ifdef WIN32
 extern const char *username;
 #endif
@@ -849,7 +837,9 @@ static gint check_notify_zeph02(gpointer data)
 		ZNotice_t notice;
 		/* XXX add real error reporting */
 
-		z_call_r(ZReceiveNotice(&notice, NULL));
+		if (ZReceiveNotice(&notice, NULL) != ZERR_NONE) {
+			return TRUE;
+		}
 
 		switch (notice.z_kind) {
 		case UNSAFE:
@@ -1402,10 +1392,26 @@ login_tzc(zephyr_account *zephyr)
 static gboolean
 login_zeph02(zephyr_account *zephyr)
 {
-	/* XXX z_call_s should actually try to report the com_err determined error */
-	z_call_s(ZInitialize(), "Couldn't initialize zephyr");
-	z_call_s(ZOpenPort(&(zephyr->port)), "Couldn't open port");
-	z_call_s(ZSetLocation(zephyr->exposure), "Couldn't set location");
+	PurpleConnection *pc = purple_account_get_connection(zephyr->account);
+
+	/* XXX Should actually try to report the com_err determined error */
+	if (ZInitialize() != ZERR_NONE) {
+		purple_connection_error(pc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+		                        "Couldn't initialize zephyr");
+		return FALSE;
+	}
+
+	if (ZOpenPort(&(zephyr->port)) != ZERR_NONE) {
+		purple_connection_error(pc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+		                        "Couldn't open port");
+		return FALSE;
+	}
+
+	if (ZSetLocation(zephyr->exposure) != ZERR_NONE) {
+		purple_connection_error(pc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+		                        "Couldn't set location");
+		return FALSE;
+	}
 
 	zephyr->username = g_strdup(ZGetSender());
 	zephyr->realm = get_zephyr_realm(zephyr->account, ZGetRealm());
@@ -1596,9 +1602,15 @@ static void zephyr_close(PurpleConnection * gc)
 		g_source_remove(zephyr->loctimer);
 	zephyr->loctimer = 0;
 	if (use_zeph02(zephyr)) {
-		z_call(ZCancelSubscriptions(0));
-		z_call(ZUnsetLocation());
-		z_call(ZClosePort());
+		if (ZCancelSubscriptions(0) != ZERR_NONE) {
+			return;
+		}
+		if (ZUnsetLocation() != ZERR_NONE) {
+			return;
+		}
+		if (ZClosePort() != ZERR_NONE) {
+			return;
+		}
 	} else {
 		/* assume tzc */
 #ifdef G_OS_UNIX
