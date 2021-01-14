@@ -64,6 +64,7 @@ typedef struct _zephyr_account zephyr_account;
 
 typedef gssize (*PollableInputStreamReadFunc)(GPollableInputStream *stream, void *bufcur, GError **error);
 typedef gboolean (*ZephyrLoginFunc)(zephyr_account *zephyr);
+typedef Code_t (*ZephyrSubscribeToFunc)(zephyr_account *zephyr, char *class, char *instance, char *recipient);
 
 typedef enum {
 	PURPLE_ZEPHYR_NONE, /* Non-kerberized ZEPH0.2 */
@@ -93,6 +94,7 @@ struct _zephyr_account {
 	GOutputStream *tzc_stdin;
 	GInputStream *tzc_stdout;
 	gchar *away;
+	ZephyrSubscribeToFunc subscribe_to;
 };
 
 #define MAXCHILDREN 20
@@ -138,31 +140,30 @@ zephyr_write_message(zephyr_account *zephyr, const gchar *message)
 	return success;
 }
 
-static Code_t zephyr_subscribe_to(zephyr_account* zephyr, char* class, char *instance, char *recipient, char* galaxy) {
+static Code_t
+subscribe_to_tzc(zephyr_account *zephyr, char *class, char *instance, char *recipient)
+{
 	Code_t ret_val = -1;
+	gchar *zsubstr;
 
-	if (use_tzc(zephyr)) {
-		/* ((tzcfodder . subscribe) ("class" "instance" "recipient")) */
-		gchar *zsubstr;
-
-		zsubstr = g_strdup_printf(
-		        "((tzcfodder . subscribe) (\"%s\" \"%s\" \"%s\"))\n", class,
-		        instance, recipient);
-		if (zephyr_write_message(zephyr, zsubstr)) {
-			ret_val = ZERR_NONE;
-		}
-		g_free(zsubstr);
+	/* ((tzcfodder . subscribe) ("class" "instance" "recipient")) */
+	zsubstr = g_strdup_printf("((tzcfodder . subscribe) (\"%s\" \"%s\" \"%s\"))\n",
+	                          class, instance, recipient);
+	if (zephyr_write_message(zephyr, zsubstr)) {
+		ret_val = ZERR_NONE;
 	}
-	else {
-		if (use_zeph02(zephyr)) {
-			ZSubscription_t sub;
-			sub.zsub_class = class;
-			sub.zsub_classinst = instance;
-			sub.zsub_recipient = recipient;
-			ret_val = ZSubscribeTo(&sub,1,0);
-		}
-	}
+	g_free(zsubstr);
 	return ret_val;
+}
+
+static Code_t
+subscribe_to_zeph02(G_GNUC_UNUSED zephyr_account *zephyr, char *class, char *instance, char *recipient)
+{
+	ZSubscription_t sub;
+	sub.zsub_class = class;
+	sub.zsub_classinst = instance;
+	sub.zsub_recipient = recipient;
+	return ZSubscribeTo(&sub, 1, 0);
 }
 
 char *local_zephyr_normalize(zephyr_account* zephyr,const char *);
@@ -1030,7 +1031,6 @@ static void process_zsubs(zephyr_account *zephyr)
 		char *recip;
 		char *z_class;
 		char *z_instance;
-		char *z_galaxy = NULL;
 
 		while (fgets(buff, BUFSIZ, f)) {
 			strip_comments(buff);
@@ -1088,8 +1088,7 @@ static void process_zsubs(zephyr_account *zephyr)
 					/* There should be some sort of error report listing classes that couldn't be subbed to.
 					   Not important right now though */
 
-					if (zephyr_subscribe_to(zephyr,z_class, z_instance, recip,z_galaxy) != ZERR_NONE) {
-
+					if (zephyr->subscribe_to(zephyr, z_class, z_instance, recip) != ZERR_NONE) {
 						purple_debug_error("zephyr", "Couldn't subscribe to %s, %s, %s\n", z_class,z_instance,recip);
 					}
 
@@ -1444,10 +1443,12 @@ static void zephyr_login(PurpleAccount * account)
 		zephyr->connection_type = PURPLE_ZEPHYR_TZC;
 		login = login_tzc;
 		check_notify = check_notify_tzc;
+		zephyr->subscribe_to = subscribe_to_tzc;
 	} else {
 		zephyr->connection_type = PURPLE_ZEPHYR_KRB4;
 		login = login_zeph02;
 		check_notify = check_notify_zeph02;
+		zephyr->subscribe_to = subscribe_to_zeph02;
 	}
 
 	zephyr->encoding = (char *)purple_account_get_string(account, "encoding", ZEPHYR_FALLBACK_CHARSET);
@@ -1464,7 +1465,7 @@ static void zephyr_login(PurpleAccount * account)
 	zephyr->krbtkfile = NULL;
 	zephyr_inithosts(zephyr);
 
-	if (zephyr_subscribe_to(zephyr,"MESSAGE","PERSONAL",zephyr->username,NULL) != ZERR_NONE) {
+	if (zephyr->subscribe_to(zephyr, "MESSAGE", "PERSONAL", zephyr->username) != ZERR_NONE) {
 		/* XXX don't translate this yet. It could be written better */
 		/* XXX error messages could be handled with more detail */
 		purple_notify_error(gc, NULL,
@@ -2053,7 +2054,7 @@ static void zephyr_join_chat(PurpleConnection * gc, GHashTable * data)
 		sub.zsub_classinst = zt1->instance;
 		sub.zsub_recipient = zt1->recipient; */
 
-	if (zephyr_subscribe_to(zephyr,zt1->class,zt1->instance,zt1->recipient,NULL) != ZERR_NONE) {
+	if (zephyr->subscribe_to(zephyr, zt1->class, zt1->instance, zt1->recipient) != ZERR_NONE) {
 		/* XXX output better subscription information */
 		zephyr_subscribe_failed(gc,zt1->class,zt1->instance,zt1->recipient,NULL);
 		free_triple(zt1);
@@ -2411,13 +2412,10 @@ static int zephyr_resubscribe(PurpleConnection *gc)
 	/* Resubscribe to the in-memory list of subscriptions and also
 	   unsubscriptions*/
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
-	GSList *s = zephyr->subscrips;
-	zephyr_triple *zt;
-	while (s) {
-		zt = s->data;
+	for (GSList *s = zephyr->subscrips; s; s = s->next) {
+		zephyr_triple *zt = s->data;
 		/* XXX We really should care if this fails */
-		zephyr_subscribe_to(zephyr,zt->class,zt->instance,zt->recipient,NULL);
-		s = s->next;
+		zephyr->subscribe_to(zephyr, zt->class, zt->instance, zt->recipient);
 	}
 	/* XXX handle unsubscriptions */
 	return 1;
