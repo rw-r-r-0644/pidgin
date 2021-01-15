@@ -221,7 +221,9 @@ static void irc_view_motd(PurpleProtocolAction *action)
 	g_free(body);
 }
 
-static int irc_send_raw(PurpleConnection *gc, const char *buf, int len)
+static int
+irc_send_raw(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+             const gchar *buf, gint len)
 {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
 	if (len == -1) {
@@ -644,7 +646,9 @@ static int irc_im_send(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMessage
 	return 1;
 }
 
-static void irc_get_info(PurpleConnection *gc, const char *who)
+static void
+irc_get_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+             const gchar *who)
 {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
 	const char *args[2];
@@ -653,7 +657,9 @@ static void irc_get_info(PurpleConnection *gc, const char *who)
 	irc_cmd_whois(irc, "whois", NULL, args);
 }
 
-static void irc_set_status(PurpleAccount *account, PurpleStatus *status)
+static void
+irc_set_status(PurpleProtocolServer *protocol_server, PurpleAccount *account,
+               PurpleStatus *status)
 {
 	PurpleConnection *gc = purple_account_get_connection(account);
 	struct irc_conn *irc;
@@ -678,7 +684,9 @@ static void irc_set_status(PurpleAccount *account, PurpleStatus *status)
 	}
 }
 
-static void irc_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group, const char *message)
+static void
+irc_add_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+              PurpleBuddy *buddy, PurpleGroup *group, const gchar *message)
 {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
 	struct irc_buddy *ib;
@@ -703,7 +711,9 @@ static void irc_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup 
 		irc_ison_one(irc, ib);
 }
 
-static void irc_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
+static void
+irc_remove_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                 PurpleBuddy *buddy, PurpleGroup *group)
 {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
 	struct irc_buddy *ib;
@@ -936,8 +946,8 @@ static void irc_roomlist_cancel(PurpleRoomlist *list)
 	}
 }
 
-static void irc_keepalive(PurpleConnection *gc)
-{
+static void
+irc_keepalive(PurpleProtocolServer *protocol_server, PurpleConnection *gc) {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
 	if ((time(NULL) - irc->recv_time) > PING_TIMEOUT)
 		irc_cmd_ping(irc, NULL, NULL, NULL);

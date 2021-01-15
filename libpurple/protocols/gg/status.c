@@ -249,7 +249,9 @@ gboolean ggp_status_set(PurpleAccount *account, int status, const gchar* msg)
 	return TRUE;
 }
 
-void ggp_status_set_purplestatus(PurpleAccount *account, PurpleStatus *status)
+void
+ggp_status_set_purplestatus(PurpleProtocolServer *protocol_server,
+                            PurpleAccount *account, PurpleStatus *status)
 {
 	int status_gg;
 	gchar *msg = NULL;
@@ -330,7 +332,7 @@ void ggp_status_set_status_broadcasting(PurpleConnection *gc,
 
 	ggp_status_get_ssdata(gc)->status_broadcasting = broadcasting;
 	purple_account_set_bool(account, "status_broadcasting", broadcasting);
-	ggp_status_set_purplestatus(account,
+	ggp_status_set_purplestatus(NULL, account,
 		purple_account_get_active_status(account));
 }
 

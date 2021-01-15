@@ -252,8 +252,10 @@ message_send_cb(GtkWidget *widget, GdkEventKey *event, gpointer p)
 	gtk_text_buffer_get_bounds(console->entry_buffer, &start, &end);
 	text = gtk_text_buffer_get_text(console->entry_buffer, &start, &end, FALSE);
 
-	if (protocol)
-		purple_protocol_server_iface_send_raw(protocol, gc, text, strlen(text));
+	if(PURPLE_IS_PROTOCOL_SERVER(protocol)) {
+		purple_protocol_server_send_raw(PURPLE_PROTOCOL_SERVER(protocol), gc,
+		                                text, strlen(text));
+	}
 
 	g_free(text);
 	gtk_text_buffer_set_text(console->entry_buffer, "", 0);

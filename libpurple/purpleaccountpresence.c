@@ -23,6 +23,8 @@
 
 #include "purpleaccountpresence.h"
 
+#include "purpleprotocolserver.h"
+
 struct _PurpleAccountPresence {
 	PurplePresence parent;
 
@@ -94,8 +96,8 @@ purple_account_presence_update_idle(PurplePresence *presence, gboolean old_idle)
 		protocol = purple_connection_get_protocol(gc);
 	}
 
-	if(protocol) {
-		purple_protocol_server_iface_set_idle(protocol, gc, (idle ? (current_time - idle_time) : 0));
+	if(PURPLE_IS_PROTOCOL_SERVER(protocol)) {
+		purple_protocol_server_set_idle(PURPLE_PROTOCOL_SERVER(protocol), gc, (idle ? (current_time - idle_time) : 0));
 	}
 }
 

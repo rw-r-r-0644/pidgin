@@ -325,7 +325,7 @@ G_MODULE_EXPORT GType jabber_protocol_get_type(void);
 void jabber_stream_features_parse(JabberStream *js, PurpleXmlNode *packet);
 void jabber_process_packet(JabberStream *js, PurpleXmlNode **packet);
 void jabber_send(JabberStream *js, PurpleXmlNode *data);
-void jabber_send_raw(JabberStream *js, const char *data, int len);
+void jabber_send_raw(PurpleProtocolServer *protocol_server, JabberStream *js, const char *data, int len);
 void jabber_send_signal_cb(PurpleConnection *pc, PurpleXmlNode **packet,
                            gpointer unused);
 
@@ -404,23 +404,23 @@ void jabber_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *b, PurpleNot
 GList *jabber_status_types(PurpleAccount *account);
 void jabber_login(PurpleAccount *account);
 void jabber_close(PurpleConnection *gc);
-void jabber_idle_set(PurpleConnection *gc, int idle);
+void jabber_idle_set(PurpleProtocolServer *protocol_server, PurpleConnection *gc, int idle);
 void jabber_blocklist_parse_push(JabberStream *js, const char *from,
                                  JabberIqType type, const char *id,
                                  PurpleXmlNode *child);
 void jabber_request_block_list(JabberStream *js);
 void jabber_add_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc, const char *who);
 void jabber_remove_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc, const char *who);
-void jabber_keepalive(PurpleConnection *gc);
+void jabber_keepalive(PurpleProtocolServer *protocol_server, PurpleConnection *gc);
 void jabber_register_gateway(JabberStream *js, const char *gateway);
-void jabber_register_account(PurpleAccount *account);
-void jabber_unregister_account(PurpleAccount *account, PurpleAccountUnregistrationCb cb, void *user_data);
+void jabber_register_account(PurpleProtocolServer *protocol_server, PurpleAccount *account);
+void jabber_unregister_account(PurpleProtocolServer *protocol_server, PurpleAccount *account, PurpleAccountUnregistrationCb cb, void *user_data);
 gboolean jabber_send_attention(PurpleProtocolAttention *attn, PurpleConnection *gc, const char *username, guint code);
 GList *jabber_attention_types(PurpleProtocolAttention *attn, PurpleAccount *account);
 void jabber_convo_closed(PurpleProtocolClient *client, PurpleConnection *gc, const char *who);
 PurpleChat *jabber_find_blist_chat(PurpleProtocolClient *client, PurpleAccount *account, const char *name);
 gboolean jabber_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy);
-int jabber_protocol_send_raw(PurpleConnection *gc, const char *buf, int len);
+int jabber_protocol_send_raw(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const char *buf, int len);
 GList *jabber_get_actions(PurpleProtocolClient *client, PurpleConnection *gc);
 
 gboolean jabber_audio_enabled(JabberStream *js, const char *unused);

@@ -406,7 +406,8 @@ static void ggp_pubdir_get_info_protocol_got(PurpleConnection *gc,
 }
 
 void
-ggp_pubdir_get_info_protocol(PurpleConnection *gc, const char *name)
+ggp_pubdir_get_info_protocol(PurpleProtocolServer *protocol_server,
+                             PurpleConnection *gc, const gchar *name)
 {
 	uin_t uin = ggp_str_to_uin(name);
 	uin_t *uin_p = g_new0(uin_t, 1);
@@ -606,7 +607,7 @@ ggp_pubdir_search_results_im(PurpleConnection *gc, GList *row, gpointer _form)
 static void
 ggp_pubdir_search_results_info(PurpleConnection *gc, GList *row, gpointer _form)
 {
-	ggp_pubdir_get_info_protocol(gc, g_list_nth_data(row, 0));
+	ggp_pubdir_get_info_protocol(NULL, gc, g_list_nth_data(row, 0));
 }
 
 static void

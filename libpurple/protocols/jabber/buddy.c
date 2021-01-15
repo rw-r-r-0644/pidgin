@@ -449,7 +449,9 @@ static PurpleXmlNode *insert_tag_to_parent_tag(PurpleXmlNode *start, const char 
 /*
  * Send vCard info to Jabber server
  */
-void jabber_set_info(PurpleConnection *gc, const char *info)
+void
+jabber_set_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                const gchar *info)
 {
 	PurpleImage *img;
 	JabberIq *iq;
@@ -546,14 +548,16 @@ void jabber_set_info(PurpleConnection *gc, const char *info)
 	}
 }
 
-void jabber_set_buddy_icon(PurpleConnection *gc, PurpleImage *img)
+void
+jabber_set_buddy_icon(PurpleProtocolServer *protocol_server,
+                      PurpleConnection *gc, PurpleImage *img)
 {
 	PurpleAccount *account = purple_connection_get_account(gc);
 
 	/* Publish the avatar as specified in XEP-0084 */
 	jabber_avatar_set(purple_connection_get_protocol_data(gc), img);
 	/* Set the image in our vCard */
-	jabber_set_info(gc, purple_account_get_user_info(account));
+	jabber_set_info(NULL, gc, purple_account_get_user_info(account));
 
 	/* TODO: Fake image to ourselves, since a number of servers do not echo
 	 * back our presence to us. To do this without uselessly copying the data
@@ -902,7 +906,7 @@ set_own_vcard_cb(gpointer data)
 
 	js->vcard_timer = 0;
 
-	jabber_set_info(js->gc, purple_account_get_user_info(account));
+	jabber_set_info(NULL, js->gc, purple_account_get_user_info(account));
 
 	return FALSE;
 }
@@ -962,11 +966,12 @@ static void jabber_vcard_save_mine(JabberStream *js, const char *from,
 		 * it returns an error (namespaces trimmed):
 		 * <error code="500" type="wait"><internal-server-error/></error>.
 		 */
-		if (js->googletalk)
+		if (js->googletalk) {
 			js->vcard_timer = g_timeout_add_seconds(10, set_own_vcard_cb,
 			                                             js);
-		else
-			jabber_set_info(js->gc, purple_account_get_user_info(account));
+		} else {
+			jabber_set_info(NULL, js->gc, purple_account_get_user_info(account));
+		}
 	} else if (vcard_hash) {
 		/* A photo is in the vCard. Advertise its hash */
 		js->avatar_hash = vcard_hash;
@@ -1619,7 +1624,9 @@ static void jabber_buddy_get_info_for_jid(JabberStream *js, const char *jid)
 	jbi->timeout_handle = g_timeout_add_seconds(30, jabber_buddy_get_info_timeout, jbi);
 }
 
-void jabber_buddy_get_info(PurpleConnection *gc, const char *who)
+void
+jabber_buddy_get_info(PurpleProtocolServer *protocol_server,
+                      PurpleConnection *gc, const char *who)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 	JabberID *jid = jabber_id_new(who);

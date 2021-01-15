@@ -95,7 +95,7 @@ static void jabber_stream_init(JabberStream *js)
 						  js->user->domain);
 	/* setup the parser fresh for each stream */
 	jabber_parser_setup(js);
-	jabber_send_raw(js, open_stream, -1);
+	jabber_send_raw(NULL, js, open_stream, -1);
 	js->reinit = FALSE;
 	g_free(open_stream);
 }
@@ -225,7 +225,7 @@ jabber_process_starttls(JabberStream *js, PurpleXmlNode *packet)
 	 * We request STARTTLS for standard XMPP connections, but we do nothing for insecure
 	 * BOSH connections, per XEP-0206. */
 	if(!js->bosh) {
-		jabber_send_raw(js,
+		jabber_send_raw(NULL, js,
 				"<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>", -1);
 		return TRUE;
 	}
@@ -408,7 +408,9 @@ static gboolean do_jabber_send_raw(JabberStream *js, const char *data, int len)
 	return success;
 }
 
-void jabber_send_raw(JabberStream *js, const char *data, int len)
+void
+jabber_send_raw(PurpleProtocolServer *protocol_server, JabberStream *js,
+                const gchar *data, gint len)
 {
 	PurpleConnection *gc;
 	PurpleAccount *account;
@@ -514,7 +516,9 @@ void jabber_send_raw(JabberStream *js, const char *data, int len)
 		do_jabber_send_raw(js, data, len);
 }
 
-int jabber_protocol_send_raw(PurpleConnection *gc, const char *buf, int len)
+gint
+jabber_protocol_send_raw(PurpleProtocolServer *protocol_server,
+                         PurpleConnection *gc, const gchar *buf, gint len)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 
@@ -524,7 +528,7 @@ int jabber_protocol_send_raw(PurpleConnection *gc, const char *buf, int len)
 	 * to do things during the connection process.
 	 */
 
-	jabber_send_raw(js, buf, len);
+	jabber_send_raw(NULL, js, buf, len);
 	return (len < 0 ? (int)strlen(buf) : len);
 }
 
@@ -551,7 +555,7 @@ void jabber_send_signal_cb(PurpleConnection *pc, PurpleXmlNode **packet,
 				purple_strequal((*packet)->name, "presence"))
 			purple_xmlnode_set_namespace(*packet, NS_XMPP_CLIENT);
 	txt = purple_xmlnode_to_str(*packet, &len);
-	jabber_send_raw(js, txt, len);
+	jabber_send_raw(NULL, js, txt, len);
 	g_free(txt);
 }
 
@@ -569,8 +573,8 @@ static gboolean jabber_keepalive_timeout(PurpleConnection *gc)
 	return FALSE;
 }
 
-void jabber_keepalive(PurpleConnection *gc)
-{
+void
+jabber_keepalive(PurpleProtocolServer *protocol_server, PurpleConnection *gc) {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 
 	if (js->keepalive_timeout == 0) {
@@ -580,8 +584,8 @@ void jabber_keepalive(PurpleConnection *gc)
 	}
 }
 
-static int jabber_get_keepalive_interval(void)
-{
+static int
+jabber_get_keepalive_interval(PurpleProtocolServer *protocol_server) {
 	return PING_TIMEOUT;
 }
 
@@ -731,7 +735,7 @@ jabber_stream_connect_finish(JabberStream *js, GIOStream *stream)
 	        g_io_stream_get_output_stream(js->stream));
 
 	if (js->state == JABBER_STREAM_CONNECTING) {
-		jabber_send_raw(js, "<?xml version='1.0' ?>", -1);
+		jabber_send_raw(NULL, js, "<?xml version='1.0' ?>", -1);
 	}
 
 	jabber_stream_set_state(js, JABBER_STREAM_INITIALIZING);
@@ -1512,7 +1516,9 @@ void jabber_register_gateway(JabberStream *js, const char *gateway) {
 	jabber_iq_send(iq);
 }
 
-void jabber_register_account(PurpleAccount *account)
+void
+jabber_register_account(PurpleProtocolServer *protocol_server,
+                        PurpleAccount *account)
 {
 	JabberStream *js;
 
@@ -1566,7 +1572,11 @@ static void jabber_unregister_account_cb(JabberStream *js) {
 	jabber_iq_send(iq);
 }
 
-void jabber_unregister_account(PurpleAccount *account, PurpleAccountUnregistrationCb cb, void *user_data) {
+void
+jabber_unregister_account(PurpleProtocolServer *protocol_server,
+                          PurpleAccount *account,
+                          PurpleAccountUnregistrationCb cb, gpointer user_data)
+{
 	PurpleConnection *gc = purple_account_get_connection(account);
 	JabberStream *js;
 
@@ -1771,7 +1781,9 @@ char *jabber_get_next_id(JabberStream *js)
 }
 
 
-void jabber_idle_set(PurpleConnection *gc, int idle)
+void
+jabber_idle_set(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                gint idle)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 
@@ -2098,10 +2110,11 @@ inactivity_cb(gpointer data)
 	 */
 	js->inactivity_timer = 0;
 
-	if (js->bosh)
+	if (js->bosh) {
 		jabber_bosh_connection_send_keepalive(js->bosh);
-	else
-		jabber_send_raw(js, "\t", 1);
+	} else {
+		jabber_send_raw(NULL, js, "\t", 1);
+	}
 
 	return FALSE;
 }

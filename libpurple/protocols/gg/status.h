@@ -48,7 +48,7 @@ const gchar * ggp_status_get_name(const gchar *purple_status);
 void ggp_status_set_initial(PurpleConnection *gc, struct gg_login_params *glp);
 
 gboolean ggp_status_set(PurpleAccount *account, int status, const gchar* msg);
-void ggp_status_set_purplestatus(PurpleAccount *account, PurpleStatus *status);
+void ggp_status_set_purplestatus(PurpleProtocolServer *protocol_server, PurpleAccount *account, PurpleStatus *status);
 void ggp_status_set_disconnected(PurpleAccount *account);
 void ggp_status_fake_to_self(PurpleConnection *gc);
 

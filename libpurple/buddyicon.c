@@ -25,6 +25,7 @@
 #include "debug.h"
 #include "image.h"
 #include "purpleprivate.h"
+#include "purpleprotocolserver.h"
 #include "util.h"
 
 /* NOTE: Instances of this struct are allocated without zeroing the memory, so
@@ -757,8 +758,10 @@ purple_buddy_icons_set_account_icon(PurpleAccount *account,
 		gc = purple_account_get_connection(account);
 		protocol = purple_connection_get_protocol(gc);
 
-		if (protocol)
-			purple_protocol_server_iface_set_buddy_icon(protocol, gc, img);
+		if(PURPLE_IS_PROTOCOL_SERVER(protocol)) {
+			purple_protocol_server_set_buddy_icon(PURPLE_PROTOCOL_SERVER(protocol),
+			                                      gc, img);
+		}
 	}
 
 	if (old_img)

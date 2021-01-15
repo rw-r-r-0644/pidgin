@@ -216,7 +216,8 @@ bonjour_send_im(PurpleProtocolIM *im, PurpleConnection *connection, PurpleMessag
 }
 
 static void
-bonjour_set_status(PurpleAccount *account, PurpleStatus *status)
+bonjour_set_status(PurpleProtocolServer *protocol_server,
+                   PurpleAccount *account, PurpleStatus *status)
 {
 	PurpleConnection *gc;
 	BonjourData *bd;
@@ -258,7 +259,10 @@ bonjour_set_status(PurpleAccount *account, PurpleStatus *status)
  * if there is no add_buddy callback.
  */
 static void
-bonjour_fake_add_buddy(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char *message) {
+bonjour_fake_add_buddy(PurpleProtocolServer *protocol_server,
+                       PurpleConnection *pc, PurpleBuddy *buddy,
+                       PurpleGroup *group, const gchar *message)
+{
 	purple_debug_error("bonjour", "Buddy '%s' manually added; removing.  "
 				      "Bonjour buddies must be discovered and not manually added.\n",
 			   purple_buddy_get_name(buddy));
@@ -270,7 +274,11 @@ bonjour_fake_add_buddy(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *gr
 }
 
 
-static void bonjour_remove_buddy(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group) {
+static void
+bonjour_remove_buddy(PurpleProtocolServer *protocol_server,
+                     PurpleConnection *pc, PurpleBuddy *buddy,
+                     PurpleGroup *group)
+{
 	BonjourBuddy *bb = purple_buddy_get_protocol_data(buddy);
 	if (bb) {
 		bonjour_buddy_delete(bb);
@@ -329,7 +337,8 @@ bonjour_convo_closed(PurpleProtocolClient *client,
 }
 
 static void
-bonjour_set_buddy_icon(PurpleConnection *conn, PurpleImage *img)
+bonjour_set_buddy_icon(PurpleProtocolServer *protocol_server,
+                       PurpleConnection *conn, PurpleImage *img)
 {
 	BonjourData *bd = purple_connection_get_protocol_data(conn);
 	bonjour_dns_sd_update_buddy_icon(bd->dns_sd_data);
@@ -439,18 +448,22 @@ bonjour_do_group_change(PurpleBuddy *buddy, const char *new_group)
 }
 
 static void
-bonjour_group_buddy(PurpleConnection *connection, const char *who, const char *old_group, const char *new_group)
+bonjour_group_buddy(PurpleProtocolServer *protocol_server,
+                    PurpleConnection *connection, const gchar *who,
+                    const gchar *old_group, const gchar *new_group)
 {
 	PurpleBuddy *buddy = purple_blist_find_buddy(purple_connection_get_account(connection), who);
 
 	bonjour_do_group_change(buddy, new_group);
-
 }
 
 static void
-bonjour_rename_group(PurpleConnection *connection, const char *old_name, PurpleGroup *group, GList *moved_buddies)
+bonjour_rename_group(PurpleProtocolServer *protocol_server,
+                     PurpleConnection *connection,
+                     const gchar *old_name, PurpleGroup *group,
+                     GList *moved_buddies)
 {
-	const char *new_group;
+	const gchar *new_group;
 
 	new_group = purple_group_get_name(group);
 

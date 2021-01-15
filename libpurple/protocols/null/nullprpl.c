@@ -458,7 +458,10 @@ static int null_send_im(PurpleProtocolIM *im, PurpleConnection *gc,
    return 1;
 }
 
-static void null_set_info(PurpleConnection *gc, const char *info) {
+static void
+null_set_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+              const gchar *info)
+{
   purple_debug_info("nullprpl", "setting %s's user info to %s\n",
                     purple_account_get_username(purple_connection_get_account(gc)), info);
 }
@@ -496,7 +499,10 @@ static unsigned int null_send_typing(PurpleProtocolIM *im,
   return 0;
 }
 
-static void null_get_info(PurpleConnection *gc, const char *username) {
+static void
+null_get_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+              const gchar *username)
+{
   const char *body;
   PurpleNotifyUserInfo *info = purple_notify_user_info_new();
   PurpleAccount *acct;
@@ -529,7 +535,10 @@ static void null_get_info(PurpleConnection *gc, const char *username) {
                          NULL);     /* userdata for callback */
 }
 
-static void null_set_status(PurpleAccount *acct, PurpleStatus *status) {
+static void
+null_set_status(PurpleProtocolServer *protocol_server, PurpleAccount *acct,
+                PurpleStatus *status)
+{
   const char *msg = purple_status_get_attr_string(status, "message");
   purple_debug_info("nullprpl", "setting %s's status to %s: %s\n",
                     purple_account_get_username(acct), purple_status_get_name(status), msg);
@@ -538,20 +547,26 @@ static void null_set_status(PurpleAccount *acct, PurpleStatus *status) {
                       NULL);
 }
 
-static void null_set_idle(PurpleConnection *gc, int idletime) {
+static void
+null_set_idle(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+              gint idletime)
+{
   purple_debug_info("nullprpl",
                     "purple reports that %s has been idle for %d seconds\n",
                     purple_account_get_username(purple_connection_get_account(gc)), idletime);
 }
 
-static void null_change_passwd(PurpleConnection *gc, const char *old_pass,
-                                   const char *new_pass) {
+static void
+null_change_passwd(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                   const gchar *old_pass, const gchar *new_pass)
+{
   purple_debug_info("nullprpl", "%s wants to change their password\n",
                     purple_account_get_username(purple_connection_get_account(gc)));
 }
 
-static void null_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-                               PurpleGroup *group, const char *message)
+static void
+null_add_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+               PurpleBuddy *buddy, PurpleGroup *group, const gchar *message)
 {
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
   PurpleConnection *buddy_gc = get_null_gc(purple_buddy_get_name(buddy));
@@ -579,38 +594,44 @@ static void null_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
   }
 }
 
-static void null_add_buddies(PurpleConnection *gc, GList *buddies,
-                                 GList *groups, const char *message) {
+static void
+null_add_buddies(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                 GList *buddies, GList *groups, const gchar *message)
+{
   GList *buddy = buddies;
   GList *group = groups;
 
   purple_debug_info("nullprpl", "adding multiple buddies\n");
 
   while (buddy && group) {
-    null_add_buddy(gc, (PurpleBuddy *)buddy->data, (PurpleGroup *)group->data, message);
+    null_add_buddy(protocol_server, gc, PURPLE_BUDDY(buddy->data),
+                   PURPLE_GROUP(group->data), message);
     buddy = g_list_next(buddy);
     group = g_list_next(group);
   }
 }
 
-static void null_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-                                  PurpleGroup *group)
+static void
+null_remove_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                  PurpleBuddy *buddy, PurpleGroup *group)
 {
   purple_debug_info("nullprpl", "removing %s from %s's buddy list\n",
                     purple_buddy_get_name(buddy),
                     purple_account_get_username(purple_connection_get_account(gc)));
 }
 
-static void null_remove_buddies(PurpleConnection *gc, GList *buddies,
-                                    GList *groups) {
+static void
+null_remove_buddies(PurpleProtocolServer *protocol_server,
+                    PurpleConnection *gc, GList *buddies, GList *groups)
+{
   GList *buddy = buddies;
   GList *group = groups;
 
   purple_debug_info("nullprpl", "removing multiple buddies\n");
 
   while (buddy && group) {
-    null_remove_buddy(gc, (PurpleBuddy *)buddy->data,
-                          (PurpleGroup *)group->data);
+    null_remove_buddy(protocol_server, gc, PURPLE_BUDDY(buddy->data),
+                      PURPLE_GROUP(group->data));
     buddy = g_list_next(buddy);
     group = g_list_next(group);
   }
@@ -833,26 +854,35 @@ null_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
   }
 }
 
-static void null_register_user(PurpleAccount *acct) {
+static void
+null_register_user(PurpleProtocolServer *protocol_server, PurpleAccount *acct) {
  purple_debug_info("nullprpl", "registering account for %s\n",
                    purple_account_get_username(acct));
 }
 
-static void null_alias_buddy(PurpleConnection *gc, const char *who,
-                                 const char *alias) {
+static void
+null_alias_buddy(PurpleProtocolServer *protocol_server,
+                 PurpleConnection *gc, const gchar *who,
+                 const gchar *alias)
+{
  purple_debug_info("nullprpl", "%s sets %s's alias to %s\n",
                    purple_account_get_username(purple_connection_get_account(gc)), who, alias);
 }
 
-static void null_group_buddy(PurpleConnection *gc, const char *who,
-                                 const char *old_group,
-                                 const char *new_group) {
+static void
+null_group_buddy(PurpleProtocolServer *protocol_server,
+                 PurpleConnection *gc, const gchar *who,
+                 const gchar *old_group, const gchar *new_group)
+{
   purple_debug_info("nullprpl", "%s has moved %s from group %s to group %s\n",
                     purple_account_get_username(purple_connection_get_account(gc)), who, old_group, new_group);
 }
 
-static void null_rename_group(PurpleConnection *gc, const char *old_name,
-                                  PurpleGroup *group, GList *moved_buddies) {
+static void
+null_rename_group(PurpleProtocolServer *protocol_server,
+                  PurpleConnection *gc, const gchar *old_name,
+                  PurpleGroup *group, GList *moved_buddies)
+{
   purple_debug_info("nullprpl", "%s has renamed group %s to %s\n",
                     purple_account_get_username(purple_connection_get_account(gc)), old_name,
                     purple_group_get_name(group));
@@ -876,14 +906,19 @@ null_normalize(PurpleProtocolClient *client, PurpleAccount *acct,
   return input;
 }
 
-static void null_set_buddy_icon(PurpleConnection *gc,
-                                    PurpleImage *img) {
+static void
+null_set_buddy_icon(PurpleProtocolServer *protocol_server,
+                    PurpleConnection *gc, PurpleImage *img)
+{
  purple_debug_info("nullprpl", "setting %s's buddy icon to %s\n",
                    purple_account_get_username(purple_connection_get_account(gc)),
                    img ? purple_image_get_path(img) : "(null)");
 }
 
-static void null_remove_group(PurpleConnection *gc, PurpleGroup *group) {
+static void
+null_remove_group(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                  PurpleGroup *group)
+{
   purple_debug_info("nullprpl", "%s has removed group %s\n",
                     purple_account_get_username(purple_connection_get_account(gc)),
                     purple_group_get_name(group));

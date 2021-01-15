@@ -41,6 +41,6 @@ void ggp_avatar_cleanup(PurpleConnection *gc);
 void ggp_avatar_buddy_update(PurpleConnection *gc, uin_t uin, time_t timestamp);
 void ggp_avatar_buddy_remove(PurpleConnection *gc, uin_t uin);
 
-void ggp_avatar_own_set(PurpleConnection *gc, PurpleImage *img);
+void ggp_avatar_own_set(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleImage *img);
 
 #endif /* PURPLE_GG_AVATAR_H */

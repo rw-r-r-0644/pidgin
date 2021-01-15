@@ -35,15 +35,15 @@ void jabber_roster_request(JabberStream *js);
 void jabber_roster_parse(JabberStream *js, const char *from,
                          JabberIqType type, const char *id, PurpleXmlNode *query);
 
-void jabber_roster_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-		PurpleGroup *group, const char *message);
-void jabber_roster_alias_change(PurpleConnection *gc, const char *name,
-		const char *alias);
-void jabber_roster_group_change(PurpleConnection *gc, const char *name,
-		const char *old_group, const char *new_group);
-void jabber_roster_group_rename(PurpleConnection *gc, const char *old_name,
+void jabber_roster_add_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleBuddy *buddy,
+		PurpleGroup *group, const gchar *message);
+void jabber_roster_alias_change(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const gchar *name,
+		const gchar *alias);
+void jabber_roster_group_change(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const gchar *name,
+		const gchar *old_group, const gchar *new_group);
+void jabber_roster_group_rename(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const gchar *old_name,
 		PurpleGroup *group, GList *moved_buddies);
-void jabber_roster_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
+void jabber_roster_remove_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleBuddy *buddy,
 		PurpleGroup *group);
 
 const gchar *

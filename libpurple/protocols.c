@@ -33,6 +33,7 @@
 #include "purplecredentialmanager.h"
 #include "purpleprotocolattention.h"
 #include "purpleprotocolmedia.h"
+#include "purpleprotocolserver.h"
 #include "request.h"
 #include "util.h"
 
@@ -311,8 +312,10 @@ do_protocol_change_account_status(PurpleAccount *account,
 	if (protocol == NULL)
 		return;
 
-	if (!purple_account_is_disconnected(account))
-		purple_protocol_server_iface_set_status(protocol, account, new_status);
+	if(!purple_account_is_disconnected(account)) {
+		purple_protocol_server_set_status(PURPLE_PROTOCOL_SERVER(protocol),
+		                                  account, new_status);
+	}
 }
 
 void

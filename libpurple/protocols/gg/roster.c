@@ -341,8 +341,10 @@ void ggp_roster_version(PurpleConnection *gc,
  * Libpurple callbacks.
  ******************************************************************************/
 
-void ggp_roster_alias_buddy(PurpleConnection *gc, const char *who,
-	const char *alias)
+void
+ggp_roster_alias_buddy(PurpleProtocolServer *protocol_server,
+                       PurpleConnection *gc, const gchar *who,
+                       const gchar *alias)
 {
 	PurpleBuddy *buddy;
 
@@ -360,8 +362,10 @@ void ggp_roster_alias_buddy(PurpleConnection *gc, const char *who,
 	ggp_roster_set_synchronized(gc, buddy, FALSE);
 }
 
-void ggp_roster_group_buddy(PurpleConnection *gc, const char *who,
-	const char *old_group, const char *new_group)
+void
+ggp_roster_group_buddy(PurpleProtocolServer *protocol_server,
+                       PurpleConnection *gc, const gchar *who,
+                       const gchar *old_group, const gchar *new_group)
 {
 	ggp_roster_session_data *rdata = ggp_roster_get_rdata(gc);
 	ggp_roster_change *change;
@@ -382,8 +386,10 @@ void ggp_roster_group_buddy(PurpleConnection *gc, const char *who,
 	rdata->pending_updates = g_list_append(rdata->pending_updates, change);
 }
 
-void ggp_roster_rename_group(PurpleConnection *gc, const char *old_name,
-	PurpleGroup *group, GList *moved_buddies)
+void
+ggp_roster_rename_group(PurpleProtocolServer *protocol_server,
+                        PurpleConnection *gc, const gchar *old_name,
+                        PurpleGroup *group, GList *moved_buddies)
 {
 	ggp_roster_session_data *rdata = ggp_roster_get_rdata(gc);
 	ggp_roster_change *change;
@@ -399,8 +405,10 @@ void ggp_roster_rename_group(PurpleConnection *gc, const char *old_name,
 	rdata->pending_updates = g_list_append(rdata->pending_updates, change);
 }
 
-void ggp_roster_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-	PurpleGroup *group, const char *message)
+void
+ggp_roster_add_buddy(PurpleProtocolServer *protocol_server,
+                     PurpleConnection *gc, PurpleBuddy *buddy,
+                     PurpleGroup *group, const gchar *message)
 {
 	g_return_if_fail(gc != NULL);
 	g_return_if_fail(buddy != NULL);
@@ -411,8 +419,10 @@ void ggp_roster_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
 	ggp_roster_set_synchronized(gc, buddy, FALSE);
 }
 
-void ggp_roster_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-	PurpleGroup *group)
+void
+ggp_roster_remove_buddy(PurpleProtocolServer *protocol_server,
+                        PurpleConnection *gc, PurpleBuddy *buddy,
+                        PurpleGroup *group)
 {
 	ggp_roster_session_data *rdata = ggp_roster_get_rdata(gc);
 	ggp_roster_change *change;

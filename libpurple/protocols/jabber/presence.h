@@ -84,7 +84,7 @@ void jabber_presence_register_handler(const char *node, const char *xmlns,
 void jabber_presence_init(void);
 void jabber_presence_uninit(void);
 
-void jabber_set_status(PurpleAccount *account, PurpleStatus *status);
+void jabber_set_status(PurpleProtocolServer *protocol_server, PurpleAccount *account, PurpleStatus *status);
 
 /**
  *	Send a full presence stanza.

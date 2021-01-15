@@ -1424,7 +1424,7 @@ static void session_loginRedirect(struct mwSession *session,
 }
 
 
-static void mw_protocol_set_status(PurpleAccount *acct, PurpleStatus *status);
+static void mw_protocol_set_status(PurpleProtocolServer *protocol_server, PurpleAccount *acct, PurpleStatus *status);
 
 
 /** called from mw_session_stateChange when the session's state is
@@ -1437,7 +1437,7 @@ static void session_started(struct mwPurpleProtocolData *pd) {
   /* set out initial status */
   acct = purple_connection_get_account(pd->gc);
   status = purple_account_get_active_status(acct);
-  mw_protocol_set_status(acct, status);
+  mw_protocol_set_status(NULL, acct, status);
 
   /* start watching for new conversations */
   purple_signal_connect(purple_conversations_get_handle(),
@@ -3824,8 +3824,10 @@ static const char *mw_client_name(guint16 type) {
 }
 
 
-static void mw_protocol_get_info(PurpleConnection *gc, const char *who) {
-
+static void
+mw_protocol_get_info(PurpleProtocolServer *protocol_server,
+                     PurpleConnection *gc, const gchar *who)
+{
   struct mwAwareIdBlock idb = { mwAware_USER, (char *) who, NULL };
 
   struct mwPurpleProtocolData *pd;
@@ -3898,7 +3900,10 @@ static void mw_protocol_get_info(PurpleConnection *gc, const char *who) {
 }
 
 
-static void mw_protocol_set_status(PurpleAccount *acct, PurpleStatus *status) {
+static void
+mw_protocol_set_status(PurpleProtocolServer *protocol_server,
+                       PurpleAccount *acct, PurpleStatus *status)
+{
   PurpleConnection *gc;
   const char *state;
   char *message = NULL;
@@ -3951,7 +3956,10 @@ static void mw_protocol_set_status(PurpleAccount *acct, PurpleStatus *status) {
 }
 
 
-static void mw_protocol_set_idle(PurpleConnection *gc, int t) {
+static void
+mw_protocol_set_idle(PurpleProtocolServer *protocol_server,
+                     PurpleConnection *gc, gint t)
+{
   struct mwSession *session;
   struct mwUserStatus stat;
 
@@ -4125,11 +4133,11 @@ static void add_buddy_resolved(struct mwServiceResolve *srvc,
 }
 
 
-static void mw_protocol_add_buddy(PurpleConnection *gc,
-			      PurpleBuddy *buddy,
-			      PurpleGroup *group,
-			      const char *message) {
-
+static void
+mw_protocol_add_buddy(PurpleProtocolServer *protocol_server,
+                      PurpleConnection *gc, PurpleBuddy *buddy,
+                      PurpleGroup *group, const gchar *message)
+{
   struct mwPurpleProtocolData *pd = purple_connection_get_protocol_data(gc);
   struct mwServiceResolve *srvc;
   GList *query;
@@ -4173,7 +4181,9 @@ static void foreach_add_buddies(PurpleGroup *group, GList *buddies,
 }
 
 
-static void mw_protocol_add_buddies(PurpleConnection *gc,
+static void
+mw_protocol_add_buddies(PurpleProtocolServer *protocol_server,
+                        PurpleConnection *gc,
 				GList *buddies,
 				GList *groups,
 				const char *message) {
@@ -4224,9 +4234,11 @@ static void mw_protocol_add_buddies(PurpleConnection *gc,
 }
 
 
-static void mw_protocol_remove_buddy(PurpleConnection *gc,
-				 PurpleBuddy *buddy, PurpleGroup *group) {
-
+static void
+mw_protocol_remove_buddy(PurpleProtocolServer *protocol_server,
+                         PurpleConnection *gc, PurpleBuddy *buddy,
+                         PurpleGroup *group)
+{
   struct mwPurpleProtocolData *pd;
   struct mwAwareIdBlock idb = { mwAware_USER, (char *)purple_buddy_get_name(buddy), NULL };
   struct mwAwareList *list;
@@ -4527,7 +4539,10 @@ mw_protocol_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 }
 
 
-static void mw_protocol_keepalive(PurpleConnection *gc) {
+static void
+mw_protocol_keepalive(PurpleProtocolServer *protocol_server,
+                      PurpleConnection *gc)
+{
   struct mwSession *session;
 
   g_return_if_fail(gc != NULL);
@@ -4539,10 +4554,11 @@ static void mw_protocol_keepalive(PurpleConnection *gc) {
 }
 
 
-static void mw_protocol_alias_buddy(PurpleConnection *gc,
-				const char *who,
-				const char *alias) {
-
+static void
+mw_protocol_alias_buddy(PurpleProtocolServer *protocol_server,
+                        PurpleConnection *gc, const gchar *who,
+                        const gchar *alias)
+{
   struct mwPurpleProtocolData *pd = purple_connection_get_protocol_data(gc);
   g_return_if_fail(pd != NULL);
 
@@ -4553,11 +4569,11 @@ static void mw_protocol_alias_buddy(PurpleConnection *gc,
 }
 
 
-static void mw_protocol_group_buddy(PurpleConnection *gc,
-				const char *who,
-				const char *old_group,
-				const char *new_group) {
-
+static void
+mw_protocol_group_buddy(PurpleProtocolServer *protocol_server,
+                        PurpleConnection *gc, const gchar *who,
+                        const gchar *old_group, const gchar *new_group)
+{
   struct mwAwareIdBlock idb = { mwAware_USER, (char *) who, NULL };
   GList *gl = g_list_prepend(NULL, &idb);
 
@@ -4582,11 +4598,11 @@ static void mw_protocol_group_buddy(PurpleConnection *gc,
 }
 
 
-static void mw_protocol_rename_group(PurpleConnection *gc,
-				 const char *old,
-				 PurpleGroup *group,
-				 GList *buddies) {
-
+static void
+mw_protocol_rename_group(PurpleProtocolServer *protocol_server,
+                         PurpleConnection *gc, const gchar *old,
+                         PurpleGroup *group, GList *buddies)
+{
   struct mwPurpleProtocolData *pd = purple_connection_get_protocol_data(gc);
   g_return_if_fail(pd != NULL);
 
@@ -4644,7 +4660,10 @@ mw_protocol_normalize(PurpleProtocolClient *client, PurpleAccount *account,
 }
 
 
-static void mw_protocol_remove_group(PurpleConnection *gc, PurpleGroup *group) {
+static void
+mw_protocol_remove_group(PurpleProtocolServer *protocol_server,
+                         PurpleConnection *gc, PurpleGroup *group)
+{
   struct mwPurpleProtocolData *pd;
   struct mwAwareList *list;
 

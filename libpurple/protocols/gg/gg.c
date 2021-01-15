@@ -889,7 +889,9 @@ static unsigned int ggp_send_typing(PurpleProtocolIM *im, PurpleConnection *gc, 
 	return 1; /* wait 1 second before another notification */
 }
 
-static void ggp_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group, const char *message)
+static void
+ggp_add_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+              PurpleBuddy *buddy, PurpleGroup *group, const gchar *message)
 {
 	PurpleAccount *account = purple_connection_get_account(gc);
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
@@ -901,21 +903,22 @@ static void ggp_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup 
 	if (purple_strequal(purple_account_get_username(account), name))
 		ggp_status_fake_to_self(gc);
 
-	ggp_roster_add_buddy(gc, buddy, group, message);
+	ggp_roster_add_buddy(protocol_server, gc, buddy, group, message);
 	ggp_pubdir_request_buddy_alias(gc, buddy);
 }
 
-static void ggp_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-	PurpleGroup *group)
+static void
+ggp_remove_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                 PurpleBuddy *buddy, PurpleGroup *group)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 
 	gg_remove_notify(info->session, ggp_str_to_uin(purple_buddy_get_name(buddy)));
-	ggp_roster_remove_buddy(gc, buddy, group);
+	ggp_roster_remove_buddy(protocol_server, gc, buddy, group);
 }
 
-static void ggp_keepalive(PurpleConnection *gc)
-{
+static void
+ggp_keepalive(PurpleProtocolServer *protocol_server, PurpleConnection *gc) {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 
 	/* purple_debug_info("gg", "Keeping connection alive....\n"); */

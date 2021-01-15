@@ -329,10 +329,12 @@ version 3.0.0 (??/??/????):
 		* purple_account_get_check_mail
 		* purple_account_get_password.  Use
 		  purple_credential_manager_read_password_async instead.
+		* purple_account_get_public_alias
 		* purple_account_set_check_mail
+		* purple_account_set_current_error
 		* purple_account_set_password.  Use
 		  purple_credential_manager_write_password_async instead.
-		* purple_account_set_current_error
+		* purple_account_set_public_alias
 		* purple_base16_*
 		* purple_base64_*. Use g_base64_* instead
 		* purple_blist_get_ui_data
@@ -376,6 +378,8 @@ version 3.0.0 (??/??/????):
 		  yourself. See GLib Main Event Loop docs.
 		* purple_fd_get_ip.  Use GSocket instead.
 		* purple_find_pounce
+		* PurpleGetPublicAliasSuccessCallback
+		* PurpleGetPublicAliasFailureCallback
 		* purple_get_host_name. Use g_get_host_name, instead.
 		* purple_get_tzoff_str(). Use g_date_time_format, instead.
 		* purple_ip_address_is_valid, purple_ipv4_address_is_valid, and
@@ -494,6 +498,8 @@ version 3.0.0 (??/??/????):
 		* purple_restore_default_signal_handlers
 		* purple_request_certificate
 		* purple_request_field_list_add
+		* PurpleSetPublicAliasFailureCallback
+		* PurpleSetPublicAliasSuccessCallback
 		* purple_socket_get_family
 		* purple_socket_speaks_ipv4
 		* PurpleSoundUiOps
