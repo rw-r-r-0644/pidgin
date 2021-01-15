@@ -38,6 +38,7 @@
 #include "purpleprotocolchat.h"
 #include "purpleprotocolim.h"
 #include "purpleprotocolprivacy.h"
+#include "purpleprotocolserver.h"
 #include "request.h"
 #include "signals.h"
 #include "server.h"
@@ -179,7 +180,8 @@ void purple_serv_get_info(PurpleConnection *gc, const char *name)
 
 	if (gc) {
 		protocol = purple_connection_get_protocol(gc);
-		purple_protocol_server_iface_get_info(protocol, gc, name);
+		purple_protocol_server_get_info(PURPLE_PROTOCOL_SERVER(protocol), gc,
+		                                name);
 	}
 }
 
@@ -197,7 +199,8 @@ void purple_serv_set_info(PurpleConnection *gc, const char *info)
 			purple_signal_emit(purple_accounts_get_handle(),
 					"account-setting-info", account, info);
 
-			purple_protocol_server_iface_set_info(protocol, gc, info);
+			purple_protocol_server_set_info(PURPLE_PROTOCOL_SERVER(protocol),
+			                                gc, info);
 
 			purple_signal_emit(purple_accounts_get_handle(),
 					"account-set-info", account, info);
@@ -220,11 +223,12 @@ void purple_serv_alias_buddy(PurpleBuddy *b)
 		if (account) {
 			gc = purple_account_get_connection(account);
 
-			if (gc) {
+			if(gc) {
 				protocol = purple_connection_get_protocol(gc);
-				purple_protocol_server_iface_alias_buddy(protocol, gc,
-						purple_buddy_get_name(b),
-						purple_buddy_get_local_alias(b));
+				purple_protocol_server_alias_buddy(PURPLE_PROTOCOL_SERVER(protocol),
+				                                   gc,
+				                                   purple_buddy_get_name(b),
+				                                   purple_buddy_get_local_alias(b));
 			}
 		}
 	}
@@ -345,9 +349,10 @@ void purple_serv_move_buddy(PurpleBuddy *buddy, PurpleGroup *orig, PurpleGroup *
 
 	if (gc) {
 		protocol = purple_connection_get_protocol(gc);
-		purple_protocol_server_iface_group_buddy(protocol, gc, purple_buddy_get_name(buddy),
-				purple_group_get_name(orig),
-				purple_group_get_name(dest));
+		purple_protocol_server_group_buddy(PURPLE_PROTOCOL_SERVER(protocol),
+		                                   gc, purple_buddy_get_name(buddy),
+		                                   purple_group_get_name(orig),
+		                                   purple_group_get_name(dest));
 	}
 }
 

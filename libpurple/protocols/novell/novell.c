@@ -2557,7 +2557,8 @@ novell_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 }
 
 static void
-novell_add_buddy(PurpleConnection * gc, PurpleBuddy *buddy, PurpleGroup * group, const char *message)
+novell_add_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                 PurpleBuddy *buddy, PurpleGroup * group, const gchar *message)
 {
 	NMFolder *folder = NULL;
 	NMContact *contact;
@@ -2620,7 +2621,9 @@ novell_add_buddy(PurpleConnection * gc, PurpleBuddy *buddy, PurpleGroup * group,
 }
 
 static void
-novell_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
+novell_remove_buddy(PurpleProtocolServer *protocol_server,
+                    PurpleConnection *gc, PurpleBuddy *buddy,
+                    PurpleGroup *group)
 {
 	NMContact *contact;
 	NMFolder *folder;
@@ -2655,7 +2658,8 @@ novell_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group
 }
 
 static void
-novell_remove_group(PurpleConnection * gc, PurpleGroup *group)
+novell_remove_group(PurpleProtocolServer *protocol_server,
+                    PurpleConnection *gc, PurpleGroup *group)
 {
 	NMUser *user;
 	NMERR_T rc = NM_OK;
@@ -2676,7 +2680,8 @@ novell_remove_group(PurpleConnection * gc, PurpleGroup *group)
 }
 
 static void
-novell_alias_buddy(PurpleConnection * gc, const char *name, const char *alias)
+novell_alias_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                   const gchar *name, const gchar *alias)
 {
 	NMContact *contact;
 	NMUser *user;
@@ -2732,9 +2737,9 @@ novell_alias_buddy(PurpleConnection * gc, const char *name, const char *alias)
 }
 
 static void
-novell_group_buddy(PurpleConnection * gc,
-				   const char *name, const char *old_group_name,
-				   const char *new_group_name)
+novell_group_buddy(PurpleProtocolServer *protocol_server,
+                   PurpleConnection *gc, const gchar *name,
+                   const gchar *old_group_name, const gchar *new_group_name)
 {
 	NMFolder *old_folder;
 	NMFolder *new_folder;
@@ -2794,7 +2799,8 @@ novell_group_buddy(PurpleConnection * gc,
 }
 
 static void
-novell_rename_group(PurpleConnection * gc, const char *old_name,
+novell_rename_group(PurpleProtocolServer *protocol_server,
+                    PurpleConnection *gc, const gchar *old_name,
 					PurpleGroup *group, GList *moved_buddies)
 {
 	NMERR_T rc = NM_OK;
@@ -2894,7 +2900,8 @@ novell_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *buddy,
 }
 
 static void
-novell_set_idle(PurpleConnection * gc, int time)
+novell_set_idle(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+                gint time)
 {
 	NMUser *user;
 	NMERR_T rc = NM_OK;
@@ -2924,7 +2931,8 @@ novell_set_idle(PurpleConnection * gc, int time)
 }
 
 static void
-novell_get_info(PurpleConnection * gc, const char *name)
+novell_get_info(PurpleProtocolServer *protocol_server, PurpleConnection * gc,
+                const gchar *name)
 {
 	NMUserRecord *user_record;
 	NMUser *user;
@@ -3020,7 +3028,8 @@ novell_status_types(PurpleAccount *account)
 }
 
 static void
-novell_set_status(PurpleAccount *account, PurpleStatus *status)
+novell_set_status(PurpleProtocolServer *protocol_server,
+                  PurpleAccount *account, PurpleStatus *status)
 {
 	PurpleConnection *gc;
 	gboolean connected;
@@ -3477,8 +3486,7 @@ novell_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node)
 }
 
 static void
-novell_keepalive(PurpleConnection *gc)
-{
+novell_keepalive(PurpleProtocolServer *protocol_server, PurpleConnection *gc) {
 	NMUser *user;
 	NMERR_T rc = NM_OK;
 

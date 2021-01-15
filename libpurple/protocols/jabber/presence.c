@@ -140,7 +140,9 @@ void jabber_presence_fake_to_self(JabberStream *js, PurpleStatus *status)
 	g_free(msg);
 }
 
-void jabber_set_status(PurpleAccount *account, PurpleStatus *status)
+void
+jabber_set_status(PurpleProtocolServer *protocol_server,
+                  PurpleAccount *account, PurpleStatus *status)
 {
 	PurpleConnection *gc;
 	JabberStream *js;

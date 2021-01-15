@@ -351,8 +351,10 @@ static void jabber_roster_update(JabberStream *js, const char *name,
 	jabber_iq_send(iq);
 }
 
-void jabber_roster_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-		PurpleGroup *group, const char *message)
+void
+jabber_roster_add_buddy(PurpleProtocolServer *protocol_server,
+                        PurpleConnection *gc, PurpleBuddy *buddy,
+                        PurpleGroup *group, const gchar *message)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 	char *who;
@@ -415,7 +417,10 @@ void jabber_roster_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
 	g_free(who);
 }
 
-void jabber_roster_alias_change(PurpleConnection *gc, const char *name, const char *alias)
+void
+jabber_roster_alias_change(PurpleProtocolServer *protocol_server,
+                           PurpleConnection *gc, const gchar *name,
+                           const gchar *alias)
 {
 	PurpleBuddy *b = purple_blist_find_buddy(purple_connection_get_account(gc), name);
 
@@ -429,8 +434,10 @@ void jabber_roster_alias_change(PurpleConnection *gc, const char *name, const ch
 	}
 }
 
-void jabber_roster_group_change(PurpleConnection *gc, const char *name,
-		const char *old_group, const char *new_group)
+void
+jabber_roster_group_change(PurpleProtocolServer *protocol_server,
+                           PurpleConnection *gc, const gchar *name,
+                           const gchar *old_group, const gchar *new_group)
 {
 	GSList *buddies, *groups = NULL;
 
@@ -449,19 +456,28 @@ void jabber_roster_group_change(PurpleConnection *gc, const char *name,
 	jabber_roster_update(purple_connection_get_protocol_data(gc), name, groups);
 }
 
-void jabber_roster_group_rename(PurpleConnection *gc, const char *old_name,
-		PurpleGroup *group, GList *moved_buddies)
+void
+jabber_roster_group_rename(PurpleProtocolServer *protocol_server,
+                           PurpleConnection *gc, const gchar *old_name,
+                           PurpleGroup *group, GList *moved_buddies)
 {
 	GList *l;
 	const char *gname = jabber_roster_group_get_global_name(group);
+
 	for(l = moved_buddies; l; l = l->next) {
 		PurpleBuddy *buddy = l->data;
-		jabber_roster_group_change(gc, purple_buddy_get_name(buddy), old_name, gname);
+
+		jabber_roster_group_change(protocol_server, gc,
+		                           purple_buddy_get_name(buddy), old_name,
+		                           gname);
 	}
 }
 
-void jabber_roster_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-		PurpleGroup *group) {
+void
+jabber_roster_remove_buddy(PurpleProtocolServer *protocol_server,
+                           PurpleConnection *gc, PurpleBuddy *buddy,
+                           PurpleGroup *group)
+{
 	const char *name = purple_buddy_get_name(buddy);
 	GSList *buddies = purple_blist_find_buddies(purple_connection_get_account(gc), name);
 

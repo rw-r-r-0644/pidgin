@@ -1167,7 +1167,8 @@ fb_client_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy)
 }
 
 static void
-fb_server_set_status(PurpleAccount *acct, PurpleStatus *status)
+fb_server_set_status(PurpleProtocolServer *protocol_server,
+                     PurpleAccount *acct, PurpleStatus *status)
 {
 	FbApi *api;
 	FbData *fata;
@@ -1584,7 +1585,7 @@ facebook_protocol_client_iface_init(PurpleProtocolClientInterface *iface)
 }
 
 static void
-facebook_protocol_server_iface_init(PurpleProtocolServerInterface *iface)
+facebook_protocol_server_init(PurpleProtocolServerInterface *iface)
 {
 	iface->set_status = fb_server_set_status;
 }
@@ -1621,7 +1622,7 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_CLIENT,
                                       facebook_protocol_client_iface_init)
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_SERVER,
-                                      facebook_protocol_server_iface_init)
+                                      facebook_protocol_server_init)
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_IM,
                                       facebook_protocol_im_iface_init)
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_CHAT,

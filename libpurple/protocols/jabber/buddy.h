@@ -103,13 +103,13 @@ JabberBuddyResource *jabber_buddy_find_resource(JabberBuddy *jb,
 JabberBuddyResource *jabber_buddy_track_resource(JabberBuddy *jb, const char *resource,
 		int priority, JabberBuddyState state, const char *status);
 void jabber_buddy_remove_resource(JabberBuddy *jb, const char *resource);
-void jabber_buddy_get_info(PurpleConnection *gc, const char *who);
+void jabber_buddy_get_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const char *who);
 
 GList *jabber_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node);
 
-void jabber_set_info(PurpleConnection *gc, const char *info);
+void jabber_set_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const char *info);
 void jabber_setup_set_info(PurpleProtocolAction *action);
-void jabber_set_buddy_icon(PurpleConnection *gc, PurpleImage *img);
+void jabber_set_buddy_icon(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleImage *img);
 
 void jabber_user_search(JabberStream *js, const char *directory);
 void jabber_user_search_begin(PurpleProtocolAction *);

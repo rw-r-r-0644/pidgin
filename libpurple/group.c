@@ -24,6 +24,7 @@
 #include "group.h"
 #include "internal.h" /* TODO: we need to kill this */
 #include "purpleprivate.h"
+#include "purpleprotocolserver.h"
 
 typedef struct _PurpleGroupPrivate      PurpleGroupPrivate;
 
@@ -212,7 +213,9 @@ void purple_group_set_name(PurpleGroup *source, const char *name) {
 			}
 
 			if(PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, rename_group)) {
-				purple_protocol_server_iface_rename_group(protocol, gc, old_name, source, buddies);
+				purple_protocol_server_rename_group(PURPLE_PROTOCOL_SERVER(protocol),
+				                                    gc, old_name, source,
+				                                    buddies);
 			} else {
 				GList *cur, *groups = NULL;
 

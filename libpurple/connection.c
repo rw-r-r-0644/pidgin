@@ -33,6 +33,7 @@
 #include "prefs.h"
 #include "proxy.h"
 #include "purpleprivate.h"
+#include "purpleprotocolserver.h"
 #include "purpleprotocolfactory.h"
 #include "request.h"
 #include "server.h"
@@ -125,7 +126,8 @@ send_keepalive(gpointer data)
 	PurpleConnection *gc = data;
 	PurpleConnectionPrivate *priv = purple_connection_get_instance_private(gc);
 
-	purple_protocol_server_iface_keepalive(priv->protocol, gc);
+	purple_protocol_server_keepalive(PURPLE_PROTOCOL_SERVER(priv->protocol),
+	                                 gc);
 
 	return TRUE;
 }
@@ -140,7 +142,7 @@ update_keepalive(PurpleConnection *gc, gboolean on)
 
 	if (on && !priv->keepalive)
 	{
-		int interval = purple_protocol_server_iface_get_keepalive_interval(priv->protocol);
+		int interval = purple_protocol_server_get_keepalive_interval(PURPLE_PROTOCOL_SERVER(priv->protocol));
 		purple_debug_info("connection", "Activating keepalive to %d seconds.", interval);
 		priv->keepalive = g_main_context_find_source_by_id(NULL, g_timeout_add_seconds(interval, send_keepalive, gc));
 	}
@@ -677,7 +679,7 @@ void purple_connection_update_last_received(PurpleConnection *gc)
 		 * it seems unlikely that the implementation will change, we just do that
 		 * for now as a workaround for this API shortcoming.
 		 */
-		gint64 seconds_from_now = purple_protocol_server_iface_get_keepalive_interval(priv->protocol);
+		gint64 seconds_from_now = purple_protocol_server_get_keepalive_interval(PURPLE_PROTOCOL_SERVER(priv->protocol));
 
 		g_source_set_ready_time(
 			priv->keepalive,
@@ -1038,7 +1040,8 @@ _purple_connection_new(PurpleAccount *account, gboolean regist, const char *pass
 		priv = purple_connection_get_instance_private(gc);
 		priv->wants_to_die = TRUE;
 
-		purple_protocol_server_iface_register_user(protocol, account);
+		purple_protocol_server_register_user(PURPLE_PROTOCOL_SERVER(protocol),
+		                                     account);
 	}
 	else
 	{
@@ -1051,7 +1054,7 @@ _purple_connection_new(PurpleAccount *account, gboolean regist, const char *pass
 
 void
 _purple_connection_new_unregister(PurpleAccount *account, const char *password,
-		PurpleAccountUnregistrationCb cb, void *user_data)
+		PurpleAccountUnregistrationCb cb, gpointer user_data)
 {
 	/* Lots of copy/pasted code to avoid API changes. You might want to integrate that into the previous function when posssible. */
 	PurpleConnection *gc;
@@ -1073,7 +1076,8 @@ _purple_connection_new_unregister(PurpleAccount *account, const char *password,
 	}
 
 	if (!purple_account_is_disconnected(account)) {
-		purple_protocol_server_iface_unregister_user(protocol, account, cb, user_data);
+		purple_protocol_server_unregister_user(PURPLE_PROTOCOL_SERVER(protocol),
+		                                       account, cb, user_data);
 		return;
 	}
 
@@ -1101,7 +1105,8 @@ _purple_connection_new_unregister(PurpleAccount *account, const char *password,
 
 	purple_debug_info("connection", "Unregistering.  gc = %p\n", gc);
 
-	purple_protocol_server_iface_unregister_user(protocol, account, cb, user_data);
+	purple_protocol_server_unregister_user(PURPLE_PROTOCOL_SERVER(protocol),
+	                                       account, cb, user_data);
 }
 
 /**************************************************************************

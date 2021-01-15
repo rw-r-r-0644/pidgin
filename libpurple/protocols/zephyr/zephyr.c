@@ -1867,7 +1867,9 @@ zephyr_normalize(PurpleProtocolClient *client, PurpleAccount *account,
 	return buf;
 }
 
-static void zephyr_zloc(PurpleConnection *gc, const char *who)
+static void
+zephyr_zloc(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
+            const gchar *who)
 {
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 	gchar* normalized_who = local_zephyr_normalize(zephyr,who);
@@ -1894,7 +1896,10 @@ zephyr_set_location(zephyr_account *zephyr, char *exposure)
 	}
 }
 
-static void zephyr_set_status(PurpleAccount *account, PurpleStatus *status) {
+static void
+zephyr_set_status(PurpleProtocolServer *protocol_server,
+                  PurpleAccount *account, PurpleStatus *status)
+{
 	PurpleConnection *gc = purple_account_get_connection(account);
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 	PurpleStatusPrimitive primitive = purple_status_type_get_primitive(purple_status_get_status_type(status));
@@ -2230,7 +2235,7 @@ static PurpleCmdRet zephyr_purple_cmd_msg(PurpleConversation *conv,
 static PurpleCmdRet zephyr_purple_cmd_zlocate(PurpleConversation *conv,
 					  const char *cmd, char **args, char **error, void *data)
 {
-	zephyr_zloc(purple_conversation_get_connection(conv),args[0]);
+	zephyr_zloc(NULL, purple_conversation_get_connection(conv),args[0]);
 	return PURPLE_CMD_RET_OK;
 }
 

@@ -261,6 +261,7 @@ libpurple/purpleprotocolclient.c
 libpurple/purpleprotocolim.c
 libpurple/purpleprotocolmedia.c
 libpurple/purpleprotocolprivacy.c
+libpurple/purpleprotocolserver.c
 libpurple/purplewhiteboard.c
 libpurple/purplewhiteboarduiops.c
 libpurple/queuedoutputstream.c

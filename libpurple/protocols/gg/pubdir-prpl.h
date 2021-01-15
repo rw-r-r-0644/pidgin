@@ -62,7 +62,7 @@ typedef void (*ggp_pubdir_request_cb)(PurpleConnection *gc, int records_count,
 void ggp_pubdir_get_info(PurpleConnection *gc, uin_t uin,
 	ggp_pubdir_request_cb cb, void *user_data);
 
-void ggp_pubdir_get_info_protocol(PurpleConnection *gc, const char *name);
+void ggp_pubdir_get_info_protocol(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const char *name);
 void ggp_pubdir_request_buddy_alias(PurpleConnection *gc, PurpleBuddy *buddy);
 
 void ggp_pubdir_search(PurpleConnection *gc,
