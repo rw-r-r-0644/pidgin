@@ -2407,26 +2407,18 @@ static void zephyr_unregister_slash_commands(void)
 }
 
 
-static int zephyr_resubscribe(PurpleConnection *gc)
+/* Resubscribe to the in-memory list of subscriptions and also unsubscriptions */
+static void
+zephyr_action_resubscribe(PurpleProtocolAction *action)
 {
-	/* Resubscribe to the in-memory list of subscriptions and also
-	   unsubscriptions*/
-	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
+	zephyr_account *zephyr = purple_connection_get_protocol_data(action->connection);
+
 	for (GSList *s = zephyr->subscrips; s; s = s->next) {
 		zephyr_triple *zt = s->data;
 		/* XXX We really should care if this fails */
 		zephyr->subscribe_to(zephyr, zt->class, zt->instance, zt->recipient);
 	}
 	/* XXX handle unsubscriptions */
-	return 1;
-}
-
-
-static void zephyr_action_resubscribe(PurpleProtocolAction *action)
-{
-
-	PurpleConnection *gc = action->connection;
-	zephyr_resubscribe(gc);
 }
 
 
