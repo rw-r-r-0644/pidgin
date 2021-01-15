@@ -24,7 +24,7 @@
 #define PIDGIN_ACCOUNT_FILTER_CONNECTED_H
 
 /**
- * SECTION:pidginaccountfilterconnected
+ * SECTION: pidginaccountfilterconnected
  * @section_id: pidgin-account-filter-connected
  * @short_description: A GtkTreeModelFilter that displays connected accounts.
  * @title: Account Connected Filter
@@ -45,6 +45,8 @@ G_DECLARE_FINAL_TYPE(PidginAccountFilterConnected,
 
 /**
  * pidgin_account_filter_connected_new:
+ * @child_model: The #GtkTreeModel instance to filter.
+ * @root: The #GtkTreePath to start at or %NULL.
  *
  * Creates a new #PidginAccountFilterConnected that should be used to filter
  * only online accounts in a #PidginAccountStore.

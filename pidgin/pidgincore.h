@@ -26,10 +26,12 @@
 #ifndef PIDGIN_CORE_H
 #define PIDGIN_CORE_H
 /**
- * SECTION:core
- * @section_id: pidgin-core
+ * SECTION: pidgincore
+ * @section_id: pidgin-pidgincore
  * @short_description: <filename>pidgincore.h</filename>
  * @title: UI Definitions and Includes
+ *
+ * The very core of Pidgin.
  */
 
 #include <glib.h>
@@ -55,6 +57,11 @@
  It is not to be translated. */
 #define PIDGIN_NAME _("Pidgin")
 
+/**
+ * PIDGIN_ALERT_TITLE:
+ *
+ * The title that should be used for alert dialogs.
+ */
 #ifndef _WIN32
 # define PIDGIN_ALERT_TITLE ""
 #else
@@ -63,6 +70,8 @@
 
 /**
  * pidgin_start:
+ * @argc: The argc from main() (or 0 if argv is %NULL).
+ * @argv: The argv from main(), or %NULL.
  *
  * Start pidgin with the given command line arguments.
  */
