@@ -236,11 +236,6 @@ if ENABLE_GTK
 	    gui_app : true,
 	    install : true)
 
-	if IS_WIN32
-#		libpidgin_la_LIBADD += -lwinmm
-#		pidgin_LDFLAGS += -mwindows
-	endif
-
 	pkgconfig.generate(
 	    name : 'Pidgin',
 	    description : 'Pidgin is a GTK3-based instant messenger application.',
