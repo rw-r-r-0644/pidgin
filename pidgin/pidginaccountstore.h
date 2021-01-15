@@ -38,10 +38,24 @@
 
 #include <purple.h>
 
+/**
+ * PidginAccountStoreColumn:
+ * @PIDGIN_ACCOUNT_STORE_COLUMN_ACCOUNT: This column holds a reference to the
+ *                                       #PurpleAccount.
+ * @PIDGIN_ACCOUNT_STORE_COLUMN_MARKUP: This column holds a pango markup to
+ *                                      display the account to the user.
+ * @PIDGIN_ACCOUNT_STORE_COLUMN_ICON: This column holds an icon in a #GdkPixbuf
+ *                                    for the account.
+ *
+ * Constants for accessing columns in a #PidginAccountStore.
+ *
+ * Since: 3.0.0
+ */
 typedef enum {
 	PIDGIN_ACCOUNT_STORE_COLUMN_ACCOUNT,
 	PIDGIN_ACCOUNT_STORE_COLUMN_MARKUP,
 	PIDGIN_ACCOUNT_STORE_COLUMN_ICON,
+	/*< private >*/
 	PIDGIN_ACCOUNT_STORE_N_COLUMNS,
 } PidginAccountStoreColumn;
 

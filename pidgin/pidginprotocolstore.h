@@ -41,10 +41,24 @@
 
 #include <purple.h>
 
+/**
+ * PidginProtocolStoreColumn:
+ * @PIDGIN_PROTOCOL_STORE_COLUMN_PROTOCOL: This column holds a reference to a
+ *                                         #PurpleProtocol.
+ * @PIDGIN_PROTOCOL_STORE_COLUMN_NAME: This column holds the name of the
+ *                                     protocol.
+ * @PIDGIN_PROTOCOL_STORE_COLUMN_ICON: This column holds a #GdkPixbuf of the
+ *                                     logo of the protocol.
+ *
+ * Constants for accessing columns in a #PidginProtocolStore.
+ *
+ * Since: 3.0.0
+ */
 typedef enum {
 	PIDGIN_PROTOCOL_STORE_COLUMN_PROTOCOL,
 	PIDGIN_PROTOCOL_STORE_COLUMN_NAME,
 	PIDGIN_PROTOCOL_STORE_COLUMN_ICON,
+	/*< private >*/
 	PIDGIN_PROTOCOL_STORE_N_COLUMNS,
 } PidginProtocolStoreColumn;
 
