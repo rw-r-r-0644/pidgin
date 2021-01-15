@@ -31,6 +31,10 @@
  * @section_id: libpurple-account
  * @short_description: <filename>account.h</filename>
  * @title: Account Object
+ *
+ * A #PurpleAccount is the core configuration for connecting to a specific
+ * account. User interfaces typically allow users to create these in a dialog
+ * or wizard.
  */
 
 #include <glib.h>
@@ -75,6 +79,11 @@ typedef enum
 
 /**
  * PurpleAccountRequestResponse:
+ * @PURPLE_ACCOUNT_RESPONSE_IGNORE: Silently ignore the request.
+ * @PURPLE_ACCOUNT_RESPONSE_DENY: Block the request potentially informing the
+ *                                sender based on the protocol.
+ * @PURPLE_ACCOUNT_RESPONSE_PASS: Prompt the user with the request.
+ * @PURPLE_ACCOUNT_RESPONSE_ACCEPT: Grant the request.
  *
  * Account request response types
  */
@@ -88,6 +97,12 @@ typedef enum
 
 /**
  * PurpleAccountPrivacyType:
+ * @PURPLE_ACCOUNT_PRIVACY_ALLOW_ALL: Allow everything.
+ * @PURPLE_ACCOUNT_PRIVACY_DENY_ALL: Deny everything.
+ * @PURPLE_ACCOUNT_PRIVACY_ALLOW_USERS: Allow specific users.
+ * @PURPLE_ACCOUNT_PRIVACY_DENY_USERS: Deny specific users.
+ * @PURPLE_ACCOUNT_PRIVACY_ALLOW_BUDDYLIST: Allow users found in the buddy
+ *                                          list.
  *
  * Privacy data types.
  */

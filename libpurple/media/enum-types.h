@@ -80,6 +80,11 @@ G_BEGIN_DECLS
 
 /**
  * PurpleMediaCandidateType:
+ * @PURPLE_MEDIA_CANDIDATE_TYPE_HOST: A host candidate (local).
+ * @PURPLE_MEDIA_CANDIDATE_TYPE_SRFLX: A server reflexive candidate.
+ * @PURPLE_MEDIA_CANDIDATE_TYPE_PRFLX: A peer reflexive candidate.
+ * @PURPLE_MEDIA_CANDIDATE_TYPE_RELAY: A relay candidate.
+ * @PURPLE_MEDIA_CANDIDATE_TYPE_MULTICAST: A multicast address.
  *
  * Media candidate types
  */
@@ -93,6 +98,15 @@ typedef enum {
 
 /**
  * PurpleMediaCaps:
+ * @PURPLE_MEDIA_CAPS_NONE: No capabilities.
+ * @PURPLE_MEDIA_CAPS_AUDIO: Bi-directional audio.
+ * @PURPLE_MEDIA_CAPS_AUDIO_SINGLE_DIRECTION: Single direction audio.
+ * @PURPLE_MEDIA_CAPS_VIDEO: Bi-directional video.
+ * @PURPLE_MEDIA_CAPS_VIDEO_SINGLE_DIRECTION: Single direction video.
+ * @PURPLE_MEDIA_CAPS_AUDIO_VIDEO: Bi-directional audio and video.
+ * @PURPLE_MEDIA_CAPS_MODIFY_SESSION: Modifiable session.
+ * @PURPLE_MEDIA_CAPS_CHANGE_DIRECTION: Initiator and destination can be
+ *                                      switched.
  *
  * Media caps
  */
@@ -109,6 +123,10 @@ typedef enum {
 
 /**
  * PurpleMediaComponentType:
+ * @PURPLE_MEDIA_COMPONENT_NONE: Use this when specifying a component is
+ *                               innapropriate.
+ * @PURPLE_MEDIA_COMPONENT_RTP: This component is for RTP data.
+ * @PURPLE_MEDIA_COMPONENT_RTCP: This component is for RTCP control.
  *
  * Media component types
  */
@@ -120,6 +138,16 @@ typedef enum {
 
 /**
  * PurpleMediaInfoType:
+ * @PURPLE_MEDIA_INFO_HANGUP: Terminate the media.
+ * @PURPLE_MEDIA_INFO_ACCEPT: Create/join the media.
+ * @PURPLE_MEDIA_INFO_REJECT: Terminate the media, possibly noting that it was
+ *                            rejected.
+ * @PURPLE_MEDIA_INFO_MUTE: Mute the media.
+ * @PURPLE_MEDIA_INFO_UNMUTE: Unmute the media.
+ * @PURPLE_MEDIA_INFO_PAUSE: Pause the media.
+ * @PURPLE_MEDIA_INFO_UNPAUSE: Unpause the media.
+ * @PURPLE_MEDIA_INFO_HOLD: Put the media on hold.
+ * @PURPLE_MEDIA_INFO_UNHOLD: Remove the media from hold.
  *
  * Media info types
  */
@@ -137,6 +165,16 @@ typedef enum {
 
 /**
  * PurpleMediaNetworkProtocol:
+ * @PURPLE_MEDIA_NETWORK_PROTOCOL_UDP: A UDP based protocol.
+ * @PURPLE_MEDIA_NETWORK_PROTOCOL_TCP_PASSIVE: A TCP based protocol, will
+ *                                             listen for incoming connections.
+ * @PURPLE_MEDIA_NETWORK_PROTOCOL_TCP_ACTIVE: A TCP based protocol, will
+ *                                            attempt to open an outbound
+ *                                            connection.
+ * @PURPLE_MEDIA_NETWORK_PROTOCOL_TCP_SO: A TCP based protocol, will listen for
+ *                                        incoming connections and attempt an
+ *                                        outbound connection at the same time
+ *                                        as the peer (Simultanuous-Open).
  *
  * Media network protocols
  */
@@ -149,6 +187,21 @@ typedef enum {
 
 /**
  * PurpleMediaSessionType:
+ * @PURPLE_MEDIA_NONE: Used for errors.
+ * @PURPLE_MEDIA_RECV_AUDIO: The session has incoming audio.
+ * @PURPLE_MEDIA_SEND_AUDIO: The session has outgoing audio.
+ * @PURPLE_MEDIA_RECV_VIDEO: The session has incoming video.
+ * @PURPLE_MEDIA_SEND_VIDEO: The session has outgoing video.
+ * @PURPLE_MEDIA_RECV_APPLICATION: The session has incoming application
+ *                                 specific data.
+ * @PURPLE_MEDIA_SEND_APPLICATION: The session has outgoing application
+ *                                 specific data.
+ * @PURPLE_MEDIA_AUDIO: An alias for #PURPLE_MEDIA_RECV_AUDIO and
+ *                      #PURPLE_MEDIA_SEND_AUDIO.
+ * @PURPLE_MEDIA_VIDEO: An alias for #PURPLE_MEDIA_RECV_VIDEO and
+ *                      #PURPLE_MEDIA_SEND_VIDEO.
+ * @PURPLE_MEDIA_APPLICATION: An alias for #PURPLE_MEDIA_RECV_APPLICATION
+ *                            and #PURPLE_MEDIA_SEND_APPLICATION.
  *
  * Media session types
  */
@@ -168,6 +221,10 @@ typedef enum {
 
 /**
  * PurpleMediaState:
+ * @PURPLE_MEDIA_STATE_NEW: The media has not yet connected.
+ * @PURPLE_MEDIA_STATE_CONNECTED: The media is connected.
+ * @PURPLE_MEDIA_STATE_END: The media has previously connected but has since
+ *                          disconnected.
  *
  * Media state-changed types
  */
