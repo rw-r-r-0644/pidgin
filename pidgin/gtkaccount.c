@@ -2791,16 +2791,10 @@ pidgin_accounts_request_close(void *ui_handle)
 
 static PurpleAccountUiOps ui_ops =
 {
-	pidgin_accounts_notify_added,
-	NULL,
-	pidgin_accounts_request_add,
-	pidgin_accounts_request_authorization,
-	pidgin_accounts_request_close,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL, NULL, NULL, NULL
+	.notify_added = pidgin_accounts_notify_added,
+	.request_add = pidgin_accounts_request_add,
+	.request_authorize = pidgin_accounts_request_authorization,
+	.close_account_request = pidgin_accounts_request_close,
 };
 
 PurpleAccountUiOps *
