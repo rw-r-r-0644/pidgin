@@ -93,10 +93,15 @@ pidgin_widget_decorate_account(GtkWidget *cont, PurpleAccount *account)
 	GtkWidget *image;
 	GdkPixbuf *pixbuf;
 
-	if (!account)
+	if(!PURPLE_IS_ACCOUNT(account)) {
 		return;
+	}
 
 	pixbuf = pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_SMALL);
+	if(!GDK_IS_PIXBUF(pixbuf)) {
+		return;
+	}
+
 	image = gtk_image_new_from_pixbuf(pixbuf);
 	g_object_unref(G_OBJECT(pixbuf));
 
