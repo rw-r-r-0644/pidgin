@@ -564,8 +564,7 @@ pidgin_status_window_show(void)
 	bbox = pidgin_dialog_get_action_area(GTK_DIALOG(win));
 
 	/* Use button */
-	button = pidgin_pixbuf_button_from_stock(_("_Use"), GTK_STOCK_EXECUTE,
-										  PIDGIN_BUTTON_HORIZONTAL);
+	button = gtk_button_new_with_mnemonic(_("_Use"));
 	dialog->use_button = button;
 	gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(button, FALSE);
@@ -1196,15 +1195,13 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 			G_CALLBACK(status_editor_cancel_cb), dialog);
 
 	/* Use button */
-	button = pidgin_pixbuf_button_from_stock(_("_Use"), GTK_STOCK_EXECUTE,
-										   PIDGIN_BUTTON_HORIZONTAL);
+	button = gtk_button_new_with_mnemonic(_("_Use"));
 	gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(button), "clicked",
 					 G_CALLBACK(status_editor_ok_cb), dialog);
 
 	/* Save and Use button */
-	button = pidgin_pixbuf_button_from_stock(_("Sa_ve and Use"), GTK_STOCK_OK,
-										   PIDGIN_BUTTON_HORIZONTAL);
+	button = gtk_button_new_with_mnemonic(_("Sa_ve and Use"));
 	dialog->saveanduse_button = GTK_BUTTON(button);
 	gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 	if (dialog->original_title == NULL)

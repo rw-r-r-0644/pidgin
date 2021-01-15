@@ -188,52 +188,6 @@ GtkWidget *pidgin_new_check_item(GtkWidget *menu, const char *str,
 	return menuitem;
 }
 
-GtkWidget *
-pidgin_pixbuf_button_from_stock(const char *text, const char *icon,
-							  PidginButtonOrientation style)
-{
-	GtkWidget *button, *image, *bbox, *ibox, *lbox = NULL;
-
-	button = gtk_button_new();
-
-	if (style == PIDGIN_BUTTON_HORIZONTAL) {
-		bbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-		ibox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-		if (text)
-			lbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-	} else {
-		bbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-		ibox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-		if (text)
-			lbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	}
-
-	gtk_container_add(GTK_CONTAINER(button), bbox);
-
-	if (icon) {
-		gtk_box_pack_start(GTK_BOX(bbox), ibox, TRUE, TRUE, 0);
-		image = gtk_image_new_from_stock(icon, GTK_ICON_SIZE_BUTTON);
-		gtk_box_pack_end(GTK_BOX(ibox), image, FALSE, TRUE, 0);
-	}
-
-	if (text) {
-		GtkLabel *label;
-
-		gtk_box_pack_start(GTK_BOX(bbox), lbox, TRUE, TRUE, 0);
-		label = GTK_LABEL(gtk_label_new(NULL));
-		gtk_label_set_text_with_mnemonic(label, text);
-		gtk_label_set_mnemonic_widget(label, button);
-		gtk_box_pack_start(GTK_BOX(lbox), GTK_WIDGET(label),
-			FALSE, TRUE, 0);
-		pidgin_set_accessible_label(button, label);
-	}
-
-	gtk_widget_show_all(bbox);
-
-	return button;
-}
-
-
 GtkWidget *pidgin_new_menu_item(GtkWidget *menu, const char *mnemonic,
                 const char *icon, GCallback cb, gpointer data)
 {
