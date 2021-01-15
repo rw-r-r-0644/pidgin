@@ -151,19 +151,6 @@ GtkWidget *pidgin_new_menu_item(GtkWidget *menu, const char *mnemonic,
                 const char *icon, GCallback cb, gpointer data);
 
 /**
- * pidgin_pixbuf_button_from_stock:
- * @text:  The text for the button.
- * @icon:  The stock icon name.
- * @style: The orientation of the button.
- *
- * Creates a button with the specified text and stock icon.
- *
- * Returns: (transfer full): The button.
- */
-GtkWidget *pidgin_pixbuf_button_from_stock(const char *text, const char *icon,
-										 PidginButtonOrientation style);
-
-/**
  * pidgin_make_frame:
  * @parent: The widget to put the frame into.
  * @title:  The title for the frame.

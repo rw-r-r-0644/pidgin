@@ -699,6 +699,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_make_pretty_arrows
 		* pidgin_menu_position_func_helper
 		* pidgin_mini_dialog_links_supported
+		* pidgin_pixbuf_button_from_stock
 		* pidgin_pixbuf_toolbar_button_from_stock
 		* pidgin_pounce_editor_show
 		* pidgin_pounces_get_handle
