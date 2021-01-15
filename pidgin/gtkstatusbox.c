@@ -1242,14 +1242,6 @@ pidgin_status_box_buffer_changed_cb(GtkTextBuffer *buffer, gpointer data) {
 }
 
 static void
-pidgin_status_box_save_message_cb(TalkatuInput *input, gpointer data) {
-	PidginStatusBox *status_box = PIDGIN_STATUS_BOX(data);
-
-	activate_currently_selected_status(status_box);
-	pidgin_status_box_refresh(status_box);
-}
-
-static void
 pidgin_status_box_init (PidginStatusBox *status_box)
 {
 	GNetworkMonitor *monitor = NULL;
