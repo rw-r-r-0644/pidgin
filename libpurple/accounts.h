@@ -31,6 +31,8 @@
  * @short_description: <filename>accounts.h</filename>
  * @title: Accounts Subsystem API
  * @see_also: <link linkend="chapter-signals-account">Account signals</link>
+ *
+ * The accounts API is used to help manage #PurpleAccount's.
  */
 
 #include "account.h"
@@ -57,6 +59,12 @@ typedef struct _PurpleAccountUiOps  PurpleAccountUiOps;
  * @close_account_request: Close a pending request for authorization.
  *                         @ui_handle is a handle as returned by
  *                         @request_authorize.
+ * @permit_added: Called during a call to purple_account_privacy_permit_add().
+ * @permit_removed: Called during a call to
+ *                  purple_account_privacy_permit_removed().
+ * @deny_added: Called during a call to purple_account_privacy_deny_add().
+ * @deny_removed: Called during a call to
+ *                purple_account_privacy_deny_removed().
  *
  * Account UI operations, used to notify the user of status changes and when
  * buddies add this account to their buddy lists.
@@ -96,10 +104,7 @@ struct _PurpleAccountUiOps
 	void (*deny_removed)(PurpleAccount *account, const char *name);
 
 	/*< private >*/
-	void (*_purple_reserved1)(void);
-	void (*_purple_reserved2)(void);
-	void (*_purple_reserved3)(void);
-	void (*_purple_reserved4)(void);
+	gpointer reserved[4];
 };
 
 G_BEGIN_DECLS
