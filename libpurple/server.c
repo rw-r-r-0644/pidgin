@@ -396,19 +396,22 @@ void purple_serv_remove_deny(PurpleConnection *gc, const char *name)
 	}
 }
 
-void purple_serv_set_permit_deny(PurpleConnection *gc)
-{
-	if (gc) {
+void
+purple_serv_set_permit_deny(PurpleConnection *gc) {
+	if(gc) {
 		PurpleProtocol *protocol = purple_connection_get_protocol(gc);
-		PurpleProtocolPrivacy *privacy = PURPLE_PROTOCOL_PRIVACY(protocol);
 
-		/*
-		 * this is called when either you import a buddy list, and make lots
-		 * of changes that way, or when the user toggles the permit/deny mode
-		 * in the prefs. In either case you should probably be resetting and
-		 * resending the permit/deny info when you get this.
-		 */
-		purple_protocol_privacy_set_permit_deny(privacy, gc);
+		if(PURPLE_IS_PROTOCOL_PRIVACY(protocol)) {
+			PurpleProtocolPrivacy *privacy = PURPLE_PROTOCOL_PRIVACY(protocol);
+
+			/*
+			 * this is called when either you import a buddy list, and make lots
+			 * of changes that way, or when the user toggles the permit/deny mode
+			 * in the prefs. In either case you should probably be resetting and
+			 * resending the permit/deny info when you get this.
+			 */
+			purple_protocol_privacy_set_permit_deny(privacy, gc);
+		}
 	}
 }
 
