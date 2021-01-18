@@ -63,8 +63,6 @@
 #include "pidgintooltip.h"
 #include "pidginwindow.h"
 
-#include "gtknickcolors.h"
-
 #define GTK_TOOLTIPS_VAR gtkconv->tooltips
 
 #define ADD_MESSAGE_HISTORY_AT_ONCE 100
@@ -135,11 +133,6 @@ enum {
 #define BUDDYICON_SIZE_MIN    32
 #define BUDDYICON_SIZE_MAX    96
 
-#define MIN_LUMINANCE_CONTRAST_RATIO 4.5
-
-#define NICK_COLOR_GENERATE_COUNT 220
-static GArray *generated_nick_colors = NULL;
-
 /* These probably won't conflict with any WebKit values. */
 #define PIDGIN_DRAG_BLIST_NODE (1337)
 #define PIDGIN_DRAG_IM_CONTACT (31337)
@@ -172,9 +165,6 @@ static void gtkconv_set_unseen(PidginConversation *gtkconv, PidginUnseenState st
 static void update_typing_icon(PidginConversation *gtkconv);
 static void update_typing_message(PidginConversation *gtkconv, const char *message);
 gboolean pidgin_conv_has_focus(PurpleConversation *conv);
-static GArray* generate_nick_colors(guint numcolors, GdkRGBA background);
-gdouble luminance(GdkRGBA color);
-static gboolean color_is_visible(GdkRGBA foreground, GdkRGBA background, gdouble min_contrast_ratio);
 static GtkTextTag *get_buddy_tag(PurpleChatConversation *chat, const char *who, PurpleMessageFlags flag, gboolean create);
 static void pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields);
 static void focus_out_from_menubar(GtkWidget *wid, PidginConvWindow *win);
@@ -186,21 +176,52 @@ static void pidgin_conv_set_position_size(PidginConvWindow *win, int x, int y,
 		int width, int height);
 static gboolean pidgin_conv_xy_to_right_infopane(PidginConvWindow *win, int x, int y);
 
-static const GdkRGBA *
-get_nick_color(PidginConversation *gtkconv, const gchar *name)
-{
-	static GdkRGBA col;
+/*<private>
+ * get_nick_color:
+ * @name: The name or text to get a color for.
+ * @color: (out): The return address for a #GdkRGBA that will recieve the
+ *         color.
+ *
+ * This function is based heavily on the implementation that gajim uses from
+ * python-nbxmpp in nbxmpp.util.text_to_color.  However, we don't have an
+ * implementation of HSL let alone HSLuv, so we're using HSV which is why
+ * the value is 1.0 instead of a luminance of 0.5.
+ *
+ * Currently there is no caching as GCache is deprecated and writing a fast LRU
+ * in glib is going to take a bit of finesse.  Also we'll need to figure out how
+ * to scale to ginormous Twitch channels which will constantly break the cache.
+ */
+static void
+get_nick_color(const gchar *name, GdkRGBA *color) {
+	GdkRGBA background;
+	GChecksum *checksum = NULL;
+	guchar digest[20];
+	gsize digest_len = sizeof(digest);
+	gdouble hue = 0, red = 0, green = 0, blue = 0;
 
-	if (name == NULL) {
-		col.red = col.green = col.blue = 0;
-		col.alpha = 1;
-		return &col;
-	}
+	pidgin_style_context_get_background_color(&background);
 
-	col = g_array_index(gtkconv->nick_colors, GdkRGBA,
-		g_str_hash(name) % gtkconv->nick_colors->len);
+	/* hash the string and get the first 2 bytes of the digest */
+	checksum = g_checksum_new(G_CHECKSUM_SHA1);
+	g_checksum_update(checksum, (const guchar *)name, -1);
+	g_checksum_get_digest(checksum, digest, &digest_len);
+	g_checksum_free(checksum);
 
-	return &col;
+	/* Calculate the hue based on the digest.  We need a value between 0 and 1
+	 * so we divide the value by 65535 which is the maximum value for 2 bytes.
+	 */
+	hue = (digest[0] << 8 | digest[1]) / 65535.0;
+
+	/* Get the rgb values for the hue at full saturation and value. */
+	gtk_hsv_to_rgb(hue, 1.0, 1.0, &red, &green, &blue);
+
+	/* Finally calculate the color summing 20% of the inverted background color
+	 * with 80% of the color.
+	 */
+	color->red = (0.2 * (1 - background.red)) + (0.8 * red);
+	color->green = (0.2 * (1 - background.green)) + (0.8 * green);
+	color->blue = (0.2 * (1 - background.blue)) + (0.8 * blue);
+	color->alpha = 1.0;
 }
 
 static PurpleBlistNode *
@@ -3310,7 +3331,7 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	const gchar *name, *alias;
 	gchar *tmp, *alias_key;
 	PurpleChatUserFlags flags;
-	GdkRGBA *color = NULL;
+	GdkRGBA color;
 
 	alias = purple_chat_user_get_alias(cb);
 	name  = purple_chat_user_get_name(cb);
@@ -3352,7 +3373,8 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 			g_object_set(G_OBJECT(tag), "style", PANGO_STYLE_NORMAL, NULL);
 		if ((tag = get_buddy_tag(chat, name, PURPLE_MESSAGE_NICK, FALSE)))
 			g_object_set(G_OBJECT(tag), "style", PANGO_STYLE_NORMAL, NULL);
-		color = (GdkRGBA*)get_nick_color(gtkconv, name);
+
+		get_nick_color(name, &color);
 	}
 
 	gtk_list_store_insert_with_values(ls, &iter,
@@ -3369,7 +3391,7 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 			CHAT_USERS_ALIAS_KEY_COLUMN, alias_key,
 			CHAT_USERS_NAME_COLUMN,  name,
 			CHAT_USERS_FLAGS_COLUMN, flags,
-			CHAT_USERS_COLOR_COLUMN, color,
+			CHAT_USERS_COLOR_COLUMN, &color,
 			CHAT_USERS_WEIGHT_COLUMN, is_buddy ? PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL,
 			-1);
 
@@ -3379,10 +3401,6 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	                       (GDestroyNotify)gtk_tree_row_reference_free);
 	gtk_tree_path_free(newpath);
 
-#if 0
-	if (is_me && color)
-		gdk_rgba_free(color);
-#endif
 	g_free(alias_key);
 }
 
@@ -4156,19 +4174,6 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 		pidgin_conv_window_add_gtkconv(hidden_convwin, gtkconv);
 	else
 		pidgin_conv_placement_place(gtkconv);
-
-	if (generated_nick_colors == NULL) {
-		GdkColor color;
-		GdkRGBA rgba;
-		color = gtk_widget_get_style(gtkconv->history)->base[GTK_STATE_NORMAL];
-		rgba.red = color.red / 65535.0;
-		rgba.green = color.green / 65535.0;
-		rgba.blue = color.blue / 65535.0;
-		rgba.alpha = 1.0;
-		generated_nick_colors = generate_nick_colors(NICK_COLOR_GENERATE_COUNT, rgba);
-	}
-
-	gtkconv->nick_colors = g_array_ref(generated_nick_colors);
 }
 
 static void
@@ -4274,8 +4279,6 @@ pidgin_conv_destroy(PurpleConversation *conv)
 	if (gtkconv->attach_timer) {
 		g_source_remove(gtkconv->attach_timer);
 	}
-
-	g_array_unref(gtkconv->nick_colors);
 
 	g_free(gtkconv);
 }
@@ -7793,51 +7796,6 @@ pidgin_conv_is_hidden(PidginConversation *gtkconv)
 	return (gtkconv->win == hidden_convwin);
 }
 
-
-gdouble luminance(GdkRGBA color)
-{
-	gdouble r, g, b;
-	gdouble rr, gg, bb;
-	gdouble cutoff = 0.03928, scale = 12.92;
-	gdouble a = 0.055, d = 1.055, p = 2.2;
-
-	rr = color.red;
-	gg = color.green;
-	bb = color.blue;
-
-	r = (rr  > cutoff) ? pow((rr+a)/d, p) : rr/scale;
-	g = (gg  > cutoff) ? pow((gg+a)/d, p) : gg/scale;
-	b = (bb  > cutoff) ? pow((bb+a)/d, p) : bb/scale;
-
-	return (r*0.2126 + g*0.7152 + b*0.0722);
-}
-
-/* Algorithm from https://www.w3.org/TR/2008/REC-WCAG20-20081211/relative-luminance.xml */
-static gboolean
-color_is_visible(GdkRGBA foreground, GdkRGBA background, gdouble min_contrast_ratio)
-{
-	gdouble lfg, lbg, lmin, lmax;
-	gdouble luminosity_ratio;
-	gdouble nr, dr;
-
-	lfg = luminance(foreground); 
-	lbg = luminance(background);
-
-	if (lfg > lbg)
-		lmax = lfg, lmin = lbg;
-	else
-		lmax = lbg, lmin = lfg;
-
-	nr = lmax + 0.05, dr = lmin - 0.05;
-	if (dr < 0.005 && dr > -0.005)
-		dr += 0.01;
-
-	luminosity_ratio = nr/dr;
-	if ( luminosity_ratio < 0) 
-		luminosity_ratio *= -1.0;
-	return (luminosity_ratio > min_contrast_ratio);
-}
-
 void
 pidgin_conv_placement_place(PidginConversation *conv) {
        PidginConvWindow *win;
@@ -7856,72 +7814,4 @@ pidgin_conv_placement_place(PidginConversation *conv) {
        } else {
                pidgin_conv_window_add_gtkconv(win, conv);
        }
-}
-
-static GArray*
-generate_nick_colors(guint numcolors, GdkRGBA background)
-{
-	guint i = 0, j = 0;
-	GArray *colors = g_array_new(FALSE, FALSE, sizeof(GdkRGBA));
-	GdkRGBA nick_highlight;
-	GdkRGBA send_color;
-	time_t breakout_time;
-
-	gdk_rgba_parse(&nick_highlight, DEFAULT_HIGHLIGHT_COLOR);
-	gdk_rgba_parse(&send_color, DEFAULT_SEND_COLOR);
-
-	pidgin_style_context_adjust_contrast(NULL, &nick_highlight);
-	pidgin_style_context_adjust_contrast(NULL, &send_color);
-
-	srand(background.red * 65535 + background.green * 65535 + background.blue * 65535 + 1);
-
-	breakout_time = time(NULL) + 3;
-
-	/* first we look through the list of "good" colors: colors that differ from every other color in the
-	 * list.  only some of them will differ from the background color though. lets see if we can find
-	 * numcolors of them that do
-	 */
-	while (i < numcolors && j < PIDGIN_NUM_NICK_SEED_COLORS && time(NULL) < breakout_time)
-	{
-		GdkRGBA color = nick_seed_colors[j];
-
-		if (color_is_visible(color, background,     MIN_LUMINANCE_CONTRAST_RATIO) &&
-			color_is_visible(color, nick_highlight, MIN_LUMINANCE_CONTRAST_RATIO) &&
-			color_is_visible(color, send_color,     MIN_LUMINANCE_CONTRAST_RATIO))
-		{
-			g_array_append_val(colors, color);
-			i++;
-		}
-		j++;
-	}
-
-	/* we might not have found numcolors in the last loop.  if we did, we'll never enter this one.
-	 * if we did not, lets just find some colors that don't conflict with the background.  its
-	 * expensive to find colors that not only don't conflict with the background, but also do not
-	 * conflict with each other.
-	 */
-	while(i < numcolors && time(NULL) < breakout_time)
-	{
-		GdkRGBA color = {g_random_double_range(0, 1), g_random_double_range(0, 1), g_random_double_range(0, 1), 1};
-
-		if (color_is_visible(color, background,     MIN_LUMINANCE_CONTRAST_RATIO) &&
-			color_is_visible(color, nick_highlight, MIN_LUMINANCE_CONTRAST_RATIO) &&
-			color_is_visible(color, send_color,     MIN_LUMINANCE_CONTRAST_RATIO))
-		{
-			g_array_append_val(colors, color);
-			i++;
-		}
-	}
-
-	if (i < numcolors) {
-		purple_debug_warning("gtkconv", "Unable to generate enough random colors before timeout. %u colors found.\n", i);
-	}
-
-	if( i == 0 ) {
-		/* To remove errors caused by an empty array. */
-		GdkRGBA color = {0.5, 0.5, 0.5, 1.0};
-		g_array_append_val(colors, color);
-	}
-
-	return colors;
 }

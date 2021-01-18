@@ -80,7 +80,6 @@ libpidgin_headers = [
 	'gtkicon-theme-loader.h',
 	'gtkidle.h',
 	'gtkmedia.h',
-	'gtknickcolors.h',
 	'gtknotify.h',
 	'gtkpluginpref.h',
 	'gtkprefs.h',
