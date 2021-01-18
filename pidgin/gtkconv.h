@@ -100,7 +100,6 @@ struct _PidginConversation
 	GtkWidget *tabby;
 	GtkWidget *menu_tabby;
 
-	GArray *nick_colors;
 	PurpleMessageFlags last_flags;
 	GtkWidget *history_sw;
 	GtkWidget *history;

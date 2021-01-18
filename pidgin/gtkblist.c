@@ -3904,7 +3904,7 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 	theme = pidgin_blist_get_theme();
 	name_color = NULL;
 
-	dim_grey = pidgin_style_context_is_dark(NULL) ? "light slate grey" : "dim grey";
+	dim_grey = pidgin_style_context_is_dark() ? "light slate grey" : "dim grey";
 
 	if (theme) {
 		if (purple_presence_is_idle(presence)) {
@@ -5909,7 +5909,7 @@ static void buddy_node(PurpleBuddy *buddy, GtkTreeIter *iter, PurpleBlistNode *n
 				textcolor = pidgin_theme_font_get_color_describe(pair);
 			else
 				/* If no theme them default to making idle buddy names grey */
-				textcolor = pidgin_style_context_is_dark(NULL) ? "light slate grey" : "dim grey";
+				textcolor = pidgin_style_context_is_dark() ? "light slate grey" : "dim grey";
 
 			if (textcolor) {
 				idle = g_strdup_printf("<span color='%s' font_desc='%s'>%d:%02d</span>",

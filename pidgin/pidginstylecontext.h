@@ -41,27 +41,27 @@
 G_BEGIN_DECLS
 
 /**
+ * pidgin_style_context_get_background_color:
+ * @color: (out): A return address of a #GdkRGBA for the background color.
+ *
+ * Gets the background color for #GtkWindow in the currently selected theme
+ * and sets @color to that value.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_style_context_get_background_color(GdkRGBA *color);
+
+/**
  * pidgin_style_context_is_dark:
- * @context: The #GtkStyleContext to use, or %NULL to use a cached version.
  *
  * Gets whether or not dark mode is enabled.
  *
  * Returns: %TRUE if dark mode is enabled and foreground colours should be
  *          inverted.
- */
-
-gboolean pidgin_style_context_is_dark(GtkStyleContext *context);
-
-/**
- * pidgin_style_context_adjust_contrast:
- * @context: The #GtkStyleContext in use.
- * @color: (inout): Color to be lightened. Transformed color will be written
- *         here.
  *
- * Lighten a color if dark mode is enabled.
+ * Since: 3.0.0
  */
-
-void pidgin_style_context_adjust_contrast(GtkStyleContext *context, GdkRGBA *color);
+gboolean pidgin_style_context_is_dark(void);
 
 G_END_DECLS
 
