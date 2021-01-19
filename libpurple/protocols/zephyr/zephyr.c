@@ -112,6 +112,10 @@ struct _zephyr_triple {
 extern const char *username;
 #endif
 
+static char *local_zephyr_normalize(const zephyr_account *zephyr, const char *);
+static void zephyr_chat_set_topic(PurpleConnection *gc, int id, const char *topic);
+static char *zephyr_tzc_deescape_str(const char *message);
+
 static inline gboolean
 use_tzc(const zephyr_account *zephyr)
 {
@@ -165,10 +169,6 @@ subscribe_to_zeph02(G_GNUC_UNUSED zephyr_account *zephyr, char *class, char *ins
 	sub.zsub_recipient = recipient;
 	return ZSubscribeTo(&sub, 1, 0);
 }
-
-char *local_zephyr_normalize(zephyr_account* zephyr,const char *);
-static void zephyr_chat_set_topic(PurpleConnection * gc, int id, const char *topic);
-char* zephyr_tzc_deescape_str(const char *message);
 
 static char *
 zephyr_strip_local_realm(const zephyr_account *zephyr, const char *user)
@@ -1699,57 +1699,49 @@ static int zephyr_send_im(PurpleProtocolIM *im, PurpleConnection *gc, PurpleMess
 	return 1;
 }
 
+
 /* Munge the outgoing zephyr so that any quotes or backslashes are
    escaped and do not confuse tzc: */
-
-static char* zephyr_tzc_escape_msg(const char *message)
+static char *
+zephyr_tzc_escape_msg(const char *message)
 {
-	gsize pos = 0, pos2 = 0;
+	gsize msglen;
 	char *newmsg;
 
-	if (message && *message) {
-		newmsg = g_new0(char,1+strlen(message)*2);
-		while(pos < strlen(message)) {
-			if (message[pos]=='\\') {
-				newmsg[pos2]='\\';
-				newmsg[pos2+1]='\\';
-				pos2+=2;
-			}
-			else if (message[pos]=='"') {
-				newmsg[pos2]='\\';
-				newmsg[pos2+1]='"';
-				pos2+=2;
-			}
-			else {
-				newmsg[pos2] = message[pos];
-				pos2++;
-			}
-			pos++;
-		}
-	} else {
-		newmsg = g_strdup("");
+	if (!message || !*message) {
+		return g_strdup("");
 	}
-	/*	fprintf(stderr,"newmsg %s message %s\n",newmsg,message); */
+
+	msglen = strlen(message);
+	newmsg = g_new0(char, msglen*2 + 1);
+	for (gsize pos = 0, pos2 = 0; pos < msglen; pos++, pos2++) {
+		if (message[pos] == '\\' || message[pos] == '"') {
+			newmsg[pos2] = '\\';
+			pos2++;
+		}
+		newmsg[pos2] = message[pos];
+	}
+
 	return newmsg;
 }
 
-char* zephyr_tzc_deescape_str(const char *message)
+static char *
+zephyr_tzc_deescape_str(const char *message)
 {
-	gsize pos = 0, pos2 = 0;
+	gsize msglen;
 	char *newmsg;
 
-	if (message && *message) {
-		newmsg = g_new0(char,strlen(message)+1);
-		while(pos < strlen(message)) {
-			if (message[pos]=='\\') {
-				pos++;
-			}
-			newmsg[pos2] = message[pos];
-			pos++;pos2++;
+	if (!message || !*message) {
+		return g_strdup("");
+	}
+
+	msglen = strlen(message);
+	newmsg = g_new0(char, msglen + 1);
+	for (gsize pos = 0, pos2 = 0; pos < msglen; pos++, pos2++) {
+		if (message[pos] == '\\') {
+			pos++;
 		}
-		newmsg[pos2]='\0';
-	} else {
-		newmsg = g_strdup("");
+		newmsg[pos2] = message[pos];
 	}
 
 	return newmsg;
@@ -1825,10 +1817,10 @@ zephyr_send_message(zephyr_account *zephyr, gchar *zclass, gchar *instance,
 	return TRUE;
 }
 
-char *local_zephyr_normalize(zephyr_account *zephyr,const char *orig)
+/* Basically the inverse of zephyr_strip_local_realm */
+static char *
+local_zephyr_normalize(const zephyr_account *zephyr, const char *orig)
 {
-	/* Basically the inverse of zephyr_strip_local_realm */
-
 	if (*orig == '\0' || strchr(orig, '@')) {
 		return g_strdup(orig);
 	}
