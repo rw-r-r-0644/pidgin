@@ -18,6 +18,13 @@
     </abstract>
   </bookinfo>
 
+  <part id="development">
+    <title>Development</title>
+
+    <xi:include href="mercurial.xml" />
+    <xi:include href="code_contributions.xml" />
+  </part>
+
   <part id="tutorial">
     <title>Tutorials</title>
 
