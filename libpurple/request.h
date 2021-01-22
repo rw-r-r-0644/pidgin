@@ -219,7 +219,7 @@ struct _PurpleRequestUiOps
 		PurpleRequestCancelCb cancel_cb,
 		PurpleRequestCommonParameters *cpar, void *user_data);
 
-	void (*request_wait_update)(void *ui_handle, gboolean pulse,
+	void (*request_wait_update)(void *ui_handle, gboolean animate,
 		gfloat fraction);
 
 	void *(*request_fields)(const char *title, const char *primary,
