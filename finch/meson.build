@@ -144,6 +144,14 @@ libfinch_headers = [
 	'libfinch.h'
 ]
 
+libfinch_enum_headers = [
+	'gntconv.h',
+]
+
+# the built lists are append to below
+libfinch_built_sources = []
+libfinch_built_headers = []
+
 finch_SOURCES = [
 	'finch.c'
 ]
@@ -166,8 +174,13 @@ else
 endif
 
 if enable_consoleui
+	libfinch_enums = gnome.mkenums_simple('finchenums',
+		sources: libfinch_enum_headers)
+	libfinch_built_sources += libfinch_enums[0]
+	libfinch_built_headers += libfinch_enums[1]
+
 	FINCH_H_INCLUDES = []
-	foreach header : libfinch_headers
+	foreach header : libfinch_headers + ['finchenums.h']
 		FINCH_H_INCLUDES += '#include <finch/@0@>'.format(header)
 	endforeach
 	finch_h_conf = configuration_data()
@@ -178,12 +191,13 @@ if enable_consoleui
 	                         configuration : finch_h_conf,
 	                         install : true,
 				 install_dir : get_option('includedir') / 'finch-3')
+	libfinch_built_headers += finch_h
 
 	install_headers(libfinch_headers, subdir : 'finch-3')
 
 	libfinch_inc = include_directories('.')
 	libfinch = shared_library('finch3',
-	    libfinch_SOURCES,
+	    libfinch_SOURCES + libfinch_built_headers + libfinch_built_sources,
 	    c_args : ['-DSTANDALONE', '-DGNTSEAL_ENABLE', '-DFINCH_COMPILATION', ncurses_header],
 	    include_directories : [toplevel_inc],
 	    version : PURPLE_LIB_VERSION,
