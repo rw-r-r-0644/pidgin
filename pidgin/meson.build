@@ -250,6 +250,7 @@ if ENABLE_GTK
 	libpidgin_dep = declare_dependency(
 	    include_directories : [toplevel_inc, libpidgin_inc],
 	    link_with : libpidgin,
+	    sources : libpidgin_built_headers,
 	    dependencies : [gtk, glib, math, talkatu_dep, gplugin_gtk_dep])
 
 	pidgin = executable('pidgin3',

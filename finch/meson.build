@@ -206,6 +206,7 @@ if enable_consoleui
 	libfinch_dep = declare_dependency(
 	    include_directories : [toplevel_inc, libfinch_inc],
 	    link_with : libfinch,
+	    sources: libfinch_built_headers,
 	    dependencies : [libpurple_dep, libgnt_dep, glib])
 
 	finch = executable('finch3',
