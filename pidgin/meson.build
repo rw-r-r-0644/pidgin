@@ -136,6 +136,16 @@ libpidgin_headers = [
 	'pidginwindow.h',
 ]
 
+libpidgin_enum_headers = [
+	'gtkaccount.h',
+	'gtkblist.h',
+	'gtkconv.h',
+	'gtkdnd-hints.h',
+	'gtkutils.h',
+	'pidginaccountstore.h',
+	'pidginprotocolstore.h',
+]
+
 pidgin_SOURCES = [
 	'pidgin.c'
 ]
@@ -182,8 +192,13 @@ if ENABLE_GTK
 		)
 	endif
 
+	libpidgin_enums = gnome.mkenums_simple('pidginenums',
+		sources: libpidgin_enum_headers)
+	libpidgin_enums_c = libpidgin_enums[0]
+	libpidgin_enums_h = libpidgin_enums[1]
+
 	PIDGIN_H_INCLUDES = []
-	foreach header : libpidgin_headers
+	foreach header : libpidgin_headers + ['pidginenums.h']
 		PIDGIN_H_INCLUDES += '#include <pidgin/@0@>'.format(header)
 	endforeach
 	pidgin_h_conf = configuration_data()
@@ -213,9 +228,19 @@ if ENABLE_GTK
 	if x11.found()
 		_libpidgin_dependencies += x11
 	endif
+
+	libpidgin_built_sources = [
+		libpidgin_enums_c,
+	]
+
+	libpidgin_built_headers = [
+		pidgin_h,
+		libpidgin_enums_h,
+	]
+
 	libpidgin_inc = include_directories('.')
 	libpidgin = shared_library('pidgin3',
-	    libpidgin_SOURCES,
+	    libpidgin_SOURCES + libpidgin_built_sources + libpidgin_built_headers,
 	    package_revision,
 	    c_args : ['-DPIDGIN_COMPILATION', '-DG_LOG_DOMAIN="Pidgin"'],
 	    include_directories : [toplevel_inc],
