@@ -348,7 +348,6 @@ pidgin/pidginaccountstore.c
 pidgin/pidginactiongroup.c
 pidgin/pidginapplication.c
 pidgin/pidginattachment.c
-pidgin/pidginbuddylistmenu.c
 pidgin/pidgin.c
 pidgin/pidgincellrendererexpander.c
 pidgin/pidginclosebutton.c
@@ -394,7 +393,6 @@ pidgin/resources/About/about.ui
 pidgin/resources/Accounts/actionsmenu.ui
 pidgin/resources/Accounts/chooser.ui
 pidgin/resources/Accounts/menu.ui
-pidgin/resources/BuddyList/menu.ui
 pidgin/resources/BuddyList/window.ui
 pidgin/resources/closebutton.ui
 pidgin/resources/Conversations/invite_dialog.ui
