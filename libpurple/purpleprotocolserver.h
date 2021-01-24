@@ -274,7 +274,7 @@ void purple_protocol_server_add_buddies(PurpleProtocolServer *protocol_server, P
  * @protocol_server: The #PurpleProtocolServer instance.
  * @connection: The #PurpleConnection instance.
  * @buddy: The #PurpleBuddy instance.
- * @group: The #PurpleGroup instance.
+ * @group: (nullable): The #PurpleGroup instance.
  *
  * Removes @buddy and potentially @group from the server side list of contacts.
  *
@@ -372,7 +372,7 @@ void purple_protocol_server_rename_group(PurpleProtocolServer *protocol_server, 
  * purple_protocol_server_set_buddy_icon:
  * @protocol_server: The #PurpleProtocolServer instance.
  * @connection: The #PurpleConnection instance.
- * @img: The #PurpleImage instance.
+ * @img: (nullable): The #PurpleImage instance, or %NULL to unset the icon.
  *
  * Sets the user's buddy icon to @img.
  *
