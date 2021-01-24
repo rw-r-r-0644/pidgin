@@ -57,6 +57,8 @@ G_BEGIN_DECLS
  * PURPLE_TYPE_CREDENTIAL_MANAGER:
  *
  * The standard _get_type macro for #PurpleCredentialManager.
+ *
+ * Since: 3.0.0
  */
 #define PURPLE_TYPE_CREDENTIAL_MANAGER (purple_credential_manager_get_type())
 G_DECLARE_DERIVABLE_TYPE(PurpleCredentialManager, purple_credential_manager,
@@ -93,6 +95,18 @@ struct _PurpleCredentialManagerClass {
 	/*< private >*/
 	gpointer reserved[8];
 };
+
+/**
+ * PurpleCredentialManagerForeachFunc:
+ * @provider: The #PurpleCredentialProvider instance.
+ * @data: User supplied data.
+ *
+ * A function to be used as a callback with
+ * purple_credential_manager_foreach_provider().
+ *
+ * Since: 3.0.0
+ */
+typedef void (*PurpleCredentialManagerForeachFunc)(PurpleCredentialProvider *provider, gpointer data);
 
 /**
  * purple_credential_manager_get_default:
@@ -146,8 +160,23 @@ gboolean purple_credential_manager_unregister_provider(PurpleCredentialManager *
  * id of @id.
  *
  * Returns: %TRUE on success or %FALSE with @error set on failure.
+ *
+ * Since: 3.0.0
  */
 gboolean purple_credential_manager_set_active_provider(PurpleCredentialManager *manager, const gchar *id, GError **error);
+
+/**
+ * purple_credential_manager_get_active_provider:
+ * @manager: The #PurpleCredentialManager instance.
+ *
+ * Gets the currently active #PurpleCredentialProvider or %NULL if there is no
+ * active provider.
+ *
+ * Returns: (transfer none): The active #PurpleCredentialProvider.
+ *
+ * Since: 3.0.0
+ */
+PurpleCredentialProvider *purple_credential_manager_get_active_provider(PurpleCredentialManager *manager);
 
 /**
  * purple_credential_manager_read_password_async:
@@ -275,6 +304,19 @@ PurpleRequestFields *purple_credential_manager_read_settings(PurpleCredentialMan
  * Since: 3.0.0
  */
 gboolean purple_credential_manager_write_settings(PurpleCredentialManager *manager, PurpleRequestFields *fields, GError **error);
+
+
+/**
+ * purple_credential_manager_foreach_provider:
+ * @manager: The #PurpleCredentialManager instance.
+ * @func: (scope call): The #PurpleCredentialManagerForeachFunc to call.
+ * @data: User data to pass to @func.
+ *
+ * Calls @func for each #PurpleCredentialProvider that @manager knows about.
+ *
+ * Since: 3.0.0
+ */
+void purple_credential_manager_foreach_provider(PurpleCredentialManager *manager, PurpleCredentialManagerForeachFunc func, gpointer data);
 
 G_END_DECLS
 

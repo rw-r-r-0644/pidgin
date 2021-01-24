@@ -354,6 +354,8 @@ pidgin/pidginclosebutton.c
 pidgin/pidgincontactcompletion.c
 pidgin/pidgincontactlist.c
 pidgin/pidginconversationwindow.c
+pidgin/pidgincredentialproviderstore.c
+pidgin/pidgincredentialspage.c
 pidgin/pidgindebug.c
 pidgin/pidgindialog.c
 pidgin/pidgingdkpixbuf.c
@@ -403,6 +405,7 @@ pidgin/resources/Debug/plugininfo.ui
 pidgin/resources/Log/log-viewer.ui
 pidgin/resources/Plugins/dialog.ui
 pidgin/resources/Plugins/menu.ui
+pidgin/resources/Prefs/credentials.ui
 pidgin/resources/Prefs/prefs.ui
 pidgin/resources/Prefs/vv.ui
 pidgin/resources/Privacy/dialog.ui
