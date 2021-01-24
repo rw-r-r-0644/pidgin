@@ -33,7 +33,6 @@
 #include "xdata.h"
 #include "pep.h"
 #include "adhoccommands.h"
-#include "google/google.h"
 
 typedef struct {
 	long idle_seconds;
@@ -478,11 +477,6 @@ jabber_set_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
 		return;
 	}
 
-	if (js->vcard_timer) {
-		g_source_remove(js->vcard_timer);
-		js->vcard_timer = 0;
-	}
-
 	g_free(js->avatar_hash);
 	js->avatar_hash = NULL;
 
@@ -898,19 +892,6 @@ static void jabber_buddy_info_remove_id(JabberBuddyInfo *jbi, const char *id)
 	}
 }
 
-static gboolean
-set_own_vcard_cb(gpointer data)
-{
-	JabberStream *js = data;
-	PurpleAccount *account = purple_connection_get_account(js->gc);
-
-	js->vcard_timer = 0;
-
-	jabber_set_info(NULL, js->gc, purple_account_get_user_info(account));
-
-	return FALSE;
-}
-
 static void jabber_vcard_save_mine(JabberStream *js, const char *from,
                                    JabberIqType type, const char *id,
                                    PurpleXmlNode *packet, gpointer data)
@@ -960,18 +941,7 @@ static void jabber_vcard_save_mine(JabberStream *js, const char *from,
 
 	/* Republish our vcard if the photo is different than the server's */
 	if (js->initial_avatar_hash && !purple_strequal(vcard_hash, js->initial_avatar_hash)) {
-		/*
-		 * Google Talk has developed the behavior that it will not accept
-		 * a vcard set in the first 10 seconds (or so) of the connection;
-		 * it returns an error (namespaces trimmed):
-		 * <error code="500" type="wait"><internal-server-error/></error>.
-		 */
-		if (js->googletalk) {
-			js->vcard_timer = g_timeout_add_seconds(10, set_own_vcard_cb,
-			                                             js);
-		} else {
-			jabber_set_info(NULL, js->gc, purple_account_get_user_info(account));
-		}
+		jabber_set_info(NULL, js->gc, purple_account_get_user_info(account));
 	} else if (vcard_hash) {
 		/* A photo is in the vCard. Advertise its hash */
 		js->avatar_hash = vcard_hash;
@@ -1868,13 +1838,6 @@ static GList *jabber_buddy_menu(PurpleBuddy *buddy)
 		   removed? */
 		act = purple_action_menu_new(_("Unsubscribe"),
 		                           PURPLE_CALLBACK(jabber_buddy_unsubscribe),
-		                           NULL, NULL);
-		m = g_list_append(m, act);
-	}
-
-	if (js->googletalk) {
-		act = purple_action_menu_new(_("Initiate _Chat"),
-		                           PURPLE_CALLBACK(google_buddy_node_chat),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 	}

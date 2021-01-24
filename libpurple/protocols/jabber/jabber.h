@@ -37,12 +37,6 @@ typedef enum {
 	JABBER_CAP_IQ_SEARCH      = 1 << 7,
 	JABBER_CAP_IQ_REGISTER    = 1 << 8,
 
-	/* Google Talk extensions:
-	 * https://developers.google.com/talk/jep_extensions/extensions
-	 */
-	JABBER_CAP_GMAIL_NOTIFY   = 1 << 9,
-	JABBER_CAP_GOOGLE_ROSTER  = 1 << 10,
-
 	JABBER_CAP_PING           = 1 << 11,
 	JABBER_CAP_ADHOC          = 1 << 12,
 	JABBER_CAP_BLOCKING       = 1 << 13,
@@ -207,11 +201,7 @@ struct _JabberStream
 	gboolean reinit;
 
 	JabberCapabilities server_caps;
-	gboolean googletalk;
 	char *server_name;
-
-	char *gmail_last_time;
-	char *gmail_last_tid;
 
 	char *serverFQDN;
 
@@ -234,8 +224,6 @@ struct _JabberStream
 	void *unregistration_user_data;
 
 	gboolean vcard_fetched;
-	/* Timer at login to push updated avatar */
-	guint vcard_timer;
 
 	/* Entity Capabilities hash */
 	char *caps_hash;
@@ -281,10 +269,6 @@ struct _JabberStream
 	/* maybe this should only be present when USE_VV? */
 	gchar *stun_ip;
 	int stun_port;
-
-	/* stuff for Google's relay handling */
-	gchar *google_relay_token;
-	gchar *google_relay_host;
 };
 
 typedef gboolean (JabberFeatureEnabled)(JabberStream *js, const gchar *namespace);

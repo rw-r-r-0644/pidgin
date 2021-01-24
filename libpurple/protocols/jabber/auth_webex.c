@@ -32,9 +32,6 @@ static PurpleXmlNode *finish_webex_authentication(JabberStream *js)
 	auth = purple_xmlnode_new("auth");
 	purple_xmlnode_set_namespace(auth, NS_XMPP_SASL);
 
-	purple_xmlnode_set_attrib(auth, "xmlns:ga", "http://www.google.com/talk/protocol/auth");
-	purple_xmlnode_set_attrib(auth, "ga:client-uses-full-bind-result", "true");
-
 	purple_xmlnode_set_attrib(auth, "mechanism", "WEBEX-TOKEN");
 	purple_xmlnode_insert_data(auth, purple_connection_get_password(js->gc), -1);
 

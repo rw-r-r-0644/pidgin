@@ -35,10 +35,6 @@
 #include "chat.h"
 #include "data.h"
 #include "disco.h"
-#include "google/google.h"
-#include "google/google_p2p.h"
-#include "google/google_roster.h"
-#include "google/google_session.h"
 #include "ibb.h"
 #include "iq.h"
 #include "jutil.h"
@@ -54,7 +50,6 @@
 #include "pep.h"
 #include "adhoccommands.h"
 #include "xmpp.h"
-#include "gtalk.h"
 
 #include "jingle/jingle.h"
 #include "jingle/content.h"
@@ -73,7 +68,6 @@ GList *jabber_features = NULL;
 GList *jabber_identities = NULL;
 
 static PurpleProtocol *xmpp_protocol = NULL;
-static PurpleProtocol *gtalk_protocol = NULL;
 
 static GHashTable *jabber_cmds = NULL; /* PurpleProtocol * => GSList of ids */
 
@@ -1004,8 +998,6 @@ jabber_stream_new(PurpleAccount *account)
 	js->sessions = NULL;
 	js->stun_ip = NULL;
 	js->stun_port = 0;
-	js->google_relay_token = NULL;
-	js->google_relay_host = NULL;
 
 	/* if we are idle, set idle-ness on the stream (this could happen if we get
 		disconnected and the reconnects while being idle. I don't think it makes
@@ -1688,8 +1680,6 @@ void jabber_close(PurpleConnection *gc)
 	g_list_free_full(js->commands, (GDestroyNotify)jabber_adhoc_commands_free);
 	g_free(js->server_name);
 	g_free(js->certificate_CN);
-	g_free(js->gmail_last_time);
-	g_free(js->gmail_last_tid);
 	g_free(js->old_msg);
 	g_free(js->old_avatarhash);
 	g_free(js->old_artist);
@@ -1697,9 +1687,6 @@ void jabber_close(PurpleConnection *gc)
 	g_free(js->old_source);
 	g_free(js->old_uri);
 	g_free(js->old_track);
-
-	if (js->vcard_timer != 0)
-		g_source_remove(js->vcard_timer);
 
 	if (js->keepalive_timeout != 0)
 		g_source_remove(js->keepalive_timeout);
@@ -1712,10 +1699,6 @@ void jabber_close(PurpleConnection *gc)
 	g_object_unref(G_OBJECT(js->cancellable));
 
 	g_free(js->stun_ip);
-
-	/* remove Google relay-related stuff */
-	g_free(js->google_relay_token);
-	g_free(js->google_relay_host);
 
 	g_free(js);
 
@@ -1923,12 +1906,6 @@ void jabber_add_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
 	if (js == NULL)
 		return;
 
-	if (js->server_caps & JABBER_CAP_GOOGLE_ROSTER)
-	{
-		jabber_google_roster_add_deny(js, who);
-		return;
-	}
-
 	if (!(js->server_caps & JABBER_CAP_BLOCKING))
 	{
 		purple_notify_error(NULL, _("Server doesn't support blocking"),
@@ -1960,12 +1937,6 @@ void jabber_remove_deny(PurpleProtocolPrivacy *privacy, PurpleConnection *gc,
 	js = purple_connection_get_protocol_data(gc);
 	if (js == NULL)
 		return;
-
-	if (js->server_caps & JABBER_CAP_GOOGLE_ROSTER)
-	{
-		jabber_google_roster_rem_deny(js, who);
-		return;
-	}
 
 	if (!(js->server_caps & JABBER_CAP_BLOCKING))
 		return;
@@ -3384,13 +3355,7 @@ jabber_initiate_media(PurpleProtocolMedia *media, PurpleAccount *account,
 
 		g_free(resource);
 
-		if (type & PURPLE_MEDIA_AUDIO &&
-			!jabber_resource_has_capability(jbr,
-				JINGLE_APP_RTP_SUPPORT_AUDIO) &&
-			jabber_resource_has_capability(jbr, NS_GOOGLE_VOICE))
-			return jabber_google_session_initiate(js, who, type);
-		else
-			return jingle_rtp_initiate_media(js, who, type);
+		return jingle_rtp_initiate_media(js, who, type);
 	} else if(!jb->resources->next) {
 		/* only 1 resource online (probably our most common case)
 		 * so no need to ask who to initiate with */
@@ -3557,11 +3522,6 @@ jabber_get_media_caps(PurpleProtocolMedia *media, PurpleAccount *account,
 			} else
 				caps |= PURPLE_MEDIA_CAPS_MODIFY_SESSION |
 						PURPLE_MEDIA_CAPS_CHANGE_DIRECTION;
-		}
-		if (jabber_resource_has_capability(jbr, NS_GOOGLE_VOICE)) {
-			caps |= PURPLE_MEDIA_CAPS_AUDIO;
-			if (jabber_resource_has_capability(jbr, NS_GOOGLE_VIDEO))
-				caps |= PURPLE_MEDIA_CAPS_AUDIO_VIDEO;
 		}
 
 		total |= caps;
@@ -3967,10 +3927,6 @@ jabber_do_init(void)
 	jabber_add_feature(JINGLE, NULL);
 
 #ifdef USE_VV
-	jabber_add_feature(NS_GOOGLE_PROTOCOL_SESSION, jabber_audio_enabled);
-	jabber_add_feature(NS_GOOGLE_VOICE, jabber_audio_enabled);
-	jabber_add_feature(NS_GOOGLE_VIDEO, jabber_video_enabled);
-	jabber_add_feature(NS_GOOGLE_CAMERA, jabber_video_enabled);
 	jabber_add_feature(JINGLE_APP_RTP, NULL);
 	jabber_add_feature(JINGLE_APP_RTP_SUPPORT_AUDIO, jabber_audio_enabled);
 	jabber_add_feature(JINGLE_APP_RTP_SUPPORT_VIDEO, jabber_video_enabled);
@@ -4319,8 +4275,8 @@ plugin_query(GError **error)
 		"name",         "XMPP Protocols",
 		"version",      DISPLAY_VERSION,
 		"category",     N_("Protocol"),
-		"summary",      N_("XMPP and GTalk Protocols Plugin"),
-		"description",  N_("XMPP and GTalk Protocols Plugin"),
+		"summary",      N_("XMPP Protocol Plugin"),
+		"description",  N_("XMPP Protocol Plugin"),
 		"website",      PURPLE_WEBSITE,
 		"abi-version",  PURPLE_ABI_VERSION,
 		"flags",        PURPLE_PLUGIN_INFO_FLAGS_INTERNAL |
@@ -4337,7 +4293,6 @@ plugin_load(PurplePlugin *plugin, GError **error)
 	jingle_transport_register(plugin);
 	jingle_iceudp_register(plugin);
 	jingle_rawudp_register(plugin);
-	jingle_google_p2p_register(plugin);
 
 	jingle_content_register(plugin);
 #ifdef USE_VV
@@ -4346,7 +4301,6 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	jabber_protocol_register_type(G_TYPE_MODULE(plugin));
 
-	gtalk_protocol_register(plugin);
 	xmpp_protocol_register(plugin);
 
 	jabber_si_xfer_register(G_TYPE_MODULE(plugin));
@@ -4355,17 +4309,10 @@ plugin_load(PurplePlugin *plugin, GError **error)
 	if (!xmpp_protocol)
 		return FALSE;
 
-	gtalk_protocol = purple_protocols_add(GTALK_TYPE_PROTOCOL, error);
-	if (!gtalk_protocol)
-		return FALSE;
-
 	purple_signal_connect(purple_get_core(), "uri-handler", xmpp_protocol,
 		PURPLE_CALLBACK(xmpp_uri_handler), xmpp_protocol);
-	purple_signal_connect(purple_get_core(), "uri-handler", gtalk_protocol,
-		PURPLE_CALLBACK(xmpp_uri_handler), gtalk_protocol);
 
 	jabber_init_protocol(xmpp_protocol);
-	jabber_init_protocol(gtalk_protocol);
 
 	return TRUE;
 }
@@ -4375,14 +4322,8 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 {
 	purple_signal_disconnect(purple_get_core(), "uri-handler",
 			xmpp_protocol, PURPLE_CALLBACK(xmpp_uri_handler));
-	purple_signal_disconnect(purple_get_core(), "uri-handler",
-			gtalk_protocol, PURPLE_CALLBACK(xmpp_uri_handler));
 
-	jabber_uninit_protocol(gtalk_protocol);
 	jabber_uninit_protocol(xmpp_protocol);
-
-	if (!purple_protocols_remove(gtalk_protocol, error))
-		return FALSE;
 
 	if (!purple_protocols_remove(xmpp_protocol, error))
 		return FALSE;

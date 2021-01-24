@@ -336,9 +336,6 @@ jabber_auth_start_cyrus(JabberStream *js, PurpleXmlNode **reply, char **error)
 		purple_xmlnode_set_namespace(auth, NS_XMPP_SASL);
 		purple_xmlnode_set_attrib(auth, "mechanism", js->current_mech);
 
-		purple_xmlnode_set_attrib(auth, "xmlns:ga", "http://www.google.com/talk/protocol/auth");
-		purple_xmlnode_set_attrib(auth, "ga:client-uses-full-bind-result", "true");
-
 		if (clientout) {
 			if (coutlen == 0) {
 				purple_xmlnode_insert_data(auth, "=", -1);

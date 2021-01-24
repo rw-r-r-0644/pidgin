@@ -36,9 +36,6 @@ static PurpleXmlNode *finish_plaintext_authentication(JabberStream *js)
 	auth = purple_xmlnode_new("auth");
 	purple_xmlnode_set_namespace(auth, NS_XMPP_SASL);
 
-	purple_xmlnode_set_attrib(auth, "xmlns:ga", "http://www.google.com/talk/protocol/auth");
-	purple_xmlnode_set_attrib(auth, "ga:client-uses-full-bind-result", "true");
-
 	response = g_string_new("");
 	response = g_string_append_c(response, '\0');
 	response = g_string_append(response, js->user->node);

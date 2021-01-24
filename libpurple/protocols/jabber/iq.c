@@ -26,9 +26,6 @@
 
 #include "buddy.h"
 #include "disco.h"
-#include "google/google.h"
-#include "google/jingleinfo.h"
-#include "google/google_session.h"
 #include "iq.h"
 #include "jingle/jingle.h"
 #include "oob.h"
@@ -546,8 +543,6 @@ void jabber_iq_init(void)
 
 	jabber_iq_register_handler("jingle", JINGLE, jingle_parse);
 	jabber_iq_register_handler("ping", NS_PING, jabber_ping_parse);
-	jabber_iq_register_handler("query", NS_GOOGLE_JINGLE_INFO,
-			jabber_google_handle_jingle_info);
 	jabber_iq_register_handler("query", NS_BYTESTREAMS,
 			jabber_bytestreams_parse);
 	jabber_iq_register_handler("query", NS_DISCO_INFO, jabber_disco_info_parse);
@@ -560,10 +555,6 @@ void jabber_iq_init(void)
 			jabber_roster_parse);
 	jabber_iq_register_handler("query", "jabber:iq:version",
 			jabber_iq_version_parse);
-#ifdef USE_VV
-	jabber_iq_register_handler("session", NS_GOOGLE_SESSION,
-		jabber_google_session_parse);
-#endif
 	jabber_iq_register_handler("block", NS_SIMPLE_BLOCKING, jabber_blocklist_parse_push);
 	jabber_iq_register_handler("unblock", NS_SIMPLE_BLOCKING, jabber_blocklist_parse_push);
 	jabber_iq_register_handler("time", NS_ENTITY_TIME, jabber_time_parse);

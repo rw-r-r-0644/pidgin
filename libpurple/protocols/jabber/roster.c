@@ -24,8 +24,6 @@
 
 #include "buddy.h"
 #include "chat.h"
-#include "google/google.h"
-#include "google/google_roster.h"
 #include "presence.h"
 #include "roster.h"
 #include "iq.h"
@@ -75,15 +73,8 @@ static void roster_request_cb(JabberStream *js, const char *from,
 void jabber_roster_request(JabberStream *js)
 {
 	JabberIq *iq;
-	PurpleXmlNode *query;
 
 	iq = jabber_iq_new_query(js, JABBER_IQ_GET, "jabber:iq:roster");
-	query = purple_xmlnode_get_child(iq->node, "query");
-
-	if (js->server_caps & JABBER_CAP_GOOGLE_ROSTER) {
-		purple_xmlnode_set_attrib(query, "xmlns:gr", NS_GOOGLE_ROSTER);
-		purple_xmlnode_set_attrib(query, "gr:ext", "2");
-	}
 
 	jabber_iq_set_callback(iq, roster_request_cb, NULL);
 	jabber_iq_send(iq);
@@ -245,10 +236,6 @@ void jabber_roster_parse(JabberStream *js, const char *from,
 		} else {
 			GSList *groups = NULL;
 
-			if (js->server_caps & JABBER_CAP_GOOGLE_ROSTER)
-				if (!jabber_google_roster_incoming(js, item))
-					continue;
-
 			for(group = purple_xmlnode_get_child(item, "group"); group; group = purple_xmlnode_get_next_twin(group)) {
 				char *group_name = purple_xmlnode_get_data(group);
 
@@ -343,11 +330,6 @@ static void jabber_roster_update(JabberStream *js, const char *name,
 
 	g_slist_free(groups);
 
-	if (js->server_caps & JABBER_CAP_GOOGLE_ROSTER) {
-		jabber_google_roster_outgoing(js, query, item);
-		purple_xmlnode_set_attrib(query, "xmlns:gr", NS_GOOGLE_ROSTER);
-		purple_xmlnode_set_attrib(query, "gr:ext", "2");
-	}
 	jabber_iq_send(iq);
 }
 

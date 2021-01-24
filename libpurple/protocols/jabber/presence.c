@@ -26,8 +26,6 @@
 
 #include "buddy.h"
 #include "chat.h"
-#include "google/google.h"
-#include "google/google_presence.h"
 #include "presence.h"
 #include "iq.h"
 #include "jutil.h"
@@ -201,11 +199,6 @@ void jabber_presence_send(JabberStream *js, gboolean force)
 	allowBuzz = purple_status_get_attr_boolean(status,"buzz");
 	/* changing the buzz state has to trigger a re-broadcasting of the presence for caps */
 
-	tune = purple_presence_get_status(p, "tune");
-	if (js->googletalk && !stripped && purple_status_is_active(tune)) {
-		stripped = jabber_google_presence_outgoing(tune);
-	}
-
 	/* check if there are any differences to the <presence> and send them in that case */
 	if (force || allowBuzz != js->allowBuzz || js->old_state != state ||
 		!purple_strequal(js->old_msg, stripped) || js->old_priority != priority ||
@@ -248,6 +241,7 @@ void jabber_presence_send(JabberStream *js, gboolean force)
 	g_free(stripped);
 
 	/* next, check if there are any changes to the tune values */
+	tune = purple_presence_get_status(p, "tune");
 	if (purple_status_is_active(tune)) {
 		artist = purple_status_get_attr_string(tune, PURPLE_TUNE_ARTIST);
 		title = purple_status_get_attr_string(tune, PURPLE_TUNE_TITLE);
@@ -294,9 +288,6 @@ PurpleXmlNode *jabber_presence_create_js(JabberStream *js, JabberBuddyState stat
 {
 	PurpleXmlNode *show, *status, *presence, *pri, *c;
 	const char *show_string = NULL;
-#ifdef USE_VV
-	gboolean audio_enabled, video_enabled;
-#endif
 
 	g_return_val_if_fail(js !=NULL, NULL);
 
@@ -345,28 +336,6 @@ PurpleXmlNode *jabber_presence_create_js(JabberStream *js, JabberBuddyState stat
 	purple_xmlnode_set_attrib(c, "node", CAPS0115_NODE);
 	purple_xmlnode_set_attrib(c, "hash", "sha-1");
 	purple_xmlnode_set_attrib(c, "ver", jabber_caps_get_own_hash(js));
-
-#ifdef USE_VV
-	/*
-	 * MASSIVE HUGE DISGUSTING HACK
-	 * This is a huge hack. As far as I can tell, Google Talk's gmail client
-	 * doesn't bother to check the actual features we advertise; they
-	 * just assume that if we specify a 'voice-v1' ext (ignoring that
-	 * these are to be assigned no semantic value), we support receiving voice
-	 * calls.
-	 *
-	 * Ditto for 'video-v1'.
-	 */
-	audio_enabled = jabber_audio_enabled(js, NULL /* unused */);
-	video_enabled = jabber_video_enabled(js, NULL /* unused */);
-
-	if (audio_enabled && video_enabled)
-		purple_xmlnode_set_attrib(c, "ext", "voice-v1 camera-v1 video-v1");
-	else if (audio_enabled)
-		purple_xmlnode_set_attrib(c, "ext", "voice-v1");
-	else if (video_enabled)
-		purple_xmlnode_set_attrib(c, "ext", "camera-v1 video-v1");
-#endif
 
 	return presence;
 }
@@ -864,7 +833,6 @@ handle_presence_contact(JabberStream *js, JabberPresence *presence)
 
 	jbr = jabber_buddy_find_resource(presence->jb, NULL);
 	if (jbr) {
-		jabber_google_presence_incoming(js, buddy_name, jbr);
 		purple_protocol_got_user_status(account, buddy_name,
 				jabber_buddy_state_get_status_id(jbr->state),
 				"priority", jbr->priority,

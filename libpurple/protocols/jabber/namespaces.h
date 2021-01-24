@@ -104,22 +104,6 @@
 /* XEP-0297 Stanza Forwarding */
 #define NS_FORWARD "urn:xmpp:forward:0"
 
-/* Google extensions */
-#define NS_GOOGLE_CAMERA "http://www.google.com/xmpp/protocol/camera/v1"
-#define NS_GOOGLE_VIDEO "http://www.google.com/xmpp/protocol/video/v1"
-#define NS_GOOGLE_VOICE "http://www.google.com/xmpp/protocol/voice/v1"
-#define NS_GOOGLE_JINGLE_INFO "google:jingleinfo"
-
-#define NS_GOOGLE_MAIL_NOTIFY "google:mail:notify"
-#define NS_GOOGLE_ROSTER "google:roster"
-
-#define NS_GOOGLE_PROTOCOL_SESSION "http://www.google.com/xmpp/protocol/session"
-#define NS_GOOGLE_SESSION "http://www.google.com/session"
-#define NS_GOOGLE_SESSION_PHONE "http://www.google.com/session/phone"
-#define NS_GOOGLE_SESSION_VIDEO "http://www.google.com/session/video"
-
-#define NS_GOOGLE_TRANSPORT_P2P "http://www.google.com/transport/p2p"
-
 /* Apple extension(s) */
 #define NS_APPLE_IDLE "http://www.apple.com/xmpp/idle"
 
