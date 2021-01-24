@@ -43,6 +43,22 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PIDGIN_TYPE_CONTACT_LIST:
+ *
+ * The standard _get_type method for #PidginContactList.
+ *
+ * Since: 3.0.0
+ */
+
+/**
+ * PidginContactList:
+ *
+ * A #GtkWindow that contains the main contact list.
+ *
+ * Since: 3.0.0
+ */
+
 #define PIDGIN_TYPE_CONTACT_LIST (pidgin_contact_list_get_type())
 G_DECLARE_FINAL_TYPE(PidginContactList, pidgin_contact_list, PIDGIN,
                      CONTACT_LIST, GtkApplicationWindow)
@@ -53,6 +69,8 @@ G_DECLARE_FINAL_TYPE(PidginContactList, pidgin_contact_list, PIDGIN,
  * Creates a new #PidginContactList instance.
  *
  * Returns: (transfer full): The new #PidginContactList instance.
+ *
+ * Since: 3.0.0
  */
 GtkWidget *pidgin_contact_list_new(void);
 
@@ -63,9 +81,35 @@ GtkWidget *pidgin_contact_list_new(void);
  * Gets the main vbox for @contact_list.
  *
  * Returns: (transfer none): The main vbox of @contact_list.
+ *
+ * Since: 3.0.0
  */
 GtkWidget *pidgin_contact_list_get_vbox(PidginContactList *contact_list);
 
+/**
+ * pidgin_contact_list_get_menu_sort_item:
+ * @contact_list: The #PidginContactList instance.
+ *
+ * Returns the sort menu item from the menu of @contact_list.
+ *
+ * Returns: (transfer none): The sort menu item from the menu of @contact_list.
+ *
+ * Since: 3.0.0
+ */
+GtkWidget *pidgin_contact_list_get_menu_sort_item(PidginContactList *contact_list);
+
+/**
+ * pidgin_contact_list_get_menu_tray:
+ * @contact_list: The #PidginContactList instance.
+ *
+ * Gets the #PidginMenuTray instance from the menu of @contact_list.
+ *
+ * Returns: (transfer none): The #PidginMenuTray from the menu of
+ *          @contact_list.
+ *
+ * Since: 3.0.0
+ */
+GtkWidget *pidgin_contact_list_get_menu_tray(PidginContactList *contact_list);
 
 G_END_DECLS
 

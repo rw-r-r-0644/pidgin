@@ -44,7 +44,6 @@
 #include "pidgin/pidginaccountfilterconnected.h"
 #include "pidgin/pidginaccountstore.h"
 #include "pidgin/pidginactiongroup.h"
-#include "pidgin/pidginbuddylistmenu.h"
 #include "pidgin/pidgincellrendererexpander.h"
 #include "pidgin/pidginclosebutton.h"
 #include "pidgin/pidgincontactlist.h"
@@ -5231,11 +5230,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtk_widget_add_events(gtkblist->window, GDK_VISIBILITY_NOTIFY_MASK);
 
 	/******************************* Menu bar *************************************/
-	gtkblist->menu = pidgin_buddy_list_menu_new();
-	gtk_box_pack_start(GTK_BOX(gtkblist->main_vbox), gtkblist->menu, FALSE,
-	                   FALSE, 0);
-
-	gtkblist->menutray = pidgin_buddy_list_menu_get_menu_tray(PIDGIN_BUDDY_LIST_MENU(gtkblist->menu));
+	gtkblist->menutray = pidgin_contact_list_get_menu_tray(PIDGIN_CONTACT_LIST(gtkblist->window));
 
 	/****************************** Notebook *************************************/
 	gtkblist->notebook = gtk_notebook_new();
@@ -7303,10 +7298,10 @@ pidgin_blist_update_sort_methods(void)
 	}
 
 	/* replace the old submenu with a new one */
-	if(PIDGIN_IS_BUDDY_LIST_MENU(gtkblist->menu)) {
+	if(PIDGIN_IS_CONTACT_LIST(gtkblist->window)) {
 		GtkWidget *item = NULL;
 
-		item = pidgin_buddy_list_menu_get_sort_item(PIDGIN_BUDDY_LIST_MENU(gtkblist->menu));
+		item = pidgin_contact_list_get_menu_sort_item(PIDGIN_CONTACT_LIST(gtkblist->window));
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),
 		                          gtk_menu_new_from_model(G_MENU_MODEL(menu)));
 		g_object_unref(G_OBJECT(menu));

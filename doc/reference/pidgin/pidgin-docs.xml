@@ -59,10 +59,10 @@
       <xi:include href="xml/pidginactiongroup.xml" />
       <xi:include href="xml/pidginapplication.xml" />
       <xi:include href="xml/pidginattachment.xml" />
-      <xi:include href="xml/pidginbuddylistmenu.xml" />
       <xi:include href="xml/pidgincellrendererexpander.xml" />
       <xi:include href="xml/pidginclosebutton.xml" />
       <xi:include href="xml/pidgincontactcompletion.xml" />
+      <xi:include href="xml/pidgincontactlist.xml" />
       <xi:include href="xml/pidginconversationwindow.xml" />
       <xi:include href="xml/pidgincore.xml" />
       <xi:include href="xml/pidgindebug.xml" />
