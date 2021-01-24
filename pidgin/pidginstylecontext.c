@@ -52,7 +52,7 @@ pidgin_style_context_get_background_color(GdkRGBA *color) {
 		gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL,
 		                      GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &bg,
 		                      NULL);
-		g_object_unref(G_OBJECT(window));
+		gtk_widget_destroy(window);
 
 		g_once_init_leave(&background, bg);
 	}

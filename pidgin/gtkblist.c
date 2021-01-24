@@ -5538,6 +5538,9 @@ static gboolean get_iter_from_node(PurpleBlistNode *node, GtkTreeIter *iter) {
 	if (!gtknode->row)
 		return FALSE;
 
+	if (!GTK_IS_TREE_MODEL(gtkblist->treemodel)) {
+		return FALSE;
+	}
 
 	if ((path = gtk_tree_row_reference_get_path(gtknode->row)) == NULL)
 		return FALSE;
