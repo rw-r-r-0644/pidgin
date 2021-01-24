@@ -27,7 +27,6 @@
 
 #include "content.h"
 #include "jingle.h"
-#include "google/google_p2p.h"
 #include "session.h"
 #include "iceudp.h"
 #include "rawudp.h"
@@ -51,8 +50,6 @@ jingle_get_type(const gchar *type)
 #ifdef USE_VV
 	else if (purple_strequal(type, JINGLE_APP_RTP))
 		return JINGLE_TYPE_RTP;
-	else if (!strcmp(type, NS_GOOGLE_TRANSPORT_P2P))
-		return JINGLE_TYPE_GOOGLE_P2P;
 #endif
 	else
 		return G_TYPE_NONE;
@@ -479,13 +476,13 @@ jingle_get_params(JabberStream *js, const gchar *relay_ip, guint relay_udp,
 
 		if (has_account_stun) {
 			purple_debug_info("jabber",
-				"setting param stun-ip for stream using Google auto-config: %s\n",
+				"setting param stun-ip for stream using auto-config: %s\n",
 				js->stun_ip);
 			params[next_index].name = "stun-ip";
 			g_value_init(&params[next_index].value, G_TYPE_STRING);
 			g_value_set_string(&params[next_index].value, js->stun_ip);
 			purple_debug_info("jabber",
-				"setting param stun-port for stream using Google auto-config: %d\n",
+				"setting param stun-port for stream using auto-config: %d\n",
 				js->stun_port);
 			next_index++;
 			params[next_index].name = "stun-port";

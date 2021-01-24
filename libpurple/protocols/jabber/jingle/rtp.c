@@ -32,7 +32,6 @@
 
 #include "jabber.h"
 #include "jingle.h"
-#include "google/google_p2p.h"
 #include "iceudp.h"
 #include "rawudp.h"
 #include "rtp.h"
@@ -341,8 +340,6 @@ jingle_rtp_init_media(JingleContent *content)
 	if (JINGLE_IS_RAWUDP(transport))
 		transmitter = "rawudp";
 	else if (JINGLE_IS_ICEUDP(transport))
-		transmitter = "nice";
-	else if (JINGLE_IS_GOOGLE_P2P(transport))
 		transmitter = "nice";
 	else
 		transmitter = "notransmitter";
@@ -865,8 +862,6 @@ jingle_rtp_initiate_media(JabberStream *js, const gchar *who,
 		transport_type = JINGLE_TRANSPORT_ICEUDP;
 	} else if (jabber_resource_has_capability(jbr, JINGLE_TRANSPORT_RAWUDP)) {
 		transport_type = JINGLE_TRANSPORT_RAWUDP;
-	} else if (jabber_resource_has_capability(jbr, NS_GOOGLE_TRANSPORT_P2P)) {
-		transport_type = NS_GOOGLE_TRANSPORT_P2P;
 	} else {
 		purple_debug_error("jingle-rtp", "Resource doesn't support "
 				"the same transport types\n");

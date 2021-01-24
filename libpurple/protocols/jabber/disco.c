@@ -26,8 +26,6 @@
 #include "adhoccommands.h"
 #include "buddy.h"
 #include "disco.h"
-#include "google/google.h"
-#include "google/jingleinfo.h"
 #include "iq.h"
 #include "jabber.h"
 #include "jingle/jingle.h"
@@ -134,44 +132,6 @@ void jabber_disco_info_parse(JabberStream *js, const char *from,
 					purple_xmlnode_set_attrib(feature, "var", feat->namespace);
 				}
 			}
-#ifdef USE_VV
-		} else if (purple_strequal(node, CAPS0115_NODE "#" "voice-v1")) {
-			/*
-			 * HUGE HACK! We advertise this ext (see jabber_presence_create_js
-			 * where we add <c/> to the <presence/>) for the Google Talk
-			 * clients that don't actually check disco#info features.
-			 *
-			 * This specific feature is redundant but is what
-			 * node='http://mail.google.com/xmpp/client/caps', ver='1.1'
-			 * advertises as 'voice-v1'.
-			 */
-			PurpleXmlNode *feature = purple_xmlnode_new_child(query, "feature");
-			purple_xmlnode_set_attrib(feature, "var", NS_GOOGLE_VOICE);
-		} else if (purple_strequal(node, CAPS0115_NODE "#" "video-v1")) {
-			/*
-			 * HUGE HACK! We advertise this ext (see jabber_presence_create_js
-			 * where we add <c/> to the <presence/>) for the Google Talk
-			 * clients that don't actually check disco#info features.
-			 *
-			 * This specific feature is redundant but is what
-			 * node='http://mail.google.com/xmpp/client/caps', ver='1.1'
-			 * advertises as 'video-v1'.
-			 */
-			PurpleXmlNode *feature = purple_xmlnode_new_child(query, "feature");
-			purple_xmlnode_set_attrib(feature, "var", NS_GOOGLE_VIDEO);
-		} else if (purple_strequal(node, CAPS0115_NODE "#" "camera-v1")) {
-			/*
-			 * HUGE HACK! We advertise this ext (see jabber_presence_create_js
-			 * where we add <c/> to the <presence/>) for the Google Talk
-			 * clients that don't actually check disco#info features.
-			 *
-			 * This specific feature is redundant but is what
-			 * node='http://mail.google.com/xmpp/client/caps', ver='1.1'
-			 * advertises as 'camera-v1'.
-			 */
-			PurpleXmlNode *feature = purple_xmlnode_new_child(query, "feature");
-			purple_xmlnode_set_attrib(feature, "var", NS_GOOGLE_CAMERA);
-#endif
 		} else {
 			PurpleXmlNode *error, *inf;
 
@@ -508,16 +468,7 @@ jabber_disco_server_info_result_cb(JabberStream *js, const char *from,
 		g_free(js->server_name);
 		js->server_name = g_strdup(name);
 		stun_ip = purple_network_get_stun_ip();
-		if (purple_strequal(name, "Google Talk")) {
-			purple_debug_info("jabber", "Google Talk!\n");
-			js->googletalk = TRUE;
-
-			/* autodiscover stun and relays */
-			if (!stun_ip || !*stun_ip) {
-				jabber_google_send_jingle_info(js);
-			}
-		} else if (!stun_ip || !*stun_ip) {
-
+		if (!stun_ip || !*stun_ip) {
 			GResolver *resolver = g_resolver_get_default();
 			g_resolver_lookup_service_async(resolver,
 			                                "stun",
@@ -538,9 +489,7 @@ jabber_disco_server_info_result_cb(JabberStream *js, const char *from,
 		if (!var)
 			continue;
 
-		if (purple_strequal(NS_GOOGLE_ROSTER, var)) {
-			js->server_caps |= JABBER_CAP_GOOGLE_ROSTER;
-		} else if (purple_strequal("http://jabber.org/protocol/commands", var)) {
+		if (purple_strequal("http://jabber.org/protocol/commands", var)) {
 			js->server_caps |= JABBER_CAP_ADHOC;
 		} else if (purple_strequal(NS_SIMPLE_BLOCKING, var)) {
 			js->server_caps |= JABBER_CAP_BLOCKING;

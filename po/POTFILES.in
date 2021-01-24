@@ -142,14 +142,6 @@ libpurple/protocols/jabber/caps.c
 libpurple/protocols/jabber/chat.c
 libpurple/protocols/jabber/data.c
 libpurple/protocols/jabber/disco.c
-libpurple/protocols/jabber/google/google.c
-libpurple/protocols/jabber/google/google_p2p.c
-libpurple/protocols/jabber/google/google_presence.c
-libpurple/protocols/jabber/google/google_roster.c
-libpurple/protocols/jabber/google/google_session.c
-libpurple/protocols/jabber/google/jingleinfo.c
-libpurple/protocols/jabber/google/relay.c
-libpurple/protocols/jabber/gtalk.c
 libpurple/protocols/jabber/ibb.c
 libpurple/protocols/jabber/iq.c
 libpurple/protocols/jabber/jabber.c

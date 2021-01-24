@@ -28,7 +28,6 @@
 #include "buddy.h"
 #include "chat.h"
 #include "data.h"
-#include "google/google.h"
 #include "message.h"
 #include "pep.h"
 #include "iq.h"
@@ -161,12 +160,6 @@ static void handle_chat(JabberMessage *jm)
 		}
 		default:
 			purple_serv_got_typing_stopped(gc, contact);
-	}
-
-	if (jm->js->googletalk && jm->body && jm->xhtml == NULL) {
-		char *tmp = jm->body;
-		jm->body = jabber_google_format_to_html(jm->body);
-		g_free(tmp);
 	}
 
 	body = jm_body_with_oob(jm);
