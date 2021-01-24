@@ -206,7 +206,6 @@ purple_protocol_server_remove_buddy(PurpleProtocolServer *protocol_server,
 	g_return_if_fail(PURPLE_IS_PROTOCOL_SERVER(protocol_server));
 	g_return_if_fail(PURPLE_IS_CONNECTION(connection));
 	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
-	g_return_if_fail(PURPLE_IS_GROUP(group));
 
 	iface = PURPLE_PROTOCOL_SERVER_GET_IFACE(protocol_server);
 	if(iface != NULL && iface->remove_buddy != NULL) {
@@ -333,7 +332,6 @@ purple_protocol_server_set_buddy_icon(PurpleProtocolServer *protocol_server,
 
 	g_return_if_fail(PURPLE_IS_PROTOCOL_SERVER(protocol_server));
 	g_return_if_fail(PURPLE_IS_CONNECTION(connection));
-	g_return_if_fail(PURPLE_IS_IMAGE(img));
 
 	iface = PURPLE_PROTOCOL_SERVER_GET_IFACE(protocol_server);
 	if(iface != NULL && iface->set_buddy_icon != NULL) {
