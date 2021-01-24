@@ -61,7 +61,6 @@ libpurple/memorypool.c
 libpurple/nat-pmp.c
 libpurple/network.c
 libpurple/notify.c
-libpurple/options.c
 libpurple/pluginpref.c
 libpurple/plugins/autoaccept.c
 libpurple/plugins/buddynote.c
@@ -254,6 +253,7 @@ libpurple/purpleimconversation.c
 libpurple/purplekeyvaluepair.c
 libpurple/purplemarkup.c
 libpurple/purplemessage.c
+libpurple/purpleoptions.c
 libpurple/purplepresence.c
 libpurple/purpleprotocolattention.c
 libpurple/purpleprotocolchat.c
