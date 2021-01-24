@@ -28,6 +28,17 @@ struct _PidginContactList {
 	GtkApplicationWindow parent;
 
 	GtkWidget *vbox;
+
+	GtkWidget *menu_bar;
+	GtkWidget *sort_buddies;
+
+	GtkWidget *accounts;
+	GtkWidget *accounts_menu;
+
+	GtkWidget *plugins;
+	GtkWidget *plugins_menu;
+
+	GtkWidget *menu_tray;
 };
 
 G_DEFINE_TYPE(PidginContactList, pidgin_contact_list,
@@ -48,6 +59,14 @@ pidgin_contact_list_init(PidginContactList *contact_list) {
 	group = pidgin_action_group_new();
 	gtk_widget_insert_action_group(GTK_WIDGET(contact_list), "blist",
 	                               G_ACTION_GROUP(group));
+
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(contact_list->accounts),
+	                          contact_list->accounts_menu);
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(contact_list->plugins),
+	                          contact_list->plugins_menu);
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(contact_list->menu_bar),
+	                      contact_list->menu_tray);
 }
 
 static void
@@ -60,6 +79,21 @@ pidgin_contact_list_class_init(PidginContactListClass *klass) {
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginContactList, vbox);
+
+	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	                                     menu_bar);
+	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	                                     sort_buddies);
+	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	                                     accounts);
+	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	                                     accounts_menu);
+	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	                                     plugins);
+	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	                                     plugins_menu);
+	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	                                     menu_tray);
 }
 
 /******************************************************************************
@@ -75,4 +109,18 @@ pidgin_contact_list_get_vbox(PidginContactList *contact_list) {
 	g_return_val_if_fail(PIDGIN_IS_CONTACT_LIST(contact_list), NULL);
 
 	return contact_list->vbox;
+}
+
+GtkWidget *
+pidgin_contact_list_get_menu_sort_item(PidginContactList *contact_list) {
+	g_return_val_if_fail(PIDGIN_IS_CONTACT_LIST(contact_list), NULL);
+
+	return contact_list->sort_buddies;
+}
+
+GtkWidget *
+pidgin_contact_list_get_menu_tray(PidginContactList *contact_list) {
+	g_return_val_if_fail(PIDGIN_IS_CONTACT_LIST(contact_list), NULL);
+
+	return contact_list->menu_tray;
 }
