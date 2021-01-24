@@ -340,6 +340,18 @@ purple_credential_manager_set_active_provider(PurpleCredentialManager *manager,
 	return TRUE;
 }
 
+PurpleCredentialProvider *
+purple_credential_manager_get_active_provider(PurpleCredentialManager *manager)
+{
+	PurpleCredentialManagerPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), NULL);
+
+	priv = purple_credential_manager_get_instance_private(manager);
+
+	return priv->active_provider;
+}
+
 void
 purple_credential_manager_read_password_async(PurpleCredentialManager *manager,
                                               PurpleAccount *account,
@@ -532,4 +544,24 @@ purple_credential_manager_write_settings(PurpleCredentialManager *manager,
 
 	return purple_credential_provider_write_settings(priv->active_provider,
 	                                                 fields);
+}
+
+void
+purple_credential_manager_foreach_provider(PurpleCredentialManager *manager,
+                                           PurpleCredentialManagerForeachFunc func,
+                                           gpointer data)
+{
+	GHashTableIter iter;
+	PurpleCredentialManagerPrivate *priv = NULL;
+	gpointer value;
+
+	g_return_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager));
+	g_return_if_fail(func != NULL);
+
+	priv = purple_credential_manager_get_instance_private(manager);
+
+	g_hash_table_iter_init(&iter, priv->providers);
+	while(g_hash_table_iter_next(&iter, NULL, &value)) {
+		func(PURPLE_CREDENTIAL_PROVIDER(value), data);
+	}
 }

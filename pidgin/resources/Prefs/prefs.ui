@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <interface>
   <requires lib="Talkatu" version="0.0"/>
   <requires lib="gtk+" version="3.20"/>
+  <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
@@ -2639,12 +2640,34 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                     <property name="position">7</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="PidginCredentialsPage">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">18</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">credentials</property>
+                    <property name="title" translatable="yes">Credentials</property>
+                    <property name="position">8</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
