@@ -1,4 +1,6 @@
-/* purple
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
@@ -27,10 +28,10 @@
 #define PURPLE_OPTIONS_H
 
 /**
- * SECTION:options
- * @section_id: libpurple-options
- * @short_description: <filename>options.h</filename>
- * @title: Options API
+ * SECTION:purpleoptions
+ * @section_id: libpurple-purpleoptions
+ * @short_description: Command line argument integration
+ * @title: Command Line Argument Integration
  *
  * The functions defined here are to help in handling command line options.
  */
@@ -39,6 +40,17 @@
 
 G_BEGIN_DECLS
 
+/**
+ * purple_get_option_group:
+ *
+ * Returns a #GOptionGroup for the commandline arguments recognized by
+ * LibPurple.  You should add this option group to your #GOptionContext with
+ * g_option_context_add_group(), if you are using g_option_context_parse() to
+ * parse your commandline arguments.
+ *
+ * Returns: (transfer full): a #GOptionGroup for the commandline arguments
+ *          recognized by LibPurple.
+ */
 GOptionGroup *purple_get_option_group(void);
 
 G_END_DECLS
