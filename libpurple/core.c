@@ -147,7 +147,7 @@ purple_core_init(const char *ui)
 	}
 
 	purple_cmds_init();
-	purple_protocols_init();
+	purple_protocol_manager_startup();
 
 	purple_credential_manager_startup(); /* before accounts */
 
@@ -246,7 +246,7 @@ purple_core_quit(void)
 	purple_prefs_uninit();
 	purple_plugins_uninit();
 
-	purple_protocols_uninit();
+	purple_protocol_manager_shutdown();
 
 	purple_cmds_uninit();
 	purple_log_uninit();

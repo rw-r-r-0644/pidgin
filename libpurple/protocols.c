@@ -32,12 +32,11 @@
 #include "purpleaccountoption.h"
 #include "purplecredentialmanager.h"
 #include "purpleprotocolattention.h"
+#include "purpleprotocolmanager.h"
 #include "purpleprotocolmedia.h"
 #include "purpleprotocolserver.h"
 #include "request.h"
 #include "util.h"
-
-static GHashTable *protocols = NULL;
 
 /**************************************************************************
  * GBoxed code for PurpleProtocolChatEntry
@@ -273,6 +272,7 @@ do_protocol_change_account_status(PurpleAccount *account,
 								PurpleStatus *old_status, PurpleStatus *new_status)
 {
 	PurpleProtocol *protocol;
+	PurpleProtocolManager *manager;
 
 	if (purple_status_is_online(new_status) &&
 		purple_account_is_disconnected(account) &&
@@ -307,7 +307,9 @@ do_protocol_change_account_status(PurpleAccount *account,
 		 */
 		return;
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	manager = purple_protocol_manager_get_default();
+	protocol = purple_protocol_manager_find(manager,
+	                                        purple_account_get_protocol_id(account));
 
 	if (protocol == NULL)
 		return;
@@ -371,6 +373,7 @@ purple_protocol_send_attention(PurpleConnection *gc, const char *who, guint type
 {
 	PurpleAttentionType *attn;
 	PurpleProtocol *protocol;
+	PurpleProtocolManager *manager;
 	PurpleIMConversation *im;
 	PurpleBuddy *buddy;
 	const char *alias;
@@ -379,7 +382,9 @@ purple_protocol_send_attention(PurpleConnection *gc, const char *who, guint type
 	g_return_if_fail(gc != NULL);
 	g_return_if_fail(who != NULL);
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(purple_connection_get_account(gc)));
+	manager = purple_protocol_manager_get_default();
+	protocol = purple_protocol_manager_find(manager,
+	                                        purple_account_get_protocol_id(purple_connection_get_account(gc)));
 	g_return_if_fail(PURPLE_IS_PROTOCOL_ATTENTION(protocol));
 
 	attn = purple_get_attention_type_from_code(purple_connection_get_account(gc), type_code);
@@ -564,41 +569,19 @@ purple_protocol_got_media_caps(PurpleAccount *account, const char *name)
 /**************************************************************************
  * Protocols API
  **************************************************************************/
-/*
- * Negative if a before b, 0 if equal, positive if a after b.
- */
-static gint
-compare_protocol(PurpleProtocol *a, PurpleProtocol *b)
-{
-	const gchar *aname = purple_protocol_get_name(a);
-	const gchar *bname = purple_protocol_get_name(b);
+#define PURPLE_PROTOCOLS_DOMAIN  (g_quark_from_static_string("protocols"))
 
-	if (aname) {
-		if (bname)
-			return strcmp(aname, bname);
-		else
-			return -1;
-	} else {
-		if (bname)
-			return 1;
-		else
-			return 0;
-	}
+PurpleProtocol *
+purple_protocols_find(const char *id) {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
+	return purple_protocol_manager_find(manager, id);
 }
 
 PurpleProtocol *
-purple_protocols_find(const char *id)
-{
-	g_return_val_if_fail(protocols != NULL && id != NULL, NULL);
-
-	return g_hash_table_lookup(protocols, id);
-}
-
-PurpleProtocol *
-purple_protocols_add(GType protocol_type, GError **error)
-{
-	PurpleProtocol *protocol;
-	PurpleProtocolClass *klass;
+purple_protocols_add(GType protocol_type, GError **error) {
+	PurpleProtocol *protocol = NULL;
+	PurpleProtocolManager *manager = NULL;
 
 	if (protocol_type == G_TYPE_INVALID) {
 		g_set_error_literal(error, PURPLE_PROTOCOLS_DOMAIN, 0,
@@ -619,121 +602,29 @@ purple_protocols_add(GType protocol_type, GError **error)
 	}
 
 	protocol = g_object_new(protocol_type, NULL);
-	if (!protocol) {
-		g_set_error_literal(error, PURPLE_PROTOCOLS_DOMAIN, 0,
-		                    _("Could not create protocol instance"));
+
+	manager = purple_protocol_manager_get_default();
+	if(!purple_protocol_manager_register(manager, protocol, error)) {
 		return NULL;
 	}
 
-	if (!purple_protocol_get_id(protocol)) {
-		g_set_error_literal(error, PURPLE_PROTOCOLS_DOMAIN, 0,
-		                    _("Protocol does not provide an ID"));
-
-		g_object_unref(protocol);
-		return NULL;
-	}
-
-	if (purple_protocols_find(purple_protocol_get_id(protocol))) {
-		g_set_error(error, PURPLE_PROTOCOLS_DOMAIN, 0,
-		            _("A protocol with the ID %s is already added."),
-		            purple_protocol_get_id(protocol));
-
-		g_object_unref(protocol);
-		return NULL;
-	}
-
-	/* Make sure the protocol implements the required functions */
-	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
-
-	if (!klass->login        || !klass->close    ||
-	    !klass->status_types || !klass->list_icon )
-	{
-		g_set_error(error, PURPLE_PROTOCOLS_DOMAIN, 0,
-		            _("Protocol %s does not implement all the functions in "
-		            "PurpleProtocolClass"), purple_protocol_get_id(protocol));
-
-		g_object_unref(protocol);
-		return NULL;
-	}
-
-	g_hash_table_insert(protocols, g_strdup(purple_protocol_get_id(protocol)),
-	                    protocol);
-
-	purple_debug_info("protocols", "Added protocol %s\n",
-	                  purple_protocol_get_id(protocol));
-
-	purple_signal_emit(purple_protocols_get_handle(), "protocol-added",
-	                   protocol);
 	return protocol;
 }
 
-gboolean purple_protocols_remove(PurpleProtocol *protocol, GError **error)
-{
+gboolean
+purple_protocols_remove(PurpleProtocol *protocol, GError **error) {
+	PurpleProtocolManager *manager;
+
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), FALSE);
 	g_return_val_if_fail(purple_protocol_get_id(protocol) != NULL, FALSE);
 
-	if (purple_protocols_find(purple_protocol_get_id(protocol)) == NULL) {
-		g_set_error(error, PURPLE_PROTOCOLS_DOMAIN, 0,
-		            _("Protocol %s is not added."),
-		            purple_protocol_get_id(protocol));
-
-		return FALSE;
-	}
-
-	purple_debug_info("protocols", "Removing protocol %s\n",
-	                  purple_protocol_get_id(protocol));
-
-	purple_signal_emit(purple_protocols_get_handle(), "protocol-removed",
-	                   protocol);
-
-	g_hash_table_remove(protocols, purple_protocol_get_id(protocol));
-	return TRUE;
+	manager = purple_protocol_manager_get_default();
+	return purple_protocol_manager_unregister(manager, protocol, error);
 }
 
 GList *
-purple_protocols_get_all(void)
-{
-	GList *ret = NULL;
-	PurpleProtocol *protocol;
-	GHashTableIter iter;
+purple_protocols_get_all(void) {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
-	g_hash_table_iter_init(&iter, protocols);
-	while (g_hash_table_iter_next(&iter, NULL, (gpointer *)&protocol))
-		ret = g_list_insert_sorted(ret, protocol, (GCompareFunc)compare_protocol);
-
-	return ret;
+	return purple_protocol_manager_get_all(manager);
 }
-
-/**************************************************************************
- * Protocols Subsystem API
- **************************************************************************/
-void
-purple_protocols_init(void)
-{
-	void *handle = purple_protocols_get_handle();
-
-	protocols = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
-			g_object_unref);
-
-	purple_signal_register(handle, "protocol-added",
-	                       purple_marshal_VOID__POINTER,
-	                       G_TYPE_NONE, 1, PURPLE_TYPE_PROTOCOL);
-	purple_signal_register(handle, "protocol-removed",
-	                       purple_marshal_VOID__POINTER,
-	                       G_TYPE_NONE, 1, PURPLE_TYPE_PROTOCOL);
-}
-
-void *
-purple_protocols_get_handle(void)
-{
-	static int handle;
-
-	return &handle;
-}
-
-void
-purple_protocols_uninit(void) 
-{
-	g_hash_table_destroy(protocols);
-}
-

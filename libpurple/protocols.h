@@ -33,8 +33,6 @@
  * @see_also: <link linkend="chapter-signals-protocol">Protocol signals</link>
  */
 
-#define PURPLE_PROTOCOLS_DOMAIN  (g_quark_from_static_string("protocols"))
-
 /**************************************************************************/
 /* Basic Protocol Information                                             */
 /**************************************************************************/
@@ -418,33 +416,6 @@ gboolean purple_protocols_remove(PurpleProtocol *protocol, GError **error);
  *          loaded protocols.
  */
 GList *purple_protocols_get_all(void);
-
-/**************************************************************************/
-/* Protocols Subsytem API                                                 */
-/**************************************************************************/
-
-/**
- * purple_protocols_init:
- *
- * Initializes the protocols subsystem.
- */
-void purple_protocols_init(void);
-
-/**
- * purple_protocols_get_handle:
- *
- * Returns the protocols subsystem handle.
- *
- * Returns: The protocols subsystem handle.
- */
-void *purple_protocols_get_handle(void);
-
-/**
- * purple_protocols_uninit:
- *
- * Uninitializes the protocols subsystem.
- */
-void purple_protocols_uninit(void);
 
 G_END_DECLS
 

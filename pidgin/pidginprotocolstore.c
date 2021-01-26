@@ -65,8 +65,13 @@ pidgin_protocol_store_add_protocol_helper(gpointer data, gpointer user_data) {
 
 static void
 pidgin_protocol_store_add_protocols(PidginProtocolStore *store) {
-	g_list_foreach(purple_protocols_get_all(),
-	               pidgin_protocol_store_add_protocol_helper, store);
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+	GList *protocols = NULL;
+
+	protocols = purple_protocol_manager_get_all(manager);
+	g_list_foreach(protocols, pidgin_protocol_store_add_protocol_helper,
+	               store);
+	g_list_free(protocols);
 }
 
 static void
@@ -107,17 +112,18 @@ pidgin_protocol_store_remove_protocol(PidginProtocolStore *store,
  * Callbacks
  *****************************************************************************/
 static void
-pidgin_protocol_store_protocol_added_cb(PurpleProtocol *protocol,
-                                        gpointer data)
+pidgin_protocol_store_registered_cb(PurpleProtocolManager *manager,
+                                    PurpleProtocol *protocol, gpointer data)
 {
 	pidgin_protocol_store_add_protocol(PIDGIN_PROTOCOL_STORE(data), protocol);
 }
 
 static void
-pidgin_protocol_store_protocol_removed_cb(PurpleProtocol *protocol,
-                                          gpointer data)
+pidgin_protocol_store_unregistered_cb(PurpleProtocolManager *manager,
+                                      PurpleProtocol *protocol, gpointer data)
 {
-	pidgin_protocol_store_remove_protocol(PIDGIN_PROTOCOL_STORE(data), protocol);
+	pidgin_protocol_store_remove_protocol(PIDGIN_PROTOCOL_STORE(data),
+	                                      protocol);
 }
 
 /******************************************************************************
@@ -127,7 +133,7 @@ G_DEFINE_TYPE(PidginProtocolStore, pidgin_protocol_store, GTK_TYPE_LIST_STORE)
 
 static void
 pidgin_protocol_store_init(PidginProtocolStore *store) {
-	gpointer protocols_handle = NULL;
+	PurpleProtocolManager *manager = NULL;
 	GType types[PIDGIN_PROTOCOL_STORE_N_COLUMNS] = {
 		PURPLE_TYPE_PROTOCOL,
 		G_TYPE_STRING,
@@ -144,13 +150,11 @@ pidgin_protocol_store_init(PidginProtocolStore *store) {
 	pidgin_protocol_store_add_protocols(store);
 
 	/* add the signal handlers to dynamically add/remove protocols */
-	protocols_handle = purple_protocols_get_handle();
-	purple_signal_connect(protocols_handle, "protocol-added", store,
-	                      G_CALLBACK(pidgin_protocol_store_protocol_added_cb),
-	                      store);
-	purple_signal_connect(protocols_handle, "protocol-removed", store,
-	                      G_CALLBACK(pidgin_protocol_store_protocol_removed_cb),
-	                      store);
+	manager = purple_protocol_manager_get_default();
+	g_signal_connect(G_OBJECT(manager), "registered",
+	                 G_CALLBACK(pidgin_protocol_store_registered_cb), store);
+	g_signal_connect(G_OBJECT(manager), "unregistered",
+	                 G_CALLBACK(pidgin_protocol_store_unregistered_cb), store);
 }
 
 static void

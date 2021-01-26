@@ -49,7 +49,6 @@ version 3.0.0 (??/??/????):
 		* purple_protocols_remove
 		* purple_protocols_find
 		* purple_protocols_get_all
-		* purple_protocols_get_handle
 		* purple_protocols_init
 		* purple_protocols_uninit
 		* purple_request_certificate
