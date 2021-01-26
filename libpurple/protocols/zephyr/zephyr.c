@@ -64,7 +64,7 @@ typedef struct _zephyr_account zephyr_account;
 
 typedef gssize (*PollableInputStreamReadFunc)(GPollableInputStream *stream, void *bufcur, GError **error);
 typedef gboolean (*ZephyrLoginFunc)(zephyr_account *zephyr);
-typedef Code_t (*ZephyrSubscribeToFunc)(zephyr_account *zephyr, char *class, char *instance, char *recipient);
+typedef Code_t (*ZephyrSubscribeToFunc)(zephyr_account *zephyr, ZSubscription_t *sub);
 
 typedef enum {
 	PURPLE_ZEPHYR_NONE, /* Non-kerberized ZEPH0.2 */
@@ -100,9 +100,7 @@ struct _zephyr_account {
 #define MAXCHILDREN 20
 
 struct _zephyr_triple {
-	char *class;
-	char *instance;
-	char *recipient;
+	ZSubscription_t sub;
 	char *name;
 	gboolean open;
 	int id;
@@ -145,14 +143,14 @@ zephyr_write_message(zephyr_account *zephyr, const gchar *message)
 }
 
 static Code_t
-subscribe_to_tzc(zephyr_account *zephyr, char *class, char *instance, char *recipient)
+subscribe_to_tzc(zephyr_account *zephyr, ZSubscription_t *sub)
 {
 	Code_t ret_val = -1;
 	gchar *zsubstr;
 
 	/* ((tzcfodder . subscribe) ("class" "instance" "recipient")) */
 	zsubstr = g_strdup_printf("((tzcfodder . subscribe) (\"%s\" \"%s\" \"%s\"))\n",
-	                          class, instance, recipient);
+	                          sub->zsub_class, sub->zsub_classinst, sub->zsub_recipient);
 	if (zephyr_write_message(zephyr, zsubstr)) {
 		ret_val = ZERR_NONE;
 	}
@@ -161,13 +159,9 @@ subscribe_to_tzc(zephyr_account *zephyr, char *class, char *instance, char *reci
 }
 
 static Code_t
-subscribe_to_zeph02(G_GNUC_UNUSED zephyr_account *zephyr, char *class, char *instance, char *recipient)
+subscribe_to_zeph02(G_GNUC_UNUSED zephyr_account *zephyr, ZSubscription_t *sub)
 {
-	ZSubscription_t sub;
-	sub.zsub_class = class;
-	sub.zsub_classinst = instance;
-	sub.zsub_recipient = recipient;
-	return ZSubscribeTo(&sub, 1, 0);
+	return ZSubscribeTo(sub, 1, 0);
 }
 
 static char *
@@ -210,114 +204,83 @@ static void handle_unknown(ZNotice_t *notice)
 }
 
 
-static zephyr_triple *new_triple(zephyr_account *zephyr,const char *c, const char *i, const char *r)
+static zephyr_triple *
+zephyr_triple_new(zephyr_account *zephyr, const ZSubscription_t *sub)
 {
 	zephyr_triple *zt;
 
 	zt = g_new0(zephyr_triple, 1);
-	zt->class = g_strdup(c);
-	zt->instance = g_strdup(i);
-	zt->recipient = g_strdup(r);
-	zt->name = g_strdup_printf("%s,%s,%s", c, i?i:"", r?r:"");
+	zt->sub.zsub_class = g_strdup(sub->zsub_class);
+	zt->sub.zsub_classinst = g_strdup(sub->zsub_classinst);
+	zt->sub.zsub_recipient = g_strdup(sub->zsub_recipient);
+	zt->name = g_strdup_printf("%s,%s,%s", sub->zsub_class,
+	                           sub->zsub_classinst ? sub->zsub_classinst : "",
+	                           sub->zsub_recipient ? sub->zsub_recipient : "");
 	zt->id = ++(zephyr->last_id);
 	zt->open = FALSE;
 	return zt;
 }
 
-static void free_triple(zephyr_triple * zt)
+static void
+zephyr_triple_free(zephyr_triple *zt)
 {
-	g_free(zt->class);
-	g_free(zt->instance);
-	g_free(zt->recipient);
+	g_free(zt->sub.zsub_class);
+	g_free(zt->sub.zsub_classinst);
+	g_free(zt->sub.zsub_recipient);
 	g_free(zt->name);
 	g_free(zt);
 }
 
-/* returns true if zt1 is a subset of zt2.  This function is used to
-   determine whether a zephyr sent to zt1 should be placed in the chat
-   with triple zt2
+/* returns 0 if sub is a subset of zt.sub.  This function is used to
+   determine whether a zephyr sent to sub should be placed in the chat
+   with triple zt.sub
 
-   zt1 is a subset of zt2
+   sub is a subset of zt.sub
    iff. the classnames are identical ignoring case
-   AND. the instance names are identical (ignoring case), or zt2->instance is *.
+   AND. the instance names are identical (ignoring case), or zt.sub->instance is *.
    AND. the recipient names are identical
 */
-
-static gboolean triple_subset(zephyr_triple * zt1, zephyr_triple * zt2)
+static gint
+zephyr_triple_subset(const zephyr_triple *zt, const ZSubscription_t *sub)
 {
-
-	if (!zt2) {
-		purple_debug_error("zephyr","zt2 doesn't exist\n");
-		return FALSE;
+	if (!sub->zsub_class) {
+		purple_debug_error("zephyr", "sub1c doesn't exist\n");
+		return 1;
 	}
-	if (!zt1) {
-		purple_debug_error("zephyr","zt1 doesn't exist\n");
-		return FALSE;
+	if (!sub->zsub_classinst) {
+		purple_debug_error("zephyr", "sub1i doesn't exist\n");
+		return 1;
 	}
-	if (!(zt1->class)) {
-		purple_debug_error("zephyr","zt1c doesn't exist\n");
-		return FALSE;
+	if (!sub->zsub_recipient) {
+		purple_debug_error("zephyr", "sub1r doesn't exist\n");
+		return 1;
 	}
-	if (!(zt1->instance)) {
-		purple_debug_error("zephyr","zt1i doesn't exist\n");
-		return FALSE;
+	if (!zt->sub.zsub_class) {
+		purple_debug_error("zephyr", "sub2c doesn't exist\n");
+		return 1;
 	}
-	if (!(zt1->recipient)) {
-		purple_debug_error("zephyr","zt1r doesn't exist\n");
-		return FALSE;
+	if (!zt->sub.zsub_classinst) {
+		purple_debug_error("zephyr", "sub2i doesn't exist\n");
+		return 1;
 	}
-	if (!(zt2->class)) {
-		purple_debug_error("zephyr","zt2c doesn't exist\n");
-		return FALSE;
-	}
-	if (!(zt2->recipient)) {
-		purple_debug_error("zephyr","zt2r doesn't exist\n");
-		return FALSE;
-	}
-	if (!(zt2->instance)) {
-		purple_debug_error("zephyr","zt2i doesn't exist\n");
-		return FALSE;
+	if (!zt->sub.zsub_recipient) {
+		purple_debug_error("zephyr", "sub2r doesn't exist\n");
+		return 1;
 	}
 
-	if (g_ascii_strcasecmp(zt2->class, zt1->class)) {
-		return FALSE;
+	if (g_ascii_strcasecmp(zt->sub.zsub_class, sub->zsub_class)) {
+		return 1;
 	}
-	if (g_ascii_strcasecmp(zt2->instance, zt1->instance) && g_ascii_strcasecmp(zt2->instance, "*")) {
-		return FALSE;
+	if (g_ascii_strcasecmp(zt->sub.zsub_classinst, sub->zsub_classinst) && g_ascii_strcasecmp(zt->sub.zsub_classinst, "*")) {
+		return 1;
 	}
-	if (g_ascii_strcasecmp(zt2->recipient, zt1->recipient)) {
-		return FALSE;
+	if (g_ascii_strcasecmp(zt->sub.zsub_recipient, sub->zsub_recipient)) {
+		return 1;
 	}
-	purple_debug_info("zephyr","<%s,%s,%s> is in <%s,%s,%s>\n",zt1->class,zt1->instance,zt1->recipient,zt2->class,zt2->instance,zt2->recipient);
-	return TRUE;
-}
-
-static zephyr_triple *find_sub_by_triple(zephyr_account *zephyr,zephyr_triple * zt)
-{
-	zephyr_triple *curr_t;
-	GSList *curr = zephyr->subscrips;
-
-	while (curr) {
-		curr_t = curr->data;
-		if (triple_subset(zt, curr_t))
-			return curr_t;
-		curr = curr->next;
-	}
-	return NULL;
-}
-
-static zephyr_triple *find_sub_by_id(zephyr_account *zephyr,int id)
-{
-	zephyr_triple *zt;
-	GSList *curr = zephyr->subscrips;
-
-	while (curr) {
-		zt = curr->data;
-		if (zt->id == id)
-			return zt;
-		curr = curr->next;
-	}
-	return NULL;
+	purple_debug_info("zephyr", "<%s,%s,%s> is in <%s,%s,%s>\n",
+	                  sub->zsub_class, sub->zsub_classinst, sub->zsub_recipient,
+	                  zt->sub.zsub_class, zt->sub.zsub_classinst, zt->sub.zsub_recipient);
+	return 0;
 }
 
 /*
@@ -390,6 +353,14 @@ find_buddy(const zephyr_account *zephyr, const char *user)
 	}
 
 	return buddy;
+}
+
+static void
+zephyr_triple_open(zephyr_triple *zt, PurpleConnection *gc, const char *instance)
+{
+	zt->open = TRUE;
+	purple_serv_got_joined_chat(gc, zt->id, zt->name);
+	zephyr_chat_set_topic(gc, zt->id, instance);
 }
 
 static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
@@ -497,21 +468,26 @@ static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 				purple_serv_got_im(gc, stripped_sender, buf3, flags, time(NULL));
 
 		} else {
-			zephyr_triple *zt1, *zt2;
+			ZSubscription_t sub = {
+			        .zsub_class = notice.z_class,
+			        .zsub_classinst = notice.z_class_inst,
+			        .zsub_recipient = notice.z_recipient
+			};
+			zephyr_triple *zt;
 			gchar *send_inst_utf8;
 			zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
-			zt1 = new_triple(zephyr,notice.z_class, notice.z_class_inst, notice.z_recipient);
-			zt2 = find_sub_by_triple(zephyr,zt1);
-			if (!zt2) {
+			GSList *l = g_slist_find_custom(zephyr->subscrips, &sub, (GCompareFunc)zephyr_triple_subset);
+
+			if (!l) {
 				/* This is a server supplied subscription */
-				zephyr->subscrips = g_slist_append(zephyr->subscrips, new_triple(zephyr,zt1->class,zt1->instance,zt1->recipient));
-				zt2 = find_sub_by_triple(zephyr,zt1);
+				zt = zephyr_triple_new(zephyr, &sub);
+				zephyr->subscrips = g_slist_append(zephyr->subscrips, zt);
+			} else {
+				zt = l->data;
 			}
 
-			if (!zt2->open) {
-				zt2->open = TRUE;
-				purple_serv_got_joined_chat(gc, zt2->id, zt2->name);
-				zephyr_chat_set_topic(gc,zt2->id,notice.z_class_inst);
+			if (!zt->open) {
+				zephyr_triple_open(zt, gc, notice.z_class_inst);
 			}
 
 			if (!g_ascii_strcasecmp(notice.z_class_inst,"PERSONAL"))
@@ -526,8 +502,7 @@ static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 				}
 			}
 
-			gcc = purple_conversations_find_chat_with_account(
-														 zt2->name, purple_connection_get_account(gc));
+			gcc = purple_conversations_find_chat_with_account(zt->name, purple_connection_get_account(gc));
 			if (!purple_chat_conversation_has_user(gcc, stripped_sender)) {
 				GInetAddress *inet_addr = NULL;
 				gchar *ipaddr = NULL;
@@ -541,11 +516,9 @@ static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 				g_free(ipaddr);
 				g_object_unref(inet_addr);
 			}
-			purple_serv_got_chat_in(gc, zt2->id, send_inst_utf8,
+			purple_serv_got_chat_in(gc, zt->id, send_inst_utf8,
 				PURPLE_MESSAGE_RECV, buf3, time(NULL));
 			g_free(send_inst_utf8);
-
-			free_triple(zt1);
 		}
 		g_free(stripped_sender);
 		g_free(buf3);
@@ -1028,9 +1001,7 @@ static void process_zsubs(zephyr_account *zephyr)
 	f = g_fopen(fname, "r");
 	if (f) {
 		char **triple;
-		char *recip;
-		char *z_class;
-		char *z_instance;
+		ZSubscription_t sub;
 
 		while (fgets(buff, BUFSIZ, f)) {
 			strip_comments(buff);
@@ -1041,16 +1012,16 @@ static void process_zsubs(zephyr_account *zephyr)
 					char *atptr;
 
 					if (triple[2] == NULL) {
-						recip = g_malloc0(1);
+						sub.zsub_recipient = g_malloc0(1);
 					} else if (!g_ascii_strcasecmp(triple[2], "%me%")) {
-						recip = g_strdup(zephyr->username);
+						sub.zsub_recipient = g_strdup(zephyr->username);
 					} else if (!g_ascii_strcasecmp(triple[2], "*")) {
 						/* wildcard
 						 * form of class,instance,* */
-						recip = g_malloc0(1);
+						sub.zsub_recipient = g_malloc0(1);
 					} else if (!g_ascii_strcasecmp(triple[2], tmp)) {
 						/* form of class,instance,aatharuv@ATHENA.MIT.EDU */
-						recip = g_strdup(triple[2]);
+						sub.zsub_recipient = g_strdup(triple[2]);
 					} else if ((atptr = strchr(triple[2], '@')) != NULL) {
 						/* form of class,instance,*@ANDREW.CMU.EDU
 						 * class,instance,@ANDREW.CMU.EDU
@@ -1059,44 +1030,45 @@ static void process_zsubs(zephyr_account *zephyr)
 						 */
 						char *realmat = g_strdup_printf("@%s",zephyr->realm);
 
-						if (!g_ascii_strcasecmp(atptr, realmat))
-							recip = g_malloc0(1);
-						else
-							recip = g_strdup(atptr);
+						if (!g_ascii_strcasecmp(atptr, realmat)) {
+							sub.zsub_recipient = g_malloc0(1);
+						} else {
+							sub.zsub_recipient = g_strdup(atptr);
+						}
 						g_free(realmat);
 					} else {
-						recip = g_strdup(triple[2]);
+						sub.zsub_recipient = g_strdup(triple[2]);
 					}
 					g_free(tmp);
 
-					if (!g_ascii_strcasecmp(triple[0],"%host%")) {
-						z_class = g_strdup(zephyr->ourhost);
-					} else if (!g_ascii_strcasecmp(triple[0],"%canon%")) {
-						z_class = g_strdup(zephyr->ourhostcanon);
+					if (!g_ascii_strcasecmp(triple[0], "%host%")) {
+						sub.zsub_class = g_strdup(zephyr->ourhost);
+					} else if (!g_ascii_strcasecmp(triple[0], "%canon%")) {
+						sub.zsub_class = g_strdup(zephyr->ourhostcanon);
 					} else {
-						z_class = g_strdup(triple[0]);
+						sub.zsub_class = g_strdup(triple[0]);
 					}
 
-					if (!g_ascii_strcasecmp(triple[1],"%host%")) {
-						z_instance = g_strdup(zephyr->ourhost);
-					} else if (!g_ascii_strcasecmp(triple[1],"%canon%")) {
-						z_instance = g_strdup(zephyr->ourhostcanon);
+					if (!g_ascii_strcasecmp(triple[1], "%host%")) {
+						sub.zsub_classinst = g_strdup(zephyr->ourhost);
+					} else if (!g_ascii_strcasecmp(triple[1], "%canon%")) {
+						sub.zsub_classinst = g_strdup(zephyr->ourhostcanon);
 					} else {
-						z_instance = g_strdup(triple[1]);
+						sub.zsub_classinst = g_strdup(triple[1]);
 					}
 
 					/* There should be some sort of error report listing classes that couldn't be subbed to.
 					   Not important right now though */
 
-					if (zephyr->subscribe_to(zephyr, z_class, z_instance, recip) != ZERR_NONE) {
-						purple_debug_error("zephyr", "Couldn't subscribe to %s, %s, %s\n", z_class,z_instance,recip);
+					if (zephyr->subscribe_to(zephyr, &sub) != ZERR_NONE) {
+						purple_debug_error("zephyr", "Couldn't subscribe to %s, %s, %s\n",
+						                   sub.zsub_class, sub.zsub_classinst, sub.zsub_recipient);
 					}
 
-					zephyr->subscrips = g_slist_append(zephyr->subscrips, new_triple(zephyr,z_class,z_instance,recip));
-					/*					  g_hash_table_destroy(sub_hash_table); */
-					g_free(z_instance);
-					g_free(z_class);
-					g_free(recip);
+					zephyr->subscrips = g_slist_append(zephyr->subscrips, zephyr_triple_new(zephyr, &sub));
+					g_free(sub.zsub_class);
+					g_free(sub.zsub_classinst);
+					g_free(sub.zsub_recipient);
 				}
 				g_strfreev(triple);
 			}
@@ -1424,6 +1396,7 @@ static void zephyr_login(PurpleAccount * account)
 	zephyr_account *zephyr;
 	ZephyrLoginFunc login;
 	GSourceFunc check_notify;
+	ZSubscription_t sub;
 
 	gc = purple_account_get_connection(account);
 
@@ -1465,7 +1438,11 @@ static void zephyr_login(PurpleAccount * account)
 	zephyr->krbtkfile = NULL;
 	zephyr_inithosts(zephyr);
 
-	if (zephyr->subscribe_to(zephyr, "MESSAGE", "PERSONAL", zephyr->username) != ZERR_NONE) {
+	sub.zsub_class = "MESSAGE";
+	sub.zsub_classinst = "PERSONAL";
+	sub.zsub_recipient = zephyr->username;
+
+	if (zephyr->subscribe_to(zephyr, &sub) != ZERR_NONE) {
 		/* XXX don't translate this yet. It could be written better */
 		/* XXX error messages could be handled with more detail */
 		purple_notify_error(gc, NULL,
@@ -1594,7 +1571,7 @@ static void zephyr_close(PurpleConnection * gc)
 	if (purple_account_get_bool(purple_connection_get_account(gc), "write_zsubs", FALSE))
 		write_zsubs(zephyr);
 
-	g_slist_free_full(zephyr->subscrips, (GDestroyNotify)free_triple);
+	g_slist_free_full(zephyr->subscrips, (GDestroyNotify)zephyr_triple_free);
 
 	if (zephyr->nottimer)
 		g_source_remove(zephyr->nottimer);
@@ -1637,6 +1614,14 @@ static gboolean zephyr_send_message(zephyr_account *zephyr, gchar *zclass,
                                     const gchar *im, const gchar *sig,
                                     gchar *opcode);
 
+static gint
+zephyr_triple_cmp_id(gconstpointer data, gconstpointer user_data)
+{
+	const zephyr_triple *zt = data;
+	int id = GPOINTER_TO_INT(user_data);
+	return zt->id - id;
+}
+
 static const char * zephyr_get_signature(void)
 {
 	/* XXX add zephyr error reporting */
@@ -1651,6 +1636,7 @@ static int
 zephyr_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                  int id, PurpleMessage *msg)
 {
+	GSList *l;
 	zephyr_triple *zt;
 	const char *sig;
 	PurpleChatConversation *gcc;
@@ -1658,25 +1644,26 @@ zephyr_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	char *recipient;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 
-	zt = find_sub_by_id(zephyr,id);
-	if (!zt)
+	l = g_slist_find_custom(zephyr->subscrips, GINT_TO_POINTER(id), zephyr_triple_cmp_id);
+	if (!l) {
 		/* this should never happen. */
 		return -EINVAL;
+	}
 
+	zt = l->data;
 	sig = zephyr_get_signature();
 
-	gcc = purple_conversations_find_chat_with_account(zt->name,
-												 purple_connection_get_account(gc));
+	gcc = purple_conversations_find_chat_with_account(zt->name, purple_connection_get_account(gc));
 
 	if (!(inst = (char *)purple_chat_conversation_get_topic(gcc)))
 		inst = g_strdup("PERSONAL");
 
-	if (!g_ascii_strcasecmp(zt->recipient, "*"))
-		recipient = local_zephyr_normalize(zephyr,"");
-	else
-		recipient = local_zephyr_normalize(zephyr,zt->recipient);
-
-	zephyr_send_message(zephyr, zt->class, inst, recipient,
+	if (!g_ascii_strcasecmp(zt->sub.zsub_recipient, "*")) {
+		recipient = local_zephyr_normalize(zephyr, "");
+	} else {
+		recipient = local_zephyr_normalize(zephyr, zt->sub.zsub_recipient);
+	}
+	zephyr_send_message(zephyr, zt->sub.zsub_class, inst, recipient,
 		purple_message_get_contents(msg), sig, "");
 	return 0;
 }
@@ -1974,15 +1961,6 @@ zephyr_chat_info(PurpleProtocolChat *protocol_chat, PurpleConnection * gc) {
 	return m;
 }
 
-/* Called when the server notifies us a message couldn't get sent */
-
-static void zephyr_subscribe_failed(PurpleConnection *gc,char * z_class, char *z_instance, char * z_recipient, char* z_galaxy)
-{
-	gchar* subscribe_failed = g_strdup_printf(_("Attempt to subscribe to %s,%s,%s failed"), z_class, z_instance,z_recipient);
-	purple_notify_error(gc,"", subscribe_failed, NULL, purple_request_cpar_from_connection(gc));
-	g_free(subscribe_failed);
-}
-
 static char *
 zephyr_get_chat_name(PurpleProtocolChat *protocol_chat, GHashTable *data) {
 	gchar* zclass = g_hash_table_lookup(data,"class");
@@ -1998,90 +1976,93 @@ zephyr_get_chat_name(PurpleProtocolChat *protocol_chat, GHashTable *data) {
 }
 
 
-static void zephyr_join_chat(PurpleConnection * gc, GHashTable * data)
+static void
+zephyr_triple_open_personal(zephyr_triple *zt, PurpleConnection *gc, char *instance)
 {
-	/*	ZSubscription_t sub; */
-	zephyr_triple *zt1, *zt2;
-	const char *classname;
-	const char *instname;
-	const char *recip;
+	if (!g_ascii_strcasecmp(instance, "*")) {
+		instance = "PERSONAL";
+	}
+	zephyr_triple_open(zt, gc, instance);
+}
+
+static void
+zephyr_join_chat(PurpleConnection *gc, ZSubscription_t *sub)
+{
+	GSList *l;
+	zephyr_triple *zt;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 
 	g_return_if_fail(zephyr != NULL);
 
-	classname = g_hash_table_lookup(data, "class");
-	instname = g_hash_table_lookup(data, "instance");
-	recip = g_hash_table_lookup(data, "recipient");
-	if (!classname)
+	if (!sub->zsub_class) {
 		return;
+	}
+	if (!g_ascii_strcasecmp(sub->zsub_class, "%host%")) {
+		sub->zsub_class = zephyr->ourhost;
+	} else if (!g_ascii_strcasecmp(sub->zsub_class, "%canon%")) {
+		sub->zsub_class = zephyr->ourhostcanon;
+	}
 
-	if (!g_ascii_strcasecmp(classname,"%host%"))
-		classname = zephyr->ourhost;
-	if (!g_ascii_strcasecmp(classname,"%canon%"))
-		classname = zephyr->ourhostcanon;
+	if (!sub->zsub_classinst || *sub->zsub_classinst == '\0') {
+		sub->zsub_classinst = "*";
+	} else if (!g_ascii_strcasecmp(sub->zsub_classinst, "%host%")) {
+		sub->zsub_classinst = zephyr->ourhost;
+	} else if (!g_ascii_strcasecmp(sub->zsub_classinst, "%canon%")) {
+		sub->zsub_classinst = zephyr->ourhostcanon;
+	}
 
-	if (!instname || *instname == '\0')
-		instname = "*";
+	if (!sub->zsub_recipient || *sub->zsub_recipient == '*') {
+		sub->zsub_recipient = "";
+	} else if (!g_ascii_strcasecmp(sub->zsub_recipient, "%me%")) {
+		sub->zsub_recipient = zephyr->username;
+	}
 
-	if (!g_ascii_strcasecmp(instname,"%host%"))
-		instname = zephyr->ourhost;
-	if (!g_ascii_strcasecmp(instname,"%canon%"))
-		instname = zephyr->ourhostcanon;
-
-	if (!recip || (*recip == '*'))
-		recip = "";
-	if (!g_ascii_strcasecmp(recip, "%me%"))
-		recip = zephyr->username;
-
-	zt1 = new_triple(zephyr,classname, instname, recip);
-	zt2 = find_sub_by_triple(zephyr,zt1);
-	if (zt2) {
-		free_triple(zt1);
-		if (!zt2->open) {
-			if (!g_ascii_strcasecmp(instname,"*"))
-				instname = "PERSONAL";
-			purple_serv_got_joined_chat(gc, zt2->id, zt2->name);
-			zephyr_chat_set_topic(gc,zt2->id,instname);
-			zt2->open = TRUE;
+	l = g_slist_find_custom(zephyr->subscrips, &sub, (GCompareFunc)zephyr_triple_subset);
+	if (l) {
+		zt = l->data;
+		if (!zt->open) {
+			zephyr_triple_open_personal(zt, gc, sub->zsub_classinst);
 		}
 		return;
 	}
 
-	/*	sub.zsub_class = zt1->class;
-		sub.zsub_classinst = zt1->instance;
-		sub.zsub_recipient = zt1->recipient; */
-
-	if (zephyr->subscribe_to(zephyr, zt1->class, zt1->instance, zt1->recipient) != ZERR_NONE) {
+	if (zephyr->subscribe_to(zephyr, sub) != ZERR_NONE) {
+		/* Called when the server notifies us a message couldn't get sent */
 		/* XXX output better subscription information */
-		zephyr_subscribe_failed(gc,zt1->class,zt1->instance,zt1->recipient,NULL);
-		free_triple(zt1);
+		gchar *subscribe_failed = g_strdup_printf(_("Attempt to subscribe to %s,%s,%s failed"),
+		                                          sub->zsub_class, sub->zsub_classinst, sub->zsub_recipient);
+		purple_notify_error(gc,"", subscribe_failed, NULL, purple_request_cpar_from_connection(gc));
+		g_free(subscribe_failed);
 		return;
 	}
 
-	zephyr->subscrips = g_slist_append(zephyr->subscrips, zt1);
-	zt1->open = TRUE;
-	purple_serv_got_joined_chat(gc, zt1->id, zt1->name);
-	if (!g_ascii_strcasecmp(instname,"*"))
-		instname = "PERSONAL";
-	zephyr_chat_set_topic(gc,zt1->id,instname);
+	zt = zephyr_triple_new(zephyr, sub);
+	zephyr->subscrips = g_slist_append(zephyr->subscrips, zt);
+	zephyr_triple_open_personal(zt, gc, sub->zsub_classinst);
 }
 
 static void
 zephyr_protocol_chat_join(PurpleProtocolChat *protocol_chat,
                           PurpleConnection *gc, GHashTable * data)
 {
-	zephyr_join_chat(gc, data);
+	ZSubscription_t sub = {
+	        .zsub_class = g_hash_table_lookup(data, "class"),
+	        .zsub_classinst = g_hash_table_lookup(data, "instance"),
+	        .zsub_recipient = g_hash_table_lookup(data, "recipient")
+	};
+	zephyr_join_chat(gc, &sub);
 }
 
 static void
 zephyr_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection * gc,
                   int id)
 {
-	zephyr_triple *zt;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
-	zt = find_sub_by_id(zephyr,id);
+	GSList *l;
 
-	if (zt) {
+	l = g_slist_find_custom(zephyr->subscrips, GINT_TO_POINTER(id), zephyr_triple_cmp_id);
+	if (l) {
+		zephyr_triple *zt = l->data;
 		zt->open = FALSE;
 		zt->id = ++(zephyr->last_id);
 	}
@@ -2178,18 +2159,19 @@ static void zephyr_chat_set_topic(PurpleConnection * gc, int id, const char *top
 	zephyr_triple *zt;
 	PurpleChatConversation *gcc;
 	gchar *topic_utf8;
-	zephyr_account* zephyr = purple_connection_get_protocol_data(gc);
-	char *sender = (char *)zephyr->username;
+	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
+	GSList *l;
 
-	zt = find_sub_by_id(zephyr,id);
-	/* find_sub_by_id can return NULL */
-	if (!zt)
+	l = g_slist_find_custom(zephyr->subscrips, GINT_TO_POINTER(id), zephyr_triple_cmp_id);
+	if (!l) {
 		return;
-	gcc = purple_conversations_find_chat_with_account(zt->name,
-												purple_connection_get_account(gc));
+	}
+	zt = l->data;
+
+	gcc = purple_conversations_find_chat_with_account(zt->name, purple_connection_get_account(gc));
 
 	topic_utf8 = zephyr_recv_convert(gc,(gchar *)topic);
-	purple_chat_conversation_set_topic(gcc,sender,topic_utf8);
+	purple_chat_conversation_set_topic(gcc, zephyr->username, topic_utf8);
 	g_free(topic_utf8);
 }
 
@@ -2251,11 +2233,12 @@ static PurpleCmdRet zephyr_purple_cmd_joinchat_cir(PurpleConversation *conv,
 					       const char *cmd, char **args, char **error, void *data)
 {
 	/* Join a new zephyr chat */
-	GHashTable *triple = g_hash_table_new(NULL,NULL);
-	g_hash_table_insert(triple,"class",args[0]);
-	g_hash_table_insert(triple,"instance",args[1]);
-	g_hash_table_insert(triple,"recipient",args[2]);
-	zephyr_join_chat(purple_conversation_get_connection(conv),triple);
+	ZSubscription_t sub = {
+	        .zsub_class = args[0],
+	        .zsub_classinst = args[1],
+	        .zsub_recipient = args[2]
+	};
+	zephyr_join_chat(purple_conversation_get_connection(conv), &sub);
 	return PURPLE_CMD_RET_OK;
 }
 
@@ -2416,7 +2399,7 @@ zephyr_action_resubscribe(PurpleProtocolAction *action)
 	for (GSList *s = zephyr->subscrips; s; s = s->next) {
 		zephyr_triple *zt = s->data;
 		/* XXX We really should care if this fails */
-		zephyr->subscribe_to(zephyr, zt->class, zt->instance, zt->recipient);
+		zephyr->subscribe_to(zephyr, &zt->sub);
 	}
 	/* XXX handle unsubscriptions */
 }
