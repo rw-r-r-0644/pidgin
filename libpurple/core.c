@@ -149,12 +149,13 @@ purple_core_init(const char *ui)
 	purple_cmds_init();
 	purple_protocols_init();
 
+	purple_credential_manager_startup(); /* before accounts */
+
 	/* Since plugins get probed so early we should probably initialize their
 	 * subsystem right away too.
 	 */
 	purple_plugins_init();
 
-	purple_credential_manager_startup(); /* before accounts */
 	purple_keyring_init(); /* before accounts */
 	purple_theme_manager_init();
 

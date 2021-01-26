@@ -1,24 +1,19 @@
-/* purple
- * @file secretservice.c Secret Service password storage
- * @ingroup plugins
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
- * Purple is the legal property of its developers, whose names are too numerous
- * to list here.  Please refer to the COPYRIGHT file distributed with this
- * source distribution.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program ; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301 USA
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, see <https://www.gnu.org/licenses/>.
  */
 
 /* TODO
@@ -43,15 +38,16 @@
    project name. It may not be appropriate to translate this string, but
    transliterating to your alphabet is reasonable. More info about the
    project can be found at https://wiki.gnome.org/Projects/Libsecret */
-#define SECRETSERVICE_NAME        N_("Secret Service")
-#define SECRETSERVICE_ID          "keyring-libsecret"
-#define SECRETSERVICE_DOMAIN      (g_quark_from_static_string(SECRETSERVICE_ID))
+#define SECRETSERVICE_NAME N_("Secret Service")
+#define SECRETSERVICE_ID "secret-service"
 
-static PurpleKeyring *keyring_handler = NULL;
-static GCancellable *keyring_cancellable = NULL;
+/******************************************************************************
+ * Globals
+ *****************************************************************************/
+static PurpleCredentialProvider *instance = NULL;
 
-static const SecretSchema purple_schema = {
-	"im.pidgin.Purple", SECRET_SCHEMA_NONE,
+static const SecretSchema purple_secret_service_schema = {
+	"im.pidgin.Purple3", SECRET_SCHEMA_NONE,
 	{
 		{"user", SECRET_SCHEMA_ATTRIBUTE_STRING},
 		{"protocol", SECRET_SCHEMA_ATTRIBUTE_STRING},
@@ -61,263 +57,232 @@ static const SecretSchema purple_schema = {
 	0, 0, 0, 0, 0, 0, 0, 0
 };
 
-typedef struct _InfoStorage InfoStorage;
+#define PURPLE_TYPE_SECRET_SERVICE (purple_secret_service_get_type())
+G_DECLARE_FINAL_TYPE(PurpleSecretService, purple_secret_service,
+                     PURPLE, SECRET_SERVICE, PurpleCredentialProvider)
 
-struct _InfoStorage
-{
-	PurpleAccount *account;
-	gpointer cb;
-	gpointer user_data;
+struct _PurpleSecretService {
+	PurpleCredentialProvider parent;
 };
 
-/***********************************************/
-/*     Keyring interface                       */
-/***********************************************/
+G_DEFINE_DYNAMIC_TYPE(PurpleSecretService, purple_secret_service,
+                      PURPLE_TYPE_CREDENTIAL_PROVIDER)
+
+/******************************************************************************
+ * Callbacks
+ *****************************************************************************/
 static void
-ss_g_error_to_keyring_error(GError **error, PurpleAccount *account)
+purple_secret_service_read_password_callback(GObject *obj,
+                                             GAsyncResult *result,
+                                             gpointer data)
 {
-	GError *old_error;
-	GError *new_error = NULL;
-
-	g_return_if_fail(error != NULL);
-
-	old_error = *error;
-
-	if (g_error_matches(old_error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
-		new_error = g_error_new_literal(PURPLE_KEYRING_ERROR,
-		                                PURPLE_KEYRING_ERROR_CANCELLED,
-		                                _("Operation cancelled."));
-	} else if (g_error_matches(old_error, G_DBUS_ERROR,
-				G_DBUS_ERROR_SPAWN_SERVICE_NOT_FOUND) ||
-			g_error_matches(old_error, G_DBUS_ERROR,
-				G_DBUS_ERROR_IO_ERROR)) {
-		purple_debug_info("keyring-libsecret",
-			"Failed to communicate with Secret "
-			"Service (account: %s (%s)).\n",
-			purple_account_get_username(account),
-			purple_account_get_protocol_id(account));
-		new_error = g_error_new(PURPLE_KEYRING_ERROR,
-			PURPLE_KEYRING_ERROR_BACKENDFAIL,
-			"Failed to communicate with Secret "
-			"Service (account: %s).",
-			purple_account_get_username(account));
-	} else if (g_error_matches(old_error, SECRET_ERROR,
-			SECRET_ERROR_IS_LOCKED)) {
-		purple_debug_info("keyring-libsecret",
-			"Secret Service is locked (account: %s (%s)).\n",
-			purple_account_get_username(account),
-			purple_account_get_protocol_id(account));
-		new_error = g_error_new(PURPLE_KEYRING_ERROR,
-			PURPLE_KEYRING_ERROR_ACCESSDENIED,
-			"Secret Service is locked (account: %s).",
-			purple_account_get_username(account));
-	} else {
-		purple_debug_error("keyring-libsecret",
-			"Unknown error (account: %s (%s), "
-			"domain: %s, code: %d): %s.\n",
-			purple_account_get_username(account),
-			purple_account_get_protocol_id(account),
-			g_quark_to_string(old_error->domain),
-			old_error->code, old_error->message);
-		new_error = g_error_new(PURPLE_KEYRING_ERROR,
-			PURPLE_KEYRING_ERROR_BACKENDFAIL,
-			"Unknown error (account: %s).",
-			purple_account_get_username(account));
-	}
-
-	g_clear_error(error);
-	g_propagate_error(error, new_error);
-}
-
-static void
-ss_read_continue(GObject *object, GAsyncResult *result, gpointer data)
-{
-	InfoStorage *storage = data;
-	PurpleAccount *account = storage->account;
-	PurpleKeyringReadCallback cb = storage->cb;
-	char *password;
+	GTask *task = G_TASK(data);
 	GError *error = NULL;
+	gchar *password = NULL;
 
 	password = secret_password_lookup_finish(result, &error);
 
-	if (error != NULL) {
-		ss_g_error_to_keyring_error(&error, account);
-	} else if (password == NULL) {
-		error = g_error_new(PURPLE_KEYRING_ERROR,
-			PURPLE_KEYRING_ERROR_NOPASSWORD,
-			"No password found for account: %s",
-			purple_account_get_username(account));
-	}
-
-	if (cb != NULL) {
-		cb(account, password, error, storage->user_data);
-	}
-
-	g_clear_error(&error);
-	g_free(storage);
-}
-
-static void
-ss_read(PurpleAccount *account, PurpleKeyringReadCallback cb, gpointer data)
-{
-	InfoStorage *storage = g_new0(InfoStorage, 1);
-
-	storage->account = account;
-	storage->cb = cb;
-	storage->user_data = data;
-
-	secret_password_lookup(&purple_schema, keyring_cancellable,
-		ss_read_continue, storage,
-		"user", purple_account_get_username(account),
-		"protocol", purple_account_get_protocol_id(account), NULL);
-}
-
-static void
-ss_save_continue(GError *error, gpointer data)
-{
-	InfoStorage *storage = data;
-	PurpleKeyringSaveCallback cb;
-	PurpleAccount *account;
-
-	account = storage->account;
-	cb = storage->cb;
-
-	if (error != NULL) {
-		ss_g_error_to_keyring_error(&error, account);
+	if(error != NULL) {
+		g_task_return_error(task, error);
 	} else {
-		purple_debug_info("keyring-libsecret", "Password for %s updated.\n",
-			purple_account_get_username(account));
+		g_task_return_pointer(task, password, g_free);
 	}
 
-	if (cb != NULL)
-		cb(account, error, storage->user_data);
-
-	g_clear_error(&error);
-	g_free(storage);
+	g_object_unref(G_OBJECT(task));
 }
 
 static void
-ss_store_continue(GObject *object, GAsyncResult *result, gpointer data)
+purple_secret_service_write_password_callback(GObject *obj,
+                                              GAsyncResult *result,
+                                              gpointer data)
 {
+	GTask *task = G_TASK(data);
 	GError *error = NULL;
+	gboolean ret = FALSE;
 
-	secret_password_store_finish(result, &error);
+	ret = secret_password_store_finish(result, &error);
 
-	ss_save_continue(error, data);
-}
-
-static void
-ss_clear_continue(GObject *object, GAsyncResult *result, gpointer data)
-{
-	GError *error = NULL;
-
-	secret_password_clear_finish(result, &error);
-
-	ss_save_continue(error, data);
-}
-
-static void
-ss_save(PurpleAccount *account,
-         const gchar *password,
-         PurpleKeyringSaveCallback cb,
-         gpointer data)
-{
-	InfoStorage *storage = g_new0(InfoStorage, 1);
-
-	storage->account = account;
-	storage->cb = cb;
-	storage->user_data = data;
-
-	if (password != NULL && *password != '\0') {
-		const char *username = purple_account_get_username(account);
-		char *label;
-
-		purple_debug_info("keyring-libsecret",
-			"Updating password for account %s (%s).\n",
-			username, purple_account_get_protocol_id(account));
-
-		label = g_strdup_printf(_("Pidgin IM password for account %s"), username);
-		secret_password_store(&purple_schema, SECRET_COLLECTION_DEFAULT,
-			label, password, keyring_cancellable,
-			ss_store_continue, storage,
-			"user", username,
-			"protocol", purple_account_get_protocol_id(account),
-			NULL);
-		g_free(label);
-
-	} else {	/* password == NULL, delete password. */
-		purple_debug_info("keyring-libsecret",
-			"Forgetting password for account %s (%s).\n",
-			purple_account_get_username(account),
-			purple_account_get_protocol_id(account));
-
-		secret_password_clear(&purple_schema, keyring_cancellable,
-			ss_clear_continue, storage,
-			"user", purple_account_get_username(account),
-			"protocol", purple_account_get_protocol_id(account),
-			NULL);
+	if(error != NULL) {
+		g_task_return_error(task, error);
+	} else {
+		g_task_return_boolean(task, ret);
 	}
+
+	g_object_unref(G_OBJECT(task));
 }
 
 static void
-ss_cancel(void)
+purple_secret_service_clear_password_callback(GObject *obj,
+                                              GAsyncResult *result,
+                                              gpointer data)
 {
-	g_cancellable_cancel(keyring_cancellable);
+	GTask *task = G_TASK(data);
+	GError *error = NULL;
+	gboolean ret = FALSE;
 
-	/* Swap out cancelled cancellable for new one for further operations */
-	g_clear_object(&keyring_cancellable);
-	keyring_cancellable = g_cancellable_new();
+	ret = secret_password_clear_finish(result, &error);
+
+	if(error != NULL) {
+		g_task_return_error(task, error);
+	} else {
+		g_task_return_boolean(task, ret);
+	}
+
+	g_object_unref(G_OBJECT(task));
+}
+
+/******************************************************************************
+ * PurpleCredentialProvider Implementation
+ *****************************************************************************/
+static void
+purple_secret_service_read_password_async(PurpleCredentialProvider *provider,
+                                          PurpleAccount *account,
+                                          GCancellable *cancellable,
+                                          GAsyncReadyCallback callback,
+                                          gpointer data)
+{
+	GTask *task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
+
+	secret_password_lookup(&purple_secret_service_schema, cancellable,
+                           purple_secret_service_read_password_callback, task,
+                           "user", purple_account_get_username(account),
+                           "protocol", purple_account_get_protocol_id(account),
+                           NULL);
+}
+
+static gchar *
+purple_secret_service_read_password_finish(PurpleCredentialProvider *provider,
+                                           GAsyncResult *result,
+                                           GError **error)
+{
+	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
+	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
+
+	return g_task_propagate_pointer(G_TASK(result), error);
 }
 
 static void
-ss_close(void)
+purple_secret_service_write_password_async(PurpleCredentialProvider *provider,
+                                           PurpleAccount *account,
+                                           const gchar *password,
+                                           GCancellable *cancellable,
+                                           GAsyncReadyCallback callback,
+                                           gpointer data)
 {
-	ss_cancel();
+	GTask *task = NULL;
+	gchar *label = NULL;
+	const gchar *username = NULL;
+
+	task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
+	username = purple_account_get_username(account);
+
+	label = g_strdup_printf(_("libpurple password for account %s"), username);
+	secret_password_store(&purple_secret_service_schema,
+	                      SECRET_COLLECTION_DEFAULT, label, password,
+	                      cancellable,
+	                      purple_secret_service_write_password_callback, task,
+	                      "user", username,
+	                      "protocol", purple_account_get_protocol_id(account),
+	                      NULL);
+	g_free(label);
 }
 
 static gboolean
-ss_init(GError **error)
+purple_secret_service_write_password_finish(PurpleCredentialProvider *provider,
+                                            GAsyncResult *result,
+                                            GError **error)
 {
-	keyring_cancellable = g_cancellable_new();
+	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
+	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
 
-	keyring_handler = purple_keyring_new();
-
-	purple_keyring_set_name(keyring_handler, _(SECRETSERVICE_NAME));
-	purple_keyring_set_id(keyring_handler, SECRETSERVICE_ID);
-	purple_keyring_set_read_password(keyring_handler, ss_read);
-	purple_keyring_set_save_password(keyring_handler, ss_save);
-	purple_keyring_set_cancel_requests(keyring_handler, ss_cancel);
-	purple_keyring_set_close_keyring(keyring_handler, ss_close);
-
-	purple_keyring_register(keyring_handler);
-
-	return TRUE;
+	return g_task_propagate_boolean(G_TASK(result), error);
 }
 
 static void
-ss_uninit(void)
+purple_secret_service_clear_password_async(PurpleCredentialProvider *provider,
+                                           PurpleAccount *account,
+                                           GCancellable *cancellable,
+                                           GAsyncReadyCallback callback,
+                                           gpointer data)
 {
-	ss_close();
-	purple_keyring_unregister(keyring_handler);
-	purple_keyring_free(keyring_handler);
-	keyring_handler = NULL;
+	GTask *task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
 
-	g_clear_object(&keyring_cancellable);
+	secret_password_clear(&purple_secret_service_schema, cancellable,
+	                      purple_secret_service_clear_password_callback, task,
+	                      "user", purple_account_get_username(account),
+	                      "protocol", purple_account_get_protocol_id(account),
+	                      NULL);
 }
 
-/***********************************************/
-/*     Plugin interface                        */
-/***********************************************/
-
-static PurplePluginInfo *
-plugin_query(GError **error)
+static gboolean
+purple_secret_service_clear_password_finish(PurpleCredentialProvider *provider,
+                                            GAsyncResult *result,
+                                            GError **error)
 {
+	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
+	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
+
+	return g_task_propagate_boolean(G_TASK(result), error);
+}
+
+/******************************************************************************
+ * GObject Implementation
+ *****************************************************************************/
+static void
+purple_secret_service_init(PurpleSecretService *ss) {
+}
+
+static void
+purple_secret_service_class_init(PurpleSecretServiceClass *klass) {
+	PurpleCredentialProviderClass *provider_class = NULL;
+
+	provider_class = PURPLE_CREDENTIAL_PROVIDER_CLASS(klass);
+	provider_class->read_password_async =
+		purple_secret_service_read_password_async;
+	provider_class->read_password_finish =
+		purple_secret_service_read_password_finish;
+	provider_class->write_password_async =
+		purple_secret_service_write_password_async;
+	provider_class->write_password_finish =
+		purple_secret_service_write_password_finish;
+	provider_class->clear_password_async =
+		purple_secret_service_clear_password_async;
+	provider_class->clear_password_finish =
+		purple_secret_service_clear_password_finish;
+}
+
+static void
+purple_secret_service_class_finalize(PurpleSecretServiceClass *klass) {
+}
+
+/******************************************************************************
+ * API
+ *****************************************************************************/
+static PurpleCredentialProvider *
+purple_secret_service_new(void) {
+	return PURPLE_CREDENTIAL_PROVIDER(g_object_new(
+		PURPLE_TYPE_SECRET_SERVICE,
+		"id", SECRETSERVICE_ID,
+		"name", _(SECRETSERVICE_NAME),
+		NULL
+	));
+}
+
+/******************************************************************************
+ * Plugin Exports
+ *****************************************************************************/
+G_MODULE_EXPORT GPluginPluginInfo *gplugin_query(GPluginPlugin *plugin, GError **error);
+G_MODULE_EXPORT gboolean gplugin_load(GPluginPlugin *plugin, GError **error);
+G_MODULE_EXPORT gboolean gplugin_unload(GPluginPlugin *plugin, GError **error);
+
+G_MODULE_EXPORT GPluginPluginInfo *
+gplugin_query(GPluginPlugin *plugin, GError **error) {
 	const gchar * const authors[] = {
 		"Elliott Sales de Andrade (qulogic[at]pidgin.im)",
 		NULL
 	};
 
-	return purple_plugin_info_new(
+	return GPLUGIN_PLUGIN_INFO(purple_plugin_info_new(
 		"id",           SECRETSERVICE_ID,
 		"name",         SECRETSERVICE_NAME,
 		"version",      DISPLAY_VERSION,
@@ -327,29 +292,39 @@ plugin_query(GError **error)
 		"authors",      authors,
 		"website",      PURPLE_WEBSITE,
 		"abi-version",  PURPLE_ABI_VERSION,
-		"flags",        PURPLE_PLUGIN_INFO_FLAGS_INTERNAL,
+		"flags",        PURPLE_PLUGIN_INFO_FLAGS_INTERNAL |
+		                PURPLE_PLUGIN_INFO_FLAGS_AUTO_LOAD,
 		NULL
-	);
+	));
 }
 
-static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
-{
-	return ss_init(error);
+G_MODULE_EXPORT gboolean
+gplugin_load(GPluginPlugin *plugin, GError **error) {
+	PurpleCredentialManager *manager = NULL;
+
+	purple_secret_service_register_type(G_TYPE_MODULE(plugin));
+
+	manager = purple_credential_manager_get_default();
+
+	instance = purple_secret_service_new();
+
+	return purple_credential_manager_register_provider(manager, instance,
+	                                                   error);
 }
 
-static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
-{
-	if (purple_keyring_get_inuse() == keyring_handler) {
-		g_set_error(error, SECRETSERVICE_DOMAIN, 0, "The keyring is currently "
-			"in use.");
-		return FALSE;
+G_MODULE_EXPORT gboolean
+gplugin_unload(GPluginPlugin *plugin, GError **error) {
+	PurpleCredentialManager *manager = NULL;
+	gboolean ret = FALSE;
+
+	manager = purple_credential_manager_get_default();
+	ret = purple_credential_manager_unregister_provider(manager, instance,
+	                                                    error);
+	if(!ret) {
+		return ret;
 	}
 
-	ss_uninit();
+	g_clear_object(&instance);
 
 	return TRUE;
 }
-
-PURPLE_PLUGIN_INIT(secret_service, plugin_query, plugin_load, plugin_unload);
