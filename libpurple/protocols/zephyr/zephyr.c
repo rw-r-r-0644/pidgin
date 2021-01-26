@@ -470,12 +470,11 @@ static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 		} else {
 			ZSubscription_t sub = {
 			        .zsub_class = notice.z_class,
-			        .zsub_classinst = notice.z_class_inst,
-			        .zsub_recipient = notice.z_recipient
+			        .zsub_classinst = (gchar *)notice.z_class_inst,
+			        .zsub_recipient = (gchar *)notice.z_recipient
 			};
 			zephyr_triple *zt;
 			gchar *send_inst_utf8;
-			zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 			GSList *l = g_slist_find_custom(zephyr->subscrips, &sub, (GCompareFunc)zephyr_triple_subset);
 
 			if (!l) {
