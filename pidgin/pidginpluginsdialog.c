@@ -38,7 +38,6 @@ struct _PidginPluginsDialog {
 
 	GtkWidget *tree_view;
 	GtkWidget *configure_plugin_button;
-	GtkWidget *close_button;
 	GtkWidget *plugin_info;
 
 	GtkListStore *plugin_store;
@@ -143,11 +142,6 @@ pidgin_plugins_dialog_pref_dialog_close(GPluginPlugin *plugin) {
  * Callbacks
  *****************************************************************************/
 static void
-pidgin_plugins_dialog_close(GtkWidget *b, gpointer data) {
-	gtk_widget_destroy(GTK_WIDGET(data));
-}
-
-static void
 pidgin_plugins_dialog_selection_cb(GtkTreeSelection *sel, gpointer data) {
 	PidginPluginsDialog *dialog = PIDGIN_PLUGINS_DIALOG(data);
 	GPluginPlugin *plugin = NULL;
@@ -165,12 +159,14 @@ pidgin_plugins_dialog_selection_cb(GtkTreeSelection *sel, gpointer data) {
 		plugin
 	);
 
-	gtk_widget_set_sensitive(
-		GTK_WIDGET(dialog->configure_plugin_button),
-		pidgin_plugins_dialog_plugin_has_config(plugin)
-	);
+	if(GPLUGIN_IS_PLUGIN(plugin)) {
+		gtk_widget_set_sensitive(
+			GTK_WIDGET(dialog->configure_plugin_button),
+			pidgin_plugins_dialog_plugin_has_config(plugin)
+		);
 
-	g_object_unref(G_OBJECT(plugin));
+		g_object_unref(G_OBJECT(plugin));
+	}
 }
 
 static void
@@ -310,7 +306,6 @@ pidgin_plugins_dialog_class_init(PidginPluginsDialogClass *klass) {
 
 	gtk_widget_class_bind_template_child(widget_class, PidginPluginsDialog, tree_view);
 	gtk_widget_class_bind_template_child(widget_class, PidginPluginsDialog, configure_plugin_button);
-	gtk_widget_class_bind_template_child(widget_class, PidginPluginsDialog, close_button);
 	gtk_widget_class_bind_template_child(widget_class, PidginPluginsDialog, plugin_info);
 	gtk_widget_class_bind_template_child(widget_class, PidginPluginsDialog, plugin_store);
 
@@ -322,14 +317,6 @@ static void
 pidgin_plugins_dialog_init(PidginPluginsDialog *dialog) {
 	gtk_widget_init_template(GTK_WIDGET(dialog));
 
-	/* wire up the close button */
-	g_signal_connect(
-		dialog->close_button,
-		"clicked",
-		G_CALLBACK(pidgin_plugins_dialog_close),
-		dialog
-	);
-
 	/* set the sort column for the plugin_store */
 	gtk_tree_sortable_set_sort_column_id(
 		GTK_TREE_SORTABLE(dialog->plugin_store),
@@ -338,12 +325,11 @@ pidgin_plugins_dialog_init(PidginPluginsDialog *dialog) {
 	);
 }
 
+/******************************************************************************
+ * Public API
+ *****************************************************************************/
 GtkWidget *
 pidgin_plugins_dialog_new(void) {
-	return g_object_new(
-		PIDGIN_TYPE_PLUGINS_DIALOG,
-		"title", _("Plugins"),
-		NULL
-	);
+	return GTK_WIDGET(g_object_new(PIDGIN_TYPE_PLUGINS_DIALOG, NULL));
 }
 
