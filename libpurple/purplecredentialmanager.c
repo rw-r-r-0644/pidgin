@@ -19,7 +19,12 @@
 #include <glib/gi18n-lib.h>
 
 #include "purplecredentialmanager.h"
+
+#include "core.h"
+#include "debug.h"
+#include "prefs.h"
 #include "purpleprivate.h"
+#include "util.h"
 
 enum {
 	SIG_PROVIDER_REGISTERED,
@@ -112,6 +117,23 @@ purple_credential_manager_clear_password_callback(GObject *obj,
 	g_object_unref(G_OBJECT(task));
 }
 
+/******************************************************************************
+ * Purple Callbacks
+ *****************************************************************************/
+static void
+purple_credential_manager_core_init_cb(gpointer data) {
+	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(data);
+	PurpleCredentialManagerPrivate *priv = NULL;
+
+	priv = purple_credential_manager_get_instance_private(manager);
+	if(!PURPLE_IS_CREDENTIAL_PROVIDER(priv->active_provider)) {
+		purple_notify_error(NULL, _("Credential Manager"),
+		                    _("Failed to load the selected credential "
+		                      "provider."),
+		                    _("Check your system configuration or select "
+		                      "another one in the preferences dialog."), NULL);
+	}
+}
 
 /******************************************************************************
  * GObject Implementation
@@ -138,6 +160,13 @@ purple_credential_manager_init(PurpleCredentialManager *manager) {
 
 	priv->providers = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
 	                                        g_object_unref);
+
+	/* Connect to the core-initialized signal so we can alert the user if we
+	 * were unable to find their credential provider.
+	 */
+	purple_signal_connect(purple_get_core(), "core-initialized", manager,
+	                      PURPLE_CALLBACK(purple_credential_manager_core_init_cb),
+	                      manager);
 }
 
 static void
@@ -267,6 +296,20 @@ purple_credential_manager_register_provider(PurpleCredentialManager *manager,
 	g_signal_emit(G_OBJECT(manager), signals[SIG_PROVIDER_REGISTERED], 0,
 	              provider);
 
+	/* If we don't currently have an active provider, check if the newly
+	 * registered provider has the id of the stored provider in preferences.
+	 * If it is, go ahead and make it the active provider.
+	 */
+	if(!PURPLE_IS_CREDENTIAL_PROVIDER(priv->active_provider)) {
+		const gchar *wanted = NULL;
+
+		wanted = purple_prefs_get_string("/purple/credentials/active-provider");
+
+		if(purple_strequal(wanted, id)) {
+			purple_credential_manager_set_active_provider(manager, id, error);
+		}
+	}
+
 	return TRUE;
 }
 
@@ -336,6 +379,9 @@ purple_credential_manager_set_active_provider(PurpleCredentialManager *manager,
 	}
 
 	g_clear_object(&old);
+
+	purple_debug_info("PurpleCredentialProvider",
+	                  "set active provider to '%s'", id);
 
 	return TRUE;
 }
