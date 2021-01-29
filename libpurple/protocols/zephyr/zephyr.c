@@ -65,6 +65,7 @@ typedef struct _zephyr_account zephyr_account;
 typedef gssize (*PollableInputStreamReadFunc)(GPollableInputStream *stream, void *bufcur, GError **error);
 typedef gboolean (*ZephyrLoginFunc)(zephyr_account *zephyr);
 typedef Code_t (*ZephyrSubscribeToFunc)(zephyr_account *zephyr, ZSubscription_t *sub);
+typedef gboolean (*ZephyrRequestLocationsFunc)(zephyr_account *zephyr, gchar *who);
 
 typedef enum {
 	PURPLE_ZEPHYR_NONE, /* Non-kerberized ZEPH0.2 */
@@ -95,6 +96,7 @@ struct _zephyr_account {
 	GInputStream *tzc_stdout;
 	gchar *away;
 	ZephyrSubscribeToFunc subscribe_to;
+	ZephyrRequestLocationsFunc request_locations;
 };
 
 #define MAXCHILDREN 20
@@ -843,28 +845,27 @@ static gint check_notify_zeph02(gpointer data)
 }
 
 static gboolean
-zephyr_request_locations(zephyr_account *zephyr, gchar *who)
+request_locations_tzc(zephyr_account *zephyr, gchar *who)
 {
-	if (use_zeph02(zephyr)) {
-		ZAsyncLocateData_t ald;
-		Code_t zerr;
+	gchar *zlocstr;
+	gboolean result;
 
-		zerr = ZRequestLocations(who, &ald, UNACKED, ZAUTH);
-		g_free(ald.user);
-		g_free(ald.version);
-		return zerr == ZERR_NONE;
-	}
+	zlocstr = g_strdup_printf("((tzcfodder . zlocate) \"%s\")\n", who);
+	result = zephyr_write_message(zephyr, zlocstr);
+	g_free(zlocstr);
+	return result;
+}
 
-	if (use_tzc(zephyr)) {
-		gchar *zlocstr;
+static gboolean
+request_locations_zeph02(G_GNUC_UNUSED zephyr_account *zephyr, gchar *who)
+{
+	ZAsyncLocateData_t ald;
+	Code_t zerr;
 
-		zlocstr = g_strdup_printf("((tzcfodder . zlocate) \"%s\")\n", who);
-		zephyr_write_message(zephyr, zlocstr);
-		g_free(zlocstr);
-		return TRUE;
-	}
-
-	return FALSE;
+	zerr = ZRequestLocations(who, &ald, UNACKED, ZAUTH);
+	g_free(ald.user);
+	g_free(ald.version);
+	return zerr == ZERR_NONE;
 }
 
 #ifdef WIN32
@@ -918,7 +919,7 @@ static gint check_loc(gpointer data)
 		purple_debug_info("zephyr","chk: %s b->name %s\n",chk,name);
 		/* XXX add real error reporting */
 		/* doesn't matter if this fails or not; we'll just move on to the next one */
-		zephyr_request_locations(zephyr, chk);
+		zephyr->request_locations(zephyr, chk);
 		g_free(chk);
 	}
 
@@ -1416,11 +1417,13 @@ static void zephyr_login(PurpleAccount * account)
 		login = login_tzc;
 		check_notify = check_notify_tzc;
 		zephyr->subscribe_to = subscribe_to_tzc;
+		zephyr->request_locations = request_locations_tzc;
 	} else {
 		zephyr->connection_type = PURPLE_ZEPHYR_KRB4;
 		login = login_zeph02;
 		check_notify = check_notify_zeph02;
 		zephyr->subscribe_to = subscribe_to_zeph02;
+		zephyr->request_locations = request_locations_zeph02;
 	}
 
 	zephyr->encoding = (char *)purple_account_get_string(account, "encoding", ZEPHYR_FALLBACK_CHARSET);
@@ -1850,9 +1853,9 @@ zephyr_zloc(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
             const gchar *who)
 {
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
-	gchar* normalized_who = local_zephyr_normalize(zephyr,who);
+	gchar *normalized_who = local_zephyr_normalize(zephyr, who);
 
-	if (zephyr_request_locations(zephyr, normalized_who)) {
+	if (zephyr->request_locations(zephyr, normalized_who)) {
 		zephyr->pending_zloc_names = g_list_append(zephyr->pending_zloc_names, normalized_who);
 	} else {
 		/* XXX deal with errors somehow */
