@@ -203,7 +203,7 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 	memset(&credential, 0, sizeof(CREDENTIALW));
 	credential.Type = CRED_TYPE_GENERIC;
 	credential.TargetName = target_name;
-	credential.CredentialBlobSize = purple_utf16_size(password_utf16) - 2;
+	credential.CredentialBlobSize = password_len * sizeof(gunichar2);
 	credential.CredentialBlob = (LPBYTE)password_utf16;
 	credential.Persist = CRED_PERSIST_LOCAL_MACHINE;
 	credential.UserName = username_utf16;

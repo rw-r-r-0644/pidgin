@@ -734,16 +734,6 @@ const char *purple_strcasestr(const char *haystack, const char *needle);
 char *purple_str_seconds_to_string(guint sec);
 
 /**
- * purple_utf16_size:
- * @str: String to check.
- *
- * Calculates UTF-16 string size (in bytes).
- *
- * Returns:    Number of bytes (including NUL character) that string occupies.
- */
-size_t purple_utf16_size(const gunichar2 *str);
-
-/**
  * purple_str_wipe:
  * @str: A NUL-terminated string to free, or a NULL-pointer.
  *
@@ -752,16 +742,6 @@ size_t purple_utf16_size(const gunichar2 *str);
  * It should be used to free sensitive data, like passwords.
  */
 void purple_str_wipe(gchar *str);
-
-/**
- * purple_utf16_wipe:
- * @str: A NUL-terminated string to free, or a NULL-pointer.
- *
- * Fills a NUL-terminated UTF-16 string with zeros and frees it.
- *
- * It should be used to free sensitive data, like passwords.
- */
-void purple_utf16_wipe(gunichar2 *str);
 
 /**************************************************************************/
 /* URI/URL Functions                                                      */
