@@ -4103,7 +4103,7 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	PurpleBlistNode *convnode;
 
 	if (PURPLE_IS_IM_CONVERSATION(conv) && (gtkconv = pidgin_conv_find_gtkconv(conv))) {
-		purple_conversation_set_ui_data(conv, gtkconv);
+		g_object_set_data(G_OBJECT(conv), "pidgin", gtkconv);
 		if (!g_list_find(gtkconv->convs, conv))
 			gtkconv->convs = g_list_prepend(gtkconv->convs, conv);
 		pidgin_conv_switch_active_conversation(conv);
@@ -4111,7 +4111,7 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	}
 
 	gtkconv = g_new0(PidginConversation, 1);
-	purple_conversation_set_ui_data(conv, gtkconv);
+	g_object_set_data(G_OBJECT(conv), "pidgin", gtkconv);
 	gtkconv->active_conv = conv;
 	gtkconv->convs = g_list_prepend(gtkconv->convs, conv);
 	gtkconv->send_history = g_list_append(NULL, NULL);
@@ -4135,7 +4135,7 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 			g_free(gtkconv->u.im);
 
 		g_free(gtkconv);
-		purple_conversation_set_ui_data(conv, NULL);
+		g_object_set_data(G_OBJECT(conv), "pidgin", NULL);
 		return;
 	}
 

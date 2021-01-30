@@ -762,20 +762,6 @@ GList *purple_conversation_get_message_history(PurpleConversation *conv)
 	return priv->message_history;
 }
 
-void purple_conversation_set_ui_data(PurpleConversation *conv, gpointer ui_data)
-{
-	g_return_if_fail(PURPLE_IS_CONVERSATION(conv));
-
-	conv->ui_data = ui_data;
-}
-
-gpointer purple_conversation_get_ui_data(const PurpleConversation *conv)
-{
-	g_return_val_if_fail(PURPLE_IS_CONVERSATION(conv), NULL);
-
-	return conv->ui_data;
-}
-
 gboolean
 purple_conversation_do_command(PurpleConversation *conv, const gchar *cmdline,
 				const gchar *markup, gchar **error)
