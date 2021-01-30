@@ -23,6 +23,7 @@
 #include "core.h"
 #include "debug.h"
 #include "prefs.h"
+#include "purplenoopcredentialprovider.h"
 #include "purpleprivate.h"
 #include "util.h"
 
@@ -155,11 +156,16 @@ purple_credential_manager_finalize(GObject *obj) {
 static void
 purple_credential_manager_init(PurpleCredentialManager *manager) {
 	PurpleCredentialManagerPrivate *priv = NULL;
+	PurpleCredentialProvider *noop = NULL;
 
 	priv = purple_credential_manager_get_instance_private(manager);
 
 	priv->providers = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
 	                                        g_object_unref);
+
+	noop = purple_noop_credential_provider_new();
+	purple_credential_manager_register_provider(manager, noop, NULL);
+	g_object_unref(G_OBJECT(noop));
 
 	/* Connect to the core-initialized signal so we can alert the user if we
 	 * were unable to find their credential provider.
@@ -253,7 +259,21 @@ purple_credential_manager_startup(void) {
 
 void
 purple_credential_manager_shutdown(void) {
-	g_clear_object(&default_manager);
+	if(PURPLE_IS_CREDENTIAL_MANAGER(default_manager)) {
+		PurpleCredentialManagerPrivate *priv = NULL;
+		guint size = 0;
+
+		priv = purple_credential_manager_get_instance_private(default_manager);
+
+		size = g_hash_table_size(priv->providers);
+		if(size > 0) {
+			g_warning("purple_credential_manager_shutdown called while %d "
+				      "providers were still registered. Skipping shutdown",
+				      size);
+		} else {
+			g_clear_object(&default_manager);
+		}
+	}
 }
 
 /******************************************************************************
@@ -380,8 +400,7 @@ purple_credential_manager_set_active_provider(PurpleCredentialManager *manager,
 
 	g_clear_object(&old);
 
-	purple_debug_info("PurpleCredentialProvider",
-	                  "set active provider to '%s'", id);
+	purple_debug_info("credential-manager", "set active provider to '%s'", id);
 
 	return TRUE;
 }

@@ -156,12 +156,12 @@ pidgin_credential_provider_store_init(PidginCredentialProviderStore *store) {
 
 	manager = purple_credential_manager_get_default();
 
-	g_signal_connect(G_OBJECT(manager), "provider-registered",
-	                 G_CALLBACK(purple_credential_provider_store_registered_cb),
-	                 store);
-	g_signal_connect(G_OBJECT(manager), "provider-unregistered",
-	                 G_CALLBACK(purple_credential_provider_store_unregistered_cb),
-	                 store);
+	g_signal_connect_object(G_OBJECT(manager), "provider-registered",
+	                        G_CALLBACK(purple_credential_provider_store_registered_cb),
+	                        store, 0);
+	g_signal_connect_object(G_OBJECT(manager), "provider-unregistered",
+	                        G_CALLBACK(purple_credential_provider_store_unregistered_cb),
+	                        store, 0);
 }
 
 static void
