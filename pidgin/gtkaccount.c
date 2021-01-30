@@ -468,7 +468,8 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	/* Protocol */
 	if(dialog->protocol_menu == NULL) {
 		dialog->protocol_menu = pidgin_protocol_chooser_new();
-		gtk_combo_box_set_active(GTK_COMBO_BOX(dialog->protocol_menu), 0);
+		pidgin_protocol_chooser_set_selected_id(PIDGIN_PROTOCOL_CHOOSER(dialog->protocol_menu),
+		                                        dialog->protocol_id);
 		g_signal_connect(G_OBJECT(dialog->protocol_menu), "changed",
 		                 G_CALLBACK(set_account_protocol_cb), dialog);
 		gtk_widget_show(dialog->protocol_menu);

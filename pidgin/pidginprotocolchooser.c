@@ -83,45 +83,45 @@ pidgin_protocol_chooser_get_selected(PidginProtocolChooser *chooser) {
 }
 
 gchar *
-pidgin_protocol_chooser_get_selected_name(PidginProtocolChooser *chooser) {
+pidgin_protocol_chooser_get_selected_id(PidginProtocolChooser *chooser) {
 	GtkTreeIter iter;
-	gchar *name = NULL;
+	gchar *id = NULL;
 
 	g_return_val_if_fail(PIDGIN_IS_PROTOCOL_CHOOSER(chooser), NULL);
 
 	if(gtk_combo_box_get_active_iter(GTK_COMBO_BOX(chooser), &iter)) {
 		gtk_tree_model_get(GTK_TREE_MODEL(chooser->model), &iter,
-		                   PIDGIN_PROTOCOL_STORE_COLUMN_NAME, &name,
+		                   PIDGIN_PROTOCOL_STORE_COLUMN_ID, &id,
 		                   -1);
 	}
 
-	return name;
+	return id;
 }
 
 void
-pidgin_protocol_chooser_set_selected_name(PidginProtocolChooser *chooser,
-                                          const gchar *name)
+pidgin_protocol_chooser_set_selected_id(PidginProtocolChooser *chooser,
+                                        const gchar *id)
 {
 	GtkTreeIter iter;
-	gchar *iter_name = NULL;
+	gchar *iter_id = NULL;
 
 	g_return_if_fail(PIDGIN_IS_PROTOCOL_CHOOSER(chooser));
 
 	if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(chooser->model), &iter)) {
 		do {
 			gtk_tree_model_get(GTK_TREE_MODEL(chooser->model), &iter,
-			                   PIDGIN_PROTOCOL_STORE_COLUMN_NAME, &iter_name,
+			                   PIDGIN_PROTOCOL_STORE_COLUMN_ID, &iter_id,
 			                   -1);
 
-			if(purple_strequal(iter_name, name)) {
+			if(purple_strequal(iter_id, id)) {
 				gtk_combo_box_set_active_iter(GTK_COMBO_BOX(chooser), &iter);
 
-				g_free(iter_name);
+				g_free(iter_id);
 
 				return;
 			}
 
-			g_free(iter_name);
+			g_free(iter_id);
 		} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(chooser->model),
 		                                 &iter));
 	}
