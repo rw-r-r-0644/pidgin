@@ -69,7 +69,7 @@ enum {
 };
 
 #define PIDGIN_CONVERSATION(conv) \
-	((PidginConversation *)purple_conversation_get_ui_data(conv))
+	((PidginConversation *)g_object_get_data(G_OBJECT(conv), "pidgin"))
 
 #define PIDGIN_IS_PIDGIN_CONVERSATION(conv) \
 	(purple_conversation_get_ui_ops(conv) == \

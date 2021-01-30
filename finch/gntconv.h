@@ -39,7 +39,7 @@
 #include <purple.h>
 
 /* Grabs the conv out of a PurpleConverstation */
-#define FINCH_CONV(conv) ((FinchConv *)purple_conversation_get_ui_data(conv))
+#define FINCH_CONV(conv) ((FinchConv *)g_object_get_data(G_OBJECT(conv), "finch"))
 
 /***************************************************************************
  * GNT Conversations API

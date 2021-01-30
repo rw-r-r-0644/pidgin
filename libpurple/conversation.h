@@ -135,9 +135,6 @@ typedef enum
 struct _PurpleConversation
 {
 	GObject gparent;
-
-	/*< public >*/
-	gpointer ui_data;
 };
 
 /**
@@ -514,31 +511,6 @@ GList *purple_conversation_get_message_history(PurpleConversation *conv);
  * Clear the message history of a conversation.
  */
 void purple_conversation_clear_message_history(PurpleConversation *conv);
-
-/**
- * purple_conversation_set_ui_data:
- * @conv:			The conversation.
- * @ui_data:		A pointer to associate with this conversation.
- *
- * Set the UI data associated with this conversation.
- *
- * Since: 3.0.0
- */
-void purple_conversation_set_ui_data(PurpleConversation *conv, gpointer ui_data);
-
-/**
- * purple_conversation_get_ui_data:
- * @conv:			The conversation.
- *
- * Get the UI data associated with this conversation.
- *
- * Returns: (transfer none): The UI data associated with this conversation.
- *         This is a convenience field provided to the UIs--it is not
- *         used by the libpurple core.
- *
- * Since: 3.0.0
- */
-gpointer purple_conversation_get_ui_data(const PurpleConversation *conv);
 
 /**
  * purple_conversation_send_confirm:

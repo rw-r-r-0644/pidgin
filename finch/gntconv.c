@@ -380,11 +380,13 @@ gg_extended_menu(FinchConv *ggc)
 static void
 conv_updated(PurpleConversation *conv, PurpleConversationUpdateType type)
 {
-	if (purple_conversation_get_ui_data(conv) == NULL)
+	FinchConv *finch_conv = FINCH_CONV(conv);
+	if(finch_conv == NULL) {
 		return;
+	}
 
-	if (type == PURPLE_CONVERSATION_UPDATE_FEATURES) {
-		gg_extended_menu(purple_conversation_get_ui_data(conv));
+	if(type == PURPLE_CONVERSATION_UPDATE_FEATURES) {
+		gg_extended_menu(finch_conv);
 		return;
 	}
 }
@@ -748,7 +750,7 @@ finch_create_conversation(PurpleConversation *conv)
 
 	ggc->list = g_list_prepend(ggc->list, conv);
 	ggc->active_conv = conv;
-	purple_conversation_set_ui_data(conv, ggc);
+	g_object_set_data(G_OBJECT(conv), "finch", ggc);
 
 	if (cc && FINCH_CONV(cc) && cc != conv) {
 		finch_conversation_set_active(conv);
