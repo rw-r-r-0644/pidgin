@@ -175,12 +175,6 @@ if IS_WIN32
 	        include_directories : include_directories('win32')
 	    )
 	]
-
-	libpidgin_headers += [
-		'win32/gtkwin32dep.h',
-		'win32/resource.h',
-		'win32/untar.h'
-	]
 endif
 
 if ENABLE_GTK
