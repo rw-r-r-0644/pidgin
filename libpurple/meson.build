@@ -203,10 +203,7 @@ if IS_WIN32
 	]
 
 	purple_coreheaders += [
-		'win32/libc_interface.h',
-		'win32/libc_internal.h',
 		'win32/win32dep.h',
-		'win32/wpurpleerror.h'
 	]
 
 	libpurplerc = configure_file(
