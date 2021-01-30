@@ -26,19 +26,32 @@
 #include <wincred.h>
 
 #define WINCRED_NAME        N_("Windows credentials")
-#define WINCRED_SUMMARY     N_("Store passwords using Windows credentials")
-#define WINCRED_DESCRIPTION N_("This plugin stores passwords using Windows " \
-	"credentials.")
-#define WINCRED_AUTHORS     {"Tomek Wasilczyk <twasilczyk@pidgin.im>", NULL}
 #define WINCRED_ID          "keyring-wincred"
-#define WINCRED_DOMAIN      (g_quark_from_static_string(WINCRED_ID))
 
 #define WINCRED_MAX_TARGET_NAME 256
 
-static PurpleKeyring *keyring_handler = NULL;
+/******************************************************************************
+ * Globals
+ *****************************************************************************/
+static PurpleCredentialProvider *instance = NULL;
+
+#define PURPLE_TYPE_WINCRED (purple_wincred_get_type())
+G_DECLARE_FINAL_TYPE(PurpleWinCred, purple_wincred, PURPLE, SECRET_SERVICE,
+                     PurpleCredentialProvider)
+
+struct _PurpleWinCred {
+	PurpleCredentialProvider parent;
+};
+
+G_DEFINE_DYNAMIC_TYPE(PurpleWinCred, purple_wincred,
+                      PURPLE_TYPE_CREDENTIAL_PROVIDER)
+
+/******************************************************************************
+ * PurpleCredentialProvider Implementation
+ *****************************************************************************/
 
 static gunichar2 *
-wincred_get_target_name(PurpleAccount *account)
+wincred_get_target_name(PurpleAccount *account, GError **error)
 {
 	gchar target_name_utf8[WINCRED_MAX_TARGET_NAME];
 	gunichar2 *target_name_utf16;
@@ -49,30 +62,35 @@ wincred_get_target_name(PurpleAccount *account)
 		purple_account_get_protocol_id(account),
 		purple_account_get_username(account));
 
-	target_name_utf16 = g_utf8_to_utf16(target_name_utf8, -1,
-		NULL, NULL, NULL);
+	target_name_utf16 =
+	        g_utf8_to_utf16(target_name_utf8, -1, NULL, NULL, error);
 
 	if (target_name_utf16 == NULL) {
-		purple_debug_fatal("keyring-wincred", "Couldn't convert target "
-			"name\n");
+		purple_debug_fatal("keyring-wincred", "Couldn't convert target name");
+		return NULL;
 	}
 
 	return target_name_utf16;
 }
 
 static void
-wincred_read(PurpleAccount *account, PurpleKeyringReadCallback cb,
-	gpointer data)
+purple_wincred_read_password_async(PurpleCredentialProvider *provider,
+                                   PurpleAccount *account,
+                                   GCancellable *cancellable,
+                                   GAsyncReadyCallback callback, gpointer data)
 {
+	GTask *task = NULL;
 	GError *error = NULL;
 	gunichar2 *target_name = NULL;
-	gchar *password;
-	PCREDENTIALW credential;
+	gchar *password = NULL;
+	PCREDENTIALW credential = NULL;
 
-	g_return_if_fail(account != NULL);
-
-	target_name = wincred_get_target_name(account);
-	g_return_if_fail(target_name != NULL);
+	task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
+	target_name = wincred_get_target_name(account, &error);
+	if (target_name == NULL) {
+		g_task_return_error(task, error);
+		return;
+	}
 
 	if (!CredReadW(target_name, CRED_TYPE_GENERIC, 0, &credential)) {
 		DWORD error_code = GetLastError();
@@ -103,9 +121,7 @@ wincred_read(PurpleAccount *account, PurpleKeyringReadCallback cb,
 				_("Cannot read password (error %lx)."), error_code);
 		}
 
-		if (cb != NULL)
-			cb(account, NULL, error, data);
-		g_error_free(error);
+		g_task_return_error(task, error);
 		return;
 	}
 
@@ -122,87 +138,66 @@ wincred_read(PurpleAccount *account, PurpleKeyringReadCallback cb,
 		error = g_error_new(PURPLE_KEYRING_ERROR,
 			PURPLE_KEYRING_ERROR_BACKENDFAIL,
 			_("Cannot read password (unicode error)."));
+		g_task_return_error(task, error);
+		return;
 	} else {
 		purple_debug_misc("keyring-wincred",
 			_("Got password for account %s.\n"),
 			purple_account_get_username(account));
 	}
 
-	if (cb != NULL)
-		cb(account, password, error, data);
-	if (error != NULL)
-		g_error_free(error);
+	g_task_return_pointer(task, password, g_free);
+}
 
-	purple_str_wipe(password);
+static gchar *
+purple_wincred_read_password_finish(PurpleCredentialProvider *provider,
+                                    GAsyncResult *result, GError **error)
+{
+	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
+	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
+
+	return g_task_propagate_pointer(G_TASK(result), error);
 }
 
 static void
-wincred_save(PurpleAccount *account, const gchar *password,
-	PurpleKeyringSaveCallback cb, gpointer data)
+purple_wincred_write_password_async(PurpleCredentialProvider *provider,
+                                    PurpleAccount *account,
+                                    const gchar *password,
+                                    GCancellable *cancellable,
+                                    GAsyncReadyCallback callback, gpointer data)
 {
+	GTask *task = NULL;
 	GError *error = NULL;
 	gunichar2 *target_name = NULL;
 	gunichar2 *username_utf16 = NULL;
 	gunichar2 *password_utf16 = NULL;
+	glong password_len = 0;
 	CREDENTIALW credential;
 
-	g_return_if_fail(account != NULL);
+	task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
 
-	target_name = wincred_get_target_name(account);
-	g_return_if_fail(target_name != NULL);
-
-	if (password == NULL) {
-		if (CredDeleteW(target_name, CRED_TYPE_GENERIC, 0)) {
-			purple_debug_misc("keyring-wincred", "Password for "
-				"account %s removed\n",
-				purple_account_get_username(account));
-		} else {
-			DWORD error_code = GetLastError();
-
-			if (error_code == ERROR_NOT_FOUND) {
-				if (purple_debug_is_verbose()) {
-					purple_debug_misc("keyring-wincred",
-					"Password for account %s was already "
-					"removed.\n",
-					purple_account_get_username(account));
-				}
-			} else if (error_code == ERROR_NO_SUCH_LOGON_SESSION) {
-				purple_debug_error("keyring-wincred",
-					"Cannot remove password, no valid "
-					"logon session\n");
-				error = g_error_new(PURPLE_KEYRING_ERROR,
-					PURPLE_KEYRING_ERROR_ACCESSDENIED,
-					_("Cannot remove password, no valid "
-					"logon session."));
-			} else {
-				purple_debug_error("keyring-wincred",
-					"Cannot remove password, error %lx\n",
-					error_code);
-				error = g_error_new(PURPLE_KEYRING_ERROR,
-					PURPLE_KEYRING_ERROR_BACKENDFAIL,
-					_("Cannot remove password (error %lx)."),
-					error_code);
-			}
-		}
-
-		if (cb != NULL)
-			cb(account, error, data);
-		if (error != NULL)
-			g_error_free(error);
+	target_name = wincred_get_target_name(account, &error);
+	if (target_name == NULL) {
+		g_task_return_error(task, error);
 		return;
 	}
 
-	username_utf16 = g_utf8_to_utf16(purple_account_get_username(account),
-		-1, NULL, NULL, NULL);
-	password_utf16 = g_utf8_to_utf16(password, -1, NULL, NULL, NULL);
+	username_utf16 = g_utf8_to_utf16(purple_account_get_username(account), -1,
+	                                 NULL, NULL, &error);
+	if (username_utf16 == NULL) {
+		g_free(target_name);
+		purple_debug_fatal("keyring-wincred", "Couldn't convert username");
+		g_task_return_error(task, error);
+		return;
+	}
 
-	if (username_utf16 == NULL || password_utf16 == NULL) {
+	password_utf16 = g_utf8_to_utf16(password, -1, NULL, &password_len, &error);
+	if (password_utf16 == NULL) {
 		g_free(username_utf16);
-		purple_utf16_wipe(password_utf16);
-
-		purple_debug_fatal("keyring-wincred", "Couldn't convert "
-			"username or password\n");
-		g_return_if_reached();
+		g_free(target_name);
+		purple_debug_fatal("keyring-wincred", "Couldn't convert password");
+		g_task_return_error(task, error);
+		return;
 	}
 
 	memset(&credential, 0, sizeof(CREDENTIALW));
@@ -218,12 +213,10 @@ wincred_save(PurpleAccount *account, const gchar *password,
 
 		if (error_code == ERROR_NO_SUCH_LOGON_SESSION) {
 			purple_debug_error("keyring-wincred",
-				"Cannot store password, no valid logon "
-				"session\n");
-			error = g_error_new(PURPLE_KEYRING_ERROR,
-				PURPLE_KEYRING_ERROR_ACCESSDENIED,
-				_("Cannot remove password, no valid logon "
-				"session."));
+			                   "Cannot store password, no valid logon session");
+			error = g_error_new(
+			        PURPLE_KEYRING_ERROR, PURPLE_KEYRING_ERROR_ACCESSDENIED,
+			        _("Cannot remove password, no valid logon session."));
 		} else {
 			purple_debug_error("keyring-wincred",
 				"Cannot store password, error %lx\n",
@@ -233,72 +226,200 @@ wincred_save(PurpleAccount *account, const gchar *password,
 				_("Cannot store password (error %lx)."), error_code);
 		}
 	} else {
-		purple_debug_misc("keyring-wincred",
-			"Password updated for account %s.\n",
-			purple_account_get_username(account));
+		purple_debug_misc("keyring-wincred", "Password updated for account %s.",
+		                  purple_account_get_username(account));
 	}
 
 	g_free(target_name);
 	g_free(username_utf16);
-	purple_utf16_wipe(password_utf16);
+	memset(password_utf16, 0, password_len * sizeof(gunichar));
+	g_free(password_utf16);
 
-	if (cb != NULL)
-		cb(account, error, data);
-	if (error != NULL)
-		g_error_free(error);
+	if (error != NULL) {
+		g_task_return_error(task, error);
+	} else {
+		g_task_return_boolean(task, TRUE);
+	}
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static gboolean
+purple_wincred_write_password_finish(PurpleCredentialProvider *provider,
+                                     GAsyncResult *result, GError **error)
 {
-	const gchar * const authors[] = WINCRED_AUTHORS;
+	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
+	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
 
-	return purple_plugin_info_new(
+	return g_task_propagate_boolean(G_TASK(result), error);
+}
+
+static void
+purple_wincred_clear_password_async(PurpleCredentialProvider *provider,
+                                    PurpleAccount *account,
+                                    GCancellable *cancellable,
+                                    GAsyncReadyCallback callback, gpointer data)
+{
+	GTask *task = NULL;
+	GError *error = NULL;
+	gunichar2 *target_name = NULL;
+
+	task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
+
+	target_name = wincred_get_target_name(account, &error);
+	if (target_name == NULL) {
+		g_task_return_error(task, error);
+		return;
+	}
+
+	if (CredDeleteW(target_name, CRED_TYPE_GENERIC, 0)) {
+		purple_debug_misc("keyring-wincred", "Password for account %s removed",
+		                  purple_account_get_username(account));
+		g_task_return_boolean(task, TRUE);
+
+	} else {
+		DWORD error_code = GetLastError();
+
+		if (error_code == ERROR_NOT_FOUND) {
+			if (purple_debug_is_verbose()) {
+				purple_debug_misc(
+				        "keyring-wincred",
+				        "Password for account %s was already removed.",
+				        purple_account_get_username(account));
+			}
+		} else if (error_code == ERROR_NO_SUCH_LOGON_SESSION) {
+			purple_debug_error(
+			        "keyring-wincred",
+			        "Cannot remove password, no valid logon session");
+			error = g_error_new(
+			        PURPLE_KEYRING_ERROR, PURPLE_KEYRING_ERROR_ACCESSDENIED,
+			        _("Cannot remove password, no valid logon session."));
+		} else {
+			purple_debug_error("keyring-wincred",
+			                   "Cannot remove password, error %lx", error_code);
+			error = g_error_new(
+			        PURPLE_KEYRING_ERROR, PURPLE_KEYRING_ERROR_BACKENDFAIL,
+			        _("Cannot remove password (error %lx)."), error_code);
+		}
+
+		g_task_return_error(task, error);
+	}
+}
+
+static gboolean
+purple_wincred_clear_password_finish(PurpleCredentialProvider *provider,
+                                     GAsyncResult *result, GError **error)
+{
+	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
+	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
+
+	return g_task_propagate_boolean(G_TASK(result), error);
+}
+
+/******************************************************************************
+ * GObject Implementation
+ *****************************************************************************/
+static void
+purple_wincred_init(PurpleWinCred *wincred)
+{
+}
+
+static void
+purple_wincred_class_init(PurpleWinCredClass *klass)
+{
+	PurpleCredentialProviderClass *provider_class = NULL;
+
+	provider_class = PURPLE_CREDENTIAL_PROVIDER_CLASS(klass);
+	provider_class->read_password_async = purple_wincred_read_password_async;
+	provider_class->read_password_finish = purple_wincred_read_password_finish;
+	provider_class->write_password_async = purple_wincred_write_password_async;
+	provider_class->write_password_finish =
+	        purple_wincred_write_password_finish;
+	provider_class->clear_password_async = purple_wincred_clear_password_async;
+	provider_class->clear_password_finish =
+	        purple_wincred_clear_password_finish;
+}
+
+static void
+purple_wincred_class_finalize(PurpleWinCredClass *klass)
+{
+}
+
+/******************************************************************************
+ * API
+ *****************************************************************************/
+static PurpleCredentialProvider *
+purple_wincred_new(void)
+{
+	return PURPLE_CREDENTIAL_PROVIDER(g_object_new(
+		PURPLE_TYPE_WINCRED,
+		"id", WINCRED_ID,
+		"name", _(WINCRED_NAME),
+		NULL
+	));
+}
+
+/******************************************************************************
+ * Plugin Exports
+ *****************************************************************************/
+
+G_MODULE_EXPORT GPluginPluginInfo *gplugin_query(GError **error);
+G_MODULE_EXPORT gboolean gplugin_load(GPluginNativePlugin *plugin,
+                                      GError **error);
+G_MODULE_EXPORT gboolean gplugin_unload(GPluginNativePlugin *plugin,
+                                        GError **error);
+
+G_MODULE_EXPORT GPluginPluginInfo *
+gplugin_query(GError **error)
+{
+	const gchar * const authors[] = {
+		"Tomek Wasilczyk <twasilczyk@pidgin.im>",
+		NULL
+	};
+
+	return GPLUGIN_PLUGIN_INFO(purple_plugin_info_new(
 		"id",           WINCRED_ID,
 		"name",         WINCRED_NAME,
 		"version",      DISPLAY_VERSION,
-		"category",     N_("Keyring"),
-		"summary",      WINCRED_SUMMARY,
-		"description",  WINCRED_DESCRIPTION,
+		"category",     _("Keyring"),
+		"summary",      _("Store passwords using Windows credentials"),
+		"description",  _("This plugin stores passwords using Windows credentials."),
 		"authors",      authors,
 		"website",      PURPLE_WEBSITE,
 		"abi-version",  PURPLE_ABI_VERSION,
-		"flags",        PURPLE_PLUGIN_INFO_FLAGS_INTERNAL,
+		"flags",        PURPLE_PLUGIN_INFO_FLAGS_INTERNAL |
+		                PURPLE_PLUGIN_INFO_FLAGS_AUTO_LOAD,
 		NULL
-	);
+	));
 }
 
-static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+G_MODULE_EXPORT gboolean
+gplugin_load(GPluginNativePlugin *plugin, GError **error)
 {
-	keyring_handler = purple_keyring_new();
+	PurpleCredentialManager *manager = NULL;
 
-	purple_keyring_set_name(keyring_handler, _(WINCRED_NAME));
-	purple_keyring_set_id(keyring_handler, WINCRED_ID);
-	purple_keyring_set_read_password(keyring_handler, wincred_read);
-	purple_keyring_set_save_password(keyring_handler, wincred_save);
+	purple_wincred_register_type(G_TYPE_MODULE(plugin));
 
-	purple_keyring_register(keyring_handler);
+	manager = purple_credential_manager_get_default();
 
-	return TRUE;
+	instance = purple_wincred_new();
+
+	return purple_credential_manager_register_provider(manager, instance,
+	                                                   error);
 }
 
-static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+G_MODULE_EXPORT gboolean
+gplugin_unload(GPluginNativePlugin *plugin, GError **error)
 {
-	if (purple_keyring_get_inuse() == keyring_handler) {
-		g_set_error(error, WINCRED_DOMAIN, 0, "The keyring is currently "
-			"in use.");
-		purple_debug_warning("keyring-wincred",
-			"keyring in use, cannot unload\n");
-		return FALSE;
+	PurpleCredentialManager *manager = NULL;
+	gboolean ret = FALSE;
+
+	manager = purple_credential_manager_get_default();
+	ret = purple_credential_manager_unregister_provider(manager, instance,
+	                                                    error);
+	if (!ret) {
+		return ret;
 	}
 
-	purple_keyring_unregister(keyring_handler);
-	purple_keyring_free(keyring_handler);
-	keyring_handler = NULL;
+	g_clear_object(&instance);
 
 	return TRUE;
 }
-
-PURPLE_PLUGIN_INIT(wincred_keyring, plugin_query, plugin_load, plugin_unload);
