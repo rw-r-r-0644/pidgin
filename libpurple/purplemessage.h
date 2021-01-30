@@ -93,6 +93,7 @@ typedef enum /*< flags >*/
 	PURPLE_MESSAGE_NO_LINKIFY   = 1 << 12,
 	PURPLE_MESSAGE_INVISIBLE    = 1 << 13,
 	PURPLE_MESSAGE_REMOTE_SEND  = 1 << 14,
+	PURPLE_MESSAGE_FORWARDED    = 1 << 15,
 } PurpleMessageFlags;
 
 /**

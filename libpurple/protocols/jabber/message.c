@@ -100,11 +100,12 @@ void jabber_message_free(JabberMessage *jm)
 
 static void handle_chat(JabberMessage *jm)
 {
-	const gchar *contact = jm->from;
+	const gchar *contact = jm->outgoing ? jm->to : jm->from;
 	JabberID *jid = jabber_id_new(contact);
 
 	PurpleConnection *gc;
 	PurpleAccount *account;
+	PurpleMessageFlags flags = 0;
 	JabberBuddy *jb;
 	JabberBuddyResource *jbr;
 	GString *body;
@@ -199,7 +200,12 @@ static void handle_chat(JabberMessage *jm)
 			jbr->thread_id = g_strdup(jm->thread_id);
 		}
 
-		purple_serv_got_im(gc, contact, body->str, 0, jm->sent);
+		if(jm->forwarded) {
+			flags |= PURPLE_MESSAGE_FORWARDED;
+		}
+		flags |= jm->outgoing ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV;
+
+		purple_serv_got_im(gc, contact, body->str, flags, jm->sent);
 	}
 
 	jabber_id_free(jid);
@@ -576,16 +582,34 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 	const char *id, *from, *to, *type;
 	PurpleXmlNode *child = NULL, *received = NULL;
 	gboolean signal_return;
+	gboolean delayed = FALSE, is_outgoing = FALSE, is_forwarded = FALSE;
+	time_t timestamp = time(NULL);
 
-	/* Check if we have a carbons received element. */
-	received = purple_xmlnode_get_child_with_namespace(packet, "received",
-	                                                   NS_MESSAGE_CARBONS);
-	if(received != NULL) {
+	/* Check if we have a carbons received element from our own account. */
+	from = purple_xmlnode_get_attrib(packet, "from");
+	if(from != NULL && jabber_is_own_account(js, from)) {
 		PurpleXmlNode *forwarded = NULL;
 
-		forwarded = purple_xmlnode_get_child_with_namespace(received,
-		                                                    "forwarded",
-		                                                    NS_FORWARD);
+		/* We check if this is a received carbon first. */
+		received = purple_xmlnode_get_child_with_namespace(packet, "received",
+		                                                   NS_MESSAGE_CARBONS);
+		if(received != NULL) {
+			forwarded = purple_xmlnode_get_child_with_namespace(received,
+			                                                    "forwarded",
+			                                                    NS_FORWARD);
+		} else {
+			PurpleXmlNode *sent = NULL;
+
+			sent = purple_xmlnode_get_child_with_namespace(packet, "sent",
+			                                               NS_MESSAGE_CARBONS);
+			if(sent != NULL) {
+				forwarded = purple_xmlnode_get_child_with_namespace(sent,
+				                                                    "forwarded",
+				                                                    NS_FORWARD);
+				is_outgoing = TRUE;
+			}
+		}
+
 		if(forwarded != NULL) {
 			PurpleXmlNode *fwd_msg = NULL;
 
@@ -593,12 +617,32 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 			                                                  "message",
 			                                                  NS_XMPP_CLIENT);
 			if(fwd_msg != NULL) {
+				PurpleXmlNode *delay = NULL;
+
+				/* We have a forwarded message, so update the packet to point
+				 * to it directly.
+				 */
 				packet = fwd_msg;
+				is_forwarded = TRUE;
+
+				/* Now check if it was a delayed message and if so, grab the
+				 * timestamp that the server sent.
+				 */
+				delay = purple_xmlnode_get_child_with_namespace(forwarded,
+				                                                "delay",
+				                                                NS_DELAYED_DELIVERY);
+				if(delay != NULL) {
+					const gchar *ts = purple_xmlnode_get_attrib(delay,
+					                                            "stamp");
+
+					timestamp = purple_str_to_time(ts, TRUE, NULL, NULL, NULL);
+					delayed = TRUE;
+				}
 			}
 		}
 	}
 
-	/* If the message was forward, packet is now pointing to the forwarded
+	/* If the message was forwarded, packet is now pointing to the forwarded
 	 * message.
 	 */
 	from = purple_xmlnode_get_attrib(packet, "from");
@@ -613,9 +657,11 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 
 	jm = g_new0(JabberMessage, 1);
 	jm->js = js;
-	jm->sent = time(NULL);
-	jm->delayed = FALSE;
+	jm->sent = timestamp;
+	jm->delayed = delayed;
 	jm->chat_state = JM_STATE_NONE;
+	jm->forwarded = is_forwarded;
+	jm->outgoing = is_outgoing;
 
 	if(type) {
 		if(purple_strequal(type, "normal"))

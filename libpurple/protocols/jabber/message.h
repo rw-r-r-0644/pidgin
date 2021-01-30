@@ -43,7 +43,9 @@ typedef struct {
 	} type;
 	time_t sent;
 	gboolean delayed;
+	gboolean forwarded;
 	gboolean hasBuzz;
+	gboolean outgoing;
 	char *id;
 	char *from;
 	char *to;
