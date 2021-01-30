@@ -47,6 +47,7 @@ pidgin_protocol_store_add_protocol(PidginProtocolStore *store,
 		GTK_LIST_STORE(store),
 		&iter,
 		PIDGIN_PROTOCOL_STORE_COLUMN_PROTOCOL, protocol,
+		PIDGIN_PROTOCOL_STORE_COLUMN_ID, purple_protocol_get_id(protocol),
 		PIDGIN_PROTOCOL_STORE_COLUMN_NAME, purple_protocol_get_name(protocol),
 		PIDGIN_PROTOCOL_STORE_COLUMN_ICON, pixbuf,
 		-1
@@ -137,6 +138,7 @@ pidgin_protocol_store_init(PidginProtocolStore *store) {
 	GType types[PIDGIN_PROTOCOL_STORE_N_COLUMNS] = {
 		PURPLE_TYPE_PROTOCOL,
 		G_TYPE_STRING,
+		G_TYPE_STRING,
 		GDK_TYPE_PIXBUF,
 	};
 
@@ -160,17 +162,7 @@ pidgin_protocol_store_init(PidginProtocolStore *store) {
 }
 
 static void
-pidgin_protocol_store_finalize(GObject *obj) {
-	purple_signals_disconnect_by_handle(obj);
-
-	G_OBJECT_CLASS(pidgin_protocol_store_parent_class)->finalize(obj);
-}
-
-static void
 pidgin_protocol_store_class_init(PidginProtocolStoreClass *klass) {
-	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
-
-	obj_class->finalize = pidgin_protocol_store_finalize;
 }
 
 /******************************************************************************

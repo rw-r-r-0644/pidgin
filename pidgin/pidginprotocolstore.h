@@ -45,8 +45,9 @@
  * PidginProtocolStoreColumn:
  * @PIDGIN_PROTOCOL_STORE_COLUMN_PROTOCOL: This column holds a reference to a
  *                                         #PurpleProtocol.
+ * @PIDGIN_PROTOCOL_STORE_COLUMN_ID: This column holds the id of the protocol.
  * @PIDGIN_PROTOCOL_STORE_COLUMN_NAME: This column holds the name of the
- *                                     protocol.
+ *                                     protocol which is used for display.
  * @PIDGIN_PROTOCOL_STORE_COLUMN_ICON: This column holds a #GdkPixbuf of the
  *                                     logo of the protocol.
  *
@@ -56,6 +57,7 @@
  */
 typedef enum {
 	PIDGIN_PROTOCOL_STORE_COLUMN_PROTOCOL,
+	PIDGIN_PROTOCOL_STORE_COLUMN_ID,
 	PIDGIN_PROTOCOL_STORE_COLUMN_NAME,
 	PIDGIN_PROTOCOL_STORE_COLUMN_ICON,
 	/*< private >*/

@@ -71,28 +71,29 @@ GtkWidget *pidgin_protocol_chooser_new(void);
 PurpleProtocol *pidgin_protocol_chooser_get_selected(PidginProtocolChooser *chooser);
 
 /**
- * pidgin_protocol_chooser_get_selected_name:
+ * pidgin_protocol_chooser_get_selected_id:
  * @chooser: The #PidginProtocolChooser instance.
  *
- * Gets the name of the currently selected protocol from @chooser.
+ * Gets the id of the currently selected protocol from @chooser.
  *
- * Returns: (transfer full): The selected #PurpleProtocol or %NULL if nothing
- *                           is selected
+ * Returns: (transfer full): The id of the selected #PurpleProtocol or %NULL if
+ *                           nothing is selected.
  *
  * Since: 3.0.0
  */
-gchar *pidgin_protocol_chooser_get_selected_name(PidginProtocolChooser *chooser);
+gchar *pidgin_protocol_chooser_get_selected_id(PidginProtocolChooser *chooser);
 
 /**
- * pidgin_protocol_chooser_set_selected_name:
+ * pidgin_protocol_chooser_set_selected_id:
  * @chooser: The #PidginProtocolChooser instance.
- * @name: The name of the protocol to select.
+ * @id: The id of the protocol to select.
  *
- * Sets the currently selected protocol of @chooser to @protocol.
+ * Sets the currently selected protocol of @chooser to the #PurpleProtocol with
+ * an id of @id.
  *
  * Since: 3.0.0
  */
-void pidgin_protocol_chooser_set_selected_name(PidginProtocolChooser *chooser, const gchar *name);
+void pidgin_protocol_chooser_set_selected_id(PidginProtocolChooser *chooser, const gchar *id);
 
 G_END_DECLS
 
