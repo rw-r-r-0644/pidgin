@@ -51,19 +51,27 @@ typedef struct _PurpleWhiteboard PurpleWhiteboard;
 
 /**
  * PurpleWhiteboard:
- * @ui_data: The UI data associated with this whiteboard. This is a convenience
- *           field provided to the UIs -- it is not used by the libpurple core.
  *
- * A Whiteboard
+ * A abstract whiteboard object.
  */
-struct _PurpleWhiteboard {
-	GObject gparent;
-
-	/*< public >*/
-	gpointer ui_data;
-};
 
 G_BEGIN_DECLS
+
+/**
+ * PurpleWhiteboardClass:
+ *
+ * The class methods for a PurpleWhiteboard.
+ *
+ * Right now this is empty but it will be filled out with the function from
+ * PurpleWhiteboardOps in a future review request.
+ */
+struct _PurpleWhiteboardClass {
+	/*< private >*/
+	GObjectClass parent;
+
+	/*< private >*/
+	gpointer reserved[16];
+};
 
 /**
  * purple_whiteboard_get_type:
@@ -71,8 +79,8 @@ G_BEGIN_DECLS
  *
  * Returns: The #GType for the #PurpleWhiteboard object.
  */
-G_DECLARE_FINAL_TYPE(PurpleWhiteboard, purple_whiteboard, PURPLE, WHITEBOARD,
-                     GObject)
+G_DECLARE_DERIVABLE_TYPE(PurpleWhiteboard, purple_whiteboard, PURPLE,
+                         WHITEBOARD, GObject)
 
 /**
  * purple_whiteboard_set_protocol_ops:
@@ -304,26 +312,6 @@ void purple_whiteboard_set_protocol_data(PurpleWhiteboard *whiteboard, gpointer 
  * Returns: The protocol data for the whiteboard.
  */
 gpointer purple_whiteboard_get_protocol_data(PurpleWhiteboard *whiteboard);
-
-/**
- * purple_whiteboard_set_ui_data:
- * @whiteboard: The #PurpleWhiteboard instance.
- * @ui_data: A pointer to associate with this whiteboard.
- *
- * Set the UI data associated with this whiteboard.
- */
-void purple_whiteboard_set_ui_data(PurpleWhiteboard *whiteboard, gpointer ui_data);
-
-/**
- * purple_whiteboard_get_ui_data:
- * @whiteboard: The #PurpleWhiteboard instance.
- *
- * Get the UI data associated with @whiteboard.
- *
- * Returns: The UI data associated with @whiteboard.  This is a convenience
- *          field provided to the UIs--it is not used by the libpurple core.
- */
-gpointer purple_whiteboard_get_ui_data(PurpleWhiteboard *whiteboard);
 
 G_END_DECLS
 

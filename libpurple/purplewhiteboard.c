@@ -181,10 +181,6 @@ purple_whiteboard_finalize(GObject *object) {
 
 	priv = purple_whiteboard_get_instance_private(whiteboard);
 
-	if(whiteboard->ui_data) {
-		purple_whiteboard_ui_ops_destroy(whiteboard);
-	}
-
 	/* Do protocol specific session ending procedures */
 	if(priv->protocol_ops != NULL && priv->protocol_ops->end != NULL) {
 		priv->protocol_ops->end(whiteboard);
@@ -492,20 +488,6 @@ purple_whiteboard_get_protocol_data(PurpleWhiteboard *whiteboard) {
 	priv = purple_whiteboard_get_instance_private(whiteboard);
 
 	return priv->proto_data;
-}
-
-void
-purple_whiteboard_set_ui_data(PurpleWhiteboard *whiteboard, gpointer ui_data) {
-	g_return_if_fail(PURPLE_IS_WHITEBOARD(whiteboard));
-
-	whiteboard->ui_data = ui_data;
-}
-
-gpointer
-purple_whiteboard_get_ui_data(PurpleWhiteboard *whiteboard) {
-	g_return_val_if_fail(PURPLE_IS_WHITEBOARD(whiteboard), NULL);
-
-	return whiteboard->ui_data;
 }
 
 PurpleWhiteboard *

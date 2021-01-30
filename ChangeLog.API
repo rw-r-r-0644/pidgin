@@ -596,6 +596,8 @@ version 3.0.0 (??/??/????):
 		* PurplePluginProtocolInfo.add_buddies_with_invite
 		* PurplePluginProtocolInfo.get_cb_away
 		* PurpleValue, use GValue instead.
+		* purple_whiteboard_get_ui_data and purple_whiteboard_set_ui_data, use
+		  g_object_set_data instead.
 		* PurpleXferUiOps.add_thumbnail. Use PurpleXfer::add-thumbnail
 		  instead.
 		* PurpleXferUiOps.add_xfer. Use notify::visible on #PurpleXfer
