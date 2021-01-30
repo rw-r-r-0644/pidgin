@@ -36,6 +36,7 @@
 #include "plugins.h"
 #include "prefs.h"
 #include "proxy.h"
+#include "purplecredentialmanager.h"
 #include "purplemessage.h"
 #include "purpleprivate.h"
 #include "savedstatuses.h"
@@ -208,11 +209,16 @@ purple_core_quit(void)
 {
 	PurpleCoreUiOps *ops;
 	PurpleCore *core = purple_get_core();
+	PurpleCredentialManager *manager = NULL;
 
 	g_return_if_fail(core != NULL);
 
 	/* The self destruct sequence has been initiated */
 	purple_signal_emit(purple_get_core(), "quitting");
+
+	/* Remove the active provider in the credential manager. */
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_set_active_provider(manager, NULL, NULL);
 
 	/* Transmission ends */
 	purple_connections_disconnect_all();
@@ -231,7 +237,6 @@ purple_core_quit(void)
 	purple_statuses_uninit();
 	purple_accounts_uninit();
 	purple_keyring_uninit(); /* after accounts */
-	purple_credential_manager_shutdown(); /* after accounts */
 	purple_theme_manager_uninit();
 	purple_xfers_uninit();
 	purple_proxy_uninit();
@@ -246,9 +251,11 @@ purple_core_quit(void)
 	purple_prefs_uninit();
 	purple_plugins_uninit();
 
+	/* after plugins */
+	purple_credential_manager_shutdown();
 	purple_protocol_manager_shutdown();
-
 	purple_cmds_uninit();
+
 	purple_log_uninit();
 	/* Everything after util_uninit cannot try to write things to the
 	 * confdir.

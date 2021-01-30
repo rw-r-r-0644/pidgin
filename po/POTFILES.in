@@ -253,6 +253,7 @@ libpurple/purpleimconversation.c
 libpurple/purplekeyvaluepair.c
 libpurple/purplemarkup.c
 libpurple/purplemessage.c
+libpurple/purplenoopcredentialprovider.c
 libpurple/purpleoptions.c
 libpurple/purplepresence.c
 libpurple/purpleprotocolattention.c
