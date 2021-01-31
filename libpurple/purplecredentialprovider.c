@@ -340,18 +340,6 @@ purple_credential_provider_clear_password_finish(PurpleCredentialProvider *provi
 	return FALSE;
 }
 
-void
-purple_credential_provider_close(PurpleCredentialProvider *provider) {
-	PurpleCredentialProviderClass *klass = NULL;
-
-	g_return_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider));
-
-	klass = PURPLE_CREDENTIAL_PROVIDER_GET_CLASS(provider);
-	if(klass && klass->close) {
-		klass->close(provider);
-	}
-}
-
 PurpleRequestFields *
 purple_credential_provider_read_settings(PurpleCredentialProvider *provider) {
 	PurpleCredentialProviderClass *klass = NULL;
