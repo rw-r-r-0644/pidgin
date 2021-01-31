@@ -442,6 +442,7 @@ purple_credential_manager_read_password_async(PurpleCredentialManager *manager,
 		                              "credential provider"));
 
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 
 		return;
 	}
@@ -490,6 +491,7 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
 		                    name);
 
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 
 		return;
 	}
@@ -502,6 +504,7 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
 		                              "credential provider"));
 
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 
 		return;
 	}
@@ -548,6 +551,7 @@ purple_credential_manager_clear_password_async(PurpleCredentialManager *manager,
 		                              "credential provider"));
 
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 
 		return;
 	}
