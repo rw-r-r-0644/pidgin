@@ -91,8 +91,6 @@ struct _PurpleCredentialProviderClass {
 	void (*clear_password_async)(PurpleCredentialProvider *provider, PurpleAccount *account, GCancellable *cancellable, GAsyncReadyCallback callback, gpointer data);
 	gboolean (*clear_password_finish)(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
 
-	void (*close)(PurpleCredentialProvider *provider);
-
 	PurpleRequestFields *(*read_settings)(PurpleCredentialProvider *provider);
 	gboolean (*write_settings)(PurpleCredentialProvider *provider, PurpleRequestFields *fields);
 
@@ -236,19 +234,6 @@ void purple_credential_provider_clear_password_async(PurpleCredentialProvider *p
  * Since: 3.0.0
  */
 gboolean purple_credential_provider_clear_password_finish(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
-
-/**
- * purple_credential_provider_close:
- * @provider: The #PurpleCredentialProvider instance.
- *
- * Tells @provider to close.  This is useful if you need to disconnect a socket
- * or close a file to save memory.
- *
- * Since: 3.0.0
- *
- * Deprecated: 3.0.0
- */
-void purple_credential_provider_close(PurpleCredentialProvider *provider);
 
 /**
  * purple_credential_provider_read_settings:
