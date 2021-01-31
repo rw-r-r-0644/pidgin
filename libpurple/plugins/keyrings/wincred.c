@@ -89,6 +89,7 @@ purple_wincred_read_password_async(PurpleCredentialProvider *provider,
 	target_name = wincred_get_target_name(account, &error);
 	if (target_name == NULL) {
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 		return;
 	}
 
@@ -122,6 +123,7 @@ purple_wincred_read_password_async(PurpleCredentialProvider *provider,
 		}
 
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 		return;
 	}
 
@@ -139,6 +141,7 @@ purple_wincred_read_password_async(PurpleCredentialProvider *provider,
 			PURPLE_KEYRING_ERROR_BACKENDFAIL,
 			_("Cannot read password (unicode error)."));
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 		return;
 	} else {
 		purple_debug_misc("keyring-wincred",
@@ -147,6 +150,7 @@ purple_wincred_read_password_async(PurpleCredentialProvider *provider,
 	}
 
 	g_task_return_pointer(task, password, g_free);
+	g_object_unref(G_OBJECT(task));
 }
 
 static gchar *
@@ -179,6 +183,7 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 	target_name = wincred_get_target_name(account, &error);
 	if (target_name == NULL) {
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 		return;
 	}
 
@@ -188,6 +193,7 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 		g_free(target_name);
 		purple_debug_fatal("keyring-wincred", "Couldn't convert username");
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 		return;
 	}
 
@@ -197,6 +203,7 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 		g_free(target_name);
 		purple_debug_fatal("keyring-wincred", "Couldn't convert password");
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 		return;
 	}
 
@@ -240,6 +247,8 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 	} else {
 		g_task_return_boolean(task, TRUE);
 	}
+
+	g_object_unref(G_OBJECT(task));
 }
 
 static gboolean
@@ -267,6 +276,7 @@ purple_wincred_clear_password_async(PurpleCredentialProvider *provider,
 	target_name = wincred_get_target_name(account, &error);
 	if (target_name == NULL) {
 		g_task_return_error(task, error);
+		g_object_unref(G_OBJECT(task));
 		return;
 	}
 
@@ -274,7 +284,6 @@ purple_wincred_clear_password_async(PurpleCredentialProvider *provider,
 		purple_debug_misc("keyring-wincred", "Password for account %s removed",
 		                  purple_account_get_username(account));
 		g_task_return_boolean(task, TRUE);
-
 	} else {
 		DWORD error_code = GetLastError();
 
@@ -302,6 +311,8 @@ purple_wincred_clear_password_async(PurpleCredentialProvider *provider,
 
 		g_task_return_error(task, error);
 	}
+
+	g_object_unref(G_OBJECT(task));
 }
 
 static gboolean
