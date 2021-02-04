@@ -29,6 +29,10 @@
 
 #include "internal.h"
 
+#ifndef HOST_NAME_MAX
+# define HOST_NAME_MAX 255
+#endif
+
 typedef struct _zephyr_account zephyr_account;
 
 typedef enum {
