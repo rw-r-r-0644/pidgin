@@ -99,21 +99,6 @@ PurpleBlistNode *purple_blist_node_get_sibling_prev(PurpleBlistNode *node)
 	return node? node->prev : NULL;
 }
 
-void *
-purple_blist_node_get_ui_data(const PurpleBlistNode *node)
-{
-	g_return_val_if_fail(PURPLE_IS_BLIST_NODE(node), NULL);
-
-	return node->ui_data;
-}
-
-void
-purple_blist_node_set_ui_data(PurpleBlistNode *node, void *ui_data) {
-	g_return_if_fail(PURPLE_IS_BLIST_NODE(node));
-
-	node->ui_data = ui_data;
-}
-
 void purple_blist_node_remove_setting(PurpleBlistNode *node, const char *key)
 {
 	PurpleBlistNodePrivate *priv = NULL;

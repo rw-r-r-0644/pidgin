@@ -339,6 +339,8 @@ version 3.0.0 (??/??/????):
 		* purple_blist_get_ui_data
 		* purple_blist_load
 		* purple_blist_new
+		* purple_blist_node_get_ui_data
+		* purple_blist_node_set_ui_data
 		* purple_blist_set_ui_data
 		* purple_set_blist
 		* purple_blist_update_buddy_icon

@@ -63,6 +63,8 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 
+#define UI_DATA "ui-pidgin"
+
 typedef struct
 {
 	PurpleAccount *account;
@@ -358,9 +360,12 @@ static void gtk_blist_menu_persistent_cb(GtkWidget *w, PurpleChat *chat)
 static PurpleConversation *
 find_conversation_with_buddy(PurpleBuddy *buddy)
 {
-	PidginBlistNode *ui = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(buddy));
-	if (ui)
+	PidginBlistNode *ui = g_object_get_data(G_OBJECT(buddy), UI_DATA);
+
+	if(ui) {
 		return ui->conv.conv;
+	}
+
 	return PURPLE_CONVERSATION(purple_conversations_find_im_with_account(
 			purple_buddy_get_name(buddy), purple_buddy_get_account(buddy)));
 }
@@ -577,8 +582,7 @@ static void gtk_blist_renderer_edited_cb(GtkCellRendererText *text_rend, char *a
 
 	if (PURPLE_IS_CONTACT(node)) {
 		PurpleContact *contact = PURPLE_CONTACT(node);
-		PidginBlistNode *gtknode =
-				(PidginBlistNode *)purple_blist_node_get_ui_data(node);
+		PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 		/*
 		 * Using purple_contact_get_alias here breaks because we
@@ -910,7 +914,7 @@ set_sensitive_if_input_buddy_cb(GtkWidget *entry, gpointer user_data)
 static void
 pidgin_blist_update_privacy_cb(PurpleBuddy *buddy)
 {
-	PidginBlistNode *ui_data = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(buddy));
+	PidginBlistNode *ui_data = g_object_get_data(G_OBJECT(buddy), UI_DATA);
 	if (ui_data == NULL || ui_data->row == NULL)
 		return;
 	pidgin_blist_update_buddy(purple_blist_get_default(),
@@ -1218,7 +1222,7 @@ static void gtk_blist_row_collapsed_cb(GtkTreeView *tv, GtkTreeIter *iter, GtkTr
 
 		for(cnode = purple_blist_node_get_first_child(node); cnode; cnode = purple_blist_node_get_sibling_next(cnode)) {
 			if (PURPLE_IS_CONTACT(cnode)) {
-				gtknode = purple_blist_node_get_ui_data(cnode);
+				gtknode = g_object_get_data(G_OBJECT(cnode), UI_DATA);
 				if (!gtknode->contact_expanded)
 					continue;
 				gtknode->contact_expanded = FALSE;
@@ -1342,10 +1346,11 @@ pidgin_blist_expand_contact_cb(GtkWidget *w, PurpleBlistNode *node)
 	PurpleBlistNode *bnode;
 	GtkTreePath *path;
 
-	if(!PURPLE_IS_CONTACT(node))
+	if(!PURPLE_IS_CONTACT(node)) {
 		return;
+	}
 
-	gtknode = purple_blist_node_get_ui_data(node);
+	gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 	gtknode->contact_expanded = TRUE;
 
@@ -1378,7 +1383,7 @@ pidgin_blist_collapse_contact_cb(GtkWidget *w, PurpleBlistNode *node)
 	if(!PURPLE_IS_CONTACT(node))
 		return;
 
-	gtknode = purple_blist_node_get_ui_data(node);
+	gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 	gtknode->contact_expanded = FALSE;
 
@@ -1509,7 +1514,7 @@ pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean sub) 
 
 	contact = purple_buddy_get_contact(buddy);
 	if (contact) {
-		PidginBlistNode *node = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(contact));
+		PidginBlistNode *node = g_object_get_data(G_OBJECT(contact), UI_DATA);
 		contact_expanded = node->contact_expanded;
 	}
 
@@ -1829,7 +1834,7 @@ create_contact_menu (PurpleBlistNode *node)
 static GtkWidget *
 create_buddy_menu(PurpleBlistNode *node, PurpleBuddy *b)
 {
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	GtkWidget *menu;
 	GtkWidget *menuitem;
 	gboolean show_offline = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_offline_buddies");
@@ -1893,7 +1898,7 @@ create_buddy_menu(PurpleBlistNode *node, PurpleBuddy *b)
 static gboolean
 pidgin_blist_show_context_menu(GtkWidget *tv, PurpleBlistNode *node, GdkEvent *event)
 {
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	GtkWidget *menu = NULL;
 	gboolean handled = FALSE;
 
@@ -1963,7 +1968,7 @@ gtk_blist_button_press_cb(GtkWidget *tv, GdkEventButton *event, gpointer user_da
 		return FALSE;
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(gtkblist->treemodel), &iter, path);
 	gtk_tree_model_get(GTK_TREE_MODEL(gtkblist->treemodel), &iter, NODE_COLUMN, &node, -1);
-	gtknode = purple_blist_node_get_ui_data(node);
+	gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 	/* Right click draws a context menu */
 	if (gdk_event_triggers_context_menu((GdkEvent *)event)) {
@@ -2297,7 +2302,7 @@ static void pidgin_blist_drag_data_rcv_cb(GtkWidget *widget, GdkDragContext *dc,
 					&iter, path);
 			gtk_tree_model_get(GTK_TREE_MODEL(gtkblist->treemodel),
 					&iter, NODE_COLUMN, &node, -1);
-			gtknode = purple_blist_node_get_ui_data(node);
+			gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 			if (PURPLE_IS_CONTACT(n)) {
 				PurpleContact *c = (PurpleContact*)n;
@@ -3110,7 +3115,7 @@ static gboolean pidgin_blist_expand_timeout(GtkWidget *tv)
 		return FALSE;
 	}
 
-	gtknode = purple_blist_node_get_ui_data(node);
+	gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 	if (!gtknode->contact_expanded) {
 		GtkTreeIter i;
@@ -3140,7 +3145,7 @@ static gboolean buddy_is_displayable(PurpleBuddy *buddy)
 	if(!buddy)
 		return FALSE;
 
-	gtknode = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(buddy));
+	gtknode = g_object_get_data(G_OBJECT(buddy), UI_DATA);
 
 	return (purple_account_is_connected(purple_buddy_get_account(buddy)) &&
 			(purple_presence_is_online(purple_buddy_get_presence(buddy)) ||
@@ -3277,7 +3282,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 		PurpleProtocolChatEntry *pce;
 		char *name, *value;
 		PurpleChatConversation *conv;
-		PidginBlistNode *bnode = purple_blist_node_get_ui_data(node);
+		PidginBlistNode *bnode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 		chat = (PurpleChat *)node;
 		protocol = purple_protocols_find(purple_account_get_protocol_id(purple_chat_get_account(chat)));
@@ -3446,7 +3451,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 		/* Last Seen */
 		if (full && c && !PURPLE_BUDDY_IS_ONLINE(b))
 		{
-			PidginBlistNode *gtknode = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(c));
+			PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(c), UI_DATA);
 			PurpleBlistNode *bnode;
 			int lastseen = 0;
 
@@ -3576,7 +3581,7 @@ GdkPixbuf *
 pidgin_blist_get_emblem(PurpleBlistNode *node)
 {
 	PurpleBuddy *buddy = NULL;
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	PurpleProtocol *protocol;
 	const char *name = NULL;
 	char *filename, *path;
@@ -3588,7 +3593,9 @@ pidgin_blist_get_emblem(PurpleBlistNode *node)
 			buddy = purple_contact_get_priority_buddy((PurpleContact*)node);
 		}
 	} else if(PURPLE_IS_BUDDY(node)) {
+		PidginBlistNode *pidgin_node = NULL;
 		buddy = (PurpleBuddy*)node;
+
 		p = purple_buddy_get_presence(buddy);
 		if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_MOBILE)) {
 			/* This emblem comes from the small emoticon set now,
@@ -3598,7 +3605,8 @@ pidgin_blist_get_emblem(PurpleBlistNode *node)
 			return _pidgin_blist_get_cached_emblem(path);
 		}
 
-		if (((PidginBlistNode*)purple_blist_node_get_ui_data(node->parent))->contact_expanded) {
+		pidgin_node = g_object_get_data(G_OBJECT(node->parent), UI_DATA);
+		if(pidgin_node->contact_expanded) {
 			if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_protocol_icons"))
 				return NULL;
 			return pidgin_create_protocol_icon(purple_buddy_get_account((PurpleBuddy*)node), PIDGIN_PROTOCOL_ICON_SMALL);
@@ -3687,7 +3695,7 @@ pidgin_blist_get_status_icon(PurpleBlistNode *node, PidginStatusIconSize size)
 {
 	GdkPixbuf *ret;
 	const char *icon = NULL;
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	PidginBlistNode *gtkbuddynode = NULL;
 	PurpleBuddy *buddy = NULL;
 	PurpleChat *chat = NULL;
@@ -3697,12 +3705,13 @@ pidgin_blist_get_status_icon(PurpleBlistNode *node, PidginStatusIconSize size)
 	if(PURPLE_IS_CONTACT(node)) {
 		if(!gtknode->contact_expanded) {
 			buddy = purple_contact_get_priority_buddy((PurpleContact*)node);
-			if (buddy != NULL)
-				gtkbuddynode = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(buddy));
+			if(buddy != NULL) {
+				gtkbuddynode = g_object_get_data(G_OBJECT(buddy), UI_DATA);
+			}
 		}
 	} else if(PURPLE_IS_BUDDY(node)) {
 		buddy = (PurpleBuddy*)node;
-		gtkbuddynode = purple_blist_node_get_ui_data(node);
+		gtkbuddynode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	} else if(PURPLE_IS_CHAT(node)) {
 		chat = (PurpleChat*)node;
 	} else {
@@ -3731,7 +3740,7 @@ pidgin_blist_get_status_icon(PurpleBlistNode *node, PidginStatusIconSize size)
 		if(conv != NULL) {
 			PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
 			if (gtkconv == NULL && size == PIDGIN_STATUS_ICON_SMALL) {
-				PidginBlistNode *ui = purple_blist_node_get_ui_data(&(buddy->node));
+				PidginBlistNode *ui = g_object_get_data(G_OBJECT(buddy), UI_DATA);
 				if (ui == NULL || (ui->conv.flags & PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE))
 					return gtk_widget_render_icon (GTK_WIDGET(gtkblist->treeview),
 							PIDGIN_STOCK_STATUS_MESSAGE, icon_size, "GtkTreeView");
@@ -3815,7 +3824,7 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 	gchar *contact_alias;
 
 	if (conv != NULL) {
-		PidginBlistNode *ui = purple_blist_node_get_ui_data(&(b->node));
+		PidginBlistNode *ui = g_object_get_data(G_OBJECT(b), UI_DATA);
 		if (ui) {
 			if (ui->conv.flags & PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE)
 				hidden_conv = TRUE;
@@ -3827,8 +3836,9 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 
 	/* XXX Good luck cleaning up this crap */
 	contact = PURPLE_CONTACT(PURPLE_BLIST_NODE(b)->parent);
-	if(contact)
-		gtkcontactnode = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(contact));
+	if(contact) {
+		gtkcontactnode = g_object_get_data(G_OBJECT(contact), UI_DATA);
+	}
 
 	g_object_get(contact, "alias", &contact_alias, NULL);
 
@@ -4049,7 +4059,7 @@ static gboolean pidgin_blist_refresh_timer(PurpleBuddyList *list)
 
 static void pidgin_blist_hide_node(PurpleBuddyList *list, PurpleBlistNode *node, gboolean update)
 {
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	GtkTreeIter iter;
 
 	if (!gtknode || !gtknode->row || !gtkblist)
@@ -4216,7 +4226,7 @@ conversation_deleted_update_ui_cb(PurpleConversation *conv, PidginBlistNode *ui)
 static void
 written_msg_update_ui_cb(PurpleConversation *conv, PurpleMessage *msg, PurpleBlistNode *node)
 {
-	PidginBlistNode *ui = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *ui = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 	if (ui->conv.conv != conv)
 		return;
@@ -4237,7 +4247,7 @@ written_msg_update_ui_cb(PurpleConversation *conv, PurpleMessage *msg, PurpleBli
 static void
 displayed_msg_update_ui_cb(PidginConversation *gtkconv, PurpleBlistNode *node)
 {
-	PidginBlistNode *ui = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *ui = g_object_get_data(G_OBJECT(node), UI_DATA);
 	if (ui->conv.conv != gtkconv->active_conv)
 		return;
 	ui->conv.flags &= ~(PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE |
@@ -4254,7 +4264,7 @@ conversation_created_cb(PurpleConversation *conv, PidginBuddyList *gtkblist)
 		GSList *buddies = purple_blist_find_buddies(account, purple_conversation_get_name(conv));
 		while (buddies) {
 			PurpleBlistNode *buddy = buddies->data;
-			PidginBlistNode *ui = purple_blist_node_get_ui_data(buddy);
+			PidginBlistNode *ui = g_object_get_data(G_OBJECT(buddy), UI_DATA);
 			buddies = g_slist_delete_link(buddies, buddies);
 			if (!ui)
 				continue;
@@ -4272,7 +4282,7 @@ conversation_created_cb(PurpleConversation *conv, PidginBuddyList *gtkblist)
 		PidginBlistNode *ui;
 		if (!chat)
 			return;
-		ui = purple_blist_node_get_ui_data(&(chat->node));
+		ui = g_object_get_data(G_OBJECT(chat), UI_DATA);
 		if (!ui)
 			return;
 		ui->conv.conv = conv;
@@ -4289,15 +4299,31 @@ conversation_created_cb(PurpleConversation *conv, PidginBuddyList *gtkblist)
 /**********************************************************************************
  * Public API Functions                                                           *
  **********************************************************************************/
-
 static void
-pidgin_blist_new_node(PurpleBuddyList *list, PurpleBlistNode *node)
-{
-	purple_blist_node_set_ui_data(node, g_new0(PidginBlistNode, 1));
+pidgin_blist_node_free(PidginBlistNode *node) {
+	if(node->recent_signonoff_timer > 0) {
+		g_source_remove(node->recent_signonoff_timer);
+	}
+
+	purple_signals_disconnect_by_handle(node);
+
+	g_free(node);
 }
 
-gboolean pidgin_blist_node_is_contact_expanded(PurpleBlistNode *node)
-{
+static void
+pidgin_blist_new_node(PurpleBuddyList *list, PurpleBlistNode *node) {
+	PidginBlistNode *pidgin_node = NULL;
+
+	pidgin_node = g_new0(PidginBlistNode, 1);
+
+	g_object_set_data_full(G_OBJECT(node), UI_DATA, pidgin_node,
+	                       (GDestroyNotify)pidgin_blist_node_free);
+}
+
+gboolean
+pidgin_blist_node_is_contact_expanded(PurpleBlistNode *node) {
+	PidginBlistNode *pidgin_node = NULL;
+
 	if (PURPLE_IS_BUDDY(node)) {
 		node = node->parent;
 		if (node == NULL)
@@ -4306,7 +4332,9 @@ gboolean pidgin_blist_node_is_contact_expanded(PurpleBlistNode *node)
 
 	g_return_val_if_fail(PURPLE_IS_CONTACT(node), FALSE);
 
-	return ((PidginBlistNode *)purple_blist_node_get_ui_data(node))->contact_expanded;
+	pidgin_node = g_object_get_data(G_OBJECT(node), UI_DATA);
+
+	return pidgin_node->contact_expanded;
 }
 
 enum {
@@ -4356,7 +4384,7 @@ static void _prefs_change_redo_list(const char *name, PurplePrefType type,
 		PidginBlistNode *gtknode;
 		GtkTreePath *path;
 
-		gtknode = purple_blist_node_get_ui_data(node);
+		gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 		if (gtknode && gtknode->row)
 		{
 			path = gtk_tree_row_reference_get_path(gtknode->row);
@@ -5518,7 +5546,7 @@ pidgin_blist_update_refresh_timeout()
 }
 
 static gboolean get_iter_from_node(PurpleBlistNode *node, GtkTreeIter *iter) {
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	GtkTreePath *path;
 
 	if (!gtknode) {
@@ -5548,33 +5576,14 @@ static gboolean get_iter_from_node(PurpleBlistNode *node, GtkTreeIter *iter) {
 	return TRUE;
 }
 
-static void pidgin_blist_remove(PurpleBuddyList *list, PurpleBlistNode *node)
-{
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(node);
-
+static void
+pidgin_blist_remove(PurpleBuddyList *list, PurpleBlistNode *node) {
 	purple_request_close_with_handle(node);
 
 	pidgin_blist_hide_node(list, node, TRUE);
 
-	if(node->parent)
+	if(node->parent) {
 		pidgin_blist_update(list, node->parent);
-
-	/* There's something I don't understand here - Ethan */
-	/* Ethan said that back in 2003, but this g_free has been left commented
-	 * out ever since. I can't find any reason at all why this is bad and
-	 * valgrind found several reasons why it's good. If this causes problems
-	 * comment it out again. Stu */
-	/* Of course it still causes problems - this breaks dragging buddies into
-	 * contacts, the dragged buddy mysteriously 'disappears'. Stu. */
-	/* I think it's fixed now. Stu. */
-
-	if(gtknode) {
-		if(gtknode->recent_signonoff_timer > 0)
-			g_source_remove(gtknode->recent_signonoff_timer);
-
-		purple_signals_disconnect_by_handle(gtknode);
-		g_free(gtknode);
-		purple_blist_node_set_ui_data(node, NULL);
 	}
 }
 
@@ -5619,7 +5628,7 @@ static void pidgin_blist_selection_changed(GtkTreeSelection *selection, gpointer
 static gboolean insert_node(PurpleBuddyList *list, PurpleBlistNode *node, GtkTreeIter *iter)
 {
 	GtkTreeIter parent_iter = {0, NULL, NULL, NULL}, cur, *curptr = NULL;
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(node);
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	GtkTreePath *newpath;
 
 	if(!iter)
@@ -5644,7 +5653,7 @@ static gboolean insert_node(PurpleBuddyList *list, PurpleBlistNode *node, GtkTre
 		gtk_tree_row_reference_free(gtknode->row);
 	} else {
 		pidgin_blist_new_node(list, node);
-		gtknode = purple_blist_node_get_ui_data(node);
+		gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	}
 
 	newpath = gtk_tree_model_get_path(GTK_TREE_MODEL(gtkblist->treemodel),
@@ -5662,7 +5671,7 @@ static gboolean insert_node(PurpleBuddyList *list, PurpleBlistNode *node, GtkTre
 
 	if(node->parent) {
 		GtkTreePath *expand = NULL;
-		PidginBlistNode *gtkparentnode = purple_blist_node_get_ui_data(node->parent);
+		PidginBlistNode *gtkparentnode = g_object_get_data(G_OBJECT(node->parent), UI_DATA);
 
 		if(PURPLE_IS_GROUP(node->parent)) {
 			if(!purple_blist_node_get_bool(node->parent, "collapsed"))
@@ -5852,17 +5861,20 @@ static char *pidgin_get_group_title(PurpleBlistNode *gnode, gboolean expanded)
 static void buddy_node(PurpleBuddy *buddy, GtkTreeIter *iter, PurpleBlistNode *node)
 {
 	PurplePresence *presence = purple_buddy_get_presence(buddy);
+	PidginBlistNode *pidgin_node = NULL;
 	GdkPixbuf *status, *avatar, *emblem, *protocol_icon;
 	GdkRGBA *color = NULL;
 	char *mark;
 	char *idle = NULL;
-	gboolean expanded = ((PidginBlistNode *)purple_blist_node_get_ui_data(node->parent))->contact_expanded;
 	gboolean selected = (gtkblist->selected_node == node);
 	gboolean biglist = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons");
 	PidginBlistTheme *theme;
 
-	if (editing_blist)
+	if(editing_blist) {
 		return;
+	}
+
+	pidgin_node = g_object_get_data(G_OBJECT(node->parent), UI_DATA);
 
 	status = pidgin_blist_get_status_icon(PURPLE_BLIST_NODE(buddy),
 						biglist ? PIDGIN_STATUS_ICON_LARGE : PIDGIN_STATUS_ICON_SMALL);
@@ -5940,7 +5952,7 @@ static void buddy_node(PurpleBuddy *buddy, GtkTreeIter *iter, PurpleBlistNode *n
 			   PROTOCOL_ICON_VISIBLE_COLUMN, purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_protocol_icons"),
 			   BGCOLOR_COLUMN, color,
 			   CONTACT_EXPANDER_COLUMN, NULL,
-			   CONTACT_EXPANDER_VISIBLE_COLUMN, expanded,
+			   CONTACT_EXPANDER_VISIBLE_COLUMN, pidgin_node->contact_expanded,
 			   GROUP_EXPANDER_VISIBLE_COLUMN, FALSE,
 			-1);
 
@@ -5992,7 +6004,7 @@ static void pidgin_blist_update_contact(PurpleBuddyList *list, PurpleBlistNode *
 		if(!insert_node(list, cnode, &iter))
 			return;
 
-		gtknode = purple_blist_node_get_ui_data(cnode);
+		gtknode = g_object_get_data(G_OBJECT(cnode), UI_DATA);
 
 		if(gtknode->contact_expanded) {
 			GdkPixbuf *status;
@@ -6069,7 +6081,7 @@ static void pidgin_blist_update_buddy(PurpleBuddyList *list, PurpleBlistNode *no
 	/* First things first, update the contact */
 	pidgin_blist_update_contact(list, node);
 
-	gtkparentnode = purple_blist_node_get_ui_data(node->parent);
+	gtkparentnode = g_object_get_data(G_OBJECT(node->parent), UI_DATA);
 
 	if (gtkparentnode->contact_expanded && buddy_is_displayable(buddy))
 	{
@@ -6119,7 +6131,7 @@ static void pidgin_blist_update_chat(PurpleBuddyList *list, PurpleBlistNode *nod
 		if (!insert_node(list, node, &iter))
 			return;
 
-		ui = purple_blist_node_get_ui_data(node);
+		ui = g_object_get_data(G_OBJECT(node), UI_DATA);
 		conv = ui->conv.conv;
 		if (conv && pidgin_conv_is_hidden(PIDGIN_CONVERSATION(conv))) {
 			hidden = (ui->conv.flags & PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE);
@@ -6200,22 +6212,26 @@ static void pidgin_blist_update_chat(PurpleBuddyList *list, PurpleBlistNode *nod
 
 static void pidgin_blist_update(PurpleBuddyList *list, PurpleBlistNode *node)
 {
-	if (list)
+	if(list) {
 		gtkblist = PIDGIN_BUDDY_LIST(list);
-	if(!gtkblist || !gtkblist->treeview || !node)
+	}
+	if(!gtkblist || !gtkblist->treeview || !node) {
 		return;
+	}
 
-	if (purple_blist_node_get_ui_data(node) == NULL)
+	if(g_object_get_data(G_OBJECT(node), UI_DATA) == NULL) {
 		pidgin_blist_new_node(list, node);
+	}
 
-	if (PURPLE_IS_GROUP(node))
+	if(PURPLE_IS_GROUP(node)) {
 		pidgin_blist_update_group(list, node);
-	else if (PURPLE_IS_CONTACT(node))
+	} else if(PURPLE_IS_CONTACT(node)) {
 		pidgin_blist_update_contact(list, node);
-	else if (PURPLE_IS_BUDDY(node))
+	} else if(PURPLE_IS_BUDDY(node)) {
 		pidgin_blist_update_buddy(list, node, TRUE);
-	else if (PURPLE_IS_CHAT(node))
+	} else if(PURPLE_IS_CHAT(node)) {
 		pidgin_blist_update_chat(list, node);
+	}
 }
 
 static void pidgin_blist_set_visible(PurpleBuddyList *list, gboolean show)
@@ -6750,7 +6766,7 @@ pidgin_blist_get_handle() {
 
 static gboolean buddy_signonoff_timeout_cb(PurpleBuddy *buddy)
 {
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(buddy));
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(buddy), UI_DATA);
 
 	gtknode->recent_signonoff = FALSE;
 	gtknode->recent_signonoff_timer = 0;
@@ -6760,16 +6776,16 @@ static gboolean buddy_signonoff_timeout_cb(PurpleBuddy *buddy)
 	return FALSE;
 }
 
-static void buddy_signonoff_cb(PurpleBuddy *buddy)
-{
-	PidginBlistNode *gtknode = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(buddy));
+static void
+buddy_signonoff_cb(PurpleBuddy *buddy) {
+	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(buddy), UI_DATA);
 
-	if(!gtknode) {
+	if(gtknode == NULL) {
 		pidgin_blist_new_node(purple_blist_get_default(),
 		                      PURPLE_BLIST_NODE(buddy));
-	}
 
-	gtknode = purple_blist_node_get_ui_data(PURPLE_BLIST_NODE(buddy));
+		gtknode = g_object_get_data(G_OBJECT(buddy), UI_DATA);
+	}
 
 	gtknode->recent_signonoff = TRUE;
 
