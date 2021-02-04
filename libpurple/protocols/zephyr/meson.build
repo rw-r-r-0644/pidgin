@@ -53,8 +53,13 @@ ZEPHYR_SOURCES = [
 	'sysdep.h',
 	'zephyr.c',
 	'zephyr.h',
+	'zephyr_account.h',
 	'zephyr_html.c',
-	'zephyr_html.h'
+	'zephyr_html.h',
+	'zephyr_tzc.c',
+	'zephyr_tzc.h',
+	'zephyr_zeph02.c',
+	'zephyr_zeph02.h',
 ]
 
 extdep = krb4
