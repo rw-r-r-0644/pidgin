@@ -51,8 +51,6 @@ typedef struct _PurpleBlistNodeClass PurpleBlistNodeClass;
  * @next:    The sibling after this buddy.
  * @parent:  The parent of this node.
  * @child:   The child of this node.
- * @ui_data: The UI data associated with this node. This is a convenience
- *           field provided to the UIs -- it is not used by the libpurple core.
  *
  * A Buddy list node.  This can represent a group, a buddy, or anything else.
  * This is a base class for PurpleBuddy, PurpleContact, PurpleGroup, and for
@@ -66,8 +64,6 @@ struct _PurpleBlistNode {
 	PurpleBlistNode *next;
 	PurpleBlistNode *parent;
 	PurpleBlistNode *child;
-
-	gpointer ui_data;
 };
 
 struct _PurpleBlistNodeClass {
@@ -155,25 +151,6 @@ PurpleBlistNode *purple_blist_node_get_sibling_next(PurpleBlistNode *node);
  * Returns: (transfer none): The sibling node.
  */
 PurpleBlistNode *purple_blist_node_get_sibling_prev(PurpleBlistNode *node);
-
-/**
- * purple_blist_node_get_ui_data:
- * @node: The node.
- *
- * Returns the UI data of a given node.
- *
- * Returns: The UI data.
- */
-gpointer purple_blist_node_get_ui_data(const PurpleBlistNode *node);
-
-/**
- * purple_blist_node_set_ui_data:
- * @node: The node.
- * @ui_data: The UI data.
- *
- * Sets the UI data of a given node.
- */
-void purple_blist_node_set_ui_data(PurpleBlistNode *node, gpointer ui_data);
 
 /**
  * purple_blist_node_get_settings:
