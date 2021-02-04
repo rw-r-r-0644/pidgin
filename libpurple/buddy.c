@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -16,32 +17,27 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
+
 #include "internal.h"
 #include "purplebuddypresence.h"
 #include "purpleprotocolclient.h"
 #include "util.h"
 
-typedef struct _PurpleBuddyPrivate      PurpleBuddyPrivate;
+typedef struct {
+	gchar *name;
+	gchar *local_alias;
+	gchar *server_alias;
 
-struct _PurpleBuddyPrivate {
-	char *name;                  /* The name of the buddy.                  */
-	char *local_alias;           /* The user-set alias of the buddy         */
-	char *server_alias;          /* The server-specified alias of the buddy.
-	                                (i.e. MSN "Friendly Names")             */
-	void *proto_data;            /* This allows the protocol to associate
-	                                whatever data it wants with a buddy.    */
-	PurpleBuddyIcon *icon;       /* The buddy icon.                         */
-	PurpleAccount *account;      /* the account this buddy belongs to       */
-	PurplePresence *presence;    /* Presense information of the buddy       */
-	PurpleMediaCaps media_caps;  /* The media capabilities of the buddy.    */
+	gpointer proto_data;
 
-	gboolean is_constructed;     /* Indicates if the buddy has finished
-	                                being constructed.                      */
-};
+	PurpleBuddyIcon *icon;
+	PurpleAccount *account;
+	PurplePresence *presence;
+
+	PurpleMediaCaps media_caps;
+} PurpleBuddyPrivate;
 
 enum {
 	PROP_0,
@@ -52,446 +48,40 @@ enum {
 	PROP_ACCOUNT,
 	PROP_PRESENCE,
 	PROP_MEDIA_CAPS,
-	PROP_LAST
+	N_PROPERTIES
 };
 
-/******************************************************************************
- * Globals
- *****************************************************************************/
-static GParamSpec *properties[PROP_LAST];
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
 G_DEFINE_TYPE_WITH_PRIVATE(PurpleBuddy, purple_buddy, PURPLE_TYPE_BLIST_NODE)
 
 /******************************************************************************
- * API
+ * Helpers
  *****************************************************************************/
-void
-purple_buddy_set_icon(PurpleBuddy *buddy, PurpleBuddyIcon *icon)
-{
-	PurpleBuddyPrivate *priv = NULL;
+static void
+purple_buddy_set_account(PurpleBuddy *buddy, PurpleAccount *account) {
+	PurpleBuddyPrivate *priv = purple_buddy_get_instance_private(buddy);
 
-	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	if (priv->icon != icon)
-	{
-		purple_buddy_icon_unref(priv->icon);
-		priv->icon = (icon != NULL ? purple_buddy_icon_ref(icon) : NULL);
-
-		g_object_notify_by_pspec(G_OBJECT(buddy),
-				properties[PROP_ICON]);
+	if(g_set_object(&priv->account, account)) {
+		g_object_notify_by_pspec(G_OBJECT(buddy), properties[PROP_ACCOUNT]);
 	}
-
-	purple_signal_emit(purple_blist_get_handle(), "buddy-icon-changed", buddy);
-
-	purple_blist_update_node(purple_blist_get_default(),
-	                         PURPLE_BLIST_NODE(buddy));
-}
-
-PurpleBuddyIcon *
-purple_buddy_get_icon(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-	return priv->icon;
-}
-
-PurpleAccount *
-purple_buddy_get_account(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-	return priv->account;
-}
-
-void
-purple_buddy_set_name(PurpleBuddy *buddy, const char *name)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	purple_blist_update_buddies_cache(buddy, name);
-
-	g_free(priv->name);
-	priv->name = purple_utf8_strip_unprintables(name);
-
-	g_object_notify_by_pspec(G_OBJECT(buddy), properties[PROP_NAME]);
-
-	purple_blist_save_node(purple_blist_get_default(),
-	                       PURPLE_BLIST_NODE(buddy));
-	purple_blist_update_node(purple_blist_get_default(),
-	                         PURPLE_BLIST_NODE(buddy));
-}
-
-const char *
-purple_buddy_get_name(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-	return priv->name;
-}
-
-gpointer
-purple_buddy_get_protocol_data(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-	return priv->proto_data;
-}
-
-void
-purple_buddy_set_protocol_data(PurpleBuddy *buddy, gpointer data)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
-
-	priv = purple_buddy_get_instance_private(buddy);
-	priv->proto_data = data;
-}
-
-const char *purple_buddy_get_alias_only(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	if ((priv->local_alias != NULL) && (*priv->local_alias != '\0')) {
-		return priv->local_alias;
-	} else if ((priv->server_alias != NULL) &&
-		   (*priv->server_alias != '\0')) {
-
-		return priv->server_alias;
-	}
-
-	return NULL;
-}
-
-const char *purple_buddy_get_contact_alias(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-	PurpleContact *c;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	/* Search for an alias for the buddy. In order of precedence: */
-	/* The local buddy alias */
-	if (priv->local_alias != NULL)
-		return priv->local_alias;
-
-	/* The contact alias */
-	c = purple_buddy_get_contact(buddy);
-	if ((c != NULL) && (purple_contact_get_alias(c) != NULL))
-		return purple_contact_get_alias(c);
-
-	/* The server alias */
-	if ((priv->server_alias) && (*priv->server_alias))
-		return priv->server_alias;
-
-	/* The buddy's user name (i.e. no alias) */
-	return priv->name;
-}
-
-const char *purple_buddy_get_alias(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	/* Search for an alias for the buddy. In order of precedence: */
-	/* The buddy alias */
-	if (priv->local_alias != NULL)
-		return priv->local_alias;
-
-	/* The server alias */
-	if ((priv->server_alias) && (*priv->server_alias))
-		return priv->server_alias;
-
-	/* The buddy's user name (i.e. no alias) */
-	return priv->name;
-}
-
-void
-purple_buddy_set_local_alias(PurpleBuddy *buddy, const char *alias)
-{
-	PurpleBuddyPrivate *priv = NULL;
-	PurpleIMConversation *im;
-	char *old_alias;
-	char *new_alias = NULL;
-
-	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	if ((alias != NULL) && (*alias != '\0'))
-		new_alias = purple_utf8_strip_unprintables(alias);
-
-	if (purple_strequal(priv->local_alias, new_alias)) {
-		g_free(new_alias);
-		return;
-	}
-
-	old_alias = priv->local_alias;
-
-	if ((new_alias != NULL) && (*new_alias != '\0'))
-		priv->local_alias = new_alias;
-	else {
-		priv->local_alias = NULL;
-		g_free(new_alias); /* could be "\0" */
-	}
-
-	g_object_notify_by_pspec(G_OBJECT(buddy),
-			properties[PROP_LOCAL_ALIAS]);
-
-	purple_blist_save_node(purple_blist_get_default(),
-	                       PURPLE_BLIST_NODE(buddy));
-	purple_blist_update_node(purple_blist_get_default(),
-	                         PURPLE_BLIST_NODE(buddy));
-
-	im = purple_conversations_find_im_with_account(priv->name,
-											   priv->account);
-	if (im)
-		purple_conversation_autoset_title(PURPLE_CONVERSATION(im));
-
-	purple_signal_emit(purple_blist_get_handle(), "blist-node-aliased",
-					 buddy, old_alias);
-	g_free(old_alias);
-}
-
-const char *purple_buddy_get_local_alias(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-	return priv->local_alias;
-}
-
-void
-purple_buddy_set_server_alias(PurpleBuddy *buddy, const char *alias)
-{
-	PurpleBuddyPrivate *priv = NULL;
-	PurpleIMConversation *im;
-	char *old_alias;
-	char *new_alias = NULL;
-
-	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	if ((alias != NULL) && (*alias != '\0') && g_utf8_validate(alias, -1, NULL))
-		new_alias = purple_utf8_strip_unprintables(alias);
-
-	if (purple_strequal(priv->server_alias, new_alias)) {
-		g_free(new_alias);
-		return;
-	}
-
-	old_alias = priv->server_alias;
-
-	if ((new_alias != NULL) && (*new_alias != '\0'))
-		priv->server_alias = new_alias;
-	else {
-		priv->server_alias = NULL;
-		g_free(new_alias); /* could be "\0"; */
-	}
-
-	g_object_notify_by_pspec(G_OBJECT(buddy),
-			properties[PROP_SERVER_ALIAS]);
-
-	purple_blist_save_node(purple_blist_get_default(),
-	                       PURPLE_BLIST_NODE(buddy));
-	purple_blist_update_node(purple_blist_get_default(),
-	                         PURPLE_BLIST_NODE(buddy));
-
-	im = purple_conversations_find_im_with_account(priv->name,
-											   priv->account);
-	if (im)
-		purple_conversation_autoset_title(PURPLE_CONVERSATION(im));
-
-	purple_signal_emit(purple_blist_get_handle(), "blist-node-aliased",
-					 buddy, old_alias);
-	g_free(old_alias);
-}
-
-const char *purple_buddy_get_server_alias(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	if ((priv->server_alias) && (*priv->server_alias))
-	    return priv->server_alias;
-
-	return NULL;
-}
-
-PurpleContact *purple_buddy_get_contact(PurpleBuddy *buddy)
-{
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	return PURPLE_CONTACT(PURPLE_BLIST_NODE(buddy)->parent);
-}
-
-PurplePresence *purple_buddy_get_presence(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	priv = purple_buddy_get_instance_private(buddy);
-	return priv->presence;
-}
-
-void
-purple_buddy_update_status(PurpleBuddy *buddy, PurpleStatus *old_status)
-{
-	PurpleBuddyPrivate *priv = NULL;
-	PurpleStatus *status;
-	PurpleBlistNode *cnode;
-	PurpleContact *contact;
-	PurpleCountingNode *contact_counter, *group_counter;
-
-	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
-
-	priv = purple_buddy_get_instance_private(buddy);
-
-	status = purple_presence_get_active_status(priv->presence);
-
-	purple_debug_info("blistnodetypes", "Updating buddy status for %s (%s)\n",
-			priv->name, purple_account_get_protocol_name(priv->account));
-
-	if (purple_status_is_online(status) &&
-		!purple_status_is_online(old_status)) {
-
-		purple_signal_emit(purple_blist_get_handle(), "buddy-signed-on", buddy);
-
-		cnode = PURPLE_BLIST_NODE(buddy)->parent;
-		contact = PURPLE_CONTACT(cnode);
-		contact_counter = PURPLE_COUNTING_NODE(contact);
-		group_counter = PURPLE_COUNTING_NODE(cnode->parent);
-
-		purple_counting_node_change_online_count(contact_counter, +1);
-		if (purple_counting_node_get_online_count(contact_counter) == 1)
-			purple_counting_node_change_online_count(group_counter, +1);
-	} else if (!purple_status_is_online(status) &&
-				purple_status_is_online(old_status)) {
-
-		purple_blist_node_set_int(PURPLE_BLIST_NODE(buddy), "last_seen", time(NULL));
-		purple_signal_emit(purple_blist_get_handle(), "buddy-signed-off", buddy);
-
-		cnode = PURPLE_BLIST_NODE(buddy)->parent;
-		contact = PURPLE_CONTACT(cnode);
-		contact_counter = PURPLE_COUNTING_NODE(contact);
-		group_counter = PURPLE_COUNTING_NODE(cnode->parent);
-
-		purple_counting_node_change_online_count(contact_counter, -1);
-		if (purple_counting_node_get_online_count(contact_counter) == 0)
-			purple_counting_node_change_online_count(group_counter, -1);
-	} else {
-		purple_signal_emit(purple_blist_get_handle(),
-		                 "buddy-status-changed", buddy, old_status,
-		                 status);
-	}
-
-	/*
-	 * This function used to only call the following two functions if one of
-	 * the above signals had been triggered, but that's not good, because
-	 * if someone's away message changes and they don't go from away to back
-	 * to away then no signal is triggered.
-	 *
-	 * It's a safe assumption that SOMETHING called this function.  PROBABLY
-	 * because something, somewhere changed.  Calling the stuff below
-	 * certainly won't hurt anything.  Unless you're on a K6-2 300.
-	 */
-	purple_contact_invalidate_priority_buddy(purple_buddy_get_contact(buddy));
-
-	purple_blist_update_node(purple_blist_get_default(),
-	                         PURPLE_BLIST_NODE(buddy));
-}
-
-PurpleMediaCaps purple_buddy_get_media_caps(PurpleBuddy *buddy)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), 0);
-
-	priv = purple_buddy_get_instance_private(buddy);
-	return priv->media_caps;
-}
-
-void purple_buddy_set_media_caps(PurpleBuddy *buddy, PurpleMediaCaps media_caps)
-{
-	PurpleBuddyPrivate *priv = NULL;
-
-	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
-
-	priv = purple_buddy_get_instance_private(buddy);
-	priv->media_caps = media_caps;
-
-	g_object_notify_by_pspec(G_OBJECT(buddy),
-			properties[PROP_MEDIA_CAPS]);
-}
-
-PurpleGroup *purple_buddy_get_group(PurpleBuddy *buddy)
-{
-	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
-
-	if (PURPLE_BLIST_NODE(buddy)->parent == NULL)
-		return purple_blist_get_default_group();
-
-	return PURPLE_GROUP(PURPLE_BLIST_NODE(buddy)->parent->parent);
 }
 
 /******************************************************************************
- * GObject Stuff
+ * GObject Implementation
  *****************************************************************************/
 static void
 purple_buddy_set_property(GObject *obj, guint param_id, const GValue *value,
                           GParamSpec *pspec)
 {
 	PurpleBuddy *buddy = PURPLE_BUDDY(obj);
-	PurpleBuddyPrivate *priv = purple_buddy_get_instance_private(buddy);
 
 	switch (param_id) {
 		case PROP_NAME:
-			if (priv->is_constructed)
-				purple_buddy_set_name(buddy, g_value_get_string(value));
-			else
-				priv->name =
-					purple_utf8_strip_unprintables(g_value_get_string(value));
+			purple_buddy_set_name(buddy, g_value_get_string(value));
 			break;
 		case PROP_LOCAL_ALIAS:
-			if (priv->is_constructed)
-				purple_buddy_set_local_alias(buddy, g_value_get_string(value));
-			else
-				priv->local_alias =
-					purple_utf8_strip_unprintables(g_value_get_string(value));
+			purple_buddy_set_local_alias(buddy, g_value_get_string(value));
 			break;
 		case PROP_SERVER_ALIAS:
 			purple_buddy_set_server_alias(buddy, g_value_get_string(value));
@@ -500,7 +90,8 @@ purple_buddy_set_property(GObject *obj, guint param_id, const GValue *value,
 			purple_buddy_set_icon(buddy, g_value_get_pointer(value));
 			break;
 		case PROP_ACCOUNT:
-			priv->account = g_value_get_object(value);
+			purple_buddy_set_account(buddy,
+			                         PURPLE_ACCOUNT(g_value_get_object(value)));
 			break;
 		case PROP_MEDIA_CAPS:
 			purple_buddy_set_media_caps(buddy, g_value_get_enum(value));
@@ -546,8 +137,7 @@ purple_buddy_get_property(GObject *obj, guint param_id, GValue *value,
 }
 
 static void
-purple_buddy_init(PurpleBuddy *buddy)
-{
+purple_buddy_init(PurpleBuddy *buddy) {
 }
 
 static void
@@ -562,23 +152,14 @@ purple_buddy_constructed(GObject *object) {
 
 	purple_blist_new_node(purple_blist_get_default(),
 	                      PURPLE_BLIST_NODE(buddy));
-
-	priv->is_constructed = TRUE;
 }
 
 static void
 purple_buddy_dispose(GObject *object) {
 	PurpleBuddyPrivate *priv = purple_buddy_get_instance_private(PURPLE_BUDDY(object));
 
-	if (priv->icon) {
-		purple_buddy_icon_unref(priv->icon);
-		priv->icon = NULL;
-	}
-
-	if (priv->presence) {
-		g_object_unref(priv->presence);
-		priv->presence = NULL;
-	}
+	g_clear_pointer(&priv->icon, purple_buddy_icon_unref);
+	g_clear_object(&priv->presence);
 
 	G_OBJECT_CLASS(purple_buddy_parent_class)->dispose(object);
 }
@@ -609,81 +190,498 @@ purple_buddy_finalize(GObject *object) {
 static void purple_buddy_class_init(PurpleBuddyClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 
+	obj_class->constructed = purple_buddy_constructed;
 	obj_class->dispose = purple_buddy_dispose;
 	obj_class->finalize = purple_buddy_finalize;
-
-	/* Setup properties */
 	obj_class->get_property = purple_buddy_get_property;
 	obj_class->set_property = purple_buddy_set_property;
-	obj_class->constructed = purple_buddy_constructed;
 
 	properties[PROP_NAME] = g_param_spec_string(
-		"name",
-		"Name",
+		"name", "Name",
 		"The name of the buddy.",
 		NULL,
-		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS
-	);
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_LOCAL_ALIAS] = g_param_spec_string(
-		"local-alias",
-		"Local alias",
+		"local-alias", "Local alias",
 		"Local alias of thee buddy.",
 		NULL,
-		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS
-	);
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_SERVER_ALIAS] = g_param_spec_string(
-		"server-alias",
-		"Server alias",
+		"server-alias", "Server alias",
 		"Server-side alias of the buddy.",
 		NULL,
-		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS
-	);
+		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_ICON] = g_param_spec_pointer(
-		"icon",
-		"Buddy icon",
+		"icon", "Buddy icon",
 		"The icon for the buddy.",
-		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS
-	);
+		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_ACCOUNT] = g_param_spec_object(
-		"account",
-		"Account",
+		"account", "Account",
 		"The account for the buddy.",
 		PURPLE_TYPE_ACCOUNT,
-		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS
-	);
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_PRESENCE] = g_param_spec_object(
-		"presence",
-		"Presence",
+		"presence", "Presence",
 		"The status information for the buddy.",
 		PURPLE_TYPE_PRESENCE,
-		G_PARAM_READABLE | G_PARAM_STATIC_STRINGS
-	);
+		G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_MEDIA_CAPS] = g_param_spec_enum(
-		"media-caps",
-		"Media capabilities",
+		"media-caps", "Media capabilities",
 		"The media capabilities of the buddy.",
 		PURPLE_MEDIA_TYPE_CAPS, PURPLE_MEDIA_CAPS_NONE,
-		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS
-	);
+		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-	g_object_class_install_properties(obj_class, PROP_LAST, properties);
+	g_object_class_install_properties(obj_class, N_PROPERTIES, properties);
 }
 
+/******************************************************************************
+ * Public API
+ *****************************************************************************/
 PurpleBuddy *
-purple_buddy_new(PurpleAccount *account, const char *name, const char *alias)
+purple_buddy_new(PurpleAccount *account, const gchar *name, const gchar *alias)
 {
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(name != NULL, NULL);
 
-	return g_object_new(PURPLE_TYPE_BUDDY,
-			"account",      account,
-			"name",         name,
-			"local-alias",  alias,
-			NULL);
+	return g_object_new(
+		PURPLE_TYPE_BUDDY,
+		"account", account,
+		"name", name,
+		"local-alias", alias,
+		NULL);
+}
+
+void
+purple_buddy_set_icon(PurpleBuddy *buddy, PurpleBuddyIcon *icon) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
+
+	priv = purple_buddy_get_instance_private(buddy);
+	if(priv->icon == icon) {
+		return;
+	}
+
+	g_clear_pointer(&priv->icon, purple_buddy_icon_unref);
+	if(icon != NULL) {
+		priv->icon = purple_buddy_icon_ref(icon);
+	}
+
+	g_object_notify_by_pspec(G_OBJECT(buddy), properties[PROP_ICON]);
+
+	purple_signal_emit(purple_blist_get_handle(), "buddy-icon-changed", buddy);
+
+	purple_blist_update_node(purple_blist_get_default(),
+	                         PURPLE_BLIST_NODE(buddy));
+}
+
+PurpleBuddyIcon *
+purple_buddy_get_icon(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	return priv->icon;
+}
+
+PurpleAccount *
+purple_buddy_get_account(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	return priv->account;
+}
+
+void
+purple_buddy_set_name(PurpleBuddy *buddy, const gchar *name) {
+	PurpleBuddyList *blist = NULL;
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	if(priv->name != NULL) {
+		purple_blist_update_buddies_cache(buddy, name);
+	}
+
+	g_free(priv->name);
+	priv->name = purple_utf8_strip_unprintables(name);
+
+	g_object_notify_by_pspec(G_OBJECT(buddy), properties[PROP_NAME]);
+
+	blist = purple_blist_get_default();
+	purple_blist_save_node(blist, PURPLE_BLIST_NODE(buddy));
+	purple_blist_update_node(blist, PURPLE_BLIST_NODE(buddy));
+}
+
+const gchar *
+purple_buddy_get_name(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	return priv->name;
+}
+
+gpointer
+purple_buddy_get_protocol_data(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	return priv->proto_data;
+}
+
+void
+purple_buddy_set_protocol_data(PurpleBuddy *buddy, gpointer data) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	priv->proto_data = data;
+}
+
+const gchar *
+purple_buddy_get_alias_only(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	if((priv->local_alias != NULL) && (*priv->local_alias != '\0')) {
+		return priv->local_alias;
+	} else if((priv->server_alias != NULL) && (*priv->server_alias != '\0')) {
+		return priv->server_alias;
+	}
+
+	return NULL;
+}
+
+const gchar *
+purple_buddy_get_contact_alias(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+	PurpleContact *c = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	/* Search for an alias for the buddy. In order of precedence: */
+	/* The local buddy alias */
+	if(priv->local_alias != NULL) {
+		return priv->local_alias;
+	}
+
+	/* The contact alias */
+	c = purple_buddy_get_contact(buddy);
+	if((c != NULL) && (purple_contact_get_alias(c) != NULL)) {
+		return purple_contact_get_alias(c);
+	}
+
+	/* The server alias */
+	if((priv->server_alias) && (*priv->server_alias != '\0')) {
+		return priv->server_alias;
+	}
+
+	/* The buddy's user name (i.e. no alias) */
+	return priv->name;
+}
+
+const gchar *
+purple_buddy_get_alias(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	/* Search for an alias for the buddy. In order of precedence: */
+	/* The buddy alias */
+	if(priv->local_alias != NULL) {
+		return priv->local_alias;
+	}
+
+	/* The server alias */
+	if((priv->server_alias) && (*priv->server_alias != '\0')) {
+		return priv->server_alias;
+	}
+
+	/* The buddy's user name (i.e. no alias) */
+	return priv->name;
+}
+
+void
+purple_buddy_set_local_alias(PurpleBuddy *buddy, const gchar *alias) {
+	PurpleBuddyList *blist = NULL;
+	PurpleBuddyPrivate *priv = NULL;
+	PurpleIMConversation *im = NULL;
+	gchar *old_alias = NULL, *new_alias = NULL;
+
+	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	if((alias != NULL) && (*alias != '\0')) {
+		new_alias = purple_utf8_strip_unprintables(alias);
+	}
+
+	if(purple_strequal(priv->local_alias, new_alias)) {
+		g_free(new_alias);
+		return;
+	}
+
+	old_alias = priv->local_alias;
+
+	if((new_alias != NULL) && (*new_alias != '\0')) {
+		priv->local_alias = new_alias;
+	} else {
+		priv->local_alias = NULL;
+		g_free(new_alias);
+	}
+
+	g_object_notify_by_pspec(G_OBJECT(buddy), properties[PROP_LOCAL_ALIAS]);
+
+	blist = purple_blist_get_default();
+	purple_blist_save_node(blist, PURPLE_BLIST_NODE(buddy));
+	purple_blist_update_node(blist, PURPLE_BLIST_NODE(buddy));
+
+	im = purple_conversations_find_im_with_account(priv->name, priv->account);
+	if(PURPLE_IS_IM_CONVERSATION(im)) {
+		purple_conversation_autoset_title(PURPLE_CONVERSATION(im));
+	}
+
+	purple_signal_emit(purple_blist_get_handle(), "blist-node-aliased", buddy,
+	                   old_alias);
+	g_free(old_alias);
+}
+
+const gchar *
+purple_buddy_get_local_alias(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	return priv->local_alias;
+}
+
+void
+purple_buddy_set_server_alias(PurpleBuddy *buddy, const gchar *alias) {
+	PurpleBuddyList *blist = NULL;
+	PurpleBuddyPrivate *priv = NULL;
+	PurpleIMConversation *im = NULL;
+	gchar *old_alias = NULL, *new_alias = NULL;
+
+	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	if((alias != NULL) && (*alias != '\0') && g_utf8_validate(alias, -1, NULL))
+	{
+		new_alias = purple_utf8_strip_unprintables(alias);
+	}
+
+	if(purple_strequal(priv->server_alias, new_alias)) {
+		g_free(new_alias);
+
+		return;
+	}
+
+	old_alias = priv->server_alias;
+
+	if((new_alias != NULL) && (*new_alias != '\0')) {
+		priv->server_alias = new_alias;
+	} else {
+		priv->server_alias = NULL;
+		g_free(new_alias);
+	}
+
+	g_object_notify_by_pspec(G_OBJECT(buddy), properties[PROP_SERVER_ALIAS]);
+
+	blist = purple_blist_get_default();
+	purple_blist_save_node(blist, PURPLE_BLIST_NODE(buddy));
+	purple_blist_update_node(blist, PURPLE_BLIST_NODE(buddy));
+
+	im = purple_conversations_find_im_with_account(priv->name, priv->account);
+	if(PURPLE_IS_IM_CONVERSATION(im)) {
+		purple_conversation_autoset_title(PURPLE_CONVERSATION(im));
+	}
+
+	purple_signal_emit(purple_blist_get_handle(), "blist-node-aliased", buddy,
+	                   old_alias);
+	g_free(old_alias);
+}
+
+const gchar *
+purple_buddy_get_server_alias(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	if((priv->server_alias) && (*priv->server_alias != '\0')) {
+	    return priv->server_alias;
+	}
+
+	return NULL;
+}
+
+PurpleContact *
+purple_buddy_get_contact(PurpleBuddy *buddy) {
+	PurpleBlistNode *parent = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	parent = purple_blist_node_get_parent(PURPLE_BLIST_NODE(buddy));
+	if(PURPLE_IS_CONTACT(parent)) {
+		return PURPLE_CONTACT(parent);
+	}
+
+	return NULL;
+}
+
+PurplePresence *
+purple_buddy_get_presence(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	return priv->presence;
+}
+
+void
+purple_buddy_update_status(PurpleBuddy *buddy, PurpleStatus *old_status) {
+	PurpleBuddyList *blist = NULL;
+	PurpleBuddyPrivate *priv = NULL;
+	PurpleStatus *status = NULL;
+	gpointer handle = NULL;
+
+	gboolean old_online = FALSE, new_online = FALSE;
+
+	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
+
+	priv = purple_buddy_get_instance_private(buddy);
+	status = purple_presence_get_active_status(priv->presence);
+	blist = purple_blist_get_default();
+	handle = purple_blist_get_handle();
+
+	purple_debug_info("blistnodetypes", "Updating buddy status for %s (%s)\n",
+	                  priv->name,
+	                  purple_account_get_protocol_name(priv->account));
+
+	old_online = purple_status_is_online(old_status);
+	new_online = purple_status_is_online(status);
+
+	if(old_online != new_online) {
+		PurpleBlistNode *cnode = NULL, *gnode = NULL;
+		PurpleContact *contact = NULL;
+		PurpleCountingNode *contact_counter = NULL, *group_counter = NULL;
+		gint delta = 0, limit = 0;
+
+		if(new_online) {
+			purple_signal_emit(handle, "buddy-signed-on", buddy);
+			delta = 1;
+			limit = 1;
+		} else {
+			purple_blist_node_set_int(PURPLE_BLIST_NODE(buddy), "last_seen",
+			                          time(NULL));
+
+			purple_signal_emit(handle, "buddy-signed-off", buddy);
+			delta = -1;
+			limit = 0;
+		}
+
+		cnode = purple_blist_node_get_parent(PURPLE_BLIST_NODE(buddy));
+		contact = PURPLE_CONTACT(cnode);
+		contact_counter = PURPLE_COUNTING_NODE(contact);
+		gnode = purple_blist_node_get_parent(cnode);
+		group_counter = PURPLE_COUNTING_NODE(gnode);
+
+		purple_counting_node_change_online_count(contact_counter, delta);
+		if(purple_counting_node_get_online_count(contact_counter) == limit) {
+			purple_counting_node_change_online_count(group_counter, delta);
+		}
+	} else {
+		purple_signal_emit(handle, "buddy-status-changed", buddy, old_status,
+		                   status);
+	}
+
+	/*
+	 * This function used to only call the following two functions if one of
+	 * the above signals had been triggered, but that's not good, because
+	 * if someone's away message changes and they don't go from away to back
+	 * to away then no signal is triggered.
+	 *
+	 * It's a safe assumption that SOMETHING called this function.  PROBABLY
+	 * because something, somewhere changed.  Calling the stuff below
+	 * certainly won't hurt anything.  Unless you're on a K6-2 300.
+	 */
+	purple_contact_invalidate_priority_buddy(purple_buddy_get_contact(buddy));
+
+	purple_blist_update_node(blist, PURPLE_BLIST_NODE(buddy));
+}
+
+PurpleMediaCaps
+purple_buddy_get_media_caps(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), 0);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	return priv->media_caps;
+}
+
+void
+purple_buddy_set_media_caps(PurpleBuddy *buddy, PurpleMediaCaps media_caps) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
+
+	priv = purple_buddy_get_instance_private(buddy);
+	priv->media_caps = media_caps;
+
+	g_object_notify_by_pspec(G_OBJECT(buddy), properties[PROP_MEDIA_CAPS]);
+}
+
+PurpleGroup *
+purple_buddy_get_group(PurpleBuddy *buddy) {
+	PurpleBlistNode *contact = NULL, *group = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	contact = purple_blist_node_get_parent(PURPLE_BLIST_NODE(buddy));
+	if(!PURPLE_IS_CONTACT(contact)) {
+		return purple_blist_get_default_group();
+	}
+
+	group = purple_blist_node_get_parent(contact);
+	if(PURPLE_IS_GROUP(group)) {
+		return PURPLE_GROUP(group);
+	}
+
+	return NULL;
 }
