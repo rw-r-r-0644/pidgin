@@ -49,10 +49,6 @@
 #define ZEPHYR_TYPING_SEND_TIMEOUT 15
 #define ZEPHYR_TYPING_RECV_TIMEOUT 10
 
-#ifndef HOST_NAME_MAX
-# define HOST_NAME_MAX 255
-#endif
-
 static PurpleProtocol *my_protocol = NULL;
 static GSList *cmds = NULL;
 
