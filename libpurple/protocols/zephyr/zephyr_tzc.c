@@ -362,12 +362,7 @@ parse_buffer(const gchar *source, gboolean do_parse)
 							escape_next = TRUE;
 						}
 						if(!in_quote) {
-							if(source[end] == '(') {
-								nesting++;
-							}
-							if(source[end] == ')') {
-								nesting--;
-							}
+							nesting = get_paren_level(nesting, source[end]);
 						}
 						if(source[end] == '"') {
 							in_quote = !in_quote;
