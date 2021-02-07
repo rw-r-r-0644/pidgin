@@ -205,7 +205,7 @@ silcpurple_mime_message(SilcClient client, SilcClientConnection conn,
 		if (channel && !chat)
 			goto out;
 
-		img = purple_image_new_from_data(g_memdup(data, data_len), data_len);
+		img = purple_image_new_from_data(g_memdup2(data, data_len), data_len);
 		if (!img)
 			goto out;
 		img_id = purple_image_store_add_temporary(img);

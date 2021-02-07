@@ -26,6 +26,7 @@
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
+#include "libpurple/glibcompat.h"
 
 #include <libsoup/soup.h>
 
@@ -259,7 +260,7 @@ do_buddy_avatar_update_fromurl(G_GNUC_UNUSED SoupSession *session,
 		goto out;
 	}
 
-	icon_data = g_memdup(msg->response_body->data, msg->response_body->length);
+	icon_data = g_memdup2(msg->response_body->data, msg->response_body->length);
 	purple_buddy_icons_set_for_user(purple_connection_get_account(info->js->gc),
 	                                info->from, icon_data,
 	                                msg->response_body->length, info->id);

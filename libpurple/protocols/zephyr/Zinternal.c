@@ -10,6 +10,7 @@
  */
 
 #include <purple.h>
+#include "libpurple/glibcompat.h"
 
 #include "internal.h"
 #ifdef WIN32
@@ -332,7 +333,7 @@ Z_ReadWait(void)
 		 * a first fragment, grab the header from it. */
 		if (part == 0 && qptr->header == NULL) {
 			qptr->header_len = packet_len - notice.z_message_len;
-			qptr->header = g_memdup(packet, qptr->header_len);
+			qptr->header = g_memdup2(packet, qptr->header_len);
 		}
 		g_object_unref(from);
 		return Z_AddNoticeToEntry(qptr, &notice, part);
@@ -364,7 +365,7 @@ Z_ReadWait(void)
 	 * ID's will be predictable. */
 	if (part == 0) {
 		qptr->header_len = packet_len - notice.z_message_len;
-		qptr->header = g_memdup(packet, qptr->header_len);
+		qptr->header = g_memdup2(packet, qptr->header_len);
 	}
 
 	/* If this is not a fragmented notice, then don't bother with a hole
@@ -377,7 +378,7 @@ Z_ReadWait(void)
 		if (notice.z_message_len == 0) {
 			qptr->msg = NULL;
 		} else {
-			qptr->msg = g_memdup(notice.z_message, notice.z_message_len);
+			qptr->msg = g_memdup2(notice.z_message, notice.z_message_len);
 		}
 		qptr->msg_len = notice.z_message_len;
 		__Q_Size += notice.z_message_len;
