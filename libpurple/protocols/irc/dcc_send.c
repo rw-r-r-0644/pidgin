@@ -28,6 +28,7 @@
 #endif
 
 #include <purple.h>
+#include "libpurple/glibcompat.h"
 
 #include "irc.h"
 
@@ -189,7 +190,7 @@ static void irc_dccsend_send_read(gpointer data, int source, PurpleInputConditio
 
 		xd->rxlen -= 4;
 		if (xd->rxlen) {
-			unsigned char *tmp = g_memdup(xd->rxqueue + 4, xd->rxlen);
+			unsigned char *tmp = g_memdup2(xd->rxqueue + 4, xd->rxlen);
 			g_free(xd->rxqueue);
 			xd->rxqueue = tmp;
 		} else {

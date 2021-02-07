@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include <purple.h>
+#include "libpurple/glibcompat.h"
 
 #include "data.h"
 #include "iq.h"
@@ -54,7 +55,7 @@ jabber_data_create_from_data(gconstpointer rawdata, gsize size, const char *type
 	data->type = g_strdup(type);
 	data->size = size;
 	data->ephemeral = ephemeral;
-	data->data = g_memdup(rawdata, size);
+	data->data = g_memdup2(rawdata, size);
 
 	g_free(checksum);
 	return data;

@@ -22,6 +22,8 @@
 
 #include "gtkblist-theme.h"
 
+#include "libpurple/glibcompat.h"
+
 /******************************************************************************
  * Structs
  *****************************************************************************/
@@ -496,7 +498,7 @@ pidgin_blist_layout_copy(const PidginBlistLayout *layout)
 {
 	g_return_val_if_fail(layout != NULL, NULL);
 
-	return g_memdup(layout, sizeof(PidginBlistLayout));
+	return g_memdup2(layout, sizeof(PidginBlistLayout));
 }
 
 GType

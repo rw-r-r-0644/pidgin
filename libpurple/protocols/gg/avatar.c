@@ -29,6 +29,8 @@
 
 #include "avatar.h"
 
+#include "libpurple/glibcompat.h"
+
 #include "gg.h"
 #include "utils.h"
 #include "oauth/oauth-purple.h"
@@ -136,7 +138,7 @@ ggp_avatar_buddy_update_received(G_GNUC_UNUSED SoupSession *session,
 	got_data = msg->response_body->data;
 	got_len = msg->response_body->length;
 	purple_buddy_icons_set_for_user(account, purple_buddy_get_name(buddy),
-	                                g_memdup(got_data, got_len), got_len,
+	                                g_memdup2(got_data, got_len), got_len,
 	                                timestamp_str);
 
 	purple_debug_info("gg",

@@ -29,6 +29,7 @@
 
 #include "debug.h"
 #include "enums.h"
+#include "glibcompat.h"
 #include "image-store.h"
 #include "network.h"
 #include "notify.h"
@@ -1953,7 +1954,7 @@ purple_xfer_set_thumbnail(PurpleXfer *xfer, gconstpointer thumbnail,
 	old_mimetype = priv->thumbnail_mimetype;
 
 	if (thumbnail && size > 0) {
-		priv->thumbnail_data = g_memdup(thumbnail, size);
+		priv->thumbnail_data = g_memdup2(thumbnail, size);
 		priv->thumbnail_size = size;
 		priv->thumbnail_mimetype = g_strdup(mimetype);
 	} else {

@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "glibcompat.h"
 #include "notify.h"
 #include "purplemarkup.h"
 #include "request.h"
@@ -1751,7 +1752,7 @@ purple_request_field_image_new(const char *id, const char *text, const char *buf
 
 	field = purple_request_field_new(id, text, PURPLE_REQUEST_FIELD_IMAGE);
 
-	field->u.image.buffer  = g_memdup(buf, size);
+	field->u.image.buffer  = g_memdup2(buf, size);
 	field->u.image.size    = size;
 	field->u.image.scale_x = 1;
 	field->u.image.scale_y = 1;

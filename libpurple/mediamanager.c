@@ -25,6 +25,7 @@
 
 #include "account.h"
 #include "debug.h"
+#include "glibcompat.h"
 #include "media.h"
 #include "mediamanager.h"
 
@@ -1696,7 +1697,7 @@ purple_media_manager_send_application_data (
 		media, session_id, participant);
 
 	if (info && info->appsrc && info->connected) {
-		GstBuffer *gstbuffer = gst_buffer_new_wrapped (g_memdup (buffer, size),
+		GstBuffer *gstbuffer = gst_buffer_new_wrapped (g_memdup2(buffer, size),
 			size);
 		GstAppSrc *appsrc = gst_object_ref (info->appsrc);
 

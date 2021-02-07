@@ -28,6 +28,7 @@
  */
 
 #include <purple.h>
+#include "libpurple/glibcompat.h"
 
 #include <libgadu.h>
 #include "resolver-purple.h"
@@ -99,7 +100,7 @@ void ggp_resolver_purple_cb(GObject *sender, GAsyncResult *res, gpointer cbdata)
 					"ipv4: %s\n", ip_address);
 
 				native_size = g_inet_address_get_native_size(inet_address);
-				in_addrs = g_list_append(in_addrs, g_memdup(g_inet_address_to_bytes(inet_address), native_size));
+				in_addrs = g_list_append(in_addrs, g_memdup2(g_inet_address_to_bytes(inet_address), native_size));
 
 				break;
 			case G_SOCKET_FAMILY_IPV6:

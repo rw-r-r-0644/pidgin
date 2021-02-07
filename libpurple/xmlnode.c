@@ -36,6 +36,7 @@
 #include "purplemarkup.h"
 #include "util.h"
 #include "xmlnode.h"
+#include "glibcompat.h"
 
 #ifdef _WIN32
 # define NEWLINE_S "\r\n"
@@ -108,7 +109,7 @@ purple_xmlnode_insert_data(PurpleXmlNode *node, const char *data, gssize size)
 
 	child = new_node(NULL, PURPLE_XMLNODE_TYPE_DATA);
 
-	child->data = g_memdup(data, real_size);
+	child->data = g_memdup2(data, real_size);
 	child->data_sz = real_size;
 
 	purple_xmlnode_insert_child(node, child);
@@ -899,7 +900,7 @@ purple_xmlnode_copy(const PurpleXmlNode *src)
 	ret->xmlns = g_strdup(src->xmlns);
 	if (src->data) {
 		if (src->data_sz) {
-			ret->data = g_memdup(src->data, src->data_sz);
+			ret->data = g_memdup2(src->data, src->data_sz);
 			ret->data_sz = src->data_sz;
 		} else {
 			ret->data = g_strdup(src->data);

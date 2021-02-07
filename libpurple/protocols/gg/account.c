@@ -106,7 +106,7 @@ static void ggp_account_token_response(struct gg_http *h, gboolean success,
 		token_info = h->data;
 		token->id = g_strdup(token_info->tokenid);
 		token->size = h->body_size;
-		token->data = g_memdup(h->body, token->size);
+		token->data = g_memdup2(h->body, token->size);
 		token->length = token_info->length;
 	} else {
 		purple_debug_error("gg", "ggp_account_token_handler: error\n");

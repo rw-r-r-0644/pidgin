@@ -102,7 +102,7 @@ PurpleImage *purple_image_new_from_file(const gchar *path, GError **error);
  * Creates a new #PurpleImage object with contents of @data buffer.
  *
  * The @data buffer is owned by #PurpleImage object, so you might want
- * to #g_memdup it first.
+ * to g_memdup2() it first.
  *
  * Returns: the new #PurpleImage.
  */
@@ -116,7 +116,7 @@ PurpleImage *purple_image_new_from_data(const guint8 *data, gsize length);
  * Creates a new #PurpleImage object with contents of @data buffer.
  *
  * The @data buffer is owned by #PurpleImage object, so you might want
- * to #g_memdup it first.
+ * to g_memdup2() it first.
  *
  * Returns: the new #PurpleImage.
  */
