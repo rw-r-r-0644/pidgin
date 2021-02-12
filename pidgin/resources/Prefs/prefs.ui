@@ -2455,60 +2455,6 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                                     <property name="can_focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
-                                      <object class="GtkLabel" id="label19">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Buddy List Theme:</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkComboBox" id="theme.blist">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <signal name="changed" handler="prefs_set_blist_theme_cb" swapped="no"/>
-                                        <child>
-                                          <object class="GtkCellRendererPixbuf">
-                                            <property name="width">32</property>
-                                            <property name="height">32</property>
-                                          </object>
-                                          <attributes>
-                                            <attribute name="pixbuf">0</attribute>
-                                          </attributes>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCellRendererText">
-                                            <property name="ellipsize">end</property>
-                                          </object>
-                                          <attributes>
-                                            <attribute name="markup">1</attribute>
-                                          </attributes>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="spacing">6</property>
-                                    <child>
                                       <object class="GtkLabel" id="label20">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
@@ -2705,14 +2651,12 @@ New themes can be installed by dragging and dropping them onto the theme list.</
   </object>
   <object class="GtkSizeGroup" id="theme.combo_sg">
     <widgets>
-      <widget name="theme.blist"/>
       <widget name="theme.status"/>
       <widget name="theme.smiley"/>
     </widgets>
   </object>
   <object class="GtkSizeGroup" id="theme.label_sg">
     <widgets>
-      <widget name="label19"/>
       <widget name="label20"/>
       <widget name="label18"/>
     </widgets>

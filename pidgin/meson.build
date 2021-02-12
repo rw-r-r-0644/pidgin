@@ -2,8 +2,6 @@ libpidgin_SOURCES = [
 	'pidginstock.c',
 	'gtkaccount.c',
 	'gtkblist.c',
-	'gtkblist-theme.c',
-	'gtkblist-theme-loader.c',
 	'gtkconn.c',
 	'gtkconv.c',
 	'gtkdialogs.c',
@@ -70,8 +68,6 @@ libpidgin_SOURCES = [
 libpidgin_headers = [
 	'gtkaccount.h',
 	'gtkblist.h',
-	'gtkblist-theme.h',
-	'gtkblist-theme-loader.h',
 	'gtkconn.h',
 	'gtkconv.h',
 	'gtkconvwin.h',
