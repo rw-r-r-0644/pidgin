@@ -29,6 +29,10 @@
  * @see_also: <link linkend="chapter-signals-gtkblist">Buddy List signals</link>
  */
 
+#include <gtk/gtk.h>
+
+#include <purple.h>
+
 #define PIDGIN_TYPE_BUDDY_LIST (pidgin_buddy_list_get_type())
 
 typedef struct _PidginBuddyList PidginBuddyList;
@@ -38,10 +42,6 @@ typedef enum {
 	PIDGIN_STATUS_ICON_SMALL
 
 } PidginStatusIconSize;
-
-#include <purple.h>
-
-#include "gtkblist-theme.h"
 
 /**************************************************************************
  * Structures
@@ -271,23 +271,6 @@ void pidgin_blist_visibility_manager_remove(void);
  * Adds a mini-alert to the blist scrollbook
  */
 void pidgin_blist_add_alert(GtkWidget *widget);
-
-/**
- * pidgin_blist_set_theme:
- * @theme:	the new theme to use
- *
- * Sets the current theme for Pidgin to use
- */
-void pidgin_blist_set_theme(PidginBlistTheme *theme);
-
-/**
- * pidgin_blist_get_theme:
- *
- * Gets Pidgin's current buddy list theme
- *
- * Returns:	(transfer none): the current theme
- */
-PidginBlistTheme *pidgin_blist_get_theme(void);
 
 /**************************************************************************
  * GTK+ Buddy List sorting functions

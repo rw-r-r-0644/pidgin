@@ -36,8 +36,6 @@
 #include "gtkroomlist.h"
 #include "gtkstatusbox.h"
 #include "gtkscrollbook.h"
-#include "gtkblist-theme.h"
-#include "gtkblist-theme-loader.h"
 #include "gtkutils.h"
 #include "pidgin/minidialog.h"
 #include "pidgin/pidginaccountchooser.h"
@@ -115,8 +113,6 @@ typedef struct
 	 * is showing; %NULL otherwise.
 	 */
 	PidginMiniDialog *signed_on_elsewhere;
-
-	PidginBlistTheme *current_theme;
 
 	guint select_notebook_page_timeout;
 
@@ -3788,28 +3784,10 @@ pidgin_blist_get_status_icon(PurpleBlistNode *node, PidginStatusIconSize size)
 	return ret;
 }
 
-static const char *
-theme_font_get_color_default(PidginThemeFont *font, const char *def)
-{
-	const char *ret;
-	if (!font || !(ret = pidgin_theme_font_get_color_describe(font)))
-		ret = def;
-	return ret;
-}
-
-static const char *
-theme_font_get_face_default(PidginThemeFont *font, const char *def)
-{
-	const char *ret;
-	if (!font || !(ret = pidgin_theme_font_get_font_face(font)))
-		ret = def;
-	return ret;
-}
-
 gchar *
 pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased)
 {
-	const char *name, *name_color, *name_font, *status_color, *status_font, *dim_grey;
+	const char *name, *status_color, *dim_grey;
 	char *text = NULL;
 	PurpleProtocol *protocol = NULL;
 	PurpleContact *contact;
@@ -3819,8 +3797,6 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 	PurpleConversation *conv = find_conversation_with_buddy(b);
 	gboolean hidden_conv = FALSE;
 	gboolean biglist = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons");
-	PidginThemeFont *statusfont = NULL, *namefont = NULL;
-	PidginBlistTheme *theme;
 	gchar *contact_alias;
 
 	if (conv != NULL) {
@@ -3909,50 +3885,18 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 		}
 	}
 
-	/* choose the colors of the text */
-	theme = pidgin_blist_get_theme();
-	name_color = NULL;
-
 	dim_grey = pidgin_style_context_is_dark() ? "light slate grey" : "dim grey";
 
-	if (theme) {
-		if (purple_presence_is_idle(presence)) {
-			namefont = statusfont = pidgin_blist_theme_get_idle_text_info(theme);
-			name_color = dim_grey;
-		} else if (!purple_presence_is_online(presence)) {
-			namefont = pidgin_blist_theme_get_offline_text_info(theme);
-			name_color = dim_grey;
-			statusfont = pidgin_blist_theme_get_status_text_info(theme);
-		} else if (purple_presence_is_available(presence)) {
-			namefont = pidgin_blist_theme_get_online_text_info(theme);
-			statusfont = pidgin_blist_theme_get_status_text_info(theme);
-		} else {
-			namefont = pidgin_blist_theme_get_away_text_info(theme);
-			statusfont = pidgin_blist_theme_get_status_text_info(theme);
-		}
-	} else {
-		if (!selected
-				&& (purple_presence_is_idle(presence)
-							|| !purple_presence_is_online(presence)))
+	if(!selected) {
+		if(purple_presence_is_idle(presence) ||
+		   !purple_presence_is_online(presence))
 		{
-			name_color = dim_grey;
+			status_color = dim_grey;
 		}
 	}
 
-	name_color = theme_font_get_color_default(namefont, name_color);
-	name_font = theme_font_get_face_default(namefont, "");
-
-	status_color = theme_font_get_color_default(statusfont, dim_grey);
-	status_font = theme_font_get_face_default(statusfont, "");
-
-	if (aliased && selected) {
-		if (theme) {
-			name_color = "black";
-			status_color = "black";
-		} else {
-			name_color = NULL;
-			status_color = NULL;
-		}
+	if(aliased && selected) {
+		status_color = NULL;
 	}
 
 	if (hidden_conv) {
@@ -3964,36 +3908,22 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 	/* Put it all together */
 	if ((!aliased || biglist) && (statustext || idletime)) {
 		/* using <span size='smaller'> breaks the status, so it must be seperated into <small><span>*/
-		if (name_color) {
-			text = g_strdup_printf("<span font_desc='%s' foreground='%s'>%s</span>\n"
-				 		"<small><span font_desc='%s' foreground='%s'>%s%s%s</span></small>",
-						name_font, name_color, nametext, status_font, status_color,
-						idletime != NULL ? idletime : "",
-				    		(idletime != NULL && statustext != NULL) ? " - " : "",
-				    		statustext != NULL ? statustext : "");
-		} else if (status_color) {
-			text = g_strdup_printf("<span font_desc='%s'>%s</span>\n"
-				 		"<small><span font_desc='%s' foreground='%s'>%s%s%s</span></small>",
-						name_font, nametext, status_font, status_color,
+		if (status_color) {
+			text = g_strdup_printf("<span foreground='%s'>%s</span>\n"
+						"<small><span foreground='%s'>%s%s%s</span></small>",
+						status_color, nametext, status_color,
 						idletime != NULL ? idletime : "",
 				    		(idletime != NULL && statustext != NULL) ? " - " : "",
 				    		statustext != NULL ? statustext : "");
 		} else {
-			text = g_strdup_printf("<span font_desc='%s'>%s</span>\n"
-				 		"<small><span font_desc='%s'>%s%s%s</span></small>",
-						name_font, nametext, status_font,
+			text = g_strdup_printf("%s\n<small>%s%s%s</small>",
+						nametext,
 						idletime != NULL ? idletime : "",
 				    		(idletime != NULL && statustext != NULL) ? " - " : "",
 				    		statustext != NULL ? statustext : "");
 		}
 	} else {
-		if (name_color) {
-			text = g_strdup_printf("<span font_desc='%s' color='%s'>%s</span>",
-				name_font, name_color, nametext);
-		} else {
-			text = g_strdup_printf("<span font_desc='%s'>%s</span>", name_font,
-				nametext);
-		}
+		text = g_strdup_printf("%s", nametext);
 	}
 	g_free(nametext);
 	g_free(statustext);
@@ -5035,21 +4965,11 @@ static void
 pidgin_blist_build_layout(PurpleBuddyList *list)
 {
 	GtkTreeViewColumn *column;
-	PidginBlistLayout *layout;
-	PidginBlistTheme *theme;
 	GtkCellRenderer *rend;
 	gint i, status_icon = 0, text = 1, emblem = 2, protocol_icon = 3, buddy_icon = 4;
 
 
 	column = gtkblist->text_column;
-
-	if ((theme = pidgin_blist_get_theme()) != NULL && (layout = pidgin_blist_theme_get_layout(theme)) != NULL) {
-		status_icon = layout->status_icon ;
-		text = layout->text;
-		emblem = layout->emblem;
-		protocol_icon = layout->protocol_icon;
-		buddy_icon = layout->buddy_icon;
-	}
 
 	gtk_tree_view_column_clear(column);
 
@@ -5204,7 +5124,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	GtkWidget *label;
 	GtkWidget *close;
 	gchar *text;
-	const char *theme_name;
 	GtkTreeSelection *selection;
 	GtkTargetEntry dte[] = {{"PURPLE_BLIST_NODE", GTK_TARGET_SAME_APP, DRAG_ROW},
 				{"application/x-im-contact", 0, DRAG_BUDDY},
@@ -5221,15 +5140,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 
 	gtkblist = PIDGIN_BUDDY_LIST(list);
 	priv = pidgin_buddy_list_get_instance_private(gtkblist);
-
-	if (priv->current_theme)
-		g_object_unref(priv->current_theme);
-
-	theme_name = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/blist/theme");
-	if (theme_name && *theme_name)
-		priv->current_theme = g_object_ref(PIDGIN_BLIST_THEME(purple_theme_manager_find_theme(theme_name, "blist")));
-	else
-		priv->current_theme = NULL;
 
 	gtkblist->empty_avatar = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, 32, 32);
 	gdk_pixbuf_fill(gtkblist->empty_avatar, 0x00000000);
@@ -5757,17 +5667,9 @@ static void pidgin_blist_update_group(PurpleBuddyList *list,
 		gboolean expanded;
 		GdkRGBA *bgcolor = NULL;
 		GdkPixbuf *avatar = NULL;
-		PidginBlistTheme *theme = NULL;
 
 		if(!insert_node(list, gnode, &iter))
 			return;
-
-		if ((theme = pidgin_blist_get_theme()) == NULL)
-			bgcolor = NULL;
-		else if (purple_blist_node_get_bool(gnode, "collapsed") || count <= 0)
-			bgcolor = pidgin_blist_theme_get_collapsed_background_color(theme);
-		else
-			bgcolor = pidgin_blist_theme_get_expanded_background_color(theme);
 
 		path = gtk_tree_model_get_path(GTK_TREE_MODEL(gtkblist->treemodel), &iter);
 		expanded = gtk_tree_view_row_expanded(GTK_TREE_VIEW(gtkblist->treeview), path);
@@ -5803,14 +5705,10 @@ static void pidgin_blist_update_group(PurpleBuddyList *list,
 static char *pidgin_get_group_title(PurpleBlistNode *gnode, gboolean expanded)
 {
 	PurpleGroup *group;
-	gboolean selected;
 	char group_count[12] = "";
 	char *mark, *esc;
 	PurpleBlistNode *selected_node = NULL;
 	GtkTreeIter iter;
-	PidginThemeFont *pair;
-	gchar const *text_color, *text_font;
-	PidginBlistTheme *theme;
 
 	group = (PurpleGroup*)gnode;
 
@@ -5818,7 +5716,6 @@ static char *pidgin_get_group_title(PurpleBlistNode *gnode, gboolean expanded)
 		gtk_tree_model_get(GTK_TREE_MODEL(gtkblist->treemodel), &iter,
 				NODE_COLUMN, &selected_node, -1);
 	}
-	selected = (gnode == selected_node);
 
 	if (!expanded) {
 		g_snprintf(group_count, sizeof(group_count), "%d/%d",
@@ -5826,33 +5723,13 @@ static char *pidgin_get_group_title(PurpleBlistNode *gnode, gboolean expanded)
 		           purple_counting_node_get_current_size(PURPLE_COUNTING_NODE(group)));
 	}
 
-	theme = pidgin_blist_get_theme();
-	if (theme == NULL)
-		pair = NULL;
-	else if (expanded)
-		pair = pidgin_blist_theme_get_expanded_text_info(theme);
-	else
-		pair = pidgin_blist_theme_get_collapsed_text_info(theme);
-
-
-	text_color = selected ? NULL : theme_font_get_color_default(pair, NULL);
-	text_font = theme_font_get_face_default(pair, "");
-
 	esc = g_markup_escape_text(purple_group_get_name(group), -1);
-	if (text_color) {
-		mark = g_strdup_printf("<span foreground='%s' font_desc='%s'><b>%s</b>%s%s%s</span>",
-		                       text_color, text_font,
-		                       esc ? esc : "",
-		                       !expanded ? " <span weight='light'>(</span>" : "",
-		                       group_count,
-		                       !expanded ? "<span weight='light'>)</span>" : "");
-	} else {
-		mark = g_strdup_printf("<span font_desc='%s'><b>%s</b>%s%s%s</span>",
-		                       text_font, esc ? esc : "",
-		                       !expanded ? " <span weight='light'>(</span>" : "",
-		                       group_count,
-		                       !expanded ? "<span weight='light'>)</span>" : "");
-	}
+
+	mark = g_strdup_printf("<span><b>%s</b>%s%s%s</span>",
+	                       esc ? esc : "",
+	                       !expanded ? " <span weight='light'>(</span>" : "",
+	                       group_count,
+	                       !expanded ? "<span weight='light'>)</span>" : "");
 
 	g_free(esc);
 	return mark;
@@ -5868,7 +5745,6 @@ static void buddy_node(PurpleBuddy *buddy, GtkTreeIter *iter, PurpleBlistNode *n
 	char *idle = NULL;
 	gboolean selected = (gtkblist->selected_node == node);
 	gboolean biglist = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons");
-	PidginBlistTheme *theme;
 
 	if(editing_blist) {
 		return;
@@ -5895,8 +5771,6 @@ static void buddy_node(PurpleBuddy *buddy, GtkTreeIter *iter, PurpleBlistNode *n
 	emblem = pidgin_blist_get_emblem(PURPLE_BLIST_NODE(buddy));
 	mark = pidgin_blist_get_name_markup(buddy, selected, TRUE);
 
-	theme = pidgin_blist_get_theme();
-
 	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_idle_time") &&
 		purple_presence_is_idle(presence) && !biglist)
 	{
@@ -5904,7 +5778,6 @@ static void buddy_node(PurpleBuddy *buddy, GtkTreeIter *iter, PurpleBlistNode *n
 
 		if (idle_secs > 0)
 		{
-			PidginThemeFont *pair = NULL;
 			const gchar *textcolor;
 			time_t t;
 			int ihrs, imin;
@@ -5913,30 +5786,22 @@ static void buddy_node(PurpleBuddy *buddy, GtkTreeIter *iter, PurpleBlistNode *n
 			ihrs = (t - idle_secs) / 3600;
 			imin = ((t - idle_secs) / 60) % 60;
 
-			if (selected)
+			if(selected) {
 				textcolor = NULL;
-			else if (theme != NULL && (pair = pidgin_blist_theme_get_idle_text_info(theme)) != NULL)
-				textcolor = pidgin_theme_font_get_color_describe(pair);
-			else
-				/* If no theme them default to making idle buddy names grey */
-				textcolor = pidgin_style_context_is_dark() ? "light slate grey" : "dim grey";
-
-			if (textcolor) {
-				idle = g_strdup_printf("<span color='%s' font_desc='%s'>%d:%02d</span>",
-					textcolor, theme_font_get_face_default(pair, ""),
-					ihrs, imin);
 			} else {
-				idle = g_strdup_printf("<span font_desc='%s'>%d:%02d</span>",
-					theme_font_get_face_default(pair, ""),
-					ihrs, imin);
+				textcolor = pidgin_style_context_is_dark() ? "light slate grey" : "dim grey";
+			}
+
+			if(textcolor) {
+				idle = g_strdup_printf("<span color='%s'>%d:%02d</span>",
+				                       textcolor, ihrs, imin);
+			} else {
+				idle = g_strdup_printf("<span>%d:%02d</span>",  ihrs, imin);
 			}
 		}
 	}
 
 	protocol_icon = pidgin_create_protocol_icon(purple_buddy_get_account(buddy), PIDGIN_PROTOCOL_ICON_SMALL);
-
-	if (theme != NULL)
-		color = pidgin_blist_theme_get_contact_color(theme);
 
 	gtk_tree_store_set(gtkblist->treemodel, iter,
 			   STATUS_ICON_COLUMN, status,
@@ -6009,32 +5874,10 @@ static void pidgin_blist_update_contact(PurpleBuddyList *list, PurpleBlistNode *
 		if(gtknode->contact_expanded) {
 			GdkPixbuf *status;
 			gchar *mark, *tmp;
-			const gchar *fg_color, *font;
 			GdkRGBA *color = NULL;
-			PidginBlistTheme *theme;
-			PidginThemeFont *pair;
-			gboolean selected = (gtkblist->selected_node == cnode);
 
 			mark = g_markup_escape_text(purple_contact_get_alias(contact), -1);
-
-			theme = pidgin_blist_get_theme();
-			if (theme == NULL)
-				pair = NULL;
-			else {
-				pair = pidgin_blist_theme_get_contact_text_info(theme);
-				color = pidgin_blist_theme_get_contact_color(theme);
-			}
-
-			font = theme_font_get_face_default(pair, "");
-			fg_color = selected ? NULL : theme_font_get_color_default(pair, NULL);
-
-			if (fg_color) {
-				tmp = g_strdup_printf("<span font_desc='%s' color='%s'>%s</span>",
-						font, fg_color, mark);
-			} else {
-				tmp = g_strdup_printf("<span font_desc='%s'>%s</span>", font,
-					mark);
-			}
+			tmp = g_strdup_printf("<span>%s</span>", mark);
 			g_free(mark);
 			mark = tmp;
 
@@ -6115,7 +5958,7 @@ static void pidgin_blist_update_chat(PurpleBuddyList *list, PurpleBlistNode *nod
 	if(purple_account_is_connected(purple_chat_get_account(chat))) {
 		GtkTreeIter iter;
 		GdkPixbuf *status, *avatar, *emblem, *protocol_icon;
-		const gchar *color, *font;
+		const gchar *color = NULL;
 		gchar *mark, *tmp;
 		gboolean showicons = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons");
 		gboolean biglist = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons");
@@ -6123,8 +5966,6 @@ static void pidgin_blist_update_chat(PurpleBuddyList *list, PurpleBlistNode *nod
 		PurpleConversation *conv;
 		gboolean hidden = FALSE;
 		GdkRGBA *bgcolor = NULL;
-		PidginThemeFont *pair;
-		PidginBlistTheme *theme;
 		gboolean selected = (gtkblist->selected_node == node);
 		gboolean nick_said = FALSE;
 
@@ -6150,36 +5991,22 @@ static void pidgin_blist_update_chat(PurpleBuddyList *list, PurpleBlistNode *nod
 
 		mark = g_markup_escape_text(purple_chat_get_name(chat), -1);
 
-		theme = pidgin_blist_get_theme();
-
-		if (theme == NULL)
-			pair = NULL;
-		else if (nick_said)
-			pair = pidgin_blist_theme_get_unread_message_nick_said_text_info(theme);
-		else if (hidden)
-			pair = pidgin_blist_theme_get_unread_message_text_info(theme);
-		else pair = pidgin_blist_theme_get_online_text_info(theme);
-
-
-		font = theme_font_get_face_default(pair, "");
-		if (selected || !(color = theme_font_get_color_default(pair, NULL)))
+		if(selected ) {
 			/* nick_said color is the same as gtkconv:tab-label-attention */
 			color = (nick_said ? "#006aff" : NULL);
+		}
 
-		if (color) {
-			tmp = g_strdup_printf("<span font_desc='%s' color='%s' weight='%s'>%s</span>",
-				  	  font, color, hidden ? "bold" : "normal", mark);
+		if(color) {
+			tmp = g_strdup_printf("<span color='%s' weight='%s'>%s</span>",
+			                      color, hidden ? "bold" : "normal", mark);
 		} else {
-			tmp = g_strdup_printf("<span font_desc='%s' weight='%s'>%s</span>",
-				  	  font, hidden ? "bold" : "normal", mark);
+			tmp = g_strdup_printf("<span weight='%s'>%s</span>",
+			                      hidden ? "bold" : "normal", mark);
 		}
 		g_free(mark);
 		mark = tmp;
 
 		protocol_icon = pidgin_create_protocol_icon(purple_chat_get_account(chat), PIDGIN_PROTOCOL_ICON_SMALL);
-
-		if (theme != NULL)
-			bgcolor = pidgin_blist_theme_get_contact_color(theme);
 
 		gtk_tree_store_set(gtkblist->treemodel, &iter,
 				STATUS_ICON_COLUMN, status,
@@ -6799,39 +6626,6 @@ buddy_signonoff_cb(PurpleBuddy *buddy) {
 			buddy, g_object_unref);
 }
 
-void
-pidgin_blist_set_theme(PidginBlistTheme *theme)
-{
-	PidginBuddyListPrivate *priv =
-	        pidgin_buddy_list_get_instance_private(gtkblist);
-	PurpleBuddyList *list = purple_blist_get_default();
-
-	if (theme != NULL)
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/blist/theme",
-				purple_theme_get_name(PURPLE_THEME(theme)));
-	else
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/blist/theme", "");
-
-	if (priv->current_theme)
-		g_object_unref(priv->current_theme);
-
-	priv->current_theme = theme ? g_object_ref(theme) : NULL;
-
-	pidgin_blist_build_layout(list);
-
-	pidgin_blist_refresh(list);
-}
-
-
-PidginBlistTheme *
-pidgin_blist_get_theme()
-{
-	PidginBuddyListPrivate *priv =
-	        pidgin_buddy_list_get_instance_private(gtkblist);
-
-	return priv->current_theme;
-}
-
 void pidgin_blist_init(void)
 {
 	void *gtk_blist_handle = pidgin_blist_get_handle();
@@ -6851,8 +6645,6 @@ void pidgin_blist_init(void)
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/blist/width", 250); /* Golden ratio, baby */
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/blist/height", 405); /* Golden ratio, baby */
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/blist/theme", "");
-
-	purple_theme_manager_register_type(g_object_new(PIDGIN_TYPE_BLIST_THEME_LOADER, "type", "blist", NULL));
 
 	/* Register our signals */
 	purple_signal_register(gtk_blist_handle, "gtkblist-hiding",
@@ -6937,7 +6729,6 @@ pidgin_buddy_list_finalize(GObject *obj)
 	g_clear_object(&gtkblist->treemodel);
 	g_object_unref(G_OBJECT(gtkblist->empty_avatar));
 
-	g_clear_object(&priv->current_theme);
 	if (priv->select_notebook_page_timeout) {
 		g_source_remove(priv->select_notebook_page_timeout);
 	}

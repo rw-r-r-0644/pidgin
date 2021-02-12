@@ -686,7 +686,45 @@ version 3.0.0 (??/??/????):
 		* gtk_imhtml_image_free
 		* gtk_imhtml_image_new
 		* gtk_imhtml_image_scale
+		* pidgin_blist_get_theme
+		* pidgin_blist_layout_get_type
+		* pidgin_blist_set_theme
+		* pidgin_blist_theme_get_background_color
+		* pidgin_blist_theme_get_collapsed_background_color
+		* pidgin_blist_theme_get_collapsed_text_info
+		* pidgin_blist_theme_get_contact_color
+		* pidgin_blist_theme_get_contact_text_info
+		* pidgin_blist_theme_get_expanded_background_color
+		* pidgin_blist_theme_get_expanded_text_info
+		* pidgin_blist_theme_get_idle_text_info
+		* pidgin_blist_theme_get_offline_text_info
+		* pidgin_blist_theme_get_online_text_info
+		* pidgin_blist_theme_get_online_text_info
+		* pidgin_blist_theme_get_opacity
+		* pidgin_blist_theme_get_opacity
+		* pidgin_blist_theme_get_status_text_info
+		* pidgin_blist_theme_get_type
+		* pidgin_blist_theme_get_unread_message_nick_said_text_info
+		* pidgin_blist_theme_get_unread_message_text_info
+		* pidgin_blist_theme_loader_get_type
+		* pidgin_blist_theme_set_away_text_info
+		* pidgin_blist_theme_set_background_color
+		* pidgin_blist_theme_set_collapsed_background_color
+		* pidgin_blist_theme_set_collapsed_text_info
+		* pidgin_blist_theme_set_contact_color
+		* pidgin_blist_theme_set_contact_text_info
+		* pidgin_blist_theme_set_expanded_background_color
+		* pidgin_blist_theme_set_expanded_text_info
+		* pidgin_blist_theme_set_idle_text_info
+		* pidgin_blist_theme_set_layout
+		* pidgin_blist_theme_set_offline_text_info
+		* pidgin_blist_theme_set_online_text_info
+		* pidgin_blist_theme_set_opacity
+		* pidgin_blist_theme_set_status_text_info
+		* pidgin_blist_theme_set_unread_message_nick_said_text_info
+		* pidgin_blist_theme_set_unread_message_text_info
 		* pidgin_blist_update_account_error_state
+		* PidginBlistLayout
 		* PidginBuddyList.connection_errors
 		* PidginButtonStyle
 		* pidgin_check_if_dir
@@ -733,8 +771,17 @@ version 3.0.0 (??/??/????):
 		* pidgin_status_box_set_network_available
 		* pidgin_stock_id_from_presence
 		* pidgin_text_combo_box_entry_set_text
+		* pidgin_theme_font_free
+		* pidgin_theme_font_get_color
+		* pidgin_theme_font_get_color_describe
+		* pidgin_theme_font_get_font_face
+		* pidgin_theme_font_get_type
+		* pidgin_theme_font_new
+		* pidgin_theme_font_set_color
+		* pidgin_theme_font_set_font_face
 		* pidgin_toggle_sensitive, pidgin_toggle_sensitive_array, and
-		pidgin_toggle_showhide; use g_object_bind_property instead
+		  pidgin_toggle_showhide; use g_object_bind_property instead
+		* PidginThemeFont
 		* struct _GtkIMHtmlAnimation
 		* struct _GtkIMHtmlFontDetail
 		* struct _GtkIMHtmlHr

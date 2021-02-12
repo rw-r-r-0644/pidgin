@@ -204,7 +204,6 @@ struct _PidginPrefsWindow {
 	/* Themes page */
 	struct {
 		SoupSession *session;
-		GtkWidget *blist;
 		GtkWidget *status;
 		GtkWidget *smiley;
 	} theme;
@@ -238,12 +237,10 @@ struct _PidginPrefsWindow {
 static PidginPrefsWindow *prefs = NULL;
 
 /* Themes page */
-static GtkWidget *prefs_blist_themes_combo_box;
 static GtkWidget *prefs_status_themes_combo_box;
 static GtkWidget *prefs_smiley_themes_combo_box;
 
 /* These exist outside the lifetime of the prefs dialog */
-static GtkListStore *prefs_blist_themes;
 static GtkListStore *prefs_status_icon_themes;
 static GtkListStore *prefs_smiley_themes;
 
@@ -852,7 +849,6 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 	purple_prefs_disconnect_by_handle(prefs);
 
 	/* NULL-ify globals */
-	prefs_blist_themes_combo_box = NULL;
 	prefs_status_themes_combo_box = NULL;
 	prefs_smiley_themes_combo_box = NULL;
 
@@ -915,13 +911,10 @@ prefs_themes_sort(PurpleTheme *theme)
 	gchar *image_full = NULL, *markup;
 	const gchar *name, *author, *description;
 
-	if (PIDGIN_IS_BLIST_THEME(theme) || PIDGIN_IS_STATUS_ICON_THEME(theme)){
+	if (PIDGIN_IS_STATUS_ICON_THEME(theme)){
 		GtkListStore *store;
 
-		if (PIDGIN_IS_BLIST_THEME(theme))
-			store = prefs_blist_themes;
-		else
-			store = prefs_status_icon_themes;
+		store = prefs_status_icon_themes;
 
 		image_full = purple_theme_get_image_full(theme);
 		if (image_full != NULL){
@@ -985,14 +978,6 @@ prefs_themes_refresh(void)
 	pixbuf = pidgin_pixbuf_new_from_file_at_scale(tmp, PREFS_OPTIMAL_ICON_SIZE, PREFS_OPTIMAL_ICON_SIZE, TRUE);
 	g_free(tmp);
 
-	/* blist themes */
-	gtk_list_store_clear(prefs_blist_themes);
-	gtk_list_store_append(prefs_blist_themes, &iter);
-	tmp = get_theme_markup(_("Default"), FALSE, _("Penguin Pimps"),
-		_("The default Pidgin buddy list theme"));
-	gtk_list_store_set(prefs_blist_themes, &iter, 0, pixbuf, 1, tmp, 2, "", -1);
-	g_free(tmp);
-
 	/* status icon themes */
 	gtk_list_store_clear(prefs_status_icon_themes);
 	gtk_list_store_append(prefs_status_icon_themes, &iter);
@@ -1010,7 +995,6 @@ prefs_themes_refresh(void)
 	smileys_refresh_theme_list();
 
 	/* set active */
-	prefs_set_active_theme_combo(prefs_blist_themes_combo_box, prefs_blist_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/blist/theme"));
 	prefs_set_active_theme_combo(prefs_status_themes_combo_box, prefs_status_icon_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/status/icon-theme"));
 	prefs_set_active_theme_combo(prefs_smiley_themes_combo_box, prefs_smiley_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/smileys/theme"));
 }
@@ -1019,8 +1003,6 @@ prefs_themes_refresh(void)
 static void
 prefs_themes_init(void)
 {
-	prefs_blist_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
-
 	prefs_status_icon_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
 
 	prefs_smiley_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
@@ -1431,27 +1413,6 @@ static gint pidgin_sort_smileys (GtkTreeModel	*model,
 	return ret;
 }
 
-/* sets the current buddy list theme */
-static void
-prefs_set_blist_theme_cb(GtkComboBox *combo_box, gpointer user_data)
-{
-	PidginBlistTheme *theme =  NULL;
-	GtkTreeIter iter;
-	gchar *name = NULL;
-
-	if(gtk_combo_box_get_active_iter(combo_box, &iter)) {
-
-		gtk_tree_model_get(GTK_TREE_MODEL(prefs_blist_themes), &iter, 2, &name, -1);
-
-		if(!name || *name)
-			theme = PIDGIN_BLIST_THEME(purple_theme_manager_find_theme(name, "blist"));
-
-		g_free(name);
-
-		pidgin_blist_set_theme(theme);
-	}
-}
-
 /* sets the current icon theme */
 static void
 prefs_set_status_icon_theme_cb(GtkComboBox *combo_box, gpointer user_data)
@@ -1477,11 +1438,6 @@ prefs_set_status_icon_theme_cb(GtkComboBox *combo_box, gpointer user_data)
 static void
 bind_theme_page(PidginPrefsWindow *win)
 {
-	/* Buddy List Themes */
-	prefs_build_theme_combo_box(win->theme.blist, prefs_blist_themes,
-	                            PIDGIN_PREFS_ROOT "/blist/theme", "blist");
-	prefs_blist_themes_combo_box = win->theme.blist;
-
 	/* Status Icon Themes */
 	prefs_build_theme_combo_box(win->theme.status, prefs_status_icon_themes,
 	                            PIDGIN_PREFS_ROOT "/status/icon-theme",
@@ -2971,13 +2927,9 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 
 	/* Themes page */
 	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, theme.blist);
-	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow, theme.status);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow, theme.smiley);
-	gtk_widget_class_bind_template_callback(widget_class,
-			prefs_set_blist_theme_cb);
 	gtk_widget_class_bind_template_callback(widget_class,
 			prefs_set_status_icon_theme_cb);
 	gtk_widget_class_bind_template_callback(widget_class,

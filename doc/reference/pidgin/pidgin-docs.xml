@@ -20,8 +20,6 @@
     <title>API Reference</title>
 
       <xi:include href="xml/gtkaccount.xml" />
-      <xi:include href="xml/gtkblist-theme-loader.xml" />
-      <xi:include href="xml/gtkblist-theme.xml" />
       <xi:include href="xml/gtkblist.xml" />
       <xi:include href="xml/gtkconn.xml" />
       <xi:include href="xml/gtkconv.xml" />
