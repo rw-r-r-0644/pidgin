@@ -17,17 +17,14 @@
 
 */
 
-#include "internal.h"
-PURPLE_BEGIN_IGNORE_CAST_ALIGN
-#include "silc.h"
-PURPLE_END_IGNORE_CAST_ALIGN
-#include "silcclient.h"
+#include <glib/gi18n-lib.h>
+
 #include "silcpurple.h"
 #include "wb.h"
 
 /***************************** Channel Routines ******************************/
 
-GList *silcpurple_chat_info(PurpleConnection *gc)
+GList *silcpurple_chat_info(PurpleProtocolChat *protocol_chat, PurpleConnection *gc)
 {
 	GList *ci = NULL;
 	PurpleProtocolChatEntry *pce;
@@ -47,7 +44,7 @@ GList *silcpurple_chat_info(PurpleConnection *gc)
 	return ci;
 }
 
-GHashTable *silcpurple_chat_info_defaults(PurpleConnection *gc, const char *chat_name)
+GHashTable *silcpurple_chat_info_defaults(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, const char *chat_name)
 {
 	GHashTable *defaults;
 
@@ -541,7 +538,7 @@ silcpurple_chat_prv_add(SilcPurpleCharPrv p, PurpleRequestFields *fields)
 	purple_blist_node_set_string((PurpleBlistNode *)cn, "parentch", p->channel);
 
 	/* Join the group */
-	silcpurple_chat_join(sg->gc, comp);
+	silcpurple_chat_join(NULL, sg->gc, comp);
 
 	silc_free(p);
 }
@@ -980,12 +977,12 @@ GList *silcpurple_chat_menu(PurpleChat *chat)
 
 /******************************* Joining Etc. ********************************/
 
-char *silcpurple_get_chat_name(GHashTable *data)
+char *silcpurple_get_chat_name(PurpleProtocolChat *protocol_chat, GHashTable *data)
 {
 	return g_strdup(g_hash_table_lookup(data, "channel"));
 }
 
-void silcpurple_chat_join(PurpleConnection *gc, GHashTable *data)
+void silcpurple_chat_join(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, GHashTable *data)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;
@@ -1068,7 +1065,7 @@ void silcpurple_chat_join(PurpleConnection *gc, GHashTable *data)
 					 channel, "-auth", "-founder", NULL);
 }
 
-void silcpurple_chat_invite(PurpleConnection *gc, int id, const char *msg,
+void silcpurple_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, const char *msg,
 			    const char *name)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
@@ -1114,7 +1111,7 @@ void silcpurple_chat_invite(PurpleConnection *gc, int id, const char *msg,
 				 name, NULL);
 }
 
-void silcpurple_chat_leave(PurpleConnection *gc, int id)
+void silcpurple_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;
@@ -1183,7 +1180,7 @@ void silcpurple_chat_leave(PurpleConnection *gc, int id)
 		}
 }
 
-int silcpurple_chat_send(PurpleConnection *gc, int id, PurpleMessage *pmsg)
+int silcpurple_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, PurpleMessage *pmsg)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;
@@ -1309,7 +1306,7 @@ int silcpurple_chat_send(PurpleConnection *gc, int id, PurpleMessage *pmsg)
 	return ret;
 }
 
-void silcpurple_chat_set_topic(PurpleConnection *gc, int id, const char *topic)
+void silcpurple_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, const char *topic)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;

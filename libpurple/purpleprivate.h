@@ -178,17 +178,6 @@ void _purple_conversations_update_cache(PurpleConversation *conv,
 int *_purple_statuses_get_primitive_scores(void);
 
 /**
- * A fstat alternative, like g_stat for stat.
- *
- * @param fd The file descriptor.
- * @param st The stat buffer.
- *
- * @return the result just like for fstat.
- */
-int
-_purple_fstat(int fd, GStatBuf *st);
-
-/**
  * _purple_conversation_write_common:
  * @conv:    The conversation.
  * @msg:     The message.

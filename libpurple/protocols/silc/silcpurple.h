@@ -22,8 +22,10 @@
 
 #include <gmodule.h>
 
+#include <silc.h>
+#include <silcclient.h>
+
 /* Purple includes */
-#include "internal.h"
 #include <purple.h>
 
 #define SILCPURPLE_TYPE_PROTOCOL             (silcpurple_protocol_get_type())
@@ -115,27 +117,27 @@ void silcpurple_verify_public_key(SilcClient client, SilcClientConnection conn,
 				  SilcVerifyPublicKey completion,
 				  void *context);
 GList *silcpurple_buddy_menu(PurpleBuddy *buddy);
-void silcpurple_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group, const char *message);
+void silcpurple_add_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group, const char *message);
 void silcpurple_send_buddylist(PurpleConnection *gc);
-void silcpurple_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group);
+void silcpurple_remove_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group);
 void silcpurple_buddy_keyagr_request(SilcClient client,
 				     SilcClientConnection conn,
 				     SilcClientEntry client_entry,
 				     const char *hostname, SilcUInt16 port,
 				     SilcUInt16 protocol);
-void silcpurple_idle_set(PurpleConnection *gc, int idle);
-void silcpurple_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full);
-char *silcpurple_status_text(PurpleBuddy *b);
+void silcpurple_idle_set(PurpleProtocolServer *protocol_server, PurpleConnection *gc, int idle);
+void silcpurple_tooltip_text(PurpleProtocolClient *ppclient, PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full);
+char *silcpurple_status_text(PurpleProtocolClient *ppclient, PurpleBuddy *b);
 gboolean silcpurple_ip_is_private(const char *ip);
-void silcpurple_ftp_send_file(PurpleConnection *gc, const char *name, const char *file);
-PurpleXfer *silcpurple_ftp_new_xfer(PurpleConnection *gc, const char *name);
+void silcpurple_ftp_send_file(PurpleProtocolXfer *prplxfer, PurpleConnection *gc, const char *name, const char *file);
+PurpleXfer *silcpurple_ftp_new_xfer(PurpleProtocolXfer *prplxfer, PurpleConnection *gc, const char *name);
 void silcpurple_ftp_request(SilcClient client, SilcClientConnection conn,
 			  SilcClientEntry client_entry, SilcUInt32 session_id,
 			  const char *hostname, SilcUInt16 port);
 void silcpurple_show_public_key(SilcPurple sg,
 			      const char *name, SilcPublicKey public_key,
 			      GCallback callback, void *context);
-void silcpurple_get_info(PurpleConnection *gc, const char *who);
+void silcpurple_get_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const char *who);
 SilcAttributePayload
 silcpurple_get_attr(SilcDList attrs, SilcAttribute attribute);
 void silcpurple_get_umode_string(SilcUInt32 mode, char *buf,
@@ -144,16 +146,16 @@ void silcpurple_get_chmode_string(SilcUInt32 mode, char *buf,
 				SilcUInt32 buf_size);
 void silcpurple_get_chumode_string(SilcUInt32 mode, char *buf,
 				 SilcUInt32 buf_size);
-GList *silcpurple_chat_info(PurpleConnection *gc);
-GHashTable *silcpurple_chat_info_defaults(PurpleConnection *gc, const char *chat_name);
+GList *silcpurple_chat_info(PurpleProtocolChat *protocol_chat, PurpleConnection *gc);
+GHashTable *silcpurple_chat_info_defaults(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, const char *chat_name);
 GList *silcpurple_chat_menu(PurpleChat *);
-void silcpurple_chat_join(PurpleConnection *gc, GHashTable *data);
-char *silcpurple_get_chat_name(GHashTable *data);
-void silcpurple_chat_invite(PurpleConnection *gc, int id, const char *msg,
+void silcpurple_chat_join(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, GHashTable *data);
+char *silcpurple_get_chat_name(PurpleProtocolChat *protocol_chat, GHashTable *data);
+void silcpurple_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, const char *msg,
 			  const char *name);
-void silcpurple_chat_leave(PurpleConnection *gc, int id);
-int silcpurple_chat_send(PurpleConnection *gc, int id, PurpleMessage *msg);
-void silcpurple_chat_set_topic(PurpleConnection *gc, int id, const char *topic);
+void silcpurple_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id);
+int silcpurple_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, PurpleMessage *msg);
+void silcpurple_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, const char *topic);
 PurpleRoomlist *silcpurple_roomlist_get_list(PurpleConnection *gc);
 void silcpurple_roomlist_cancel(PurpleRoomlist *list);
 void silcpurple_chat_chauth_show(SilcPurple sg, SilcChannelEntry channel,
@@ -161,7 +163,7 @@ void silcpurple_chat_chauth_show(SilcPurple sg, SilcChannelEntry channel,
 void silcpurple_parse_attrs(SilcDList attrs, char **moodstr, char **statusstr,
 					 char **contactstr, char **langstr, char **devicestr,
 					 char **tzstr, char **geostr);
-void silcpurple_buddy_set_icon(PurpleConnection *gc, PurpleImage *img);
+void silcpurple_buddy_set_icon(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleImage *img);
 SilcDList silcpurple_image_message(const char *msg, SilcMessageFlags *mflags);
 
 #ifdef _WIN32
