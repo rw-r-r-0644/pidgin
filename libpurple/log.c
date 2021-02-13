@@ -872,8 +872,7 @@ void purple_log_common_writer(PurpleLog *log, const char *ext)
 		data->file = g_fopen(path, "a");
 		if (data->file == NULL)
 		{
-			purple_debug(PURPLE_DEBUG_ERROR, "log",
-					"Could not create log file %s\n", path);
+			purple_debug_error("log", "Could not create log file %s", path);
 
 			if (log->conv != NULL)
 				purple_conversation_write_system_message(log->conv,

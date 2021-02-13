@@ -65,8 +65,7 @@ nm_create_contact()
 
 	contact->ref_count = 1;
 
-	purple_debug(PURPLE_DEBUG_INFO, "novell", "Creating contact, total=%d\n",
-			   count++);
+	purple_debug_info("novell", "Creating contact, total=%d", count++);
 
 	return contact;
 }
@@ -227,9 +226,7 @@ nm_release_contact(NMContact * contact)
 		return;
 
 	if (--(contact->ref_count) == 0) {
-
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "Releasing contact, total=%d\n", --count);
+		purple_debug_info("novell", "Releasing contact, total=%d", --count);
 
 		g_free(contact->display_name);
 		g_free(contact->dn);

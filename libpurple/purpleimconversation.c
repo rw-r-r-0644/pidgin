@@ -80,7 +80,7 @@ purple_im_conversation_send_typed_cb(gpointer data)
 
 		purple_serv_send_typing(pc, name, PURPLE_IM_TYPED);
 
-		purple_debug(PURPLE_DEBUG_MISC, "purple-im-conversation", "typed...\n");
+		purple_debug_misc("purple-im-conversation", "typed...");
 	}
 
 	return FALSE;

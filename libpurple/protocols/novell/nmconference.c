@@ -60,9 +60,8 @@ nm_create_conference(const char *guid)
 	}
 	conf->ref_count = 1;
 
-	purple_debug(PURPLE_DEBUG_INFO, "novell",
-			   "Creating a conference %p, total=%d\n",
-			   conf, conf_count++);
+	purple_debug_info("novell", "Creating a conference %p, total=%d",
+	                  conf, conf_count++);
 
 	return conf;
 }
@@ -74,14 +73,11 @@ nm_release_conference(NMConference * conference)
 
 	g_return_if_fail(conference != NULL);
 
-	purple_debug(PURPLE_DEBUG_INFO, "novell",
-			   "In release conference %p, refs=%d\n",
-			   conference, conference->ref_count);
+	purple_debug_info("novell", "In release conference %p, refs=%d",
+	                  conference, conference->ref_count);
 	if (--conference->ref_count == 0) {
-
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "Releasing conference %p, total=%d\n",
-				   conference, --conf_count);
+		purple_debug_info("novell", "Releasing conference %p, total=%d",
+		                  conference, --conf_count);
 
 		g_free(conference->guid);
 

@@ -827,8 +827,8 @@ void purple_serv_got_chat_left(PurpleConnection *g, int id)
 	if (!chat)
 		return;
 
-	purple_debug(PURPLE_DEBUG_INFO, "server", "Leaving room: %s\n",
-			   purple_conversation_get_name(PURPLE_CONVERSATION(chat)));
+	purple_debug_info("server", "Leaving room: %s",
+	                  purple_conversation_get_name(PURPLE_CONVERSATION(chat)));
 
 	_purple_connection_remove_active_chat(g, chat);
 

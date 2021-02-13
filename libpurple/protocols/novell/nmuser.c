@@ -1741,8 +1741,7 @@ nm_call_handler(NMUser * user, NMRequest * request, NMField * fields)
 		} else {
 
 			/* Nothing to do, just print debug message  */
-			purple_debug(PURPLE_DEBUG_INFO, "novell",
-					   "nm_call_handler(): Unknown request command, %s\n", cmd);
+			purple_debug_info("novell", "nm_call_handler(): Unknown request command, %s", cmd);
 
 		}
 	}

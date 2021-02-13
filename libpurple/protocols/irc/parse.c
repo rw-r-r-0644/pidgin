@@ -260,8 +260,8 @@ static char *irc_send_convert(struct irc_conn *irc, const char *string)
 
 	utf8 = g_convert(string, strlen(string), encodings[0], "UTF-8", NULL, NULL, &err);
 	if (err) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Send conversion error: %s\n", err->message);
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Sending as UTF-8 instead of %s\n", encodings[0]);
+		purple_debug_error("irc", "Send conversion error: %s", err->message);
+		purple_debug_error("irc", "Sending as UTF-8 instead of %s", encodings[0]);
 		utf8 = g_strdup(string);
 		g_error_free(err);
 	}
@@ -480,7 +480,7 @@ char *irc_mirc2html(const char *string)
 			bold = italic = underline = font = FALSE;
 			break;
 		default:
-			purple_debug(PURPLE_DEBUG_ERROR, "irc", "Unexpected mIRC formatting character %d\n", *cur);
+			purple_debug_error("irc", "Unexpected mIRC formatting character %d", *cur);
 		}
 	} while (*cur);
 
@@ -580,8 +580,9 @@ char *irc_parse_ctcp(struct irc_conn *irc, const char *from, const char *to, con
 					_("CTCP PING reply"), buf,
 					purple_request_cpar_from_connection(gc));
 				g_free(buf);
-			} else
-				purple_debug(PURPLE_DEBUG_ERROR, "irc", "Unable to parse PING timestamp");
+			} else {
+				purple_debug_error("irc", "Unable to parse PING timestamp");
+			}
 			return NULL;
 		} else {
 			buf = irc_format(irc, "vt:", "NOTICE", from, msg);
@@ -609,7 +610,7 @@ void irc_msg_table_build(struct irc_conn *irc)
 	int i;
 
 	if (!irc || !irc->msgs) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Attempt to build a message table on a bogus structure\n");
+		purple_debug_error("irc", "Attempt to build a message table on a bogus structure");
 		return;
 	}
 
@@ -623,7 +624,7 @@ void irc_cmd_table_build(struct irc_conn *irc)
 	int i;
 
 	if (!irc || !irc->cmds) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Attempt to build a command table on a bogus structure\n");
+		purple_debug_error("irc", "Attempt to build a command table on a bogus structure");
 		return;
 	}
 
@@ -660,7 +661,7 @@ char *irc_format(struct irc_conn *irc, const char *format, ...)
 			g_free(tmp);
 			break;
 		default:
-			purple_debug(PURPLE_DEBUG_ERROR, "irc", "Invalid format character '%c'\n", *cur);
+			purple_debug_error("irc", "Invalid format character '%c'", *cur);
 			break;
 		}
 	}
@@ -782,7 +783,7 @@ void irc_parse_msg(struct irc_conn *irc, char *input)
 			cur = cur + strlen(cur);
 			break;
 		default:
-			purple_debug(PURPLE_DEBUG_ERROR, "irc", "invalid message format character '%c'\n", fmt[i]);
+			purple_debug_error("irc", "invalid message format character '%c'", fmt[i]);
 			fmt_valid = FALSE;
 			break;
 		}
@@ -813,6 +814,6 @@ static void irc_parse_error_cb(struct irc_conn *irc, char *input)
 	/* This really should be escaped somehow that you can tell what
 	 * the junk was -- but as it is, it can crash glib. */
 	clean = g_utf8_make_valid(input, -1);
-	purple_debug(PURPLE_DEBUG_WARNING, "irc", "Unrecognized string: %s\n", clean);
+	purple_debug_warning("irc", "Unrecognized string: %s", clean);
 	g_free(clean);
 }

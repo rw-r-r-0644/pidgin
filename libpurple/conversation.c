@@ -180,8 +180,7 @@ common_send(PurpleConversation *conv, const char *message, PurpleMessageFlags ms
 			}
 		}
 		else if (err == -ENOTCONN) {
-			purple_debug(PURPLE_DEBUG_ERROR, "conversation",
-					   "Not yet connected.\n");
+			purple_debug_error("conversation", "Not yet connected.");
 		}
 		else {
 			msg = _("Unable to send message.");

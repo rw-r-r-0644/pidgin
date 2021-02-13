@@ -1305,9 +1305,9 @@ theme_dnd_recv(GtkWidget *widget, GdkDragContext *dc, guint x, guint y,
 			/* It looks like we're dealing with a local file. Let's
 			 * just untar it in the right place */
 			if(!(tmp = g_filename_from_uri(name, NULL, &converr))) {
-				purple_debug(PURPLE_DEBUG_ERROR, "theme dnd", "%s\n",
-						   (converr ? converr->message :
-							"g_filename_from_uri error"));
+				purple_debug_error("theme dnd", "%s",
+				                   converr ? converr->message :
+				                   "g_filename_from_uri error");
 				free_theme_info(info);
 				return;
 			}

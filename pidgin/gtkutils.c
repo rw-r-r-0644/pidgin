@@ -316,8 +316,7 @@ pidgin_save_accels_cb(GtkAccelGroup *accel_group, guint arg1,
                          GdkModifierType arg2, GClosure *arg3,
                          gpointer data)
 {
-	purple_debug(PURPLE_DEBUG_MISC, "accels",
-	           "accel changed, scheduling save.\n");
+	purple_debug_misc("accels", "accel changed, scheduling save.");
 
 	if (!accels_save_timer)
 		accels_save_timer = g_timeout_add_seconds(5, pidgin_save_accels,
@@ -330,7 +329,7 @@ pidgin_save_accels(gpointer data)
 	char *filename = NULL;
 
 	filename = g_build_filename(purple_config_dir(), "accels", NULL);
-	purple_debug(PURPLE_DEBUG_MISC, "accels", "saving accels to %s\n", filename);
+	purple_debug_misc("accels", "saving accels to %s", filename);
 	gtk_accel_map_save(filename);
 	g_free(filename);
 

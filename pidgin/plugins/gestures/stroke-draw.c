@@ -301,7 +301,7 @@ gstroke_execute (GtkWidget *widget, const gchar *name)
     (GHashTable*)g_object_get_data(G_OBJECT(widget), GSTROKE_SIGNALS);
 
 #if 0
-  purple_debug(PURPLE_DEBUG_MISC, "gestures", "gstroke %s\n", name);
+  purple_debug_misc("gestures", "gstroke %s", name);
 #endif
 
   if (hash_table)

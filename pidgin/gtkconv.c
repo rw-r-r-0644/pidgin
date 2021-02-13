@@ -6707,8 +6707,8 @@ notebook_press_cb(GtkWidget *widget, GdkEventButton *e, PidginConvWindow *win)
 
 
 	if (win->in_drag) {
-		purple_debug(PURPLE_DEBUG_WARNING, "gtkconv",
-		           "Already in the middle of a window drag at tab_press_cb\n");
+		purple_debug_warning("gtkconv",
+		                     "Already in the middle of a window drag at tab_press_cb");
 		return TRUE;
 	}
 

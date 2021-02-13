@@ -141,8 +141,7 @@ void irc_dccsend_recv(struct irc_conn *irc, const char *from, const char *msg) {
 		xfer->ip = g_strdup(token[i]);
 	}
 
-	purple_debug(PURPLE_DEBUG_INFO, "irc", "Receiving file (%s) from %s\n",
-		     filename->str, xfer->ip);
+	purple_debug_info("irc", "Receiving file (%s) from %s", filename->str, xfer->ip);
 	purple_xfer_set_size(PURPLE_XFER(xfer), token[i+2] ? atoi(token[i+2]) : 0);
 
 	purple_xfer_request(PURPLE_XFER(xfer));
