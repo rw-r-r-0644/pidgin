@@ -38,10 +38,6 @@ int wpurple_fcntl(int socket, int command, ...);
 #define F_SETFL 4
 #define O_NONBLOCK 04000
 
-/* sys/ioctl.h */
-#define SIOCGIFCONF 0x8912 /* get iface list */
-int wpurple_ioctl(int fd, int command, void* opt);
-
 /* net/if.h */
 struct ifreq
 {

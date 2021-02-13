@@ -29,7 +29,6 @@
 #include <resolv.h>
 #include <netinet/in.h>
 #include <net/if.h>
-#include <sys/ioctl.h>
 #else
 #include <nspapi.h>
 #endif
