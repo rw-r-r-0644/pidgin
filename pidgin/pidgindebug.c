@@ -739,7 +739,7 @@ pidgin_debug_g_log_handler(const gchar *domain, GLogLevelFlags flags,
 		level = PURPLE_DEBUG_MISC;
 	}
 
-	purple_debug(level, category->str, "%s\n", msg);
+	purple_debug(level, category->str, "%s", msg);
 	g_string_free(category, TRUE);
 }
 

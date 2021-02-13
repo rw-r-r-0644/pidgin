@@ -83,10 +83,6 @@
 
 #include "untar.h"
 
-#define untar_error( error, args... )      purple_debug(PURPLE_DEBUG_ERROR, "untar", error, ## args )
-#define untar_warning( warning, args... )  purple_debug(PURPLE_DEBUG_WARNING, "untar", warning, ## args )
-#define untar_verbose( args... )           purple_debug(PURPLE_DEBUG_INFO, "untar", ## args )
-
 #define WSIZE	32768	/* size of decompression buffer */
 #define TSIZE	512	/* size of a "tape" block */
 #define CR	13	/* carriage-return character */
@@ -149,7 +145,7 @@ static FILE *createpath(name)
 	/* if we aren't allowed to overwrite and this file exists, return NULL */
 	if (!FORCE && access(name, 0) == 0)
 	{
-		untar_warning("%s: exists, will not overwrite without \"FORCE option\"\n", name);
+		purple_debug_warning("untar", "%s: exists, will not overwrite without \"FORCE option\"", name);
 		return NULL;
 	}
 
@@ -176,7 +172,7 @@ static FILE *createpath(name)
 	}
 	fp = g_fopen(name, CONVERT ? "w" : "wb");
 	if (!fp)
-		untar_error("Error opening: %s\n", name);
+		purple_debug_error("untar", "Error opening: %s", name);
 	return fp;
 }
 
@@ -196,7 +192,7 @@ static void linkorcopy(src, dst, sym)
 	fpsrc = g_fopen(src, "rb");
 	if (!fpsrc)
 	{
-		untar_error("Error opening: %s\n", src);
+		purple_debug_error("untar", "Error opening: %s", src);
 		return;
 	}
 
@@ -247,7 +243,7 @@ static void linkorcopy(src, dst, sym)
 	fclose(fpdst);
 
 	/* Give a warning */
-	untar_warning("%s: copy instead of link\n", dst);
+	purple_debug_warning("untar", "%s: copy instead of link", dst);
 }
 
 /* This calls fwrite(), possibly after converting CR-LF to LF */
@@ -364,7 +360,7 @@ static int untar_block(Uchar_t *blk) {
 	{
 		/* end-of-archive marker */
 		if (didabs)
-			untar_warning("Removed leading slashes because \"ABSPATH option\" wasn't given.\n");
+			purple_debug_warning("untar", "Removed leading slashes because \"ABSPATH option\" wasn't given.");
 		return 1;
 	}
 	else
@@ -379,12 +375,12 @@ static int untar_block(Uchar_t *blk) {
 		{
 			if (first)
 			{
-				untar_error("%s: not a valid tar file\n", inname);
+				purple_debug_error("untar", "%s: not a valid tar file", inname);
 				return 0;
 			}
 			else
 			{
-				untar_error("Garbage detected; preceding file may be damaged\n");
+				purple_debug_error("untar", "Garbage detected; preceding file may be damaged");
 				return 0;
 			}
 		}
@@ -444,9 +440,10 @@ static int untar_block(Uchar_t *blk) {
 		}
 		if (sum != checksum(tblk, 0) && sum != checksum(tblk, 1))
 		{
-			if (!first)
-				untar_error("Garbage detected; preceding file may be damaged\n");
-			untar_error("%s: header has bad checksum for %s\n", inname, nbuf);
+			if (!first) {
+				purple_debug_error("untar", "Garbage detected; preceding file may be damaged");
+			}
+			purple_debug_error("untar", "%s: header has bad checksum for %s", inname, nbuf);
 			return 0;
 		}
 
@@ -486,17 +483,17 @@ static int untar_block(Uchar_t *blk) {
 
 		/* list the file */
 		if (VERBOSE)
-			untar_verbose("%c %s",
+			purple_debug_info("untar", "%c %s",
 				ISREGULAR(*tblk) ? '-' : ("hlcbdp"[(tblk)->type - '1']),
 				nbuf);
 		else if (!QUIET)
-			untar_verbose("%s\n", nbuf);
+			purple_debug_info("untar", "%s", nbuf);
 
 		/* if link, then do the link-or-copy thing */
 		if (tblk->type == '1' || tblk->type == '2')
 		{
 			if (VERBOSE)
-				untar_verbose(" -> %s\n", tblk->linkto);
+				purple_debug_info("untar", " -> %s", tblk->linkto);
 			if (!LISTING)
 				linkorcopy(tblk->linkto, nbuf, tblk->type == '2');
 			outsize = 0L;
@@ -522,7 +519,7 @@ static int untar_block(Uchar_t *blk) {
 			else
 				tmp = " ignored";
 			if (VERBOSE)
-				untar_verbose("%s\n", tmp);
+				purple_debug_info("untar", "%s", tmp);
 			return 1;
 		}
 
@@ -530,7 +527,7 @@ static int untar_block(Uchar_t *blk) {
 		if (!ISREGULAR(*tblk))
 		{
 			if (VERBOSE)
-				untar_verbose(" ignored\n");
+				purple_debug_info("untar", " ignored");
 			outsize = 0L;
 			return 1;
 		}
@@ -538,7 +535,7 @@ static int untar_block(Uchar_t *blk) {
 		/* print file statistics */
 		if (VERBOSE)
 		{
-			untar_verbose(" (%ld byte%s, %ld tape block%s)\n",
+			purple_debug_info("untar", " (%ld byte%s, %ld tape block%s)",
 				outsize,
 				outsize == 1 ? "" : "s",
 				(outsize + TSIZE - 1) / TSIZE,
@@ -577,7 +574,7 @@ int untar(const char *filename, const char* destdir, untar_opt options) {
 	infp = g_fopen(filename, "rb");
 	if (!infp)
 	{
-		untar_error("Error opening: %s\n", filename);
+		purple_debug_error("untar", "Error opening: %s", filename);
 		return 0;
 	}
 
@@ -585,12 +582,12 @@ int untar(const char *filename, const char* destdir, untar_opt options) {
 
 	/* Set current directory */
 	if(!GetCurrentDirectoryW(_MAX_PATH, curdir)) {
-		untar_error("Could not get current directory (error %lu).\n", GetLastError());
+		purple_debug_error("untar", "Could not get current directory (error %lu).", GetLastError());
 		fclose(infp);
 		return 0;
 	}
 	if(!SetCurrentDirectoryW(w_destdir)) {
-		untar_error("Could not set current directory to (error %lu): %s\n", GetLastError(), destdir);
+		purple_debug_error("untar", "Could not set current directory to (error %lu): %s", GetLastError(), destdir);
 		fclose(infp);
 		return 0;
 	} else {
@@ -598,18 +595,18 @@ int untar(const char *filename, const char* destdir, untar_opt options) {
 		/* send each block to the untar_block() function */
 		while (fread(slide, 1, TSIZE, infp) == TSIZE) {
 			if(!untar_block(slide)) {
-				untar_error("untar failure: %s\n", filename);
+				purple_debug_error("untar", "untar failure: %s", filename);
 				fclose(infp);
 				ret=0;
 			}
 		}
 		if (outsize > 0 && ret) {
-			untar_warning("Last file might be truncated!\n");
+			purple_debug_warning("untar", "Last file might be truncated!");
 			fclose(outfp);
 			outfp = NULL;
 		}
 		if(!SetCurrentDirectoryW(curdir)) {
-			untar_error("Could not set current dir back to original (error %lu).\n", GetLastError());
+			purple_debug_error("untar", "Could not set current dir back to original (error %lu).", GetLastError());
 			ret=0;
 		}
 	}

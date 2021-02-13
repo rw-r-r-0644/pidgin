@@ -194,7 +194,7 @@ void irc_msg_default(struct irc_conn *irc, const char *name, const char *from, c
   undirected:
 	/* This, too, should be escaped somehow (smarter) */
 	clean = g_utf8_make_valid(args[0], -1);
-	purple_debug(PURPLE_DEBUG_INFO, "irc", "Unrecognized message: %s\n", clean);
+	purple_debug_info("irc", "Unrecognized message: %s", clean);
 	g_free(clean);
 }
 
@@ -341,14 +341,14 @@ void irc_msg_chanmode(struct irc_conn *irc, const char *name, const char *from, 
 void irc_msg_whois(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	if (!irc->whois.nick) {
-		purple_debug(PURPLE_DEBUG_WARNING, "irc", "Unexpected %s reply for %s\n", purple_strequal(name, "314") ? "WHOWAS" : "WHOIS"
-											   , args[1]);
+		purple_debug_warning("irc", "Unexpected %s reply for %s",
+		                     purple_strequal(name, "314") ? "WHOWAS" : "WHOIS", args[1]);
 		return;
 	}
 
 	if (purple_utf8_strcasecmp(irc->whois.nick, args[1])) {
-		purple_debug(PURPLE_DEBUG_WARNING, "irc", "Got %s reply for %s while waiting for %s\n", purple_strequal(name, "314") ? "WHOWAS" : "WHOIS"
-												      , args[1], irc->whois.nick);
+		purple_debug_warning("irc", "Got %s reply for %s while waiting for %s",
+		                     purple_strequal(name, "314") ? "WHOWAS" : "WHOIS", args[1], irc->whois.nick);
 		return;
 	}
 
@@ -376,8 +376,8 @@ void irc_msg_whois(struct irc_conn *irc, const char *name, const char *from, cha
 	} else if (purple_strequal(name, "320")) {
 		irc->whois.identified = 1;
 	} else if (purple_strequal(name, "330")) {
-		purple_debug(PURPLE_DEBUG_INFO, "irc", "330 %s: 1=[%s] 2=[%s] 3=[%s]",
-				name, args[1], args[2], args[3]);
+		purple_debug_info("irc", "330 %s: 1=[%s] 2=[%s] 3=[%s]",
+		                  name, args[1], args[2], args[3]);
 		if (purple_strequal(args[3], "is logged in as"))
 			irc->whois.login = g_strdup(args[2]);
 	}
@@ -390,13 +390,13 @@ void irc_msg_endwhois(struct irc_conn *irc, const char *name, const char *from, 
 	PurpleNotifyUserInfo *user_info;
 
 	if (!irc->whois.nick) {
-		purple_debug(PURPLE_DEBUG_WARNING, "irc", "Unexpected End of %s for %s\n", purple_strequal(name, "369") ? "WHOWAS" : "WHOIS"
-											     , args[1]);
+		purple_debug_warning("irc", "Unexpected End of %s for %s",
+		                     purple_strequal(name, "369") ? "WHOWAS" : "WHOIS", args[1]);
 		return;
 	}
 	if (purple_utf8_strcasecmp(irc->whois.nick, args[1])) {
-		purple_debug(PURPLE_DEBUG_WARNING, "irc", "Received end of %s for %s, expecting %s\n", purple_strequal(name, "369") ? "WHOWAS" : "WHOIS"
-													 , args[1], irc->whois.nick);
+		purple_debug_warning("irc", "Received end of %s for %s, expecting %s",
+		                     purple_strequal(name, "369") ? "WHOWAS" : "WHOIS", args[1], irc->whois.nick);
 		return;
 	}
 
@@ -474,13 +474,13 @@ void irc_msg_who(struct irc_conn *irc, const char *name, const char *from, char 
 
 		chat = purple_conversations_find_chat_with_account(args[1], irc->account);
 		if (!chat) {
-			purple_debug(PURPLE_DEBUG_ERROR, "irc","Got a WHO response for %s, which doesn't exist\n", args[1]);
+			purple_debug_error("irc", "Got a WHO response for %s, which doesn't exist", args[1]);
 			return;
 		}
 
 		cb = purple_chat_conversation_find_user(chat, args[5]);
 		if (!cb) {
-			purple_debug(PURPLE_DEBUG_ERROR, "irc", "Got a WHO response for %s who isn't a buddy.\n", args[5]);
+			purple_debug_error("irc", "Got a WHO response for %s who isn't a buddy.", args[5]);
 			return;
 		}
 		
@@ -564,7 +564,7 @@ void irc_msg_topic(struct irc_conn *irc, const char *name, const char *from, cha
 
 	chat = purple_conversations_find_chat_with_account(chan, irc->account);
 	if (!chat) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Got a topic for %s, which doesn't exist\n", chan);
+		purple_debug_error("irc", "Got a topic for %s, which doesn't exist", chan);
 		g_free(topic);
 		return;
 	}
@@ -612,19 +612,19 @@ void irc_msg_topicinfo(struct irc_conn *irc, const char *name, const char *from,
 
 	chat = purple_conversations_find_chat_with_account(args[1], irc->account);
 	if (!chat) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Got topic info for %s, which doesn't exist\n", args[1]);
+		purple_debug_error("irc", "Got topic info for %s, which doesn't exist", args[1]);
 		return;
 	}
 
 	mtime = g_ascii_strtoll(args[3], NULL, 10);
 	if(mtime == 0 || mtime == G_MININT64 || mtime == G_MAXINT64) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Got apparently nonsensical topic timestamp %s\n", args[3]);
+		purple_debug_error("irc", "Got apparently nonsensical topic timestamp %s", args[3]);
 		return;
 	}
 
 	dt = g_date_time_new_from_unix_utc(mtime);
 	if(dt == NULL) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Failed to turn %" G_GINT64_FORMAT " into a GDateTime\n", mtime);
+		purple_debug_error("irc", "Failed to turn %" G_GINT64_FORMAT " into a GDateTime", mtime);
 		return;
 	}
 
@@ -664,7 +664,7 @@ void irc_msg_names(struct irc_conn *irc, const char *name, const char *from, cha
 	if (purple_strequal(name, "366")) {
 		convo = purple_conversations_find_with_account(args[1], irc->account);
 		if (!convo) {
-			purple_debug(PURPLE_DEBUG_ERROR, "irc", "Got a NAMES list for %s, which doesn't exist\n", args[1]);
+			purple_debug_error("irc", "Got a NAMES list for %s, which doesn't exist", args[1]);
 			g_string_free(irc->names, TRUE);
 			irc->names = NULL;
 			return;
@@ -839,7 +839,7 @@ void irc_msg_notinchan(struct irc_conn *irc, const char *name, const char *from,
 {
 	PurpleChatConversation *chat = purple_conversations_find_chat_with_account(args[1], irc->account);
 
-	purple_debug(PURPLE_DEBUG_INFO, "irc", "We're apparently not in %s, but tried to use it\n", args[1]);
+	purple_debug_info("irc", "We're apparently not in %s, but tried to use it", args[1]);
 	if (chat) {
 		/*g_slist_remove(irc->gc->buddy_chats, chat);
 		  purple_conversation_set_account(chat, NULL);*/
@@ -969,7 +969,7 @@ void irc_msg_join(struct irc_conn *irc, const char *name, const char *from, char
 
 	chat = purple_conversations_find_chat_with_account(args[0], irc->account);
 	if (chat == NULL) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "JOIN for %s failed\n", args[0]);
+		purple_debug_error("irc", "JOIN for %s failed", args[0]);
 		g_free(nick);
 		return;
 	}
@@ -1003,7 +1003,7 @@ void irc_msg_kick(struct irc_conn *irc, const char *name, const char *from, char
 	nick = irc_mask_nick(from);
 
 	if (!chat) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Received a KICK for unknown channel %s\n", args[0]);
+		purple_debug_error("irc", "Received a KICK for unknown channel %s", args[0]);
 		g_free(nick);
 		return;
 	}
@@ -1031,7 +1031,7 @@ void irc_msg_mode(struct irc_conn *irc, const char *name, const char *from, char
 		char *escaped;
 		chat = purple_conversations_find_chat_with_account(args[0], irc->account);
 		if (!chat) {
-			purple_debug(PURPLE_DEBUG_ERROR, "irc", "MODE received for %s, which we are not in\n", args[0]);
+			purple_debug_error("irc", "MODE received for %s, which we are not in", args[0]);
 			g_free(nick);
 			return;
 		}
@@ -1212,7 +1212,7 @@ void irc_msg_part(struct irc_conn *irc, const char *name, const char *from, char
 
 	chat = purple_conversations_find_chat_with_account(channel, irc->account);
 	if (!chat) {
-		purple_debug(PURPLE_DEBUG_INFO, "irc", "Got a PART on %s, which doesn't exist -- probably closed\n", channel);
+		purple_debug_info("irc", "Got a PART on %s, which doesn't exist -- probably closed", channel);
 		return;
 	}
 

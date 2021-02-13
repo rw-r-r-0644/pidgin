@@ -149,8 +149,7 @@ void purple_group_set_name(PurpleGroup *source, const char *name) {
 				purple_blist_add_chat((PurpleChat *)child, dest, prev);
 				prev = child;
 			} else {
-				purple_debug(PURPLE_DEBUG_ERROR, "blistnodetypes",
-						"Unknown child type in group %s\n", priv->name);
+				purple_debug_error("blistnodetypes", "Unknown child type in group %s", priv->name);
 			}
 			child = next;
 		}

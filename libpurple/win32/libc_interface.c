@@ -93,7 +93,7 @@ int wpurple_fcntl(int socket, int command, ...) {
 		return 0;
 	}
 	default:
-                purple_debug(PURPLE_DEBUG_WARNING, "wpurple", "wpurple_fcntl: Unsupported command\n");
+		purple_debug_warning("wpurple", "wpurple_fcntl: Unsupported command");
 		return -1;
 	}/*end switch*/
 }

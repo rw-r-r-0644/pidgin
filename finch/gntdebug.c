@@ -231,8 +231,7 @@ purple_glib_log_handler(const gchar *domain, GLogLevelFlags flags,
 
 	if (new_msg != NULL)
 	{
-		purple_debug(level, (new_domain != NULL ? new_domain : "g_log"),
-				   "%s\n", new_msg);
+		purple_debug(level, (new_domain != NULL) ? new_domain : "g_log", "%s", new_msg);
 
 		g_free(new_msg);
 	}

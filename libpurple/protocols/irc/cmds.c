@@ -366,7 +366,7 @@ int irc_cmd_op(struct irc_conn *irc, const char *cmd, const char *target, const 
 		sign = "-";
 		mode = "v";
 	} else {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "invalid 'op' command '%s'\n", cmd);
+		purple_debug_error("irc", "invalid 'op' command '%s'", cmd);
 		return 0;
 	}
 

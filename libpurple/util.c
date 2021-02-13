@@ -708,14 +708,12 @@ purple_mkstemp(char **fpath, gboolean binary)
 		if((*fpath = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", tmpdir, purple_mkstemp_templ)) != NULL) {
 			fd = g_mkstemp(*fpath);
 			if(fd == -1) {
-				purple_debug(PURPLE_DEBUG_ERROR, "purple_mkstemp",
-						   "Couldn't make \"%s\", error: %d\n",
-						   *fpath, errno);
+				purple_debug_error("purple_mkstemp", "Couldn't make \"%s\", error: %d",
+				                   *fpath, errno);
 			} else {
 				if((fp = fdopen(fd, "r+")) == NULL) {
 					close(fd);
-					purple_debug(PURPLE_DEBUG_ERROR, "purple_mkstemp",
-							   "Couldn't fdopen(), error: %d\n", errno);
+					purple_debug_error("purple_mkstemp", "Couldn't fdopen(), error: %d", errno);
 				}
 			}
 
@@ -725,8 +723,7 @@ purple_mkstemp(char **fpath, gboolean binary)
 			}
 		}
 	} else {
-		purple_debug(PURPLE_DEBUG_ERROR, "purple_mkstemp",
-				   "g_get_tmp_dir() failed!\n");
+		purple_debug_error("purple_mkstemp", "g_get_tmp_dir() failed!");
 	}
 
 	return fp;
@@ -744,9 +741,8 @@ purple_program_is_valid(const char *program)
 	g_return_val_if_fail(*program != '\0', FALSE);
 
 	if (!g_shell_parse_argv(program, NULL, &argv, &error)) {
-		purple_debug(PURPLE_DEBUG_ERROR, "program_is_valid",
-				   "Could not parse program '%s': %s\n",
-				   program, error->message);
+		purple_debug_error("program_is_valid", "Could not parse program '%s': %s",
+		                   program, error->message);
 		g_error_free(error);
 		return FALSE;
 	}

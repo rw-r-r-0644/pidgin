@@ -57,8 +57,7 @@ nm_create_user_record()
 
 	user_record->ref_count = 1;
 
-	purple_debug(PURPLE_DEBUG_INFO, "novell", "Creating user_record, total=%d\n",
-			   count++);
+	purple_debug_info("novell", "Creating user_record, total=%d", count++);
 
 	return user_record;
 }
@@ -260,9 +259,7 @@ void
 nm_release_user_record(NMUserRecord * user_record)
 {
 	if (--(user_record->ref_count) == 0) {
-
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "Releasing user_record, total=%d\n", --count);
+		purple_debug_info("novell", "Releasing user_record, total=%d", --count);
 
 		g_free(user_record->dn);
 		g_free(user_record->cn);

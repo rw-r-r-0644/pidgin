@@ -2225,7 +2225,7 @@ purple_blist_uninit(void)
 		purple_blist_sync();
 	}
 
-	purple_debug(PURPLE_DEBUG_INFO, "buddylist", "Destroying\n");
+	purple_debug_info("buddylist", "Destroying");
 
 	g_hash_table_destroy(buddies_cache);
 	g_hash_table_destroy(groups_cache);

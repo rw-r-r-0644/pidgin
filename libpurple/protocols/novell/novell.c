@@ -183,10 +183,7 @@ _get_status_resp_cb(NMUser * user, NMERR_T ret_code,
 		}
 
 	} else {
-
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "_get_status_resp_cb(): rc = 0x%X\n", ret_code);
-
+		purple_debug_info("novell", "_get_status_resp_cb(): rc = 0x%X", ret_code);
 	}
 }
 
@@ -196,8 +193,7 @@ _rename_contact_resp_cb(NMUser * user, NMERR_T ret_code,
 						gpointer resp_data, gpointer user_data)
 {
 	if (ret_code != NM_OK) {
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "_rename_contact_resp_cb(): rc = 0x%X\n", ret_code);
+		purple_debug_info("novell", "_rename_contact_resp_cb(): rc = 0x%X", ret_code);
 	}
 }
 
@@ -447,8 +443,7 @@ _remove_contact_resp_cb(NMUser * user, NMERR_T ret_code,
 	if (ret_code != NM_OK) {
 		/* TODO: Display an error? */
 
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "_remove_contact_resp_cb(): rc = 0x%x\n", ret_code);
+		purple_debug_info("novell", "_remove_contact_resp_cb(): rc = 0x%x", ret_code);
 	}
 }
 
@@ -460,8 +455,7 @@ _remove_folder_resp_cb(NMUser * user, NMERR_T ret_code,
 	if (ret_code != NM_OK) {
 		/* TODO: Display an error? */
 
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "_remove_folder_resp_cb(): rc = 0x%x\n", ret_code);
+		purple_debug_info("novell", "_remove_folder_resp_cb(): rc = 0x%x", ret_code);
 	}
 }
 
@@ -473,8 +467,7 @@ _move_contact_resp_cb(NMUser * user, NMERR_T ret_code,
 	if (ret_code != NM_OK) {
 		/* TODO: Display an error? */
 
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "_move_contact_resp_cb(): rc = 0x%x\n", ret_code);
+		purple_debug_info("novell", "_move_contact_resp_cb(): rc = 0x%x", ret_code);
 	}
 }
 
@@ -486,8 +479,7 @@ _rename_folder_resp_cb(NMUser * user, NMERR_T ret_code,
 	if (ret_code != NM_OK) {
 		/* TODO: Display an error? */
 
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "_rename_folder_resp_cb(): rc = 0x%x\n", ret_code);
+		purple_debug_info("novell", "_rename_folder_resp_cb(): rc = 0x%x", ret_code);
 	}
 }
 
@@ -508,8 +500,7 @@ _sendinvite_resp_cb(NMUser *user, NMERR_T ret_code,
 			purple_request_cpar_from_connection(gc));
 		g_free(err);
 
-		purple_debug(PURPLE_DEBUG_INFO, "novell",
-				   "_sendinvite_resp_cb(): rc = 0x%x\n", ret_code);
+		purple_debug_info("novell", "_sendinvite_resp_cb(): rc = 0x%x", ret_code);
 	}
 
 }
@@ -1698,8 +1689,7 @@ novell_ssl_recv_cb(GObject *stream, gpointer data)
 				PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
 				_("Error communicating with server. Closing connection."));
 		} else {
-			purple_debug(PURPLE_DEBUG_INFO, "novell",
-					   "Error processing event or response (%d).\n", rc);
+			purple_debug_info("novell", "Error processing event or response (%d).", rc);
 		}
 	}
 }
@@ -2167,9 +2157,8 @@ _event_callback(NMUser * user, NMEvent * event)
 			_evt_conference_left(user, event);
 			break;
 		default:
-			purple_debug(PURPLE_DEBUG_INFO, "novell",
-					   "_event_callback(): unhandled event, %d\n",
-					   nm_event_get_type(event));
+			purple_debug_info("novell", "_event_callback(): unhandled event, %d",
+			                  nm_event_get_type(event));
 			break;
 	}
 }

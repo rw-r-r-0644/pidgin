@@ -249,10 +249,8 @@ signal_connect_common(void *instance, const char *signal, void *handle,
 	signal_data =
 		(PurpleSignalData *)g_hash_table_lookup(instance_data->signals, signal);
 
-	if (signal_data == NULL)
-	{
-		purple_debug(PURPLE_DEBUG_ERROR, "signals",
-				   "Signal data for %s not found!\n", signal);
+	if (signal_data == NULL) {
+		purple_debug_error("signals", "Signal data for %s not found!", signal);
 		return 0;
 	}
 
@@ -325,10 +323,8 @@ purple_signal_disconnect(void *instance, const char *signal,
 	signal_data =
 		(PurpleSignalData *)g_hash_table_lookup(instance_data->signals, signal);
 
-	if (signal_data == NULL)
-	{
-		purple_debug(PURPLE_DEBUG_ERROR, "signals",
-				   "Signal data for %s not found!\n", signal);
+	if (signal_data == NULL) {
+		purple_debug_error("signals", "Signal data for %s not found!", signal);
 		return;
 	}
 
@@ -433,10 +429,8 @@ purple_signal_emit_vargs(void *instance, const char *signal, va_list args)
 	signal_data =
 		(PurpleSignalData *)g_hash_table_lookup(instance_data->signals, signal);
 
-	if (signal_data == NULL)
-	{
-		purple_debug(PURPLE_DEBUG_ERROR, "signals",
-				   "Signal data for %s not found!\n", signal);
+	if (signal_data == NULL) {
+		purple_debug_error("signals", "Signal data for %s not found!", signal);
 		return;
 	}
 
@@ -502,10 +496,8 @@ purple_signal_emit_vargs_return_1(void *instance, const char *signal,
 	signal_data =
 		(PurpleSignalData *)g_hash_table_lookup(instance_data->signals, signal);
 
-	if (signal_data == NULL)
-	{
-		purple_debug(PURPLE_DEBUG_ERROR, "signals",
-				   "Signal data for %s not found!\n", signal);
+	if (signal_data == NULL) {
+		purple_debug_error("signals", "Signal data for %s not found!", signal);
 		return 0;
 	}
 

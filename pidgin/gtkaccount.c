@@ -366,9 +366,9 @@ account_dnd_recv(GtkWidget *widget, GdkDragContext *dc, gint x, gint y,
 
 			/* It looks like we're dealing with a local file. */
 			if(!(tmp = g_filename_from_uri(name, NULL, &converr))) {
-				purple_debug(PURPLE_DEBUG_ERROR, "buddyicon", "%s\n",
-					   (converr ? converr->message :
-					    "g_filename_from_uri error"));
+				purple_debug_error("buddyicon", "%s",
+				                   converr ? converr->message :
+				                   "g_filename_from_uri error");
 				return;
 			}
 			if ((rtmp = strchr(tmp, '\r')) || (rtmp = strchr(tmp, '\n')))

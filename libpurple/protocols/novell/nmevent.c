@@ -182,7 +182,7 @@ handle_receive_message(NMUser * user, NMEvent * event, gboolean autoreply)
 			g_input_stream_read_all(G_INPUT_STREAM(conn->input), msg, size,
 			                        NULL, user->cancellable, &error);
 
-			purple_debug(PURPLE_DEBUG_INFO, "novell", "Message is %s\n", msg);
+			purple_debug_info("novell", "Message is %s", msg);
 
 			/* Auto replies are not in RTF format! */
 			if (!autoreply) {
@@ -192,8 +192,7 @@ handle_receive_message(NMUser * user, NMEvent * event, gboolean autoreply)
 				nortf = nm_rtf_strip_formatting(ctx, msg);
 				nm_rtf_deinit(ctx);
 
-				purple_debug(PURPLE_DEBUG_INFO, "novell",
-						   "Message without RTF is %s\n", nortf);
+				purple_debug_info("novell", "Message without RTF is %s", nortf);
 
 				/* Store the event data */
 				nm_event_set_text(event, nortf);
@@ -1032,8 +1031,7 @@ nm_process_event(NMUser * user, int type)
 				break;
 
 			default:
-				purple_debug(PURPLE_DEBUG_INFO, "novell",
-						   "Unknown event %d received.\n", type);
+				purple_debug_info("novell", "Unknown event %d received.", type);
 				rc = NMERR_PROTOCOL;
 				break;
 			}

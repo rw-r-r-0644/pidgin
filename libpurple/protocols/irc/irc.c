@@ -203,7 +203,7 @@ static void irc_view_motd(PurpleProtocolAction *action)
 	char *title, *body;
 
 	if (gc == NULL || purple_connection_get_protocol_data(gc) == NULL) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "got MOTD request for NULL gc\n");
+		purple_debug_error("irc", "got MOTD request for NULL gc");
 		return;
 	}
 	irc = purple_connection_get_protocol_data(gc);
@@ -799,7 +799,7 @@ irc_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	const char *args[2];
 
 	if (!convo) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "Got chat invite request for bogus chat\n");
+		purple_debug_error("irc", "Got chat invite request for bogus chat");
 		return;
 	}
 	args[0] = name;
@@ -835,7 +835,7 @@ irc_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, gint id,
 	char *tmp;
 
 	if (!convo) {
-		purple_debug(PURPLE_DEBUG_ERROR, "irc", "chat send on nonexistent chat\n");
+		purple_debug_error("irc", "chat send on nonexistent chat");
 		return -EINVAL;
 	}
 	purple_markup_html_to_xhtml(purple_message_get_contents(msg), NULL, &tmp);
