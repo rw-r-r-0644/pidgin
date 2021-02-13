@@ -60,10 +60,6 @@ wpurple_gethostbyname( name )
 #define gethostname( name, size ) \
 wpurple_gethostname( name, size )
 
-/* sys/time.h */
-#define gettimeofday( timeval, timezone ) \
-wpurple_gettimeofday( timeval, timezone )
-
 /* stdio.h */
 #if !defined(__MINGW64_VERSION_MAJOR) || __MINGW64_VERSION_MAJOR < 3 || \
 	!defined(IS_WIN32_CROSS_COMPILED)
