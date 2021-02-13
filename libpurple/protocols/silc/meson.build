@@ -2,6 +2,7 @@ SILC_SOURCES = [
 	'buddy.c',
 	'chat.c',
 	'ft.c',
+	'ft.h',
 	'ops.c',
 	'pk.c',
 	'silc.c',

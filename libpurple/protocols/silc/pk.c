@@ -17,12 +17,10 @@
 
 */
 
-#include "internal.h"
+#include <glib/gi18n-lib.h>
+#include <glib/gstdio.h>
+
 #include "glibcompat.h" /* for purple_g_stat on win32 */
-PURPLE_BEGIN_IGNORE_CAST_ALIGN
-#include "silc.h"
-PURPLE_END_IGNORE_CAST_ALIGN
-#include "silcclient.h"
 #include "silcpurple.h"
 
 /************************* Public Key Verification ***************************/

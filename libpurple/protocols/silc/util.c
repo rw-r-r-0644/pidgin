@@ -17,13 +17,17 @@
 
 */
 
-#include "internal.h"
-#include <purple.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
-PURPLE_BEGIN_IGNORE_CAST_ALIGN
-#include "silc.h"
-PURPLE_END_IGNORE_CAST_ALIGN
-#include "silcclient.h"
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
+#endif
+
+#include <glib/gi18n-lib.h>
+#include <glib/gstdio.h>
+
 #include "silcpurple.h"
 
 /**************************** Utility Routines *******************************/
@@ -65,6 +69,23 @@ gboolean silcpurple_ip_is_private(const char *ip)
 	}
 
 	return FALSE;
+}
+
+/* A fstat alternative, like g_stat for stat. */
+static int
+silcpurple_fstat(int fd, GStatBuf *st)
+{
+	int ret;
+
+	g_return_val_if_fail(st != NULL, -1);
+
+#ifdef _WIN32
+	ret = _fstat(fd, st);
+#else
+	ret = fstat(fd, st);
+#endif
+
+	return ret;
 }
 
 /* This checks stats for various SILC files and directories. First it
@@ -192,7 +213,7 @@ gboolean silcpurple_check_silc_dir(PurpleConnection *gc)
 #endif
 
 	if ((fd = g_open(file_private_key, O_RDONLY, 0)) != -1) {
-		if (_purple_fstat(fd, &st) == -1) {
+		if (silcpurple_fstat(fd, &st) == -1) {
 			purple_debug_error("silc", "Couldn't stat '%s' private key, error: %s\n",
 					   file_private_key, g_strerror(errno));
 			close(fd);
@@ -214,7 +235,7 @@ gboolean silcpurple_check_silc_dir(PurpleConnection *gc)
 			}
 
 			if ((fd = g_open(file_private_key, O_RDONLY, 0)) != -1) {
-				if (_purple_fstat(fd, &st) == -1) {
+				if (silcpurple_fstat(fd, &st) == -1) {
 					purple_debug_error("silc", "Couldn't stat '%s' private key, error: %s\n",
 							   file_private_key, g_strerror(errno));
 					close(fd);
@@ -246,7 +267,7 @@ gboolean silcpurple_check_silc_dir(PurpleConnection *gc)
 	if ((st.st_mode & 0777) != 0600) {
 		purple_debug_warning("silc", "Wrong permissions in your private key file `%s'!\n"
 			"Trying to change them ...\n", file_private_key);
-		if ((fd == -1) || (g_fchmod(fd, S_IRUSR | S_IWUSR)) == -1) {
+		if ((fd == -1) || (fchmod(fd, S_IRUSR | S_IWUSR) == -1)) {
 			purple_debug_error("silc",
 				"Failed to change permissions for private key file!\n"
 				"Permissions for your private key file must be 0600.\n");

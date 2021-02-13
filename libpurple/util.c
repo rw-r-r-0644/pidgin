@@ -1982,19 +1982,3 @@ purple_value_free(GValue *value)
 	g_value_unset(value);
 	g_free(value);
 }
-
-int
-_purple_fstat(int fd, GStatBuf *st)
-{
-	int ret;
-
-	g_return_val_if_fail(st != NULL, -1);
-
-#ifdef _WIN32
-	ret = _fstat(fd, st);
-#else
-	ret = fstat(fd, st);
-#endif
-
-	return ret;
-}

@@ -17,11 +17,11 @@
 
 */
 
-#include "internal.h"
-PURPLE_BEGIN_IGNORE_CAST_ALIGN
-#include "silc.h"
-PURPLE_END_IGNORE_CAST_ALIGN
-#include "silcclient.h"
+#include <glib/gi18n-lib.h>
+#include <glib/gstdio.h>
+
+#include "libpurple/glibcompat.h"
+
 #include "silcpurple.h"
 #include "wb.h"
 
@@ -676,7 +676,7 @@ silcpurple_add_buddy_resolved(SilcClient client,
 			      SilcDList clients,
 			      void *context);
 
-void silcpurple_get_info(PurpleConnection *gc, const char *who)
+void silcpurple_get_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc, const char *who)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;
@@ -1405,7 +1405,7 @@ silcpurple_add_buddy_i(PurpleConnection *gc, PurpleBuddy *b, gboolean init)
 	silc_buffer_free(attrs);
 }
 
-void silcpurple_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group, const char *message)
+void silcpurple_add_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group, const char *message)
 {
 	/* Don't add if the buddy is already on the list.
 	 *
@@ -1430,13 +1430,13 @@ void silcpurple_send_buddylist(PurpleConnection *gc)
 	}
 }
 
-void silcpurple_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
+void silcpurple_remove_buddy(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleBuddy *buddy,
 			   PurpleGroup *group)
 {
 	silc_free(purple_buddy_get_protocol_data(buddy));
 }
 
-void silcpurple_idle_set(PurpleConnection *gc, int idle)
+void silcpurple_idle_set(PurpleProtocolServer *protocol_server, PurpleConnection *gc, int idle)
 
 {
 	SilcPurple sg;
@@ -1472,7 +1472,7 @@ void silcpurple_idle_set(PurpleConnection *gc, int idle)
 				  &service, sizeof(service));
 }
 
-char *silcpurple_status_text(PurpleBuddy *b)
+char *silcpurple_status_text(PurpleProtocolClient *ppclient, PurpleBuddy *b)
 {
 	PurpleAccount *account = purple_buddy_get_account(b);
 	PurpleConnection *gc = purple_account_get_connection(account);
@@ -1538,7 +1538,7 @@ char *silcpurple_status_text(PurpleBuddy *b)
 	return NULL;
 }
 
-void silcpurple_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full)
+void silcpurple_tooltip_text(PurpleProtocolClient *ppclient, PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboolean full)
 {
 	PurpleAccount *account = purple_buddy_get_account(b);
 	PurpleConnection *gc = purple_account_get_connection(account);
@@ -1722,7 +1722,7 @@ GList *silcpurple_buddy_menu(PurpleBuddy *buddy)
 	return m;
 }
 
-void silcpurple_buddy_set_icon(PurpleConnection *gc, PurpleImage *img)
+void silcpurple_buddy_set_icon(PurpleProtocolServer *protocol_server, PurpleConnection *gc, PurpleImage *img)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;

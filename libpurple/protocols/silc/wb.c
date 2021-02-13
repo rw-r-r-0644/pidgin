@@ -17,11 +17,8 @@
 
 */
 
-#include "internal.h"
-PURPLE_BEGIN_IGNORE_CAST_ALIGN
-#include "silc.h"
-PURPLE_END_IGNORE_CAST_ALIGN
-#include "silcclient.h"
+#include <glib/gi18n-lib.h>
+
 #include "silcpurple.h"
 #include "wb.h"
 
