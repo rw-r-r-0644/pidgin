@@ -688,7 +688,7 @@ foreach func : ['timegm']
 	conf.set('HAVE_' + func.to_upper(),
 	    compiler.has_function(func))
 endforeach
-foreach header : 'sgtty.h sys/cdefs.h sys/file.h sys/filio.h sys/ioctl.h sys/msgbuf.h sys/select.h sys/wait.h termios.h'.split()
+foreach header : 'sgtty.h sys/cdefs.h sys/file.h sys/filio.h sys/msgbuf.h sys/select.h sys/wait.h termios.h'.split()
 	conf.set('HAVE_' + header.to_upper().underscorify(),
 	    compiler.has_header(header))
 endforeach

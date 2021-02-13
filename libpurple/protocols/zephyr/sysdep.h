@@ -68,9 +68,6 @@ char *ttyname(void);
 #  ifdef HAVE_SGTTY_H
 #   include <sgtty.h>
 #  endif
-#  ifdef HAVE_SYS_IOCTL_H
-#   include <sys/ioctl.h>
-#  endif
 # endif
 #endif
 

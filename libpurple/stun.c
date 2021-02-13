@@ -26,7 +26,6 @@
 
 #ifndef _WIN32
 #include <net/if.h>
-#include <sys/ioctl.h>
 #endif
 
 #include <gio/gio.h>
