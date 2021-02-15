@@ -526,49 +526,16 @@ tzc_check_notify(gpointer data)
 			else if (!g_ascii_strncasecmp(spewtype,"zlocation",9)) {
 				/* check_loc or zephyr_zloc respectively */
 				/* XXX fix */
-				char *user;
-				PurpleBuddy *b;
-				const char *bname;
-				const gchar *name;
-				gboolean has_locations;
-				GNode *locations;
-				gchar *locval;
+				GNode *locations = g_node_nth_child(g_node_nth_child(find_node(newparsetree, "locations"), 2), 0);
+				ZLocations_t zloc = {
+				        .host = tree_child_contents(g_node_nth_child(locations, 0), 2),
+				        .time = tree_child_contents(g_node_nth_child(locations, 2), 2),
+				        .tty = NULL
+				};
 
-				user = tree_child_contents(find_node(newparsetree, "user"), 2);
-				b = find_buddy(zephyr, user);
-				bname = b ? purple_buddy_get_name(b) : NULL;
-				name = b ? bname : user;
-
-				locations = g_node_nth_child(g_node_nth_child(find_node(newparsetree, "locations"), 2), 0);
-				locval = tree_child_contents(g_node_nth_child(locations, 0), 2);
-				has_locations = (locval && *locval && !purple_strequal(locval, " "));
-				if ((b && pending_zloc(zephyr, bname)) || pending_zloc(zephyr, user)) {
-					PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
-					const char *balias;
-
-					/* TODO: Check whether it's correct to call add_pair_html,
-						 or if we should be using add_pair_plaintext */
-					purple_notify_user_info_add_pair_html(user_info, _("User"), name);
-
-					balias = b ? purple_buddy_get_local_alias(b) : NULL;
-					if (balias)
-						purple_notify_user_info_add_pair_plaintext(user_info, _("Alias"), balias);
-
-					if (!has_locations) {
-						purple_notify_user_info_add_pair_plaintext(user_info, NULL, _("Hidden or not logged-in"));
-					} else {
-						/* TODO: Need to escape the two strings that make up tmp? */
-						char *tmp = g_strdup_printf(_("<br>At %s since %s"), locval,
-						                      tree_child_contents(g_node_nth_child(locations, 2), 2));
-						purple_notify_user_info_add_pair_html(user_info, _("Location"), tmp);
-						g_free(tmp);
-					}
-
-					purple_notify_userinfo(gc, name, user_info, NULL, NULL);
-					purple_notify_user_info_destroy(user_info);
-				} else {
-					purple_protocol_got_user_status(zephyr->account, name, has_locations ? "available" : "offline", NULL);
-				}
+				handle_locations(gc, tree_child_contents(find_node(newparsetree, "user"), 2),
+				                 (zloc.host && *zloc.host && !purple_strequal(zloc.host, " ")) ? 1 : 0,
+				                 &zloc);
 			}
 			else if (!g_ascii_strncasecmp(spewtype,"subscribed",10)) {
 			}
