@@ -80,9 +80,8 @@ struct _zephyr_account {
 };
 
 gchar *get_zephyr_realm(PurpleAccount *account, const gchar *local_realm);
-void handle_message(PurpleConnection *gc, ZNotice_t *notice_p);
-gboolean pending_zloc(zephyr_account *zephyr, const char *who);
-PurpleBuddy *find_buddy(const zephyr_account *zephyr, const char *user);
+void handle_message(PurpleConnection *gc, ZNotice_t *notice);
+void handle_locations(PurpleConnection *gc, const gchar *user, int nlocs, const ZLocations_t *zloc);
 char *zephyr_normalize_local_realm(const zephyr_account *zephyr, const char *orig);
 
 #endif /* PURPLE_ZEPHYR_ZEPHYR_ACCOUNT_H */

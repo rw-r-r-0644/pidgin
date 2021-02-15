@@ -197,7 +197,7 @@ convert_to_utf8(const gchar *string, const gchar *from_encoding)
 	return utf8;
 }
 
-gboolean
+static gboolean
 pending_zloc(zephyr_account *zephyr, const char *who)
 {
 	GList *curr;
@@ -213,7 +213,7 @@ pending_zloc(zephyr_account *zephyr, const char *who)
 	return TRUE;
 }
 
-PurpleBuddy *
+static PurpleBuddy *
 find_buddy(const zephyr_account *zephyr, const char *user)
 {
 	PurpleBuddy *buddy = purple_blist_find_buddy(zephyr->account, user);
@@ -236,82 +236,41 @@ zephyr_triple_open(zephyr_triple *zt, PurpleConnection *gc, const char *instance
 }
 
 void
-handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
+handle_message(PurpleConnection *gc, ZNotice_t *notice)
 {
-	ZNotice_t notice;
 	zephyr_account* zephyr = purple_connection_get_protocol_data(gc);
 
-	memcpy(&notice, notice_p, sizeof(notice)); /* TODO - use pointer? */
-
-	if (!g_ascii_strcasecmp(notice.z_class, LOGIN_CLASS)) {
+	if (!g_ascii_strcasecmp(notice->z_class, LOGIN_CLASS)) {
 		/* well, we'll be updating in 20 seconds anyway, might as well ignore this. */
-	} else if (!g_ascii_strcasecmp(notice.z_class, LOCATE_CLASS)) {
-		if (!g_ascii_strcasecmp(notice.z_opcode, LOCATE_LOCATE)) {
+	} else if (!g_ascii_strcasecmp(notice->z_class, LOCATE_CLASS)) {
+		if (!g_ascii_strcasecmp(notice->z_opcode, LOCATE_LOCATE)) {
 			int nlocs;
 			char *user;
-			PurpleBuddy *b;
-			const char *bname;
-			const gchar *name;
 
 			/* XXX add real error reporting */
-			if (ZParseLocations(&notice, NULL, &nlocs, &user) != ZERR_NONE)
+			if (ZParseLocations(notice, NULL, &nlocs, &user) != ZERR_NONE)
 				return;
 
-			b = find_buddy(zephyr, user);
-			bname = b ? purple_buddy_get_name(b) : NULL;
-			name = b ? bname : user;
-			if ((b && pending_zloc(zephyr,bname)) || pending_zloc(zephyr,user)) {
-				PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
-				const char *balias;
-
-				/* TODO: Check whether it's correct to call add_pair_html,
-				         or if we should be using add_pair_plaintext */
-				purple_notify_user_info_add_pair_html(user_info, _("User"), name);
-				balias = purple_buddy_get_local_alias(b);
-				if (b && balias)
-					purple_notify_user_info_add_pair_plaintext(user_info, _("Alias"), balias);
-
-				if (!nlocs) {
-					purple_notify_user_info_add_pair_plaintext(user_info, NULL, _("Hidden or not logged-in"));
-				}
-				for (; nlocs > 0; nlocs--) {
-					/* XXX add real error reporting */
-					ZLocations_t locs;
-					int one = 1;
-					char *tmp;
-
-					ZGetLocations(&locs, &one);
-					/* TODO: Need to escape locs.host and locs.time? */
-					tmp = g_strdup_printf(_("<br>At %s since %s"), locs.host, locs.time);
-					purple_notify_user_info_add_pair_html(user_info, _("Location"), tmp);
-					g_free(tmp);
-				}
-				purple_notify_userinfo(gc, name, user_info, NULL, NULL);
-				purple_notify_user_info_destroy(user_info);
-			} else {
-				purple_protocol_got_user_status(purple_connection_get_account(gc), name, (nlocs > 0) ? "available" : "offline", NULL);
-			}
-
+			handle_locations(gc, user, nlocs, NULL);
 			g_free(user);
 		}
 	} else {
 		char *buf;
 		int len;
 		char *stripped_sender;
-		int signature_length = strlen(notice.z_message);
+		int signature_length = strlen(notice->z_message);
 
 		/* Need to deal with 0 length  messages to handle typing notification (OPCODE) ping messages */
 		/* One field zephyrs would have caused purple to crash */
-		if ( (notice.z_message_len == 0) || (signature_length >= notice.z_message_len - 1)) {
+		if ((notice->z_message_len == 0) || (notice->z_message_len <= (signature_length + 1))) {
 			len = 0;
 			buf = g_strdup("");
-
 		} else {
 			char *tmpbuf;
-			char *ptr = (char *) notice.z_message + (strlen(notice.z_message) + 1);
+			char *ptr = (char *) notice->z_message + (signature_length + 1);
 			gchar *tmpescape;
 
-			len =  notice.z_message_len - ( signature_length +1);
+			len = notice->z_message_len - (signature_length + 1);
 			tmpbuf = g_malloc(len + 1);
 			g_snprintf(tmpbuf, len + 1, "%s", ptr);
 			g_strchomp(tmpbuf);
@@ -322,27 +281,28 @@ handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 			g_free(tmpbuf);
 			g_free(tmpescape);
 		}
-		purple_debug_info("zephyr", "message_size %d %d %d", len, notice.z_message_len, signature_length);
+		purple_debug_info("zephyr", "message_size %d %d %d", len, notice->z_message_len, signature_length);
 
-		stripped_sender = zephyr_strip_local_realm(zephyr,notice.z_sender);
+		stripped_sender = zephyr_strip_local_realm(zephyr, notice->z_sender);
 
-		if (!g_ascii_strcasecmp(notice.z_class, "MESSAGE") && !g_ascii_strcasecmp(notice.z_class_inst, "PERSONAL")
-		    && !g_ascii_strcasecmp(notice.z_recipient,zephyr->username)) {
+		if (!g_ascii_strcasecmp(notice->z_class, "MESSAGE") &&
+		    !g_ascii_strcasecmp(notice->z_class_inst, "PERSONAL") &&
+		    !g_ascii_strcasecmp(notice->z_recipient, zephyr->username)) {
 			PurpleMessageFlags flags = 0;
 
-			if (!g_ascii_strcasecmp(notice.z_message, "Automated reply:"))
+			if (!g_ascii_strcasecmp(notice->z_message, "Automated reply:"))
 				flags |= PURPLE_MESSAGE_AUTO_RESP;
 
-			if (!g_ascii_strcasecmp(notice.z_opcode,"PING"))
+			if (!g_ascii_strcasecmp(notice->z_opcode, "PING"))
 				purple_serv_got_typing(gc,stripped_sender,ZEPHYR_TYPING_RECV_TIMEOUT, PURPLE_IM_TYPING);
 			else
 				purple_serv_got_im(gc, stripped_sender, buf, flags, time(NULL));
 
 		} else {
 			ZSubscription_t sub = {
-			        .zsub_class = notice.z_class,
-			        .zsub_classinst = (gchar *)notice.z_class_inst,
-			        .zsub_recipient = (gchar *)notice.z_recipient
+			        .zsub_class = notice->z_class,
+			        .zsub_classinst = (gchar *)notice->z_class_inst,
+			        .zsub_recipient = (gchar *)notice->z_recipient
 			};
 			zephyr_triple *zt;
 			gchar *send_inst_utf8;
@@ -358,13 +318,13 @@ handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 			}
 
 			if (!zt->open) {
-				zephyr_triple_open(zt, gc, notice.z_class_inst);
+				zephyr_triple_open(zt, gc, notice->z_class_inst);
 			}
 
-			if (!g_ascii_strcasecmp(notice.z_class_inst,"PERSONAL"))
+			if (!g_ascii_strcasecmp(notice->z_class_inst, "PERSONAL"))
 				send_inst_utf8 = g_strdup(stripped_sender);
 			else {
-				char *send_inst = g_strdup_printf("[%s] %s", notice.z_class_inst, stripped_sender);
+				char *send_inst = g_strdup_printf("[%s] %s", notice->z_class_inst, stripped_sender);
 				send_inst_utf8 = convert_to_utf8(send_inst, zephyr->encoding);
 				g_free(send_inst);
 				if (!send_inst_utf8) {
@@ -379,7 +339,7 @@ handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 				gchar *ipaddr = NULL;
 
 				inet_addr = g_inet_address_new_from_bytes(
-				        (const guint8 *)&notice.z_sender_addr,
+				        (const guint8 *)&notice->z_sender_addr,
 				        G_SOCKET_FAMILY_IPV4);
 				ipaddr = g_inet_address_to_string(inet_addr);
 				purple_chat_conversation_add_user(gcc, stripped_sender, ipaddr,
@@ -393,6 +353,57 @@ handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 		}
 		g_free(stripped_sender);
 		g_free(buf);
+	}
+}
+
+void
+handle_locations(PurpleConnection *gc, const gchar *user, int nlocs, const ZLocations_t *zloc)
+{
+	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
+	PurpleBuddy *b;
+	const char *bname;
+	const gchar *name;
+
+	b = find_buddy(zephyr, user);
+	bname = b ? purple_buddy_get_name(b) : NULL;
+	name = b ? bname : user;
+	if ((b && pending_zloc(zephyr, bname)) || pending_zloc(zephyr, user)) {
+		PurpleNotifyUserInfo *user_info = purple_notify_user_info_new();
+		const char *balias;
+
+		/* TODO: Check whether it's correct to call add_pair_html,
+			 or if we should be using add_pair_plaintext */
+		purple_notify_user_info_add_pair_html(user_info, _("User"), name);
+
+		balias = b ? purple_buddy_get_local_alias(b) : NULL;
+		if (balias)
+			purple_notify_user_info_add_pair_plaintext(user_info, _("Alias"), balias);
+
+		if (!nlocs) {
+			purple_notify_user_info_add_pair_plaintext(user_info, NULL, _("Hidden or not logged-in"));
+		}
+		for (; nlocs > 0; nlocs--) {
+			ZLocations_t locs;
+			char *tmp;
+
+			if (!zloc) {
+				/* XXX add real error reporting */
+				int one = 1;
+
+				ZGetLocations(&locs, &one);
+			} else {
+				locs = *zloc;
+			}
+
+			/* TODO: Need to escape locs.host and locs.time? */
+			tmp = g_strdup_printf(_("<br>At %s since %s"), locs.host, locs.time);
+			purple_notify_user_info_add_pair_html(user_info, _("Location"), tmp);
+			g_free(tmp);
+		}
+		purple_notify_userinfo(gc, name, user_info, NULL, NULL);
+		purple_notify_user_info_destroy(user_info);
+	} else {
+		purple_protocol_got_user_status(zephyr->account, name, (nlocs > 0) ? "available" : "offline", NULL);
 	}
 }
 
