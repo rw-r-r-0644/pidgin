@@ -693,35 +693,47 @@ silcpurple_close_final(gpointer *context)
 	return 0;
 }
 
+static gchar *
+silcpurple_get_quit_message(void)
+{
+	PurpleUiInfo *ui_info;
+	const char *ui_name = NULL, *ui_website = NULL;
+	char *quit_msg;
+
+	ui_info = purple_core_get_ui_info();
+	if (PURPLE_IS_UI_INFO(ui_info)) {
+		ui_name = purple_ui_info_get_name(ui_info);
+		ui_website = purple_ui_info_get_website(ui_info);
+	}
+
+	if (!ui_name || !ui_website) {
+		ui_name = "Pidgin";
+		ui_website = PURPLE_WEBSITE;
+	}
+
+	quit_msg = g_strdup_printf(_("Download %s: %s"), ui_name, ui_website);
+
+	if (PURPLE_IS_UI_INFO(ui_info)) {
+		g_object_unref(G_OBJECT(ui_info));
+	}
+
+	return quit_msg;
+}
+
 static void
 silcpurple_close(PurpleConnection *gc)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcPurpleTask task;
-	GHashTable *ui_info;
-	const char *ui_name = NULL, *ui_website = NULL;
 	char *quit_msg;
 
 	g_return_if_fail(sg != NULL);
 
-	ui_info = purple_core_get_ui_info();
-
-	if(ui_info) {
-		ui_name = g_hash_table_lookup(ui_info, "name");
-		ui_website = g_hash_table_lookup(ui_info, "website");
-	}
-
-	if(!ui_name || !ui_website) {
-		ui_name = "Pidgin";
-		ui_website = PURPLE_WEBSITE;
-	}
-	quit_msg = g_strdup_printf(_("Download %s: %s"),
-							   ui_name, ui_website);
+	quit_msg = silcpurple_get_quit_message();
 
 	/* Send QUIT */
 	silc_client_command_call(sg->client, sg->conn, NULL,
-				 "QUIT", quit_msg,
-				 NULL);
+	                         "QUIT", quit_msg, NULL);
 	g_free(quit_msg);
 
 	if (sg->conn)
@@ -1888,8 +1900,6 @@ static PurpleCmdRet silcpurple_cmd_quit(PurpleConversation *conv,
 {
 	PurpleConnection *gc;
 	SilcPurple sg;
-	GHashTable *ui_info;
-	const char *ui_name = NULL, *ui_website = NULL;
 	char *quit_msg;
 
 	gc = purple_conversation_get_connection(conv);
@@ -1902,22 +1912,14 @@ static PurpleCmdRet silcpurple_cmd_quit(PurpleConversation *conv,
 	if (sg == NULL)
 		return PURPLE_CMD_RET_FAILED;
 
-	ui_info = purple_core_get_ui_info();
-
-	if(ui_info) {
-		ui_name = g_hash_table_lookup(ui_info, "name");
-		ui_website = g_hash_table_lookup(ui_info, "website");
+	if (args && args[0]) {
+		quit_msg = g_strdup(args[0]);
+	} else {
+		quit_msg = silcpurple_get_quit_message();
 	}
-
-	if(!ui_name || !ui_website) {
-		ui_name = "Pidgin";
-		ui_website = PURPLE_WEBSITE;
-	}
-	quit_msg = g_strdup_printf(_("Download %s: %s"),
-							   ui_name, ui_website);
 
 	silc_client_command_call(sg->client, sg->conn, NULL,
-				 "QUIT", (args && args[0]) ? args[0] : quit_msg, NULL);
+	                         "QUIT", quit_msg, NULL);
 	g_free(quit_msg);
 
 	return PURPLE_CMD_RET_OK;
@@ -2137,10 +2139,7 @@ static PurpleWhiteboardOps silcpurple_wb_ops =
 	silcpurple_wb_clear,
 
 	/* padding */
-	NULL,
-	NULL,
-	NULL,
-	NULL
+	{ NULL, NULL, NULL, NULL }
 };
 
 static void

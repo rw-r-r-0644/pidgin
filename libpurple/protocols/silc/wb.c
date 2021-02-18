@@ -437,7 +437,7 @@ void silcpurple_wb_end(PurpleWhiteboard *wb)
 
 void silcpurple_wb_get_dimensions(const PurpleWhiteboard *wb, int *width, int *height)
 {
-	SilcPurpleWb wbs = purple_whiteboard_get_protocol_data(wb);
+	SilcPurpleWb wbs = purple_whiteboard_get_protocol_data((PurpleWhiteboard *)wb);
 	*width = wbs->width;
 	*height = wbs->height;
 }
@@ -456,7 +456,7 @@ void silcpurple_wb_set_dimensions(PurpleWhiteboard *wb, int width, int height)
 
 void silcpurple_wb_get_brush(const PurpleWhiteboard *wb, int *size, int *color)
 {
-	SilcPurpleWb wbs = purple_whiteboard_get_protocol_data(wb);
+	SilcPurpleWb wbs = purple_whiteboard_get_protocol_data((PurpleWhiteboard *)wb);
 	*size = wbs->brush_size;
 	*color = wbs->brush_color;
 }
