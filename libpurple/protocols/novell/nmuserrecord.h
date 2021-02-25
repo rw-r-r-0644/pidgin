@@ -24,7 +24,6 @@
 #include <glib.h>
 
 typedef struct _NMUserRecord NMUserRecord;
-typedef struct _NMProperty NMProperty;
 
 #include "nmfield.h"
 #include "nmuser.h"
@@ -225,40 +224,14 @@ int nm_user_record_get_property_count(NMUserRecord * user_record);
 
 /**
  * Get an info property for the user record. The property must be released
- * by calling nm_release_property()
+ * by calling purple_key_value_pair_free()
  *
  * @param	user_record		The user record
  * @param	index			The index of the property to get (zero based)
  *
  * @return	The property
  */
-NMProperty *nm_user_record_get_property(NMUserRecord * user_record, int index);
-
-/**
- * Release a property object
- *
- * @param	property	The property
- *
- */
-void nm_release_property(NMProperty * property);
-
-/**
- * Get the tag for the property
- *
- * @param 	property	The property
- *
- * @return 	The tag of the property (i.e. "Email Address")
- */
-const char *nm_property_get_tag(NMProperty * property);
-
-/**
- * Get the value for the property
- *
- * @param	property	The property
- *
- * @return	The value of the property (i.e. "nobody@nowhere.com")
- */
-const char *nm_property_get_value(NMProperty * property);
+PurpleKeyValuePair *nm_user_record_get_property(NMUserRecord * user_record, int index);
 
 /**
  * Copy a user record (deep copy). The dest user record must have already been

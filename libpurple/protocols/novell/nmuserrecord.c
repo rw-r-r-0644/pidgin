@@ -40,12 +40,6 @@ struct _NMUserRecord
 	int ref_count;
 };
 
-struct _NMProperty
-{
-	char *tag;
-	char *value;
-};
-
 static int count = 0;
 
 /* API functions */
@@ -454,10 +448,10 @@ nm_user_record_get_property_count(NMUserRecord * user_record)
 	return count;
 }
 
-NMProperty *
+PurpleKeyValuePair *
 nm_user_record_get_property(NMUserRecord * user_record, int index)
 {
-	NMProperty *property = NULL;
+	PurpleKeyValuePair *property = NULL;
 	NMField *field = NULL, *fields, *locate;
 
 	if (user_record && user_record->fields) {
@@ -469,43 +463,12 @@ nm_user_record_get_property(NMUserRecord * user_record, int index)
 			if (index < max) {
 					field = &fields[index];
 					if (field && field->tag && field->ptr_value) {
-						property = g_new0(NMProperty, 1);
-						property->tag = g_strdup(field->tag);
-						property->value = _get_attribute_value(field);
+						property = purple_key_value_pair_new_full(
+						        field->tag, _get_attribute_value(field), g_free);
 					}
 			}
 		}
 	}
 
 	return property;
-}
-
-void
-nm_release_property(NMProperty * property)
-{
-	if (property) {
-		g_free(property->tag);
-
-		g_free(property->value);
-
-		g_free(property);
-	}
-}
-
-const char *
-nm_property_get_tag(NMProperty * property)
-{
-	if (property)
-		return property->tag;
-	else
-		return NULL;
-}
-
-const char *
-nm_property_get_value(NMProperty * property)
-{
-	if (property)
-		return property->value;
-	else
-		return NULL;
 }

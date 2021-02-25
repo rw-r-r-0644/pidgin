@@ -1508,7 +1508,6 @@ _show_info(PurpleConnection * gc, NMUserRecord * user_record, char * name)
 {
 	PurpleNotifyUserInfo *user_info =	purple_notify_user_info_new();
 	int count, i;
-	NMProperty *property;
 	const char *tag, *value;
 
 	tag = _("User ID");
@@ -1529,16 +1528,16 @@ _show_info(PurpleConnection * gc, NMUserRecord * user_record, char * name)
 
 	count = nm_user_record_get_property_count(user_record);
 	for (i = 0; i < count; i++) {
-		property = nm_user_record_get_property(user_record, i);
+		PurpleKeyValuePair *property = nm_user_record_get_property(user_record, i);
 		if (property) {
-			tag = _map_property_tag(nm_property_get_tag(property));
-			value = nm_property_get_value(property);
+			tag = _map_property_tag(property->key);
+			value = property->value;
 			if (tag && value) {
 				/* TODO: Check whether it's correct to call add_pair_html,
 				         or if we should be using add_pair_plaintext */
 				purple_notify_user_info_add_pair_html(user_info, tag, value);
 			}
-			nm_release_property(property);
+			purple_key_value_pair_free(property);
 		}
 	}
 
