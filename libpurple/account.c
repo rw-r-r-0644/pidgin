@@ -2791,13 +2791,10 @@ purple_account_add_buddies(PurpleAccount *account, GList *buddies, const char *m
 		protocol = purple_connection_get_protocol(gc);
 
 	if (protocol) {
-		GList *cur, *groups = NULL;
+		GList *groups;
 
 		/* Make a list of what group each buddy is in */
-		for (cur = buddies; cur != NULL; cur = cur->next) {
-			PurpleBuddy *buddy = cur->data;
-			groups = g_list_append(groups, purple_buddy_get_group(buddy));
-		}
+		groups = g_list_copy_deep(buddies, (GCopyFunc)purple_buddy_get_group, NULL);
 
 		if(PURPLE_IS_PROTOCOL_SERVER(protocol)) {
 			purple_protocol_server_add_buddies(PURPLE_PROTOCOL_SERVER(protocol),

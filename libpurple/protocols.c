@@ -340,22 +340,11 @@ purple_protocol_change_account_status(PurpleAccount *account,
 GList *
 purple_protocol_get_statuses(PurpleAccount *account, PurplePresence *presence)
 {
-	GList *statuses = NULL;
-	GList *l;
-	PurpleStatus *status;
-
 	g_return_val_if_fail(account  != NULL, NULL);
 	g_return_val_if_fail(presence != NULL, NULL);
 
-	for (l = purple_account_get_status_types(account); l != NULL; l = l->next)
-	{
-		status = purple_status_new((PurpleStatusType *)l->data, presence);
-		statuses = g_list_prepend(statuses, status);
-	}
-
-	statuses = g_list_reverse(statuses);
-
-	return statuses;
+	return g_list_copy_deep(purple_account_get_status_types(account),
+	                        (GCopyFunc)purple_status_new, presence);
 }
 
 static void

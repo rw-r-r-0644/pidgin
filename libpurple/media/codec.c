@@ -343,15 +343,7 @@ purple_media_codec_copy(PurpleMediaCodec *codec)
 GList *
 purple_media_codec_list_copy(GList *codecs)
 {
-	GList *new_list = NULL;
-
-	for (; codecs; codecs = g_list_next(codecs)) {
-		new_list = g_list_prepend(new_list,
-				purple_media_codec_copy(codecs->data));
-	}
-
-	new_list = g_list_reverse(new_list);
-	return new_list;
+	return g_list_copy_deep(codecs, (GCopyFunc)purple_media_codec_copy, NULL);
 }
 
 void

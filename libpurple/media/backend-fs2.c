@@ -634,20 +634,6 @@ candidate_to_fs(PurpleMediaCandidate *candidate)
 	return fscandidate;
 }
 
-static GList *
-candidate_list_to_fs(GList *candidates)
-{
-	GList *new_list = NULL;
-
-	for (; candidates; candidates = g_list_next(candidates)) {
-		new_list = g_list_prepend(new_list,
-				candidate_to_fs(candidates->data));
-	}
-
-	new_list = g_list_reverse(new_list);
-	return new_list;
-}
-
 static PurpleMediaCandidate *
 candidate_from_fs(FsCandidate *fscandidate)
 {
@@ -669,20 +655,6 @@ candidate_from_fs(FsCandidate *fscandidate)
 			"password", fscandidate->password,
 			"ttl", fscandidate->ttl, NULL);
 	return candidate;
-}
-
-static GList *
-candidate_list_from_fs(GList *candidates)
-{
-	GList *new_list = NULL;
-
-	for (; candidates; candidates = g_list_next(candidates)) {
-		new_list = g_list_prepend(new_list,
-			candidate_from_fs(candidates->data));
-	}
-
-	new_list = g_list_reverse(new_list);
-	return new_list;
 }
 
 static FsCodec *
@@ -744,34 +716,6 @@ codec_from_fs(const FsCodec *codec)
 	}
 
 	return new_codec;
-}
-
-static GList *
-codec_list_from_fs(GList *codecs)
-{
-	GList *new_list = NULL;
-
-	for (; codecs; codecs = g_list_next(codecs)) {
-		new_list = g_list_prepend(new_list,
-				codec_from_fs(codecs->data));
-	}
-
-	new_list = g_list_reverse(new_list);
-	return new_list;
-}
-
-static GList *
-codec_list_to_fs(GList *codecs)
-{
-	GList *new_list = NULL;
-
-	for (; codecs; codecs = g_list_next(codecs)) {
-		new_list = g_list_prepend(new_list,
-				codec_to_fs(codecs->data));
-	}
-
-	new_list = g_list_reverse(new_list);
-	return new_list;
 }
 
 static PurpleMediaBackendFs2Session *
@@ -2167,7 +2111,7 @@ purple_media_backend_fs2_add_remote_candidates(PurpleMediaBackend *self,
 	}
 
 	stream->remote_candidates = g_list_concat(stream->remote_candidates,
-			candidate_list_to_fs(remote_candidates));
+	        g_list_copy_deep(remote_candidates, (GCopyFunc)candidate_to_fs, NULL));
 
 	if (purple_media_is_initiator(priv->media, sess_id, participant) ||
 			purple_media_accepted(
@@ -2274,7 +2218,7 @@ purple_media_backend_fs2_get_codecs(PurpleMediaBackend *self,
 
 	g_object_get(G_OBJECT(session->session),
 		     "codecs", &fscodecs, NULL);
-	codecs = codec_list_from_fs(fscodecs);
+	codecs = g_list_copy_deep(fscodecs, (GCopyFunc)codec_from_fs, NULL);
 	fs_codec_list_destroy(fscodecs);
 
 	return codecs;
@@ -2292,9 +2236,10 @@ purple_media_backend_fs2_get_local_candidates(PurpleMediaBackend *self,
 	stream = get_stream(PURPLE_MEDIA_BACKEND_FS2(self),
 			sess_id, participant);
 
-	if (stream != NULL)
-		candidates = candidate_list_from_fs(
-				stream->local_candidates);
+	if (stream != NULL) {
+		candidates = g_list_copy_deep(stream->local_candidates,
+		                              (GCopyFunc)candidate_from_fs, NULL);
+	}
 	return candidates;
 }
 
@@ -2314,7 +2259,7 @@ purple_media_backend_fs2_set_remote_codecs(PurpleMediaBackend *self,
 	if (stream == NULL)
 		return FALSE;
 
-	fscodecs = codec_list_to_fs(codecs);
+	fscodecs = g_list_copy_deep(codecs, (GCopyFunc)codec_to_fs, NULL);
 	fs_stream_set_remote_codecs(stream->stream, fscodecs, &err);
 	fs_codec_list_destroy(fscodecs);
 
