@@ -45,8 +45,6 @@ GG_SOURCES = [
 	'xml.h',
 	'oauth/oauth.c',
 	'oauth/oauth.h',
-	'oauth/oauth-parameter.c',
-	'oauth/oauth-parameter.h',
 	'oauth/oauth-purple.c',
 	'oauth/oauth-purple.h'
 ]
