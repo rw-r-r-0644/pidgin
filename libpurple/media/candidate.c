@@ -352,15 +352,7 @@ purple_media_candidate_copy(PurpleMediaCandidate *candidate)
 GList *
 purple_media_candidate_list_copy(GList *candidates)
 {
-	GList *new_list = NULL;
-
-	for (; candidates; candidates = g_list_next(candidates)) {
-		new_list = g_list_prepend(new_list,
-				purple_media_candidate_copy(candidates->data));
-	}
-
-	new_list = g_list_reverse(new_list);
-	return new_list;
+	return g_list_copy_deep(candidates, (GCopyFunc)purple_media_candidate_copy, NULL);
 }
 
 void

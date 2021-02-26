@@ -739,7 +739,6 @@ void
 purple_prefs_add_path_list(const char *name, GList *value)
 {
 	struct purple_pref *pref;
-	GList *tmp;
 
 	/* re-use the string list UI OP */
 	PURPLE_PREFS_UI_OP_CALL(add_string_list, name, value);
@@ -749,9 +748,8 @@ purple_prefs_add_path_list(const char *name, GList *value)
 	if(!pref)
 		return;
 
-	for(tmp = value; tmp; tmp = tmp->next)
-		pref->value.stringlist = g_list_append(pref->value.stringlist,
-				g_strdup(tmp->data));
+	pref->value.stringlist = g_list_concat(pref->value.stringlist,
+	        g_list_copy_deep(value, (GCopyFunc)g_strdup, NULL));
 }
 
 static void
@@ -1065,8 +1063,6 @@ purple_prefs_set_path_list(const char *name, GList *value)
 	pref = find_pref(name);
 
 	if(pref) {
-		GList *tmp;
-
 		if(pref->type != PURPLE_PREF_PATH_LIST) {
 			purple_debug_error("prefs",
 					"purple_prefs_set_path_list: %s not a path list pref\n",
@@ -1075,12 +1071,7 @@ purple_prefs_set_path_list(const char *name, GList *value)
 		}
 
 		g_list_free_full(pref->value.stringlist, g_free);
-		pref->value.stringlist = NULL;
-
-		for(tmp = value; tmp; tmp = tmp->next)
-			pref->value.stringlist = g_list_prepend(pref->value.stringlist,
-					g_strdup(tmp->data));
-		pref->value.stringlist = g_list_reverse(pref->value.stringlist);
+		pref->value.stringlist = g_list_copy_deep(value, (GCopyFunc)g_strdup, NULL);
 
 		do_callbacks(name, pref);
 
@@ -1190,7 +1181,6 @@ GList *
 purple_prefs_get_string_list(const char *name)
 {
 	struct purple_pref *pref;
-	GList *ret = NULL, *tmp;
 
 	PURPLE_PREFS_UI_OP_CALL_RETURN(get_string_list, name);
 
@@ -1206,11 +1196,7 @@ purple_prefs_get_string_list(const char *name)
 		return NULL;
 	}
 
-	for(tmp = pref->value.stringlist; tmp; tmp = tmp->next)
-		ret = g_list_prepend(ret, g_strdup(tmp->data));
-	ret = g_list_reverse(ret);
-
-	return ret;
+	return g_list_copy_deep(pref->value.stringlist, (GCopyFunc)g_strdup, NULL);
 }
 
 const char *
@@ -1239,7 +1225,6 @@ GList *
 purple_prefs_get_path_list(const char *name)
 {
 	struct purple_pref *pref;
-	GList *ret = NULL, *tmp;
 
 	PURPLE_PREFS_UI_OP_CALL_RETURN(get_string_list, name);
 
@@ -1255,11 +1240,7 @@ purple_prefs_get_path_list(const char *name)
 		return NULL;
 	}
 
-	for(tmp = pref->value.stringlist; tmp; tmp = tmp->next)
-		ret = g_list_prepend(ret, g_strdup(tmp->data));
-	ret = g_list_reverse(ret);
-
-	return ret;
+	return g_list_copy_deep(pref->value.stringlist, (GCopyFunc)g_strdup, NULL);
 }
 
 static void
