@@ -2076,8 +2076,6 @@ parse_vcard(const char *vcard, PurpleGroup *group)
 	char *temp_vcard;
 	char *s, *c;
 	char *alias    = NULL;
-	GList *aims    = NULL;
-	GList *icqs    = NULL;
 	GList *jabbers = NULL;
 
 	s = temp_vcard = g_strdup(vcard);
@@ -2116,19 +2114,14 @@ parse_vcard(const char *vcard, PurpleGroup *group)
 		/* We only want to worry about a few fields here. */
 		if (purple_strequal(field, "FN"))
 			alias = g_strdup(value);
-		else if (purple_strequal(field, "X-AIM") || purple_strequal(field, "X-ICQ") ||
-				 purple_strequal(field, "X-JABBER"))
+		else if (purple_strequal(field, "X-JABBER"))
 		{
 			char **values = g_strsplit(value, ":", 0);
 			char **im;
 
 			for (im = values; *im != NULL; im++)
 			{
-				if (purple_strequal(field, "X-AIM"))
-					aims = g_list_append(aims, g_strdup(*im));
-				else if (purple_strequal(field, "X-ICQ"))
-					icqs = g_list_append(icqs, g_strdup(*im));
-				else if (purple_strequal(field, "X-JABBER"))
+				if (purple_strequal(field, "X-JABBER"))
 					jabbers = g_list_append(jabbers, g_strdup(*im));
 			}
 
@@ -2138,15 +2131,13 @@ parse_vcard(const char *vcard, PurpleGroup *group)
 
 	g_free(temp_vcard);
 
-	if (aims == NULL && icqs == NULL && jabbers == NULL)
+	if (jabbers == NULL)
 	{
 		g_free(alias);
 
 		return FALSE;
 	}
 
-	add_buddies_from_vcard("prpl-aim",    group, aims,    alias);
-	add_buddies_from_vcard("prpl-icq",    group, icqs,    alias);
 	add_buddies_from_vcard("prpl-jabber", group, jabbers, alias);
 
 	g_free(alias);

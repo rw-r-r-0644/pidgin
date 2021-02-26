@@ -500,46 +500,6 @@ pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
 				account = NULL;
 			}
 
-			/* Special case for AIM and ICQ */
-			if (account == NULL && (purple_strequal(protocol, "aim") ||
-									purple_strequal(protocol, "icq")))
-			{
-				for (l = list; l != NULL; l = l->next)
-				{
-					PurpleConnection *gc;
-					PurpleProtocol *proto = NULL;
-
-					if (all_accounts)
-					{
-						account = (PurpleAccount *)l->data;
-
-						proto = purple_protocols_find(
-							purple_account_get_protocol_id(account));
-
-						if (proto == NULL)
-						{
-							account = NULL;
-
-							continue;
-						}
-					}
-					else
-					{
-						gc = (PurpleConnection *)l->data;
-						account = purple_connection_get_account(gc);
-
-						proto = purple_connection_get_protocol(gc);
-					}
-
-					protoname = purple_protocol_class_list_icon(proto, account, NULL);
-
-					if (purple_strequal(protoname, "aim") || purple_strequal(protoname, "icq"))
-						break;
-
-					account = NULL;
-				}
-			}
-
 			*ret_account = account;
 		}
 	}
