@@ -573,25 +573,20 @@ pidgin_prefs_dropdown(GtkWidget *box, const gchar *title, PurplePrefType type,
 	GList *menuitems = NULL;
 	GtkWidget *dropdown = NULL;
 	char *name;
-	int int_value;
-	const char *str_value;
 
 	g_return_val_if_fail(type == PURPLE_PREF_BOOLEAN || type == PURPLE_PREF_INT ||
 			type == PURPLE_PREF_STRING, NULL);
 
 	va_start(ap, key);
 	while ((name = va_arg(ap, char *)) != NULL) {
-
-		menuitems = g_list_prepend(menuitems, name);
+		PurpleKeyValuePair *kvp;
 
 		if (type == PURPLE_PREF_INT || type == PURPLE_PREF_BOOLEAN) {
-			int_value = va_arg(ap, int);
-			menuitems = g_list_prepend(menuitems, GINT_TO_POINTER(int_value));
+			kvp = purple_key_value_pair_new(name, GINT_TO_POINTER(va_arg(ap, int)));
+		} else {
+			kvp = purple_key_value_pair_new(name, va_arg(ap, char *));
 		}
-		else {
-			str_value = va_arg(ap, const char *);
-			menuitems = g_list_prepend(menuitems, (char *)str_value);
-		}
+		menuitems = g_list_prepend(menuitems, kvp);
 	}
 	va_end(ap);
 
@@ -602,7 +597,7 @@ pidgin_prefs_dropdown(GtkWidget *box, const gchar *title, PurplePrefType type,
 	dropdown = pidgin_prefs_dropdown_from_list(box, title, type, key,
 			menuitems);
 
-	g_list_free(menuitems);
+	g_list_free_full(menuitems, (GDestroyNotify)purple_key_value_pair_free);
 
 	return dropdown;
 }
