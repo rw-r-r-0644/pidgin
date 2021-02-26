@@ -25,14 +25,14 @@
 
 #include "oauth.h"
 
-#include "oauth-parameter.h"
-
 #include <time.h>
 
 #include <glib.h>
 
 char *gg_oauth_static_nonce;		/* dla unit testów */
 char *gg_oauth_static_timestamp;	/* dla unit testów */
+
+static char *gg_oauth_generate_request(gboolean header, ...) G_GNUC_NULL_TERMINATED;
 
 static void gg_oauth_generate_nonce(char *buf, int len)
 {
@@ -47,6 +47,46 @@ static void gg_oauth_generate_nonce(char *buf, int len)
 	}
 
 	*buf = 0;
+}
+
+/* Returns a comma separated header value if header is true,
+ * or a url-encoded request otherwise
+ */
+static char *
+gg_oauth_generate_request(gboolean header, ...)
+{
+	GString *res = g_string_new(NULL);
+	va_list params;
+	const gchar *key;
+	gboolean truncate = FALSE;
+
+	if(header) {
+		res = g_string_append(res, "OAuth ");
+	}
+
+	va_start(params, header);
+	while((key = va_arg(params, const gchar *))) {
+		const gchar *value = va_arg(params, const gchar *);
+		gchar *escaped = g_uri_escape_string(value, NULL, FALSE);
+
+		if(header) {
+			g_string_append_printf(res, "%s=\"%s\",", key, escaped);
+		} else {
+			g_string_append_printf(res, "%s=%s&", key, escaped);
+		}
+
+		g_free(escaped);
+
+		truncate = TRUE;
+	}
+	va_end(params);
+
+	if(truncate) {
+		/* remove trailing separator */
+		res = g_string_truncate(res, res->len - 1);
+	}
+
+	return g_string_free(res, FALSE);
 }
 
 static gchar *gg_hmac_sha1(const char *key, const char *message)
@@ -99,7 +139,6 @@ gg_oauth_generate_header(const char *method, const char *url,
 {
 	char *request, *signature, *res;
 	char nonce[80], timestamp[16];
-	gg_oauth_parameter_t *params = NULL;
 
 	if (gg_oauth_static_nonce == NULL)
 		gg_oauth_generate_nonce(nonce, sizeof(nonce));
@@ -115,38 +154,32 @@ gg_oauth_generate_header(const char *method, const char *url,
 		timestamp[sizeof(timestamp) - 1] = 0;
 	}
 
-	gg_oauth_parameter_set(&params, "oauth_consumer_key", consumer_key);
-	gg_oauth_parameter_set(&params, "oauth_nonce", nonce);
-	gg_oauth_parameter_set(&params, "oauth_signature_method", "HMAC-SHA1");
-	gg_oauth_parameter_set(&params, "oauth_timestamp", timestamp);
-	gg_oauth_parameter_set(&params, "oauth_token", token);
-	gg_oauth_parameter_set(&params, "oauth_version", "1.0");
-
-	request = gg_oauth_parameter_join(params, 0);
+	request = gg_oauth_generate_request(FALSE,
+	                                    "oauth_consumer_key", consumer_key,
+	                                    "oauth_nonce", nonce,
+	                                    "oauth_signature_method", "HMAC-SHA1",
+	                                    "oauth_timestamp", timestamp,
+	                                    "oauth_token", token,
+	                                    "oauth_version", "1.0",
+	                                    NULL);
 
 	signature = gg_oauth_generate_signature(method, url, request, consumer_secret, token_secret);
 
 	g_free(request);
 
-	gg_oauth_parameter_free(params);
-	params = NULL;
-
 	if (signature == NULL)
 		return NULL;
 
-	gg_oauth_parameter_set(&params, "oauth_version", "1.0");
-	gg_oauth_parameter_set(&params, "oauth_nonce", nonce);
-	gg_oauth_parameter_set(&params, "oauth_timestamp", timestamp);
-	gg_oauth_parameter_set(&params, "oauth_consumer_key", consumer_key);
-	gg_oauth_parameter_set(&params, "oauth_token", token);
-	gg_oauth_parameter_set(&params, "oauth_signature_method", "HMAC-SHA1");
-	gg_oauth_parameter_set(&params, "oauth_signature", signature);
-
+	res = gg_oauth_generate_request(TRUE,
+	                                "oauth_version", "1.0",
+	                                "oauth_nonce", nonce,
+	                                "oauth_timestamp", timestamp,
+	                                "oauth_consumer_key", consumer_key,
+	                                "oauth_token", token,
+	                                "oauth_signature_method", "HMAC-SHA1",
+	                                "oauth_signature", signature,
+	                                NULL);
 	g_free(signature);
-
-	res = gg_oauth_parameter_join(params, 1);
-
-	gg_oauth_parameter_free(params);
 
 	return res;
 }
