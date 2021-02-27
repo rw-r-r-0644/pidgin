@@ -32,8 +32,25 @@
 struct _PidginProtocolChooser {
 	GtkComboBox parent;
 
-	GtkListStore *model;
+	GtkTreeModel *model;
 };
+
+/******************************************************************************
+ * Callbacks
+ *****************************************************************************/
+static void
+pidgin_protocol_chooser_model_changed_cb(GObject *obj, GParamSpec *pspec,
+                                         gpointer data)
+{
+	GtkComboBox *combo = GTK_COMBO_BOX(obj);
+	GtkTreeModel *model = gtk_combo_box_get_model(combo);
+	GtkTreeIter iter;
+
+	/* When the model for the combobox changes, select the first item. */
+	if(gtk_tree_model_get_iter_first(model, &iter)) {
+		gtk_combo_box_set_active_iter(combo, &iter);
+	}
+}
 
 /******************************************************************************
  * GObject Implementation
@@ -55,7 +72,15 @@ pidgin_protocol_chooser_class_init(PidginProtocolChooserClass *klass)
 
 static void
 pidgin_protocol_chooser_init(PidginProtocolChooser *chooser) {
+	g_signal_connect_object(G_OBJECT(chooser), "notify::model",
+	                        G_CALLBACK(pidgin_protocol_chooser_model_changed_cb),
+	                        chooser, G_CONNECT_AFTER);
+
 	gtk_widget_init_template(GTK_WIDGET(chooser));
+
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(chooser->model),
+	                                     PIDGIN_PROTOCOL_STORE_COLUMN_NAME,
+	                                     GTK_SORT_ASCENDING);
 }
 
 /******************************************************************************

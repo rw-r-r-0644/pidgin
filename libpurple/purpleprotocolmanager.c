@@ -206,6 +206,7 @@ purple_protocol_manager_find(PurpleProtocolManager *manager, const gchar *id) {
 	gpointer value = NULL;
 
 	g_return_val_if_fail(PURPLE_PROTOCOL_MANAGER(manager), NULL);
+	g_return_val_if_fail(id != NULL, NULL);
 
 	priv = purple_protocol_manager_get_instance_private(manager);
 
