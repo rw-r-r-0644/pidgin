@@ -263,16 +263,16 @@ if ENABLE_GTK
 	    requires : ['gtk+-3.0', 'purple-3', 'talkatu', 'gplugin-gtk'],
 	    variables : ['plugindir=${libdir}/pidgin-@0@'.format(purple_major_version)])
 
+	PIDGIN_DESKTOP_FILE = 'im.pidgin.Pidgin3.desktop'
 	if get_option('nls')
 		i18n = import('i18n')
-		DESKTOP_FILE = 'im.pidgin.Pidgin3.desktop'
 		desktop_file_in = configure_file(
-		    input : 'data' / (DESKTOP_FILE + '.in.in'),
-		    output : DESKTOP_FILE + '.in',
+		    input : 'data' / (PIDGIN_DESKTOP_FILE + '.in.in'),
+		    output : PIDGIN_DESKTOP_FILE + '.in',
 		    configuration : conf)
 		desktop_file = i18n.merge_file(
 		    input : desktop_file_in,
-		    output : DESKTOP_FILE,
+		    output : PIDGIN_DESKTOP_FILE,
 		    po_dir : meson.source_root() / 'po',
 		    type : 'desktop',
 		    install : true,
@@ -282,6 +282,19 @@ if ENABLE_GTK
 		    input : 'data/im.pidgin.Pidgin3.appdata.xml.in',
 		    output : 'im.pidgin.Pidgin3.appdata.xml',
 		    po_dir : meson.source_root() / 'po',
+		    install : true,
+		    install_dir : get_option('datadir') / 'metainfo')
+	else
+		configure_file(
+		    input : 'data' / (PIDGIN_DESKTOP_FILE + '.in.in'),
+		    output : PIDGIN_DESKTOP_FILE,
+		    configuration : conf,
+		    install : true,
+		    install_dir : get_option('datadir') / 'applications')
+
+		configure_file(
+		    input : 'data/im.pidgin.Pidgin3.appdata.xml.in',
+		    output : 'im.pidgin.Pidgin3.appdata.xml',
 		    install : true,
 		    install_dir : get_option('datadir') / 'metainfo')
 	endif  # INSTALL_I18N
