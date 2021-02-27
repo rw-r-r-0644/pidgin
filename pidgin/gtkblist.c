@@ -2121,8 +2121,7 @@ parse_vcard(const char *vcard, PurpleGroup *group)
 
 			for (im = values; *im != NULL; im++)
 			{
-				if (purple_strequal(field, "X-JABBER"))
-					jabbers = g_list_append(jabbers, g_strdup(*im));
+				jabbers = g_list_append(jabbers, g_strdup(*im));
 			}
 
 			g_strfreev(values);
