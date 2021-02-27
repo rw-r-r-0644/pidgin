@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 
+<!-- Generated with glade 3.38.2 
 
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
@@ -21,13 +21,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <interface domain="pidgin">
   <requires lib="gtk+" version="3.20"/>
+  <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
+  <object class="PidginProtocolStore" id="raw_model"/>
+  <object class="GtkTreeModelSort" id="model">
+    <property name="model">raw_model</property>
+  </object>
   <template class="PidginProtocolChooser" parent="GtkComboBox">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="model">model</property>
     <child>
       <object class="GtkCellRendererPixbuf" id="icon"/>
@@ -42,5 +47,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       </attributes>
     </child>
   </template>
-  <object class="PidginProtocolStore" id="model"/>
 </interface>
