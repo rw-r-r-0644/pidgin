@@ -30,6 +30,7 @@ struct _PidginCredentialsPage {
 	GtkBox parent;
 
 	GtkWidget *combo;
+	GtkCellRenderer *renderer;
 };
 
 G_DEFINE_TYPE(PidginCredentialsPage, pidgin_credentials_page,
@@ -140,6 +141,15 @@ pidgin_credentials_page_init(PidginCredentialsPage *page) {
 
 	gtk_widget_init_template(GTK_WIDGET(page));
 
+	/* Set some constant properties on the renderer. This stuff is kind of
+	 * dodgy, but it does stop the dialog from growing to fit a long
+	 * description.
+	 */
+	g_object_set(G_OBJECT(page->renderer),
+	             "width-chars", 40,
+	             "wrap-mode", PANGO_WRAP_WORD_CHAR,
+	             NULL);
+
 	purple_prefs_add_none("/purple/credentials");
 	purple_prefs_add_string("/purple/credentials/active-provider", NULL);
 
@@ -171,6 +181,8 @@ pidgin_credentials_page_class_init(PidginCredentialsPageClass *klass) {
 
 	gtk_widget_class_bind_template_child(widget_class, PidginCredentialsPage,
 	                                     combo);
+	gtk_widget_class_bind_template_child(widget_class, PidginCredentialsPage,
+	                                     renderer);
 }
 
 /******************************************************************************

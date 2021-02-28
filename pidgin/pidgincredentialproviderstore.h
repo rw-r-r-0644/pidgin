@@ -39,9 +39,22 @@
 
 #include <purple.h>
 
+/**
+ * PidginCredentialProviderStoreColumn:
+ * @PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_ID: A constant for the id column.
+ * @PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_MARKUP: A constant for the markup
+ *                                                  that should be displayed.
+ * @PIDGIN_CREDENTIAL_PROVIDER_STORE_N_COLUMNS: The number of columns in the
+ *                                              store.
+ *
+ * A collection of constants for referring to the columns in a
+ * #PidginCredentialProviderStore.
+ *
+ * Since: 3.0.0
+ */
 typedef enum {
 	PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_ID,
-	PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_NAME,
+	PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_MARKUP,
 	PIDGIN_CREDENTIAL_PROVIDER_STORE_N_COLUMNS,
 } PidginCredentialProviderStoreColumn;
 

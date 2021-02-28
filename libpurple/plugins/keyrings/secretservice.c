@@ -38,8 +38,10 @@
    project name. It may not be appropriate to translate this string, but
    transliterating to your alphabet is reasonable. More info about the
    project can be found at https://wiki.gnome.org/Projects/Libsecret */
-#define SECRETSERVICE_NAME N_("Secret Service")
 #define SECRETSERVICE_ID "secret-service"
+#define SECRETSERVICE_NAME N_("Secret Service")
+#define SECRETSERVICE_DESCRIPTION N_("D-Bus Secret Service. Common in GNOME " \
+                                     "and other desktop environments.")
 
 /******************************************************************************
  * Globals
@@ -264,6 +266,7 @@ purple_secret_service_new(void) {
 		PURPLE_TYPE_SECRET_SERVICE,
 		"id", SECRETSERVICE_ID,
 		"name", _(SECRETSERVICE_NAME),
+		"description", _(SECRETSERVICE_DESCRIPTION),
 		NULL
 	));
 }

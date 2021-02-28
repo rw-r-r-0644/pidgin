@@ -21,12 +21,14 @@
 typedef struct {
 	gchar *id;
 	gchar *name;
+	gchar *description;
 } PurpleCredentialProviderPrivate;
 
 enum {
 	PROP_0,
 	PROP_ID,
 	PROP_NAME,
+	PROP_DESCRIPTION,
 	N_PROPERTIES,
 };
 static GParamSpec *properties[N_PROPERTIES] = {NULL, };
@@ -65,6 +67,20 @@ purple_credential_provider_set_name(PurpleCredentialProvider *provider,
 	g_object_notify_by_pspec(G_OBJECT(provider), properties[PROP_NAME]);
 }
 
+static void
+purple_credential_provider_set_description(PurpleCredentialProvider *provider,
+                                           const gchar *description)
+{
+	PurpleCredentialProviderPrivate *priv = NULL;
+
+	priv = purple_credential_provider_get_instance_private(provider);
+
+	g_free(priv->description);
+	priv->description = g_strdup(description);
+
+	g_object_notify_by_pspec(G_OBJECT(provider), properties[PROP_DESCRIPTION]);
+}
+
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
@@ -82,6 +98,10 @@ purple_credential_provider_get_property(GObject *obj, guint param_id,
 		case PROP_NAME:
 			g_value_set_string(value,
 			                   purple_credential_provider_get_name(provider));
+			break;
+		case PROP_DESCRIPTION:
+			g_value_set_string(value,
+			                   purple_credential_provider_get_description(provider));
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
@@ -103,6 +123,10 @@ purple_credential_provider_set_property(GObject *obj, guint param_id,
 		case PROP_NAME:
 			purple_credential_provider_set_name(provider,
 			                                    g_value_get_string(value));
+			break;
+		case PROP_DESCRIPTION:
+			purple_credential_provider_set_description(provider,
+			                                           g_value_get_string(value));
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
@@ -141,6 +165,8 @@ purple_credential_provider_class_init(PurpleCredentialProviderClass *klass) {
 	 *
 	 * The ID of the provider.  Used for preferences and other things that need
 	 * to address it.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_ID] = g_param_spec_string(
 		"id", "id", "The identifier of the provider",
@@ -152,9 +178,24 @@ purple_credential_provider_class_init(PurpleCredentialProviderClass *klass) {
 	 * PurpleCredentialProvider::name:
 	 *
 	 * The name of the provider which will be displayed to the user.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_NAME] = g_param_spec_string(
 		"name", "name", "The name of the provider",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS
+	);
+
+	/**
+	 * PurpleCredentialProvider::description:
+	 *
+	 * The description of the provider which will be displayed to the user.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_DESCRIPTION] = g_param_spec_string(
+		"description", "description", "The description of the provider",
 		NULL,
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS
 	);
@@ -185,6 +226,17 @@ purple_credential_provider_get_name(PurpleCredentialProvider *provider) {
 	priv = purple_credential_provider_get_instance_private(provider);
 
 	return priv->name;
+}
+
+const gchar *
+purple_credential_provider_get_description(PurpleCredentialProvider *provider) {
+	PurpleCredentialProviderPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), NULL);
+
+	priv = purple_credential_provider_get_instance_private(provider);
+
+	return priv->description;
 }
 
 gboolean

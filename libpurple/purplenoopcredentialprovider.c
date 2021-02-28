@@ -111,6 +111,7 @@ purple_noop_credential_provider_new(void) {
 		PURPLE_TYPE_NOOP_CREDENTIAL_PROVIDER,
 		"id", "noop-provider",
 		"name", _("None"),
+		"description", _("Passwords will not be saved."),
 		NULL
 	));
 }

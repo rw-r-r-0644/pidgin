@@ -125,6 +125,19 @@ const gchar *purple_credential_provider_get_id(PurpleCredentialProvider *provide
 const gchar *purple_credential_provider_get_name(PurpleCredentialProvider *provider);
 
 /**
+ * purple_credential_provider_get_description:
+ * @provider: The #PurpleCredentialProvider instance.
+ *
+ * Gets the description of @provider which can be displayed in user interfaces
+ * to help users figure out which provider to use.
+ *
+ * Returns: The description of @provider.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_credential_provider_get_description(PurpleCredentialProvider *provider);
+
+/**
  * purple_credential_provider_is_valid:
  * @provider: The #PurpleCredentialProvider instance.
  * @error: (out) (optional) (nullable): Return address for a #GError.
