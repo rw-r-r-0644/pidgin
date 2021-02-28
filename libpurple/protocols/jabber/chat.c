@@ -111,29 +111,17 @@ JabberChat *jabber_chat_find(JabberStream *js, const char *room,
 	return chat;
 }
 
-struct _find_by_id_data {
-	int id;
-	JabberChat *chat;
-};
-
-static void find_by_id_foreach_cb(gpointer key, gpointer value, gpointer user_data)
+static gboolean
+find_by_id_cb(gpointer key, gpointer value, gpointer user_data)
 {
 	JabberChat *chat = value;
-	struct _find_by_id_data *fbid = user_data;
 
-	if(chat->id == fbid->id)
-		fbid->chat = chat;
+	return chat->id == GPOINTER_TO_INT(user_data);
 }
 
 JabberChat *jabber_chat_find_by_id(JabberStream *js, int id)
 {
-	JabberChat *chat;
-	struct _find_by_id_data *fbid = g_new0(struct _find_by_id_data, 1);
-	fbid->id = id;
-	g_hash_table_foreach(js->chats, find_by_id_foreach_cb, fbid);
-	chat = fbid->chat;
-	g_free(fbid);
-	return chat;
+	return g_hash_table_find(js->chats, find_by_id_cb, GINT_TO_POINTER(id));
 }
 
 JabberChat *jabber_chat_find_by_conv(PurpleChatConversation *conv)
