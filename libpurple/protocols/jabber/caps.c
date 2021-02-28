@@ -506,11 +506,6 @@ jabber_caps_client_iqcb(JabberStream *js, const char *from, JabberIqType type,
 	cbplususerdata_unref(userdata);
 }
 
-typedef struct {
-	const char *name;
-	jabber_caps_cbplususerdata *data;
-} ext_iq_data;
-
 static void
 jabber_caps_ext_iqcb(JabberStream *js, const char *from, JabberIqType type,
                      const char *id, PurpleXmlNode *packet, gpointer data)
@@ -518,37 +513,36 @@ jabber_caps_ext_iqcb(JabberStream *js, const char *from, JabberIqType type,
 	PurpleXmlNode *query = purple_xmlnode_get_child_with_namespace(packet, "query",
 		NS_DISCO_INFO);
 	PurpleXmlNode *child;
-	ext_iq_data *userdata = data;
+	PurpleKeyValuePair *cbdata = data;
+	jabber_caps_cbplususerdata *userdata = cbdata->value;
 	GList *features = NULL;
 	JabberCapsNodeExts *node_exts;
 
 	if (!query || type == JABBER_IQ_ERROR) {
-		cbplususerdata_unref(userdata->data);
-		g_free(userdata);
+		purple_key_value_pair_free(cbdata);
 		return;
 	}
 
-	node_exts = (userdata->data->info ? userdata->data->info->exts :
-	                                    userdata->data->node_exts);
+	node_exts = (userdata->info ? userdata->info->exts : userdata->node_exts);
 
 	/* TODO: I don't see how this can actually happen, but it crashed khc. */
 	if (!node_exts) {
 		purple_debug_error("jabber", "Couldn't find JabberCapsNodeExts. If you "
-				"see this, please tell darkrain42 and save your debug log.\n"
-				"JabberCapsClientInfo = %p\n", userdata->data->info);
+		                   "see this, please tell darkrain42 and save your debug log.\n"
+		                   "JabberCapsClientInfo = %p", userdata->info);
 
 
 		/* Try once more to find the exts and then fail */
-		node_exts = jabber_caps_find_exts_by_node(userdata->data->node);
+		node_exts = jabber_caps_find_exts_by_node(userdata->node);
 		if (node_exts) {
 			purple_debug_info("jabber", "Found the exts on the second try.\n");
-			if (userdata->data->info)
-				userdata->data->info->exts = node_exts;
-			else
-				userdata->data->node_exts = node_exts;
+			if (userdata->info) {
+				userdata->info->exts = node_exts;
+			} else {
+				userdata->node_exts = node_exts;
+			}
 		} else {
-			cbplususerdata_unref(userdata->data);
-			g_free(userdata);
+			purple_key_value_pair_free(cbdata);
 			g_return_if_reached();
 		}
 	}
@@ -557,7 +551,7 @@ jabber_caps_ext_iqcb(JabberStream *js, const char *from, JabberIqType type,
 	 * if there *is* an error, we'll never call the callback passed to
 	 * jabber_caps_get_info. We will still free all of our data, though.
 	 */
-	--userdata->data->extOutstanding;
+	--userdata->extOutstanding;
 
 	for (child = purple_xmlnode_get_child(query, "feature"); child;
 	        child = purple_xmlnode_get_next_twin(child)) {
@@ -566,15 +560,15 @@ jabber_caps_ext_iqcb(JabberStream *js, const char *from, JabberIqType type,
 			features = g_list_prepend(features, g_strdup(var));
 	}
 
-	g_hash_table_insert(node_exts->exts, g_strdup(userdata->name), features);
+	g_hash_table_insert(node_exts->exts, g_strdup(cbdata->key), features);
 	schedule_caps_save();
 
 	/* Are we done? */
-	if (userdata->data->info && userdata->data->extOutstanding == 0)
-		jabber_caps_get_info_complete(userdata->data);
+	if (userdata->info && userdata->extOutstanding == 0) {
+		jabber_caps_get_info_complete(userdata);
+	}
 
-	cbplususerdata_unref(userdata->data);
-	g_free(userdata);
+	purple_key_value_pair_free(cbdata);
 }
 
 void jabber_caps_get_info(JabberStream *js, const char *who, const char *node,
@@ -658,10 +652,7 @@ void jabber_caps_get_info(JabberStream *js, const char *who, const char *node,
 				JabberIq *iq;
 				PurpleXmlNode *query;
 				char *nodeext;
-				ext_iq_data *cbdata = g_new(ext_iq_data, 1);
-
-				cbdata->name = exts[i];
-				cbdata->data = cbplususerdata_ref(userdata);
+				PurpleKeyValuePair *cbdata;
 
 				iq = jabber_iq_new_query(js, JABBER_IQ_GET, NS_DISCO_INFO);
 				query = purple_xmlnode_get_child_with_namespace(iq->node, "query",
@@ -671,6 +662,8 @@ void jabber_caps_get_info(JabberStream *js, const char *who, const char *node,
 				g_free(nodeext);
 				purple_xmlnode_set_attrib(iq->node, "to", who);
 
+				cbdata = purple_key_value_pair_new_full(exts[i], cbplususerdata_ref(userdata),
+				                                        (GDestroyNotify)cbplususerdata_unref);
 				jabber_iq_set_callback(iq, jabber_caps_ext_iqcb, cbdata);
 				jabber_iq_send(iq);
 
