@@ -25,8 +25,9 @@
 
 #include <wincred.h>
 
-#define WINCRED_NAME        N_("Windows credentials")
 #define WINCRED_ID          "keyring-wincred"
+#define WINCRED_NAME        N_("Windows credentials")
+#define WINCRED_DESCRIPTION N_("The built-in credential manager for Windows.")
 
 #define WINCRED_MAX_TARGET_NAME 256
 
@@ -364,6 +365,7 @@ purple_wincred_new(void)
 		PURPLE_TYPE_WINCRED,
 		"id", WINCRED_ID,
 		"name", _(WINCRED_NAME),
+		"description", _(WINCRED_DESCRIPTION),
 		NULL
 	));
 }

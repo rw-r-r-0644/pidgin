@@ -36,19 +36,25 @@ pidgin_credential_provider_store_add(PidginCredentialProviderStore *store,
                                      PurpleCredentialProvider *provider)
 {
 	GtkTreeIter iter;
-	const gchar *id = NULL, *name = NULL;
+	gchar *markup = NULL;
+	const gchar *id = NULL, *name = NULL, *description = NULL;
 
 	id = purple_credential_provider_get_id(provider);
 	name = purple_credential_provider_get_name(provider);
+	description = purple_credential_provider_get_description(provider);
+
+	markup = g_strdup_printf("<b>%s</b>\n%s", name, description);
 
 	gtk_list_store_append(GTK_LIST_STORE(store), &iter);
 	gtk_list_store_set(
 		GTK_LIST_STORE(store),
 		&iter,
 		PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_ID, id,
-		PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_NAME, name,
+		PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_MARKUP, markup,
 		-1
 	);
+
+	g_free(markup);
 }
 
 static void
