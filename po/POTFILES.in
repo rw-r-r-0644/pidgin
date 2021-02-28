@@ -111,7 +111,6 @@ libpurple/protocols/gg/libgaduw.c
 libpurple/protocols/gg/message-prpl.c
 libpurple/protocols/gg/multilogon.c
 libpurple/protocols/gg/oauth/oauth.c
-libpurple/protocols/gg/oauth/oauth-parameter.c
 libpurple/protocols/gg/oauth/oauth-purple.c
 libpurple/protocols/gg/pubdir-prpl.c
 libpurple/protocols/gg/purplew.c
