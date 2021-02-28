@@ -650,50 +650,31 @@ silcpurple_chat_permanent(PurpleBlistNode *node, gpointer data)
 				 "+f", NULL);
 }
 
-typedef struct {
-	SilcPurple sg;
-	char *channel;
-} *SilcPurpleChatInput;
-
 static void
-silcpurple_chat_ulimit_cb(SilcPurpleChatInput s, const char *limit)
+silcpurple_chat_ulimit_cb(PurpleKeyValuePair *s, const char *limit)
 {
+	SilcPurple sg = s->value;
 	SilcChannelEntry channel;
 	guint ulimit = 0;
 
-	channel = silc_client_get_channel(s->sg->client, s->sg->conn,
-					  (char *)s->channel);
+	channel = silc_client_get_channel(sg->client, sg->conn, s->key);
 	if (!channel)
 		return;
 	if (limit)
 		ulimit = strtoul(limit, NULL, 10);
 
 	if (!limit || !(*limit) || *limit == '0') {
-		if (limit && ulimit == channel->user_limit) {
-			g_free(s->channel);
-			silc_free(s);
-			return;
+		if (!limit || ulimit != channel->user_limit) {
+			silc_client_command_call(sg->client, sg->conn, NULL,
+			                         "CMODE", s->key, "-l", NULL);
 		}
-		silc_client_command_call(s->sg->client, s->sg->conn, NULL, "CMODE",
-					 s->channel, "-l", NULL);
-
-		g_free(s->channel);
-		silc_free(s);
-		return;
+	} else if (ulimit != channel->user_limit) {
+		/* Call CMODE */
+		silc_client_command_call(sg->client, sg->conn, NULL,
+		                         "CMODE", s->key, "+l", limit, NULL);
 	}
 
-	if (ulimit == channel->user_limit) {
-		g_free(s->channel);
-		silc_free(s);
-		return;
-	}
-
-	/* Call CMODE */
-	silc_client_command_call(s->sg->client, s->sg->conn, NULL, "CMODE",
-				 s->channel, "+l", limit, NULL);
-
-	g_free(s->channel);
-	silc_free(s);
+	purple_key_value_pair_free(s);
 }
 
 static void
@@ -703,7 +684,7 @@ silcpurple_chat_ulimit(PurpleBlistNode *node, gpointer data)
 	PurpleConnection *gc;
 	SilcPurple sg;
 
-	SilcPurpleChatInput s;
+	PurpleKeyValuePair *s;
 	SilcChannelEntry channel;
 	char *ch;
 	char tmp[32];
@@ -717,16 +698,12 @@ silcpurple_chat_ulimit(PurpleBlistNode *node, gpointer data)
 	if (!sg->conn)
 		return;
 
-	ch = g_strdup(g_hash_table_lookup(purple_chat_get_components(chat), "channel"));
-	channel = silc_client_get_channel(sg->client, sg->conn, (char *)ch);
+	ch = g_hash_table_lookup(purple_chat_get_components(chat), "channel");
+	channel = silc_client_get_channel(sg->client, sg->conn, ch);
 	if (!channel)
 		return;
 
-	s = silc_calloc(1, sizeof(*s));
-	if (!s)
-		return;
-	s->channel = ch;
-	s->sg = sg;
+	s = purple_key_value_pair_new(ch, sg);
 	g_snprintf(tmp, sizeof(tmp), "%d", (int)channel->user_limit);
 	purple_request_input(gc, _("User Limit"), NULL,
 			   _("Set user limit on channel. Set to zero to reset user limit."),
