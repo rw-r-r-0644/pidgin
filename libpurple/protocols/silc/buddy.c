@@ -34,11 +34,6 @@ static void
 silcpurple_buddy_keyagr_do(PurpleConnection *gc, const char *name,
 			   gboolean force_local);
 
-typedef struct {
-	char *nick;
-	PurpleConnection *gc;
-} *SilcPurpleResolve;
-
 static void
 silcpurple_buddy_keyagr_resolved(SilcClient client,
 				 SilcClientConnection conn,
@@ -47,23 +42,21 @@ silcpurple_buddy_keyagr_resolved(SilcClient client,
 				 void *context)
 {
 	PurpleConnection *gc = client->application;
-	SilcPurpleResolve r = context;
-	char tmp[256];
+	char *nick = context;
 
 	if (!clients) {
+		char tmp[256];
+
 		g_snprintf(tmp, sizeof(tmp),
-			   _("User %s is not present in the network"), r->nick);
+		           _("User %s is not present in the network"), nick);
 		purple_notify_error(gc, _("Key Agreement"),
 			_("Cannot perform the key agreement"), tmp,
 			purple_request_cpar_from_connection(gc));
-		g_free(r->nick);
-		silc_free(r);
-		return;
+	} else {
+		silcpurple_buddy_keyagr_do(gc, nick, FALSE);
 	}
 
-	silcpurple_buddy_keyagr_do(gc, r->nick, FALSE);
-	g_free(r->nick);
-	silc_free(r);
+	g_free(nick);
 }
 
 static void
@@ -171,13 +164,8 @@ silcpurple_buddy_keyagr_do(PurpleConnection *gc, const char *name,
 						FALSE);
 	if (!clients) {
 		/* Resolve unknown user */
-		SilcPurpleResolve r = silc_calloc(1, sizeof(*r));
-		if (!r)
-			return;
-		r->nick = g_strdup(name);
-		r->gc = gc;
 		silc_client_get_clients(sg->client, sg->conn, name, NULL,
-					silcpurple_buddy_keyagr_resolved, r);
+		                        silcpurple_buddy_keyagr_resolved, g_strdup(name));
 		return;
 	}
 
