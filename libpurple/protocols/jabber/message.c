@@ -335,13 +335,6 @@ static void handle_buzz(JabberMessage *jm) {
 	purple_protocol_got_attention(jm->js->gc, jm->from, 0);
 }
 
-/* used internally by the functions below */
-typedef struct {
-	gchar *cid;
-	gchar *alt;
-} JabberSmileyRef;
-
-
 static void
 jabber_message_get_refs_from_xmlnode_internal(const PurpleXmlNode *message,
 	GHashTable *table)
@@ -357,11 +350,8 @@ jabber_message_get_refs_from_xmlnode_internal(const PurpleXmlNode *message,
 
 			/* if we haven't "fetched" this yet... */
 			if (!g_hash_table_lookup(table, cid)) {
-				/* take a copy of the cid and let the SmileyRef own it... */
-				gchar *temp_cid = g_strdup(cid);
-				JabberSmileyRef *ref = g_new0(JabberSmileyRef, 1);
+				gchar *value;
 				const gchar *alt = purple_xmlnode_get_attrib(child, "alt");
-				ref->cid = temp_cid;
 				/* if there is no "alt" string, use the cid...
 				 include the entire src, eg. "cid:.." to avoid linkification */
 				if (alt && alt[0] != '\0') {
@@ -369,14 +359,14 @@ jabber_message_get_refs_from_xmlnode_internal(const PurpleXmlNode *message,
 					 CID (which Jabbim seems to do), to avoid it showing up
 						 as an mailto: link */
 					if (purple_email_is_valid(alt)) {
-						ref->alt = g_strdup_printf("smiley:%s", alt);
+						value = g_strdup_printf("smiley:%s", alt);
 					} else {
-						ref->alt = g_strdup(alt);
+						value = g_strdup(alt);
 					}
 				} else {
-					ref->alt = g_strdup(src);
+					value = g_strdup(src);
 				}
-				g_hash_table_insert(table, temp_cid, ref);
+				g_hash_table_insert(table, g_strdup(cid), value);
 			}
 		}
 	}
@@ -387,10 +377,10 @@ jabber_message_get_refs_from_xmlnode_internal(const PurpleXmlNode *message,
 }
 
 static gboolean
-jabber_message_get_refs_steal(gpointer key, gpointer value, gpointer user_data)
+jabber_message_get_refs(gpointer key, gpointer value, gpointer user_data)
 {
 	GList **refs = (GList **) user_data;
-	JabberSmileyRef *ref = (JabberSmileyRef *) value;
+	PurpleKeyValuePair *ref = purple_key_value_pair_new_full(key, value, g_free);
 
 	*refs = g_list_append(*refs, ref);
 
@@ -401,11 +391,10 @@ static GList *
 jabber_message_get_refs_from_xmlnode(const PurpleXmlNode *message)
 {
 	GList *refs = NULL;
-	GHashTable *unique_refs = g_hash_table_new(g_str_hash, g_str_equal);
+	GHashTable *unique_refs = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
 	jabber_message_get_refs_from_xmlnode_internal(message, unique_refs);
-	(void) g_hash_table_foreach_steal(unique_refs,
-		jabber_message_get_refs_steal, (gpointer) &refs);
+	(void)g_hash_table_foreach_remove(unique_refs, jabber_message_get_refs, &refs);
 	g_hash_table_destroy(unique_refs);
 	return refs;
 }
@@ -742,7 +731,7 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 				PurpleConnection *gc = js->gc;
 				PurpleAccount *account = purple_connection_get_account(gc);
 				PurpleConversation *conv = NULL;
-				GList *smiley_refs = NULL, *it;
+				GList *smiley_refs = NULL;
 				gchar *reformatted_xhtml;
 
 				if (purple_account_get_bool(account, "custom_smileys", TRUE)) {
@@ -794,19 +783,15 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 				/* note: if there were no smileys in the incoming message, or
 				  	if receiving custom smileys is turned off, smiley_refs will
 					be NULL */
-				for (it = smiley_refs; it; it = g_list_next(it)) {
-					JabberSmileyRef *ref = it->data;
+				if (conv) {
+					for (GList *it = smiley_refs; it; it = g_list_next(it)) {
+						PurpleKeyValuePair *ref = it->data;
 
-					if (conv) {
 						jabber_message_remote_smiley_add(js,
-							conv, from, ref->alt, ref->cid);
+						        conv, from, ref->value, ref->key);
 					}
-
-					g_free(ref->cid);
-					g_free(ref->alt);
-					g_free(ref);
 				}
-				g_list_free(smiley_refs);
+				g_list_free_full(smiley_refs, (GDestroyNotify)purple_key_value_pair_free);
 
 			    /* Convert all newlines to whitespace. Technically, even regular, non-XML HTML is supposed to ignore newlines, but Pidgin has, as convention
 				 * treated \n as a newline for compatibility with other protocols
