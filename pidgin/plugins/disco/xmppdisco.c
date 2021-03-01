@@ -146,7 +146,10 @@ xmpp_iq_register_callback(PurpleConnection *pc, gchar *id, gpointer data,
 	g_hash_table_insert(iq_callbacks, id, cbdata);
 
 	if (!iq_listening) {
-		PurpleProtocol *protocol = purple_protocols_find(XMPP_PROTOCOL_ID);
+		PurpleProtocol *protocol = NULL;
+		PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+		protocol = purple_protocol_manager_find(manager, XMPP_PROTOCOL_ID);
+
 		iq_listening = TRUE;
 		purple_signal_connect(protocol, "jabber-receiving-iq", my_plugin,
 		                      PURPLE_CALLBACK(xmpp_iq_received), NULL);
@@ -636,10 +639,12 @@ static gboolean
 plugin_load(PurplePlugin *plugin, GError **error)
 {
 	PurpleProtocol *xmpp_protocol;
+	PurpleProtocolManager *manager;
 
 	my_plugin = plugin;
 
-	xmpp_protocol = purple_protocols_find(XMPP_PROTOCOL_ID);
+	manager = purple_protocol_manager_get_default();
+	xmpp_protocol = purple_protocol_manager_find(manager, XMPP_PROTOCOL_ID);
 	if (NULL == xmpp_protocol) {
 		g_set_error_literal(error, PLUGIN_DOMAIN, 0,
 		                    _("XMPP protocol is not loaded."));

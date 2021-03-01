@@ -736,8 +736,10 @@ plugin_load(PurplePlugin *plugin, GError **error)
 	i = 0;
 	while (xmpp_prpls[i] != NULL) {
 		PurpleProtocol *xmpp;
+		PurpleProtocolManager *manager;
 
-		xmpp = purple_protocols_find(xmpp_prpls[i]);
+		manager = purple_protocol_manager_get_default();
+		xmpp = purple_protocol_manager_find(manager, xmpp_prpls[i]);
 		i++;
 
 		if (!xmpp)
