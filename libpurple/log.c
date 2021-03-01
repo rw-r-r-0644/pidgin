@@ -41,10 +41,6 @@ static GSList *loggers = NULL;
 static PurpleLogLogger *html_logger;
 static PurpleLogLogger *txt_logger;
 
-struct _purple_logsize_user {
-	char *name;
-	PurpleAccount *account;
-};
 static GHashTable *logsize_users = NULL;
 static GHashTable *logsize_users_decayed = NULL;
 
@@ -109,7 +105,7 @@ void purple_log_free(PurpleLog *log)
 void purple_log_write(PurpleLog *log, PurpleMessageFlags type,
                       const char *from, GDateTime *time, const char *message)
 {
-	struct _purple_logsize_user *lu;
+	PurpleKeyValuePair *lu;
 	gsize written, total = 0;
 	gpointer ptrsize;
 
@@ -119,23 +115,16 @@ void purple_log_write(PurpleLog *log, PurpleMessageFlags type,
 
 	written = (log->logger->write)(log, type, from, time, message);
 
-	lu = g_new(struct _purple_logsize_user, 1);
-
-	lu->name = g_strdup(purple_normalize(log->account, log->name));
-	lu->account = log->account;
+	lu = purple_key_value_pair_new(purple_normalize(log->account, log->name), log->account);
 
 	if(g_hash_table_lookup_extended(logsize_users, lu, NULL, &ptrsize)) {
-		char *tmp = lu->name;
-
 		total = GPOINTER_TO_INT(ptrsize);
 		total += written;
 		g_hash_table_replace(logsize_users, lu, GINT_TO_POINTER(total));
 
 		/* The hash table takes ownership of lu, so create a new one
 		 * for the logsize_users_decayed check below. */
-		lu = g_new(struct _purple_logsize_user, 1);
-		lu->name = g_strdup(tmp);
-		lu->account = log->account;
+		lu = purple_key_value_pair_new(lu->key, log->account);
 	}
 
 	if(g_hash_table_lookup_extended(logsize_users_decayed, lu, NULL, &ptrsize)) {
@@ -143,8 +132,7 @@ void purple_log_write(PurpleLog *log, PurpleMessageFlags type,
 		total += written;
 		g_hash_table_replace(logsize_users_decayed, lu, GINT_TO_POINTER(total));
 	} else {
-		g_free(lu->name);
-		g_free(lu);
+		purple_key_value_pair_free(lu);
 	}
 }
 
@@ -169,21 +157,16 @@ int purple_log_get_size(PurpleLog *log)
 	return 0;
 }
 
-static guint _purple_logsize_user_hash(struct _purple_logsize_user *lu)
+static guint
+_purple_logsize_user_hash(PurpleKeyValuePair *lu)
 {
-	return g_str_hash(lu->name);
+	return g_str_hash(lu->key);
 }
 
-static guint _purple_logsize_user_equal(struct _purple_logsize_user *lu1,
-		struct _purple_logsize_user *lu2)
+static guint
+_purple_logsize_user_equal(PurpleKeyValuePair *lu1, PurpleKeyValuePair *lu2)
 {
-	return (lu1->account == lu2->account && purple_strequal(lu1->name, lu2->name));
-}
-
-static void _purple_logsize_user_free_key(struct _purple_logsize_user *lu)
-{
-	g_free(lu->name);
-	g_free(lu);
+	return (lu1->value == lu2->value && purple_strequal(lu1->key, lu2->key));
 }
 
 int purple_log_get_total_size(PurpleLogType type, const char *name, PurpleAccount *account)
@@ -191,16 +174,12 @@ int purple_log_get_total_size(PurpleLogType type, const char *name, PurpleAccoun
 	gpointer ptrsize;
 	int size = 0;
 	GSList *n;
-	struct _purple_logsize_user *lu;
+	PurpleKeyValuePair *lu;
 
-	lu = g_new(struct _purple_logsize_user, 1);
-	lu->name = g_strdup(purple_normalize(account, name));
-	lu->account = account;
-
+	lu = purple_key_value_pair_new(purple_normalize(account, name), account);
 	if(g_hash_table_lookup_extended(logsize_users, lu, NULL, &ptrsize)) {
 		size = GPOINTER_TO_INT(ptrsize);
-		g_free(lu->name);
-		g_free(lu);
+		purple_key_value_pair_free(lu);
 	} else {
 		for (n = loggers; n; n = n->next) {
 			PurpleLogLogger *logger = n->data;
@@ -232,16 +211,12 @@ gint purple_log_get_activity_score(PurpleLogType type, const char *name, PurpleA
 	gpointer ptrscore;
 	int score;
 	GSList *n;
-	struct _purple_logsize_user *lu;
+	PurpleKeyValuePair *lu;
 
-	lu = g_new(struct _purple_logsize_user, 1);
-	lu->name = g_strdup(purple_normalize(account, name));
-	lu->account = account;
-
+	lu = purple_key_value_pair_new(purple_normalize(account, name), account);
 	if(g_hash_table_lookup_extended(logsize_users_decayed, lu, NULL, &ptrscore)) {
 		score = GPOINTER_TO_INT(ptrscore);
-		g_free(lu->name);
-		g_free(lu);
+		purple_key_value_pair_free(lu);
 	} else {
 		GDateTime *now = g_date_time_new_now_utc();
 		double score_double = 0.0;
@@ -647,11 +622,11 @@ void purple_log_init(void)
 	purple_prefs_trigger_callback("/purple/logging/format");
 
 	logsize_users = g_hash_table_new_full((GHashFunc)_purple_logsize_user_hash,
-			(GEqualFunc)_purple_logsize_user_equal,
-			(GDestroyNotify)_purple_logsize_user_free_key, NULL);
+	                                      (GEqualFunc)_purple_logsize_user_equal,
+	                                      (GDestroyNotify)purple_key_value_pair_free, NULL);
 	logsize_users_decayed = g_hash_table_new_full((GHashFunc)_purple_logsize_user_hash,
-				(GEqualFunc)_purple_logsize_user_equal,
-				(GDestroyNotify)_purple_logsize_user_free_key, NULL);
+	                                              (GEqualFunc)_purple_logsize_user_equal,
+	                                              (GDestroyNotify)purple_key_value_pair_free, NULL);
 }
 
 void
