@@ -97,7 +97,7 @@
  * server started checking this.
  */
 
-#define FB_ORCA_AGENT "[FBAN/Orca-Android;FBAV/109.0.0.17.70;FBPN/com.facebook.orca;FBLC/en_US;FBBV/52182662]"
+#define FB_ORCA_AGENT "[FBAN/Orca-Android;FBAV/537.0.0.31.101;FBPN/com.facebook.orca;FBLC/en_US;FBBV/52182662]"
 
 /**
  * FB_API_AGENT:
