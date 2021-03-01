@@ -1201,23 +1201,19 @@ jabber_unregistration_result_cb(JabberStream *js, const char *from,
 	g_free(to);
 }
 
-typedef struct {
-	JabberStream *js;
-	char *who;
-} JabberRegisterCBData;
-
 static void
-jabber_register_cb(JabberRegisterCBData *cbdata, PurpleRequestFields *fields)
+jabber_register_cb(PurpleKeyValuePair *cbdata, PurpleRequestFields *fields)
 {
+	JabberStream *js = cbdata->value;
 	GList *groups, *flds;
 	PurpleXmlNode *query, *y;
 	JabberIq *iq;
-	char *username;
 
-	iq = jabber_iq_new_query(cbdata->js, JABBER_IQ_SET, "jabber:iq:register");
+	iq = jabber_iq_new_query(js, JABBER_IQ_SET, "jabber:iq:register");
 	query = purple_xmlnode_get_child(iq->node, "query");
-	if (cbdata->who)
-		purple_xmlnode_set_attrib(iq->node, "to", cbdata->who);
+	if (cbdata->key) {
+		purple_xmlnode_set_attrib(iq->node, "to", cbdata->key);
+	}
 
 	for(groups = purple_request_fields_get_groups(fields); groups;
 			groups = groups->next) {
@@ -1231,16 +1227,17 @@ jabber_register_cb(JabberRegisterCBData *cbdata, PurpleRequestFields *fields)
 					/* unregister from service. this doesn't include any of the fields, so remove them from the stanza by recreating it
 					   (there's no "remove child" function for PurpleXmlNode) */
 					jabber_iq_free(iq);
-					iq = jabber_iq_new_query(cbdata->js, JABBER_IQ_SET, "jabber:iq:register");
+					iq = jabber_iq_new_query(js, JABBER_IQ_SET, "jabber:iq:register");
 					query = purple_xmlnode_get_child(iq->node, "query");
-					if (cbdata->who)
-						purple_xmlnode_set_attrib(iq->node,"to",cbdata->who);
+					if (cbdata->key) {
+						purple_xmlnode_set_attrib(iq->node, "to", cbdata->key);
+					}
 					purple_xmlnode_new_child(query, "remove");
 
-					jabber_iq_set_callback(iq, jabber_unregistration_result_cb, cbdata->who);
+					jabber_iq_set_callback(iq, jabber_unregistration_result_cb, g_strdup(cbdata->key));
 
 					jabber_iq_send(iq);
-					g_free(cbdata);
+					purple_key_value_pair_free(cbdata);
 					return;
 				}
 			} else {
@@ -1258,15 +1255,15 @@ jabber_register_cb(JabberRegisterCBData *cbdata, PurpleRequestFields *fields)
 					continue;
 				y = purple_xmlnode_new_child(query, ids[i]);
 				purple_xmlnode_insert_data(y, value, -1);
-				if(cbdata->js->registration && purple_strequal(id, "username")) {
-					g_free(cbdata->js->user->node);
-					cbdata->js->user->node = g_strdup(value);
+				if(js->registration && purple_strequal(id, "username")) {
+					g_free(js->user->node);
+					js->user->node = g_strdup(value);
 				}
-				if(cbdata->js->registration && purple_strequal(id, "password")) {
+				if(js->registration && purple_strequal(id, "password")) {
 					PurpleCredentialManager *manager = NULL;
 					PurpleAccount *account = NULL;
 
-					account = purple_connection_get_account(cbdata->js->gc);
+					account = purple_connection_get_account(js->gc);
 					manager = purple_credential_manager_get_default();
 
 					purple_credential_manager_write_password_async(manager,
@@ -1278,30 +1275,30 @@ jabber_register_cb(JabberRegisterCBData *cbdata, PurpleRequestFields *fields)
 		}
 	}
 
-	if(cbdata->js->registration) {
-		username = g_strdup_printf("%s@%s%s%s", cbdata->js->user->node, cbdata->js->user->domain,
-			cbdata->js->user->resource ? "/" : "",
-			cbdata->js->user->resource ? cbdata->js->user->resource : "");
-		purple_account_set_username(purple_connection_get_account(cbdata->js->gc), username);
+	if(js->registration) {
+		char *username = g_strdup_printf("%s@%s%s%s", js->user->node, js->user->domain,
+		                                 js->user->resource ? "/" : "",
+		                                 js->user->resource ? js->user->resource : "");
+		purple_account_set_username(purple_connection_get_account(js->gc), username);
 		g_free(username);
 	}
 
-	jabber_iq_set_callback(iq, jabber_registration_result_cb, cbdata->who);
+	jabber_iq_set_callback(iq, jabber_registration_result_cb, g_strdup(cbdata->key));
 
 	jabber_iq_send(iq);
-	g_free(cbdata);
+	purple_key_value_pair_free(cbdata);
 }
 
 static void
-jabber_register_cancel_cb(JabberRegisterCBData *cbdata, PurpleRequestFields *fields)
+jabber_register_cancel_cb(PurpleKeyValuePair *cbdata, PurpleRequestFields *fields)
 {
-	PurpleAccount *account = purple_connection_get_account(cbdata->js->gc);
-	if(account && cbdata->js->registration) {
+	JabberStream *js = cbdata->value;
+	PurpleAccount *account = purple_connection_get_account(js->gc);
+	if(account && js->registration) {
 		purple_account_register_completed(account, FALSE);
-		jabber_connection_schedule_close(cbdata->js);
+		jabber_connection_schedule_close(js);
 	}
-	g_free(cbdata->who);
-	g_free(cbdata);
+	purple_key_value_pair_free(cbdata);
 }
 
 static void jabber_register_x_data_cb(JabberStream *js, PurpleXmlNode *result, gpointer data)
@@ -1348,7 +1345,7 @@ void jabber_register_parse(JabberStream *js, const char *from, JabberIqType type
 	PurpleRequestField *field;
 	PurpleXmlNode *x, *y, *node;
 	char *instructions;
-	JabberRegisterCBData *cbdata;
+	PurpleKeyValuePair *cbdata;
 	gboolean registered = FALSE;
 	int i;
 
@@ -1465,9 +1462,7 @@ void jabber_register_parse(JabberStream *js, const char *from, JabberIqType type
 		instructions = g_strdup(_("Please fill out the information below "
 					"to register your new account."));
 
-	cbdata = g_new0(JabberRegisterCBData, 1);
-	cbdata->js = js;
-	cbdata->who = g_strdup(from);
+	cbdata = purple_key_value_pair_new(from, js);
 
 	if(js->registration)
 		purple_request_fields(js->gc, _("Register New XMPP Account"),
