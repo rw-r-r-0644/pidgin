@@ -210,29 +210,35 @@ static void
 _match_buddies_by_address(gpointer value, gpointer data)
 {
 	PurpleBuddy *pb = value;
-	BonjourBuddy *bb = NULL;
 	struct _match_buddies_by_address *mbba = data;
+	BonjourBuddy *bb = purple_buddy_get_protocol_data(pb);
 
-	bb = purple_buddy_get_protocol_data(pb);
+	if (!bb) {
+		return;
+	}
 
 	/*
 	 * If the current PurpleBuddy's data is not null, then continue to determine
 	 * whether one of the buddies IPs matches the target IP.
 	 */
-	if (bb != NULL)
-	{
-		const char *ip;
-		GSList *tmp = bb->ips;
-
-		while(tmp) {
-			ip = tmp->data;
-			if (ip != NULL && g_ascii_strcasecmp(ip, mbba->address) == 0) {
-				mbba->matched_buddies = g_slist_prepend(mbba->matched_buddies, pb);
-				break;
-			}
-			tmp = tmp->next;
-		}
+	if (g_slist_find_custom(bb->ips, mbba->address, (GCompareFunc)g_ascii_strcasecmp)) {
+		mbba->matched_buddies = g_slist_prepend(mbba->matched_buddies, pb);
 	}
+}
+
+static GSList *
+_find_match_buddies_by_address(const BonjourXMPP *jdata, const char *address)
+{
+	struct _match_buddies_by_address mbba = {
+		.address = address,
+		.matched_buddies = NULL
+	};
+	GSList *buddies = purple_blist_find_buddies(jdata->account, NULL);
+
+	g_slist_foreach(buddies, _match_buddies_by_address, &mbba);
+	g_slist_free(buddies);
+
+	return mbba.matched_buddies;
 }
 
 static void
@@ -667,7 +673,6 @@ _server_socket_handler(GSocketService *service, GSocketConnection *connection,
 	GSocketAddress *their_addr; /* connector's address information */
 	GInetAddress *their_inet_addr;
 	gchar *address_text;
-	struct _match_buddies_by_address *mbba;
 	BonjourXMPPConversation *bconv;
 	GSList *buddies;
 	GSource *source;
@@ -694,22 +699,15 @@ _server_socket_handler(GSocketService *service, GSocketConnection *connection,
 	g_object_unref(their_addr);
 
 	purple_debug_info("bonjour", "Received incoming connection from %s.\n", address_text);
-	mbba = g_new0(struct _match_buddies_by_address, 1);
-	mbba->address = address_text;
 
-	buddies = purple_blist_find_buddies(jdata->account, NULL);
-	g_slist_foreach(buddies, _match_buddies_by_address, mbba);
-	g_slist_free(buddies);
-
-	if (mbba->matched_buddies == NULL) {
+	buddies = _find_match_buddies_by_address(jdata, address_text);
+	if (buddies == NULL) {
 		purple_debug_info("bonjour", "We don't like invisible buddies, this is not a superheroes comic\n");
 		g_free(address_text);
-		g_free(mbba);
 		return;
 	}
 
-	g_slist_free(mbba->matched_buddies);
-	g_free(mbba);
+	g_slist_free(buddies);
 
 	/* We've established that this *could* be from one of our buddies.
 	 * Wait for the stream open to see if that matches too before assigning it.
@@ -896,36 +894,28 @@ bonjour_xmpp_conv_match_by_name(BonjourXMPPConversation *bconv) {
 
 	pb = purple_blist_find_buddy(bconv->account, bconv->buddy_name);
 	if (pb && (bb = purple_buddy_get_protocol_data(pb))) {
-		const char *ip;
-		GSList *tmp = bb->ips;
-
 		purple_debug_info("bonjour", "Found buddy %s for incoming conversation \"from\" attrib.\n",
 			purple_buddy_get_name(pb));
 
 		/* Check that one of the buddy's IPs matches */
-		while(tmp) {
-			ip = tmp->data;
-			if (ip != NULL && g_ascii_strcasecmp(ip, bconv->ip) == 0) {
-				PurpleConnection *pc = purple_account_get_connection(bconv->account);
-				BonjourData *bd = purple_connection_get_protocol_data(pc);
-				BonjourXMPP *jdata = bd->xmpp_data;
+		if (g_slist_find_custom(bb->ips, bconv->ip, (GCompareFunc)g_ascii_strcasecmp)) {
+			PurpleConnection *pc = purple_account_get_connection(bconv->account);
+			BonjourData *bd = purple_connection_get_protocol_data(pc);
+			BonjourXMPP *jdata = bd->xmpp_data;
 
-				purple_debug_info("bonjour", "Matched buddy %s to incoming conversation \"from\" attrib and IP (%s)\n",
-					purple_buddy_get_name(pb), bconv->ip);
+			purple_debug_info("bonjour", "Matched buddy %s to incoming conversation \"from\" attrib and IP (%s)",
+			                  purple_buddy_get_name(pb), bconv->ip);
 
-				/* Attach conv. to buddy and remove from pending list */
-				jdata->pending_conversations = g_slist_remove(jdata->pending_conversations, bconv);
+			/* Attach conv. to buddy and remove from pending list */
+			jdata->pending_conversations = g_slist_remove(jdata->pending_conversations, bconv);
 
-				/* Check if the buddy already has a conversation and, if so, replace it */
-				if(bb->conversation != NULL && bb->conversation != bconv)
-					bonjour_xmpp_close_conversation(bb->conversation);
-
-				bconv->pb = pb;
-				bb->conversation = bconv;
-
-				break;
+			/* Check if the buddy already has a conversation and, if so, replace it */
+			if (bb->conversation != NULL && bb->conversation != bconv) {
+				bonjour_xmpp_close_conversation(bb->conversation);
 			}
-			tmp = tmp->next;
+
+			bconv->pb = pb;
+			bb->conversation = bconv;
 		}
 	}
 
@@ -944,39 +934,33 @@ bonjour_xmpp_conv_match_by_ip(BonjourXMPPConversation *bconv) {
 	PurpleConnection *pc = purple_account_get_connection(bconv->account);
 	BonjourData *bd = purple_connection_get_protocol_data(pc);
 	BonjourXMPP *jdata = bd->xmpp_data;
-	struct _match_buddies_by_address *mbba;
 	GSList *buddies;
 
-	mbba = g_new0(struct _match_buddies_by_address, 1);
-	mbba->address = bconv->ip;
-
-	buddies = purple_blist_find_buddies(jdata->account, NULL);
-	g_slist_foreach(buddies, _match_buddies_by_address, mbba);
-	g_slist_free(buddies);
+	buddies = _find_match_buddies_by_address(jdata, bconv->ip);
 
 	/* If there is exactly one match, use it */
-	if(mbba->matched_buddies != NULL) {
-		if(mbba->matched_buddies->next != NULL)
-			purple_debug_error("bonjour", "More than one buddy matched for ip %s.\n", bconv->ip);
-		else {
-			PurpleBuddy *pb = mbba->matched_buddies->data;
-			BonjourBuddy *bb = purple_buddy_get_protocol_data(pb);
+	if (!buddies) {
+		purple_debug_error("bonjour", "No buddies matched for ip %s.", bconv->ip);
+	} else if (buddies->next != NULL) {
+		purple_debug_error("bonjour", "More than one buddy matched for ip %s.", bconv->ip);
+	} else {
+		PurpleBuddy *pb = buddies->data;
+		BonjourBuddy *bb = purple_buddy_get_protocol_data(pb);
 
-			purple_debug_info("bonjour", "Matched buddy %s to incoming conversation using IP (%s)\n",
-				purple_buddy_get_name(pb), bconv->ip);
+		purple_debug_info("bonjour", "Matched buddy %s to incoming conversation using IP (%s)",
+		                  purple_buddy_get_name(pb), bconv->ip);
 
-			/* Attach conv. to buddy and remove from pending list */
-			jdata->pending_conversations = g_slist_remove(jdata->pending_conversations, bconv);
+		/* Attach conv. to buddy and remove from pending list */
+		jdata->pending_conversations = g_slist_remove(jdata->pending_conversations, bconv);
 
-			/* Check if the buddy already has a conversation and, if so, replace it */
-			if (bb->conversation != NULL && bb->conversation != bconv)
-				bonjour_xmpp_close_conversation(bb->conversation);
-
-			bconv->pb = pb;
-			bb->conversation = bconv;
+		/* Check if the buddy already has a conversation and, if so, replace it */
+		if (bb->conversation != NULL && bb->conversation != bconv) {
+			bonjour_xmpp_close_conversation(bb->conversation);
 		}
-	} else
-		purple_debug_error("bonjour", "No buddies matched for ip %s.\n", bconv->ip);
+
+		bconv->pb = pb;
+		bb->conversation = bconv;
+	}
 
 	/* We've failed to match a buddy - give up */
 	if (bconv->pb == NULL) {
@@ -986,8 +970,7 @@ bonjour_xmpp_conv_match_by_ip(BonjourXMPPConversation *bconv) {
 		async_bonjour_xmpp_close_conversation(bconv);
 	}
 
-	g_slist_free(mbba->matched_buddies);
-	g_free(mbba);
+	g_slist_free(buddies);
 }
 
 static PurpleBuddy *
