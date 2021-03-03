@@ -92,6 +92,11 @@ compiler = meson.get_compiler('c')
 # Check for Sun compiler
 SUNCC = compiler.compiles('void main() {__SUNPRO_C;};')
 
+# Make sure we have xgettext
+if get_option('nls')
+	find_program('xgettext')
+endif
+
 # Check for Win32
 if host_machine.system() == 'windows'
 	windows = import('windows')
