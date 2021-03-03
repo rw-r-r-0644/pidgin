@@ -5393,6 +5393,7 @@ plugin_query(GError **error)
 static gboolean
 plugin_load(PurplePlugin *plugin, GError **error)
 {
+  PurpleProtocolManager *manager = purple_protocol_manager_get_default();
   GLogLevelFlags logflags =
     G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION;
 
@@ -5400,9 +5401,12 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
   mw_xfer_register_type(G_TYPE_MODULE(plugin));
 
-  my_protocol = purple_protocols_add(MW_TYPE_PROTOCOL, error);
-  if (!my_protocol)
+  my_protocol = g_object_new(MW_TYPE_PROTOCOL, NULL);
+  if(!purple_protocol_manager_register(manager, my_protocol, error)) {
+    g_clear_object(&my_protocol);
+
     return FALSE;
+  }
 
   /* forward all our g_log messages to purple. Generally all the logging
      calls are using purple_log directly, but the g_return macros will
@@ -5423,13 +5427,18 @@ plugin_load(PurplePlugin *plugin, GError **error)
 static gboolean
 plugin_unload(PurplePlugin *plugin, GError **error)
 {
+  PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
+  if(!purple_protocol_manager_unregister(manager, my_protocol, error)) {
+    return FALSE;
+  }
+
   g_mime_shutdown();
 
   g_log_remove_handler(G_LOG_DOMAIN, log_handler[0]);
   g_log_remove_handler("meanwhile", log_handler[1]);
 
-  if (!purple_protocols_remove(my_protocol, error))
-    return FALSE;
+  g_clear_object(&my_protocol);
 
   return TRUE;
 }

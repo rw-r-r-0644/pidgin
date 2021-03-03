@@ -1223,14 +1223,19 @@ plugin_query(GError **error)
 static gboolean
 plugin_load(PurplePlugin *plugin, GError **error)
 {
+  PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
   /* register the NULL_TYPE_PROTOCOL type in the type system. this function
    * is defined by G_DEFINE_DYNAMIC_TYPE_EXTENDED. */
   null_protocol_register_type(G_TYPE_MODULE(plugin));
 
   /* add the protocol to the core */
-  my_protocol = purple_protocols_add(NULL_TYPE_PROTOCOL, error);
-  if (!my_protocol)
+  my_protocol = g_object_new(NULL_TYPE_PROTOCOL, NULL);
+  if(!purple_protocol_manager_register(manager, my_protocol, error)) {
+    g_clear_object(&my_protocol);
+
     return FALSE;
+  }
 
   purple_debug_info("nullprpl", "starting up\n");
 
@@ -1246,11 +1251,16 @@ plugin_load(PurplePlugin *plugin, GError **error)
 static gboolean
 plugin_unload(PurplePlugin *plugin, GError **error)
 {
+  PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
   purple_debug_info("nullprpl", "shutting down\n");
 
   /* remove the protocol from the core */
-  if (!purple_protocols_remove(my_protocol, error))
+  if(!purple_protocol_manager_unregister(manager, my_protocol, error)) {
     return FALSE;
+  }
+
+  g_clear_object(&my_protocol);
 
   return TRUE;
 }

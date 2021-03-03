@@ -4283,6 +4283,8 @@ plugin_query(GError **error)
 static gboolean
 plugin_load(PurplePlugin *plugin, GError **error)
 {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
 	jingle_session_register(plugin);
 
 	jingle_transport_register(plugin);
@@ -4300,9 +4302,12 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	jabber_si_xfer_register(G_TYPE_MODULE(plugin));
 
-	xmpp_protocol = purple_protocols_add(XMPP_TYPE_PROTOCOL, error);
-	if (!xmpp_protocol)
+	xmpp_protocol = g_object_new(XMPP_TYPE_PROTOCOL, NULL);
+	if(!purple_protocol_manager_register(manager, xmpp_protocol, error)) {
+		g_clear_object(&xmpp_protocol);
+
 		return FALSE;
+	}
 
 	purple_signal_connect(purple_get_core(), "uri-handler", xmpp_protocol,
 		PURPLE_CALLBACK(xmpp_uri_handler), xmpp_protocol);
@@ -4315,13 +4320,18 @@ plugin_load(PurplePlugin *plugin, GError **error)
 static gboolean
 plugin_unload(PurplePlugin *plugin, GError **error)
 {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
+	if(!purple_protocol_manager_unregister(manager, xmpp_protocol, error)) {
+		return FALSE;
+	}
+
 	purple_signal_disconnect(purple_get_core(), "uri-handler",
 			xmpp_protocol, PURPLE_CALLBACK(xmpp_uri_handler));
 
 	jabber_uninit_protocol(xmpp_protocol);
 
-	if (!purple_protocols_remove(xmpp_protocol, error))
-		return FALSE;
+	g_clear_object(&xmpp_protocol);
 
 	return TRUE;
 }
