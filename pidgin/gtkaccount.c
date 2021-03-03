@@ -2146,7 +2146,7 @@ set_account(GtkListStore *store, GtkTreeIter *iter, PurpleAccount *account, GdkP
 	if ((pixbuf != NULL) && purple_account_is_disconnected(account))
 		gdk_pixbuf_saturate_and_pixelate(pixbuf, pixbuf, 0.0, FALSE);
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 	if (protocol != NULL)
 		icon_spec = purple_protocol_get_icon_spec(protocol);
 
@@ -2599,11 +2599,7 @@ authorize_noreason_cb(struct auth_request *ar)
 static void
 authorize_reason_cb(struct auth_request *ar)
 {
-	const char *protocol_id;
-	PurpleProtocol *protocol = NULL;
-
-	protocol_id = purple_account_get_protocol_id(ar->account);
-	protocol = purple_protocols_find(protocol_id);
+	PurpleProtocol *protocol = purple_account_get_protocol(ar->account);
 
 	if (protocol && (purple_protocol_get_options(protocol) & OPT_PROTO_AUTHORIZATION_GRANTED_MESSAGE)) {
 		/* Duplicate information because ar is freed by closing minidialog */
@@ -2642,11 +2638,7 @@ deny_noreason_cb(struct auth_request *ar)
 static void
 deny_reason_cb(struct auth_request *ar)
 {
-	const char *protocol_id;
-	PurpleProtocol *protocol = NULL;
-
-	protocol_id = purple_account_get_protocol_id(ar->account);
-	protocol = purple_protocols_find(protocol_id);
+	PurpleProtocol *protocol = purple_account_get_protocol(ar->account);
 
 	if (protocol && (purple_protocol_get_options(protocol) & OPT_PROTO_AUTHORIZATION_DENIED_MESSAGE)) {
 		/* Duplicate information because ar is freed by closing minidialog */

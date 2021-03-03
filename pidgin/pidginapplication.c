@@ -391,12 +391,10 @@ static void
 pidgin_application_signed_on_cb(PurpleAccount *account, gpointer data) {
 	PidginApplication *application = PIDGIN_APPLICATION(data);
 	PurpleProtocol *protocol = NULL;
-	const gchar *protocol_id = NULL;
 	gboolean should_enable_chat = FALSE, should_enable_room_list = FALSE;
 	gint n_actions = 0;
 
-	protocol_id = purple_account_get_protocol_id(account);
-	protocol = purple_protocols_find(protocol_id);
+	protocol = purple_account_get_protocol(account);
 
 	/* We assume that the current state is correct, so we don't bother changing
 	 * state unless the newly connected account implements the chat interface,

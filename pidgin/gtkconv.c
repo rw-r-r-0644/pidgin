@@ -2496,8 +2496,7 @@ populate_menu_with_options(GtkWidget *menu, PidginConversation *gtkconv, gboolea
 		if ((chat == NULL) && (gtkconv->history != NULL)) {
 			GHashTable *components;
 			PurpleAccount *account = purple_conversation_get_account(conv);
-			PurpleProtocol *protocol =
-					purple_protocols_find(purple_account_get_protocol_id(account));
+			PurpleProtocol *protocol = purple_account_get_protocol(account);
 			if (purple_account_get_connection(account) != NULL &&
 					PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info_defaults)) {
 				components = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), purple_account_get_connection(account),
