@@ -75,7 +75,7 @@ static GList *adium_logger_list(PurpleLogType type, const char *sn, PurpleAccoun
 	if (!logdir || !*logdir)
 		return NULL;
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 	if (!protocol)
 		return NULL;
 
@@ -1086,7 +1086,7 @@ static GList *trillian_logger_list(PurpleLogType type, const char *sn, PurpleAcc
 	if (!logdir || !*logdir)
 		return NULL;
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 	if (!protocol)
 		return NULL;
 
@@ -1649,7 +1649,7 @@ static GList *qip_logger_list(PurpleLogType type, const char *sn, PurpleAccount 
 	if (!logdir || !*logdir)
 		return NULL;
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 	if (!protocol)
 		return NULL;
 

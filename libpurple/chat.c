@@ -83,7 +83,7 @@ const char *purple_chat_get_name_only(PurpleChat *chat)
 
 	priv = purple_chat_get_instance_private(chat);
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(priv->account));
+	protocol = purple_account_get_protocol(priv->account);
 
 	if (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info)) {
 		PurpleProtocolChatEntry *pce;

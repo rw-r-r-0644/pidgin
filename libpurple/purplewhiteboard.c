@@ -498,7 +498,7 @@ purple_whiteboard_new(PurpleAccount *account, const gchar *who, gint state) {
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(who != NULL, NULL);
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
 

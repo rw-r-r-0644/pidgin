@@ -45,7 +45,7 @@ idleable_filter(PurpleAccount *account)
 {
 	PurpleProtocol *protocol;
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 	g_return_val_if_fail(protocol != NULL, FALSE);
 
 	return PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, set_idle);

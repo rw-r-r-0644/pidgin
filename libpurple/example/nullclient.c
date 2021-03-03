@@ -170,6 +170,7 @@ int main(int argc, char *argv[])
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 	PurpleAccount *account;
 	PurpleSavedStatus *status;
+	PurpleProtocolManager *protocol_manager = NULL;
 	char *res;
 
 #ifndef _WIN32
@@ -185,7 +186,8 @@ int main(int argc, char *argv[])
 
 	printf("libpurple initialized.\n");
 
-	list = purple_protocols_get_all();
+	protocol_manager = purple_protocol_manager_get_default();
+	list = purple_protocol_manager_get_all(protocol_manager);
 	for (i = 0, iter = list; iter; iter = iter->next) {
 		PurpleProtocol *protocol = iter->data;
 		if (protocol && purple_protocol_get_name(protocol)) {
