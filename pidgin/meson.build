@@ -295,6 +295,7 @@ if ENABLE_GTK
 		configure_file(
 		    input : 'data/im.pidgin.Pidgin3.appdata.xml.in',
 		    output : 'im.pidgin.Pidgin3.appdata.xml',
+		    configuration : configuration_data(),
 		    install : true,
 		    install_dir : get_option('datadir') / 'metainfo')
 	endif  # INSTALL_I18N
