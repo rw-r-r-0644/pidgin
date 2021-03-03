@@ -520,6 +520,7 @@ edit_account_continue(GObject *obj, GAsyncResult *res, gpointer data)
 	GList *list, *iter;
 	AccountEditDialog *dialog;
 	PurpleProtocol *protocol;
+	PurpleProtocolManager *protocol_manager = NULL;
 	gchar *password = NULL;
 
 	password = purple_credential_manager_read_password_finish(manager, res,
@@ -536,7 +537,8 @@ edit_account_continue(GObject *obj, GAsyncResult *res, gpointer data)
 		}
 	}
 
-	list = purple_protocols_get_all();
+	protocol_manager = purple_protocol_manager_get_default();
+	list = purple_protocol_manager_get_all(protocol_manager);
 	if (list == NULL) {
 		purple_notify_error(NULL, _("Error"),
 			_("There are no protocols installed."),
@@ -568,7 +570,7 @@ edit_account_continue(GObject *obj, GAsyncResult *res, gpointer data)
 				purple_protocol_get_name(PURPLE_PROTOCOL(iter->data)));
 	}
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 
 	if (account && protocol)
 		gnt_combo_box_set_selected(GNT_COMBO_BOX(combo), protocol);
