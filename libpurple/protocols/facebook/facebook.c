@@ -1689,10 +1689,14 @@ plugin_query(GError **error)
 static gboolean
 plugin_load(PurplePlugin *plugin, GError **error)
 {
-	facebook_protocol_register_type(G_TYPE_MODULE(plugin));
-	fb_protocol = purple_protocols_add(FACEBOOK_TYPE_PROTOCOL, error);
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
-	if (fb_protocol == NULL) {
+	facebook_protocol_register_type(G_TYPE_MODULE(plugin));
+	fb_protocol = g_object_new(FACEBOOK_TYPE_PROTOCOL, NULL);
+
+	if(!purple_protocol_manager_register(manager, fb_protocol, error)) {
+		g_clear_object(&fb_protocol);
+
 		return FALSE;
 	}
 
@@ -1703,8 +1707,17 @@ plugin_load(PurplePlugin *plugin, GError **error)
 static gboolean
 plugin_unload(PurplePlugin *plugin, GError **error)
 {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
+	if(!purple_protocol_manager_unregister(manager, fb_protocol, error)) {
+		return FALSE;
+	}
+
 	fb_cmds_unregister();
-	return purple_protocols_remove(fb_protocol, error);
+
+	g_clear_object(&fb_protocol);
+
+	return TRUE;
 }
 
 PURPLE_PLUGIN_INIT(facebook, plugin_query, plugin_load, plugin_unload);

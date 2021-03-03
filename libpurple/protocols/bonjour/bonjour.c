@@ -755,13 +755,18 @@ plugin_query(GError **error)
 static gboolean
 plugin_load(PurplePlugin *plugin, GError **error)
 {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
 	bonjour_protocol_register_type(G_TYPE_MODULE(plugin));
 
 	xep_xfer_register(G_TYPE_MODULE(plugin));
 
-	my_protocol = purple_protocols_add(BONJOUR_TYPE_PROTOCOL, error);
-	if (!my_protocol)
+	my_protocol = g_object_new(BONJOUR_TYPE_PROTOCOL, NULL);
+	if(!purple_protocol_manager_register(manager, my_protocol, error)) {
+		g_clear_object(&my_protocol);
+
 		return FALSE;
+	}
 
 	initialize_default_account_values();
 
@@ -771,8 +776,13 @@ plugin_load(PurplePlugin *plugin, GError **error)
 static gboolean
 plugin_unload(PurplePlugin *plugin, GError **error)
 {
-	if (!purple_protocols_remove(my_protocol, error))
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
+	if(!purple_protocol_manager_unregister(manager, my_protocol, error)) {
 		return FALSE;
+	}
+
+	g_clear_object(&my_protocol);
 
 	g_free(default_firstname);
 	g_free(default_lastname);

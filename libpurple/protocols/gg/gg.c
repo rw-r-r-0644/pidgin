@@ -1218,13 +1218,18 @@ plugin_query(GError **error)
 static gboolean
 plugin_load(PurplePlugin *plugin, GError **error)
 {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
 	ggp_protocol_register_type(G_TYPE_MODULE(plugin));
 
 	ggp_xfer_register(G_TYPE_MODULE(plugin));
 
-	my_protocol = purple_protocols_add(GGP_TYPE_PROTOCOL, error);
-	if (!my_protocol)
+	my_protocol = g_object_new(GGP_TYPE_PROTOCOL, NULL);
+	if(!purple_protocol_manager_register(manager, my_protocol, error)) {
+		g_clear_object(&my_protocol);
+
 		return FALSE;
+	}
 
 	purple_prefs_add_none("/plugins/prpl/gg");
 
@@ -1246,6 +1251,12 @@ plugin_load(PurplePlugin *plugin, GError **error)
 static gboolean
 plugin_unload(PurplePlugin *plugin, GError **error)
 {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
+	if(!purple_protocol_manager_unregister(manager, my_protocol, error)) {
+		return FALSE;
+	}
+
 	purple_signal_disconnect(purple_get_core(), "uri-handler", plugin,
 			PURPLE_CALLBACK(gg_uri_handler));
 
@@ -1254,8 +1265,7 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	ggp_message_cleanup_global();
 	ggp_libgaduw_cleanup();
 
-	if (!purple_protocols_remove(my_protocol, error))
-		return FALSE;
+	g_clear_object(&my_protocol);
 
 	return TRUE;
 }

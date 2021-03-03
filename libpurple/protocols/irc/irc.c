@@ -1128,13 +1128,18 @@ plugin_query(GError **error)
 static gboolean
 plugin_load(PurplePlugin *plugin, GError **error)
 {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
 	irc_protocol_register_type(G_TYPE_MODULE(plugin));
 
 	irc_xfer_register(G_TYPE_MODULE(plugin));
 
-	_irc_protocol = purple_protocols_add(IRC_TYPE_PROTOCOL, error);
-	if (!_irc_protocol)
+	_irc_protocol = g_object_new(IRC_TYPE_PROTOCOL, NULL);
+	if(!purple_protocol_manager_register(manager, _irc_protocol, error)) {
+		g_clear_object(&_irc_protocol);
+
 		return FALSE;
+	}
 
 	purple_prefs_remove("/plugins/prpl/irc/quitmsg");
 	purple_prefs_remove("/plugins/prpl/irc");
@@ -1159,13 +1164,18 @@ plugin_load(PurplePlugin *plugin, GError **error)
 static gboolean
 plugin_unload(PurplePlugin *plugin, GError **error)
 {
+	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
+
+	if(!purple_protocol_manager_unregister(manager, _irc_protocol, error)) {
+		return FALSE;
+	}
+
 	irc_unregister_commands();
 
 	purple_signal_disconnect(purple_get_core(), "uri-handler", plugin,
 			PURPLE_CALLBACK(irc_uri_handler));
 
-	if (!purple_protocols_remove(_irc_protocol, error))
-		return FALSE;
+	g_clear_object(&_irc_protocol);
 
 	return TRUE;
 }
