@@ -366,57 +366,6 @@ gboolean purple_protocol_initiate_media(PurpleAccount *account,
  */
 void purple_protocol_got_media_caps(PurpleAccount *account, const char *who);
 
-/**************************************************************************/
-/* Protocols API                                                          */
-/**************************************************************************/
-
-/**
- * purple_protocols_find:
- * @id: The protocol's ID.
- *
- * Finds a protocol by ID.
- *
- * Returns: (transfer none): The protocol, if found, or %NULL otherwise.
- */
-PurpleProtocol *purple_protocols_find(const char *id);
-
-/**
- * purple_protocols_add:
- * @protocol_type:  The type of the protocol to add.
- * @error:  Return location for a #GError or %NULL. If provided, this
- *          will be set to the reason if adding fails.
- *
- * Adds a protocol to the list of protocols.
- *
- * Returns: (transfer none): The protocol instance if the protocol was added,
- *          else %NULL.
- */
-PurpleProtocol *purple_protocols_add(GType protocol_type, GError **error);
-
-/**
- * purple_protocols_remove:
- * @protocol:  The protocol to remove.
- * @error:  Return location for a #GError or %NULL. If provided, this
- *          will be set to the reason if removing fails.
- *
- * Removes a protocol from the list of protocols. This will disconnect all
- * connected accounts using this protocol, and free the protocol's user splits
- * and protocol options.
- *
- * Returns: TRUE if the protocol was removed, else FALSE.
- */
-gboolean purple_protocols_remove(PurpleProtocol *protocol, GError **error);
-
-/**
- * purple_protocols_get_all:
- *
- * Returns a list of all loaded protocols.
- *
- * Returns: (element-type PurpleProtocol) (transfer container): A list of all
- *          loaded protocols.
- */
-GList *purple_protocols_get_all(void);
-
 G_END_DECLS
 
 #endif /* PURPLE_PROTOCOLS_H */
