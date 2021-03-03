@@ -375,7 +375,7 @@ static void gtk_blist_join_chat(PurpleChat *chat)
 	char *chat_name = NULL;
 
 	account = purple_chat_get_account(chat);
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 
 	components = purple_chat_get_components(chat);
 
@@ -732,7 +732,7 @@ static void gtk_blist_menu_showlog_cb(GtkWidget *w, PurpleBlistNode *node)
 		PurpleProtocol *protocol = NULL;
 		type = PURPLE_LOG_CHAT;
 		account = purple_chat_get_account(c);
-		protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+		protocol = purple_account_get_protocol(account);
 		if (protocol) {
 			name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol),
 			                                     purple_chat_get_components(c));
@@ -898,8 +898,7 @@ set_sensitive_if_input_buddy_cb(GtkWidget *entry, gpointer user_data)
 	PidginAddBuddyData *data = user_data;
 	const char *text;
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(
-		data->rq_data.account));
+	protocol = purple_account_get_protocol(data->rq_data.account);
 	text = gtk_entry_get_text(GTK_ENTRY(entry));
 
 	gtk_dialog_set_response_sensitive(GTK_DIALOG(data->rq_data.window),
@@ -1981,16 +1980,18 @@ gtk_blist_button_press_cb(GtkWidget *tv, GdkEventButton *event, gpointer user_da
 	/* Double middle click gets info */
 	} else if ((event->button == GDK_BUTTON_MIDDLE) && (event->type == GDK_2BUTTON_PRESS) &&
 			   ((PURPLE_IS_CONTACT(node)) || (PURPLE_IS_BUDDY(node)))) {
+		PurpleAccount *account;
 		PurpleBuddy *b;
 		if(PURPLE_IS_CONTACT(node))
 			b = purple_contact_get_priority_buddy((PurpleContact*)node);
 		else
 			b = (PurpleBuddy *)node;
 
-		protocol = purple_protocols_find(purple_account_get_protocol_id(purple_buddy_get_account(b)));
+		account = purple_buddy_get_account(b);
+		protocol = purple_account_get_protocol(account);
 
 		if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, get_info))
-			pidgin_retrieve_user_info(purple_account_get_connection(purple_buddy_get_account(b)), purple_buddy_get_name(b));
+			pidgin_retrieve_user_info(purple_account_get_connection(account), purple_buddy_get_name(b));
 		handled = TRUE;
 	}
 
@@ -3261,6 +3262,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 
 	if (PURPLE_IS_CHAT(node))
 	{
+		PurpleAccount *account;
 		PurpleChat *chat;
 		GList *connections;
 		GList *cur = NULL;
@@ -3270,12 +3272,13 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 		PidginBlistNode *bnode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 		chat = (PurpleChat *)node;
-		protocol = purple_protocols_find(purple_account_get_protocol_id(purple_chat_get_account(chat)));
+		account = purple_chat_get_account(chat);
+		protocol = purple_account_get_protocol(account);
 
 		connections = purple_connections_get_all();
 		if (connections && connections->next)
 		{
-			tmp = g_markup_escape_text(purple_account_get_username(purple_chat_get_account(chat)), -1);
+			tmp = g_markup_escape_text(purple_account_get_username(account), -1);
 			g_string_append_printf(str, _("<b>Account:</b> %s"), tmp);
 			g_free(tmp);
 		}
@@ -3292,7 +3295,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 			}
 
 			conv = purple_conversations_find_chat_with_account(chat_name,
-					purple_chat_get_account(chat));
+			                                                   account);
 			g_free(chat_name);
 		}
 
@@ -3310,7 +3313,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 
 		if(protocol) {
 			cur = purple_protocol_chat_info(PURPLE_PROTOCOL_CHAT(protocol),
-			                                purple_account_get_connection(purple_chat_get_account(chat)));
+			                                purple_account_get_connection(account));
 		}
 
 		while (cur != NULL)
@@ -3340,6 +3343,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 		/* NOTE: THIS FUNCTION IS NO LONGER CALLED FOR CONTACTS.
 		 * It is only called by create_tip_for_node(), and create_tip_for_node() is never called for a contact.
 		 */
+		PurpleAccount *account;
 		PurpleContact *c;
 		PurpleBuddy *b;
 		PurplePresence *presence;
@@ -3360,7 +3364,8 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 			c = purple_buddy_get_contact(b);
 		}
 
-		protocol = purple_protocols_find(purple_account_get_protocol_id(purple_buddy_get_account(b)));
+		account = purple_buddy_get_account(b);
+		protocol = purple_account_get_protocol(account);
 
 		presence = purple_buddy_get_presence(b);
 		user_info = purple_notify_user_info_new();
@@ -3370,7 +3375,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 		if (full && connections && connections->next)
 		{
 			purple_notify_user_info_add_pair_plaintext(user_info, _("Account"),
-					purple_account_get_username(purple_buddy_get_account(b)));
+					purple_account_get_username(account));
 		}
 
 		/* Alias */
@@ -3476,9 +3481,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 			purple_notify_user_info_add_pair_plaintext(user_info, _("Status"), _("Offline"));
 		}
 
-		if (purple_account_is_connected(purple_buddy_get_account(b)) &&
-				protocol)
-		{
+		if (purple_account_is_connected(account) && protocol) {
 			/* Additional text from the protocol */
 			purple_protocol_client_tooltip_text(PURPLE_PROTOCOL_CLIENT(protocol), b, user_info, full);
 		}
@@ -3565,6 +3568,7 @@ static GdkPixbuf * _pidgin_blist_get_cached_emblem(gchar *path) {
 GdkPixbuf *
 pidgin_blist_get_emblem(PurpleBlistNode *node)
 {
+	PurpleAccount *account;
 	PurpleBuddy *buddy = NULL;
 	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	PurpleProtocol *protocol;
@@ -3602,7 +3606,8 @@ pidgin_blist_get_emblem(PurpleBlistNode *node)
 
 	g_return_val_if_fail(buddy != NULL, NULL);
 
-	if (!purple_account_privacy_check(purple_buddy_get_account(buddy), purple_buddy_get_name(buddy))) {
+	account = purple_buddy_get_account(buddy);
+	if (!purple_account_privacy_check(account, purple_buddy_get_name(buddy))) {
 		path = g_build_filename(PURPLE_DATADIR, "pidgin", "icons",
 			"hicolor", "16x16", "emblems", "emblem-blocked.png",
 			NULL);
@@ -3644,7 +3649,7 @@ pidgin_blist_get_emblem(PurpleBlistNode *node)
 		return _pidgin_blist_get_cached_emblem(path);
 	}
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(purple_buddy_get_account(buddy)));
+	protocol = purple_account_get_protocol(account);
 	if (!protocol)
 		return NULL;
 
@@ -3712,7 +3717,7 @@ pidgin_blist_get_status_icon(PurpleBlistNode *node, PidginStatusIconSize size)
 		else
 			account = purple_chat_get_account(chat);
 
-		protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+		protocol = purple_account_get_protocol(account);
 		if(!protocol)
 			return NULL;
 	}
@@ -3824,12 +3829,13 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 
 	/* Name is all that is needed */
 	if (!aliased || biglist) {
+		PurpleAccount *account = purple_buddy_get_account(b);
 
 		/* Status Info */
-		protocol = purple_protocols_find(purple_account_get_protocol_id(purple_buddy_get_account(b)));
+		protocol = purple_account_get_protocol(account);
 
 		if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, CLIENT, status_text) &&
-				purple_account_get_connection(purple_buddy_get_account(b))) {
+				purple_account_get_connection(account)) {
 			char *tmp = purple_protocol_client_status_text(PURPLE_PROTOCOL_CLIENT(protocol), b);
 			const char *end;
 

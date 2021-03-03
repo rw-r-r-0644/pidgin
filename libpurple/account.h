@@ -643,6 +643,19 @@ const char *purple_account_get_buddy_icon_path(PurpleAccount *account);
 const char *purple_account_get_protocol_id(PurpleAccount *account);
 
 /**
+ * purple_account_get_protocol:
+ * @account: The #PurpleAccount instance.
+ *
+ * Gets the #PurpleProtocol instance for @account.
+ *
+ * Returns: (transfer none): The #PurpleProtocol for @account or %NULL if it
+ *          could not be found.
+ *
+ * Since: 3.0.0
+ */
+PurpleProtocol *purple_account_get_protocol(PurpleAccount *account);
+
+/**
  * purple_account_get_protocol_name:
  * @account: The account.
  *

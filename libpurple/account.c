@@ -33,6 +33,7 @@
 #include "purplecredentialmanager.h"
 #include "purpleprivate.h"
 #include "purpleprotocolclient.h"
+#include "purpleprotocolmanager.h"
 #include "purpleprotocolserver.h"
 #include "request.h"
 #include "server.h"
@@ -2055,6 +2056,19 @@ purple_account_get_protocol_id(PurpleAccount *account)
 
 	priv = purple_account_get_instance_private(account);
 	return priv->protocol_id;
+}
+
+PurpleProtocol *
+purple_account_get_protocol(PurpleAccount *account) {
+	PurpleAccountPrivate *priv = NULL;
+	PurpleProtocolManager *manager = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
+
+	priv = purple_account_get_instance_private(account);
+	manager = purple_protocol_manager_get_default();
+
+	return purple_protocol_manager_find(manager, priv->protocol_id);
 }
 
 const char *

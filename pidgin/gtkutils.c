@@ -474,8 +474,7 @@ pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
 				{
 					account = (PurpleAccount *)l->data;
 
-					proto = purple_protocols_find(
-						purple_account_get_protocol_id(account));
+					proto = purple_account_get_protocol(account);
 
 					if (proto == NULL)
 					{
@@ -969,7 +968,7 @@ pidgin_create_protocol_icon(PurpleAccount *account, PidginProtocolIconSize size)
 
 	g_return_val_if_fail(account != NULL, NULL);
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 	if (protocol == NULL)
 		return NULL;
 	return pidgin_create_icon_from_protocol(protocol, size, account);
