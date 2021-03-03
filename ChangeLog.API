@@ -45,12 +45,6 @@ version 3.0.0 (??/??/????):
 		* purple_protocol_factory_iface_* for factory interface methods
 		* purple_protocol_action_new
 		* purple_protocol_action_free
-		* purple_protocols_add
-		* purple_protocols_remove
-		* purple_protocols_find
-		* purple_protocols_get_all
-		* purple_protocols_init
-		* purple_protocols_uninit
 		* purple_request_certificate
 		* purple_request_field_certificate_new
 		* purple_request_field_certificate_get_value
