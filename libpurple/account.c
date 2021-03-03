@@ -313,7 +313,7 @@ purple_account_connect_got_password_cb(GObject *obj, GAsyncResult *res,
 	password = purple_credential_manager_read_password_finish(manager, res,
 	                                                          NULL);
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 
 	if((password == NULL || *password == '\0') &&
 		!(purple_protocol_get_options(protocol) & OPT_PROTO_NO_PASSWORD) &&
@@ -993,6 +993,7 @@ purple_account_constructed(GObject *object)
 	PurpleAccountPrivate *priv = purple_account_get_instance_private(account);
 	gchar *username, *protocol_id;
 	PurpleProtocol *protocol = NULL;
+	PurpleProtocolManager *manager = NULL;
 	PurpleStatusType *status_type;
 
 	G_OBJECT_CLASS(purple_account_parent_class)->constructed(object);
@@ -1005,7 +1006,8 @@ purple_account_constructed(GObject *object)
 	purple_signal_emit(purple_accounts_get_handle(), "account-created",
 			account);
 
-	protocol = purple_protocols_find(protocol_id);
+	manager = purple_protocol_manager_get_default();
+	protocol = purple_protocol_manager_find(manager, protocol_id);
 	if (protocol == NULL) {
 		g_free(username);
 		g_free(protocol_id);
@@ -1193,7 +1195,7 @@ purple_account_connect(PurpleAccount *account)
 		return;
 	}
 
-	protocol = purple_protocols_find(purple_account_get_protocol_id(account));
+	protocol = purple_account_get_protocol(account);
 	if (protocol == NULL) {
 		gchar *message;
 
@@ -2078,7 +2080,7 @@ purple_account_get_protocol_name(PurpleAccount *account)
 
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 
-	p = purple_protocols_find(purple_account_get_protocol_id(account));
+	p = purple_account_get_protocol(account);
 
 	return (p && purple_protocol_get_name(p) ?
 	        _(purple_protocol_get_name(p)) : _("Unknown"));

@@ -174,7 +174,7 @@ purple_buddy_finalize(GObject *object) {
 	 * Tell the owner protocol that we're about to free the buddy so it
 	 * can free proto_data
 	 */
-	protocol = purple_protocols_find(purple_account_get_protocol_id(priv->account));
+	protocol = purple_account_get_protocol(priv->account);
 	if(protocol) {
 		purple_protocol_client_buddy_free(PURPLE_PROTOCOL_CLIENT(protocol),
 		                                  buddy);

@@ -838,8 +838,7 @@ purple_normalize(PurpleAccount *account, const char *str)
 
 	if (account != NULL)
 	{
-		PurpleProtocol *protocol =
-				purple_protocols_find(purple_account_get_protocol_id(account));
+		PurpleProtocol *protocol = purple_account_get_protocol(account);
 
 		if(PURPLE_IS_PROTOCOL_CLIENT(protocol)) {
 			ret = purple_protocol_client_normalize(PURPLE_PROTOCOL_CLIENT(protocol), account, str);
