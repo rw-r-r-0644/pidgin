@@ -63,8 +63,8 @@ struct _zephyr_account {
 	GSList *subscrips;
 	int last_id;
 	unsigned short port;
-	char ourhost[HOST_NAME_MAX + 1];
-	char ourhostcanon[HOST_NAME_MAX + 1];
+	gchar *ourhost;
+	gchar *ourhostcanon;
 	zephyr_connection_type connection_type;
 	char *exposure;
 	GSubprocess *tzc_proc;

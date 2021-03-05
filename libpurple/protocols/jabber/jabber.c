@@ -164,9 +164,11 @@ static void jabber_bind_result_cb(JabberStream *js, const char *from,
 	jabber_session_init(js);
 }
 
-static char *jabber_prep_resource(char *input) {
-	char hostname[256], /* current hostname */
-		 *dot = NULL;
+static char *
+jabber_prep_resource(char *input)
+{
+	const gchar *hostname = NULL, *dot = NULL;
+	gchar *result = NULL;
 
 	/* Empty resource == don't send any */
 	if (input == NULL || *input == '\0')
@@ -176,25 +178,20 @@ static char *jabber_prep_resource(char *input) {
 		return g_strdup(input);
 
 	/* Replace __HOSTNAME__ with hostname */
-	if (gethostname(hostname, sizeof(hostname) - 1)) {
-		purple_debug_warning("jabber", "gethostname: %s\n", g_strerror(errno));
-		/* according to glibc doc, the only time an error is returned
-		   is if the hostname is longer than the buffer, in which case
-		   glibc 2.2+ would still fill the buffer with partial
-		   hostname, so maybe we want to detect that and use it
-		   instead
-		*/
-		g_strlcpy(hostname, "localhost", sizeof(hostname));
-	}
-	hostname[sizeof(hostname) - 1] = '\0';
+	hostname = g_get_host_name();
 
 	/* We want only the short hostname, not the FQDN - this will prevent the
 	 * resource string from being unreasonably long on systems which stuff the
 	 * whole FQDN in the hostname */
-	if((dot = strchr(hostname, '.')))
-		*dot = '\0';
+	if ((dot = strchr(hostname, '.')) != NULL) {
+		gchar *short_hostname = g_strndup(hostname, dot - hostname);
+		result = purple_strreplace(input, "__HOSTNAME__", short_hostname);
+		g_free(short_hostname);
+	} else {
+		result = purple_strreplace(input, "__HOSTNAME__", hostname);
+	}
 
-	return purple_strreplace(input, "__HOSTNAME__", hostname);
+	return result;
 }
 
 static gboolean
