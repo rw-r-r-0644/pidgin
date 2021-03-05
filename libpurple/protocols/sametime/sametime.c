@@ -1749,7 +1749,7 @@ connect_cb(GObject *source_object, GAsyncResult *result, gpointer data)
   }
 
   pd->stream = G_IO_STREAM(sockconn);
-  pd->input = g_io_stream_get_input_stream(pd->stream);
+  pd->input = g_object_ref(g_io_stream_get_input_stream(pd->stream));
   pd->output = purple_queued_output_stream_new(
           g_io_stream_get_output_stream(pd->stream));
   source = g_pollable_input_stream_create_source(
@@ -3095,7 +3095,7 @@ static void mwPurpleProtocolData_free(struct mwPurpleProtocolData *pd) {
 
   g_clear_object(&pd->cancellable);
   g_hash_table_destroy(pd->group_list_map);
-  pd->input = NULL;
+  g_clear_object(&pd->input);
   g_clear_object(&pd->output);
   g_clear_object(&pd->stream);
 

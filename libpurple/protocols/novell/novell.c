@@ -1727,7 +1727,7 @@ novell_login_callback(GObject *source_object, GAsyncResult *res, gpointer data)
 	conn->stream = G_IO_STREAM(sockconn);
 	conn->input =
 	        g_data_input_stream_new(g_io_stream_get_input_stream(conn->stream));
-	conn->output = g_io_stream_get_output_stream(conn->stream);
+	conn->output = g_object_ref(g_io_stream_get_output_stream(conn->stream));
 
 	g_data_input_stream_set_byte_order(conn->input,
 	                                   G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN);
