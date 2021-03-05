@@ -1709,18 +1709,18 @@ void
 pidgin_account_dialog_show(PidginAccountDialogType type, PurpleAccount *account)
 {
 	PurpleCredentialManager *manager = NULL;
-	PidginAccountDialogShowData *data = NULL;
-
-	/* this is kind of dangerous, but it's no worse than the old version.
-	 * Regardless this dialog needs a lot of TLC.
-	 */
-	data = g_new0(PidginAccountDialogShowData, 1);
-	data->account = account;
-	data->type = type;
 
 	manager = purple_credential_manager_get_default();
 
 	if(PURPLE_IS_ACCOUNT(account)) {
+		/* this is kind of dangerous, but it's no worse than the old version.
+		 * Regardless this dialog needs a lot of TLC.
+		 */
+		PidginAccountDialogShowData *data = NULL;
+		data = g_new0(PidginAccountDialogShowData, 1);
+		data->account = account;
+		data->type = type;
+
 		purple_credential_manager_read_password_async(manager, account, NULL,
 		                                              pidgin_account_dialog_read_password_cb,
 		                                              data);
