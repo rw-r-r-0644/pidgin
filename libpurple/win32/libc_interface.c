@@ -108,13 +108,3 @@ struct hostent* wpurple_gethostbyname(const char *name) {
 	}
 	return hp;
 }
-
-/* unistd.h */
-
-int wpurple_gethostname(char *name, size_t size) {
-        if(gethostname(name, size) == SOCKET_ERROR) {
-                errno = WSAGetLastError();
-			return -1;
-        }
-        return 0;
-}

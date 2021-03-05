@@ -79,10 +79,7 @@ Z_SendLocation(char *class, char *opcode, Z_AuthProc auth, char *format)
      */
 
     if (!reenter) {
-	    if (gethostname(host, MAXHOSTNAMELEN) < 0)
-		    return (errno);
-
-	    hent = gethostbyname(host);
+	    hent = gethostbyname(g_get_host_name());
 	    if (hent) {
 	      (void) strncpy(host, hent->h_name, sizeof(host));
 	      host[sizeof(host) - 1] = '\0';

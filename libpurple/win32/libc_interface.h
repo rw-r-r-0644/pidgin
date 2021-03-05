@@ -57,9 +57,6 @@ wpurple_fcntl( fd, command, ##__VA_ARGS__ )
 #define gethostbyname( name ) \
 wpurple_gethostbyname( name )
 
-#define gethostname( name, size ) \
-wpurple_gethostname( name, size )
-
 /* stdio.h */
 #if !defined(__MINGW64_VERSION_MAJOR) || __MINGW64_VERSION_MAJOR < 3 || \
 	!defined(IS_WIN32_CROSS_COMPILED)

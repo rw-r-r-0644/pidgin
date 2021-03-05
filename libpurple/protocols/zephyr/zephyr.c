@@ -487,20 +487,18 @@ static void zephyr_inithosts(zephyr_account *zephyr)
 	/* XXX This code may not be Win32 clean */
 	struct hostent *hent;
 
-	if (gethostname(zephyr->ourhost, sizeof(zephyr->ourhost)) == -1) {
-		purple_debug_error("zephyr", "unable to retrieve hostname, %%host%% and %%canon%% will be wrong in subscriptions and have been set to unknown\n");
-		g_strlcpy(zephyr->ourhost, "unknown", sizeof(zephyr->ourhost));
-		g_strlcpy(zephyr->ourhostcanon, "unknown", sizeof(zephyr->ourhostcanon));
-		return;
-	}
-
+	zephyr->ourhost = g_strdup(g_get_host_name());
 	if (!(hent = gethostbyname(zephyr->ourhost))) {
-		purple_debug_error("zephyr", "unable to resolve hostname, %%canon%% will be wrong in subscriptions.and has been set to the value of %%host%%, %s\n",zephyr->ourhost);
-		g_strlcpy(zephyr->ourhostcanon, zephyr->ourhost, sizeof(zephyr->ourhostcanon));
+		purple_debug_error("zephyr",
+		                   "unable to resolve hostname, %%canon%% will be "
+		                   "wrong in subscriptions and has been set to the "
+		                   "value of %%host%%, %s",
+		                   zephyr->ourhost);
+		zephyr->ourhostcanon = g_strdup(zephyr->ourhost);
 		return;
 	}
 
-	g_strlcpy(zephyr->ourhostcanon, hent->h_name, sizeof(zephyr->ourhostcanon));
+	zephyr->ourhostcanon = g_strdup(hent->h_name);
 }
 
 static void process_zsubs(zephyr_account *zephyr)
@@ -860,6 +858,9 @@ static void zephyr_close(PurpleConnection * gc)
 		g_source_remove(zephyr->loctimer);
 	zephyr->loctimer = 0;
 	zephyr->close(zephyr);
+
+	g_clear_pointer(&zephyr->ourhost, g_free);
+	g_clear_pointer(&zephyr->ourhostcanon, g_free);
 }
 
 static gboolean

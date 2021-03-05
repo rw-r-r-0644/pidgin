@@ -38,9 +38,6 @@ int wpurple_fcntl(int socket, int command, ...);
 #define F_SETFL 4
 #define O_NONBLOCK 04000
 
-/* unistd.h */
-int wpurple_gethostname(char *name, size_t size);
-
 G_END_DECLS
 
 #endif /* PURPLE_WIN32_LIBC_INTERNAL */
