@@ -721,7 +721,7 @@ jabber_stream_connect_finish(JabberStream *js, GIOStream *stream)
 	GSource *source;
 
 	js->stream = stream;
-	js->input = g_io_stream_get_input_stream(js->stream);
+	js->input = g_object_ref(g_io_stream_get_input_stream(js->stream));
 	js->output = purple_queued_output_stream_new(
 	        g_io_stream_get_output_stream(js->stream));
 

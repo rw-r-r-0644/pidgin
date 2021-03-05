@@ -569,8 +569,8 @@ bonjour_xmpp_send_stream_init(BonjourXMPPConversation *bconv,
 		                          G_INPUT_STREAM(bconv->input),
 		                          G_OUTPUT_STREAM(bconv->output));
 		g_clear_object(&bconv->socket);
-		bconv->input = NULL;
-		bconv->output = NULL;
+		g_clear_object(&bconv->input);
+		g_clear_object(&bconv->output);
 		g_free(stream_start);
 
 		return FALSE;
@@ -633,8 +633,8 @@ bonjour_xmpp_stream_started(BonjourXMPPConversation *bconv)
 		                          G_INPUT_STREAM(bconv->input),
 		                          G_OUTPUT_STREAM(bconv->output));
 		g_clear_object(&bconv->socket);
-		bconv->input = NULL;
-		bconv->output = NULL;
+		g_clear_object(&bconv->input);
+		g_clear_object(&bconv->output);
 
 		/* This must be asynchronous because it destroys the parser and we
 		 * may be in the middle of parsing.
@@ -716,9 +716,10 @@ _server_socket_handler(GSocketService *service, GSocketConnection *connection,
 
 	/* We wait for the stream start before doing anything else */
 	bconv->socket = g_object_ref(connection);
-	bconv->input = g_io_stream_get_input_stream(G_IO_STREAM(bconv->socket));
-	bconv->output =
-	        g_io_stream_get_output_stream(G_IO_STREAM(bconv->socket));
+	bconv->input = g_object_ref(
+	        g_io_stream_get_input_stream(G_IO_STREAM(bconv->socket)));
+	bconv->output = g_object_ref(
+	        g_io_stream_get_output_stream(G_IO_STREAM(bconv->socket)));
 	source = g_pollable_input_stream_create_source(
 	        G_POLLABLE_INPUT_STREAM(bconv->input), bconv->cancellable);
 	g_source_set_callback(source, (GSourceFunc)_client_socket_handler,
@@ -845,9 +846,9 @@ _connected_to_buddy(GObject *source, GAsyncResult *res, gpointer user_data)
 
 	bb->conversation->socket = conn;
 	bb->conversation->input =
-	        g_io_stream_get_input_stream(G_IO_STREAM(conn));
+	        g_object_ref(g_io_stream_get_input_stream(G_IO_STREAM(conn)));
 	bb->conversation->output =
-	        g_io_stream_get_output_stream(G_IO_STREAM(conn));
+	        g_object_ref(g_io_stream_get_output_stream(G_IO_STREAM(conn)));
 
 	if (!bonjour_xmpp_send_stream_init(bb->conversation, &error)) {
 		PurpleConversation *conv = NULL;
@@ -1168,8 +1169,8 @@ bonjour_xmpp_close_conversation(BonjourXMPPConversation *bconv)
 
 	/* Free all the data related to the conversation */
 	g_clear_object(&bconv->socket);
-	bconv->input = NULL;
-	bconv->output = NULL;
+	g_clear_object(&bconv->input);
+	g_clear_object(&bconv->output);
 
 	g_object_unref(G_OBJECT(bconv->tx_buf));
 	if (bconv->stream_data != NULL) {
