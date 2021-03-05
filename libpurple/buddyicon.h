@@ -25,6 +25,10 @@
 
 #ifndef PURPLE_BUDDYICON_H
 #define PURPLE_BUDDYICON_H
+
+#include <glib.h>
+#include <gio/gio.h>
+
 /**
  * SECTION:buddyicon
  * @section_id: libpurple-buddyicon
@@ -169,6 +173,20 @@ purple_buddy_icon_set_data(PurpleBuddyIcon *icon, guchar *data,
                            size_t len, const char *checksum);
 
 /**
+ * purple_buddy_icon_save_to_filename:
+ * @icon: The #PurpleBuddyIcon instance.
+ * @filename: The filename to write.
+ * @error: (optional): A return address for a #GError.
+ *
+ * Writes the contents of @icon to @filename.
+ *
+ * Returns: %TRUE on success, or %FALSE on error possibly with @error set.
+ *
+ * Since: 3.0.0
+ */
+gboolean purple_buddy_icon_save_to_filename(PurpleBuddyIcon *icon, const gchar *filename, GError **error);
+
+/**
  * purple_buddy_icon_get_account:
  * @icon: The buddy icon.
  *
@@ -211,6 +229,18 @@ const char *purple_buddy_icon_get_checksum(const PurpleBuddyIcon *icon);
  * Returns: A pointer to the icon data.
  */
 gconstpointer purple_buddy_icon_get_data(const PurpleBuddyIcon *icon, size_t *len);
+
+/**
+ * purple_buddy_icon_get_stream:
+ * @icon: The #PurpleBuddyIcon instance.
+ *
+ * Gets the data of @icon as a #GInputStream.
+ *
+ * Returns: (transfer full): A new #GInputStream.
+ *
+ * Since: 3.0.0
+ */
+GInputStream *purple_buddy_icon_get_stream(PurpleBuddyIcon *icon);
 
 /**
  * purple_buddy_icon_get_extension:

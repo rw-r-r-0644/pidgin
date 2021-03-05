@@ -49,6 +49,7 @@
 #include "gtkprefs.h"
 #include "gtkprivacy.h"
 #include "gtkutils.h"
+#include "pidginavatar.h"
 #include "pidginclosebutton.h"
 #include "pidginconversationwindow.h"
 #include "pidgincore.h"
@@ -3886,6 +3887,10 @@ setup_common_pane(PidginConversation *gtkconv)
 	gtk_event_box_set_visible_window(GTK_EVENT_BOX(event_box), FALSE);
 	gtk_widget_show(event_box);
 	gtkconv->infopane_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+
+	GtkWidget *avatar = pidgin_avatar_new();
+	gtk_box_pack_end(GTK_BOX(gtkconv->infopane_hbox), avatar, FALSE, FALSE, 0);
+
 	gtk_box_pack_start(GTK_BOX(vbox), event_box, FALSE, FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(event_box), gtkconv->infopane_hbox);
 	gtk_widget_show(gtkconv->infopane_hbox);
@@ -3929,6 +3934,10 @@ setup_common_pane(PidginConversation *gtkconv)
 			if (contact) {
 				buddyicon_size = purple_blist_node_get_int((PurpleBlistNode*)contact, "pidgin-infopane-iconsize");
 			}
+
+			pidgin_avatar_set_buddy(avatar, buddy);
+		} else {
+			pidgin_avatar_set_conversation(avatar, conv);
 		}
 		buddyicon_size = CLAMP(buddyicon_size, BUDDYICON_SIZE_MIN, BUDDYICON_SIZE_MAX);
 		gtk_widget_set_size_request(gtkconv->u.im->icon_container, -1, buddyicon_size);

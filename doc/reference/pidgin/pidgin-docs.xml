@@ -57,6 +57,7 @@
       <xi:include href="xml/pidginactiongroup.xml" />
       <xi:include href="xml/pidginapplication.xml" />
       <xi:include href="xml/pidginattachment.xml" />
+      <xi:include href="xml/pidginavatar.xml" />
       <xi:include href="xml/pidgincellrendererexpander.xml" />
       <xi:include href="xml/pidginclosebutton.xml" />
       <xi:include href="xml/pidgincontactcompletion.xml" />
