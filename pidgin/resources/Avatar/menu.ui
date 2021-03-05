@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<interface>
+  <menu id="menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Animate</attribute>
+        <attribute name="action">avatar.animate</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Save Avatar As...</attribute>
+        <attribute name="action">avatar.save-avatar</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Set Custom Avatar...</attribute>
+        <attribute name="action">avatar.set-custom-avatar</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Clear Custom Avatar</attribute>
+        <attribute name="action">avatar.clear-custom-avatar</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>

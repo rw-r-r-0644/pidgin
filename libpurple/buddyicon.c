@@ -477,6 +477,19 @@ purple_buddy_icon_set_data(PurpleBuddyIcon *icon, guchar *data,
 		g_object_unref(old_img);
 }
 
+gboolean
+purple_buddy_icon_save_to_filename(PurpleBuddyIcon *icon,
+                                   const gchar *filename, GError **error)
+{
+	gconstpointer data;
+	size_t len;
+
+	data = purple_buddy_icon_get_data(icon, &len);
+
+	return g_file_set_contents(filename, data, len, error);
+}
+
+
 PurpleAccount *
 purple_buddy_icon_get_account(const PurpleBuddyIcon *icon)
 {
@@ -515,6 +528,18 @@ purple_buddy_icon_get_data(const PurpleBuddyIcon *icon, size_t *len)
 	}
 
 	return NULL;
+}
+
+GInputStream *
+purple_buddy_icon_get_stream(PurpleBuddyIcon *icon) {
+	gconstpointer data = NULL;
+	size_t len = 0;
+
+	g_return_val_if_fail(icon != NULL, NULL);
+
+	data = purple_buddy_icon_get_data(icon, &len);
+
+	return g_memory_input_stream_new_from_data(data, (gssize)len, NULL);
 }
 
 const char *
