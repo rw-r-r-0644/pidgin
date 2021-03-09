@@ -1258,6 +1258,49 @@ static const char *zephyr_list_icon(PurpleAccount * a, PurpleBuddy * b)
 	return "zephyr";
 }
 
+static GList *
+zephyr_protocol_get_account_options(PurpleProtocol *protocol) {
+	PurpleAccountOption *option;
+	GList *opts = NULL;
+	const gchar *tmp = get_exposure_level();
+
+	option = purple_account_option_bool_new(_("Use tzc"), "use_tzc", FALSE);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("tzc command"), "tzc_command",
+	                                          "/usr/bin/tzc -e %s");
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_bool_new(_("Export to .anyone"),
+	                                        "write_anyone", FALSE);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_bool_new(_("Export to .zephyr.subs"),
+	                                        "write_zsubs", FALSE);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_bool_new(_("Import from .anyone"),
+	                                        "read_anyone", TRUE);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_bool_new(_("Import from .zephyr.subs"),
+	                                        "read_zsubs", TRUE);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("Realm"), "realm", "");
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("Exposure"), "exposure_level",
+	                                          tmp);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("Encoding"), "encoding",
+	                                          ZEPHYR_FALLBACK_CHARSET);
+	opts = g_list_append(opts, option);
+
+	return opts;
+}
+
 static unsigned int
 zephyr_send_typing(G_GNUC_UNUSED PurpleProtocolIM *im, PurpleConnection *gc, const char *who, PurpleIMTypingState state)
 {
@@ -1576,41 +1619,6 @@ zephyr_get_actions(PurpleProtocolClient *client, PurpleConnection *gc) {
 static void
 zephyr_protocol_init(ZephyrProtocol *self)
 {
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	PurpleAccountOption *option;
-	const gchar *tmp = get_exposure_level();
-
-	protocol->id      = "prpl-zephyr";
-	protocol->name    = "Zephyr";
-	protocol->options = OPT_PROTO_CHAT_TOPIC | OPT_PROTO_NO_PASSWORD;
-
-	option = purple_account_option_bool_new(_("Use tzc"), "use_tzc", FALSE);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("tzc command"), "tzc_command", "/usr/bin/tzc -e %s");
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_bool_new(_("Export to .anyone"), "write_anyone", FALSE);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_bool_new(_("Export to .zephyr.subs"), "write_zsubs", FALSE);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_bool_new(_("Import from .anyone"), "read_anyone", TRUE);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_bool_new(_("Import from .zephyr.subs"), "read_zsubs", TRUE);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("Realm"), "realm", "");
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("Exposure"), "exposure_level",
-	                                          tmp);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("Encoding"), "encoding", ZEPHYR_FALLBACK_CHARSET);
-	protocol->account_options = g_list_append(protocol->account_options, option);
 }
 
 
@@ -1623,6 +1631,8 @@ zephyr_protocol_class_init(ZephyrProtocolClass *klass)
 	protocol_class->close = zephyr_close;
 	protocol_class->status_types = zephyr_status_types;
 	protocol_class->list_icon = zephyr_list_icon;
+
+	protocol_class->get_account_options = zephyr_protocol_get_account_options;
 }
 
 
@@ -1689,6 +1699,16 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_CHAT,
                                       zephyr_protocol_chat_iface_init));
 
+static PurpleProtocol *
+zephyr_protocol_new(void) {
+	return PURPLE_PROTOCOL(g_object_new(
+		ZEPHYR_TYPE_PROTOCOL,
+		"id", "prpl-zephyr",
+		"name", "Zephyr",
+		"options", OPT_PROTO_CHAT_TOPIC | OPT_PROTO_NO_PASSWORD,
+		NULL));
+}
+
 static PurplePluginInfo *plugin_query(GError **error)
 {
 	return purple_plugin_info_new(
@@ -1714,7 +1734,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	zephyr_protocol_register_type(G_TYPE_MODULE(plugin));
 
-	my_protocol = g_object_new(ZEPHYR_TYPE_PROTOCOL, NULL);
+	my_protocol = zephyr_protocol_new();
 	if(!purple_protocol_manager_register(manager, my_protocol, error)) {
 		g_clear_object(&my_protocol);
 

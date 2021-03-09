@@ -521,6 +521,16 @@ PurpleBuddyIconSpec *purple_buddy_icon_spec_new(char *format, int min_width,
 		PurpleBuddyIconScaleFlags scale_rules);
 
 /**
+ * purple_buddy_icon_spec_free:
+ * @spec: The #PurpleBuddyIconSpec instance.
+ *
+ * Frees @spec.
+ *
+ * Since: 3.0.0
+ */
+void purple_buddy_icon_spec_free(PurpleBuddyIconSpec *spec);
+
+/**
  * purple_buddy_icon_spec_get_scaled_size:
  * @spec: The buddy icon spec.
  * @width: (inout): On input, the suggested width. On output, the width

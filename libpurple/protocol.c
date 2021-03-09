@@ -1,5 +1,6 @@
 /*
- * purple
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -16,109 +17,150 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
+
 #include "protocol.h"
 
-static GObjectClass *parent_class;
+#include "enums.h"
 
-/**************************************************************************
- * Protocol Object API
- **************************************************************************/
-const char *
-purple_protocol_get_id(const PurpleProtocol *protocol)
-{
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+enum {
+	PROP_0,
+	PROP_ID,
+	PROP_NAME,
+	PROP_OPTIONS,
+	N_PROPERTIES,
+};
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
-	return protocol->id;
-}
+typedef struct {
+	gchar *id;
+	gchar *name;
 
-const char *
-purple_protocol_get_name(const PurpleProtocol *protocol)
-{
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+	PurpleProtocolOptions options;
+} PurpleProtocolPrivate;
 
-	return protocol->name;
-}
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(PurpleProtocol, purple_protocol,
+                                    G_TYPE_OBJECT)
 
-PurpleProtocolOptions
-purple_protocol_get_options(const PurpleProtocol *protocol)
-{
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), 0);
+/******************************************************************************
+ * Helpers
+ *****************************************************************************/
+static void
+purple_protocol_set_id(PurpleProtocol *protocol, const gchar *id) {
+	PurpleProtocolPrivate *priv = NULL;
 
-	return protocol->options;
-}
+	priv = purple_protocol_get_instance_private(protocol);
+	g_free(priv->id);
+	priv->id = g_strdup(id);
 
-GList *
-purple_protocol_get_user_splits(const PurpleProtocol *protocol)
-{
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
-
-	return protocol->user_splits;
-}
-
-GList *
-purple_protocol_get_account_options(const PurpleProtocol *protocol)
-{
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
-
-	return protocol->account_options;
-}
-
-PurpleBuddyIconSpec *
-purple_protocol_get_icon_spec(const PurpleProtocol *protocol)
-{
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
-
-	return protocol->icon_spec;
-}
-
-PurpleWhiteboardOps *
-purple_protocol_get_whiteboard_ops(const PurpleProtocol *protocol)
-{
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
-
-	return protocol->whiteboard_ops;
+	g_object_notify_by_pspec(G_OBJECT(protocol), properties[PROP_ID]);
 }
 
 static void
-icon_spec_free(PurpleProtocol *protocol)
-{
-	g_return_if_fail(PURPLE_IS_PROTOCOL(protocol));
+purple_protocol_set_name(PurpleProtocol *protocol, const gchar *name) {
+	PurpleProtocolPrivate *priv = NULL;
 
-	g_free(protocol->icon_spec);
-	protocol->icon_spec = NULL;
-}
+	priv = purple_protocol_get_instance_private(protocol);
+	g_free(priv->name);
+	priv->name = g_strdup(name);
 
-/**************************************************************************
- * GObject stuff
- **************************************************************************/
-static void
-purple_protocol_init(GTypeInstance *instance, gpointer klass)
-{
+	g_object_notify_by_pspec(G_OBJECT(protocol), properties[PROP_NAME]);
 }
 
 static void
-purple_protocol_finalize(GObject *object)
+purple_protocol_set_options(PurpleProtocol *protocol,
+                            PurpleProtocolOptions options)
 {
+	PurpleProtocolPrivate *priv = NULL;
+
+	priv = purple_protocol_get_instance_private(protocol);
+	priv->options = options;
+
+	g_object_notify_by_pspec(G_OBJECT(protocol), properties[PROP_OPTIONS]);
+}
+
+/******************************************************************************
+ * GObject Implementation
+ *****************************************************************************/
+static void
+purple_protocol_get_property(GObject *obj, guint param_id, GValue *value,
+                             GParamSpec *pspec)
+{
+	PurpleProtocol *protocol = PURPLE_PROTOCOL(obj);
+
+	switch(param_id) {
+		case PROP_ID:
+			g_value_set_string(value, purple_protocol_get_id(protocol));
+			break;
+		case PROP_NAME:
+			g_value_set_string(value, purple_protocol_get_name(protocol));
+			break;
+		case PROP_OPTIONS:
+			g_value_set_flags(value, purple_protocol_get_options(protocol));
+			break;
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
+			break;
+	}
+}
+
+static void
+purple_protocol_set_property(GObject *obj, guint param_id, const GValue *value,
+                             GParamSpec *pspec)
+{
+	PurpleProtocol *protocol = PURPLE_PROTOCOL(obj);
+
+	switch(param_id) {
+		case PROP_ID:
+			purple_protocol_set_id(protocol, g_value_get_string(value));
+			break;
+		case PROP_NAME:
+			purple_protocol_set_name(protocol, g_value_get_string(value));
+			break;
+		case PROP_OPTIONS:
+			purple_protocol_set_options(protocol, g_value_get_flags(value));
+			break;
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
+			break;
+	}
+}
+
+static void
+purple_protocol_init(PurpleProtocol *protocol) {
+}
+
+static void
+purple_protocol_finalize(GObject *object) {
 	PurpleProtocol *protocol = PURPLE_PROTOCOL(object);
+	PurpleProtocolPrivate *priv = NULL;
 	GList *accounts, *l;
 
+	priv = purple_protocol_get_instance_private(protocol);
+
+	g_clear_pointer(&priv->id, g_free);
+	g_clear_pointer(&priv->name, g_free);
+
+	/* I'm not sure that we can finalize a protocol plugin if an account is
+	 * still using it..  Right now accounts don't ref protocols, but maybe
+	 * they should?
+	 */
 	accounts = purple_accounts_get_all_active();
 	for (l = accounts; l != NULL; l = l->next) {
 		PurpleAccount *account = PURPLE_ACCOUNT(l->data);
 		if (purple_account_is_disconnected(account))
 			continue;
 
-		if (purple_strequal(protocol->id,
-				purple_account_get_protocol_id(account)))
+		if (purple_strequal(priv->id, purple_account_get_protocol_id(account)))
 			purple_account_disconnect(account);
 	}
 
 	g_list_free(accounts);
 
+	/* these seem to be fallbacks if the subclass protocol doesn't do it's own
+	 * clean up?  I kind of want to delete them... - gk 2021-03-03
+	 */
 	purple_request_close_with_handle(protocol);
 	purple_notify_close_with_handle(protocol);
 
@@ -127,85 +169,201 @@ purple_protocol_finalize(GObject *object)
 
 	purple_prefs_disconnect_by_handle(protocol);
 
-	g_list_free_full(protocol->user_splits, (GDestroyNotify)purple_account_user_split_destroy);
-	g_list_free_full(protocol->account_options, (GDestroyNotify)purple_account_option_destroy);
-	icon_spec_free(protocol);
-
-	parent_class->finalize(object);
+	G_OBJECT_CLASS(purple_protocol_parent_class)->finalize(object);
 }
 
 static void
-purple_protocol_class_init(PurpleProtocolClass *klass)
-{
+purple_protocol_class_init(PurpleProtocolClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 
-	parent_class = g_type_class_peek_parent(klass);
-
+	obj_class->get_property = purple_protocol_get_property;
+	obj_class->set_property = purple_protocol_set_property;
 	obj_class->finalize = purple_protocol_finalize;
+
+	/**
+	 * PurpleProtocol::id:
+	 *
+	 * The identifier for the protocol.
+	 */
+	properties[PROP_ID] = g_param_spec_string(
+		"id", "id",
+		"The identifier for the protocol",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	/**
+	 * PurpleProtocol::name:
+	 *
+	 * The name to show in user interface for the protocol.
+	 */
+	properties[PROP_NAME] = g_param_spec_string(
+		"name", "name",
+		"The name of the protocol to show in the user interface",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	/**
+	 * PurpleProtocol::options:
+	 *
+	 * The #PurpleProtocolOptions for the protocol.
+	 */
+	properties[PROP_OPTIONS] = g_param_spec_flags(
+		"options", "options",
+		"The options for the protocol",
+		PURPLE_TYPE_PROTOCOL_OPTIONS,
+		0,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	g_object_class_install_properties(obj_class, N_PROPERTIES, properties);
 }
 
-GType
-purple_protocol_get_type(void)
-{
-	static GType type = 0;
+/******************************************************************************
+ * Public API
+ *****************************************************************************/
+const gchar *
+purple_protocol_get_id(PurpleProtocol *protocol) {
+	PurpleProtocolPrivate *priv = NULL;
 
-	if (G_UNLIKELY(type == 0)) {
-		static const GTypeInfo info = {
-			.class_size = sizeof(PurpleProtocolClass),
-			.class_init = (GClassInitFunc)purple_protocol_class_init,
-			.instance_size = sizeof(PurpleProtocol),
-			.instance_init = (GInstanceInitFunc)purple_protocol_init,
-		};
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
 
-		type = g_type_register_static(G_TYPE_OBJECT, "PurpleProtocol",
-		                              &info, G_TYPE_FLAG_ABSTRACT);
-	}
+	priv = purple_protocol_get_instance_private(protocol);
 
-	return type;
+	return priv->id;
 }
 
-/**************************************************************************
- * Protocol Class API
- **************************************************************************/
-#define DEFINE_PROTOCOL_FUNC(protocol,funcname,...) \
-	PurpleProtocolClass *klass = PURPLE_PROTOCOL_GET_CLASS(protocol); \
-	g_return_if_fail(klass != NULL); \
-	if (klass->funcname) \
-		klass->funcname(__VA_ARGS__);
+const gchar *
+purple_protocol_get_name(PurpleProtocol *protocol) {
+	PurpleProtocolPrivate *priv = NULL;
 
-#define DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol,defaultreturn,funcname,...) \
-	PurpleProtocolClass *klass = PURPLE_PROTOCOL_GET_CLASS(protocol); \
-	g_return_val_if_fail(klass != NULL, defaultreturn); \
-	if (klass->funcname) \
-		return klass->funcname(__VA_ARGS__); \
-	else \
-		return defaultreturn;
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
 
-void
-purple_protocol_class_login(PurpleProtocol *protocol, PurpleAccount *account)
-{
-	DEFINE_PROTOCOL_FUNC(protocol, login, account);
+	priv = purple_protocol_get_instance_private(protocol);
+
+	return priv->name;
 }
 
-void
-purple_protocol_class_close(PurpleProtocol *protocol, PurpleConnection *gc)
-{
-	DEFINE_PROTOCOL_FUNC(protocol, close, gc);
+PurpleProtocolOptions
+purple_protocol_get_options(PurpleProtocol *protocol) {
+	PurpleProtocolPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), 0);
+
+	priv = purple_protocol_get_instance_private(protocol);
+
+	return priv->options;
 }
 
 GList *
-purple_protocol_class_status_types(PurpleProtocol *protocol,
-		PurpleAccount *account)
-{
-	DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol, NULL, status_types, account);
+purple_protocol_get_user_splits(PurpleProtocol *protocol) {
+	PurpleProtocolClass *klass = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
+	if(klass != NULL && klass->get_user_splits != NULL) {
+		return klass->get_user_splits(protocol);
+	}
+
+	return NULL;
 }
 
-const char *
-purple_protocol_class_list_icon(PurpleProtocol *protocol,
-		PurpleAccount *account, PurpleBuddy *buddy)
-{
-	DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol, NULL, list_icon, account, buddy);
+GList *
+purple_protocol_get_account_options(PurpleProtocol *protocol) {
+	PurpleProtocolClass *klass = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
+	if(klass != NULL && klass->get_account_options != NULL) {
+		return klass->get_account_options(protocol);
+	}
+
+	return NULL;
 }
 
-#undef DEFINE_PROTOCOL_FUNC_WITH_RETURN
-#undef DEFINE_PROTOCOL_FUNC
+PurpleBuddyIconSpec *
+purple_protocol_get_icon_spec(PurpleProtocol *protocol) {
+	PurpleProtocolClass *klass = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
+	if(klass != NULL && klass->get_buddy_icon_spec != NULL) {
+		return klass->get_buddy_icon_spec(protocol);
+	}
+
+	return NULL;
+}
+
+PurpleWhiteboardOps *
+purple_protocol_get_whiteboard_ops(PurpleProtocol *protocol) {
+	PurpleProtocolClass *klass = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
+	if(klass != NULL && klass->get_whiteboard_ops != NULL) {
+		return klass->get_whiteboard_ops(protocol);
+	}
+
+	return NULL;
+}
+
+void
+purple_protocol_login(PurpleProtocol *protocol, PurpleAccount *account) {
+	PurpleProtocolClass *klass = NULL;
+
+	g_return_if_fail(PURPLE_IS_PROTOCOL(protocol));
+	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
+
+	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
+	if(klass != NULL && klass->login != NULL) {
+		klass->login(account);
+	}
+}
+
+void
+purple_protocol_close(PurpleProtocol *protocol, PurpleConnection *gc) {
+	PurpleProtocolClass *klass = NULL;
+
+	g_return_if_fail(PURPLE_IS_PROTOCOL(protocol));
+	g_return_if_fail(PURPLE_IS_CONNECTION(gc));
+
+	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
+	if(klass != NULL && klass->close != NULL) {
+		klass->close(gc);
+	}
+}
+
+GList *
+purple_protocol_get_status_types(PurpleProtocol *protocol,
+                                 PurpleAccount *account)
+{
+	PurpleProtocolClass *klass = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
+
+	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
+	if(klass != NULL && klass->status_types != NULL) {
+		return klass->status_types(account);
+	}
+
+	return NULL;
+}
+
+const gchar *
+purple_protocol_get_list_icon(PurpleProtocol *protocol, PurpleAccount *account,
+                              PurpleBuddy *buddy)
+{
+	PurpleProtocolClass *klass = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	klass = PURPLE_PROTOCOL_GET_CLASS(protocol);
+	if(klass != NULL && klass->list_icon != NULL) {
+		return klass->list_icon(account, buddy);
+	}
+
+	return NULL;
+}

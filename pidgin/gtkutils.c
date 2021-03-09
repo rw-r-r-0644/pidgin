@@ -269,7 +269,7 @@ pidgin_create_icon_from_protocol(PurpleProtocol *protocol, PidginProtocolIconSiz
 	char *filename = NULL;
 	GdkPixbuf *pixbuf;
 
-	protoname = purple_protocol_class_list_icon(protocol, account, NULL);
+	protoname = purple_protocol_get_list_icon(protocol, account, NULL);
 	if (protoname == NULL)
 		return NULL;
 
@@ -491,7 +491,7 @@ pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
 					proto = purple_connection_get_protocol(gc);
 				}
 
-				protoname = purple_protocol_class_list_icon(proto, account, NULL);
+				protoname = purple_protocol_get_list_icon(proto, account, NULL);
 
 				if (purple_strequal(protoname, protocol))
 					break;
@@ -1523,11 +1523,18 @@ pidgin_convert_buddy_icon(PurpleProtocol *protocol, const char *path, size_t *le
 	gchar *tmp;
 
 	spec = purple_protocol_get_icon_spec(protocol);
-	g_return_val_if_fail(spec->format != NULL, NULL);
+	if(spec->format == NULL) {
+		purple_buddy_icon_spec_free(spec);
+
+		return NULL;
+	}
 
 	format = gdk_pixbuf_get_file_info(path, &orig_width, &orig_height);
 	if (format == NULL) {
 		purple_debug_warning("buddyicon", "Could not get file info of %s\n", path);
+
+		purple_buddy_icon_spec_free(spec);
+
 		return NULL;
 	}
 
@@ -1545,6 +1552,7 @@ pidgin_convert_buddy_icon(PurpleProtocol *protocol, const char *path, size_t *le
 			purple_debug_warning("buddyicon", "Could not get file contents "
 					"of %s: %s\n", path, error->message);
 			g_strfreev(protocol_formats);
+			purple_buddy_icon_spec_free(spec);
 			return NULL;
 		}
 
@@ -1554,6 +1562,7 @@ pidgin_convert_buddy_icon(PurpleProtocol *protocol, const char *path, size_t *le
 			if (len)
 				*len = length;
 			g_strfreev(protocol_formats);
+			purple_buddy_icon_spec_free(spec);
 			return contents;
 		}
 
@@ -1570,6 +1579,7 @@ pidgin_convert_buddy_icon(PurpleProtocol *protocol, const char *path, size_t *le
 				"conversion: %s\n", path, error->message);
 		g_error_free(error);
 		g_strfreev(protocol_formats);
+		purple_buddy_icon_spec_free(spec);
 		return NULL;
 	}
 	original = g_object_ref(pixbuf);
@@ -1638,6 +1648,7 @@ pidgin_convert_buddy_icon(PurpleProtocol *protocol, const char *path, size_t *le
 					g_strfreev(protocol_formats);
 					g_object_unref(G_OBJECT(pixbuf));
 					g_object_unref(G_OBJECT(original));
+					purple_buddy_icon_spec_free(spec);
 					return contents;
 				}
 
@@ -1671,6 +1682,8 @@ pidgin_convert_buddy_icon(PurpleProtocol *protocol, const char *path, size_t *le
 			path, purple_protocol_get_name(protocol));
 	purple_notify_error(NULL, _("Icon Error"), _("Could not set icon"), tmp, NULL);
 	g_free(tmp);
+
+	purple_buddy_icon_spec_free(spec);
 
 	return NULL;
 }

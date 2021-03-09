@@ -117,8 +117,9 @@ save_account_cb(AccountEditDialog *dialog)
 
 	if (protocol != NULL)
 	{
-		GList *iter, *entries;
-		for (iter = purple_protocol_get_user_splits(protocol), entries = dialog->split_entries;
+		GList *iter, *entries, *splits;
+		splits = purple_protocol_get_user_splits(protocol);
+		for (iter = splits, entries = dialog->split_entries;
 				iter && entries; iter = iter->next, entries = entries->next)
 		{
 			PurpleAccountUserSplit *split = iter->data;
@@ -131,6 +132,8 @@ save_account_cb(AccountEditDialog *dialog)
 					purple_account_user_split_get_separator(split),
 					value);
 		}
+		g_list_free_full(splits,
+		                 (GDestroyNotify)purple_account_user_split_destroy);
 	}
 
 	if (dialog->account == NULL)
@@ -199,9 +202,10 @@ save_account_cb(AccountEditDialog *dialog)
 	/* Protocol options */
 	if (protocol)
 	{
-		GList *iter, *entries;
+		GList *iter, *entries, *opts;
 
-		for (iter = purple_protocol_get_account_options(protocol), entries = dialog->protocol_entries;
+		opts = purple_protocol_get_account_options(protocol);
+		for (iter = opts, entries = dialog->protocol_entries;
 				iter && entries; iter = iter->next, entries = entries->next)
 		{
 			PurpleAccountOption *option = iter->data;
@@ -237,6 +241,7 @@ save_account_cb(AccountEditDialog *dialog)
 				g_assert_not_reached();
 			}
 		}
+		g_list_free_full(opts, (GDestroyNotify)purple_account_option_destroy);
 	}
 
 	/* XXX: Proxy options */
@@ -279,7 +284,7 @@ update_user_splits(AccountEditDialog *dialog)
 {
 	GntWidget *hbox;
 	PurpleProtocol *protocol;
-	GList *iter, *entries;
+	GList *iter, *entries, *splits;
 	char *username = NULL;
 
 	if (dialog->splits)
@@ -302,7 +307,8 @@ update_user_splits(AccountEditDialog *dialog)
 
 	username = dialog->account ? g_strdup(purple_account_get_username(dialog->account)) : NULL;
 
-	for (iter = purple_protocol_get_user_splits(protocol); iter; iter = iter->next)
+	splits = purple_protocol_get_user_splits(protocol);
+	for (iter = splits; iter; iter = iter->next)
 	{
 		PurpleAccountUserSplit *split = iter->data;
 		GntWidget *entry = NULL;
@@ -323,7 +329,7 @@ update_user_splits(AccountEditDialog *dialog)
 		g_free(buf);
 	}
 
-	for (iter = g_list_last(purple_protocol_get_user_splits(protocol)), entries = g_list_last(dialog->split_entries);
+	for (iter = g_list_last(splits), entries = g_list_last(dialog->split_entries);
 			iter && entries; iter = iter->prev, entries = entries->prev)
 	{
 		GntWidget *entry = entries->data;
@@ -352,6 +358,8 @@ update_user_splits(AccountEditDialog *dialog)
 			gnt_entry_set_text(GNT_ENTRY(entry), value);
 	}
 
+	g_list_free_full(splits, (GDestroyNotify)purple_account_user_split_destroy);
+
 	if (username != NULL)
 		gnt_entry_set_text(GNT_ENTRY(dialog->username), username);
 
@@ -362,7 +370,7 @@ static void
 add_account_options(AccountEditDialog *dialog)
 {
 	PurpleProtocol *protocol;
-	GList *iter;
+	GList *iter, *opts;
 	GntWidget *vbox, *box;
 	PurpleAccount *account;
 
@@ -390,7 +398,8 @@ add_account_options(AccountEditDialog *dialog)
 
 	account = dialog->account;
 
-	for (iter = purple_protocol_get_account_options(protocol); iter; iter = iter->next)
+	opts = purple_protocol_get_account_options(protocol);
+	for (iter = opts; iter; iter = iter->next)
 	{
 		PurpleAccountOption *option = iter->data;
 		PurplePrefType type = purple_account_option_get_pref_type(option);
@@ -477,6 +486,7 @@ add_account_options(AccountEditDialog *dialog)
 			}
 		}
 	}
+	g_list_free_full(opts, (GDestroyNotify)purple_account_option_destroy);
 
 	/* Show the registration checkbox only in a new account dialog,
 	 * and when the selected protocol has the support for it. */

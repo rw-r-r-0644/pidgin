@@ -357,6 +357,63 @@ static const char *irc_blist_icon(PurpleAccount *a, PurpleBuddy *b)
 	return "irc";
 }
 
+static GList *
+irc_protocol_get_account_options(PurpleProtocol *protocol) {
+	PurpleAccountOption *option;
+	GList *opts = NULL;
+
+	option = purple_account_option_int_new(_("Port"), "port",
+	                                       IRC_DEFAULT_PORT);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("Encodings"), "encoding",
+	                                          IRC_DEFAULT_CHARSET);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_bool_new(_("Auto-detect incoming UTF-8"),
+	                                        "autodetect_utf8",
+	                                        IRC_DEFAULT_AUTODETECT);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("Ident name"), "username", "");
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("Real name"), "realname", "");
+	opts = g_list_append(opts, option);
+
+	/*
+	option = purple_account_option_string_new(_("Quit message"), "quitmsg",
+	                                          IRC_DEFAULT_QUIT);
+	opts = g_list_append(opts, option);
+	*/
+
+	option = purple_account_option_bool_new(_("Use SSL"), "ssl", FALSE);
+	opts = g_list_append(opts, option);
+
+#ifdef HAVE_CYRUS_SASL
+	option = purple_account_option_bool_new(_("Authenticate with SASL"),
+	                                        "sasl", FALSE);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_bool_new(_("Allow plaintext SASL auth over "
+	                                          "unencrypted connection"),
+	                                        "auth_plain_in_clear", FALSE);
+	opts = g_list_append(opts, option);
+#endif
+
+	return opts;
+}
+
+static GList *
+irc_protocol_get_user_splits(PurpleProtocol *protocol) {
+	PurpleAccountUserSplit *split;
+
+	split = purple_account_user_split_new(_("Server"), IRC_DEFAULT_SERVER,
+	                                      '@');
+
+	return g_list_append(NULL, split);
+}
+
 static GList *irc_status_types(PurpleAccount *account)
 {
 	PurpleStatusType *type;
@@ -972,50 +1029,6 @@ irc_get_max_message_size(PurpleProtocolClient *client,
 static void
 irc_protocol_init(IRCProtocol *self)
 {
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	PurpleAccountUserSplit *split;
-	PurpleAccountOption *option;
-
-	protocol->id        = "prpl-irc";
-	protocol->name      = "IRC";
-	protocol->options   = OPT_PROTO_CHAT_TOPIC | OPT_PROTO_PASSWORD_OPTIONAL |
-	                      OPT_PROTO_SLASH_COMMANDS_NATIVE;
-
-	split = purple_account_user_split_new(_("Server"), IRC_DEFAULT_SERVER, '@');
-	protocol->user_splits = g_list_append(protocol->user_splits, split);
-
-	option = purple_account_option_int_new(_("Port"), "port", IRC_DEFAULT_PORT);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("Encodings"), "encoding", IRC_DEFAULT_CHARSET);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_bool_new(_("Auto-detect incoming UTF-8"), "autodetect_utf8", IRC_DEFAULT_AUTODETECT);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("Ident name"), "username", "");
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("Real name"), "realname", "");
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	/*
-	option = purple_account_option_string_new(_("Quit message"), "quitmsg", IRC_DEFAULT_QUIT);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-	*/
-
-	option = purple_account_option_bool_new(_("Use SSL"), "ssl", FALSE);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-#ifdef HAVE_CYRUS_SASL
-	option = purple_account_option_bool_new(_("Authenticate with SASL"), "sasl", FALSE);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_bool_new(
-						_("Allow plaintext SASL auth over unencrypted connection"),
-						"auth_plain_in_clear", FALSE);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-#endif
 }
 
 static void
@@ -1027,6 +1040,9 @@ irc_protocol_class_init(IRCProtocolClass *klass)
 	protocol_class->close = irc_close;
 	protocol_class->status_types = irc_status_types;
 	protocol_class->list_icon = irc_blist_icon;
+
+	protocol_class->get_account_options = irc_protocol_get_account_options;
+	protocol_class->get_user_splits = irc_protocol_get_user_splits;
 }
 
 static void
@@ -1107,6 +1123,17 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_XFER,
                                       irc_protocol_xfer_iface_init));
 
+static PurpleProtocol *
+irc_protocol_new(void) {
+	return PURPLE_PROTOCOL(g_object_new(
+		IRC_TYPE_PROTOCOL,
+		"id", "prpl-irc",
+		"name", "IRC",
+		"options", OPT_PROTO_CHAT_TOPIC | OPT_PROTO_PASSWORD_OPTIONAL |
+	               OPT_PROTO_SLASH_COMMANDS_NATIVE,
+		NULL));
+}
+
 static PurplePluginInfo *
 plugin_query(GError **error)
 {
@@ -1134,7 +1161,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	irc_xfer_register(G_TYPE_MODULE(plugin));
 
-	_irc_protocol = g_object_new(IRC_TYPE_PROTOCOL, NULL);
+	_irc_protocol = irc_protocol_new();
 	if(!purple_protocol_manager_register(manager, _irc_protocol, error)) {
 		g_clear_object(&_irc_protocol);
 

@@ -2230,7 +2230,7 @@ static void pidgin_blist_drag_data_get_cb(GtkWidget *widget,
 		}
 
 		protocol =
-			purple_protocol_class_list_icon(purple_connection_get_protocol(gc),
+			purple_protocol_get_list_icon(purple_connection_get_protocol(gc),
 					purple_buddy_get_account(buddy), buddy);
 
 		str = g_string_new(NULL);
@@ -2688,8 +2688,12 @@ static GdkPixbuf *pidgin_blist_get_buddy_icon(PurpleBlistNode *node,
 	if (protocol)
 		icon_spec = purple_protocol_get_icon_spec(protocol);
 
-	if (icon_spec && icon_spec->scale_rules & PURPLE_ICON_SCALE_DISPLAY)
-		purple_buddy_icon_spec_get_scaled_size(purple_protocol_get_icon_spec(protocol), &scale_width, &scale_height);
+	if (icon_spec && (icon_spec->scale_rules & PURPLE_ICON_SCALE_DISPLAY)) {
+		purple_buddy_icon_spec_get_scaled_size(icon_spec, &scale_width,
+		                                       &scale_height);
+	}
+
+	purple_buddy_icon_spec_free(icon_spec);
 
 	if (scaled || scale_height > 200 || scale_width > 200) {
 		GdkPixbuf *tmpbuf;

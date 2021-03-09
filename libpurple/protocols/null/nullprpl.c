@@ -205,6 +205,43 @@ static const char *null_list_icon(PurpleAccount *acct, PurpleBuddy *buddy)
   return "null";
 }
 
+static GList *
+null_protocol_get_account_options(PurpleProtocol *protocol) {
+	PurpleAccountOption *option;
+
+	option = purple_account_option_string_new(
+	        _("Example option"), /* text shown to user */
+	        "example",           /* pref name */
+	        "default");          /* default value */
+
+	return g_list_append(NULL, option);
+}
+
+static PurpleBuddyIconSpec *
+null_protocol_get_buddy_icon_spec(PurpleProtocol *protocol) {
+	return purple_buddy_icon_spec_new(
+	        "png,jpg,gif",            /* format */
+	        0,                        /* min_width */
+	        0,                        /* min_height */
+	        128,                      /* max_width */
+	        128,                      /* max_height */
+	        10000,                    /* max_filesize */
+	        PURPLE_ICON_SCALE_DISPLAY /* scale_rules */
+	);
+}
+
+static GList *
+null_protocol_get_user_splits(PurpleProtocol *protocol) {
+	PurpleAccountUserSplit *split;
+
+	split = purple_account_user_split_new(
+	        _("Example user split"), /* text shown to user */
+	        "default",               /* default value */
+	        '@');                    /* field separator */
+
+	return g_list_append(NULL, split);
+}
+
 static char *
 null_status_text(PurpleProtocolClient *client, PurpleBuddy *buddy) {
   purple_debug_info("nullprpl", "getting %s's status text for %s\n",
@@ -1048,36 +1085,6 @@ null_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy) {
 static void
 null_protocol_init(NullProtocol *self)
 {
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	PurpleAccountUserSplit *split;
-	PurpleAccountOption *option;
-
-	protocol->id = "prpl-null";
-	protocol->name = "Null - Testing Protocol";
-	protocol->options = OPT_PROTO_NO_PASSWORD | OPT_PROTO_CHAT_TOPIC;
-	protocol->icon_spec = purple_buddy_icon_spec_new(
-	        "png,jpg,gif",            /* format */
-	        0,                        /* min_width */
-	        0,                        /* min_height */
-	        128,                      /* max_width */
-	        128,                      /* max_height */
-	        10000,                    /* max_filesize */
-	        PURPLE_ICON_SCALE_DISPLAY /* scale_rules */
-	);
-
-	/* see accountopt.h for information about user splits and protocol
-	 * options */
-	split = purple_account_user_split_new(
-	        _("Example user split"), /* text shown to user */
-	        "default",               /* default value */
-	        '@');                    /* field separator */
-	option = purple_account_option_string_new(
-	        _("Example option"), /* text shown to user */
-	        "example",           /* pref name */
-	        "default");          /* default value */
-
-	protocol->user_splits = g_list_append(NULL, split);
-	protocol->account_options = g_list_append(NULL, option);
 }
 
 /*
@@ -1094,6 +1101,10 @@ null_protocol_class_init(NullProtocolClass *klass)
 	protocol_class->close = null_close;
 	protocol_class->status_types = null_status_types;
 	protocol_class->list_icon = null_list_icon;
+
+	protocol_class->get_account_options = null_protocol_get_account_options;
+	protocol_class->get_buddy_icon_spec = null_protocol_get_buddy_icon_spec;
+	protocol_class->get_user_splits = null_protocol_get_user_splits;
 }
 
 static void
@@ -1199,6 +1210,16 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_ROOMLIST,
                                       null_protocol_roomlist_iface_init));
 
+static PurpleProtocol *
+null_protocol_new(void) {
+  return PURPLE_PROTOCOL(g_object_new(
+    NULL_TYPE_PROTOCOL,
+    "id", "prpl-null",
+    "name", "Null - Testing Protocol",
+    "options", OPT_PROTO_NO_PASSWORD | OPT_PROTO_CHAT_TOPIC,
+    NULL));
+}
+
 static PurplePluginInfo *
 plugin_query(GError **error)
 {
@@ -1230,7 +1251,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
   null_protocol_register_type(G_TYPE_MODULE(plugin));
 
   /* add the protocol to the core */
-  my_protocol = g_object_new(NULL_TYPE_PROTOCOL, NULL);
+  my_protocol = null_protocol_new();
   if(!purple_protocol_manager_register(manager, my_protocol, error)) {
     g_clear_object(&my_protocol);
 

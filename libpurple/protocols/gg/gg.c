@@ -49,7 +49,6 @@
 
 /* ---------------------------------------------------------------------- */
 static PurpleProtocol *my_protocol = NULL;
-static PurpleAccountOption *ggp_server_option;
 
 /* ---------------------------------------------------------------------- */
 
@@ -646,6 +645,62 @@ static const char *ggp_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 	return "gadu-gadu";
 }
 
+static PurpleBuddyIconSpec *
+ggp_protocol_get_buddy_icon_spec(PurpleProtocol *protocol) {
+	return purple_buddy_icon_spec_new("png",
+	                                  1, 1, 200, 200, 0,
+	                                  PURPLE_ICON_SCALE_DISPLAY |
+	                                  PURPLE_ICON_SCALE_SEND);
+}
+
+static GList *
+ggp_protocol_get_account_options(PurpleProtocol *protocol) {
+	PurpleAccountOption *option = NULL;
+	PurpleKeyValuePair *kvp = NULL;
+	GList *encryption_options = NULL;
+	GList *protocol_version = NULL;
+	GList *opts = NULL;
+
+	option = purple_account_option_string_new(_("GG server"), "gg_server", "");
+	opts = g_list_append(opts, option);
+
+	/* setup encryption options */
+	kvp = purple_key_value_pair_new(_("Use encryption if available"),
+	                                "opportunistic_tls");
+	encryption_options = g_list_append(encryption_options, kvp);
+
+	kvp = purple_key_value_pair_new(_("Require encryption"), "require_tls");
+	encryption_options = g_list_append(encryption_options, kvp);
+
+	kvp = purple_key_value_pair_new(_("Don't use encryption"), "none");
+	encryption_options = g_list_append(encryption_options, kvp);
+
+	option = purple_account_option_list_new(_("Connection security"),
+	                                        "encryption", encryption_options);
+	opts = g_list_append(opts, option);
+
+	/* setup the protocol version */
+	kvp = purple_key_value_pair_new(_("Default"), "default");
+	protocol_version = g_list_append(protocol_version, kvp);
+
+	kvp = purple_key_value_pair_new("GG 10", "gg10");
+	protocol_version = g_list_append(protocol_version, kvp);
+
+	kvp = purple_key_value_pair_new("GG 11", "gg11");
+	protocol_version = g_list_append(protocol_version, kvp);
+
+	option = purple_account_option_list_new(_("Protocol version"),
+	                                        "protocol_version",
+	                                        protocol_version);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_bool_new(_("Show links from strangers"),
+	                                        "show_links_from_strangers", 1);
+	opts = g_list_append(opts, option);
+
+	return opts;
+}
+
 static const char *
 ggp_normalize(PurpleProtocolClient *client, PurpleAccount *account,
               const char *who)
@@ -1026,52 +1081,6 @@ ggp_get_max_message_size(PurpleProtocolClient *client,
 static void
 ggp_protocol_init(GGPProtocol *self)
 {
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	PurpleAccountOption *option;
-	GList *encryption_options = NULL;
-	GList *protocol_version = NULL;
-
-	protocol->id        = "prpl-gg";
-	protocol->name      = "Gadu-Gadu";
-	protocol->icon_spec = purple_buddy_icon_spec_new("png",
-	                                                 1, 1, 200, 200, 0,
-	                                                 PURPLE_ICON_SCALE_DISPLAY |
-	                                                 PURPLE_ICON_SCALE_SEND);
-
-	option = purple_account_option_string_new(_("GG server"),
-			"gg_server", "");
-	protocol->account_options = g_list_append(protocol->account_options,
-			option);
-	ggp_server_option = option;
-
-#define ADD_VALUE(list, desc, v) { \
-	PurpleKeyValuePair *kvp = purple_key_value_pair_new_full((desc), g_strdup((v)), g_free); \
-	list = g_list_append(list, kvp); \
-}
-
-	ADD_VALUE(encryption_options, _("Use encryption if available"),
-		"opportunistic_tls");
-	ADD_VALUE(encryption_options, _("Require encryption"), "require_tls");
-	ADD_VALUE(encryption_options, _("Don't use encryption"), "none");
-
-	option = purple_account_option_list_new(_("Connection security"),
-		"encryption", encryption_options);
-	protocol->account_options = g_list_append(protocol->account_options,
-		option);
-
-	ADD_VALUE(protocol_version, _("Default"), "default");
-	ADD_VALUE(protocol_version, "GG 10", "gg10");
-	ADD_VALUE(protocol_version, "GG 11", "gg11");
-
-	option = purple_account_option_list_new(_("Protocol version"),
-		"protocol_version", protocol_version);
-	protocol->account_options = g_list_append(protocol->account_options,
-		option);
-
-	option = purple_account_option_bool_new(_("Show links from strangers"),
-		"show_links_from_strangers", 1);
-	protocol->account_options = g_list_append(protocol->account_options,
-		option);
 }
 
 static void
@@ -1083,6 +1092,9 @@ ggp_protocol_class_init(GGPProtocolClass *klass)
 	protocol_class->close = ggp_close;
 	protocol_class->status_types = ggp_status_types;
 	protocol_class->list_icon = ggp_list_icon;
+
+	protocol_class->get_account_options = ggp_protocol_get_account_options;
+	protocol_class->get_buddy_icon_spec = ggp_protocol_get_buddy_icon_spec;
 }
 
 static void
@@ -1184,6 +1196,15 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_XFER,
                                       ggp_protocol_xfer_iface_init));
 
+static PurpleProtocol *
+ggp_protocol_new(void) {
+	return PURPLE_PROTOCOL(g_object_new(
+		GGP_TYPE_PROTOCOL,
+		"id", "prpl-gg",
+		"name", "Gadu-Gadu",
+		NULL));
+}
+
 static gchar *
 plugin_extra(PurplePlugin *plugin)
 {
@@ -1224,7 +1245,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	ggp_xfer_register(G_TYPE_MODULE(plugin));
 
-	my_protocol = g_object_new(GGP_TYPE_PROTOCOL, NULL);
+	my_protocol = ggp_protocol_new();
 	if(!purple_protocol_manager_register(manager, my_protocol, error)) {
 		g_clear_object(&my_protocol);
 
@@ -1238,7 +1259,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	ggp_libgaduw_setup();
 	ggp_resolver_purple_setup();
-	ggp_servconn_setup(ggp_server_option);
+	ggp_servconn_setup(NULL);
 	ggp_html_setup();
 	ggp_message_setup_global();
 
