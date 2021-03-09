@@ -79,13 +79,18 @@ G_DEFINE_TYPE_WITH_CODE(
 
 static void
 test_purple_protocol_attention_init(TestPurpleProtocolAttention *prplattn) {
-	PurpleProtocol *prpl = PURPLE_PROTOCOL(prplattn);
-
-	prpl->id = "prpl-attention";
 }
 
 static void
 test_purple_protocol_attention_class_init(TestPurpleProtocolAttentionClass *klass) {
+}
+
+static TestPurpleProtocolAttention *
+test_purple_protocol_attention_new(void) {
+	return (TestPurpleProtocolAttention *)g_object_new(
+		test_purple_protocol_attention_get_type(),
+		"id", "prpl-attention",
+		NULL);
 }
 
 /******************************************************************************
@@ -93,7 +98,7 @@ test_purple_protocol_attention_class_init(TestPurpleProtocolAttentionClass *klas
  *****************************************************************************/
 static void
 test_purple_protocol_attention_can_send(void) {
-	TestPurpleProtocolAttention *attn = g_object_new(test_purple_protocol_attention_get_type(), NULL);
+	TestPurpleProtocolAttention *attn = test_purple_protocol_attention_new();
 	PurpleAccount *a = purple_account_new("prpl-attn-can-send", "prpl-attn");
 	PurpleConnection *c = g_object_new(PURPLE_TYPE_CONNECTION, "account", a, NULL);
 	gboolean actual = FALSE;

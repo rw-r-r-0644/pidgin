@@ -1015,7 +1015,7 @@ purple_account_constructed(GObject *object)
 	}
 
 	purple_account_set_status_types(account,
-			purple_protocol_class_status_types(protocol, account));
+			purple_protocol_get_status_types(protocol, account));
 
 	priv->presence = PURPLE_PRESENCE(purple_account_presence_new(account));
 

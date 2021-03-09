@@ -3789,7 +3789,7 @@ xmpp_uri_handler(const char *proto, const char *user, GHashTable *params,
 		acct_id = g_hash_table_lookup(params, "account");
 	}
 
-	acct = find_acct(protocol->id, acct_id);
+	acct = find_acct(XMPP_PROTOCOL_ID, acct_id);
 
 	if (!acct)
 		return FALSE;
@@ -4076,30 +4076,24 @@ static void jabber_uninit_protocol(PurpleProtocol *protocol)
 		jabber_do_uninit();
 }
 
+static PurpleBuddyIconSpec *
+jabber_protocol_get_buddy_icon_spec(PurpleProtocol *protocol) {
+	return purple_buddy_icon_spec_new("png",
+	                                  32, 32, 96, 96, 0,
+	                                  PURPLE_ICON_SCALE_SEND |
+	                                  PURPLE_ICON_SCALE_DISPLAY);
+}
+
 static void
-jabber_protocol_init(JabberProtocol *self)
-{
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-
-	protocol->id        = "prpl-jabber";
-	protocol->name      = "XMPP";
-	protocol->options   = OPT_PROTO_CHAT_TOPIC | OPT_PROTO_UNIQUE_CHATNAME |
-	                      OPT_PROTO_MAIL_CHECK |
-#ifdef HAVE_CYRUS_SASL
-	                      OPT_PROTO_PASSWORD_OPTIONAL |
-#endif
-	                      OPT_PROTO_SLASH_COMMANDS_NATIVE;
-
-	protocol->icon_spec = purple_buddy_icon_spec_new("png",
-	                                                 32, 32, 96, 96, 0,
-	                                                 PURPLE_ICON_SCALE_SEND |
-	                                                 PURPLE_ICON_SCALE_DISPLAY);
+jabber_protocol_init(JabberProtocol *self) {
 }
 
 static void
 jabber_protocol_class_init(JabberProtocolClass *klass)
 {
 	PurpleProtocolClass *protocol_class = PURPLE_PROTOCOL_CLASS(klass);
+
+	protocol_class->get_buddy_icon_spec = jabber_protocol_get_buddy_icon_spec;
 
 	protocol_class->login = jabber_login;
 	protocol_class->close = jabber_close;
@@ -4299,7 +4293,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	jabber_si_xfer_register(G_TYPE_MODULE(plugin));
 
-	xmpp_protocol = g_object_new(XMPP_TYPE_PROTOCOL, NULL);
+	xmpp_protocol = xmpp_protocol_new();
 	if(!purple_protocol_manager_register(manager, xmpp_protocol, error)) {
 		g_clear_object(&xmpp_protocol);
 

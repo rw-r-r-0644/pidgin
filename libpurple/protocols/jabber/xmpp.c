@@ -20,84 +20,96 @@
  *
  */
 
+#include <config.h>
+
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
 
 #include "xmpp.h"
 
-static void
-xmpp_protocol_init(XMPPProtocol *self)
-{
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	PurpleAccountUserSplit *split;
+static GList *
+xmpp_protocol_get_account_options(PurpleProtocol *protocol) {
 	PurpleAccountOption *option;
-	GList *encryption_values = NULL;
+	PurpleKeyValuePair *kvp = NULL;
+	GList *opts = NULL, *encryption_values = NULL;
 
-	/* Translators: 'domain' is used here in the context of Internet domains, e.g. pidgin.im */
-	split = purple_account_user_split_new(_("Domain"), NULL, '@');
-	purple_account_user_split_set_reverse(split, FALSE);
-	protocol->user_splits = g_list_append(protocol->user_splits, split);
+	/* build the list of encryption types we support */
+	kvp = purple_key_value_pair_new(_("Require encryption"), "require_tls");
+	encryption_values = g_list_append(encryption_values, kvp);
 
-	split = purple_account_user_split_new(_("Resource"), "", '/');
-	purple_account_user_split_set_reverse(split, FALSE);
-	protocol->user_splits = g_list_append(protocol->user_splits, split);
+	kvp = purple_key_value_pair_new(_("Use encryption if available"),
+	                                "opportunistic_tls");
+	encryption_values = g_list_append(encryption_values, kvp);
 
-#define ADD_VALUE(list, desc, v) { \
-	PurpleKeyValuePair *kvp = purple_key_value_pair_new_full((desc), g_strdup((v)), g_free); \
-	list = g_list_prepend(list, kvp); \
-}
+	kvp = purple_key_value_pair_new(_("Use old-style SSL"), "old_ssl");
+	encryption_values = g_list_append(encryption_values, kvp);
 
-	ADD_VALUE(encryption_values, _("Require encryption"), "require_tls");
-	ADD_VALUE(encryption_values, _("Use encryption if available"), "opportunistic_tls");
-	ADD_VALUE(encryption_values, _("Use old-style SSL"), "old_ssl");
-	encryption_values = g_list_reverse(encryption_values);
+	/* build all the options */
+	option = purple_account_option_list_new(_("Connection security"),
+	                                        "connection_security",
+	                                        encryption_values);
+	opts = g_list_append(opts, option);
 
-#undef ADD_VALUE
-
-	option = purple_account_option_list_new(_("Connection security"), "connection_security", encryption_values);
-	protocol->account_options = g_list_append(protocol->account_options,
-						   option);
-
-	option = purple_account_option_bool_new(
-						_("Allow plaintext auth over unencrypted streams"),
-						"auth_plain_in_clear", FALSE);
-	protocol->account_options = g_list_append(protocol->account_options,
-						   option);
+	option = purple_account_option_bool_new(_("Allow plaintext auth over "
+	                                          "unencrypted streams"),
+	                                        "auth_plain_in_clear", FALSE);
+	opts = g_list_append(opts, option);
 
 	option = purple_account_option_int_new(_("Connect port"), "port", 5222);
-	protocol->account_options = g_list_append(protocol->account_options,
-						   option);
+	opts = g_list_append(opts, option);
 
 	option = purple_account_option_string_new(_("Connect server"),
-						  "connect_server", NULL);
-	protocol->account_options = g_list_append(protocol->account_options,
-						  option);
+	                                          "connect_server", NULL);
+	opts = g_list_append(opts, option);
 
 	option = purple_account_option_string_new(_("File transfer proxies"),
-						  "ft_proxies", NULL);
-	protocol->account_options = g_list_append(protocol->account_options,
-						  option);
+	                                          "ft_proxies", NULL);
+	opts = g_list_append(opts, option);
 
-	option = purple_account_option_string_new(_("BOSH URL"),
-						  "bosh_url", NULL);
-	protocol->account_options = g_list_append(protocol->account_options,
-						  option);
+	option = purple_account_option_string_new(_("BOSH URL"), "bosh_url", NULL);
+	opts = g_list_append(opts, option);
 
 	/* this should probably be part of global smiley theme settings
 	 * later on
 	 */
 	option = purple_account_option_bool_new(_("Show Custom Smileys"),
-		"custom_smileys", TRUE);
-	protocol->account_options = g_list_append(protocol->account_options,
-		option);
+	                                        "custom_smileys", TRUE);
+	opts = g_list_append(opts, option);
 
+	return opts;
+}
+
+static GList *
+xmpp_protocol_get_user_splits(PurpleProtocol *protocol) {
+	GList *splits = NULL;
+	PurpleAccountUserSplit *split;
+
+	/* Translators: 'domain' is used here in the context of Internet domains,
+	 * e.g. pidgin.im.
+	 */
+	split = purple_account_user_split_new(_("Domain"), NULL, '@');
+	purple_account_user_split_set_reverse(split, FALSE);
+	splits = g_list_append(splits, split);
+
+	split = purple_account_user_split_new(_("Resource"), "", '/');
+	purple_account_user_split_set_reverse(split, FALSE);
+	splits = g_list_append(splits, split);
+
+	return splits;
+}
+
+static void
+xmpp_protocol_init(XMPPProtocol *self) {
 	purple_prefs_remove("/plugins/prpl/jabber");
 }
 
 static void
-xmpp_protocol_class_init(G_GNUC_UNUSED XMPPProtocolClass *klass)
-{
+xmpp_protocol_class_init(XMPPProtocolClass *klass) {
+	PurpleProtocolClass *protocol_class = PURPLE_PROTOCOL_CLASS(klass);
+
+	protocol_class->get_account_options = xmpp_protocol_get_account_options;
+	protocol_class->get_user_splits = xmpp_protocol_get_user_splits;
 }
 
 static void
@@ -113,4 +125,24 @@ void
 xmpp_protocol_register(PurplePlugin *plugin)
 {
 	xmpp_protocol_register_type(G_TYPE_MODULE(plugin));
+}
+
+PurpleProtocol *
+xmpp_protocol_new(void) {
+	PurpleProtocolOptions options;
+
+	options = OPT_PROTO_CHAT_TOPIC | OPT_PROTO_UNIQUE_CHATNAME |
+	          OPT_PROTO_MAIL_CHECK | OPT_PROTO_SLASH_COMMANDS_NATIVE;
+
+#ifdef HAVE_CYRUS_SASL
+	options |= OPT_PROTO_PASSWORD_OPTIONAL;
+#endif
+
+	return PURPLE_PROTOCOL(g_object_new(
+		XMPP_TYPE_PROTOCOL,
+		"id", XMPP_PROTOCOL_ID,
+		"name", "XMPP",
+		"options", options,
+		NULL
+	));
 }

@@ -3118,6 +3118,49 @@ static const char *mw_protocol_list_icon(PurpleAccount *a, PurpleBuddy *b) {
   return "meanwhile";
 }
 
+static GList *
+mw_protocol_get_account_options(PurpleProtocol *protocol) {
+  PurpleAccountOption *opt;
+  GList *opts = NULL;
+
+  /* port to connect to */
+  opt = purple_account_option_int_new(_("Port"), MW_KEY_PORT,
+                                      MW_PLUGIN_DEFAULT_PORT);
+  opts = g_list_append(opts, opt);
+
+  { /* copy the old force login setting from prefs if it's
+       there. Don't delete the preference, since there may be more
+       than one account that wants to check for it. */
+    gboolean b = FALSE;
+    const gchar *label = _("Force login (ignore server redirects)");
+
+    if (purple_prefs_exists(MW_PROTOCOL_OPT_FORCE_LOGIN))
+      b = purple_prefs_get_bool(MW_PROTOCOL_OPT_FORCE_LOGIN);
+
+    opt = purple_account_option_bool_new(label, MW_KEY_FORCE, b);
+    opts = g_list_append(opts, opt);
+  }
+
+  /* pretend to be Sametime Connect */
+  opt = purple_account_option_bool_new(_("Hide client identity"),
+                                       MW_KEY_FAKE_IT, FALSE);
+  opts = g_list_append(opts, opt);
+
+  return opts;
+}
+
+static GList *
+mw_protocol_get_user_splits(PurpleProtocol *protocol) {
+  PurpleAccountUserSplit *split;
+  GList *splits = NULL;
+
+  /* set up account ID as user:server */
+  split = purple_account_user_split_new(_("Server"),
+                                        MW_PLUGIN_DEFAULT_HOST, ':');
+  splits = g_list_append(splits, split);
+
+  return splits;
+}
 
 static const char *
 mw_protocol_list_emblem(PurpleProtocolClient *client, PurpleBuddy *b) {
@@ -5209,53 +5252,14 @@ static void mw_log_handler(const gchar *domain, GLogLevelFlags flags,
 static void
 mw_protocol_init(mwProtocol *self)
 {
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	PurpleAccountUserSplit *split;
-	PurpleAccountOption *opt;
-	GList *l = NULL;
-
-	protocol->id = PROTOCOL_ID;
-	protocol->name = PROTOCOL_NAME;
-
 	/* set up the preferences */
 	purple_prefs_add_none(MW_PROTOCOL_OPT_BASE);
 	purple_prefs_add_int(MW_PROTOCOL_OPT_BLIST_ACTION,
 	                     BLIST_CHOICE_DEFAULT);
 
-	/* set up account ID as user:server */
-	split = purple_account_user_split_new(_("Server"),
-	                                      MW_PLUGIN_DEFAULT_HOST, ':');
-	protocol->user_splits = g_list_append(protocol->user_splits, split);
-
 	/* remove dead preferences */
 	purple_prefs_remove(MW_PROTOCOL_OPT_PSYCHIC);
 	purple_prefs_remove(MW_PROTOCOL_OPT_SAVE_DYNAMIC);
-
-	/* port to connect to */
-	opt = purple_account_option_int_new(_("Port"), MW_KEY_PORT,
-	                                    MW_PLUGIN_DEFAULT_PORT);
-	l = g_list_append(l, opt);
-
-	{ /* copy the old force login setting from prefs if it's
-	     there. Don't delete the preference, since there may be more
-	     than one account that wants to check for it. */
-		gboolean b = FALSE;
-		const char *label = _("Force login (ignore server redirects)");
-
-		if (purple_prefs_exists(MW_PROTOCOL_OPT_FORCE_LOGIN))
-			b = purple_prefs_get_bool(MW_PROTOCOL_OPT_FORCE_LOGIN);
-
-		opt = purple_account_option_bool_new(label, MW_KEY_FORCE, b);
-		l = g_list_append(l, opt);
-	}
-
-	/* pretend to be Sametime Connect */
-	opt = purple_account_option_bool_new(_("Hide client identity"),
-	                                     MW_KEY_FAKE_IT, FALSE);
-	l = g_list_append(l, opt);
-
-	protocol->account_options = l;
-	l = NULL;
 }
 
 static void
@@ -5267,6 +5271,9 @@ mw_protocol_class_init(mwProtocolClass *klass)
 	protocol_class->close = mw_protocol_close;
 	protocol_class->status_types = mw_protocol_status_types;
 	protocol_class->list_icon = mw_protocol_list_icon;
+
+  protocol_class->get_account_options = mw_protocol_get_account_options;
+  protocol_class->get_user_splits = mw_protocol_get_user_splits;
 }
 
 static void
@@ -5368,6 +5375,15 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_XFER,
                                       mw_protocol_xfer_iface_init));
 
+static PurpleProtocol *
+mw_protocol_new(void) {
+  return PURPLE_PROTOCOL(g_object_new(
+    MW_TYPE_PROTOCOL,
+    "id", PROTOCOL_ID,
+    "name", PROTOCOL_NAME,
+    NULL));
+}
+
 static PurplePluginInfo *
 plugin_query(GError **error)
 {
@@ -5401,7 +5417,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
   mw_xfer_register_type(G_TYPE_MODULE(plugin));
 
-  my_protocol = g_object_new(MW_TYPE_PROTOCOL, NULL);
+  my_protocol = mw_protocol_new();
   if(!purple_protocol_manager_register(manager, my_protocol, error)) {
     g_clear_object(&my_protocol);
 

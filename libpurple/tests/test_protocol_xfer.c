@@ -88,13 +88,18 @@ G_DEFINE_TYPE_WITH_CODE(
 
 static void
 test_purple_protocol_xfer_init(TestPurpleProtocolXfer *prplxfer) {
-	PurpleProtocol *prpl = PURPLE_PROTOCOL(prplxfer);
-
-	prpl->id = "prpl-xfer";
 }
 
 static void
 test_purple_protocol_xfer_class_init(TestPurpleProtocolXferClass *klass) {
+}
+
+static TestPurpleProtocolXfer *
+test_purple_protocol_xfer_new(void) {
+	return (TestPurpleProtocolXfer *)g_object_new(
+		test_purple_protocol_xfer_get_type(),
+		"id", "prpl-xfer",
+		NULL);
 }
 
 /******************************************************************************
@@ -102,7 +107,7 @@ test_purple_protocol_xfer_class_init(TestPurpleProtocolXferClass *klass) {
  *****************************************************************************/
 static void
 test_purple_protocol_xfer_can_receive_func(void) {
-	TestPurpleProtocolXfer *xfer = g_object_new(test_purple_protocol_xfer_get_type(), NULL);
+	TestPurpleProtocolXfer *xfer = test_purple_protocol_xfer_new();
 	PurpleAccount *a = purple_account_new("prpl-xfer-can-receive", "prpl-xfer");
 	PurpleConnection *c = g_object_new(PURPLE_TYPE_CONNECTION, "account", a, NULL);
 	gboolean actual = FALSE;
@@ -112,7 +117,7 @@ test_purple_protocol_xfer_can_receive_func(void) {
 	xfer->can_send = FALSE;
 	actual = purple_protocol_xfer_can_receive(
 		PURPLE_PROTOCOL_XFER(xfer),
-		c, 
+		c,
 		"foo"
 	);
 	g_assert_false(actual);

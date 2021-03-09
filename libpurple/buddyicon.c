@@ -1168,6 +1168,15 @@ purple_buddy_icon_spec_new(char *format, int min_width, int min_height,
 	return icon_spec;
 }
 
+void
+purple_buddy_icon_spec_free(PurpleBuddyIconSpec *spec) {
+	if(spec == NULL) {
+		return;
+	}
+
+	g_free(spec);
+}
+
 static PurpleBuddyIconSpec *
 purple_buddy_icon_spec_copy(PurpleBuddyIconSpec *icon_spec)
 {
@@ -1219,7 +1228,7 @@ purple_buddy_icon_spec_get_type(void)
 	if (type == 0) {
 		type = g_boxed_type_register_static("PurpleBuddyIconSpec",
 				(GBoxedCopyFunc)purple_buddy_icon_spec_copy,
-				(GBoxedFreeFunc)g_free);
+				(GBoxedFreeFunc)purple_buddy_icon_spec_free);
 	}
 
 	return type;

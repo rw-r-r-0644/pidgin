@@ -57,8 +57,10 @@ void ggp_servconn_setup(PurpleAccountOption *server_option)
 		g_list_free_full(extra, g_free);
 	}
 
-	purple_account_option_string_set_hints(global_data.server_option,
-		ggp_servconn_get_servers());
+	if(server_option != NULL) {
+		purple_account_option_string_set_hints(global_data.server_option,
+			ggp_servconn_get_servers());
+	}
 }
 
 void ggp_servconn_cleanup(void)

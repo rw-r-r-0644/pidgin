@@ -212,6 +212,8 @@ set_dialog_icon(AccountPrefsDialog *dialog, gpointer data, size_t len, gchar *ne
 		pixbuf = scale;
 	}
 
+	purple_buddy_icon_spec_free(icon_spec);
+
 	if (pixbuf == NULL)
 	{
 		/* Show a placeholder icon */
@@ -574,6 +576,9 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 			gtk_entry_set_text(GTK_ENTRY(entry), value);
 	}
 
+	g_list_free_full(user_splits,
+	                 (GDestroyNotify)purple_account_user_split_destroy);
+
 	if (username != NULL)
 		gtk_entry_set_text(GTK_ENTRY(dialog->username_entry), username);
 
@@ -713,6 +718,8 @@ add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 			gtk_widget_hide(dialog->icon_check);
 			gtk_widget_hide(dialog->icon_hbox);
 		}
+
+		purple_buddy_icon_spec_free(icon_spec);
 	}
 
 	if (dialog->account != NULL) {
@@ -766,7 +773,7 @@ add_account_options(AccountPrefsDialog *dialog)
 	PurpleAccountOption *option;
 	PurpleAccount *account;
 	GtkWidget *vbox, *check, *entry, *combo;
-	GList *list, *node;
+	GList *list, *node, *opts;
 	gint i, idx, int_value;
 	GtkListStore *model;
 	GtkTreeIter iter;
@@ -788,9 +795,14 @@ add_account_options(AccountPrefsDialog *dialog)
 	g_list_free_full(dialog->protocol_opt_entries, (GDestroyNotify)protocol_opt_entry_free);
 	dialog->protocol_opt_entries = NULL;
 
-	if (dialog->protocol == NULL ||
-			purple_protocol_get_account_options(dialog->protocol) == NULL)
+	if (dialog->protocol == NULL) {
 		return;
+	}
+
+	opts = purple_protocol_get_account_options(dialog->protocol);
+	if(opts == NULL) {
+		return;
+	}
 
 	account = dialog->account;
 
@@ -801,7 +813,7 @@ add_account_options(AccountPrefsDialog *dialog)
 			gtk_label_new_with_mnemonic(_("Ad_vanced")), 1);
 	gtk_widget_show(vbox);
 
-	for (l = purple_protocol_get_account_options(dialog->protocol); l != NULL; l = l->next)
+	for (l = opts; l != NULL; l = l->next)
 	{
 		option = (PurpleAccountOption *)l->data;
 
@@ -978,6 +990,7 @@ add_account_options(AccountPrefsDialog *dialog)
 			g_list_append(dialog->protocol_opt_entries, opt_entry);
 
 	}
+	g_list_free_full(opts, (GDestroyNotify)purple_account_option_destroy);
 }
 
 static GtkWidget *
@@ -1395,6 +1408,8 @@ ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 			purple_buddy_icons_set_account_icon(account, data, len);
 		}
 	}
+
+	purple_buddy_icon_spec_free(icon_spec);
 
 
 	/* Remember Password */
@@ -2166,6 +2181,8 @@ set_account(GtkListStore *store, GtkTreeIter *iter, PurpleAccount *account, GdkP
 			img = purple_buddy_icons_find_account_icon(account);
 		}
 	}
+
+	purple_buddy_icon_spec_free(icon_spec);
 
 	if (img != NULL) {
 		GdkPixbuf *buddyicon_pixbuf;

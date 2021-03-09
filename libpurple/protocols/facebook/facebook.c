@@ -958,6 +958,39 @@ fb_blist_chat_init(PurpleBlistNode *node, gpointer data)
 	g_slist_free(select);
 }
 
+static GList *
+fb_get_account_options(PurpleProtocol *protocol) {
+	GList *opts = NULL;
+	PurpleAccountOption *opt;
+
+	opt = purple_account_option_int_new(_("Buddy list sync interval"),
+	                                    "sync-interval", 5);
+	opts = g_list_prepend(opts, opt);
+
+	opt = purple_account_option_bool_new(_("Mark messages as read on focus"),
+	                                     "mark-read", TRUE);
+	opts = g_list_prepend(opts, opt);
+
+	opt = purple_account_option_bool_new(_("Mark messages as read only when available"),
+	                                     "mark-read-available", FALSE);
+	opts = g_list_prepend(opts, opt);
+
+	opt = purple_account_option_bool_new(_("Show self messages"),
+	                                     "show-self", TRUE);
+	opts = g_list_prepend(opts, opt);
+
+	opt = purple_account_option_bool_new(_("Show unread messages"),
+	                                     "show-unread", TRUE);
+	opts = g_list_prepend(opts, opt);
+
+	opt = purple_account_option_bool_new(_("Open new group chats with "
+	                                       "incoming messages"),
+	                                     "group-chat-open", TRUE);
+	opts = g_list_prepend(opts, opt);
+
+	return g_list_reverse(opts);
+}
+
 static void
 fb_login(PurpleAccount *acct)
 {
@@ -1524,47 +1557,15 @@ fb_cmd_leave(PurpleConversation *conv, const gchar *cmd, gchar **args,
 }
 
 static void
-facebook_protocol_init(FacebookProtocol *self)
-{
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	GList *opts = NULL;
-	PurpleAccountOption *opt;
-
-	protocol->id      = FB_PROTOCOL_ID;
-	protocol->name    = "Facebook";
-	protocol->options = OPT_PROTO_CHAT_TOPIC;
-
-	opt = purple_account_option_int_new(_("Buddy list sync interval"),
-	                                    "sync-interval", 5);
-	opts = g_list_prepend(opts, opt);
-
-	opt = purple_account_option_bool_new(_("Mark messages as read on focus"),
-	                                     "mark-read", TRUE);
-	opts = g_list_prepend(opts, opt);
-
-	opt = purple_account_option_bool_new(_("Mark messages as read only when available"),
-	                                     "mark-read-available", FALSE);
-	opts = g_list_prepend(opts, opt);
-
-	opt = purple_account_option_bool_new(_("Show self messages"),
-	                                     "show-self", TRUE);
-	opts = g_list_prepend(opts, opt);
-
-	opt = purple_account_option_bool_new(_("Show unread messages"),
-	                                     "show-unread", TRUE);
-	opts = g_list_prepend(opts, opt);
-
-	opt = purple_account_option_bool_new(_("Open new group chats with "
-	                                       "incoming messages"),
-	                                     "group-chat-open", TRUE);
-	opts = g_list_prepend(opts, opt);
-	protocol->account_options = g_list_reverse(opts);
+facebook_protocol_init(FacebookProtocol *self) {
 }
 
 static void
 facebook_protocol_class_init(FacebookProtocolClass *klass)
 {
 	PurpleProtocolClass *protocol_class = PURPLE_PROTOCOL_CLASS(klass);
+
+	protocol_class->get_account_options  = fb_get_account_options;
 
 	protocol_class->login = fb_login;
 	protocol_class->close = fb_close;
@@ -1643,13 +1644,13 @@ fb_cmds_register(void)
 	g_return_if_fail(fb_cmds == NULL);
 
 	id = purple_cmd_register("kick", "s", PURPLE_CMD_P_PROTOCOL, cflags,
-				 fb_protocol->id, fb_cmd_kick,
+				 FB_PROTOCOL_ID, fb_cmd_kick,
 				 _("kick: Kick someone from the chat"),
 				 NULL);
 	fb_cmds = g_slist_prepend(fb_cmds, GUINT_TO_POINTER(id));
 
 	id = purple_cmd_register("leave", "", PURPLE_CMD_P_PROTOCOL, cflags,
-				 fb_protocol->id, fb_cmd_leave,
+				 FB_PROTOCOL_ID, fb_cmd_leave,
 				 _("leave: Leave the chat"),
 				 NULL);
 	fb_cmds = g_slist_prepend(fb_cmds, GUINT_TO_POINTER(id));
@@ -1692,7 +1693,11 @@ plugin_load(PurplePlugin *plugin, GError **error)
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
 	facebook_protocol_register_type(G_TYPE_MODULE(plugin));
-	fb_protocol = g_object_new(FACEBOOK_TYPE_PROTOCOL, NULL);
+	fb_protocol = g_object_new(FACEBOOK_TYPE_PROTOCOL,
+	                           "id", FB_PROTOCOL_ID,
+	                           "name", "Facebook",
+	                           "options", OPT_PROTO_CHAT_TOPIC,
+	                           NULL);
 
 	if(!purple_protocol_manager_register(manager, fb_protocol, error)) {
 		g_clear_object(&fb_protocol);

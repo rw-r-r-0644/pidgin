@@ -287,7 +287,7 @@ purple_log_get_log_dir(PurpleLogType type, const char *name, PurpleAccount *acco
 	if (!protocol)
 		return NULL;
 
-	protocol_name = purple_protocol_class_list_icon(protocol, account, NULL);
+	protocol_name = purple_protocol_get_list_icon(protocol, account, NULL);
 
 	acct_name = g_strdup(purple_escape_filename(purple_normalize(account,
 				purple_account_get_username(account))));
@@ -996,7 +996,7 @@ static void log_get_log_sets_common(GHashTable *sets)
 			if (!protocol)
 				continue;
 
-			if (purple_strequal(protocol_unescaped, purple_protocol_class_list_icon(protocol, (PurpleAccount *)account_iter->data, NULL)))
+			if (purple_strequal(protocol_unescaped, purple_protocol_get_list_icon(protocol, (PurpleAccount *)account_iter->data, NULL)))
 				accounts = g_list_prepend(accounts, account_iter->data);
 		}
 		g_free(protocol_unescaped);
@@ -1182,7 +1182,7 @@ static gsize html_logger_write(PurpleLog *log, PurpleMessageFlags type,
 	gsize written = 0;
 
 	if(!data) {
-		const char *proto = purple_protocol_class_list_icon(protocol, log->account, NULL);
+		const char *proto = purple_protocol_get_list_icon(protocol, log->account, NULL);
 		GDateTime *dt;
 		gchar *date;
 		purple_log_common_writer(log, ".html");
@@ -1344,7 +1344,7 @@ static gsize txt_logger_write(PurpleLog *log, PurpleMessageFlags type,
 		 * creating a new file there would result in empty files in the case
 		 * that you open a convo with someone, but don't say anything.
 		 */
-		const char *proto = purple_protocol_class_list_icon(protocol, log->account, NULL);
+		const char *proto = purple_protocol_get_list_icon(protocol, log->account, NULL);
 		GDateTime *dt;
 		gchar *date;
 		purple_log_common_writer(log, ".txt");

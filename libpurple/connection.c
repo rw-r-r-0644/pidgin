@@ -886,7 +886,7 @@ purple_connection_finalize(GObject *object)
 
 	update_keepalive(gc, FALSE);
 
-	purple_protocol_class_close(priv->protocol, gc);
+	purple_protocol_close(priv->protocol, gc);
 
 	/* Clear out the proto data that was freed in the protocol's close method */
 	buddies = purple_blist_find_buddies(account, NULL);
@@ -1048,7 +1048,7 @@ _purple_connection_new(PurpleAccount *account, gboolean regist, const char *pass
 		purple_debug_info("connection", "Connecting. gc = %p\n", gc);
 
 		purple_signal_emit(purple_accounts_get_handle(), "account-connecting", account);
-		purple_protocol_class_login(protocol, account);
+		purple_protocol_login(protocol, account);
 	}
 }
 

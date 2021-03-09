@@ -2831,6 +2831,22 @@ novell_list_icon(PurpleAccount * account, PurpleBuddy * buddy)
 	return "novell";
 }
 
+static GList *
+novell_protocol_get_account_options(PurpleProtocol *protocol) {
+	PurpleAccountOption *option;
+	GList *opts = NULL;
+
+	option = purple_account_option_string_new(_("Server address"), "server",
+	                                          NULL);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_int_new(_("Server port"), "port",
+	                                       DEFAULT_PORT);
+	opts = g_list_append(opts, option);
+
+	return opts;
+}
+
 static void
 novell_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *buddy,
                     PurpleNotifyUserInfo *user_info, gboolean full)
@@ -3507,19 +3523,6 @@ novell_get_max_message_size(PurpleProtocolClient *client,
 static void
 novell_protocol_init(NovellProtocol *self)
 {
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	PurpleAccountOption *option;
-
-	protocol->id   = "prpl-novell";
-	protocol->name = "GroupWise";
-
-	option = purple_account_option_string_new(_("Server address"), "server", NULL);
-	protocol->account_options =
-		g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_int_new(_("Server port"), "port", DEFAULT_PORT);
-	protocol->account_options =
-		g_list_append(protocol->account_options, option);
 }
 
 static void
@@ -3531,6 +3534,8 @@ novell_protocol_class_init(NovellProtocolClass *klass)
 	protocol_class->close = novell_close;
 	protocol_class->status_types = novell_status_types;
 	protocol_class->list_icon = novell_list_icon;
+
+	protocol_class->get_account_options = novell_protocol_get_account_options;
 }
 
 static void
@@ -3607,6 +3612,15 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_PRIVACY,
                                       novell_protocol_privacy_iface_init));
 
+static PurpleProtocol *
+novell_protocol_new(void) {
+	return PURPLE_PROTOCOL(g_object_new(
+		NOVELL_TYPE_PROTOCOL,
+		"id", "prpl-novell",
+		"name", "GroupWise",
+		NULL));
+}
+
 static PurplePluginInfo *
 plugin_query(GError **error)
 {
@@ -3632,7 +3646,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	novell_protocol_register_type(G_TYPE_MODULE(plugin));
 
-	my_protocol = g_object_new(NOVELL_TYPE_PROTOCOL, NULL);
+	my_protocol = novell_protocol_new();
 	if(!purple_protocol_manager_register(manager, my_protocol, error)) {
 		g_clear_object(&my_protocol);
 

@@ -202,6 +202,43 @@ bonjour_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 	return BONJOUR_ICON_NAME;
 }
 
+static GList *
+bonjour_protocol_get_account_options(PurpleProtocol *protocol) {
+	PurpleAccountOption *option;
+	GList *opts = NULL;
+
+	/* Creating the options for the protocol */
+	option = purple_account_option_int_new(_("Local Port"), "port",
+	                                       BONJOUR_DEFAULT_PORT);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("First name"), "first",
+	                                          default_firstname);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("Last name"), "last",
+	                                          default_lastname);
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("Email"), "email", "");
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("AIM Account"), "AIM", "");
+	opts = g_list_append(opts, option);
+
+	option = purple_account_option_string_new(_("XMPP Account"), "jid", "");
+	opts = g_list_append(opts, option);
+
+	return opts;
+}
+
+static PurpleBuddyIconSpec *
+bonjour_protocol_get_buddy_icon_spec(PurpleProtocol *protocol) {
+	return purple_buddy_icon_spec_new("png,gif,jpeg",
+	                                  0, 0, 96, 96, 65535,
+	                                  PURPLE_ICON_SCALE_DISPLAY);
+}
+
 static int
 bonjour_send_im(PurpleProtocolIM *im, PurpleConnection *connection, PurpleMessage *msg)
 {
@@ -639,34 +676,6 @@ initialize_default_account_values(void)
 static void
 bonjour_protocol_init(BonjourProtocol *self)
 {
-	PurpleProtocol *protocol = PURPLE_PROTOCOL(self);
-	PurpleAccountOption *option;
-
-	protocol->id        = "prpl-bonjour";
-	protocol->name      = "Bonjour";
-	protocol->options   = OPT_PROTO_NO_PASSWORD;
-	protocol->icon_spec = purple_buddy_icon_spec_new("png,gif,jpeg",
-	                                                 0, 0, 96, 96, 65535,
-	                                                 PURPLE_ICON_SCALE_DISPLAY);
-
-	/* Creating the options for the protocol */
-	option = purple_account_option_int_new(_("Local Port"), "port", BONJOUR_DEFAULT_PORT);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("First name"), "first", default_firstname);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("Last name"), "last", default_lastname);
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("Email"), "email", "");
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("AIM Account"), "AIM", "");
-	protocol->account_options = g_list_append(protocol->account_options, option);
-
-	option = purple_account_option_string_new(_("XMPP Account"), "jid", "");
-	protocol->account_options = g_list_append(protocol->account_options, option);
 }
 
 static void
@@ -678,6 +687,9 @@ bonjour_protocol_class_init(BonjourProtocolClass *klass)
 	protocol_class->close = bonjour_close;
 	protocol_class->status_types = bonjour_status_types;
 	protocol_class->list_icon = bonjour_list_icon;
+
+	protocol_class->get_account_options = bonjour_protocol_get_account_options;
+	protocol_class->get_buddy_icon_spec = bonjour_protocol_get_buddy_icon_spec;
 }
 
 static void
@@ -734,6 +746,16 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_XFER,
                                       bonjour_protocol_xfer_iface_init));
 
+static PurpleProtocol *
+bonjour_protocol_new(void) {
+	return PURPLE_PROTOCOL(g_object_new(
+		BONJOUR_TYPE_PROTOCOL,
+		"id", "prpl-bonjour",
+		"name", "Bonjour",
+		"options", OPT_PROTO_NO_PASSWORD,
+		NULL));
+}
+
 static PurplePluginInfo *
 plugin_query(GError **error)
 {
@@ -761,7 +783,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 	xep_xfer_register(G_TYPE_MODULE(plugin));
 
-	my_protocol = g_object_new(BONJOUR_TYPE_PROTOCOL, NULL);
+	my_protocol = bonjour_protocol_new();
 	if(!purple_protocol_manager_register(manager, my_protocol, error)) {
 		g_clear_object(&my_protocol);
 
