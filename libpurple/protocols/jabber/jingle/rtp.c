@@ -453,44 +453,41 @@ jingle_rtp_parse_codecs(PurpleXmlNode *description)
 }
 
 static void
-jingle_rtp_add_payloads(PurpleXmlNode *description, GList *codecs)
+add_parameter_to_payload(PurpleKeyValuePair *mparam, PurpleXmlNode *payload)
 {
-	for (; codecs ; codecs = codecs->next) {
-		PurpleMediaCodec *codec = (PurpleMediaCodec*)codecs->data;
-		GList *iter = purple_media_codec_get_optional_parameters(codec);
-		gchar *id, *name, *clockrate, *channels;
-		gchar *codec_str;
-		PurpleXmlNode *payload = purple_xmlnode_new_child(description, "payload-type");
+	PurpleXmlNode *param = purple_xmlnode_new_child(payload, "parameter");
+	purple_xmlnode_set_attrib(param, "name", mparam->key);
+	purple_xmlnode_set_attrib(param, "value", mparam->value);
+}
 
-		id = g_strdup_printf("%d",
-				purple_media_codec_get_id(codec));
-		name = purple_media_codec_get_encoding_name(codec);
-		clockrate = g_strdup_printf("%d",
-				purple_media_codec_get_clock_rate(codec));
-		channels = g_strdup_printf("%d",
-				purple_media_codec_get_channels(codec));
+static void
+jingle_rtp_add_payload(gpointer codec, gpointer description)
+{
+	gchar *id, *name, *clockrate, *channels;
+	gchar *codec_str;
+	PurpleXmlNode *payload = purple_xmlnode_new_child(description, "payload-type");
 
-		purple_xmlnode_set_attrib(payload, "name", name);
-		purple_xmlnode_set_attrib(payload, "id", id);
-		purple_xmlnode_set_attrib(payload, "clockrate", clockrate);
-		purple_xmlnode_set_attrib(payload, "channels", channels);
+	id = g_strdup_printf("%d", purple_media_codec_get_id(codec));
+	name = purple_media_codec_get_encoding_name(codec);
+	clockrate = g_strdup_printf("%d", purple_media_codec_get_clock_rate(codec));
+	channels = g_strdup_printf("%d", purple_media_codec_get_channels(codec));
 
-		g_free(channels);
-		g_free(clockrate);
-		g_free(name);
-		g_free(id);
+	purple_xmlnode_set_attrib(payload, "name", name);
+	purple_xmlnode_set_attrib(payload, "id", id);
+	purple_xmlnode_set_attrib(payload, "clockrate", clockrate);
+	purple_xmlnode_set_attrib(payload, "channels", channels);
 
-		for (; iter; iter = g_list_next(iter)) {
-			PurpleKeyValuePair *mparam = iter->data;
-			PurpleXmlNode *param = purple_xmlnode_new_child(payload, "parameter");
-			purple_xmlnode_set_attrib(param, "name", mparam->key);
-			purple_xmlnode_set_attrib(param, "value", mparam->value);
-		}
+	g_free(channels);
+	g_free(clockrate);
+	g_free(name);
+	g_free(id);
 
-		codec_str = purple_media_codec_to_string(codec);
-		purple_debug_info("jingle", "adding codec: %s\n", codec_str);
-		g_free(codec_str);
-	}
+	g_list_foreach(purple_media_codec_get_optional_parameters(codec),
+	               (GFunc)add_parameter_to_payload, payload);
+
+	codec_str = purple_media_codec_to_string(codec);
+	purple_debug_info("jingle", "adding codec: %s", codec_str);
+	g_free(codec_str);
 }
 
 /******************************************************************************
@@ -518,7 +515,7 @@ jingle_rtp_to_xml_internal(JingleContent *rtp, PurpleXmlNode *content, JingleAct
 		g_free(name);
 		g_object_unref(session);
 
-		jingle_rtp_add_payloads(description, codecs);
+		g_list_foreach(codecs, jingle_rtp_add_payload, description);
 		purple_media_codec_list_free(codecs);
 	}
 	return node;
