@@ -522,16 +522,22 @@ bonjour_get_max_message_size(PurpleProtocolClient *client, PurpleConversation *c
 }
 
 #ifdef WIN32
-static gboolean
-_set_default_name_cb(gpointer data) {
-	gchar *fullname = data;
+static void
+_set_default_name_cb(G_GNUC_UNUSED GObject *source, GAsyncResult *result,
+                     G_GNUC_UNUSED gpointer data)
+{
+	gchar *fullname = NULL;
 	const char *splitpoint;
-	GList *tmp = my_protocol->account_options;
-	PurpleAccountOption *option;
+	GError *error = NULL;
 
-	if (!fullname) {
-		purple_debug_info("bonjour", "Unable to look up First and Last name or Username from system; using defaults.\n");
-		return FALSE;
+	fullname = g_task_propagate_pointer(G_TASK(result), &error);
+	if (fullname == NULL) {
+		purple_debug_info("bonjour",
+		                  "Unable to look up First and Last name or Username "
+		                  "from system (%s); using defaults.",
+		                  error ? error->message : "unknown reason");
+		g_clear_error(&error);
+		return;
 	}
 
 	g_free(default_firstname);
@@ -547,28 +553,20 @@ _set_default_name_cb(gpointer data) {
 		default_lastname = g_strdup("");
 	}
 	g_free(fullname);
-
-
-	for(; tmp != NULL; tmp = tmp->next) {
-		option = tmp->data;
-		if (purple_strequal("first", purple_account_option_get_setting(option)))
-			purple_account_option_set_default_string(option, default_firstname);
-		else if (purple_strequal("last", purple_account_option_get_setting(option)))
-			purple_account_option_set_default_string(option, default_lastname);
-	}
-
-	return FALSE;
 }
 
-static gpointer
-_win32_name_lookup_thread(gpointer data) {
+static void
+_win32_name_lookup_thread(GTask *task, G_GNUC_UNUSED gpointer source,
+                          G_GNUC_UNUSED gpointer data,
+                          G_GNUC_UNUSED GCancellable *cancellable)
+{
 	gchar *fullname = NULL;
 	wchar_t username[UNLEN + 1];
 	DWORD dwLenUsername = UNLEN + 1;
 
 	GetUserNameW((LPWSTR) &username, &dwLenUsername);
 
-	if (username != NULL && *username != '\0') {
+	if (*username != '\0') {
 		LPBYTE servername = NULL;
 		LPBYTE info = NULL;
 
@@ -606,9 +604,7 @@ _win32_name_lookup_thread(gpointer data) {
 			fullname = g_utf16_to_utf8(username, -1, NULL, NULL, NULL);
 	}
 
-	g_timeout_add(0, _set_default_name_cb, fullname);
-
-	return NULL;
+	g_task_return_pointer(task, fullname, g_free);
 }
 #endif
 
@@ -618,7 +614,7 @@ initialize_default_account_values(void)
 #ifndef _WIN32
 	struct passwd *info;
 #else
-	GThread *lookup_thread;
+	GTask *lookup;
 #endif
 	const char *fullname = NULL, *splitpoint, *tmp;
 	gchar *conv = NULL;
@@ -634,11 +630,9 @@ initialize_default_account_values(void)
 		fullname = NULL;
 #else
 	/* The Win32 username lookup functions are synchronous so we do it in a thread */
-	lookup_thread = g_thread_try_new("bonjour dns thread", _win32_name_lookup_thread, NULL, NULL);
-	if (lookup_thread)
-		g_thread_unref(lookup_thread);
-	else
-		purple_debug_fatal("bonjour", "failed to create lookup thread\n");
+	lookup = g_task_new(my_protocol, NULL, _set_default_name_cb, NULL);
+	g_task_run_in_thread(lookup, _win32_name_lookup_thread);
+	g_object_unref(lookup);
 #endif
 
 	/* Make sure fullname is valid UTF-8.  If not, try to convert it. */
