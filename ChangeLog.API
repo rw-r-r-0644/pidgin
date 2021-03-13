@@ -48,6 +48,7 @@ version 3.0.0 (??/??/????):
 		* purple_request_certificate
 		* purple_request_field_certificate_new
 		* purple_request_field_certificate_get_value
+		* purple_request_field_choice_add_full
 		* purple_request_field_get_tooltip
 		* purple_request_field_group_get_fields_list
 		* purple_request_field_set_tooltip
@@ -492,6 +493,8 @@ version 3.0.0 (??/??/????):
 		* purple_quotedp_decode. See the GMime library if needed.
 		* purple_restore_default_signal_handlers
 		* purple_request_certificate
+		* purple_request_field_choice_set_data_destructor. Use
+		  purple_request_field_choice_add_full instead
 		* purple_request_field_list_add
 		* PurpleSetPublicAliasFailureCallback
 		* PurpleSetPublicAliasSuccessCallback
