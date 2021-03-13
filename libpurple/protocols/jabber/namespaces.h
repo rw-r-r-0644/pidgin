@@ -53,10 +53,6 @@
 #define NS_XHTML_IM "http://jabber.org/protocol/xhtml-im"
 #define NS_XHTML "http://www.w3.org/1999/xhtml"
 
-/* XEP-0084 v0.12 User Avatar */
-#define NS_AVATAR_0_12_DATA     "http://www.xmpp.org/extensions/xep-0084.html#ns-data"
-#define NS_AVATAR_0_12_METADATA "http://www.xmpp.org/extensions/xep-0084.html#ns-metadata"
-
 /* XEP-0084 v1.1 User Avatar */
 #define NS_AVATAR_1_1_DATA      "urn:xmpp:avatar:data"
 #define NS_AVATAR_1_1_METADATA  "urn:xmpp:avatar:metadata"
