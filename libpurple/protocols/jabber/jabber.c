@@ -3369,8 +3369,6 @@ jabber_initiate_media(PurpleProtocolMedia *media, PurpleAccount *account,
 		PurpleRequestFieldGroup *group;
 		JabberMediaRequest *request;
 
-		purple_request_field_choice_set_data_destructor(field, g_free);
-
 		for(l = jb->resources; l; l = l->next)
 		{
 			JabberBuddyResource *ljbr = l->data;
@@ -3384,19 +3382,19 @@ jabber_initiate_media(PurpleProtocolMedia *media, PurpleAccount *account,
 					(type & PURPLE_MEDIA_VIDEO)) {
 				if (caps & PURPLE_MEDIA_CAPS_AUDIO_VIDEO) {
 					jbr = ljbr;
-					purple_request_field_choice_add(field,
-						jbr->name, g_strdup(jbr->name));
+					purple_request_field_choice_add_full(field,
+					        jbr->name, g_strdup(jbr->name), g_free);
 				}
 			} else if (type & (PURPLE_MEDIA_AUDIO) &&
 					(caps & PURPLE_MEDIA_CAPS_AUDIO)) {
 				jbr = ljbr;
-				purple_request_field_choice_add(field,
-					jbr->name, g_strdup(jbr->name));
+				purple_request_field_choice_add_full(field,
+				        jbr->name, g_strdup(jbr->name), g_free);
 			}else if (type & (PURPLE_MEDIA_VIDEO) &&
 					(caps & PURPLE_MEDIA_CAPS_VIDEO)) {
 				jbr = ljbr;
-				purple_request_field_choice_add(field,
-					jbr->name, g_strdup(jbr->name));
+				purple_request_field_choice_add_full(field,
+				        jbr->name, g_strdup(jbr->name), g_free);
 			}
 		}
 

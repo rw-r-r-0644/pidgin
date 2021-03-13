@@ -93,7 +93,6 @@ struct _PurpleRequestField
 			gpointer value;
 
 			GList *elements;
-			GDestroyNotify data_destroy;
 		} choice;
 
 		struct
@@ -944,14 +943,7 @@ purple_request_field_destroy(PurpleRequestField *field)
 	}
 	else if (field->type == PURPLE_REQUEST_FIELD_CHOICE)
 	{
-		for (GList *it = field->u.choice.elements; it != NULL; it = g_list_next(it)) {
-			PurpleKeyValuePair *choice = it->data;
-
-			if (choice->value && field->u.choice.data_destroy)
-				field->u.choice.data_destroy(choice->value);
-			purple_key_value_pair_free(choice);
-		}
-		g_list_free(field->u.choice.elements);
+		g_list_free_full(field->u.choice.elements, (GDestroyNotify)purple_key_value_pair_free);
 	}
 	else if (field->type == PURPLE_REQUEST_FIELD_LIST)
 	{
@@ -1467,13 +1459,20 @@ void
 purple_request_field_choice_add(PurpleRequestField *field, const char *label,
 	gpointer value)
 {
+	purple_request_field_choice_add_full(field, label, value, NULL);
+}
+
+void
+purple_request_field_choice_add_full(PurpleRequestField *field, const char *label,
+                                     gpointer value, GDestroyNotify destroy)
+{
 	PurpleKeyValuePair *choice;
 
 	g_return_if_fail(field != NULL);
 	g_return_if_fail(label != NULL);
 	g_return_if_fail(field->type == PURPLE_REQUEST_FIELD_CHOICE);
 
-	choice = purple_key_value_pair_new(label, value);
+	choice = purple_key_value_pair_new_full(label, value, destroy);
 
 	field->u.choice.elements = g_list_append(field->u.choice.elements,
 		choice);
@@ -1525,16 +1524,6 @@ purple_request_field_choice_get_elements(const PurpleRequestField *field)
 	g_return_val_if_fail(field->type == PURPLE_REQUEST_FIELD_CHOICE, NULL);
 
 	return field->u.choice.elements;
-}
-
-void
-purple_request_field_choice_set_data_destructor(PurpleRequestField *field,
-	GDestroyNotify destroy)
-{
-	g_return_if_fail(field != NULL);
-	g_return_if_fail(field->type == PURPLE_REQUEST_FIELD_CHOICE);
-
-	field->u.choice.data_destroy = destroy;
 }
 
 PurpleRequestField *

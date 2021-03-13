@@ -361,7 +361,6 @@ void *jabber_x_data_request_with_actions(JabberStream *js, PurpleXmlNode *packet
 		data->actiongroup = group = purple_request_field_group_new(_("Actions"));
 		purple_request_fields_add_group(fields, group);
 		actionfield = purple_request_field_choice_new("libpurple:jabber:xdata:actions", _("Select an action"), GINT_TO_POINTER(defaultaction));
-		purple_request_field_choice_set_data_destructor(actionfield, g_free);
 
 		for(i = 0, action = actions; action; action = g_list_next(action), i++) {
 			JabberXDataAction *a = action->data;

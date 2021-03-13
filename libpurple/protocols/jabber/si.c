@@ -1594,11 +1594,9 @@ static void jabber_si_xfer_xfer_init(PurpleXfer *xfer)
 			PurpleRequestField *field = purple_request_field_choice_new("resource", _("Resource"), 0);
 			PurpleRequestFieldGroup *group = purple_request_field_group_new(NULL);
 
-			purple_request_field_choice_set_data_destructor(field, g_free);
-
 			for(l = resources; l; l = l->next) {
 				jbr = l->data;
-				purple_request_field_choice_add(field, jbr->name, g_strdup(jbr->name));
+				purple_request_field_choice_add_full(field, jbr->name, g_strdup(jbr->name), g_free);
 			}
 
 			purple_request_field_group_add_field(group, field);

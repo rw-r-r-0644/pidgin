@@ -1432,6 +1432,21 @@ purple_request_field_choice_add(PurpleRequestField *field, const char *label,
 	gpointer data);
 
 /**
+ * purple_request_field_choice_add_full:
+ * @field: The choice field.
+ * @label: The choice label.
+ * @data:  The choice value.
+ * @destroy: The value destroy function.
+ *
+ * Adds a choice to a multiple choice field with destructor for value.
+ *
+ * Since: 3.0.0
+ */
+void
+purple_request_field_choice_add_full(PurpleRequestField *field, const char *label,
+                                     gpointer data, GDestroyNotify destroy);
+
+/**
  * purple_request_field_choice_set_default_value:
  * @field:         The field.
  * @default_value: The default value.
@@ -1485,17 +1500,6 @@ purple_request_field_choice_get_value(const PurpleRequestField *field);
  */
 GList *
 purple_request_field_choice_get_elements(const PurpleRequestField *field);
-
-/**
- * purple_request_field_choice_set_data_destructor:
- * @field:   The field.
- * @destroy: The destroy function.
- *
- * Sets the destructor for field values.
- */
-void
-purple_request_field_choice_set_data_destructor(PurpleRequestField *field,
-	GDestroyNotify destroy);
 
 /**************************************************************************/
 /* List Field API                                                         */
