@@ -30,6 +30,8 @@
 
 #include <gio/gio.h>
 
+#include "glibcompat.h"
+
 #include "debug.h"
 #include "account.h"
 #include "network.h"

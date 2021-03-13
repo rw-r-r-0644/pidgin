@@ -25,6 +25,8 @@
 
 #include "upnp.h"
 
+#include "glibcompat.h"
+
 #include "debug.h"
 #include "eventloop.h"
 #include "network.h"
