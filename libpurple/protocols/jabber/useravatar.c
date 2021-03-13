@@ -48,38 +48,12 @@ void jabber_avatar_init(void)
 	                            update_buddy_metadata);
 }
 
-static void
-remove_avatar_0_12_nodes(JabberStream *js)
-{
-	/*
-	 * This causes ejabberd 2.0.0 to kill the connection unceremoniously.
-	 * See https://support.process-one.net/browse/EJAB-623. When adiumx.com
-	 * was upgraded, the issue went away.
-	 *
-	 * I think it makes a lot of sense to not have an avatar at the old
-	 * node instead of having something interpreted as "no avatar". When
-	 * a contact with an older client logs in, in the latter situation,
-	 * there's a race between interpreting the <presence/> vcard-temp:x:update
-	 * avatar (non-empty) and the XEP-0084 v0.12 avatar (empty, so show no
-	 * avatar for the buddy) which leads to unhappy and confused users.
-	 *
-	 * A deluge of frustrating "Read error" bug reports may change my mind
-	 * about this.
-	 * --darkrain42
-	 */
-	jabber_pep_delete_node(js, NS_AVATAR_0_12_METADATA);
-	jabber_pep_delete_node(js, NS_AVATAR_0_12_DATA);
-}
-
 void jabber_avatar_set(JabberStream *js, PurpleImage *img)
 {
 	PurpleXmlNode *publish, *metadata, *item;
 
 	if (!js->pep)
 		return;
-
-	/* Hmmm, not sure if this is worth the traffic, but meh */
-	remove_avatar_0_12_nodes(js);
 
 	if (!img) {
 		publish = purple_xmlnode_new("publish");
@@ -196,14 +170,6 @@ void jabber_avatar_set(JabberStream *js, PurpleImage *img)
 }
 
 static void
-do_got_own_avatar_0_12_cb(JabberStream *js, const char *from, PurpleXmlNode *items)
-{
-	if (items)
-		/* It wasn't an error (i.e. 'item-not-found') */
-		remove_avatar_0_12_nodes(js);
-}
-
-static void
 do_got_own_avatar_cb(JabberStream *js, const char *from, PurpleXmlNode *items)
 {
 	PurpleXmlNode *item = NULL, *metadata = NULL, *info = NULL;
@@ -233,8 +199,6 @@ do_got_own_avatar_cb(JabberStream *js, const char *from, PurpleXmlNode *items)
 void jabber_avatar_fetch_mine(JabberStream *js)
 {
 	if (js->initial_avatar_hash) {
-		jabber_pep_request_item(js, NULL, NS_AVATAR_0_12_METADATA, NULL,
-		                        do_got_own_avatar_0_12_cb);
 		jabber_pep_request_item(js, NULL, NS_AVATAR_1_1_METADATA, NULL,
 		                        do_got_own_avatar_cb);
 	}
