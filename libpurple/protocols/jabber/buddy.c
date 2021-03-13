@@ -24,6 +24,8 @@
 
 #include <purple.h>
 
+#include "glibcompat.h"
+
 #include "buddy.h"
 #include "chat.h"
 #include "jabber.h"
