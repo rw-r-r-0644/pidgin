@@ -121,9 +121,10 @@ jabber_bosh_connection_new(JabberStream *js, const gchar *url)
 
 	conn = g_new0(PurpleJabberBOSHConnection, 1);
 	conn->payload_reqs = soup_session_new_with_options(
-	        SOUP_SESSION_PROXY_RESOLVER, resolver, SOUP_SESSION_TIMEOUT,
-	        JABBER_BOSH_TIMEOUT + 2, SOUP_SESSION_USER_AGENT,
-	        jabber_bosh_useragent, NULL);
+	        "proxy-resolver", resolver,
+	        "timeout", JABBER_BOSH_TIMEOUT + 2,
+	        "user-agent", jabber_bosh_useragent,
+	        NULL);
 	conn->url = g_strdup(url);
 	conn->js = js;
 	conn->is_ssl = (url_p->scheme == SOUP_URI_SCHEME_HTTPS);

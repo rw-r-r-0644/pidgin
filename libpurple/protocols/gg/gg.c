@@ -782,8 +782,8 @@ static void ggp_login(PurpleAccount *account)
 
 	purple_connection_set_protocol_data(gc, info);
 
-	info->http = soup_session_new_with_options(SOUP_SESSION_PROXY_RESOLVER,
-	                                           resolver, NULL);
+	info->http = soup_session_new_with_options("proxy-resolver", resolver,
+	                                           NULL);
 
 	ggp_tcpsocket_setup(gc, glp);
 	ggp_image_setup(gc);

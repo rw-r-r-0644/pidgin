@@ -919,8 +919,8 @@ jabber_stream_new(PurpleAccount *account)
 	js = g_new0(JabberStream, 1);
 	purple_connection_set_protocol_data(gc, js);
 	js->gc = gc;
-	js->http_conns = soup_session_new_with_options(SOUP_SESSION_PROXY_RESOLVER,
-	                                               resolver, NULL);
+	js->http_conns = soup_session_new_with_options("proxy-resolver", resolver,
+	                                               NULL);
 	g_object_unref(resolver);
 
 	/* we might want to expose this at some point */

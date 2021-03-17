@@ -1922,8 +1922,9 @@ fb_api_new(PurpleConnection *gc, GProxyResolver *resolver)
 
 	priv->gc = gc;
 	priv->cons = soup_session_new_with_options(
-	        SOUP_SESSION_PROXY_RESOLVER, resolver, SOUP_SESSION_USER_AGENT,
-	        FB_API_AGENT, NULL);
+	        "proxy-resolver", resolver,
+	        "user-agent", FB_API_AGENT,
+	        NULL);
 	priv->mqtt = fb_mqtt_new(gc);
 
 	g_signal_connect(priv->mqtt,

@@ -174,8 +174,8 @@ fb_data_new(PurpleConnection *gc, GProxyResolver *resolver)
 	fata = g_object_new(FB_TYPE_DATA, NULL);
 	priv = fata->priv;
 
-	priv->cons = soup_session_new_with_options(SOUP_SESSION_PROXY_RESOLVER,
-	                                           resolver, NULL);
+	priv->cons = soup_session_new_with_options("proxy-resolver", resolver,
+	                                           NULL);
 	priv->api = fb_api_new(gc, resolver);
 	priv->gc = gc;
 
