@@ -109,9 +109,9 @@ ggp_edisc_setup(PurpleConnection *gc, GProxyResolver *resolver)
 
 	accdata->edisc_data = sdata;
 
-	sdata->session = soup_session_new_with_options(
-	        SOUP_SESSION_PROXY_RESOLVER, resolver,
-	        SOUP_SESSION_ADD_FEATURE_BY_TYPE, SOUP_TYPE_COOKIE_JAR, NULL);
+	sdata->session = soup_session_new_with_options("proxy-resolver", resolver,
+	                                               NULL);
+	soup_session_add_feature_by_type(sdata->session, SOUP_TYPE_COOKIE_JAR);
 	sdata->xfers_initialized = g_hash_table_new(g_str_hash, g_str_equal);
 	sdata->xfers_history = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 }
