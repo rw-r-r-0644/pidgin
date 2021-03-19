@@ -24,13 +24,6 @@
 
 #include "pidgin/pidginavatar.h"
 
-#define PIDGIN_AVATAR_ACTION_PREFIX "avatar"
-
-/* if you change this value, you _MUST_ update Avatar/menu.ui for the new value
- * as well.
- */
-#define PIDGIN_AVATAR_ANIMATE_ACTION "animate"
-
 struct _PidginAvatar {
 	GtkEventBox parent;
 
@@ -57,16 +50,6 @@ G_DEFINE_TYPE(PidginAvatar, pidgin_avatar, GTK_TYPE_EVENT_BOX)
 /******************************************************************************
  * Actions
  *****************************************************************************/
-static void
-pidgin_avatar_animate_toggle(GSimpleAction *action, GVariant *value,
-                             gpointer data)
-{
-	PidginAvatar *avatar = PIDGIN_AVATAR(data);
-
-	pidgin_avatar_set_animate(avatar, g_variant_get_boolean(value));
-	g_simple_action_set_state(action, value);
-}
-
 static void
 pidgin_avatar_save_response_cb(GtkNativeDialog *native, gint response,
                                gpointer data)
@@ -196,10 +179,6 @@ pidgin_avatar_clear_custom_cb(GSimpleAction *action, GVariant *parameter,
 
 static GActionEntry actions[] = {
 	{
-		.name = PIDGIN_AVATAR_ANIMATE_ACTION,
-		.state = "false",
-		.change_state = pidgin_avatar_animate_toggle,
-	}, {
 		.name = "save-avatar",
 		.activate = pidgin_avatar_save_cb,
 	}, {
@@ -386,19 +365,8 @@ pidgin_avatar_leave_notify_handler(GtkWidget *widget, GdkEvent *event,
                                    gpointer user_data)
 {
 	PidginAvatar *avatar = PIDGIN_AVATAR(widget);
-	GActionGroup *group = NULL;
 
-	group = gtk_widget_get_action_group(widget, PIDGIN_AVATAR_ACTION_PREFIX);
-	if(G_IS_SIMPLE_ACTION_GROUP(group)) {
-		GVariant *state = NULL;
-
-		state = g_action_group_get_action_state(group,
-		                                        PIDGIN_AVATAR_ANIMATE_ACTION);
-
-		if(!g_variant_get_boolean(state)) {
-			pidgin_avatar_set_animate(avatar, FALSE);
-		}
-	}
+	pidgin_avatar_set_animate(avatar, FALSE);
 
 	return FALSE;
 }
@@ -479,8 +447,7 @@ pidgin_avatar_init(PidginAvatar *avatar) {
 	g_action_map_add_action_entries(G_ACTION_MAP(group), actions,
 	                                G_N_ELEMENTS(actions), avatar);
 
-	gtk_widget_insert_action_group(GTK_WIDGET(avatar),
-	                               PIDGIN_AVATAR_ACTION_PREFIX,
+	gtk_widget_insert_action_group(GTK_WIDGET(avatar), "avatar",
 	                               G_ACTION_GROUP(group));
 }
 

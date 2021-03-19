@@ -674,36 +674,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="conversations.im.show_buddy_icons">
-                                    <property name="label" translatable="yes">Show _detailed information</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkCheckButton" id="conversations.im.animate_buddy_icons">
-                                    <property name="label" translatable="yes">Enable buddy ic_on animation</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">4</property>
-                                  </packing>
-                                </child>
-                                <child>
                                   <object class="GtkCheckButton" id="conversations.im.send_typing">
                                     <property name="label" translatable="yes">_Notify buddies that you are typing to them</property>
                                     <property name="visible">True</property>

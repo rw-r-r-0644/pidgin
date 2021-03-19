@@ -3,10 +3,6 @@
   <menu id="menu">
     <section>
       <item>
-        <attribute name="label" translatable="yes">Animate</attribute>
-        <attribute name="action">avatar.animate</attribute>
-      </item>
-      <item>
         <attribute name="label" translatable="yes">Save Avatar As...</attribute>
         <attribute name="action">avatar.save-avatar</attribute>
       </item>

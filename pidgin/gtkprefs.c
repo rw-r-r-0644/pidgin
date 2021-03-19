@@ -117,8 +117,6 @@ struct _PidginPrefsWindow {
 		GtkWidget *show_incoming_formatting;
 		struct {
 			GtkWidget *close_immediately;
-			GtkWidget *show_buddy_icons;
-			GtkWidget *animate_buddy_icons;
 			GtkWidget *send_typing;
 		} im;
 		GtkWidget *use_smooth_scrolling;
@@ -1547,14 +1545,6 @@ bind_conv_page(PidginPrefsWindow *win)
 	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/im/close_immediately",
 			win->conversations.im.close_immediately);
 
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons",
-			win->conversations.im.show_buddy_icons);
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/im/animate_buddy_icons",
-			win->conversations.im.animate_buddy_icons);
-	g_object_bind_property(win->conversations.im.show_buddy_icons, "active",
-			win->conversations.im.animate_buddy_icons, "sensitive",
-			G_BINDING_SYNC_CREATE);
-
 	pidgin_prefs_bind_checkbox("/purple/conversations/im/send_typing",
 			win->conversations.im.send_typing);
 
@@ -2758,12 +2748,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.im.close_immediately);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.im.show_buddy_icons);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.im.animate_buddy_icons);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.im.send_typing);

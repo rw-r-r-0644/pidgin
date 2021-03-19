@@ -734,6 +734,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_conv_placement_get_fnc
 		* pidgin_conv_placement_set_current_func
 		* pidgin_conv_placement_get_current_func
+		* pidgin_conv_update_buddy_icon
 		* pidgin_create_dialog, use pidgin_dialog_new instead.
 		* pidgin_create_small_button, use pidgin_close_button_new instead.
 		* pidgin_create_status_icon
