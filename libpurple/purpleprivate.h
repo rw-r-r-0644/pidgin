@@ -210,7 +210,7 @@ void purple_credential_manager_startup(void);
 void purple_credential_manager_shutdown(void);
 
 /**
- * purple_protocol_manager_start:
+ * purple_protocol_manager_startup:
  *
  * Starts up the protocol manager by creating the default instance.
  */
@@ -219,7 +219,7 @@ void purple_protocol_manager_startup(void);
 /**
  * purple_protocol_manager_shutdown:
  *
- * Shutdowns down the protocol manager by destroying the default instance.
+ * Shuts down the protocol manager by destroying the default instance.
  */
 void purple_protocol_manager_shutdown(void);
 
