@@ -81,14 +81,7 @@ struct _PidginImPane
 	GtkWidget *progress;
 	guint32 typing_timer;
 
-	/* Buddy icon stuff */
-	GtkWidget *icon_container;
-	GtkWidget *icon;
-	gboolean show_icon;
-	gboolean animate;
-	GdkPixbufAnimation *anim;
-	GdkPixbufAnimationIter *iter;
-	guint32 icon_timer;
+	GtkWidget *avatar;
 };
 
 /*
@@ -1859,9 +1852,6 @@ menu_conv_sel_send_cb(GObject *m, gpointer data)
 	pidgin_conv_switch_active_conversation(PURPLE_CONVERSATION(im));
 }
 
-/**************************************************************************
- * A bunch of buddy icon functions
- **************************************************************************/
 static void
 update_tab_icon(PurpleConversation *conv)
 {
@@ -1879,16 +1869,6 @@ update_tab_icon(PurpleConversation *conv)
 		if (b)
 			emblem = pidgin_blist_get_emblem((PurpleBlistNode*)b);
 	}
-
-#if 0
-	/* This was purposely left busted rather than providing an intermitent fix,
-	 * as the infopane will be split out and rewritten as a proper widget
-	 * shortly.
-	 */
-	gtk_list_store_set(GTK_LIST_STORE(gtkconv->infopane_model),
-			&(gtkconv->infopane_iter),
-			CONV_ICON_COLUMN, infopane_status, -1);
-#endif
 
 	gtk_list_store_set(GTK_LIST_STORE(gtkconv->infopane_model),
 			&(gtkconv->infopane_iter),
@@ -1913,343 +1893,7 @@ update_tab_icon(PurpleConversation *conv)
 	gtk_widget_queue_draw(gtkconv->infopane);
 }
 
-static gboolean
-redraw_icon(gpointer data)
-{
-	PidginConversation *gtkconv = (PidginConversation *)data;
-	PurpleConversation *conv = gtkconv->active_conv;
-	PurpleAccount *account;
 
-	GdkPixbuf *buf;
-	GdkPixbuf *scale;
-	gint delay;
-	int scale_width, scale_height;
-	int size;
-
-	gtkconv = PIDGIN_CONVERSATION(conv);
-	account = purple_conversation_get_account(conv);
-
-	if (!(account && purple_account_get_connection(account))) {
-		gtkconv->u.im->icon_timer = 0;
-		return FALSE;
-	}
-
-	gdk_pixbuf_animation_iter_advance(gtkconv->u.im->iter, NULL);
-	buf = gdk_pixbuf_animation_iter_get_pixbuf(gtkconv->u.im->iter);
-
-	scale_width = gdk_pixbuf_get_width(buf);
-	scale_height = gdk_pixbuf_get_height(buf);
-
-	gtk_widget_get_size_request(gtkconv->u.im->icon_container, NULL, &size);
-	size = MIN(size, MIN(scale_width, scale_height));
-	size = CLAMP(size, BUDDYICON_SIZE_MIN, BUDDYICON_SIZE_MAX);
-
-	if (scale_width == scale_height) {
-		scale_width = scale_height = size;
-	} else if (scale_height > scale_width) {
-		scale_width = size * scale_width / scale_height;
-		scale_height = size;
-	} else {
-		scale_height = size * scale_height / scale_width;
-		scale_width = size;
-	}
-
-	scale = gdk_pixbuf_scale_simple(buf, scale_width, scale_height,
-		GDK_INTERP_BILINEAR);
-	if (pidgin_gdk_pixbuf_is_opaque(scale))
-		pidgin_gdk_pixbuf_make_round(scale);
-
-	gtk_image_set_from_pixbuf(GTK_IMAGE(gtkconv->u.im->icon), scale);
-	g_object_unref(G_OBJECT(scale));
-	gtk_widget_queue_draw(gtkconv->u.im->icon);
-
-	delay = gdk_pixbuf_animation_iter_get_delay_time(gtkconv->u.im->iter);
-
-	if (delay < 100)
-		delay = 100;
-
-	gtkconv->u.im->icon_timer = g_timeout_add(delay, redraw_icon, gtkconv);
-
-	return FALSE;
-}
-
-static void
-start_anim(GtkWidget *widget, PidginConversation *gtkconv)
-{
-	int delay;
-
-	if (gtkconv->u.im->anim == NULL)
-		return;
-
-	if (gtkconv->u.im->icon_timer != 0)
-		return;
-
-	if (gdk_pixbuf_animation_is_static_image(gtkconv->u.im->anim))
-		return;
-
-	delay = gdk_pixbuf_animation_iter_get_delay_time(gtkconv->u.im->iter);
-
-	if (delay < 100)
-		delay = 100;
-
-	gtkconv->u.im->icon_timer = g_timeout_add(delay, redraw_icon, gtkconv);
-}
-
-static void
-remove_icon(GtkWidget *widget, PidginConversation *gtkconv)
-{
-	GList *children;
-	GtkWidget *event;
-	PurpleConversation *conv = gtkconv->active_conv;
-
-	g_return_if_fail(conv != NULL);
-
-	gtk_widget_set_size_request(gtkconv->u.im->icon_container, -1, BUDDYICON_SIZE_MIN);
-	children = gtk_container_get_children(GTK_CONTAINER(gtkconv->u.im->icon_container));
-	if (children) {
-		/* We know there's only one child here. It'd be nice to shortcut to the
-		   event box, but we can't change the PidginConversation until 3.0 */
-		event = (GtkWidget *)children->data;
-		gtk_container_remove(GTK_CONTAINER(gtkconv->u.im->icon_container), event);
-		g_list_free(children);
-	}
-
-	if (gtkconv->u.im->anim != NULL)
-		g_object_unref(G_OBJECT(gtkconv->u.im->anim));
-
-	if (gtkconv->u.im->icon_timer != 0)
-		g_source_remove(gtkconv->u.im->icon_timer);
-
-	if (gtkconv->u.im->iter != NULL)
-		g_object_unref(G_OBJECT(gtkconv->u.im->iter));
-
-	gtkconv->u.im->icon_timer = 0;
-	gtkconv->u.im->icon = NULL;
-	gtkconv->u.im->anim = NULL;
-	gtkconv->u.im->iter = NULL;
-	gtkconv->u.im->show_icon = FALSE;
-}
-
-static void
-saveicon_writefile_cb(void *user_data, const char *filename)
-{
-	PidginConversation *gtkconv = (PidginConversation *)user_data;
-	PurpleIMConversation *im = PURPLE_IM_CONVERSATION(gtkconv->active_conv);
-	PurpleBuddyIcon *icon;
-	const void *data;
-	size_t len;
-
-	icon = purple_im_conversation_get_icon(im);
-	data = purple_buddy_icon_get_data(icon, &len);
-
-	if ((len <= 0) || (data == NULL) || !g_file_set_contents(filename, data, len, NULL)) {
-		purple_notify_error(gtkconv, NULL, _("Unable to save icon file to disk."), NULL, NULL);
-	}
-}
-
-static void
-custom_icon_sel_cb(const char *filename, gpointer data)
-{
-	if (filename) {
-		PurpleContact *contact = data;
-
-		purple_buddy_icons_node_set_custom_icon_from_file((PurpleBlistNode*)contact, filename);
-	}
-	g_object_set_data(G_OBJECT(data), "buddy-icon-chooser", NULL);
-}
-
-static void
-set_custom_icon_cb(GtkWidget *widget, PurpleContact *contact)
-{
-	GtkFileChooserNative *win = NULL;
-
-	/* Should not happen as menu item should be disabled. */
-	g_return_if_fail(contact != NULL);
-
-	win = g_object_get_data(G_OBJECT(contact), "buddy-icon-chooser");
-	if (win == NULL) {
-		GtkMenu *menu = GTK_MENU(gtk_widget_get_parent(widget));
-		GtkWidget *toplevel =
-		        gtk_widget_get_toplevel(gtk_menu_get_attach_widget(menu));
-		win = pidgin_buddy_icon_chooser_new(GTK_WINDOW(toplevel),
-		                                    custom_icon_sel_cb, contact);
-		g_object_set_data_full(G_OBJECT(contact), "buddy-icon-chooser", win,
-				       g_object_unref);
-	}
-	gtk_native_dialog_show(GTK_NATIVE_DIALOG(win));
-}
-
-static void
-change_size_cb(GtkWidget *widget, PidginConversation *gtkconv)
-{
-	int size = 0;
-	PurpleConversation *conv = gtkconv->active_conv;
-	GSList *buddies;
-
-	gtk_widget_get_size_request(gtkconv->u.im->icon_container, NULL, &size);
-
-	if (size == BUDDYICON_SIZE_MAX) {
-		size = BUDDYICON_SIZE_MIN;
-	} else {
-		size = BUDDYICON_SIZE_MAX;
-	}
-
-	gtk_widget_set_size_request(gtkconv->u.im->icon_container, -1, size);
-	pidgin_conv_update_buddy_icon(PURPLE_IM_CONVERSATION(conv));
-
-	buddies = purple_blist_find_buddies(purple_conversation_get_account(conv),
-			purple_conversation_get_name(conv));
-	for (; buddies; buddies = g_slist_delete_link(buddies, buddies)) {
-		PurpleBuddy *buddy = buddies->data;
-		PurpleContact *contact = purple_buddy_get_contact(buddy);
-		purple_blist_node_set_int((PurpleBlistNode*)contact, "pidgin-infopane-iconsize", size);
-	}
-}
-
-static void
-remove_custom_icon_cb(GtkWidget *widget, PidginConversation *gtkconv)
-{
-	const gchar *name;
-	PurpleBuddy *buddy;
-	PurpleAccount *account;
-	PurpleContact *contact;
-	PurpleConversation *conv = gtkconv->active_conv;
-
-	account = purple_conversation_get_account(conv);
-	name = purple_conversation_get_name(conv);
-	buddy = purple_blist_find_buddy(account, name);
-	if (!buddy) {
-		return;
-	}
-	contact = purple_buddy_get_contact(buddy);
-
-	purple_buddy_icons_node_set_custom_icon_from_file((PurpleBlistNode*)contact, NULL);
-}
-
-static void
-icon_menu_save_cb(GtkWidget *widget, PidginConversation *gtkconv)
-{
-	PurpleConversation *conv = gtkconv->active_conv;
-	const gchar *ext;
-	gchar *buf;
-
-	g_return_if_fail(conv != NULL);
-
-	ext = purple_buddy_icon_get_extension(purple_im_conversation_get_icon(PURPLE_IM_CONVERSATION(conv)));
-
-	buf = g_strdup_printf("%s.%s", purple_normalize(purple_conversation_get_account(conv), purple_conversation_get_name(conv)), ext);
-
-	purple_request_file(gtkconv, _("Save Icon"), buf, TRUE,
-		G_CALLBACK(saveicon_writefile_cb), NULL,
-		purple_request_cpar_from_conversation(conv), gtkconv);
-
-	g_free(buf);
-}
-
-static void
-stop_anim(GtkWidget *widget, PidginConversation *gtkconv)
-{
-	if (gtkconv->u.im->icon_timer != 0)
-		g_source_remove(gtkconv->u.im->icon_timer);
-
-	gtkconv->u.im->icon_timer = 0;
-}
-
-
-static void
-toggle_icon_animate_cb(GtkWidget *w, PidginConversation *gtkconv)
-{
-	gtkconv->u.im->animate =
-		gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
-
-	if (gtkconv->u.im->animate)
-		start_anim(NULL, gtkconv);
-	else
-		stop_anim(NULL, gtkconv);
-}
-
-static gboolean
-icon_menu(GtkWidget *widget, GdkEventButton *e, PidginConversation *gtkconv)
-{
-	GtkWidget *menu = NULL;
-	GList *old_menus = NULL;
-	PurpleConversation *conv;
-	PurpleBuddy *buddy;
-
-	if (e->button == GDK_BUTTON_PRIMARY && e->type == GDK_BUTTON_PRESS) {
-		change_size_cb(NULL, gtkconv);
-		return TRUE;
-	}
-
-	if (!gdk_event_triggers_context_menu((GdkEvent *)e)) {
-		return FALSE;
-	}
-
-	/*
-	 * If a menu already exists, destroy it before creating a new one,
-	 * thus freeing-up the memory it occupied.
-	 */
-	while ((old_menus = gtk_menu_get_for_attach_widget(widget)) != NULL) {
-		menu = old_menus->data;
-		gtk_menu_detach(GTK_MENU(menu));
-		gtk_widget_destroy(menu);
-	}
-
-	menu = gtk_menu_new();
-	gtk_menu_attach_to_widget(GTK_MENU(menu), widget, NULL);
-
-	if (gtkconv->u.im->anim &&
-		!(gdk_pixbuf_animation_is_static_image(gtkconv->u.im->anim)))
-	{
-		pidgin_new_check_item(menu, _("Animate"),
-							G_CALLBACK(toggle_icon_animate_cb), gtkconv,
-							gtkconv->u.im->icon_timer);
-	}
-
-	conv = gtkconv->active_conv;
-	buddy = purple_blist_find_buddy(purple_conversation_get_account(conv),
-	                                purple_conversation_get_name(conv));
-
-	pidgin_new_menu_item(menu, _("Hide Icon"), NULL,
-                        G_CALLBACK(remove_icon), gtkconv);
-
-	pidgin_new_menu_item(menu, _("Save Icon As..."), GTK_STOCK_SAVE_AS,
-                        G_CALLBACK(icon_menu_save_cb), gtkconv);
-
-	if (buddy) {
-		PurpleContact *contact = purple_buddy_get_contact(buddy);
-		pidgin_new_menu_item(menu, _("Set Custom Icon..."), NULL,
-		                     G_CALLBACK(set_custom_icon_cb), contact);
-	} else {
-		GtkWidget *item =
-		        pidgin_new_menu_item(menu, _("Set Custom Icon..."), NULL,
-		                             G_CALLBACK(set_custom_icon_cb), NULL);
-		gtk_widget_set_sensitive(item, FALSE);
-	}
-
-	pidgin_new_menu_item(menu, _("Change Size"), NULL,
-                        G_CALLBACK(change_size_cb), gtkconv);
-
-	/* Is there a custom icon for this person? */
-	if (buddy)
-	{
-		PurpleContact *contact = purple_buddy_get_contact(buddy);
-		if (contact && purple_buddy_icons_node_has_custom_icon((PurpleBlistNode*)contact))
-		{
-			pidgin_new_menu_item(menu, _("Remove Custom Icon"),
-                                        NULL, G_CALLBACK(remove_custom_icon_cb),
-                                        gtkconv);
-		}
-	}
-
-	gtk_menu_popup_at_pointer(GTK_MENU(menu), (GdkEvent *)e);
-
-	return TRUE;
-}
-
-/**************************************************************************
- * End of the bunch of buddy icon functions
- **************************************************************************/
 void
 pidgin_conv_present_conversation(PurpleConversation *conv)
 {
@@ -3876,7 +3520,6 @@ setup_common_pane(PidginConversation *gtkconv)
 	PurpleConversation *conv = gtkconv->active_conv;
 	PurpleBuddy *buddy;
 	gboolean chat = PURPLE_IS_CHAT_CONVERSATION(conv);
-	int buddyicon_size = 0;
 
 	/* Setup the top part of the pane */
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
@@ -3887,9 +3530,6 @@ setup_common_pane(PidginConversation *gtkconv)
 	gtk_event_box_set_visible_window(GTK_EVENT_BOX(event_box), FALSE);
 	gtk_widget_show(event_box);
 	gtkconv->infopane_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-
-	GtkWidget *avatar = pidgin_avatar_new();
-	gtk_box_pack_end(GTK_BOX(gtkconv->infopane_hbox), avatar, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), event_box, FALSE, FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(event_box), gtkconv->infopane_hbox);
@@ -3926,26 +3566,16 @@ setup_common_pane(PidginConversation *gtkconv)
 		gtk_widget_show(sizing_vbox);
 	}
 	else {
-		gtkconv->u.im->icon_container = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+		gtkconv->u.im->avatar = pidgin_avatar_new();
+		gtk_box_pack_end(GTK_BOX(gtkconv->infopane_hbox), gtkconv->u.im->avatar,
+		                 FALSE, FALSE, 0);
 
 		if ((buddy = purple_blist_find_buddy(purple_conversation_get_account(conv),
 						purple_conversation_get_name(conv))) != NULL) {
-			PurpleContact *contact = purple_buddy_get_contact(buddy);
-			if (contact) {
-				buddyicon_size = purple_blist_node_get_int((PurpleBlistNode*)contact, "pidgin-infopane-iconsize");
-			}
-
-			pidgin_avatar_set_buddy(avatar, buddy);
+			pidgin_avatar_set_buddy(gtkconv->u.im->avatar, buddy);
 		} else {
-			pidgin_avatar_set_conversation(avatar, conv);
+			pidgin_avatar_set_conversation(gtkconv->u.im->avatar, conv);
 		}
-		buddyicon_size = CLAMP(buddyicon_size, BUDDYICON_SIZE_MIN, BUDDYICON_SIZE_MAX);
-		gtk_widget_set_size_request(gtkconv->u.im->icon_container, -1, buddyicon_size);
-
-		gtk_box_pack_start(GTK_BOX(gtkconv->infopane_hbox),
-				   gtkconv->u.im->icon_container, FALSE, FALSE, 0);
-
-		gtk_widget_show(gtkconv->u.im->icon_container);
 	}
 
 	gtk_widget_show(gtkconv->infopane);
@@ -4029,13 +3659,6 @@ setup_common_pane(PidginConversation *gtkconv)
 		G_CALLBACK(send_cb),
 		gtkconv
 	);
-
-	if (!chat) {
-		/* For sending typing notifications for IMs */
-		gtkconv->u.im->typing_timer = 0;
-		gtkconv->u.im->animate = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/im/animate_buddy_icons");
-		gtkconv->u.im->show_icon = TRUE;
-	}
 
 	return vbox;
 }
@@ -4168,11 +3791,7 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 		purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar")
 	);
 
-	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons"))
-		gtk_widget_show(gtkconv->infopane_hbox);
-	else
-		gtk_widget_hide(gtkconv->infopane_hbox);
-
+	gtk_widget_show(gtkconv->infopane_hbox);
 
 	g_signal_connect_swapped(G_OBJECT(pane), "focus",
 	                         G_CALLBACK(gtk_widget_grab_focus),
@@ -4266,12 +3885,6 @@ pidgin_conv_destroy(PurpleConversation *conv)
 	g_object_unref(gtkconv->tab_cont);
 
 	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		if (gtkconv->u.im->icon_timer != 0)
-			g_source_remove(gtkconv->u.im->icon_timer);
-
-		if (gtkconv->u.im->anim != NULL)
-			g_object_unref(G_OBJECT(gtkconv->u.im->anim));
-
 		if (gtkconv->u.im->typing_timer != 0)
 			g_source_remove(gtkconv->u.im->typing_timer);
 
@@ -4967,12 +4580,6 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 		purple_conversation_autoset_title(conv);
 	}
 
-	if (fields & PIDGIN_CONV_BUDDY_ICON)
-	{
-		if (PURPLE_IS_IM_CONVERSATION(conv))
-			pidgin_conv_update_buddy_icon(PURPLE_IM_CONVERSATION(conv));
-	}
-
 	if (fields & PIDGIN_CONV_MENU)
 	{
 		gray_stuff_out(PIDGIN_CONVERSATION(conv));
@@ -5231,184 +4838,6 @@ pidgin_conversations_get_conv_ui_ops(void)
  * Public conversation utility functions
  **************************************************************************/
 void
-pidgin_conv_update_buddy_icon(PurpleIMConversation *im)
-{
-	PidginConversation *gtkconv;
-	PurpleConversation *conv;
-	PidginConvWindow *win;
-
-	PurpleBuddy *buddy;
-
-	PurpleImage *custom_img = NULL;
-	gconstpointer data = NULL;
-	size_t len;
-
-	GdkPixbuf *buf;
-
-	GList *children;
-	GtkWidget *event;
-	GdkPixbuf *scale;
-	int scale_width, scale_height;
-	int size = 0;
-
-	PurpleAccount *account;
-
-	PurpleBuddyIcon *icon;
-
-	conv = PURPLE_CONVERSATION(im);
-
-	g_return_if_fail(conv != NULL);
-	g_return_if_fail(PIDGIN_IS_PIDGIN_CONVERSATION(conv));
-
-	gtkconv = PIDGIN_CONVERSATION(conv);
-	win = gtkconv->win;
-	if (conv != gtkconv->active_conv)
-		return;
-
-	if (!gtkconv->u.im->show_icon)
-		return;
-
-	account = purple_conversation_get_account(conv);
-
-	/* Remove the current icon stuff */
-	children = gtk_container_get_children(GTK_CONTAINER(gtkconv->u.im->icon_container));
-	if (children) {
-		/* We know there's only one child here. It'd be nice to shortcut to the
-		   event box, but we can't change the PidginConversation until 3.0 */
-		event = (GtkWidget *)children->data;
-		gtk_container_remove(GTK_CONTAINER(gtkconv->u.im->icon_container), event);
-		g_list_free(children);
-	}
-
-	if (gtkconv->u.im->anim != NULL)
-		g_object_unref(G_OBJECT(gtkconv->u.im->anim));
-
-	gtkconv->u.im->anim = NULL;
-
-	if (gtkconv->u.im->icon_timer != 0)
-		g_source_remove(gtkconv->u.im->icon_timer);
-
-	gtkconv->u.im->icon_timer = 0;
-
-	if (gtkconv->u.im->iter != NULL)
-		g_object_unref(G_OBJECT(gtkconv->u.im->iter));
-
-	gtkconv->u.im->iter = NULL;
-
-	if (!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons"))
-		return;
-
-	if (purple_conversation_get_connection(conv) == NULL)
-		return;
-
-	buddy = purple_blist_find_buddy(account, purple_conversation_get_name(conv));
-	if (buddy)
-	{
-		PurpleContact *contact = purple_buddy_get_contact(buddy);
-		if (contact) {
-			custom_img = purple_buddy_icons_node_find_custom_icon((PurpleBlistNode*)contact);
-			if (custom_img) {
-				/* There is a custom icon for this user */
-				data = purple_image_get_data(custom_img);
-				len = purple_image_get_data_size(custom_img);
-			}
-		}
-	}
-
-	if (data == NULL) {
-		icon = purple_im_conversation_get_icon(im);
-		if (icon == NULL)
-		{
-			gtk_widget_set_size_request(gtkconv->u.im->icon_container,
-			                            -1, BUDDYICON_SIZE_MIN);
-			return;
-		}
-
-		data = purple_buddy_icon_get_data(icon, &len);
-		if (data == NULL)
-		{
-			gtk_widget_set_size_request(gtkconv->u.im->icon_container,
-			                            -1, BUDDYICON_SIZE_MIN);
-			return;
-		}
-	}
-
-	gtkconv->u.im->anim = pidgin_pixbuf_anim_from_data(data, len);
-	if (custom_img)
-		g_object_unref(custom_img);
-
-	if (!gtkconv->u.im->anim) {
-		purple_debug_error("gtkconv", "Couldn't load icon for conv %s\n",
-				purple_conversation_get_name(conv));
-		return;
-	}
-
-	if (gdk_pixbuf_animation_is_static_image(gtkconv->u.im->anim)) {
-		GdkPixbuf *stat;
-		gtkconv->u.im->iter = NULL;
-		stat = gdk_pixbuf_animation_get_static_image(gtkconv->u.im->anim);
-		buf = gdk_pixbuf_add_alpha(stat, FALSE, 0, 0, 0);
-	} else {
-		GdkPixbuf *stat;
-		gtkconv->u.im->iter =
-			gdk_pixbuf_animation_get_iter(gtkconv->u.im->anim, NULL); /* LEAK */
-		stat = gdk_pixbuf_animation_iter_get_pixbuf(gtkconv->u.im->iter);
-		buf = gdk_pixbuf_add_alpha(stat, FALSE, 0, 0, 0);
-		if (gtkconv->u.im->animate)
-			start_anim(NULL, gtkconv);
-	}
-
-	scale_width = gdk_pixbuf_get_width(buf);
-	scale_height = gdk_pixbuf_get_height(buf);
-
-	gtk_widget_get_size_request(gtkconv->u.im->icon_container, NULL, &size);
-	size = MIN(size, MIN(scale_width, scale_height));
-
-	/* Some sanity checks */
-	size = CLAMP(size, BUDDYICON_SIZE_MIN, BUDDYICON_SIZE_MAX);
-	if (scale_width == scale_height) {
-		scale_width = scale_height = size;
-	} else if (scale_height > scale_width) {
-		scale_width = size * scale_width / scale_height;
-		scale_height = size;
-	} else {
-		scale_height = size * scale_height / scale_width;
-		scale_width = size;
-	}
-	scale = gdk_pixbuf_scale_simple(buf, scale_width, scale_height,
-				GDK_INTERP_BILINEAR);
-	g_object_unref(buf);
-	if (pidgin_gdk_pixbuf_is_opaque(scale))
-		pidgin_gdk_pixbuf_make_round(scale);
-
-	event = gtk_event_box_new();
-	gtk_container_add(GTK_CONTAINER(gtkconv->u.im->icon_container), event);
-	gtk_event_box_set_visible_window(GTK_EVENT_BOX(event), FALSE);
-	gtk_widget_add_events(event,
-	                      GDK_POINTER_MOTION_MASK | GDK_LEAVE_NOTIFY_MASK);
-	g_signal_connect(G_OBJECT(event), "button-press-event",
-					 G_CALLBACK(icon_menu), gtkconv);
-
-	pidgin_tooltip_setup_for_widget(event, gtkconv, pidgin_conv_create_tooltip, NULL);
-	gtk_widget_show(event);
-
-	gtkconv->u.im->icon = gtk_image_new_from_pixbuf(scale);
-	gtk_container_add(GTK_CONTAINER(event), gtkconv->u.im->icon);
-	gtk_widget_show(gtkconv->u.im->icon);
-
-	g_object_unref(G_OBJECT(scale));
-
-	/* The buddy icon code needs badly to be fixed. */
-	if(pidgin_conv_window_is_active_conversation(conv))
-	{
-		buf = gdk_pixbuf_animation_get_static_image(gtkconv->u.im->anim);
-		if (buddy && !PURPLE_BUDDY_IS_ONLINE(buddy))
-			gdk_pixbuf_saturate_and_pixelate(buf, buf, 0.0, FALSE);
-		gtk_window_set_icon(GTK_WINDOW(win->window), buf);
-	}
-}
-
-void
 pidgin_conv_update_buttons_by_protocol(PurpleConversation *conv)
 {
 	PidginConvWindow *win;
@@ -5571,63 +5000,6 @@ show_formatting_toolbar_pref_cb(const char *name, PurplePrefType type,
 		);
 
 		talkatu_editor_set_toolbar_visible(TALKATU_EDITOR(gtkconv->editor), visible);
-	}
-}
-
-static void
-animate_buddy_icons_pref_cb(const char *name, PurplePrefType type,
-							gconstpointer value, gpointer data)
-{
-	GList *l;
-	PurpleConversation *conv;
-	PidginConversation *gtkconv;
-	PidginConvWindow *win;
-
-	if (!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons"))
-		return;
-
-	/* Set the "animate" flag for each icon based on the new preference */
-	for (l = purple_conversations_get_ims(); l != NULL; l = l->next) {
-		conv = (PurpleConversation *)l->data;
-		gtkconv = PIDGIN_CONVERSATION(conv);
-		if (gtkconv)
-			gtkconv->u.im->animate = GPOINTER_TO_INT(value);
-	}
-
-	/* Now either stop or start animation for the active conversation in each window */
-	for (l = pidgin_conv_windows_get_list(); l != NULL; l = l->next) {
-		win = l->data;
-		conv = pidgin_conv_window_get_active_conversation(win);
-		pidgin_conv_update_buddy_icon(PURPLE_IM_CONVERSATION(conv));
-	}
-}
-
-static void
-show_buddy_icons_pref_cb(const char *name, PurplePrefType type,
-						 gconstpointer value, gpointer data)
-{
-	GList *l;
-
-	for (l = purple_conversations_get_all(); l != NULL; l = l->next) {
-		PurpleConversation *conv = l->data;
-		if (!PIDGIN_CONVERSATION(conv))
-			continue;
-		if (GPOINTER_TO_INT(value))
-			gtk_widget_show(PIDGIN_CONVERSATION(conv)->infopane_hbox);
-		else
-			gtk_widget_hide(PIDGIN_CONVERSATION(conv)->infopane_hbox);
-
-		if (PURPLE_IS_IM_CONVERSATION(conv)) {
-			pidgin_conv_update_buddy_icon(PURPLE_IM_CONVERSATION(conv));
-		}
-	}
-
-	/* Make the tabs show/hide correctly */
-	for (l = pidgin_conv_windows_get_list(); l != NULL; l = l->next) {
-		PidginConvWindow *win = l->data;
-		if (pidgin_conv_window_get_gtkconv_count(win) == 1)
-			gtk_notebook_set_show_tabs(GTK_NOTEBOOK(win->notebook),
-						   GPOINTER_TO_INT(value) == 0);
 	}
 }
 
@@ -6096,10 +5468,7 @@ pidgin_conversations_init(void)
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/width", 340);
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/height", 390);
 
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/im/animate_buddy_icons", TRUE);
-
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/entry_height", 54);
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons", TRUE);
 
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new", "never");
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/im/close_immediately", TRUE);
@@ -6121,10 +5490,6 @@ pidgin_conversations_init(void)
 		minimum_entry_lines_pref_cb, NULL);
 
 	/* IM callbacks */
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/im/animate_buddy_icons",
-								animate_buddy_icons_pref_cb, NULL);
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons",
-								show_buddy_icons_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/im/hide_new",
 								hide_new_pref_cb, NULL);
 
@@ -6921,8 +6286,6 @@ before_switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 		g_source_remove(gtkconv->u.im->typing_timer);
 		gtkconv->u.im->typing_timer = 0;
 	}
-
-	stop_anim(NULL, gtkconv);
 }
 
 static void
@@ -7083,14 +6446,6 @@ switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 
 	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu->show_formatting_toolbar),
 	                             purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar"));
-
-	/*
-	 * We pause icons when they are not visible.  If this icon should
-	 * be animated then start it back up again.
-	 */
-	if (PURPLE_IS_IM_CONVERSATION(conv) &&
-	    (gtkconv->u.im->animate))
-		start_anim(NULL, gtkconv);
 
 	purple_signal_emit(pidgin_conversations_get_handle(), "conversation-switched", conv);
 }
@@ -7458,9 +6813,6 @@ pidgin_conv_window_add_gtkconv(PidginConvWindow *win, PidginConversation *gtkcon
 
 	gtk_widget_show(gtkconv->menu_tabby);
 
-	if (PURPLE_IS_IM_CONVERSATION(conv))
-		pidgin_conv_update_buddy_icon(PURPLE_IM_CONVERSATION(conv));
-
 	/* Build and set conversations tab */
 	pidgin_conv_tab_pack(win, gtkconv);
 
@@ -7568,11 +6920,20 @@ pidgin_conv_tab_pack(PidginConvWindow *win, PidginConversation *gtkconv)
 	                        "tab-expand", !tabs_side && !angle,
 	                        "tab-fill", TRUE, NULL);
 
-	if (pidgin_conv_window_get_gtkconv_count(win) == 1)
-		gtk_notebook_set_show_tabs(GTK_NOTEBOOK(win->notebook),
-					   purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/tabs") &&
-                                           (!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons") ||
-                                           purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/tab_side") != GTK_POS_TOP));
+	if (pidgin_conv_window_get_gtkconv_count(win) == 1) {
+		gboolean show_tabs = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/tabs");
+		gint tab_side = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/tab_side");
+
+		if(show_tabs) {
+			if(tab_side == GTK_POS_TOP) {
+				gtk_notebook_set_show_tabs(GTK_NOTEBOOK(win->notebook), FALSE);
+			} else {
+				gtk_notebook_set_show_tabs(GTK_NOTEBOOK(win->notebook), TRUE);
+			}
+		} else {
+			gtk_notebook_set_show_tabs(GTK_NOTEBOOK(win->notebook), FALSE);
+		}
+	}
 
 	/* show the widgets */
 /*	gtk_widget_show(gtkconv->icon); */

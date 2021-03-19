@@ -151,14 +151,6 @@ G_BEGIN_DECLS
 PurpleConversationUiOps *pidgin_conversations_get_conv_ui_ops(void);
 
 /**
- * pidgin_conv_update_buddy_icon:
- * @im: The IM conversation.
- *
- * Updates the buddy icon on a conversation.
- */
-void pidgin_conv_update_buddy_icon(PurpleIMConversation *im);
-
-/**
  * pidgin_conv_switch_active_conversation:
  * @conv: The conversation
  *
