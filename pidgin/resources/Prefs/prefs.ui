@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.2 
+<!-- Generated with glade 3.38.2 
 
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <interface>
   <requires lib="Talkatu" version="0.0"/>
-  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gtk+" version="3.22"/>
   <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
@@ -75,19 +75,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="lower">1</property>
     <property name="upper">1440</property>
     <property name="value">1</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="conversations.custom_smiley_size.adjustment">
     <property name="lower">16</property>
     <property name="upper">512</property>
     <property name="value">16</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="TalkatuTagTable" id="conversations.format_tag_table"/>
   <object class="TalkatuWholeBuffer" id="conversations.format_buffer">
-    <property name="tag_table">conversations.format_tag_table</property>
+    <property name="tag-table">conversations.format_tag_table</property>
     <property name="text" translatable="yes">This is how your outgoing message text will appear when you use protocols that support formatting.</property>
     <property name="style">whole</property>
   </object>
@@ -95,8 +95,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="lower">1</property>
     <property name="upper">8</property>
     <property name="value">2</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">1</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">1</property>
   </object>
   <object class="GtkListStore" id="conversations.notification_chat.store">
     <columns>
@@ -224,28 +224,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   </object>
   <object class="GtkAdjustment" id="network.ports_range_end.adjustment">
     <property name="upper">65535</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="network.ports_range_start.adjustment">
     <property name="upper">65535</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="network.turn_port_tcp.adjustment">
     <property name="upper">65535</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="network.turn_port_udp.adjustment">
     <property name="upper">65535</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="proxy.port.adjustment">
     <property name="upper">65535</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkListStore" id="proxy.type.store">
     <columns>
@@ -282,29 +282,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </data>
   </object>
   <template class="PidginPrefsWindow" parent="GtkDialog">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="title" translatable="yes">Preferences</property>
-    <property name="type_hint">dialog</property>
+    <property name="type-hint">dialog</property>
     <signal name="destroy" handler="delete_prefs" swapped="no"/>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
+            <property name="can-focus">False</property>
+            <property name="layout-style">end</property>
             <child>
               <object class="GtkButton">
                 <property name="label" translatable="yes">_Close</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_underline">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="gtk_widget_destroy" object="PidginPrefsWindow" swapped="yes"/>
               </object>
               <packing>
@@ -323,11 +320,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <child>
           <object class="GtkBox">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <child>
               <object class="GtkStackSidebar">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="stack">stack</property>
               </object>
               <packing>
@@ -339,43 +336,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkStack" id="stack">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <child>
                   <object class="GtkBox" id="iface.page">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="border-width">12</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="bottom_padding">12</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="bottom-padding">12</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label2">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">_Hide new IM conversations:</property>
-                                        <property name="use_underline">True</property>
+                                        <property name="use-underline">True</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -387,7 +384,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkComboBox" id="iface.im.hide_new.combo">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="model">iface.im.hide_new.store</property>
                                         <child>
                                           <object class="GtkCellRendererText"/>
@@ -413,10 +410,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="iface.win32.minimize_new_convs">
                                     <property name="label" translatable="yes">Minimi_ze new conversation windows</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -431,7 +428,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Conversation Window</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -448,29 +445,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="bottom_padding">12</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="bottom-padding">12</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkCheckButton" id="iface.conversations.tabs">
                                     <property name="label" translatable="yes">Show IMs and chats in _tabbed windows</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -481,17 +478,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox" id="iface.conversations.tabs_vbox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="orientation">vertical</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkCheckButton" id="iface.conversations.close_on_tabs">
                                         <property name="label" translatable="yes">Show closed b_utton on tabs</property>
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="draw_indicator">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="draw-indicator">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -502,15 +499,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkBox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="spacing">6</property>
                                         <child>
                                           <object class="GtkLabel" id="label3">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">_Placement:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">iface.conversations.tab_side.combo</property>
+                                            <property name="use-underline">True</property>
+                                            <property name="mnemonic-widget">iface.conversations.tab_side.combo</property>
                                             <property name="xalign">0</property>
                                           </object>
                                           <packing>
@@ -522,7 +519,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                         <child>
                                           <object class="GtkComboBox" id="iface.conversations.tab_side.combo">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="model">iface.conversations.tab_side.store</property>
                                             <child>
                                               <object class="GtkCellRendererText"/>
@@ -558,7 +555,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Tabs</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -581,36 +578,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <child>
                   <object class="GtkBox" id="conversations.page">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="border-width">12</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Chat notification:</property>
                                       </object>
                                       <packing>
@@ -622,7 +619,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkComboBox" id="conversations.notification_chat.combo">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="model">conversations.notification_chat.store</property>
                                         <child>
                                           <object class="GtkCellRendererText"/>
@@ -648,10 +645,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="conversations.show_incoming_formatting">
                                     <property name="label" translatable="yes">Show _formatting on incoming messages</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -663,9 +660,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="conversations.im.close_immediately">
                                     <property name="label" translatable="yes">Close IMs immediately when the tab is closed</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -677,10 +674,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="conversations.im.send_typing">
                                     <property name="label" translatable="yes">_Notify buddies that you are typing to them</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -692,9 +689,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="conversations.use_smooth_scrolling">
                                     <property name="label" translatable="yes">Use smooth-scrolling</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -706,10 +703,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="conversations.win32.blink_im">
                                     <property name="label" translatable="yes">F_lash window when IMs are received</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -719,15 +716,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 </child>
                                 <child>
                                   <object class="GtkBox">
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkCheckButton" id="conversations.resize_custom_smileys">
                                         <property name="label" translatable="yes">Resize incoming custom smileys</property>
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="draw-indicator">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -738,7 +735,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Maximum size:</property>
                                       </object>
                                       <packing>
@@ -750,8 +747,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkSpinButton" id="conversations.custom_smileys_size">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="input_purpose">number</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="input-purpose">number</property>
                                         <property name="adjustment">conversations.custom_smiley_size.adjustment</property>
                                         <property name="numeric">True</property>
                                       </object>
@@ -771,12 +768,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Minimum input area height in lines:</property>
                                       </object>
                                       <packing>
@@ -788,8 +785,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkSpinButton" id="conversations.minimum_entry_lines">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="input_purpose">digits</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="input-purpose">digits</property>
                                         <property name="adjustment">conversations.minimum_entry_lines.adjustment</property>
                                         <property name="numeric">True</property>
                                       </object>
@@ -813,7 +810,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Conversations</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -829,28 +826,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     </child>
                     <child>
                       <object class="GtkFrame" id="conversations.font_frame">
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkCheckButton" id="conversations.use_theme_font">
                                     <property name="label" translatable="yes">Use font from _theme</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                     <signal name="toggled" handler="apply_custom_font" object="PidginPrefsWindow" swapped="no"/>
                                   </object>
                                   <packing>
@@ -862,14 +859,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox" id="conversations.custom_font_hbox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Conversation _font:</property>
-                                        <property name="use_underline">True</property>
+                                        <property name="use-underline">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -880,10 +877,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkFontButton" id="conversations.custom_font">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">True</property>
                                         <property name="font">Sans 12</property>
-                                        <property name="preview_text"/>
+                                        <property name="preview-text"/>
                                         <signal name="font-set" handler="pidgin_custom_font_set" object="PidginPrefsWindow" swapped="no"/>
                                       </object>
                                       <packing>
@@ -906,7 +903,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Font</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -923,18 +920,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox" id="conversations.sample_box">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="TalkatuEditor">
@@ -965,8 +962,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     </child>
                                     <child internal-child="send_button">
                                       <object class="GtkButton">
-                                        <property name="can_focus">False</property>
-                                        <property name="receives_default">False</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="receives-default">False</property>
                                       </object>
                                       <packing>
                                         <property name="fill">False</property>
@@ -986,7 +983,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Default Formatting</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -1010,39 +1007,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <child>
                   <object class="GtkBox" id="logging.page">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="border-width">12</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Log _format:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">logging.format.combo</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">logging.format.combo</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1053,7 +1050,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkComboBox" id="logging.format.combo">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="model">logging.format.store</property>
                                         <child>
                                           <object class="GtkCellRendererText"/>
@@ -1079,10 +1076,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="logging.log_ims">
                                     <property name="label" translatable="yes">Log all _instant messages</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1094,10 +1091,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="logging.log_chats">
                                     <property name="label" translatable="yes">Log all c_hats</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1109,10 +1106,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="logging.log_system">
                                     <property name="label" translatable="yes">Log all _status changes to system log</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1127,7 +1124,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Logging</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -1151,39 +1148,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <child>
                   <object class="GtkBox" id="network.page">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="border-width">12</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label8">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">ST_UN server:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">network.stun_server</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">network.stun_server</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1194,9 +1191,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkEntry" id="network.stun_server">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="placeholder_text" translatable="yes">Example: stunserver.org</property>
-                                        <property name="input_purpose">url</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="placeholder-text" translatable="yes">Example: stunserver.org</property>
+                                        <property name="input-purpose">url</property>
                                         <signal name="focus-out-event" handler="network_stun_server_changed_cb" swapped="no"/>
                                       </object>
                                       <packing>
@@ -1216,10 +1213,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <object class="GtkCheckButton" id="network.auto_ip">
                                     <property name="label" translatable="yes">Use _automatically detected IP address</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                     <signal name="toggled" handler="auto_ip_button_clicked_cb" after="yes" swapped="no"/>
                                   </object>
                                   <packing>
@@ -1231,15 +1228,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox" id="network.public_ip_hbox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label9">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Public _IP:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">network.public_ip</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">network.public_ip</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -1251,7 +1248,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkEntry" id="network.public_ip">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can-focus">True</property>
                                         <signal name="changed" handler="network_ip_changed" swapped="no"/>
                                       </object>
                                       <packing>
@@ -1274,7 +1271,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">IP Address</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -1291,28 +1288,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkCheckButton" id="network.map_ports">
                                     <property name="label" translatable="yes">_Enable automatic router port forwarding</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1323,16 +1320,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkCheckButton" id="network.ports_range_use">
                                         <property name="label" translatable="yes">_Manually specify range of ports to listen on:</property>
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="draw_indicator">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="draw-indicator">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1343,14 +1340,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkBox" id="network.ports_range_hbox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="spacing">6</property>
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">_Start:</property>
-                                            <property name="use_underline">True</property>
+                                            <property name="use-underline">True</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1361,7 +1358,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                         <child>
                                           <object class="GtkSpinButton" id="network.ports_range_start">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
+                                            <property name="can-focus">True</property>
                                             <property name="text" translatable="yes">0</property>
                                             <property name="adjustment">network.ports_range_start.adjustment</property>
                                             <property name="numeric">True</property>
@@ -1375,10 +1372,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">_End:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">network.ports_range_end</property>
+                                            <property name="use-underline">True</property>
+                                            <property name="mnemonic-widget">network.ports_range_end</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1389,7 +1386,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                         <child>
                                           <object class="GtkSpinButton" id="network.ports_range_end">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
+                                            <property name="can-focus">True</property>
                                             <property name="text" translatable="yes">0</property>
                                             <property name="adjustment">network.ports_range_end.adjustment</property>
                                             <property name="numeric">True</property>
@@ -1421,7 +1418,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Ports</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -1438,32 +1435,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label10">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">_TURN server:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">network.turn_server</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">network.turn_server</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -1475,7 +1472,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkEntry" id="network.turn_server">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can-focus">True</property>
                                         <signal name="focus-out-event" handler="network_turn_server_changed_cb" swapped="no"/>
                                       </object>
                                       <packing>
@@ -1487,10 +1484,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">_UDP Port:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">network.turn_port_udp</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">network.turn_port_udp</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1501,7 +1498,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkSpinButton" id="network.turn_port_udp">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can-focus">True</property>
                                         <property name="adjustment">network.turn_port_udp.adjustment</property>
                                         <property name="numeric">True</property>
                                       </object>
@@ -1514,10 +1511,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">T_CP Port:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">network.turn_port_tcp</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">network.turn_port_tcp</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1528,7 +1525,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkSpinButton" id="network.turn_port_tcp">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can-focus">True</property>
                                         <property name="adjustment">network.turn_port_tcp.adjustment</property>
                                         <property name="numeric">True</property>
                                       </object>
@@ -1548,15 +1545,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label11">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Use_rname:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">network.turn_username</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">network.turn_username</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -1568,7 +1565,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkEntry" id="network.turn_username">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can-focus">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1579,10 +1576,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Pass_word:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">network.turn_password</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">network.turn_password</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1593,10 +1590,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkEntry" id="network.turn_password">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can-focus">True</property>
                                         <property name="visibility">False</property>
-                                        <property name="invisible_char">●</property>
-                                        <property name="input_purpose">password</property>
+                                        <property name="invisible-char">●</property>
+                                        <property name="input-purpose">password</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1618,7 +1615,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Relay Server (TURN)</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -1642,37 +1639,37 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <child>
                   <object class="GtkBox" id="proxy.page">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="border-width">12</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkStack" id="proxy.stack">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="hhomogeneous">False</property>
                                 <property name="vhomogeneous">False</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="orientation">vertical</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Proxy preferences are configured in GNOME preferences</property>
                                         <property name="xalign">0</property>
                                       </object>
@@ -1685,12 +1682,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkBox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="spacing">6</property>
                                         <child>
                                           <object class="GtkLabel" id="proxy.gnome_not_found">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">Proxy configuration program was not found.</property>
                                             <attributes>
                                               <attribute name="weight" value="bold"/>
@@ -1706,9 +1703,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                           <object class="GtkButton" id="proxy.gnome_program">
                                             <property name="label" translatable="yes">Configure _Proxy</property>
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="use_underline">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">True</property>
+                                            <property name="use-underline">True</property>
                                             <signal name="clicked" handler="proxy_button_clicked_cb" object="PidginPrefsWindow" swapped="no"/>
                                           </object>
                                           <packing>
@@ -1732,17 +1729,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="orientation">vertical</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkCheckButton" id="proxy.socks4_remotedns">
                                         <property name="label" translatable="yes">Use remote _DNS with SOCKS4 proxies</property>
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="draw_indicator">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="draw-indicator">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1753,15 +1750,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkBox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="spacing">6</property>
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">Proxy t_ype:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">proxy.type.combo</property>
+                                            <property name="use-underline">True</property>
+                                            <property name="mnemonic-widget">proxy.type.combo</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1772,7 +1769,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                         <child>
                                           <object class="GtkComboBox" id="proxy.type.combo">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="model">proxy.type.store</property>
                                             <child>
                                               <object class="GtkCellRendererText"/>
@@ -1795,124 +1792,137 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                       </packing>
                                     </child>
                                     <child>
+                                      <!-- n-columns=4 n-rows=3 -->
                                       <object class="GtkGrid" id="proxy.options">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="row_spacing">10</property>
-                                        <property name="column_spacing">5</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="row-spacing">10</property>
+                                        <property name="column-spacing">5</property>
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">_Host:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">proxy.host</property>
+                                            <property name="use-underline">True</property>
+                                            <property name="mnemonic-widget">proxy.host</property>
                                             <property name="xalign">1</property>
                                             <accessibility>
                                               <relation type="label-for" target="proxy.host"/>
                                             </accessibility>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">0</property>
-                                            <property name="top_attach">0</property>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkEntry" id="proxy.host">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
+                                            <property name="can-focus">True</property>
                                             <signal name="changed" handler="proxy_print_option" object="PidginPrefsWindow" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="top_attach">0</property>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">P_ort:</property>
-                                            <property name="use_underline">True</property>
+                                            <property name="use-underline">True</property>
                                             <property name="xalign">1</property>
                                             <accessibility>
                                               <relation type="label-for" target="proxy.port"/>
                                             </accessibility>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">2</property>
-                                            <property name="top_attach">0</property>
+                                            <property name="left-attach">2</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkSpinButton" id="proxy.port">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
+                                            <property name="can-focus">True</property>
                                             <property name="text" translatable="yes">0</property>
                                             <property name="adjustment">proxy.port.adjustment</property>
                                             <property name="numeric">True</property>
                                             <signal name="changed" handler="proxy_print_option" object="PidginPrefsWindow" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">3</property>
-                                            <property name="top_attach">0</property>
+                                            <property name="left-attach">3</property>
+                                            <property name="top-attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">User_name:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">proxy.username</property>
+                                            <property name="use-underline">True</property>
+                                            <property name="mnemonic-widget">proxy.username</property>
                                             <property name="xalign">1</property>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">0</property>
-                                            <property name="top_attach">1</property>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">1</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkEntry" id="proxy.username">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
+                                            <property name="can-focus">True</property>
                                             <signal name="changed" handler="proxy_print_option" object="PidginPrefsWindow" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="top_attach">1</property>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">1</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
+                                            <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">Pa_ssword:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">proxy.password</property>
+                                            <property name="use-underline">True</property>
+                                            <property name="mnemonic-widget">proxy.password</property>
                                             <property name="xalign">1</property>
                                             <accessibility>
                                               <relation type="label-for" target="proxy.password"/>
                                             </accessibility>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">2</property>
-                                            <property name="top_attach">1</property>
+                                            <property name="left-attach">2</property>
+                                            <property name="top-attach">1</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkEntry" id="proxy.password">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
+                                            <property name="can-focus">True</property>
                                             <property name="visibility">False</property>
-                                            <property name="invisible_char">●</property>
-                                            <property name="input_purpose">password</property>
+                                            <property name="invisible-char">●</property>
+                                            <property name="input-purpose">password</property>
                                             <signal name="changed" handler="proxy_print_option" object="PidginPrefsWindow" swapped="no"/>
                                           </object>
                                           <packing>
-                                            <property name="left_attach">3</property>
-                                            <property name="top_attach">1</property>
+                                            <property name="left-attach">3</property>
+                                            <property name="top-attach">1</property>
                                           </packing>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
                                         </child>
                                       </object>
                                       <packing>
@@ -1934,7 +1944,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Proxy Server</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -1958,36 +1968,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <child>
                   <object class="GtkBox" id="keyring.page">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="border-width">12</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox" id="keyring.vbox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Keyring:</property>
                                       </object>
                                       <packing>
@@ -1999,7 +2009,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkComboBox" id="keyring.active.combo">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="model">keyring.active.store</property>
                                         <child>
                                           <object class="GtkCellRendererText"/>
@@ -2028,8 +2038,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="margin_bottom">6</property>
+                            <property name="can-focus">False</property>
+                            <property name="margin-bottom">6</property>
                             <property name="label" translatable="yes">Keyring</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -2053,39 +2063,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <child>
                   <object class="GtkBox" id="away.page">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="border-width">12</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label12">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">_Report idle time:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">away.idle_reporting.combo</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">away.idle_reporting.combo</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -2097,7 +2107,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkComboBox" id="away.idle_reporting.combo">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="model">away.idle_reporting.store</property>
                                         <child>
                                           <object class="GtkCellRendererText"/>
@@ -2122,15 +2132,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label13">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">_Minutes before becoming idle:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">away.mins_before_away</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">away.mins_before_away</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -2142,7 +2152,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkSpinButton" id="away.mins_before_away">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can-focus">True</property>
                                         <property name="adjustment">away.mins_before_away.adjustment</property>
                                         <property name="numeric">True</property>
                                       </object>
@@ -2162,16 +2172,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox" id="away.idle_hbox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkCheckButton" id="away.away_when_idle">
                                         <property name="label" translatable="yes">Change to this status when _idle:</property>
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="draw_indicator">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="draw-indicator">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2196,7 +2206,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Idle</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -2213,31 +2223,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label14">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">_Auto-reply:</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="mnemonic_widget">away.auto_reply.combo</property>
+                                        <property name="use-underline">True</property>
+                                        <property name="mnemonic-widget">away.auto_reply.combo</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -2249,7 +2259,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                     <child>
                                       <object class="GtkComboBox" id="away.auto_reply.combo">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="model">away.auto_reply.store</property>
                                         <child>
                                           <object class="GtkCellRendererText"/>
@@ -2278,7 +2288,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Away</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -2295,28 +2305,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkCheckButton" id="away.startup_current_status">
                                     <property name="label" translatable="yes">Use status from last _exit at startup</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="use-underline">True</property>
+                                    <property name="draw-indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2327,14 +2337,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <child>
                                   <object class="GtkBox" id="away.startup_hbox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="away.startup_label">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Status to a_pply at startup:</property>
-                                        <property name="use_underline">True</property>
+                                        <property name="use-underline">True</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -2360,7 +2370,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">Status at Startup</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -2384,31 +2394,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <child>
                   <object class="GtkBox" id="theme.page">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="border_width">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="border-width">12</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
+                        <property name="can-focus">False</property>
+                        <property name="label-xalign">0</property>
+                        <property name="shadow-type">none</property>
                         <child>
                           <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="left_padding">12</property>
+                            <property name="can-focus">False</property>
+                            <property name="left-padding">12</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can-focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkLabel">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Select a theme that you would like to use from the lists below.
 New themes can be installed by dragging and dropping them onto the theme list.</property>
                                     <property name="xalign">0</property>
@@ -2422,12 +2432,12 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label20">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Status Icon Theme:</property>
                                         <property name="xalign">0</property>
                                       </object>
@@ -2440,7 +2450,7 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                                     <child>
                                       <object class="GtkComboBox" id="theme.status">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <signal name="changed" handler="prefs_set_status_icon_theme_cb" swapped="no"/>
                                         <child>
                                           <object class="GtkCellRendererPixbuf">
@@ -2476,12 +2486,12 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can-focus">False</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="label18">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <property name="label" translatable="yes">Smiley Theme:</property>
                                         <property name="xalign">0</property>
                                       </object>
@@ -2494,7 +2504,7 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                                     <child>
                                       <object class="GtkComboBox" id="theme.smiley">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
+                                        <property name="can-focus">False</property>
                                         <signal name="changed" handler="prefs_set_smiley_theme_cb" swapped="no"/>
                                         <child>
                                           <object class="GtkCellRendererPixbuf">
@@ -2534,8 +2544,8 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                         <child type="label">
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="margin_bottom">6</property>
+                            <property name="can-focus">False</property>
+                            <property name="margin-bottom">6</property>
                             <property name="label" translatable="yes">Theme Selections</property>
                             <attributes>
                               <attribute name="weight" value="bold"/>
@@ -2559,7 +2569,7 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                 <child>
                   <object class="PidginCredentialsPage">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">18</property>
                     <child>

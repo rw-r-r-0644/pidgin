@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 
+<!-- Generated with glade 3.38.2 
 
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
@@ -19,8 +19,52 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
+<!--
+                               ▀
+▄     ▄  ▄▄▄    ▄ ▄▄  ▄ ▄▄   ▄▄▄    ▄ ▄▄    ▄▄▄▄
+▀▄ ▄ ▄▀ ▀   █   █▀  ▀ █▀  █    █    █▀  █  █▀ ▀█
+ █▄█▄█  ▄▀▀▀█   █     █   █    █    █   █  █   █
+  █ █   ▀▄▄▀█   █     █   █  ▄▄█▄▄  █   █  ▀█▄▀█
+                                            ▄  █
+                                             ▀▀
+
+Glade 3.38.2 has issues with this file. Currently there are two issues.
+
+First, the filtered_visible tag is getting a property removed. This property
+has a invisible-set friend property which Glade does not let us set. Therefore,
+Glade thinks that the property is at a default value and thus ignore it.
+However, this tag is used to make text visible in a block of invisible text, so
+we need to explicitly set both the invisible and invisible-set properties.
+
+Replace this:
+
+    <child type="tag">
+      <object class="GtkTextTag" id="tags.filtered_visible"/>
+    </child>
+
+With this:
+
+    <child type="tag">
+      <object class="GtkTextTag" id="tags.filtered_visible">
+        <property name="invisible">False</property>
+        <property name="invisible-set">True</property>
+      </object>
+    </child>
+
+Glade is also messing up the GtkSearchEntry with an id of expression. It is
+removing the properties for primary-icon-activatable and
+primary-icon-sensitive. These properties default to TRUE according to gtk-doc,
+but if you remove them and then check in the insepector, they're both set to
+FALSE. So we explicitly set them. I haven't found the cause for this as the
+GtkEntry code in 3.24.0 says they default to TRUE, but regardless something
+funky is going on. The raw text is below for pasting.
+
+                    <property name="primary-icon-activatable">True</property>
+                    <property name="primary-icon-sensitive">True</property>
+
+-->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gtk+" version="3.22"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
@@ -28,32 +72,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <object class="GtkTextTagTable" id="message-format">
     <child type="tag">
       <object class="GtkTextTag" id="tags.level[0]">
-        <property name="foreground_rgba">rgb(0,0,0)</property>
+        <property name="foreground-rgba">rgb(0,0,0)</property>
       </object>
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.level[1]">
-        <property name="foreground_rgba">rgb(102,102,102)</property>
+        <property name="foreground-rgba">rgb(102,102,102)</property>
       </object>
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.level[2]">
-        <property name="foreground_rgba">rgb(0,0,0)</property>
+        <property name="foreground-rgba">rgb(0,0,0)</property>
       </object>
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.level[3]">
-        <property name="foreground_rgba">rgb(102,0,0)</property>
+        <property name="foreground-rgba">rgb(102,0,0)</property>
       </object>
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.level[4]">
-        <property name="foreground_rgba">rgb(255,0,0)</property>
+        <property name="foreground-rgba">rgb(255,0,0)</property>
       </object>
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.level[5]">
-        <property name="foreground_rgba">rgb(255,0,0)</property>
+        <property name="foreground-rgba">rgb(255,0,0)</property>
         <property name="weight">700</property>
       </object>
     </child>
@@ -70,11 +114,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <child type="tag">
       <object class="GtkTextTag" id="tags.filtered_visible">
         <property name="invisible">False</property>
+        <property name="invisible-set">True</property>
       </object>
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.match">
-        <property name="background_rgba">rgb(255,175,175)</property>
+        <property name="background-rgba">rgb(255,175,175)</property>
         <property name="weight">700</property>
       </object>
     </child>
@@ -85,34 +130,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </child>
   </object>
   <object class="GtkTextBuffer" id="buffer">
-    <property name="tag_table">message-format</property>
+    <property name="tag-table">message-format</property>
   </object>
   <template class="PidginDebugWindow" parent="GtkWindow">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="title" translatable="yes">Debug Window</property>
-    <child>
-      <placeholder/>
-    </child>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkToolbar" id="toolbar">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="icon_size">2</property>
             <signal name="popup-context-menu" handler="toolbar_context" swapped="no"/>
             <child>
               <object class="GtkToolButton" id="save">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Save</property>
-                <property name="is_important">True</property>
+                <property name="can-focus">False</property>
+                <property name="tooltip-text" translatable="yes">Save</property>
+                <property name="is-important">True</property>
                 <property name="label" translatable="yes">_Save...</property>
-                <property name="use_underline">True</property>
-                <property name="icon_name">document-save</property>
+                <property name="use-underline">True</property>
+                <property name="icon-name">document-save</property>
                 <signal name="clicked" handler="save_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
               <packing>
@@ -123,12 +165,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkToolButton" id="clear">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Clear</property>
-                <property name="is_important">True</property>
+                <property name="can-focus">False</property>
+                <property name="tooltip-text" translatable="yes">Clear</property>
+                <property name="is-important">True</property>
                 <property name="label" translatable="yes">_Clear</property>
-                <property name="use_underline">True</property>
-                <property name="icon_name">edit-clear</property>
+                <property name="use-underline">True</property>
+                <property name="icon-name">edit-clear</property>
                 <signal name="clicked" handler="clear_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
               <packing>
@@ -139,7 +181,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkSeparatorToolItem">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -149,12 +191,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkToggleToolButton" id="pause">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Pause</property>
-                <property name="is_important">True</property>
+                <property name="can-focus">False</property>
+                <property name="tooltip-text" translatable="yes">Pause</property>
+                <property name="is-important">True</property>
                 <property name="label" translatable="yes">_Pause</property>
-                <property name="use_underline">True</property>
-                <property name="icon_name">media-playback-pause</property>
+                <property name="use-underline">True</property>
+                <property name="icon-name">media-playback-pause</property>
                 <signal name="clicked" handler="pause_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
               <packing>
@@ -165,7 +207,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkSeparatorToolItem">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -175,12 +217,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkToggleToolButton" id="filter">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Filter</property>
-                <property name="is_important">True</property>
+                <property name="can-focus">False</property>
+                <property name="tooltip-text" translatable="yes">Filter</property>
+                <property name="is-important">True</property>
                 <property name="label" translatable="yes">_Filter</property>
-                <property name="use_underline">True</property>
-                <property name="icon_name">edit-find</property>
+                <property name="use-underline">True</property>
+                <property name="icon-name">edit-find</property>
                 <signal name="clicked" handler="regex_filter_toggled_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
               <packing>
@@ -191,15 +233,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkToolItem">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <child>
                   <object class="GtkSearchEntry" id="expression">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="primary_icon_name">edit-find-symbolic</property>
-                    <property name="primary_icon_activatable">True</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="primary_icon_tooltip_text" translatable="yes">Click for more options.</property>
+                    <property name="can-focus">True</property>
+                    <property name="primary-icon-name">edit-find-symbolic</property>
+                    <property name="primary-icon-activatable">True</property>
+                    <property name="primary-icon-sensitive">True</property>
+                    <property name="primary-icon-tooltip-text" translatable="yes">Click for more options.</property>
                     <signal name="icon-press" handler="regex_popup_cb" object="PidginDebugWindow" swapped="no"/>
                     <signal name="key-release-event" handler="regex_key_release_cb" object="PidginDebugWindow" swapped="no"/>
                     <signal name="search-changed" handler="regex_changed_cb" object="PidginDebugWindow" swapped="no"/>
@@ -214,7 +256,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkSeparatorToolItem">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -224,11 +266,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkToolItem">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Level </property>
                     <accessibility>
                       <relation type="label-for" target="filterlevel"/>
@@ -244,12 +286,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <child>
               <object class="GtkToolItem">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <child>
                   <object class="GtkComboBoxText" id="filterlevel">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="tooltip_text" translatable="yes">Select the debug filter level.</property>
+                    <property name="can-focus">False</property>
+                    <property name="tooltip-text" translatable="yes">Select the debug filter level.</property>
                     <property name="active">0</property>
                     <items>
                       <item translatable="yes">All</item>
@@ -278,14 +320,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <child>
           <object class="GtkScrolledWindow">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="shadow_type">in</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
             <child>
               <object class="GtkTextView" id="textview">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <property name="editable">False</property>
-                <property name="wrap_mode">word</property>
+                <property name="wrap-mode">word</property>
                 <property name="buffer">buffer</property>
               </object>
             </child>
@@ -300,20 +342,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </child>
   </template>
   <object class="GtkPopover" id="popover">
-    <property name="can_focus">False</property>
-    <property name="relative_to">expression</property>
+    <property name="can-focus">False</property>
+    <property name="relative-to">expression</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkCheckButton" id="popover_invert">
             <property name="label" translatable="yes">Invert</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="draw_indicator">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="draw-indicator">True</property>
             <signal name="toggled" handler="regex_menu_cb" object="PidginDebugWindow" swapped="no"/>
           </object>
           <packing>
@@ -326,9 +368,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <object class="GtkCheckButton" id="popover_highlight">
             <property name="label" translatable="yes">Highlight matches</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="draw_indicator">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="draw-indicator">True</property>
             <signal name="toggled" handler="regex_menu_cb" object="PidginDebugWindow" swapped="no"/>
           </object>
           <packing>
