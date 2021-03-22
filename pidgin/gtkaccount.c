@@ -1709,10 +1709,18 @@ pidgin_account_dialog_read_password_cb(GObject *obj, GAsyncResult *res,
 {
 	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
 	PidginAccountDialogShowData *d = (PidginAccountDialogShowData *)data;
+	GError *error = NULL;
 	gchar *password;
 
 	password = purple_credential_manager_read_password_finish(manager, res,
-	                                                          NULL);
+	                                                          &error);
+
+	if(error != NULL) {
+		purple_debug_warning("gtkaccount", "failed to read password: %s",
+		                     error->message);
+
+		g_error_free(error);
+	}
 
 	pidgin_account_dialog_show_continue(d->type, d->account, password);
 

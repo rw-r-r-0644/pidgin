@@ -1,9 +1,5 @@
-/**
- * @file kwallet.cpp KWallet password storage
- * @ingroup plugins
- */
-
-/* purple
+/*
+ * purple
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -19,390 +15,46 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program ; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301 USA
+ * You should have received a copy of the GNU General Public License along with
+ * this library; if not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <glib.h>
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
 
-#include <QQueue>
 #include <QCoreApplication>
+
+#include <kwallet.h>
 
 #include "purplekwallet.h"
 
-#define KWALLET_NAME        N_("KWallet")
-#define KWALLET_DESCRIPTION N_("This plugin will store passwords in KWallet.")
-#define KWALLET_AUTHORS     { "QuLogic (qulogic[at]pidgin.im)", NULL }
-#define KWALLET_ID          "keyring-kwallet"
-#define KWALLET_DOMAIN      (g_quark_from_static_string(KWALLET_ID))
+/******************************************************************************
+ * Globals
+ *****************************************************************************/
+static QCoreApplication *qCoreApp = NULL;
+static PurpleCredentialProvider *instance = NULL;
 
-#define KWALLET_WALLET_NAME KWallet::Wallet::NetworkWallet()
-#define KWALLET_APP_NAME "Libpurple"
-#define KWALLET_FOLDER_NAME "libpurple"
+#define PURPLE_KWALLET_DOMAIN (g_quark_from_static_string("purple-kwallet"))
+#define PURPLE_KWALLET_WALLET_NAME (KWallet::Wallet::NetworkWallet())
 
-PurpleKeyring *keyring_handler = NULL;
-QCoreApplication *qCoreApp = NULL;
+struct _PurpleKWalletProvider {
+	PurpleCredentialProvider parent;
 
-static gboolean
-kwallet_is_enabled(void)
-{
-	return KWallet::Wallet::isEnabled() ? TRUE : FALSE;
-}
+	PurpleKWalletPlugin::Engine *engine;
+};
 
-KWalletPlugin::engine *KWalletPlugin::engine::pinstance = NULL;
+G_DEFINE_DYNAMIC_TYPE(PurpleKWalletProvider, purple_kwallet_provider,
+                      PURPLE_TYPE_CREDENTIAL_PROVIDER)
 
-KWalletPlugin::request::~request()
-{
-}
-
-void
-KWalletPlugin::request::abort()
-{
-	detailedAbort(PURPLE_KEYRING_ERROR_CANCELLED);
-}
-
-KWalletPlugin::engine::engine()
-{
-	connected = false;
-	failed = false;
-	closing = false;
-	externallyClosed = false;
-	wallet = NULL;
-	busy = false;
-	closeAfterBusy = false;
-
-	reopenWallet();
-}
-
-void
-KWalletPlugin::engine::reopenWallet()
-{
-	if (closing) {
-		purple_debug_error("keyring-kwallet",
-			"wallet is closing right now\n");
-		failed = true;
-		return;
-	}
-
-	connected = false;
-	failed = false;
-	externallyClosed = false;
-
-	wallet = KWallet::Wallet::openWallet(KWALLET_WALLET_NAME, 0,
-		KWallet::Wallet::Asynchronous);
-	if (wallet == NULL) {
-		failed = true;
-		purple_debug_error("keyring-kwallet",
-			"failed opening a wallet\n");
-		return;
-	}
-
-	failed |= !connect(wallet, SIGNAL(walletClosed()),
-		SLOT(walletClosed()));
-	failed |= !connect(wallet, SIGNAL(walletOpened(bool)),
-		SLOT(walletOpened(bool)));
-	if (failed) {
-		purple_debug_error("keyring-kwallet",
-			"failed connecting to wallet signal\n");
-	}
-}
-
-KWalletPlugin::engine::~engine()
-{
-	closing = true;
-
-	abortAll();
-
-	delete wallet;
-
-	if (pinstance == this)
-		pinstance = NULL;
-}
-
-void
-KWalletPlugin::engine::abortAll()
-{
-	int abortedCount = 0;
-
-	while (!isEmpty()) {
-		request *req = dequeue();
-		req->abort();
-		delete req;
-		abortedCount++;
-	}
-
-	if (abortedCount > 0) {
-		purple_debug_info("keyring-kwallet", "aborted requests: %d\n",
-			abortedCount);
-	}
-}
-
-KWalletPlugin::engine *
-KWalletPlugin::engine::instance(bool create)
-{
-	if (pinstance == NULL && create)
-		pinstance = new engine;
-	return pinstance;
-}
-
-void
-KWalletPlugin::engine::closeInstance(void)
-{
-	if (pinstance == NULL)
-		return;
-	if (pinstance->closing)
-		return;
-	if (pinstance->busy) {
-		purple_debug_misc("keyring-kwallet",
-			"current instance is busy, will be freed later\n");
-		pinstance->closeAfterBusy = true;
-	} else
-		delete pinstance;
-	pinstance = NULL;
-}
-
-void
-KWalletPlugin::engine::walletOpened(bool opened)
-{
-	connected = opened;
-
-	if (!opened) {
-		purple_debug_warning("keyring-kwallet",
-			"failed to open a wallet\n");
-		delete this;
-		return;
-	}
-
-	if (!wallet->hasFolder(KWALLET_FOLDER_NAME)) {
-		if (!wallet->createFolder(KWALLET_FOLDER_NAME)) {
-			purple_debug_error("keyring-kwallet",
-				"couldn't create \"" KWALLET_FOLDER_NAME
-				"\" folder in wallet\n");
-			failed = true;
-		}
-	}
-	if (!failed)
-		wallet->setFolder(KWALLET_FOLDER_NAME);
-
-	executeRequests();
-}
-
-void
-KWalletPlugin::engine::walletClosed()
-{
-	if (!closing) {
-		purple_debug_info("keyring-kwallet",
-			"wallet was externally closed\n");
-		externallyClosed = true;
-		delete wallet;
-		wallet = NULL;
-	}
-}
-
-void
-KWalletPlugin::engine::queue(request *req)
-{
-	enqueue(req);
-	executeRequests();
-}
-
-void
-KWalletPlugin::engine::executeRequests()
-{
-	if (closing || busy)
-		return;
-	busy = true;
-	if (externallyClosed) {
-		reopenWallet();
-	} else if (connected || failed) {
-		while (!isEmpty()) {
-			request *req = dequeue();
-			if (connected)
-				req->execute(wallet);
-			else
-				req->abort();
-			delete req;
-		}
-	} else if (purple_debug_is_verbose()) {
-		purple_debug_misc("keyring-kwallet", "not yet connected\n");
-	}
-	busy = false;
-	if (closeAfterBusy) {
-		purple_debug_misc("keyring-kwallet",
-			"instance freed after being busy\n");
-		delete this;
-	}
-}
-
-KWalletPlugin::save_request::save_request(PurpleAccount *acc, const char *pw,
-	PurpleKeyringSaveCallback cb, void *userdata)
-{
-	account = acc;
-	data = userdata;
-	callback = cb;
-	password = QString(pw);
-	noPassword = (pw == NULL);
-}
-
-KWalletPlugin::read_request::read_request(PurpleAccount *acc,
-	PurpleKeyringReadCallback cb, void *userdata)
-{
-	account = acc;
-	data = userdata;
-	callback = cb;
-	password = QString();
-}
-
-void
-KWalletPlugin::save_request::detailedAbort(enum PurpleKeyringError error)
-{
-	GError *gerror;
-	if (callback == NULL)
-		return;
-
-	gerror = g_error_new(PURPLE_KEYRING_ERROR, error,
-		_("Failed to save password."));
-	callback(account, gerror, data);
-	g_error_free(gerror);
-}
-
-void
-KWalletPlugin::read_request::detailedAbort(enum PurpleKeyringError error)
-{
-	GError *gerror;
-	if (callback == NULL)
-		return;
-
-	gerror = g_error_new(PURPLE_KEYRING_ERROR, error,
-		_("Failed to read password."));
-	callback(account, NULL, gerror, data);
-	g_error_free(gerror);
-}
-
+/******************************************************************************
+ * Helpers
+ *****************************************************************************/
 static QString
-kwallet_account_key(PurpleAccount *account)
-{
-	return QString(purple_account_get_protocol_id(account)) + ":" +
-		purple_account_get_username(account);
-}
-
-void
-KWalletPlugin::read_request::execute(KWallet::Wallet *wallet)
-{
-	int result;
-
-	g_return_if_fail(wallet != NULL);
-
-	result = wallet->readPassword(kwallet_account_key(account), password);
-
-	if (result != 0) {
-		purple_debug_warning("keyring-kwallet",
-			"failed to read password, result was %d\n", result);
-		abort();
-		return;
-	}
-
-	purple_debug_misc("keyring-kwallet",
-		"Got password for account %s (%s).\n",
-		purple_account_get_username(account),
-		purple_account_get_protocol_id(account));
-
-	if (callback != NULL)
-		callback(account, password.toUtf8().constData(), NULL, data);
-}
-
-void
-KWalletPlugin::save_request::execute(KWallet::Wallet *wallet)
-{
-	int result;
-
-	g_return_if_fail(wallet != NULL);
-
-	if (noPassword)
-		result = wallet->removeEntry(kwallet_account_key(account));
-	else {
-		result = wallet->writePassword(kwallet_account_key(account),
-			password);
-	}
-
-	if (result != 0) {
-		purple_debug_warning("keyring-kwallet",
-			"failed to write password, result was %d\n", result);
-		abort();
-		return;
-	}
-
-	purple_debug_misc("keyring-kwallet",
-		"Password %s for account %s (%s).\n",
-		(noPassword ? "removed" : "saved"),
-		purple_account_get_username(account),
-		purple_account_get_protocol_id(account));
-
-	if (callback != NULL)
-		callback(account, NULL, data);
-}
-
-extern "C"
-{
-
-static void
-kwallet_read(PurpleAccount *account, PurpleKeyringReadCallback cb,
-	gpointer data)
-{
-	KWalletPlugin::read_request *req =
-		new KWalletPlugin::read_request(account, cb, data);
-
-	if (KWallet::Wallet::keyDoesNotExist(KWALLET_WALLET_NAME,
-		KWALLET_FOLDER_NAME, kwallet_account_key(account)))
-	{
-		req->detailedAbort(PURPLE_KEYRING_ERROR_NOPASSWORD);
-		delete req;
-	}
-	else
-		KWalletPlugin::engine::instance(true)->queue(req);
-}
-
-static void
-kwallet_save(PurpleAccount *account, const char *password,
-	PurpleKeyringSaveCallback cb, gpointer data)
-{
-	if (password == NULL && KWallet::Wallet::keyDoesNotExist(
-		KWALLET_WALLET_NAME, KWALLET_FOLDER_NAME,
-		kwallet_account_key(account)))
-	{
-		if (cb != NULL)
-			cb(account, NULL, data);
-	}
-	else
-		KWalletPlugin::engine::instance(true)->queue(
-			new KWalletPlugin::save_request(account, password, cb,
-			data));
-}
-
-static void
-kwallet_cancel(void)
-{
-	KWalletPlugin::engine *instance =
-		KWalletPlugin::engine::instance(false);
-	if (instance)
-		instance->abortAll();
-}
-
-static void *
-kwallet_get_handle(void)
-{
-	static int handle;
-
-	return &handle;
-}
-
-static const char *kwallet_get_ui_name(void)
-{
+purple_kwallet_get_ui_name(void) {
 	PurpleUiInfo *ui_info = NULL;
-	const char *ui_name = NULL;
+	QString ui_name = NULL;
 
 	ui_info = purple_core_get_ui_info();
 	if(PURPLE_IS_UI_INFO(ui_info)) {
@@ -410,92 +62,551 @@ static const char *kwallet_get_ui_name(void)
 		g_object_unref(G_OBJECT(ui_info));
 	}
 
-	if(ui_name == NULL) {
-		ui_name = KWALLET_APP_NAME;
+	if(ui_name.isEmpty()) {
+		ui_name = "libpurple";
 	}
 
 	return ui_name;
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
-{
-	const gchar * const authors[] = KWALLET_AUTHORS;
+static QString
+purple_kwallet_provider_account_key(PurpleAccount *account) {
+	return QString(purple_account_get_protocol_id(account)) + ":" +
+	               purple_account_get_username(account);
+}
 
-	return purple_plugin_info_new(
-		"id",           KWALLET_ID,
-		"name",         KWALLET_NAME,
+/******************************************************************************
+ * Request Implementation
+ *****************************************************************************/
+PurpleKWalletPlugin::Request::Request(QString key, GTask *task) {
+	this->key = key;
+	this->task = G_TASK(g_object_ref(G_OBJECT(task)));
+}
+
+PurpleKWalletPlugin::Request::~Request(void) {
+	g_clear_object(&this->task);
+}
+
+/******************************************************************************
+ * ReadRequest Implementation
+ *****************************************************************************/
+PurpleKWalletPlugin::ReadRequest::ReadRequest(QString key, GTask *task) : PurpleKWalletPlugin::Request(key, task) {
+}
+
+void
+PurpleKWalletPlugin::ReadRequest::execute(KWallet::Wallet *wallet) {
+	QString password;
+	int result = 0;
+	bool missing;
+
+	missing = KWallet::Wallet::keyDoesNotExist(PURPLE_KWALLET_WALLET_NAME,
+	                                           purple_kwallet_get_ui_name(),
+	                                           key);
+
+	if(missing) {
+		g_task_return_new_error(this->task, PURPLE_KWALLET_DOMAIN, 0,
+		                        "no password stored");
+
+		g_clear_object(&this->task);
+
+		return;
+	}
+
+	result = wallet->readPassword(this->key, password);
+
+	if(result != 0) {
+		g_task_return_new_error(this->task, PURPLE_KWALLET_DOMAIN, result,
+		                        _("failed to read password, kwallet responded "
+		                          "with error code %d"), result);
+	} else {
+		gchar *c_password = g_strdup(password.toUtf8().constData());
+		g_task_return_pointer(this->task, c_password, g_free);
+	}
+
+	g_clear_object(&this->task);
+}
+
+void
+PurpleKWalletPlugin::ReadRequest::cancel(QString reason) {
+	g_task_return_new_error(this->task, PURPLE_KWALLET_DOMAIN, 0,
+	                        _("failed to read password: %s"),
+	                        reason.toUtf8().constData());
+
+	g_clear_object(&this->task);
+}
+
+/******************************************************************************
+ * WriteRequest Implementation
+ *****************************************************************************/
+PurpleKWalletPlugin::WriteRequest::WriteRequest(QString key, GTask *task, QString password) : PurpleKWalletPlugin::Request(key, task) {
+	this->password = password;
+}
+
+void
+PurpleKWalletPlugin::WriteRequest::execute(KWallet::Wallet *wallet) {
+	int result;
+
+	result = wallet->writePassword(this->key, this->password);
+
+	if(result != 0) {
+		g_task_return_new_error(this->task, PURPLE_KWALLET_DOMAIN, result,
+		                        _("failed to write password, kwallet "
+		                          "responded with error code %d"), result);
+	} else {
+		g_task_return_boolean(this->task, TRUE);
+	}
+
+	g_clear_object(&this->task);
+}
+
+void
+PurpleKWalletPlugin::WriteRequest::cancel(QString reason) {
+	g_task_return_new_error(this->task, PURPLE_KWALLET_DOMAIN, 0,
+	                        _("failed to write password: %s"),
+	                        reason.toUtf8().constData());
+
+	g_clear_object(&this->task);
+}
+
+/******************************************************************************
+ * ClearRequest Implementation
+ *****************************************************************************/
+PurpleKWalletPlugin::ClearRequest::ClearRequest(QString key, GTask *task) : PurpleKWalletPlugin::Request(key, task) {
+}
+
+void
+PurpleKWalletPlugin::ClearRequest::execute(KWallet::Wallet *wallet) {
+	int result;
+
+	result = wallet->removeEntry(this->key);
+
+	if(result != 0) {
+		g_task_return_new_error(this->task, PURPLE_KWALLET_DOMAIN, result,
+		                        _("failed to clear password, kwallet "
+		                          "responded with error code %d"), result);
+	} else {
+		g_task_return_boolean(this->task, TRUE);
+	}
+
+	g_clear_object(&this->task);
+}
+
+void
+PurpleKWalletPlugin::ClearRequest::cancel(QString reason) {
+	g_task_return_new_error(this->task, PURPLE_KWALLET_DOMAIN, 0,
+	                        _("failed to clear password: %s"),
+	                        reason.toUtf8().constData());
+
+	g_clear_object(&this->task);
+}
+
+/******************************************************************************
+ * Engine Implementation
+ *****************************************************************************/
+PurpleKWalletPlugin::Engine::Engine(void) {
+	this->queue = QQueue<PurpleKWalletPlugin::Request *>();
+
+	this->connected = false;
+	this->failed = false;
+}
+
+PurpleKWalletPlugin::Engine::~Engine(void) {
+	this->close();
+}
+
+void
+PurpleKWalletPlugin::Engine::open(void) {
+	purple_debug_misc("kwallet-provider", "attempting to open wallet");
+
+	if(this->connected) {
+		purple_debug_misc("kwallet-provider", "wallet already opened");
+
+		return;
+	}
+
+	// Reset our externallyClosed and failed states.
+	this->externallyClosed = false;
+	this->failed = false;
+
+	// No need  to check this pointer as an async open always returns non-null.
+	this->wallet = KWallet::Wallet::openWallet(PURPLE_KWALLET_WALLET_NAME,
+	                                           0,
+	                                           KWallet::Wallet::Asynchronous);
+
+	this->failed |= !QObject::connect(this->wallet, SIGNAL(walletOpened(bool)),
+	                                  SLOT(opened(bool)));
+	this->failed |= !QObject::connect(this->wallet, SIGNAL(walletClosed(void)),
+	                                  SLOT(closed()));
+
+	if(this->failed) {
+		purple_debug_error("kwallet-provider",
+		                   "Failed to connect KWallet signals");
+	}
+}
+
+void
+PurpleKWalletPlugin::Engine::close(void) {
+	while(!this->queue.isEmpty()) {
+		PurpleKWalletPlugin::Request *request = this->queue.dequeue();
+
+		request->cancel("wallet is closing");
+
+		delete request;
+	}
+
+	if(this->wallet != NULL) {
+		delete this->wallet;
+		this->wallet = NULL;
+	}
+
+	this->connected = false;
+	this->failed = false;
+}
+
+void
+PurpleKWalletPlugin::Engine::enqueue(PurpleKWalletPlugin::Request *request) {
+	this->queue.enqueue(request);
+
+	processQueue();
+}
+
+void
+PurpleKWalletPlugin::Engine::opened(bool opened) {
+	QString folder_name;
+
+	if(!opened) {
+		purple_debug_error("kwallet-provider", "failed to open wallet");
+
+		delete this->wallet;
+		this->wallet = NULL;
+
+		this->connected = false;
+		this->failed = true;
+
+		return;
+	}
+
+	// Handle the case where the wallet opened signal connected, but the wallet
+	// closed signal failed to connect.
+	if(this->failed) {
+		purple_debug_error("kwallet-provider",
+		                   "wallet opened, but failed to connect the wallet "
+		                   "closed signal");
+		return;
+	}
+
+	this->connected = true;
+
+	// setup our folder
+	folder_name = purple_kwallet_get_ui_name();
+	if(!this->wallet->hasFolder(folder_name)) {
+		if(!this->wallet->createFolder(folder_name)) {
+			purple_debug_error("kwallet-provider",
+			                   "failed to create folder %s in wallet.",
+			                   folder_name.toUtf8().constData());
+			this->failed = true;
+		}
+	}
+
+	if(!this->failed && !this->wallet->setFolder(folder_name)) {
+		purple_debug_error("kwallet-provider", "failed to set folder to %s",
+		                   folder_name.toUtf8().constData());
+		this->failed = true;
+	}
+
+	purple_debug_misc("kwallet-provider", "successfully opened the wallet");
+
+	processQueue();
+}
+
+void
+PurpleKWalletPlugin::Engine::closed(void) {
+	purple_debug_misc("kwallet-provider", "the wallet was closed externally");
+
+	this->externallyClosed = true;
+	this->close();
+}
+
+void
+PurpleKWalletPlugin::Engine::processQueue() {
+	if(this->externallyClosed && this->queue.isEmpty() == false) {
+		this->open();
+	} else if(this->connected || this->failed) {
+		while(!this->queue.isEmpty()) {
+			PurpleKWalletPlugin::Request *request = this->queue.dequeue();
+
+			if(this->failed) {
+				request->cancel(_("failed to open kwallet"));
+			} else {
+				request->execute(this->wallet);
+			}
+
+			delete request;
+		}
+	}
+}
+
+/******************************************************************************
+ * PurpleCredentialProvider Implementation
+ *****************************************************************************/
+static void
+purple_kwallet_provider_activate(PurpleCredentialProvider *provider) {
+	PurpleKWalletProvider *kwallet_provider = NULL;
+
+	kwallet_provider = PURPLE_KWALLET_PROVIDER(provider);
+
+	kwallet_provider->engine->open();
+}
+
+static void
+purple_kwallet_provider_deactivate(PurpleCredentialProvider *provider) {
+	PurpleKWalletProvider *kwallet_provider = NULL;
+
+	kwallet_provider = PURPLE_KWALLET_PROVIDER(provider);
+
+	kwallet_provider->engine->close();
+}
+
+static void
+purple_kwallet_read_password_async(PurpleCredentialProvider *provider,
+                                   PurpleAccount *account,
+                                   GCancellable *cancellable,
+                                   GAsyncReadyCallback callback,
+                                   gpointer data)
+{
+	PurpleKWalletProvider *kwallet_provider = NULL;
+	PurpleKWalletPlugin::ReadRequest *request = NULL;
+	GTask *task = NULL;
+	QString key;
+
+	key = purple_kwallet_provider_account_key(account);
+
+	task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
+
+	request = new PurpleKWalletPlugin::ReadRequest(key, task);
+
+	kwallet_provider = PURPLE_KWALLET_PROVIDER(provider);
+	kwallet_provider->engine->enqueue(request);
+
+	g_clear_object(&task);
+}
+
+static gchar *
+purple_kwallet_read_password_finish(PurpleCredentialProvider *provider,
+                                    GAsyncResult *result, GError **error)
+{
+	return (gchar *)g_task_propagate_pointer(G_TASK(result), error);
+}
+
+static void
+purple_kwallet_write_password_async(PurpleCredentialProvider *provider,
+                                    PurpleAccount *account,
+                                    const gchar *password,
+                                    GCancellable *cancellable,
+                                    GAsyncReadyCallback callback,
+                                    gpointer data)
+{
+	PurpleKWalletProvider *kwallet_provider = NULL;
+	PurpleKWalletPlugin::WriteRequest *request = NULL;
+	GTask *task = NULL;
+	QString key;
+
+	task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
+
+	key = purple_kwallet_provider_account_key(account);
+
+	request = new PurpleKWalletPlugin::WriteRequest(key, task, password);
+
+	kwallet_provider = PURPLE_KWALLET_PROVIDER(provider);
+	kwallet_provider->engine->enqueue(request);
+
+	g_clear_object(&task);
+}
+
+static gboolean
+purple_kwallet_write_password_finish(PurpleCredentialProvider *provider,
+                                     GAsyncResult *result, GError **error)
+{
+	return g_task_propagate_boolean(G_TASK(result), error);
+}
+
+static void
+purple_kwallet_clear_password_async(PurpleCredentialProvider *provider,
+                                    PurpleAccount *account,
+                                    GCancellable *cancellable,
+                                    GAsyncReadyCallback callback,
+                                    gpointer data)
+{
+	PurpleKWalletProvider *kwallet_provider = NULL;
+	PurpleKWalletPlugin::ClearRequest *request = NULL;
+	GTask *task = NULL;
+	QString key;
+
+	task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
+
+	key = purple_kwallet_provider_account_key(account);
+
+	request = new PurpleKWalletPlugin::ClearRequest(key, task);
+
+	kwallet_provider = PURPLE_KWALLET_PROVIDER(provider);
+	kwallet_provider->engine->enqueue(request);
+
+	g_clear_object(&task);
+}
+
+static gboolean
+purple_kwallet_clear_password_finish(PurpleCredentialProvider *provider,
+                                     GAsyncResult *result, GError **error)
+{
+	return g_task_propagate_boolean(G_TASK(result), error);
+}
+
+/******************************************************************************
+ * GObject Implementation
+ *****************************************************************************/
+static void
+purple_kwallet_provider_dispose(GObject *obj) {
+	PurpleKWalletProvider *provider = PURPLE_KWALLET_PROVIDER(obj);
+
+	delete provider->engine;
+	provider->engine = NULL;
+
+	G_OBJECT_CLASS(purple_kwallet_provider_parent_class)->dispose(obj);
+}
+
+static void
+purple_kwallet_provider_finalize(GObject *obj) {
+	PurpleKWalletProvider *provider = PURPLE_KWALLET_PROVIDER(obj);
+
+	if(provider->engine != NULL) {
+		delete provider->engine;
+		provider->engine = NULL;
+	}
+
+	G_OBJECT_CLASS(purple_kwallet_provider_parent_class)->finalize(obj);
+}
+
+static void
+purple_kwallet_provider_init(PurpleKWalletProvider *provider) {
+	provider->engine = new PurpleKWalletPlugin::Engine();
+}
+
+static void
+purple_kwallet_provider_class_init(PurpleKWalletProviderClass *klass) {
+	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+	PurpleCredentialProviderClass *provider_class = NULL;
+
+	provider_class = PURPLE_CREDENTIAL_PROVIDER_CLASS(klass);
+
+	obj_class->dispose = purple_kwallet_provider_dispose;
+	obj_class->finalize = purple_kwallet_provider_finalize;
+
+	provider_class->activate = purple_kwallet_provider_activate;
+	provider_class->deactivate = purple_kwallet_provider_deactivate;
+	provider_class->read_password_async = purple_kwallet_read_password_async;
+	provider_class->read_password_finish = purple_kwallet_read_password_finish;
+	provider_class->write_password_async = purple_kwallet_write_password_async;
+	provider_class->write_password_finish =
+		purple_kwallet_write_password_finish;
+	provider_class->clear_password_async = purple_kwallet_clear_password_async;
+	provider_class->clear_password_finish =
+		purple_kwallet_clear_password_finish;
+}
+
+static void
+purple_kwallet_provider_class_finalize(PurpleKWalletProviderClass *klass) {
+}
+
+/******************************************************************************
+ * API
+ *****************************************************************************/
+static PurpleCredentialProvider *
+purple_kwallet_provider_new(void) {
+	return PURPLE_CREDENTIAL_PROVIDER(g_object_new(
+		PURPLE_KWALLET_TYPE_PROVIDER,
+		"id", "kwallet",
+		"name", _("KWallet"),
+		"description", _("A credentials management application for the KDE "
+		                 "Software Compilation desktop environment"),
+		NULL
+	));
+}
+
+/******************************************************************************
+ * Plugin Exports
+ *****************************************************************************/
+G_BEGIN_DECLS
+
+G_MODULE_EXPORT GPluginPluginInfo *
+gplugin_query(GError **error) {
+	const gchar * const authors[] = {
+		"Pidgin Developers <devel@pidgin.im>",
+		NULL
+	};
+
+	return GPLUGIN_PLUGIN_INFO(purple_plugin_info_new(
+		"id",           "keyring-kwallet",
+		"name",         N_("KWallet"),
 		"version",      DISPLAY_VERSION,
 		"category",     N_("Keyring"),
 		"summary",      "KWallet Keyring Plugin",
-		"description",  KWALLET_DESCRIPTION,
+		"description",  N_("This plugin will store passwords in KWallet."),
 		"authors",      authors,
 		"website",      PURPLE_WEBSITE,
 		"abi-version",  PURPLE_ABI_VERSION,
 		"flags",        PURPLE_PLUGIN_INFO_FLAGS_INTERNAL,
-
 		NULL
-	);
+	));
 }
 
-static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
-{
-	if (!qCoreApp) {
+G_MODULE_EXPORT gboolean
+gplugin_load(GPluginPlugin *plugin, GError **error) {
+	PurpleCredentialManager *manager = NULL;
+
+	purple_kwallet_provider_register_type(G_TYPE_MODULE(plugin));
+
+	if(qCoreApp == NULL) {
 		int argc = 0;
 		qCoreApp = new QCoreApplication(argc, NULL);
-		qCoreApp->setApplicationName(kwallet_get_ui_name());
+		qCoreApp->setApplicationName(purple_kwallet_get_ui_name());
 	}
 
-	if (!kwallet_is_enabled()) {
-		g_set_error(error, KWALLET_DOMAIN, 0, "KWallet service is disabled.");
-		purple_debug_info("keyring-kwallet",
-			"KWallet service is disabled\n");
+	if(!KWallet::Wallet::isEnabled()) {
+		g_set_error(error, PURPLE_KWALLET_DOMAIN, 0,
+		            "KWallet service is disabled.");
+
 		return FALSE;
 	}
 
-	keyring_handler = purple_keyring_new();
+	manager = purple_credential_manager_get_default();
 
-	purple_keyring_set_name(keyring_handler, _(KWALLET_NAME));
-	purple_keyring_set_id(keyring_handler, KWALLET_ID);
-	purple_keyring_set_read_password(keyring_handler, kwallet_read);
-	purple_keyring_set_save_password(keyring_handler, kwallet_save);
-	purple_keyring_set_cancel_requests(keyring_handler, kwallet_cancel);
-	purple_keyring_set_close_keyring(keyring_handler,
-		KWalletPlugin::engine::closeInstance);
+	instance = purple_kwallet_provider_new();
 
-	purple_keyring_register(keyring_handler);
-
-	return TRUE;
+	return purple_credential_manager_register_provider(manager, instance,
+	                                                   error);
 }
 
-static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
-{
-	if (purple_keyring_get_inuse() == keyring_handler) {
-		g_set_error(error, KWALLET_DOMAIN, 0, "The keyring is currently "
-			"in use.");
-		purple_debug_warning("keyring-kwallet",
-			"keyring in use, cannot unload\n");
-		return FALSE;
+G_MODULE_EXPORT gboolean
+gplugin_unload(GPluginPlugin *plugin, GError **error) {
+	PurpleCredentialManager *manager = NULL;
+	gboolean ret = FALSE;
+
+	manager = purple_credential_manager_get_default();
+	ret = purple_credential_manager_unregister_provider(manager, instance,
+	                                                    error);
+
+	if(!ret) {
+		return ret;
 	}
 
-	purple_signals_disconnect_by_handle(kwallet_get_handle());
-
-	KWalletPlugin::engine::closeInstance();
-
-	purple_keyring_unregister(keyring_handler);
-	purple_keyring_free(keyring_handler);
-	keyring_handler = NULL;
-
-	if (qCoreApp) {
+	if(qCoreApp != NULL) {
 		delete qCoreApp;
 		qCoreApp = NULL;
 	}
 
+	g_clear_object(&instance);
+
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(kwallet_keyring, plugin_query, plugin_load, plugin_unload);
-
-} /* extern "C" */
+G_END_DECLS

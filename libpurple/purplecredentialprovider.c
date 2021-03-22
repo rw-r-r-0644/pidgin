@@ -18,6 +18,8 @@
 
 #include "purplecredentialprovider.h"
 
+#include "purpleprivate.h"
+
 typedef struct {
 	gchar *id;
 	gchar *name;
@@ -201,6 +203,29 @@ purple_credential_provider_class_init(PurpleCredentialProviderClass *klass) {
 	);
 
 	g_object_class_install_properties(obj_class, N_PROPERTIES, properties);
+}
+
+/******************************************************************************
+ * Private API
+ *****************************************************************************/
+void
+purple_credential_provider_activate(PurpleCredentialProvider *provider) {
+	PurpleCredentialProviderClass *klass = NULL;
+
+	klass = PURPLE_CREDENTIAL_PROVIDER_GET_CLASS(provider);
+	if(klass && klass->activate) {
+		klass->activate(provider);
+	}
+}
+
+void
+purple_credential_provider_deactivate(PurpleCredentialProvider *provider) {
+	PurpleCredentialProviderClass *klass = NULL;
+
+	klass = PURPLE_CREDENTIAL_PROVIDER_GET_CLASS(provider);
+	if(klass && klass->deactivate) {
+		klass->deactivate(provider);
+	}
 }
 
 /******************************************************************************

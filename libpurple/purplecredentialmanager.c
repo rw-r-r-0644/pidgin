@@ -394,6 +394,14 @@ purple_credential_manager_set_active_provider(PurpleCredentialManager *manager,
 	}
 
 	if(g_set_object(&priv->active_provider, provider)) {
+		if(PURPLE_IS_CREDENTIAL_PROVIDER(old)) {
+			purple_credential_provider_deactivate(old);
+		}
+
+		if(PURPLE_IS_CREDENTIAL_PROVIDER(provider)) {
+			purple_credential_provider_activate(provider);
+		}
+
 		g_signal_emit(G_OBJECT(manager), signals[SIG_ACTIVE_PROVIDER_CHANGED],
 		              0, old, priv->active_provider);
 	}
