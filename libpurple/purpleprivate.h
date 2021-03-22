@@ -31,6 +31,7 @@
 
 #include "accounts.h"
 #include "connection.h"
+#include "purplecredentialprovider.h"
 
 #define PURPLE_STATIC_ASSERT(condition, message) \
 	{ typedef char static_assertion_failed_ ## message \
@@ -199,6 +200,8 @@ _purple_conversation_write_common(PurpleConversation *conv, PurpleMessage *msg);
  * purple_credential_manager_startup:
  *
  * Starts up the credential manager by creating the default instance.
+ *
+ * Since: 3.0.0
  */
 void purple_credential_manager_startup(void);
 
@@ -206,6 +209,8 @@ void purple_credential_manager_startup(void);
  * purple_credential_manager_shutdown:
  *
  * Shuts down the credential manager by destroying the default instance.
+ *
+ * Since: 3.0.0
  */
 void purple_credential_manager_shutdown(void);
 
@@ -213,6 +218,8 @@ void purple_credential_manager_shutdown(void);
  * purple_protocol_manager_startup:
  *
  * Starts up the protocol manager by creating the default instance.
+ *
+ * Since: 3.0.0
  */
 void purple_protocol_manager_startup(void);
 
@@ -220,8 +227,31 @@ void purple_protocol_manager_startup(void);
  * purple_protocol_manager_shutdown:
  *
  * Shuts down the protocol manager by destroying the default instance.
+ *
+ * Since: 3.0.0
  */
 void purple_protocol_manager_shutdown(void);
+
+/**
+ * purple_credential_provider_activate:
+ * @provider: The #PurpleCredentialProvider instance.
+ *
+ * Tells a @provider that it has become the active provider.
+ *
+ * Since: 3.0.0
+ */
+void purple_credential_provider_activate(PurpleCredentialProvider *provider);
+
+/**
+ * purple_credential_provider_deactivate:
+ * @provider: The #PurpleCredentialProvider instance.
+ *
+ * Tells @provider that another #PurpleCredentialProvider has become the active
+ * provider.
+ *
+ * Since: 3.0.0
+ */
+void purple_credential_provider_deactivate(PurpleCredentialProvider *provider);
 
 G_END_DECLS
 

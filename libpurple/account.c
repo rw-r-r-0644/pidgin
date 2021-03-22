@@ -154,10 +154,17 @@ purple_account_register_got_password_cb(GObject *obj, GAsyncResult *res,
 {
 	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
 	PurpleAccount *account = PURPLE_ACCOUNT(data);
+	GError *error = NULL;
 	gchar *password = NULL;
 
 	password = purple_credential_manager_read_password_finish(manager, res,
-	                                                          NULL);
+	                                                          &error);
+
+	if(error != NULL) {
+		purple_debug_warning("account", "failed to read password: %s",
+		                     error->message);
+		g_error_free(error);
+	}
 
 	_purple_connection_new(account, TRUE, password);
 
@@ -187,12 +194,20 @@ purple_account_unregister_got_password_cb(GObject *obj, GAsyncResult *res,
 	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
 	PurpleCallbackBundle *cbb = data;
 	PurpleAccountUnregistrationCb cb;
+	GError *error = NULL;
 	gchar *password = NULL;
 
 	cb = (PurpleAccountUnregistrationCb)cbb->cb;
 
 	password = purple_credential_manager_read_password_finish(manager, res,
-	                                                          NULL);
+	                                                          &error);
+
+	if(error != NULL) {
+		purple_debug_warning("account", "failed to read password: %s",
+		                     error->message);
+
+		g_error_free(error);
+	}
 
 	_purple_connection_new_unregister(cbb->account, password, cb, cbb->data);
 
@@ -308,10 +323,18 @@ purple_account_connect_got_password_cb(GObject *obj, GAsyncResult *res,
 	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
 	PurpleAccount *account = PURPLE_ACCOUNT(data);
 	PurpleProtocol *protocol = NULL;
+	GError *error = NULL;
 	gchar *password = NULL;
 
 	password = purple_credential_manager_read_password_finish(manager, res,
-	                                                          NULL);
+	                                                          &error);
+
+	if(error != NULL) {
+		purple_debug_warning("account", "failed to read password %s",
+		                     error->message);
+
+		g_error_free(error);
+	}
 
 	protocol = purple_account_get_protocol(account);
 

@@ -1,4 +1,5 @@
-/* purple
+/*
+ * purple
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -14,86 +15,80 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program ; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301 USA
+ * You should have received a copy of the GNU General Public License along with
+ * this library; if not, see <https://www.gnu.org/licenses/>.
  */
+
+#include <glib.h>
+
 #include <purple.h>
 
 #include <kwallet.h>
 #include <QQueue>
 
-namespace KWalletPlugin {
+#define PURPLE_KWALLET_TYPE_PROVIDER (purple_kwallet_provider_get_type())
+G_DECLARE_FINAL_TYPE(PurpleKWalletProvider, purple_kwallet_provider,
+                     PURPLE_KWALLET, PROVIDER, PurpleCredentialProvider)
 
-class request
-{
-	public:
-		virtual ~request();
-		virtual void detailedAbort(enum PurpleKeyringError error) = 0;
-		void abort();
-		virtual void execute(KWallet::Wallet *wallet) = 0;
+namespace PurpleKWalletPlugin {
 
-	protected:
-		gpointer data;
-		PurpleAccount *account;
-		QString password;
-		bool noPassword;
+class Request {
+public:
+	Request(QString key, GTask *task);
+	virtual ~Request(void);
+	virtual void execute(KWallet::Wallet *wallet) = 0;
+	virtual void cancel(QString reason) = 0;
+protected:
+	QString key;
+	GTask *task;
 };
 
-class engine : private QObject, private QQueue<request*>
-{
+class ReadRequest : public Request {
+public:
+	ReadRequest(QString key, GTask *task);
+	void execute(KWallet::Wallet *wallet);
+	void cancel(QString reason);
+};
+
+class WriteRequest : public Request {
+public:
+	WriteRequest(QString key, GTask *task, QString password);
+	void execute(KWallet::Wallet *wallet);
+	void cancel(QString reason);
+private:
+	QString password;
+};
+
+class ClearRequest : public Request {
+public:
+	ClearRequest(QString key, GTask *task);
+	void execute(KWallet::Wallet *wallet);
+	void cancel(QString reason);
+};
+
+class Engine : public QObject {
 	Q_OBJECT
 
-	public:
-		engine();
-		~engine();
-		void queue(request *req);
-		void abortAll();
-		static engine *instance(bool create);
-		static void closeInstance(void);
+public:
+	Engine(void);
+	~Engine(void);
 
-	private slots:
-		void walletOpened(bool opened);
-		void walletClosed();
+	void open(void);
+	void close(void);
+	void enqueue(Request *request);
+private slots:
+	void opened(bool opened);
+	void closed(void);
+private:
+	void processQueue(void);
 
-	private:
-		static engine *pinstance;
+	bool connected;
+	bool externallyClosed;
+	bool failed;
 
-		bool connected;
-		bool failed;
-		bool closing;
-		bool externallyClosed;
-		bool busy;
-		bool closeAfterBusy;
+	KWallet::Wallet *wallet;
 
-		KWallet::Wallet *wallet;
-
-		void reopenWallet();
-		void executeRequests();
-};
-
-class save_request : public request
-{
-	public:
-		save_request(PurpleAccount *account, const char *password,
-			PurpleKeyringSaveCallback cb, void *data);
-		void detailedAbort(enum PurpleKeyringError error);
-		void execute(KWallet::Wallet *wallet);
-
-	private:
-		PurpleKeyringSaveCallback callback;
-};
-
-class read_request : public request
-{
-	public:
-		read_request(PurpleAccount *account,
-			PurpleKeyringReadCallback cb, void *data);
-		void detailedAbort(enum PurpleKeyringError error);
-		void execute(KWallet::Wallet *wallet);
-
-	private:
-		PurpleKeyringReadCallback callback;
+	QQueue<Request *> queue;
 };
 
 }

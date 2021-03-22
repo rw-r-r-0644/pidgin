@@ -583,13 +583,17 @@ static void
 purple_accounts_delete_set(GObject *obj, GAsyncResult *res, gpointer d) {
 	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
 	PurpleAccount *account = PURPLE_ACCOUNT(d);
+	GError *error = NULL;
 	gboolean r = FALSE;
 
-	r = purple_credential_manager_clear_password_finish(manager, res, NULL);
+	r = purple_credential_manager_clear_password_finish(manager, res, &error);
 	if(r != TRUE) {
 		purple_debug_warning("accounts",
-		                     "Failed to remove password for account %s",
-		                     purple_account_get_name_for_display(account));
+		                     "Failed to remove password for account %s: %s",
+		                     purple_account_get_name_for_display(account),
+		                     error->message);
+
+		g_clear_error(&error);
 	}
 
 	g_object_unref(G_OBJECT(account));

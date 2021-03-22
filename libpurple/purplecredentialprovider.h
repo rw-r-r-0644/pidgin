@@ -62,6 +62,8 @@ G_DECLARE_DERIVABLE_TYPE(PurpleCredentialProvider, purple_credential_provider,
 
 /**
  * PurpleCredentialProviderClass:
+ * @activate: Called when the provider is made active.
+ * @deactivate: Called when another provider has been made active.
  * @read_password_async: Reads a password from the provider.
  * @read_password_finish: Finishes reading a password.
  * @write_password_async: Writes a password to the provider.
@@ -82,6 +84,9 @@ struct _PurpleCredentialProviderClass {
 	GObjectClass parent;
 
 	/*< public >*/
+	void (*activate)(PurpleCredentialProvider *provider);
+	void (*deactivate)(PurpleCredentialProvider *provider);
+
 	void (*read_password_async)(PurpleCredentialProvider *provider, PurpleAccount *account, GCancellable *cancellable, GAsyncReadyCallback callback, gpointer data);
 	gchar *(*read_password_finish)(PurpleCredentialProvider *provider, GAsyncResult *result, GError **error);
 
