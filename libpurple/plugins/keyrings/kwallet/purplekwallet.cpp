@@ -206,8 +206,11 @@ PurpleKWalletPlugin::ClearRequest::cancel(QString reason) {
 PurpleKWalletPlugin::Engine::Engine(void) {
 	this->queue = QQueue<PurpleKWalletPlugin::Request *>();
 
+	this->wallet = NULL;
+
 	this->connected = false;
 	this->failed = false;
+	this->externallyClosed = false;
 }
 
 PurpleKWalletPlugin::Engine::~Engine(void) {
@@ -468,8 +471,9 @@ static void
 purple_kwallet_provider_dispose(GObject *obj) {
 	PurpleKWalletProvider *provider = PURPLE_KWALLET_PROVIDER(obj);
 
-	delete provider->engine;
-	provider->engine = NULL;
+	if(provider->engine != NULL) {
+		provider->engine->close();
+	}
 
 	G_OBJECT_CLASS(purple_kwallet_provider_parent_class)->dispose(obj);
 }
