@@ -78,6 +78,8 @@ G_DECLARE_DERIVABLE_TYPE(PurpleCredentialManager, purple_credential_manager,
  *                       registered.
  * @provider_unregistered: The default signal handler for when a provider is
  *                         unregistered.
+ * @active_provider_changed: The default signal handler for when the active
+ *                           provider is changed.
  *
  * The class structure for #PurpleCredentialProvider.
  *
