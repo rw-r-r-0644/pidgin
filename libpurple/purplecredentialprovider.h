@@ -70,7 +70,6 @@ G_DECLARE_DERIVABLE_TYPE(PurpleCredentialProvider, purple_credential_provider,
  * @write_password_finish: Finishes writing a password.
  * @clear_password_async: Clears a password from the provider.
  * @clear_password_finish: Finishes clearing a password from the provider.
- * @close: Closes the provider.
  * @read_settings: Creates a #PurpleRequestFields for the available settings.
  * @write_settings: Updates the settings for provider.
  *
