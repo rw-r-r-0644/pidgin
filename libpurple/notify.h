@@ -62,6 +62,7 @@ typedef struct _PurpleNotifyUiOps	PurpleNotifyUiOps;
 
 /**
  * PurpleNotifyCloseCallback:
+ * @user_data: User specified data.
  *
  * Notification close callbacks.
  */
@@ -114,8 +115,16 @@ typedef enum
  * PurpleNotifySearchButtonType:
  * @PURPLE_NOTIFY_BUTTON_LABELED: special use, see
  *               purple_notify_searchresults_button_add_labeled()
+ * @PURPLE_NOTIFY_BUTTON_CONTINUE: A continue button.
+ * @PURPLE_NOTIFY_BUTTON_ADD: An add button.
+ * @PURPLE_NOTIFY_BUTTON_INFO: An info button.
+ * @PURPLE_NOTIFY_BUTTON_IM: An IM button.
+ * @PURPLE_NOTIFY_BUTTON_JOIN: A join button.
+ * @PURPLE_NOTIFY_BUTTON_INVITE: An invite button.
  *
- * The types of buttons
+ * Constant values to define the type of buttons to use in a request dialog.
+ * These are used by user interfaces to label and possibly add an icon to the
+ * button.
  */
 typedef enum
 {
@@ -147,6 +156,10 @@ struct _PurpleNotifySearchResults
 
 /**
  * PurpleNotifyUserInfoEntryType:
+ * @PURPLE_NOTIFY_USER_INFO_ENTRY_PAIR: A label and its value.
+ * @PURPLE_NOTIFY_USER_INFO_ENTRY_SECTION_BREAK: Separates two sections.
+ * @PURPLE_NOTIFY_USER_INFO_ENTRY_SECTION_HEADER: Create a header for the
+ *                                                current section.
  *
  * Types of PurpleNotifyUserInfoEntry objects
  */

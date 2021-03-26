@@ -51,6 +51,9 @@ typedef enum
 
 /**
  * PurpleInputFunction:
+ * @data: User specified data.
+ * @fd: The input file descriptor.
+ * @cond: The condition type.
  *
  * The type of callbacks to handle events on file descriptors, as passed to
  * purple_input_add().  The callback will receive the @user_data passed to

@@ -46,12 +46,26 @@ typedef struct _PurpleLogLogger PurpleLogLogger;
 typedef struct _PurpleLogCommonLoggerData PurpleLogCommonLoggerData;
 typedef struct _PurpleLogSet PurpleLogSet;
 
+/**
+ * PurpleLogType:
+ * @PURPLE_LOG_IM: Indicates an IM conversation.
+ * @PURPLE_LOG_CHAT: Indicates a chat.
+ * @PURPLE_LOG_SYSTEM: Indicates a server log.
+ *
+ * The individual types of logs.
+ */
 typedef enum {
 	PURPLE_LOG_IM,
 	PURPLE_LOG_CHAT,
 	PURPLE_LOG_SYSTEM
 } PurpleLogType;
 
+/**
+ * PurpleLogReadFlags:
+ * @PURPLE_LOG_READ_NO_NEWLINE: Defines that newlines should be ignored.
+ *
+ * Flags that should be used when reading a log.
+ */
 typedef enum {
 	PURPLE_LOG_READ_NO_NEWLINE = 1
 } PurpleLogReadFlags;
@@ -162,6 +176,9 @@ struct _PurpleLog {
 
 /**
  * PurpleLogCommonLoggerData:
+ * @path: The path to the file.
+ * @file: The pointer to the open file handle.
+ * @extra_data: User supplied data.
  *
  * A common logger_data struct containing a file handle and path, as well
  * as a pointer to something else for additional data.
@@ -556,6 +573,7 @@ gboolean purple_log_common_is_deletable(PurpleLog *log);
  *                <literal>create</literal>, %NULL (a placeholder for
  *                <literal>write</literal>), and <literal>finalize</literal>
  *                (for a total of 3 functions).
+ * @...: The functions used to log.
  *
  * Creates a new logger
  *
