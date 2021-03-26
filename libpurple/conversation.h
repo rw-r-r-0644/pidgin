@@ -119,9 +119,6 @@ typedef enum
 /**************************************************************************/
 /**
  * PurpleConversation:
- * @ui_data: The UI data associated with this conversation. This is a
- *           convenience field provided to the UIs -- it is not used by the
- *           libpurple core.
  *
  * A core representation of a conversation between two or more people.
  *
