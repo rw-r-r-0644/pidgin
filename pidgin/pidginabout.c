@@ -448,6 +448,45 @@ pidgin_about_dialog_load_plugin_search_paths(PidginAboutDialog *about) {
 }
 
 static void
+pidgin_about_dialog_load_conf_path_info(PidginAboutDialog *about) {
+	GtkTreeIter section, iter;
+	gchar *markup = NULL;
+	const gchar *path = NULL;
+
+	/* create the section */
+	markup = g_strdup_printf("<b>%s</b>", _("Runtime Directories"));
+	gtk_tree_store_append(about->build_info_store, &section, NULL);
+	gtk_tree_store_set(about->build_info_store, &section,
+	                   0, markup,
+	                   -1);
+	g_free(markup);
+
+	/* add the cache directory path */
+	path = purple_cache_dir();
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, _("Cache"),
+	                   1, (gchar*)path,
+	                   -1);
+
+	/* add the config directory path */
+	path = purple_config_dir();
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, _("Configuration"),
+	                   1, (gchar*)path,
+	                   -1);
+
+	/* add the data directory path */
+	path = purple_data_dir();
+	gtk_tree_store_append(about->build_info_store, &iter, &section);
+	gtk_tree_store_set(about->build_info_store, &iter,
+	                   0, _("Data"),
+	                   1, (gchar*)path,
+	                   -1);
+}
+
+static void
 pidgin_about_dialog_load_build_configuration(PidginAboutDialog *about) {
 #ifdef MESON_ARGS
 	pidgin_about_dialog_add_build_args(about, _("Meson Arguments"), MESON_ARGS);
@@ -457,6 +496,7 @@ pidgin_about_dialog_load_build_configuration(PidginAboutDialog *about) {
 	pidgin_about_dialog_load_runtime_info(about);
 	pidgin_about_dialog_load_gtk_settings(about);
 	pidgin_about_dialog_load_plugin_search_paths(about);
+	pidgin_about_dialog_load_conf_path_info(about);
 }
 
 /******************************************************************************
