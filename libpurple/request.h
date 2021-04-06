@@ -1622,22 +1622,21 @@ GList *purple_request_field_list_get_selected(
  *
  * Returns a list of items in a list field.
  *
- * Returns: (element-type utf8) (transfer none): The list of items.
+ * Returns: (element-type PurpleKeyValuePair) (transfer none): The list of items.
  */
 GList *purple_request_field_list_get_items(const PurpleRequestField *field);
 
 /**
- * purple_request_field_list_get_icons:
+ * purple_request_field_list_has_icons:
  * @field: The field.
  *
- * Returns a list of icons in a list field.
+ * Indicates if list field has icons.
  *
- * The icons will correspond with the items, in order.
+ * Returns: TRUE if list field has icons, FALSE otherwise.
  *
- * Returns: (element-type utf8) (transfer none): The list of icons or %NULL (i.e. the empty #GList)
- *          if no items have icons.
+ * Since: 3.0.0
  */
-GList *purple_request_field_list_get_icons(const PurpleRequestField *field);
+gboolean purple_request_field_list_has_icons(const PurpleRequestField *field);
 
 /**************************************************************************/
 /* Label Field API                                                        */

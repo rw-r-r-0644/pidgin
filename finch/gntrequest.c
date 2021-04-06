@@ -328,18 +328,20 @@ request_fields_cb(GntWidget *button, PurpleRequestFields *fields)
 			}
 			else if (type == PURPLE_REQUEST_FIELD_LIST)
 			{
-				GList *list = NULL, *iter;
+				GList *selected = NULL;
+				GList *list = purple_request_field_list_get_items(field);
 				if (purple_request_field_list_get_multi_select(field))
 				{
 					GntWidget *tree = purple_request_field_get_ui_data(field);
 
-					iter = purple_request_field_list_get_items(field);
-					for (; iter; iter = iter->next)
+					for (; list; list = list->next)
 					{
-						const char *text = iter->data;
+						PurpleKeyValuePair *item = list->data;
+						const char *text = item->key;
 						gpointer key = purple_request_field_list_get_data(field, text);
-						if (gnt_tree_get_choice(GNT_TREE(tree), key))
-							list = g_list_prepend(list, (gpointer)text);
+						if (gnt_tree_get_choice(GNT_TREE(tree), key)) {
+							selected = g_list_prepend(selected, (gpointer)text);
+						}
 					}
 				}
 				else
@@ -347,19 +349,19 @@ request_fields_cb(GntWidget *button, PurpleRequestFields *fields)
 					GntWidget *combo = purple_request_field_get_ui_data(field);
 					gpointer data = gnt_combo_box_get_selected_data(GNT_COMBO_BOX(combo));
 
-					iter = purple_request_field_list_get_items(field);
-					for (; iter; iter = iter->next) {
-						const char *text = iter->data;
+					for (; list; list = list->next) {
+						PurpleKeyValuePair *item = list->data;
+						const char *text = item->key;
 						gpointer key = purple_request_field_list_get_data(field, text);
 						if (key == data) {
-							list = g_list_prepend(list, (gpointer)text);
+							selected = g_list_prepend(selected, (gpointer)text);
 							break;
 						}
 					}
 				}
 
-				purple_request_field_list_set_selected(field, list);
-				g_list_free(list);
+				purple_request_field_list_set_selected(field, selected);
+				g_list_free(selected);
 			}
 			else if (type == PURPLE_REQUEST_FIELD_ACCOUNT)
 			{
@@ -478,16 +480,14 @@ static GntWidget*
 create_list_field(PurpleRequestField *field)
 {
 	GntWidget *ret = NULL;
-	GList *list;
-	gboolean multi = purple_request_field_list_get_multi_select(field);
-	if (multi)
-	{
+	GList *list = purple_request_field_list_get_items(field);
+	if (purple_request_field_list_get_multi_select(field)) {
 		GntWidget *tree = gnt_tree_new();
 
-		list = purple_request_field_list_get_items(field);
 		for (; list; list = list->next)
 		{
-			const char *text = list->data;
+			PurpleKeyValuePair *item = list->data;
+			const char *text = item->key;
 			gpointer key = purple_request_field_list_get_data(field, text);
 			gnt_tree_add_choice(GNT_TREE(tree), key,
 					gnt_tree_create_row(GNT_TREE(tree), text), NULL, NULL);
@@ -500,10 +500,10 @@ create_list_field(PurpleRequestField *field)
 	{
 		GntWidget *combo = gnt_combo_box_new();
 
-		list = purple_request_field_list_get_items(field);
 		for (; list; list = list->next)
 		{
-			const char *text = list->data;
+			PurpleKeyValuePair *item = list->data;
+			const char *text = item->key;
 			gpointer key = purple_request_field_list_get_data(field, text);
 			gnt_combo_box_add_data(GNT_COMBO_BOX(combo), key, text);
 			if (purple_request_field_list_is_selected(field, text))

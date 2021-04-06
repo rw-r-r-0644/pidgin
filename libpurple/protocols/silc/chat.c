@@ -295,8 +295,10 @@ silcpurple_chat_chpk_cb(SilcPurpleChauth sgc, PurpleRequestFields *fields)
 	chpks = silc_buffer_alloc_size(2);
 
 	for (ct = 0; list; list = list->next, ct++) {
-		public_key = purple_request_field_list_get_data(f, list->data);
-		if (purple_request_field_list_is_selected(f, list->data)) {
+		PurpleKeyValuePair *item = list->data;
+
+		public_key = purple_request_field_list_get_data(f, item->key);
+		if (purple_request_field_list_is_selected(f, item->key)) {
 			/* Delete this public key */
 			pk = silc_public_key_payload_encode(public_key);
 			chpks = silc_argument_payload_encode_one(chpks, pk->data,
