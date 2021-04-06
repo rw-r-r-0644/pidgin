@@ -75,7 +75,7 @@ static BOOL winpidgin_set_running(BOOL fail_if_running) {
 			if (fail_if_running) {
 				HWND msg_win;
 
-				printf("An instance of Pidgin is already running.\n");
+				wprintf(L"An instance of Pidgin is already running.\n");
 
 				if((msg_win = FindWindowExW(NULL, NULL, L"WinpidginMsgWinCls", NULL)))
 					if(SendMessage(msg_win, PIDGIN_WM_FOCUS_REQUEST, (WPARAM) NULL, (LPARAM) NULL))
@@ -90,7 +90,7 @@ static BOOL winpidgin_set_running(BOOL fail_if_running) {
 				return FALSE;
 			}
 		} else if (err != ERROR_SUCCESS)
-			printf("Error (%u) accessing \"pidgin_is_running\" mutex.\n", (UINT) err);
+			wprintf(L"Error (%u) accessing \"pidgin_is_running\" mutex.\n", (UINT) err);
 	}
 	return TRUE;
 }
@@ -116,12 +116,12 @@ static void handle_protocol(wchar_t *cmd) {
 		wlen = wcslen(tmp1);
 
 	if (wlen == 0) {
-		printf("No protocol message specified.\n");
+		wprintf(L"No protocol message specified.\n");
 		return;
 	}
 
 	if (!(msg_win = FindWindowExW(NULL, NULL, L"WinpidginMsgWinCls", NULL))) {
-		printf("Unable to find an instance of Pidgin to handle protocol message.\n");
+		wprintf(L"Unable to find an instance of Pidgin to handle protocol message.\n");
 		return;
 	}
 
@@ -134,7 +134,7 @@ static void handle_protocol(wchar_t *cmd) {
 	}
 
 	if (len == 0) {
-		printf("No protocol message specified.\n");
+		wprintf(L"No protocol message specified.\n");
 		return;
 	}
 
@@ -270,7 +270,7 @@ WinMain (struct HINSTANCE__ *hInstance, struct HINSTANCE__ *hPrevInstance,
 				LPFNSETLOGFILE MySetLogFile;
 				/* exchndl.dll is built without UNICODE */
 				char debug_dir[MAX_PATH];
-				printf("Loaded exchndl.dll\n");
+				wprintf(L"Loaded exchndl.dll\n");
 				/* Temporarily override exchndl.dll's logfile
 				 * to something sane (Pidgin will override it
 				 * again when it initializes) */
@@ -278,7 +278,7 @@ WinMain (struct HINSTANCE__ *hInstance, struct HINSTANCE__ *hPrevInstance,
 				if (MySetLogFile) {
 					if (GetTempPathA(sizeof(debug_dir), debug_dir) != 0) {
 						strcat(debug_dir, "pidgin.RPT");
-						printf(" Setting exchndl.dll LogFile to %s\n",
+						wprintf(L" Setting exchndl.dll LogFile to %s\n",
 							debug_dir);
 						MySetLogFile(debug_dir);
 					}
@@ -306,7 +306,7 @@ WinMain (struct HINSTANCE__ *hInstance, struct HINSTANCE__ *hPrevInstance,
 							"%s\\pidgin-%s-dbgsym",
 							pidgin_dir_ansi,  VERSION);
 						debug_dir[sizeof(debug_dir) - 1] = '\0';
-						printf(" Setting exchndl.dll DebugInfoDir to %s\n",
+						wprintf(L" Setting exchndl.dll DebugInfoDir to %s\n",
 							debug_dir);
 						MySetLogFile(debug_dir);
 						free(pidgin_dir_ansi);
