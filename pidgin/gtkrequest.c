@@ -1405,16 +1405,17 @@ create_list_field(PurpleRequestField *field)
 	GtkTreeViewColumn *column;
 	GtkTreeIter iter;
 	GList *l;
-	GList *icons = NULL;
+	gboolean has_icons;
 
-	icons = purple_request_field_list_get_icons(field);
+	has_icons = purple_request_field_list_has_icons(field);
 
 
 	/* Create the list store */
-	if (icons)
+	if (has_icons) {
 		store = gtk_list_store_new(3, G_TYPE_POINTER, G_TYPE_STRING, GDK_TYPE_PIXBUF);
-	else
+	} else {
 		store = gtk_list_store_new(2, G_TYPE_POINTER, G_TYPE_STRING);
+	}
 
 	/* Create the tree view */
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
@@ -1433,8 +1434,7 @@ create_list_field(PurpleRequestField *field)
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_add_attribute(column, renderer, "text", 1);
 
-	if (icons)
-	{
+	if (has_icons) {
 		renderer = gtk_cell_renderer_pixbuf_new();
 		gtk_tree_view_column_pack_start(column, renderer, TRUE);
 		gtk_tree_view_column_add_attribute(column, renderer, "pixbuf", 2);
@@ -1444,33 +1444,33 @@ create_list_field(PurpleRequestField *field)
 
 	for (l = purple_request_field_list_get_items(field); l != NULL; l = l->next)
 	{
-		const char *text = (const char *)l->data;
+		PurpleKeyValuePair *item = l->data;
+		const char *text = (const char *)item->key;
 
 		gtk_list_store_append(store, &iter);
 
-		if (icons)
-		{
-			const char *icon_path = (const char *)icons->data;
+		if (has_icons) {
+			const char *icon_path = (const char *)item->value;
 			GdkPixbuf* pixbuf = NULL;
 
 			if (icon_path)
 				pixbuf = pidgin_pixbuf_new_from_file(icon_path);
 
 			gtk_list_store_set(store, &iter,
-						   0, purple_request_field_list_get_data(field, text),
-						   1, text,
-						   2, pixbuf,
-						   -1);
-			icons = icons->next;
-		}
-		else
+			                   0, purple_request_field_list_get_data(field, text),
+			                   1, text,
+			                   2, pixbuf,
+			                   -1);
+		} else {
 			gtk_list_store_set(store, &iter,
-						   0, purple_request_field_list_get_data(field, text),
-						   1, text,
-						   -1);
+			                   0, purple_request_field_list_get_data(field, text),
+			                   1, text,
+			                   -1);
+		}
 
-		if (purple_request_field_list_is_selected(field, text))
+		if (purple_request_field_list_is_selected(field, text)) {
 			gtk_tree_selection_select_iter(sel, &iter);
+		}
 	}
 
 	/*

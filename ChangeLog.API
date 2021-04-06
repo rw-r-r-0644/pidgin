@@ -51,6 +51,7 @@ version 3.0.0 (??/??/????):
 		* purple_request_field_choice_add_full
 		* purple_request_field_get_tooltip
 		* purple_request_field_group_get_fields_list
+		* purple_request_field_list_has_icons
 		* purple_request_field_set_tooltip
 		* purple_request_fields_get_ui_data
 		* purple_request_fields_set_ui_data
@@ -226,6 +227,7 @@ version 3.0.0 (??/??/????):
 		  purple_request_field_get_field_type
 		* PurpleRoomlist is now a GObject. Please see the documentation for
 		  details.
+		* purple_request_field_list_get_items now returns list of PurpleKeyValuePair
 		* purple_roomlist_room_get_type is now
 		  purple_roomlist_room_get_room_type
 		* purple_roomlist_field_get_type is now
@@ -496,6 +498,7 @@ version 3.0.0 (??/??/????):
 		* purple_request_field_choice_set_data_destructor. Use
 		  purple_request_field_choice_add_full instead
 		* purple_request_field_list_add
+		* purple_request_field_list_get_icons
 		* PurpleSetPublicAliasFailureCallback
 		* PurpleSetPublicAliasSuccessCallback
 		* purple_socket_get_family

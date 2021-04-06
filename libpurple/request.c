@@ -98,7 +98,7 @@ struct _PurpleRequestField
 		struct
 		{
 			GList *items;
-			GList *icons;
+			gboolean has_icons;
 			GHashTable *item_data;
 			GList *selected;
 			GHashTable *selected_table;
@@ -947,7 +947,7 @@ purple_request_field_destroy(PurpleRequestField *field)
 	}
 	else if (field->type == PURPLE_REQUEST_FIELD_LIST)
 	{
-		g_list_free_full(field->u.list.items, g_free);
+		g_list_free_full(field->u.list.items, (GDestroyNotify)purple_key_value_pair_free);
 		g_list_free_full(field->u.list.selected, g_free);
 		g_hash_table_destroy(field->u.list.item_data);
 		g_hash_table_destroy(field->u.list.selected_table);
@@ -1578,33 +1578,16 @@ void
 purple_request_field_list_add_icon(PurpleRequestField *field, const char *item, const char* icon_path,
 							void *data)
 {
+	PurpleKeyValuePair *kvp;
+
 	g_return_if_fail(field != NULL);
 	g_return_if_fail(item  != NULL);
 	g_return_if_fail(data  != NULL);
 	g_return_if_fail(field->type == PURPLE_REQUEST_FIELD_LIST);
 
-	if (icon_path)
-	{
-		if (field->u.list.icons == NULL)
-		{
-			GList *l;
-			for (l = field->u.list.items ; l != NULL ; l = l->next)
-			{
-				/* Order doesn't matter, because we're just
-				 * filing in blank items.  So, we use
-				 * g_list_prepend() because it's faster. */
-				field->u.list.icons = g_list_prepend(field->u.list.icons, NULL);
-			}
-		}
-		field->u.list.icons = g_list_append(field->u.list.icons, g_strdup(icon_path));
-	}
-	else if (field->u.list.icons)
-	{
-		/* Keep this even with the items list. */
-		field->u.list.icons = g_list_append(field->u.list.icons, NULL);
-	}
-
-	field->u.list.items = g_list_append(field->u.list.items, g_strdup(item));
+	field->u.list.has_icons = field->u.list.has_icons || (icon_path != NULL);
+	kvp = purple_key_value_pair_new_full(item, g_strdup(icon_path), g_free);
+	field->u.list.items = g_list_append(field->u.list.items, kvp);
 	g_hash_table_insert(field->u.list.item_data, g_strdup(item), data);
 }
 
@@ -1707,13 +1690,13 @@ purple_request_field_list_get_items(const PurpleRequestField *field)
 	return field->u.list.items;
 }
 
-GList *
-purple_request_field_list_get_icons(const PurpleRequestField *field)
+gboolean
+purple_request_field_list_has_icons(const PurpleRequestField *field)
 {
-	g_return_val_if_fail(field != NULL, NULL);
-	g_return_val_if_fail(field->type == PURPLE_REQUEST_FIELD_LIST, NULL);
+	g_return_val_if_fail(field != NULL, FALSE);
+	g_return_val_if_fail(field->type == PURPLE_REQUEST_FIELD_LIST, FALSE);
 
-	return field->u.list.icons;
+	return field->u.list.has_icons;
 }
 
 PurpleRequestField *
