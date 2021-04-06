@@ -89,8 +89,8 @@ VIAddVersionKey "FileDescription" "Pidgin Installer"
 ;--------------------------------
 ;Reserve files used in .onInit
 ;for faster start-up
-ReserveFile "${NSISDIR}\Plugins\System.dll"
-ReserveFile "${NSISDIR}\Plugins\UserInfo.dll"
+ReserveFile "${NSISDIR}\Plugins\unicode\System.dll"
+ReserveFile "${NSISDIR}\Plugins\unicode\UserInfo.dll"
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 !insertmacro MUI_RESERVEFILE_LANGDLL
 
@@ -256,10 +256,9 @@ Section $(GTKSECTIONTITLE) SecGtk
   retry:
   StrCpy $R2 "${DOWNLOADER_URL}&gtk_version=${GTK_INSTALL_VERSION}&dl_pkg=gtk"
   DetailPrint "Downloading GTK+ Runtime ... ($R2)"
-  NSISdl::download /TIMEOUT=10000 "$R2" "$R1"
+  inetc::get /TIMEOUT=10000 "$R2" "$R1"
   Pop $R0
-  ;StrCmp $R0 "cancel" done
-  StrCmp $R0 "success" 0 prompt_retry
+  StrCmp $R0 "OK" 0 prompt_retry
 
   Push "${GTK_SHA1SUM}"
   Push "$R1" ; Filename
