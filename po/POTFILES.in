@@ -31,7 +31,6 @@ libpurple/buddy.c
 libpurple/buddyicon.c
 libpurple/buddylist.c
 libpurple/chat.c
-libpurple/chatconversation.c
 libpurple/circularbuffer.c
 libpurple/cmds.c
 libpurple/connection.c
@@ -244,6 +243,7 @@ libpurple/purpleaccountusersplit.c
 libpurple/purpleattachment.c
 libpurple/purpleattentiontype.c
 libpurple/purplebuddypresence.c
+libpurple/purplechatconversation.c
 libpurple/purplechatuser.c
 libpurple/purplecredentialmanager.c
 libpurple/purplecredentialprovider.c
