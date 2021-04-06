@@ -33,7 +33,7 @@
  * @see_also: <link linkend="chapter-signals-conversation">Conversation signals</link>
  */
 
-#include "conversationtypes.h"
+#include "purplechatconversation.h"
 #include "server.h"
 
 G_BEGIN_DECLS

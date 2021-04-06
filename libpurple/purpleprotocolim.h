@@ -41,7 +41,6 @@
 #include <glib-object.h>
 
 #include <libpurple/connection.h>
-#include <libpurple/conversationtypes.h>
 
 #define PURPLE_TYPE_PROTOCOL_IM (purple_protocol_im_get_type())
 G_DECLARE_INTERFACE(PurpleProtocolIM, purple_protocol_im, PURPLE, PROTOCOL_IM,
