@@ -47,7 +47,6 @@
       <xi:include href="xml/contact.xml" />
       <xi:include href="xml/connection.xml" />
       <xi:include href="xml/conversation.xml" />
-      <xi:include href="xml/conversationtypes.xml" />
       <xi:include href="xml/conversations.xml" />
       <xi:include href="xml/countingnode.xml" />
       <xi:include href="xml/debug.xml" />
@@ -72,6 +71,7 @@
       <xi:include href="xml/purpleaccountusersplit.xml" />
       <xi:include href="xml/purpleattentiontype.xml" />
       <xi:include href="xml/purplebuddypresence.xml" />
+      <xi:include href="xml/purplechatconversation.xml" />
       <xi:include href="xml/purplechatuser.xml" />
       <xi:include href="xml/purplecredentialmanager.xml" />
       <xi:include href="xml/purplecredentialprovider.xml" />

@@ -31,13 +31,13 @@ libpurple/buddy.c
 libpurple/buddyicon.c
 libpurple/buddylist.c
 libpurple/chat.c
+libpurple/chatconversation.c
 libpurple/circularbuffer.c
 libpurple/cmds.c
 libpurple/connection.c
 libpurple/contact.c
 libpurple/conversation.c
 libpurple/conversations.c
-libpurple/conversationtypes.c
 libpurple/core.c
 libpurple/countingnode.c
 libpurple/debug.c
