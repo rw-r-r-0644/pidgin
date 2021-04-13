@@ -22,12 +22,12 @@
 #include "internal.h"
 #include "purpleprivate.h"
 
-#include "conversation.h"
 #include "core.h"
 #include "debug.h"
 #include "notify.h"
 #include "protocol.h"
 #include "prefs.h"
+#include "purpleconversation.h"
 #include "purpleprotocolclient.h"
 #include "util.h"
 

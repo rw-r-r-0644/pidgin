@@ -41,7 +41,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include "conversation.h"
+#include "purpleconversation.h"
 #include "request-datasheet.h"
 
 #define PURPLE_TYPE_REQUEST_UI_OPS (purple_request_ui_ops_get_type())

@@ -25,7 +25,6 @@
 
 #include "internal.h"
 #include "buddylist.h"
-#include "conversation.h"
 #include "debug.h"
 #include "notify.h"
 #include "prefs.h"
@@ -33,6 +32,7 @@
 #include "purpleprivate.h"
 #include "purpleprotocolchat.h"
 #include "purpleprotocolclient.h"
+#include "purpleconversation.h"
 #include "server.h"
 #include "signals.h"
 #include "util.h"

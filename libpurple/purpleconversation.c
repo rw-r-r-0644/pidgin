@@ -26,12 +26,12 @@
 
 #include "buddylist.h"
 #include "cmds.h"
-#include "conversation.h"
 #include "debug.h"
 #include "enums.h"
 #include "notify.h"
 #include "prefs.h"
 #include "protocol.h"
+#include "purpleconversation.h"
 #include "purplemarkup.h"
 #include "purpleprivate.h"
 #include "purpleprotocolclient.h"
@@ -235,33 +235,6 @@ purple_conversation_get_features(PurpleConversation *conv)
 
 	priv = purple_conversation_get_instance_private(conv);
 	return priv->features;
-}
-
-static PurpleConversationUiOps *
-purple_conversation_ui_ops_copy(PurpleConversationUiOps *ops)
-{
-	PurpleConversationUiOps *ops_new;
-
-	g_return_val_if_fail(ops != NULL, NULL);
-
-	ops_new = g_new(PurpleConversationUiOps, 1);
-	*ops_new = *ops;
-
-	return ops_new;
-}
-
-GType
-purple_conversation_ui_ops_get_type(void)
-{
-	static GType type = 0;
-
-	if (type == 0) {
-		type = g_boxed_type_register_static("PurpleConversationUiOps",
-				(GBoxedCopyFunc)purple_conversation_ui_ops_copy,
-				(GBoxedFreeFunc)g_free);
-	}
-
-	return type;
 }
 
 void

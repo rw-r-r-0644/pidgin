@@ -24,12 +24,12 @@
 #include <glib/gi18n-lib.h>
 
 #include "internal.h"
-#include "conversation.h"
 #include "debug.h"
 #include "network.h"
 #include "notify.h"
 #include "protocol.h"
 #include "purpleaccountoption.h"
+#include "purpleconversation.h"
 #include "purplecredentialmanager.h"
 #include "purpleprotocolattention.h"
 #include "purpleprotocolmanager.h"
