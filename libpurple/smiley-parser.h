@@ -41,7 +41,7 @@
 
 #include <glib.h>
 
-#include "conversation.h"
+#include <purpleconversation.h>
 #include "smiley.h"
 #include "smiley-list.h"
 

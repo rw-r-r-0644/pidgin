@@ -61,7 +61,8 @@ typedef enum
 typedef struct _PurpleIMConversation           PurpleIMConversation;
 typedef struct _PurpleIMConversationClass      PurpleIMConversationClass;
 
-#include <conversation.h>
+#include "buddyicon.h"
+#include <purpleconversation.h>
 
 /**
  * PurpleIMConversation:

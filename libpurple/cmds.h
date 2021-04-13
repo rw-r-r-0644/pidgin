@@ -31,7 +31,7 @@
  * @see_also: <link linkend="chapter-signals-cmd">Command signals</link>
  */
 
-#include "conversation.h"
+#include <purpleconversation.h>
 
 /******************************************************************************
  * Structures

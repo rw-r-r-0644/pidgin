@@ -27,12 +27,12 @@
 
 #include "internal.h"
 #include "buddylist.h"
-#include "conversation.h"
 #include "debug.h"
 #include "log.h"
 #include "notify.h"
 #include "prefs.h"
 #include "protocol.h"
+#include "purpleconversation.h"
 #include "purpleprivate.h"
 #include "purpleprotocolattention.h"
 #include "purpleprotocolchat.h"

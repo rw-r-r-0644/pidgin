@@ -45,8 +45,8 @@ typedef struct _PurpleChatConversation           PurpleChatConversation;
 typedef struct _PurpleChatConversationClass      PurpleChatConversationClass;
 
 #include "purplechatuser.h"
+#include "purpleconversation.h"
 #include "purpleimconversation.h"
-#include "conversation.h"
 
 G_BEGIN_DECLS
 

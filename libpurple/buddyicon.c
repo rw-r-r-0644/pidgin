@@ -21,9 +21,9 @@
 
 #include "internal.h"
 #include "buddyicon.h"
-#include "conversation.h"
 #include "debug.h"
 #include "image.h"
+#include "purpleconversation.h"
 #include "purpleprivate.h"
 #include "purpleprotocolserver.h"
 #include "util.h"
