@@ -30,6 +30,10 @@
 #include "http.h"
 #include "util.h"
 
+struct _FacebookProtocol {
+	PurpleProtocol parent;
+};
+
 static GSList *fb_cmds = NULL;
 static PurpleProtocol *fb_protocol = NULL;
 
