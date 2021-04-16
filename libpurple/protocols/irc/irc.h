@@ -32,12 +32,8 @@
 
 #include <purple.h>
 
-#define IRC_TYPE_PROTOCOL             (irc_protocol_get_type())
-#define IRC_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), IRC_TYPE_PROTOCOL, IRCProtocol))
-#define IRC_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), IRC_TYPE_PROTOCOL, IRCProtocolClass))
-#define IRC_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), IRC_TYPE_PROTOCOL))
-#define IRC_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), IRC_TYPE_PROTOCOL))
-#define IRC_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), IRC_TYPE_PROTOCOL, IRCProtocolClass))
+#define IRC_TYPE_PROTOCOL (irc_protocol_get_type())
+G_DECLARE_FINAL_TYPE(IRCProtocol, irc_protocol, IRC, PROTOCOL, PurpleProtocol)
 
 #define IRC_DEFAULT_SERVER "irc.freenode.net"
 #define IRC_DEFAULT_PORT 6667
@@ -58,16 +54,6 @@
 
 enum { IRC_USEROPT_SERVER, IRC_USEROPT_PORT, IRC_USEROPT_CHARSET };
 enum irc_state { IRC_STATE_NEW, IRC_STATE_ESTABLISHED };
-
-typedef struct
-{
-	PurpleProtocol parent;
-} IRCProtocol;
-
-typedef struct
-{
-	PurpleProtocolClass parent_class;
-} IRCProtocolClass;
 
 struct irc_conn {
 	PurpleAccount *account;
@@ -124,13 +110,11 @@ struct irc_buddy {
 	char *name;
 	gboolean online;
 	gboolean flag;
- 	gboolean new_online_status;
+	gboolean new_online_status;
 	int ref;
 };
 
 typedef int (*IRCCmdCallback) (struct irc_conn *irc, const char *cmd, const char *target, const char **args);
-
-G_MODULE_EXPORT GType irc_protocol_get_type(void);
 
 int irc_send(struct irc_conn *irc, const char *buf);
 int irc_send_len(struct irc_conn *irc, const char *buf, int len);

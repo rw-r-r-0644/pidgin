@@ -31,6 +31,10 @@
 
 #define PING_TIMEOUT 60
 
+struct _IRCProtocol {
+	PurpleProtocol parent;
+};
+
 static void irc_ison_buddy_init(char *name, struct irc_buddy *ib, GList **list);
 
 static const char *irc_blist_icon(PurpleAccount *a, PurpleBuddy *b);
