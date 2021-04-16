@@ -25,6 +25,7 @@
 
 #ifndef PURPLE_CONVERSATION_H
 #define PURPLE_CONVERSATION_H
+
 /**
  * SECTION:purpleconversation
  * @section_id: libpurple-purpleconversation
@@ -37,39 +38,35 @@
  * @PurpleIMConversation and @PurpleChatConversation.
  */
 
-#define PURPLE_TYPE_CONVERSATION             (purple_conversation_get_type())
-#define PURPLE_CONVERSATION(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), PURPLE_TYPE_CONVERSATION, PurpleConversation))
-#define PURPLE_CONVERSATION_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), PURPLE_TYPE_CONVERSATION, PurpleConversationClass))
-#define PURPLE_IS_CONVERSATION(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), PURPLE_TYPE_CONVERSATION))
-#define PURPLE_IS_CONVERSATION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), PURPLE_TYPE_CONVERSATION))
-#define PURPLE_CONVERSATION_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), PURPLE_TYPE_CONVERSATION, PurpleConversationClass))
+#include <glib.h>
+#include <glib-object.h>
 
-/**************************************************************************/
-/* Data Structures                                                        */
-/**************************************************************************/
+#include <purplemessage.h>
 
-typedef struct _PurpleConversation           PurpleConversation;
-typedef struct _PurpleConversationClass      PurpleConversationClass;
+#define PURPLE_TYPE_CONVERSATION (purple_conversation_get_type())
+G_DECLARE_DERIVABLE_TYPE(PurpleConversation, purple_conversation, PURPLE,
+                         CONVERSATION, GObject)
 
 /**
  * PurpleConversationUpdateType:
- * @PURPLE_CONVERSATION_UPDATE_ADD:      The buddy associated with the
- *                                       conversation was added.
- * @PURPLE_CONVERSATION_UPDATE_REMOVE:   The buddy associated with the
- *                                       conversation was removed.
- * @PURPLE_CONVERSATION_UPDATE_ACCOUNT:  The purple_account was changed.
- * @PURPLE_CONVERSATION_UPDATE_TYPING:   The typing state was updated.
- * @PURPLE_CONVERSATION_UPDATE_UNSEEN:   The unseen state was updated.
- * @PURPLE_CONVERSATION_UPDATE_LOGGING:  Logging for this conversation was
- *                                       enabled or disabled.
- * @PURPLE_CONVERSATION_UPDATE_TOPIC:    The topic for a chat was updated.
- * @PURPLE_CONVERSATION_ACCOUNT_ONLINE:  One of the user's accounts went online.
+ * @PURPLE_CONVERSATION_UPDATE_ADD: The buddy associated with the conversation
+ *                                  was added.
+ * @PURPLE_CONVERSATION_UPDATE_REMOVE: The buddy associated with the
+ *                                     conversation was removed.
+ * @PURPLE_CONVERSATION_UPDATE_ACCOUNT: The purple_account was changed.
+ * @PURPLE_CONVERSATION_UPDATE_TYPING: The typing state was updated.
+ * @PURPLE_CONVERSATION_UPDATE_UNSEEN: The unseen state was updated.
+ * @PURPLE_CONVERSATION_UPDATE_LOGGING: Logging for this conversation was
+ *                                      enabled or disabled.
+ * @PURPLE_CONVERSATION_UPDATE_TOPIC: The topic for a chat was updated.
+ * @PURPLE_CONVERSATION_ACCOUNT_ONLINE: One of the user's accounts went online.
  * @PURPLE_CONVERSATION_ACCOUNT_OFFLINE: One of the user's accounts went
  *                                       offline.
- * @PURPLE_CONVERSATION_UPDATE_AWAY:     The other user went away.
- * @PURPLE_CONVERSATION_UPDATE_ICON:     The other user's buddy icon changed.
- * @PURPLE_CONVERSATION_UPDATE_NAME:     The name of the conversation was changed.
- * @PURPLE_CONVERSATION_UPDATE_TITLE:    The title of the conversation was updated.
+ * @PURPLE_CONVERSATION_UPDATE_AWAY: The other user went away.
+ * @PURPLE_CONVERSATION_UPDATE_ICON: The other user's buddy icon changed.
+ * @PURPLE_CONVERSATION_UPDATE_NAME: The name of the conversation was changed.
+ * @PURPLE_CONVERSATION_UPDATE_TITLE: The title of the conversation was
+ *                                    updated.
  * @PURPLE_CONVERSATION_UPDATE_CHATLEFT: The user left a chat.
  * @PURPLE_CONVERSATION_UPDATE_FEATURES: The features for a chat have changed.
  *
@@ -101,14 +98,6 @@ typedef enum
 
 } PurpleConversationUpdateType;
 
-#include <glib.h>
-#include <glib-object.h>
-
-#include <purplemessage.h>
-
-/**************************************************************************/
-/* PurpleConversation                                                     */
-/**************************************************************************/
 /**
  * PurpleConversation:
  *
@@ -121,10 +110,6 @@ typedef enum
  *       conversation is the only one contained in the parent window, that
  *       window is also destroyed.
  */
-struct _PurpleConversation
-{
-	GObject gparent;
-};
 
 /**
  * PurpleConversationClass:
@@ -134,15 +119,14 @@ struct _PurpleConversation
  * Base class for all #PurpleConversation's
  */
 struct _PurpleConversationClass {
+	/*< private >*/
 	GObjectClass parent_class;
 
+	/*< public >*/
 	void (*write_message)(PurpleConversation *conv, PurpleMessage *msg);
 
 	/*< private >*/
-	void (*_purple_reserved1)(void);
-	void (*_purple_reserved2)(void);
-	void (*_purple_reserved3)(void);
-	void (*_purple_reserved4)(void);
+	gpointer reserved[4];
 };
 
 #include <purpleconversationuiops.h>
@@ -153,16 +137,11 @@ struct _PurpleConversationClass {
 
 G_BEGIN_DECLS
 
-/**************************************************************************/
-/* Conversation API                                                       */
-/**************************************************************************/
-
 /**
  * purple_conversation_get_type:
  *
  * Returns: The #GType for the Conversation object.
  */
-GType purple_conversation_get_type(void);
 
 /**
  * purple_conversation_present:
@@ -180,8 +159,7 @@ void purple_conversation_present(PurpleConversation *conv);
  *
  * Sets the specified conversation's UI operations structure.
  */
-void purple_conversation_set_ui_ops(PurpleConversation *conv,
-								  PurpleConversationUiOps *ops);
+void purple_conversation_set_ui_ops(PurpleConversation *conv, PurpleConversationUiOps *ops);
 
 /**
  * purple_conversation_get_ui_ops:
@@ -203,8 +181,7 @@ PurpleConversationUiOps *purple_conversation_get_ui_ops(PurpleConversation *conv
  * This purple_account represents the user using purple, not the person the user
  * is having a conversation/chat/flame with.
  */
-void purple_conversation_set_account(PurpleConversation *conv,
-                                   PurpleAccount *account);
+void purple_conversation_set_account(PurpleConversation *conv, PurpleAccount *account);
 
 /**
  * purple_conversation_get_account:
@@ -236,7 +213,7 @@ PurpleConnection *purple_conversation_get_connection(PurpleConversation *conv);
  *
  * Sets the specified conversation's title.
  */
-void purple_conversation_set_title(PurpleConversation *conv, const char *title);
+void purple_conversation_set_title(PurpleConversation *conv, const gchar *title);
 
 /**
  * purple_conversation_get_title:
@@ -266,7 +243,7 @@ void purple_conversation_autoset_title(PurpleConversation *conv);
  *
  * Sets the specified conversation's name.
  */
-void purple_conversation_set_name(PurpleConversation *conv, const char *name);
+void purple_conversation_set_name(PurpleConversation *conv, const gchar *name);
 
 /**
  * purple_conversation_get_name:
@@ -317,8 +294,7 @@ void purple_conversation_close_logs(PurpleConversation *conv);
  *
  * Writes to a chat or an IM.
  */
-void purple_conversation_write_message(PurpleConversation *conv,
-	PurpleMessage *msg);
+void purple_conversation_write_message(PurpleConversation *conv, PurpleMessage *msg);
 
 /**
  * purple_conversation_write_system_message:
@@ -328,8 +304,7 @@ void purple_conversation_write_message(PurpleConversation *conv,
  *
  * Wites a system message to a chat or an IM.
  */
-void purple_conversation_write_system_message(PurpleConversation *conv,
-	const gchar *message, PurpleMessageFlags flags);
+void purple_conversation_write_system_message(PurpleConversation *conv, const gchar *message, PurpleMessageFlags flags);
 
 /**
  * purple_conversation_send:
@@ -339,7 +314,7 @@ void purple_conversation_write_system_message(PurpleConversation *conv,
  * Sends a message to this conversation. This function calls
  * purple_conversation_send_with_flags() with no additional flags.
  */
-void purple_conversation_send(PurpleConversation *conv, const char *message);
+void purple_conversation_send(PurpleConversation *conv, const gchar *message);
 
 /**
  * purple_conversation_send_with_flags:
@@ -350,8 +325,7 @@ void purple_conversation_send(PurpleConversation *conv, const char *message);
  *
  * Sends a message to this conversation with specified flags.
  */
-void purple_conversation_send_with_flags(PurpleConversation *conv, const char *message,
-		PurpleMessageFlags flags);
+void purple_conversation_send_with_flags(PurpleConversation *conv, const gchar *message, PurpleMessageFlags flags);
 
 /**
  * purple_conversation_set_features:
@@ -360,9 +334,7 @@ void purple_conversation_send_with_flags(PurpleConversation *conv, const char *m
  *
  * Set the features as supported for the given conversation.
  */
-void purple_conversation_set_features(PurpleConversation *conv,
-		PurpleConnectionFlags features);
-
+void purple_conversation_set_features(PurpleConversation *conv, PurpleConnectionFlags features);
 
 /**
  * purple_conversation_get_features:
@@ -426,7 +398,7 @@ void purple_conversation_clear_message_history(PurpleConversation *conv);
  * The confirmation ensures that the user isn't sending a
  * message by mistake.
  */
-void purple_conversation_send_confirm(PurpleConversation *conv, const char *message);
+void purple_conversation_send_confirm(PurpleConversation *conv, const gchar *message);
 
 /**
  * purple_conversation_get_extended_menu:
@@ -452,8 +424,7 @@ GList * purple_conversation_get_extended_menu(PurpleConversation *conv);
  *
  * Returns:  %TRUE if the command was executed successfully, %FALSE otherwise.
  */
-gboolean purple_conversation_do_command(PurpleConversation *conv,
-		const gchar *cmdline, const gchar *markup, gchar **error);
+gboolean purple_conversation_do_command(PurpleConversation *conv, const gchar *cmdline, const gchar *markup, gchar **error);
 
 /**
  * purple_conversation_get_max_message_size:
@@ -465,8 +436,7 @@ gboolean purple_conversation_do_command(PurpleConversation *conv,
  *
  * Returns: Maximum message size, 0 if unspecified, -1 for infinite.
  */
-gssize
-purple_conversation_get_max_message_size(PurpleConversation *conv);
+gssize purple_conversation_get_max_message_size(PurpleConversation *conv);
 
 /**
  * purple_conversation_add_smiley:
@@ -496,12 +466,7 @@ PurpleSmiley *purple_conversation_get_smiley(PurpleConversation *conv, const gch
  *
  * Returns: (transfer none): The list of remote smileys.
  */
-PurpleSmileyList *
-purple_conversation_get_remote_smileys(PurpleConversation *conv);
-
-/**************************************************************************/
-/* Conversation Helper API                                                */
-/**************************************************************************/
+PurpleSmileyList *purple_conversation_get_remote_smileys(PurpleConversation *conv);
 
 /**
  * purple_conversation_present_error:
@@ -518,7 +483,7 @@ purple_conversation_get_remote_smileys(PurpleConversation *conv);
  *
  * Returns:        TRUE if the error was presented, else FALSE
  */
-gboolean purple_conversation_present_error(const char *who, PurpleAccount *account, const char *what);
+gboolean purple_conversation_present_error(const gchar *who, PurpleAccount *account, const gchar *what);
 
 G_END_DECLS
 
