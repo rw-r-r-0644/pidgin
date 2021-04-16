@@ -3566,15 +3566,18 @@ setup_common_pane(PidginConversation *gtkconv)
 		gtk_widget_show(sizing_vbox);
 	}
 	else {
+		PidginAvatar *avatar = NULL;
+
 		gtkconv->u.im->avatar = pidgin_avatar_new();
 		gtk_box_pack_end(GTK_BOX(gtkconv->infopane_hbox), gtkconv->u.im->avatar,
 		                 FALSE, FALSE, 0);
 
+		avatar = PIDGIN_AVATAR(gtkconv->u.im->avatar);
 		if ((buddy = purple_blist_find_buddy(purple_conversation_get_account(conv),
 						purple_conversation_get_name(conv))) != NULL) {
-			pidgin_avatar_set_buddy(gtkconv->u.im->avatar, buddy);
+			pidgin_avatar_set_buddy(avatar, buddy);
 		} else {
-			pidgin_avatar_set_conversation(gtkconv->u.im->avatar, conv);
+			pidgin_avatar_set_conversation(avatar, conv);
 		}
 	}
 
