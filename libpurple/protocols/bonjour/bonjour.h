@@ -43,22 +43,9 @@
 
 #define BONJOUR_DEFAULT_PORT 5298
 
-#define BONJOUR_TYPE_PROTOCOL             (bonjour_protocol_get_type())
-#define BONJOUR_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), BONJOUR_TYPE_PROTOCOL, BonjourProtocol))
-#define BONJOUR_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), BONJOUR_TYPE_PROTOCOL, BonjourProtocolClass))
-#define BONJOUR_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), BONJOUR_TYPE_PROTOCOL))
-#define BONJOUR_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), BONJOUR_TYPE_PROTOCOL))
-#define BONJOUR_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), BONJOUR_TYPE_PROTOCOL, BonjourProtocolClass))
-
-typedef struct
-{
-	PurpleProtocol parent;
-} BonjourProtocol;
-
-typedef struct
-{
-	PurpleProtocolClass parent_class;
-} BonjourProtocolClass;
+#define BONJOUR_TYPE_PROTOCOL (bonjour_protocol_get_type())
+G_DECLARE_FINAL_TYPE(BonjourProtocol, bonjour_protocol, BONJOUR, PROTOCOL,
+                     PurpleProtocol)
 
 typedef struct
 {
