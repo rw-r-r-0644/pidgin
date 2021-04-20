@@ -240,7 +240,6 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 
 	g_free(target_name);
 	g_free(username_utf16);
-	memset(password_utf16, 0, password_len * sizeof(gunichar));
 	g_free(password_utf16);
 
 	if (error != NULL) {
