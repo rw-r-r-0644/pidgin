@@ -40,6 +40,10 @@
 #include "bonjour_ft.h"
 #include "xmpp.h"
 
+struct _BonjourProtocol {
+	PurpleProtocol parent;
+};
+
 static PurpleProtocol *my_protocol = NULL;
 
 static char *default_firstname;
