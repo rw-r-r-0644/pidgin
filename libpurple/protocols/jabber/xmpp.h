@@ -27,22 +27,9 @@
 
 #define XMPP_PROTOCOL_ID "prpl-jabber"
 
-#define XMPP_TYPE_PROTOCOL             (xmpp_protocol_get_type())
-#define XMPP_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), XMPP_TYPE_PROTOCOL, XMPPProtocol))
-#define XMPP_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), XMPP_TYPE_PROTOCOL, XMPPProtocolClass))
-#define XMPP_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), XMPP_TYPE_PROTOCOL))
-#define XMPP_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), XMPP_TYPE_PROTOCOL))
-#define XMPP_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), XMPP_TYPE_PROTOCOL, XMPPProtocolClass))
-
-typedef struct
-{
-	JabberProtocol parent;
-} XMPPProtocol;
-
-typedef struct
-{
-	JabberProtocolClass parent_class;
-} XMPPProtocolClass;
+#define XMPP_TYPE_PROTOCOL (xmpp_protocol_get_type())
+G_DECLARE_FINAL_TYPE(XMPPProtocol, xmpp_protocol, XMPP, PROTOCOL,
+                     JabberProtocol)
 
 /**
  * Registers the XMPPProtocol type in the type system.
@@ -56,6 +43,5 @@ PurpleProtocol *xmpp_protocol_new(void);
 /**
  * Returns the GType for the XMPPProtocol object.
  */
-G_MODULE_EXPORT GType xmpp_protocol_get_type(void);
 
 #endif /* PURPLE_JABBER_XMPP_H */

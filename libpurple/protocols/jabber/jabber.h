@@ -75,12 +75,9 @@ typedef struct _JabberStream JabberStream;
 
 #define CAPS0115_NODE "https://pidgin.im/"
 
-#define JABBER_TYPE_PROTOCOL             (jabber_protocol_get_type())
-#define JABBER_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), JABBER_TYPE_PROTOCOL, JabberProtocol))
-#define JABBER_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), JABBER_TYPE_PROTOCOL, JabberProtocolClass))
-#define JABBER_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), JABBER_TYPE_PROTOCOL))
-#define JABBER_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), JABBER_TYPE_PROTOCOL))
-#define JABBER_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), JABBER_TYPE_PROTOCOL, JabberProtocolClass))
+#define JABBER_TYPE_PROTOCOL (jabber_protocol_get_type())
+G_DECLARE_DERIVABLE_TYPE(JabberProtocol, jabber_protocol, JABBER, PROTOCOL,
+                         PurpleProtocol)
 
 #define JABBER_DEFAULT_REQUIRE_TLS    "require_starttls"
 
@@ -97,15 +94,9 @@ typedef enum {
 	JABBER_STREAM_CONNECTED
 } JabberStreamState;
 
-typedef struct
-{
-	PurpleProtocol parent;
-} JabberProtocol;
-
-typedef struct
-{
+struct _JabberProtocolClass {
 	PurpleProtocolClass parent_class;
-} JabberProtocolClass;
+};
 
 struct _JabberStream
 {
@@ -304,7 +295,6 @@ extern GList *jabber_identities;
 /**
  * Returns the GType for the JabberProtocol object.
  */
-G_MODULE_EXPORT GType jabber_protocol_get_type(void);
 
 void jabber_stream_features_parse(JabberStream *js, PurpleXmlNode *packet);
 void jabber_process_packet(JabberStream *js, PurpleXmlNode **packet);

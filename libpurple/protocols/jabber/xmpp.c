@@ -28,6 +28,10 @@
 
 #include "xmpp.h"
 
+struct _XMPPProtocol {
+	JabberProtocol parent;
+};
+
 static GList *
 xmpp_protocol_get_account_options(PurpleProtocol *protocol) {
 	PurpleAccountOption *option;
