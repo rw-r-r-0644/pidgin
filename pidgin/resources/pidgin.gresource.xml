@@ -12,6 +12,7 @@
     <file compressed="true">Avatar/avatar.ui</file>
     <file compressed="true">Avatar/menu.ui</file>
     <file compressed="true">BuddyList/window.ui</file>
+    <file compressed="true">Conversations/infopane.ui</file>
     <file compressed="true">Conversations/invite_dialog.ui</file>
     <file compressed="true">Conversations/menu.ui</file>
     <file compressed="true">Conversations/tab-label.css</file>
