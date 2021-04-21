@@ -100,7 +100,6 @@ void finch_ui_init()
 	gnt_register_action(_("Plugins"), finch_plugins_show_all);
 	gnt_register_action(_("Room List"), finch_roomlist_show_all);
 	gnt_register_action(_("Preferences"), finch_prefs_show_all);
-	gnt_register_action(_("Keyring settings"), finch_prefs_show_keyring);
 	gnt_register_action(_("Statuses"), finch_savedstatus_show_all);
 
 #ifdef STANDALONE

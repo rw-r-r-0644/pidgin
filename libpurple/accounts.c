@@ -500,25 +500,6 @@ parse_account(PurpleXmlNode *node)
 		parse_current_error(child, ret);
 	}
 
-	/* Read the password */
-	child = purple_xmlnode_get_child(node, "password");
-	if (child != NULL)
-	{
-		const char *keyring_id = purple_xmlnode_get_attrib(child, "keyring_id");
-		const char *mode = purple_xmlnode_get_attrib(child, "mode");
-		gboolean result;
-
-		data = purple_xmlnode_get_data(child);
-		result = purple_keyring_import_password(ret, keyring_id, mode, data, NULL);
-
-		if (result == TRUE || purple_keyring_get_inuse() == NULL) {
-			purple_account_set_remember_password(ret, TRUE);
-		} else {
-			purple_debug_error("accounts", "Failed to import password.\n");
-		} 
-		purple_str_wipe(data);
-	}
-
 	return ret;
 }
 
@@ -874,14 +855,6 @@ connection_error_cb(PurpleConnection *gc,
 	                   account, type, description);
 }
 
-static void
-password_migration_cb(PurpleAccount *account)
-{
-	/* account may be NULL (means: all) */
-
-	purple_accounts_schedule_save();
-}
-
 void
 purple_accounts_init(void)
 {
@@ -980,8 +953,6 @@ purple_accounts_init(void)
 	                      PURPLE_CALLBACK(signed_off_cb), NULL);
 	purple_signal_connect(conn_handle, "connection-error", handle,
 	                      PURPLE_CALLBACK(connection_error_cb), NULL);
-	purple_signal_connect(purple_keyring_get_handle(), "password-migration", handle,
-	                      PURPLE_CALLBACK(password_migration_cb), NULL);
 
 	load_accounts();
 

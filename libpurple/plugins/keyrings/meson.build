@@ -5,7 +5,8 @@ if PLUGINS
 		internalkeyring_plugin = library('internalkeyring', 'internalkeyring.c',
 		    dependencies : [nettle, libpurple_dep],
 		    name_prefix : '',
-		    install : true, install_dir : PURPLE_PLUGINDIR)
+		    build_by_default : false,
+		    install : false, install_dir : PURPLE_PLUGINDIR)
 	endif
 
 	if secretservice.found()
