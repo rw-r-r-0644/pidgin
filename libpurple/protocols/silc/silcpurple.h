@@ -20,20 +20,15 @@
 #ifndef PURPLE_SILC_SILCPURPLE_H
 #define PURPLE_SILC_SILCPURPLE_H
 
-#include <gmodule.h>
-
 #include <silc.h>
 #include <silcclient.h>
 
 /* Purple includes */
 #include <purple.h>
 
-#define SILCPURPLE_TYPE_PROTOCOL             (silcpurple_protocol_get_type())
-#define SILCPURPLE_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), SILCPURPLE_TYPE_PROTOCOL, SilcProtocol))
-#define SILCPURPLE_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), SILCPURPLE_TYPE_PROTOCOL, SilcProtocolClass))
-#define SILCPURPLE_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), SILCPURPLE_TYPE_PROTOCOL))
-#define SILCPURPLE_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), SILCPURPLE_TYPE_PROTOCOL))
-#define SILCPURPLE_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), SILCPURPLE_TYPE_PROTOCOL, SilcProtocolClass))
+#define SILCPURPLE_TYPE_PROTOCOL (silcpurple_protocol_get_type())
+G_DECLARE_FINAL_TYPE(SilcProtocol, silcpurple_protocol, SILC, PROTOCOL,
+                     PurpleProtocol)
 
 /* Default public and private key file names */
 #define SILCPURPLE_PUBLIC_KEY_NAME "public_key.pub"
@@ -53,16 +48,6 @@
 #define SILCPURPLE_STATUS_ID_BUSY		"busy"
 #define SILCPURPLE_STATUS_ID_INDISPOSED "indisposed"
 #define SILCPURPLE_STATUS_ID_PAGE		"page"
-
-typedef struct
-{
-	PurpleProtocol parent;
-} SilcProtocol;
-
-typedef struct
-{
-	PurpleProtocolClass parent_class;
-} SilcProtocolClass;
 
 typedef struct {
 	unsigned long id;
@@ -98,9 +83,6 @@ typedef struct SilcPurpleStruct {
 	unsigned int roomlist_cancelled   : 1;
 	unsigned int chpk                 : 1;
 } *SilcPurple;
-
-
-G_MODULE_EXPORT GType silcpurple_protocol_get_type(void);
 
 void silc_say(SilcClient client, SilcClientConnection conn,
 	      SilcClientMessageType type, char *msg, ...);

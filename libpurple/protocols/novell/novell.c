@@ -40,6 +40,10 @@
 #define NOVELL_STATUS_TYPE_IDLE "idle"
 #define NOVELL_STATUS_TYPE_APPEAR_OFFLINE "appearoffline"
 
+struct _NovellProtocol {
+	PurpleProtocol parent;
+};
+
 static PurpleProtocol *my_protocol = NULL;
 
 static gboolean

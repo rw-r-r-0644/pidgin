@@ -23,30 +23,10 @@
 #ifndef PURPLE_NOVELL_NOVELL_H
 #define PURPLE_NOVELL_NOVELL_H
 
-#include <gmodule.h>
-
 #include <purple.h>
 
-#define NOVELL_TYPE_PROTOCOL             (novell_protocol_get_type())
-#define NOVELL_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), NOVELL_TYPE_PROTOCOL, NovellProtocol))
-#define NOVELL_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), NOVELL_TYPE_PROTOCOL, NovellProtocolClass))
-#define NOVELL_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), NOVELL_TYPE_PROTOCOL))
-#define NOVELL_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), NOVELL_TYPE_PROTOCOL))
-#define NOVELL_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), NOVELL_TYPE_PROTOCOL, NovellProtocolClass))
-
-typedef struct
-{
-	PurpleProtocol parent;
-} NovellProtocol;
-
-typedef struct
-{
-	PurpleProtocolClass parent_class;
-} NovellProtocolClass;
-
-/**
- * Returns the GType for the NovellProtocol object.
- */
-G_MODULE_EXPORT GType novell_protocol_get_type(void);
+#define NOVELL_TYPE_PROTOCOL (novell_protocol_get_type())
+G_DECLARE_FINAL_TYPE(NovellProtocol, novell_protocol, NOVELL, PROTOCOL,
+                     PurpleProtocol)
 
 #endif /* PURPLE_NOVELL_NOVELL_H */
