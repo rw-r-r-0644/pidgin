@@ -51,6 +51,10 @@
 
 #include "nullprpl.h"
 
+struct _NullProtocol {
+	PurpleProtocol parent;
+};
+
 /*
  * reference to the protocol instance, used for registering signals, prefs,
  * etc. it is set when the protocol is added in plugin_load and is required

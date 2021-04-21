@@ -60,6 +60,10 @@ typedef struct _zephyr_triple zephyr_triple;
 
 typedef gboolean (*ZephyrLoginFunc)(zephyr_account *zephyr);
 
+struct _ZephyrProtocol {
+	PurpleProtocol parent;
+};
+
 struct _zephyr_triple {
 	ZSubscription_t sub;
 	char *name;

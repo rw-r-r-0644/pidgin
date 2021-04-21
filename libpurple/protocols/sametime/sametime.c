@@ -57,6 +57,9 @@
 #include "sametime.h"
 #include "im_mime.h"
 
+struct _mwProtocol {
+	PurpleProtocol parent;
+};
 
 static PurpleProtocol *my_protocol = NULL;
 

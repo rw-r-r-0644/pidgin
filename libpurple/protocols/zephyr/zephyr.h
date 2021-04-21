@@ -23,30 +23,10 @@
 #ifndef PURPLE_ZEPHYR_ZEPHYR_H
 #define PURPLE_ZEPHYR_ZEPHYR_H
 
-#include <gmodule.h>
-
 #include <purple.h>
 
-#define ZEPHYR_TYPE_PROTOCOL             (zephyr_protocol_get_type())
-#define ZEPHYR_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), ZEPHYR_TYPE_PROTOCOL, ZephyrProtocol))
-#define ZEPHYR_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), ZEPHYR_TYPE_PROTOCOL, ZephyrProtocolClass))
-#define ZEPHYR_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), ZEPHYR_TYPE_PROTOCOL))
-#define ZEPHYR_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), ZEPHYR_TYPE_PROTOCOL))
-#define ZEPHYR_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), ZEPHYR_TYPE_PROTOCOL, ZephyrProtocolClass))
-
-typedef struct
-{
-	PurpleProtocol parent;
-} ZephyrProtocol;
-
-typedef struct
-{
-	PurpleProtocolClass parent_class;
-} ZephyrProtocolClass;
-
-/**
- * Returns the GType for the ZephyrProtocol object.
- */
-G_MODULE_EXPORT GType zephyr_protocol_get_type(void);
+#define ZEPHYR_TYPE_PROTOCOL (zephyr_protocol_get_type())
+G_DECLARE_FINAL_TYPE(ZephyrProtocol, zephyr_protocol, ZEPHYR, PROTOCOL,
+                     PurpleProtocol)
 
 #endif /* PURPLE_ZEPHYR_ZEPHYR_H */

@@ -24,6 +24,10 @@
 #include "ft.h"
 #include "wb.h"
 
+struct _SilcProtocol {
+	PurpleProtocol parent;
+};
+
 extern SilcClientOperations ops;
 
 static PurpleProtocol *my_protocol = NULL;

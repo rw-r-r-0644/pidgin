@@ -47,6 +47,10 @@
 #include "html.h"
 #include "libgaduw.h"
 
+struct _GGPProtocol {
+	PurpleProtocol parent;
+};
+
 /* ---------------------------------------------------------------------- */
 static PurpleProtocol *my_protocol = NULL;
 

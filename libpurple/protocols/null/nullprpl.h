@@ -26,26 +26,8 @@
 
 #include <purple.h>
 
-#define NULL_TYPE_PROTOCOL             (null_protocol_get_type())
-#define NULL_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), NULL_TYPE_PROTOCOL, NullProtocol))
-#define NULL_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), NULL_TYPE_PROTOCOL, NullProtocolClass))
-#define NULL_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), NULL_TYPE_PROTOCOL))
-#define NULL_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), NULL_TYPE_PROTOCOL))
-#define NULL_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), NULL_TYPE_PROTOCOL, NullProtocolClass))
-
-typedef struct
-{
-	PurpleProtocol parent;
-} NullProtocol;
-
-typedef struct
-{
-	PurpleProtocolClass parent_class;
-} NullProtocolClass;
-
-/**
- * Returns the GType for the NullProtocol object.
- */
-G_MODULE_EXPORT GType null_protocol_get_type(void);
+#define NULL_TYPE_PROTOCOL (null_protocol_get_type())
+G_DECLARE_FINAL_TYPE(NullProtocol, null_protocol, NULL, PROTOCOL,
+                     PurpleProtocol)
 
 #endif /* PURPLE_NULL_NULLPRPL_H */
