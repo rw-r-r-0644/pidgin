@@ -841,35 +841,6 @@ _purple_account_to_xmlnode(PurpleAccount *account)
 	child = purple_xmlnode_new_child(node, "name");
 	purple_xmlnode_insert_data(child, purple_account_get_username(account), -1);
 
-	if (purple_account_get_remember_password(account))
-	{
-		const char *keyring_id = NULL;
-		const char *mode = NULL;
-		char *data = NULL;
-		GError *error = NULL;
-		GDestroyNotify destroy = NULL;
-		gboolean exported = purple_keyring_export_password(account,
-			&keyring_id, &mode, &data, &error, &destroy);
-
-		if (error != NULL) {
-			purple_debug_error("account",
-				"Failed to export password for account %s: %s.\n",
-				purple_account_get_username(account),
-				error->message);
-		} else if (exported) {
-			child = purple_xmlnode_new_child(node, "password");
-			if (keyring_id != NULL)
-				purple_xmlnode_set_attrib(child, "keyring_id", keyring_id);
-			if (mode != NULL)
-				purple_xmlnode_set_attrib(child, "mode", mode);
-			if (data != NULL)
-				purple_xmlnode_insert_data(child, data, -1);
-
-			if (destroy != NULL)
-				destroy(data);
-		}
-	}
-
 	if ((tmp = purple_account_get_private_alias(account)) != NULL)
 	{
 		child = purple_xmlnode_new_child(node, "alias");

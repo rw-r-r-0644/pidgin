@@ -36,7 +36,6 @@ static struct {
 	GList *freestrings;  /* strings to be freed when the pref-window is closed */
 	gboolean showing;
 	GntWidget *window;
-	GntWidget *keyring_window;
 } pref_request;
 
 void finch_prefs_init()
@@ -193,12 +192,6 @@ static Prefs logging[] =
 	{PURPLE_PREF_NONE, NULL, NULL, NULL},
 };
 
-static Prefs keyring[] =
-{
-	{PURPLE_PREF_STRING, "/purple/keyring/active", N_("Active keyring"), purple_keyring_get_options},
-	{PURPLE_PREF_NONE, NULL, NULL, NULL}
-};
-
 static Prefs idle[] =
 {
 	{PURPLE_PREF_STRING, "/purple/away/idle_reporting", N_("Report Idle time"), get_idle_options},
@@ -249,15 +242,10 @@ void finch_prefs_show_all()
 		return;
 	}
 
-	if (pref_request.keyring_window != NULL)
-		purple_request_close(PURPLE_REQUEST_FIELDS,
-			pref_request.keyring_window);
-
 	fields = purple_request_fields_new();
 
 	add_pref_group(fields, _("Buddy List"), blist);
 	add_pref_group(fields, _("Conversations"), convs);
-	add_pref_group(fields, _("Keyring"), keyring);
 	add_pref_group(fields, _("Logging"), logging);
 	add_pref_group(fields, _("Idle"), idle);
 
@@ -265,46 +253,4 @@ void finch_prefs_show_all()
 	pref_request.window = purple_request_fields(NULL, _("Preferences"), NULL, NULL, fields,
 			_("Save"), G_CALLBACK(save_cb), _("Cancel"), free_strings,
 			NULL, NULL);
-}
-
-static void
-finch_prefs_keyring_save(void *data, PurpleRequestFields *fields)
-{
-	PurpleCredentialManager *manager = purple_credential_manager_get_default();
-
-	pref_request.keyring_window = NULL;
-
-	purple_credential_manager_write_settings(manager, fields, NULL);
-}
-
-static void
-finch_prefs_keyring_cancel(void)
-{
-	pref_request.keyring_window = NULL;
-}
-
-void finch_prefs_show_keyring(void)
-{
-	PurpleRequestFields *fields;
-	PurpleCredentialManager *manager = NULL;
-
-	if (pref_request.keyring_window != NULL) {
-		gnt_window_present(pref_request.keyring_window);
-		return;
-	}
-
-	manager = purple_credential_manager_get_default();
-	fields = purple_credential_manager_read_settings(manager, NULL);
-	if (fields == NULL) {
-		purple_notify_info(NULL, _("Keyring settings"),
-			_("Selected keyring doesn't allow any configuration"),
-			NULL, NULL);
-		return;
-	}
-
-	pref_request.keyring_window = purple_request_fields(NULL,
-		_("Keyring settings"), NULL, NULL, fields,
-		_("Save"), G_CALLBACK(finch_prefs_keyring_save),
-		_("Cancel"), G_CALLBACK(finch_prefs_keyring_cancel),
-		NULL, NULL);
 }

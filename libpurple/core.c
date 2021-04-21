@@ -29,7 +29,6 @@
 #include "xfer.h"
 #include "idle.h"
 #include "image-store.h"
-#include "keyring.h"
 #include "network.h"
 #include "notify.h"
 #include "plugins.h"
@@ -157,7 +156,6 @@ purple_core_init(const char *ui)
 	 */
 	purple_plugins_init();
 
-	purple_keyring_init(); /* before accounts */
 	purple_theme_manager_init();
 
 	/* The buddy icon code uses the image store, so init it early. */
@@ -236,7 +234,6 @@ purple_core_quit(void)
 	purple_savedstatuses_uninit();
 	purple_statuses_uninit();
 	purple_accounts_uninit();
-	purple_keyring_uninit(); /* after accounts */
 	purple_theme_manager_uninit();
 	purple_xfers_uninit();
 	purple_proxy_uninit();
