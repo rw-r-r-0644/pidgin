@@ -16,7 +16,6 @@ purple_coresources = [
 	'countingnode.c',
 	'debug.c',
 	'eventloop.c',
-	'glibcompat.c',
 	'group.c',
 	'idle.c',
 	'image.c',
