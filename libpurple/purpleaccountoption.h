@@ -29,6 +29,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include <libpurple/prefs.h>
+
 /**
  * SECTION:purpleaccountoption
  * @section_id: libpurple-account-option

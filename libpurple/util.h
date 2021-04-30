@@ -42,6 +42,7 @@
 #include "signals.h"
 #include "xmlnode.h"
 #include "notify.h"
+#include "protocol.h"
 #include "protocols.h"
 
 
