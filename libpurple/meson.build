@@ -228,7 +228,6 @@ purple_enumheaders = [
 	'notify.h',
 	'plugins.h',
 	'protocol.h',
-	'protocols.h',
 	'purplechatuser.h',
 	'purpleconversation.h',
 	'purpleimconversation.h',

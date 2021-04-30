@@ -54,6 +54,7 @@ typedef void (*PurpleAccountRequestAuthorizationCb)(const char *response, void *
 typedef void (*PurpleAccountRegistrationCb)(PurpleAccount *account, gboolean succeeded, void *user_data);
 typedef void (*PurpleAccountUnregistrationCb)(PurpleAccount *account, gboolean succeeded, void *user_data);
 
+#include "buddy.h"
 #include "connection.h"
 #include "log.h"
 #include "proxy.h"

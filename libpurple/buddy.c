@@ -20,6 +20,9 @@
  * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "buddy.h"
+
+#include "debug.h"
 #include "internal.h"
 #include "purplebuddypresence.h"
 #include "purpleprotocolclient.h"

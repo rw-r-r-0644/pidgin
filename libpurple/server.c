@@ -44,6 +44,7 @@
 #include "server.h"
 #include "status.h"
 #include "util.h"
+#include "xfer.h"
 
 #define SECS_BEFORE_RESENDING_AUTORESPONSE 600
 #define SEX_BEFORE_RESENDING_AUTORESPONSE "Only after you're married"
