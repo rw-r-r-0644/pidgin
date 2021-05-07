@@ -54,6 +54,7 @@
 #include "pidgindebug.h"
 #include "pidginlog.h"
 #include "pidginplugininfo.h"
+#include "pidginprivate.h"
 #include "pidginstock.h"
 
 #ifndef _WIN32
@@ -189,6 +190,7 @@ pidgin_ui_init(void)
 	pidgin_blist_init();
 	pidgin_status_init();
 	pidgin_conversations_init();
+	pidgin_commands_init();
 	pidgin_privacy_init();
 	pidgin_xfers_init();
 	pidgin_roomlist_init();
@@ -206,6 +208,7 @@ pidgin_quit(void)
 
 	pidgin_notify_uninit();
 	_pidgin_smiley_theme_uninit();
+	pidgin_commands_uninit();
 	pidgin_conversations_uninit();
 	pidgin_status_uninit();
 	pidgin_blist_uninit();

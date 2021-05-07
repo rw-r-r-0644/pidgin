@@ -40,6 +40,7 @@ libpidgin_SOURCES = [
 	'pidginavatar.c',
 	'pidgincellrendererexpander.c',
 	'pidginclosebutton.c',
+	'pidgincommands.c',
 	'pidgincontactcompletion.c',
 	'pidginconversationwindow.c',
 	'pidgincontactlist.c',
@@ -236,7 +237,7 @@ if ENABLE_GTK
 
 	libpidgin_inc = include_directories('.')
 	libpidgin = shared_library('pidgin3',
-	    libpidgin_SOURCES + libpidgin_built_sources + libpidgin_built_headers,
+	    libpidgin_SOURCES + libpidgin_built_sources + libpidgin_built_headers + ['pidginprivate.h'],
 	    package_revision,
 	    c_args : ['-DPIDGIN_COMPILATION', '-DG_LOG_DOMAIN="Pidgin"'],
 	    include_directories : [toplevel_inc],
