@@ -44,6 +44,7 @@ libpidgin_SOURCES = [
 	'pidgincontactcompletion.c',
 	'pidginconversationwindow.c',
 	'pidgincontactlist.c',
+	'pidgincredentialproviderrow.c',
 	'pidgincredentialproviderstore.c',
 	'pidgincredentialspage.c',
 	'pidgindebug.c',
@@ -114,6 +115,7 @@ libpidgin_headers = [
 	'pidginconversationwindow.h',
 	'pidgincontactlist.h',
 	'pidgincore.h',
+	'pidgincredentialproviderrow.h',
 	'pidgincredentialproviderstore.h',
 	'pidgincredentialspage.h',
 	'pidgindialog.h',
@@ -216,6 +218,7 @@ if ENABLE_GTK
 		gtk,
 		IOKIT,
 		json,
+		libhandy,
 		math,
 		nice,
 		libsoup,
@@ -248,7 +251,7 @@ if ENABLE_GTK
 	    include_directories : [toplevel_inc, libpidgin_inc],
 	    link_with : libpidgin,
 	    sources : libpidgin_built_headers,
-	    dependencies : [gtk, glib, math, talkatu_dep, gplugin_gtk_dep])
+	    dependencies : [gtk, glib, libhandy, math, talkatu_dep, gplugin_gtk_dep])
 
 	pidgin = executable('pidgin3',
 	    pidgin_SOURCES,

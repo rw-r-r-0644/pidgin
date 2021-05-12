@@ -2467,8 +2467,6 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                   <object class="PidginCredentialsPage">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="orientation">vertical</property>
-                    <property name="spacing">18</property>
                     <child>
                       <placeholder/>
                     </child>

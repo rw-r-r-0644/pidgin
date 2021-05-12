@@ -40,12 +40,13 @@
 #include <glib.h>
 
 #include <gtk/gtk.h>
+#include <handy.h>
 
 G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_CREDENTIALS_PAGE (pidgin_credentials_page_get_type())
 G_DECLARE_FINAL_TYPE(PidginCredentialsPage, pidgin_credentials_page,
-                     PIDGIN, CREDENTIALS_PAGE, GtkBox)
+                     PIDGIN, CREDENTIALS_PAGE, HdyPreferencesPage)
 
 /**
  * pidgin_credentials_page_new:

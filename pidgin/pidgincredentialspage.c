@@ -22,95 +22,114 @@
 
 #include <purple.h>
 
+#include <handy.h>
+
 #include "pidgincredentialspage.h"
 
-#include "pidgincredentialproviderstore.h"
+#include "pidgincredentialproviderrow.h"
 
 struct _PidginCredentialsPage {
-	GtkBox parent;
+	HdyPreferencesPage parent;
 
-	GtkWidget *combo;
-	GtkCellRenderer *renderer;
+	GtkWidget *credential_list;
 };
 
 G_DEFINE_TYPE(PidginCredentialsPage, pidgin_credentials_page,
-              GTK_TYPE_BOX)
+              HDY_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers
  *****************************************************************************/
 static void
-pidgin_credentials_page_combo_changed_cb(GtkComboBox *widget, gpointer data) {
-	PidginCredentialsPage *page = PIDGIN_CREDENTIALS_PAGE(data);
-	GtkTreeIter iter;
+pidgin_credentials_page_create_row(PurpleCredentialProvider *provider,
+                                   gpointer data)
+{
+	GtkListBox *box = GTK_LIST_BOX(data);
+	GtkWidget *row = NULL;
 
-	if(gtk_combo_box_get_active_iter(GTK_COMBO_BOX(page->combo), &iter)) {
-		PurpleCredentialManager *manager = NULL;
-		GError *error = NULL;
-		GtkTreeModel *model = NULL;
-		gchar *id = NULL;
+	row = pidgin_credential_provider_row_new(provider);
+	gtk_list_box_prepend(box, row);
+}
 
-		model = gtk_combo_box_get_model(GTK_COMBO_BOX(page->combo));
+static gint
+pidgin_credentials_page_sort_rows(GtkListBoxRow *row1, GtkListBoxRow *row2,
+                                  G_GNUC_UNUSED gpointer user_data)
+{
+	PidginCredentialProviderRow *pcprow = NULL;
+	PurpleCredentialProvider *provider = NULL;
+	const gchar *id1 = NULL;
+	gboolean is_noop1 = FALSE;
+	const gchar *id2 = NULL;
+	gboolean is_noop2 = FALSE;
 
-		gtk_tree_model_get(model, &iter,
-		                   PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_ID, &id,
-		                   -1);
+	pcprow = PIDGIN_CREDENTIAL_PROVIDER_ROW(row1);
+	provider = pidgin_credential_provider_row_get_provider(pcprow);
+	id1 = purple_credential_provider_get_id(provider);
+	is_noop1 = purple_strequal(id1, "noop-provider");
 
-		manager = purple_credential_manager_get_default();
-		if(purple_credential_manager_set_active_provider(manager, id, &error)) {
-			purple_prefs_set_string("/purple/credentials/active-provider", id);
+	pcprow = PIDGIN_CREDENTIAL_PROVIDER_ROW(row2);
+	provider = pidgin_credential_provider_row_get_provider(pcprow);
+	id2 = purple_credential_provider_get_id(provider);
+	is_noop2 = purple_strequal(id2, "noop-provider");
 
-			g_free(id);
-
-			return;
-		}
-
-		purple_debug_warning("credentials-page", "failed to set the active "
-		                     "credential provider to '%s': %s",
-		                     id,
-		                     error ? error->message : "unknown error");
-
-		g_free(id);
-		g_clear_error(&error);
+	/* Sort None provider after everything else. */
+	if (is_noop1 && is_noop2) {
+		return 0;
+	} else if (is_noop1 && !is_noop2) {
+		return 1;
+	} else if (!is_noop1 && is_noop2) {
+		return -1;
 	}
+	/* Sort normally by ID. */
+	return g_strcmp0(id1, id2);
+}
+
+static void
+pidgin_credential_page_list_row_activated_cb(GtkListBox *box,
+                                             GtkListBoxRow *row,
+                                             G_GNUC_UNUSED gpointer data)
+{
+	PurpleCredentialManager *manager = NULL;
+	PurpleCredentialProvider *provider = NULL;
+	const gchar *id = NULL;
+	GError *error = NULL;
+
+	provider = pidgin_credential_provider_row_get_provider(
+	    PIDGIN_CREDENTIAL_PROVIDER_ROW(row));
+	id = purple_credential_provider_get_id(provider);
+
+	manager = purple_credential_manager_get_default();
+	if(purple_credential_manager_set_active_provider(manager, id, &error)) {
+		purple_prefs_set_string("/purple/credentials/active-provider", id);
+
+		return;
+	}
+
+	purple_debug_warning("credentials-page", "failed to set the active "
+			     "credential provider to '%s': %s",
+			     id, error ? error->message : "unknown error");
+
+	g_clear_error(&error);
 }
 
 static void
 pidgin_credentials_page_set_active_provider(PidginCredentialsPage *page,
                                             const gchar *new_id)
 {
-	GtkTreeIter iter;
-	GtkTreeModel *model = NULL;
+	GList *rows = NULL;
 
-	model = gtk_combo_box_get_model(GTK_COMBO_BOX(page->combo));
+	rows = gtk_container_get_children(GTK_CONTAINER(page->credential_list));
+	for (; rows; rows = g_list_delete_link(rows, rows)) {
+		PidginCredentialProviderRow *row = NULL;
+		PurpleCredentialProvider *provider = NULL;
+		const gchar *id = NULL;
 
-	if(gtk_tree_model_get_iter_first(model, &iter)) {
-		do {
-			gchar *id = NULL;
+		row = PIDGIN_CREDENTIAL_PROVIDER_ROW(rows->data);
+		provider = pidgin_credential_provider_row_get_provider(row);
+		id = purple_credential_provider_get_id(provider);
 
-			gtk_tree_model_get(model, &iter,
-			                   PIDGIN_CREDENTIAL_PROVIDER_STORE_COLUMN_ID, &id,
-			                   -1);
-
-			if(purple_strequal(new_id, id)) {
-				g_signal_handlers_block_by_func(page->combo,
-				                                pidgin_credentials_page_combo_changed_cb,
-				                                page);
-
-				gtk_combo_box_set_active_iter(GTK_COMBO_BOX(page->combo),
-				                              &iter);
-
-				g_signal_handlers_unblock_by_func(page->combo,
-				                                  pidgin_credentials_page_combo_changed_cb,
-				                                  page);
-
-				g_free(id);
-
-				return;
-			}
-
-			g_free(id);
-		} while(gtk_tree_model_iter_next(model, &iter));
+		pidgin_credential_provider_row_set_active(row,
+		                                          purple_strequal(new_id, id));
 	}
 }
 
@@ -126,7 +145,7 @@ pidgin_credentials_page_active_provider_changed_cb(const gchar *name,
 }
 
 /******************************************************************************
- * GObjectImplementation
+ * GObject Implementation
  *****************************************************************************/
 static void
 pidgin_credentials_page_finalize(GObject *obj) {
@@ -137,29 +156,25 @@ pidgin_credentials_page_finalize(GObject *obj) {
 
 static void
 pidgin_credentials_page_init(PidginCredentialsPage *page) {
+	PurpleCredentialManager *manager = NULL;
 	const gchar *active = NULL;
 
 	gtk_widget_init_template(GTK_WIDGET(page));
 
-	/* Set some constant properties on the renderer. This stuff is kind of
-	 * dodgy, but it does stop the dialog from growing to fit a long
-	 * description.
-	 */
-	g_object_set(G_OBJECT(page->renderer),
-	             "width-chars", 40,
-	             "wrap-mode", PANGO_WRAP_WORD_CHAR,
-	             NULL);
-
 	purple_prefs_add_none("/purple/credentials");
 	purple_prefs_add_string("/purple/credentials/active-provider", NULL);
+
+	manager = purple_credential_manager_get_default();
+	purple_credential_manager_foreach_provider(
+	    manager,
+	    pidgin_credentials_page_create_row,
+	    page->credential_list);
+	gtk_list_box_set_sort_func(GTK_LIST_BOX(page->credential_list),
+	                           pidgin_credentials_page_sort_rows, NULL, NULL);
 
 	purple_prefs_connect_callback(page, "/purple/credentials/active-provider",
 	                              pidgin_credentials_page_active_provider_changed_cb,
 	                              page);
-
-	g_signal_connect(G_OBJECT(page->combo), "changed",
-	                 G_CALLBACK(pidgin_credentials_page_combo_changed_cb),
-	                 page);
 
 	active = purple_prefs_get_string("/purple/credentials/active-provider");
 	if(active != NULL) {
@@ -180,9 +195,9 @@ pidgin_credentials_page_class_init(PidginCredentialsPageClass *klass) {
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginCredentialsPage,
-	                                     combo);
-	gtk_widget_class_bind_template_child(widget_class, PidginCredentialsPage,
-	                                     renderer);
+	                                     credential_list);
+	gtk_widget_class_bind_template_callback(widget_class,
+	                                        pidgin_credential_page_list_row_activated_cb);
 }
 
 /******************************************************************************
