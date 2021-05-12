@@ -353,6 +353,7 @@ pidgin/pidgincommands.c
 pidgin/pidgincontactcompletion.c
 pidgin/pidgincontactlist.c
 pidgin/pidginconversationwindow.c
+pidgin/pidgincredentialproviderrow.c
 pidgin/pidgincredentialproviderstore.c
 pidgin/pidgincredentialspage.c
 pidgin/pidgindebug.c
@@ -409,6 +410,7 @@ pidgin/resources/Log/log-viewer.ui
 pidgin/resources/Plugins/dialog.ui
 pidgin/resources/Plugins/menu.ui
 pidgin/resources/Prefs/credentials.ui
+pidgin/resources/Prefs/credentialprovider.ui
 pidgin/resources/Prefs/prefs.ui
 pidgin/resources/Prefs/vv.ui
 pidgin/resources/Privacy/dialog.ui
