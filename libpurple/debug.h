@@ -83,8 +83,8 @@ struct _PurpleDebugUiInterface {
 	GTypeInterface parent_iface;
 
 	/*< public >*/
-	void (*print)(PurpleDebugUi *self, PurpleDebugLevel level, const gchar *category, const gchar *arg_s);
-	gboolean (*is_enabled)(PurpleDebugUi *self, PurpleDebugLevel level, const gchar *category);
+	void (*print)(PurpleDebugUi *ui, PurpleDebugLevel level, const gchar *category, const gchar *arg_s);
+	gboolean (*is_enabled)(PurpleDebugUi *ui, PurpleDebugLevel level, const gchar *category);
 
 	/*< private >*/
 	gpointer reserved[4];
