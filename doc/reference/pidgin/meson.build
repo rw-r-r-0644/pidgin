@@ -7,7 +7,8 @@ ignore_hfiles = [
     'themes',
     'win32',
     'gtkinternal.h',
-    'pidgin.gresource.h'
+    'pidgin.gresource.h',
+    'pidginprivate.h',
 ]
 
 # Extra options to supply to gtkdoc-scan.
