@@ -44,9 +44,24 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PIDGIN_TYPE_CREDENTIALS_PAGE:
+ *
+ * The standard _get_type macro for #PidginCredentialsPage.
+ *
+ * Since: 3.0.0
+ */
 #define PIDGIN_TYPE_CREDENTIALS_PAGE (pidgin_credentials_page_get_type())
 G_DECLARE_FINAL_TYPE(PidginCredentialsPage, pidgin_credentials_page,
                      PIDGIN, CREDENTIALS_PAGE, HdyPreferencesPage)
+
+/**
+ * PidginCredentialsPage:
+ *
+ * A widget that displays a page of credential settings.
+ *
+ * Since: 3.0.0
+ */
 
 /**
  * pidgin_credentials_page_new:
@@ -54,6 +69,8 @@ G_DECLARE_FINAL_TYPE(PidginCredentialsPage, pidgin_credentials_page,
  * Creates a new #PidginCredentialsPage instance.
  *
  * Returns: (transfer full): The new #PidginCredentialsPage instance.
+ *
+ * Since: 3.0.0
  */
 GtkWidget *pidgin_credentials_page_new(void);
 
