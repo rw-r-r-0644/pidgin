@@ -44,6 +44,8 @@ struct _PurpleWinCred {
 	PurpleCredentialProvider parent;
 };
 
+#define PURPLE_WINCRED_ERROR (g_quark_from_static_string("wincred"))
+
 G_DEFINE_DYNAMIC_TYPE(PurpleWinCred, purple_wincred,
                       PURPLE_TYPE_CREDENTIAL_PROVIDER)
 
@@ -103,23 +105,23 @@ purple_wincred_read_password_async(PurpleCredentialProvider *provider,
 					"No password found for account %s\n",
 					purple_account_get_username(account));
 			}
-			error = g_error_new(PURPLE_KEYRING_ERROR,
-				PURPLE_KEYRING_ERROR_NOPASSWORD,
+			error = g_error_new(PURPLE_WINCRED_ERROR,
+				error_code,
 				_("Password not found."));
 		} else if (error_code == ERROR_NO_SUCH_LOGON_SESSION) {
 			purple_debug_error("keyring-wincred",
 				"Cannot read password, no valid logon "
 				"session\n");
-			error = g_error_new(PURPLE_KEYRING_ERROR,
-				PURPLE_KEYRING_ERROR_ACCESSDENIED,
+			error = g_error_new(PURPLE_WINCRED_ERROR,
+				error_code,
 				_("Cannot read password, no valid logon "
 				"session."));
 		} else {
 			purple_debug_error("keyring-wincred",
 				"Cannot read password, error %lx\n",
 				error_code);
-			error = g_error_new(PURPLE_KEYRING_ERROR,
-				PURPLE_KEYRING_ERROR_BACKENDFAIL,
+			error = g_error_new(PURPLE_WINCRED_ERROR,
+				error_code,
 				_("Cannot read password (error %lx)."), error_code);
 		}
 
@@ -138,8 +140,8 @@ purple_wincred_read_password_async(PurpleCredentialProvider *provider,
 	if (password == NULL) {
 		purple_debug_error("keyring-wincred",
 			"Cannot convert password\n");
-		error = g_error_new(PURPLE_KEYRING_ERROR,
-			PURPLE_KEYRING_ERROR_BACKENDFAIL,
+		error = g_error_new(PURPLE_WINCRED_ERROR,
+			0,
 			_("Cannot read password (unicode error)."));
 		g_task_return_error(task, error);
 		g_object_unref(G_OBJECT(task));
@@ -223,14 +225,13 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 			purple_debug_error("keyring-wincred",
 			                   "Cannot store password, no valid logon session");
 			error = g_error_new(
-			        PURPLE_KEYRING_ERROR, PURPLE_KEYRING_ERROR_ACCESSDENIED,
+			        PURPLE_WINCRED_ERROR, error_code,
 			        _("Cannot remove password, no valid logon session."));
 		} else {
 			purple_debug_error("keyring-wincred",
 				"Cannot store password, error %lx\n",
 				error_code);
-			error = g_error_new(PURPLE_KEYRING_ERROR,
-				PURPLE_KEYRING_ERROR_BACKENDFAIL,
+			error = g_error_new(PURPLE_WINCRED_ERROR, error_code,
 				_("Cannot store password (error %lx)."), error_code);
 		}
 	} else {
@@ -299,13 +300,13 @@ purple_wincred_clear_password_async(PurpleCredentialProvider *provider,
 			        "keyring-wincred",
 			        "Cannot remove password, no valid logon session");
 			error = g_error_new(
-			        PURPLE_KEYRING_ERROR, PURPLE_KEYRING_ERROR_ACCESSDENIED,
+			        PURPLE_WINCRED_ERROR, error_code,
 			        _("Cannot remove password, no valid logon session."));
 		} else {
 			purple_debug_error("keyring-wincred",
 			                   "Cannot remove password, error %lx", error_code);
 			error = g_error_new(
-			        PURPLE_KEYRING_ERROR, PURPLE_KEYRING_ERROR_BACKENDFAIL,
+			        PURPLE_WINCRED_ERROR, error_code,
 			        _("Cannot remove password (error %lx)."), error_code);
 		}
 
