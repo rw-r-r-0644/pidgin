@@ -204,8 +204,7 @@ if ENABLE_GTK
 	                          output : 'pidgin.h',
 	                          configuration : pidgin_h_conf,
 	                          install : true,
-	                          install_dir : get_option('includedir') / purple_filebase)
-
+	                          install_dir : get_option('includedir') / 'pidgin-3')
 
 	install_headers(libpidgin_headers, subdir : 'pidgin-3')
 
