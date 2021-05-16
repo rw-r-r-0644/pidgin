@@ -159,6 +159,9 @@ pidgin_resource = gnome.compile_resources('pidginresources',
     c_name : 'pidgin')
 libpidgin_SOURCES += pidgin_resource
 
+pidgin_filebase = 'pidgin-3'
+pidgin_include_base = pidgin_filebase / 'pidgin'
+
 if IS_WIN32
 	libpidgin_SOURCES += [
 		'pidgin.c',
@@ -190,7 +193,9 @@ if ENABLE_GTK
 	endif
 
 	libpidgin_enums = gnome.mkenums_simple('pidginenums',
-		sources: libpidgin_enum_headers)
+		sources: libpidgin_enum_headers,
+		install_header: true,
+		install_dir: get_option('includedir') / pidgin_include_base)
 	libpidgin_enums_c = libpidgin_enums[0]
 	libpidgin_enums_h = libpidgin_enums[1]
 
@@ -204,9 +209,9 @@ if ENABLE_GTK
 	                          output : 'pidgin.h',
 	                          configuration : pidgin_h_conf,
 	                          install : true,
-	                          install_dir : get_option('includedir') / 'pidgin-3')
+	                          install_dir : get_option('includedir') / pidgin_filebase)
 
-	install_headers(libpidgin_headers, subdir : 'pidgin-3')
+	install_headers(libpidgin_headers, subdir : pidgin_include_base)
 
 	_libpidgin_dependencies = [
 		glib,
@@ -262,10 +267,10 @@ if ENABLE_GTK
 	    name : 'Pidgin',
 	    description : 'Pidgin is a GTK3-based instant messenger application.',
 	    version : meson.project_version(),
-	    filebase : 'pidgin-3',
-	    subdirs : 'pidgin-3',
+	    filebase : pidgin_filebase,
+	    subdirs : pidgin_filebase,
 	    libraries : [libpidgin],
-	    requires : ['gtk+-3.0', 'purple-3', 'talkatu', 'gplugin-gtk'],
+	    requires : ['gtk+-3.0', 'libhandy-1', 'purple-3', 'talkatu', 'gplugin-gtk'],
 	    variables : ['plugindir=${libdir}/pidgin-@0@'.format(purple_major_version)])
 
 	PIDGIN_DESKTOP_FILE = 'im.pidgin.Pidgin3.desktop'
