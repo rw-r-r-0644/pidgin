@@ -20,14 +20,11 @@
  */
 #include <glib.h>
 #include <gmodule.h>
+
 #include <gplugin.h>
+#include <gplugin-native.h>
 
 #include <purple.h>
-
-/* make the compiler happy... */
-G_MODULE_EXPORT GPluginPluginInfo *gplugin_query(GError **error);
-G_MODULE_EXPORT gboolean gplugin_load(GPluginPlugin *plugin, GError **error);
-G_MODULE_EXPORT gboolean gplugin_unload(GPluginPlugin *plugin, GError **error);
 
 /******************************************************************************
  * Helpers
@@ -192,8 +189,8 @@ purple_toast_chat_message_received(PurpleAccount *account,
 /******************************************************************************
  * Plugin Exports
  *****************************************************************************/
-G_MODULE_EXPORT GPluginPluginInfo *
-gplugin_query(GError **error) {
+static GPluginPluginInfo *
+purple_toast_query(G_GNUC_UNUSED GError **error) {
 	PurplePluginInfo *info = NULL;
 
 	const gchar * const authors[] = {
@@ -214,8 +211,8 @@ gplugin_query(GError **error) {
 	return GPLUGIN_PLUGIN_INFO(info);
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_load(GPluginPlugin *plugin, GError **error) {
+static gboolean
+purple_toast_load(GPluginPlugin *plugin, G_GNUC_UNUSED GError **error) {
 	gpointer conv_handle = purple_conversations_get_handle();
 
 	purple_signal_connect(conv_handle,
@@ -235,7 +232,11 @@ gplugin_load(GPluginPlugin *plugin, GError **error) {
 	return TRUE;
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_unload(GPluginPlugin *plugin, GError **error) {
+static gboolean
+purple_toast_unload(G_GNUC_UNUSED GPluginPlugin *plugin,
+                    G_GNUC_UNUSED GError **error)
+{
 	return TRUE;
 }
+
+GPLUGIN_NATIVE_PLUGIN_DECLARE(purple_toast)

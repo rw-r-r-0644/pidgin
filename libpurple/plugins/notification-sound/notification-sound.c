@@ -23,15 +23,13 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 #include "libpurple/glibcompat.h"
 
 #include <canberra.h>
-
-/* make the compiler happy... */
-G_MODULE_EXPORT GPluginPluginInfo *gplugin_query(GError **error);
-G_MODULE_EXPORT gboolean gplugin_load(GPluginPlugin *plugin, GError **error);
-G_MODULE_EXPORT gboolean gplugin_unload(GPluginPlugin *plugin, GError **error);
 
 #define PURPLE_NOTIFICATION_SOUND_DOMAIN \
 	g_quark_from_static_string("purple-notification-sound")
@@ -230,8 +228,8 @@ purple_notification_sound_actions(PurplePlugin *plugin) {
 /******************************************************************************
  * Plugin Exports
  *****************************************************************************/
-G_MODULE_EXPORT GPluginPluginInfo *
-gplugin_query(GError **error) {
+static GPluginPluginInfo *
+notification_sound_query(G_GNUC_UNUSED GError **error) {
 	PurplePluginInfo *info = NULL;
 
 	const gchar * const authors[] = {
@@ -253,8 +251,8 @@ gplugin_query(GError **error) {
 	return GPLUGIN_PLUGIN_INFO(info);
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_load(GPluginPlugin *plugin, GError **error) {
+static gboolean
+notification_sound_load(GPluginPlugin *plugin, GError **error) {
 	gpointer conv_handle = NULL;
 	gint error_code = 0;
 
@@ -292,8 +290,8 @@ gplugin_load(GPluginPlugin *plugin, GError **error) {
 	return TRUE;
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_unload(GPluginPlugin *plugin, GError **error) {
+static gboolean
+notification_sound_unload(GPluginPlugin *plugin, G_GNUC_UNUSED GError **error) {
 	purple_signals_disconnect_by_handle(plugin);
 
 	purple_notification_sound_save_prefs();
@@ -304,3 +302,4 @@ gplugin_unload(GPluginPlugin *plugin, GError **error) {
 	return TRUE;
 }
 
+GPLUGIN_NATIVE_PLUGIN_DECLARE(notification_sound)

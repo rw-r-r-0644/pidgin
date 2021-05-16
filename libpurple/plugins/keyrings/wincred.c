@@ -21,6 +21,9 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #include <wincred.h>
@@ -373,18 +376,10 @@ purple_wincred_new(void)
 /******************************************************************************
  * Plugin Exports
  *****************************************************************************/
-
-G_MODULE_EXPORT GPluginPluginInfo *gplugin_query(GError **error);
-G_MODULE_EXPORT gboolean gplugin_load(GPluginNativePlugin *plugin,
-                                      GError **error);
-G_MODULE_EXPORT gboolean gplugin_unload(GPluginNativePlugin *plugin,
-                                        GError **error);
-
-G_MODULE_EXPORT GPluginPluginInfo *
-gplugin_query(GError **error)
-{
+static GPluginPluginInfo *
+wincred_query(G_GNUC_UNUSED GError **error) {
 	const gchar * const authors[] = {
-		"Tomek Wasilczyk <twasilczyk@pidgin.im>",
+		"Pidgin Developers <devel@pidgin.im>",
 		NULL
 	};
 
@@ -404,9 +399,8 @@ gplugin_query(GError **error)
 	));
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_load(GPluginNativePlugin *plugin, GError **error)
-{
+static gboolean
+wincred_load(GPluginPlugin *plugin, GError **error) {
 	PurpleCredentialManager *manager = NULL;
 
 	purple_wincred_register_type(G_TYPE_MODULE(plugin));
@@ -419,9 +413,8 @@ gplugin_load(GPluginNativePlugin *plugin, GError **error)
 	                                                   error);
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_unload(GPluginNativePlugin *plugin, GError **error)
-{
+static gboolean
+wincred_unload(G_GNUC_UNUSED GPluginPlugin *plugin, GError **error) {
 	PurpleCredentialManager *manager = NULL;
 	gboolean ret = FALSE;
 
@@ -436,3 +429,5 @@ gplugin_unload(GPluginNativePlugin *plugin, GError **error)
 
 	return TRUE;
 }
+
+GPLUGIN_NATIVE_PLUGIN_DECLARE(wincred)
