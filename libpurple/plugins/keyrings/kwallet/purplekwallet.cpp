@@ -539,10 +539,8 @@ purple_kwallet_provider_new(void) {
 /******************************************************************************
  * Plugin Exports
  *****************************************************************************/
-G_BEGIN_DECLS
-
-G_MODULE_EXPORT GPluginPluginInfo *
-gplugin_query(GError **error) {
+static GPluginPluginInfo *
+kwallet_query(G_GNUC_UNUSED GError **error) {
 	const gchar * const authors[] = {
 		"Pidgin Developers <devel@pidgin.im>",
 		NULL
@@ -563,8 +561,8 @@ gplugin_query(GError **error) {
 	));
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_load(GPluginPlugin *plugin, GError **error) {
+static gboolean
+kwallet_load(GPluginPlugin *plugin, GError **error) {
 	PurpleCredentialManager *manager = NULL;
 
 	purple_kwallet_provider_register_type(G_TYPE_MODULE(plugin));
@@ -590,8 +588,8 @@ gplugin_load(GPluginPlugin *plugin, GError **error) {
 	                                                   error);
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_unload(GPluginPlugin *plugin, GError **error) {
+static gboolean
+kwallet_unload(G_GNUC_UNUSED GPluginPlugin *plugin, GError **error) {
 	PurpleCredentialManager *manager = NULL;
 	gboolean ret = FALSE;
 
@@ -613,4 +611,6 @@ gplugin_unload(GPluginPlugin *plugin, GError **error) {
 	return TRUE;
 }
 
+G_BEGIN_DECLS
+GPLUGIN_NATIVE_PLUGIN_DECLARE(kwallet)
 G_END_DECLS

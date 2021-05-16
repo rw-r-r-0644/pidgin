@@ -29,6 +29,9 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #include <libsecret/secret.h>
@@ -274,14 +277,10 @@ purple_secret_service_new(void) {
 /******************************************************************************
  * Plugin Exports
  *****************************************************************************/
-G_MODULE_EXPORT GPluginPluginInfo *gplugin_query(GPluginPlugin *plugin, GError **error);
-G_MODULE_EXPORT gboolean gplugin_load(GPluginPlugin *plugin, GError **error);
-G_MODULE_EXPORT gboolean gplugin_unload(GPluginPlugin *plugin, GError **error);
-
-G_MODULE_EXPORT GPluginPluginInfo *
-gplugin_query(GPluginPlugin *plugin, GError **error) {
+static GPluginPluginInfo *
+secret_service_query(G_GNUC_UNUSED GError **error) {
 	const gchar * const authors[] = {
-		"Elliott Sales de Andrade (qulogic[at]pidgin.im)",
+		"Pidgin Developers <devel@pidgin.im>",
 		NULL
 	};
 
@@ -301,8 +300,8 @@ gplugin_query(GPluginPlugin *plugin, GError **error) {
 	));
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_load(GPluginPlugin *plugin, GError **error) {
+static gboolean
+secret_service_load(GPluginPlugin *plugin, GError **error) {
 	PurpleCredentialManager *manager = NULL;
 
 	purple_secret_service_register_type(G_TYPE_MODULE(plugin));
@@ -315,8 +314,8 @@ gplugin_load(GPluginPlugin *plugin, GError **error) {
 	                                                   error);
 }
 
-G_MODULE_EXPORT gboolean
-gplugin_unload(GPluginPlugin *plugin, GError **error) {
+static gboolean
+secret_service_unload(G_GNUC_UNUSED GPluginPlugin *plugin, GError **error) {
 	PurpleCredentialManager *manager = NULL;
 	gboolean ret = FALSE;
 
@@ -331,3 +330,5 @@ gplugin_unload(GPluginPlugin *plugin, GError **error) {
 
 	return TRUE;
 }
+
+GPLUGIN_NATIVE_PLUGIN_DECLARE(secret_service)
