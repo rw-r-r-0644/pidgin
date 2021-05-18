@@ -436,7 +436,7 @@ void
 purple_buddy_set_local_alias(PurpleBuddy *buddy, const gchar *alias) {
 	PurpleBuddyList *blist = NULL;
 	PurpleBuddyPrivate *priv = NULL;
-	PurpleIMConversation *im = NULL;
+	PurpleConversation *im = NULL;
 	gchar *old_alias = NULL, *new_alias = NULL;
 
 	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
@@ -469,7 +469,7 @@ purple_buddy_set_local_alias(PurpleBuddy *buddy, const gchar *alias) {
 
 	im = purple_conversations_find_im_with_account(priv->name, priv->account);
 	if(PURPLE_IS_IM_CONVERSATION(im)) {
-		purple_conversation_autoset_title(PURPLE_CONVERSATION(im));
+		purple_conversation_autoset_title(im);
 	}
 
 	purple_signal_emit(purple_blist_get_handle(), "blist-node-aliased", buddy,
@@ -492,7 +492,7 @@ void
 purple_buddy_set_server_alias(PurpleBuddy *buddy, const gchar *alias) {
 	PurpleBuddyList *blist = NULL;
 	PurpleBuddyPrivate *priv = NULL;
-	PurpleIMConversation *im = NULL;
+	PurpleConversation *im = NULL;
 	gchar *old_alias = NULL, *new_alias = NULL;
 
 	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
@@ -527,7 +527,7 @@ purple_buddy_set_server_alias(PurpleBuddy *buddy, const gchar *alias) {
 
 	im = purple_conversations_find_im_with_account(priv->name, priv->account);
 	if(PURPLE_IS_IM_CONVERSATION(im)) {
-		purple_conversation_autoset_title(PURPLE_CONVERSATION(im));
+		purple_conversation_autoset_title(im);
 	}
 
 	purple_signal_emit(purple_blist_get_handle(), "blist-node-aliased", buddy,

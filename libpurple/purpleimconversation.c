@@ -248,10 +248,10 @@ purple_im_conversation_class_init(PurpleIMConversationClass *klass) {
 /******************************************************************************
  * Public API
  *****************************************************************************/
-PurpleIMConversation *
+PurpleConversation *
 purple_im_conversation_new(PurpleAccount *account, const char *name)
 {
-	PurpleIMConversation *im = NULL;
+	PurpleConversation *im = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(name != NULL, NULL);

@@ -83,7 +83,7 @@ static ggp_font * ggp_font_new(void);
 static ggp_font * ggp_font_clone(ggp_font *font);
 static void ggp_font_free(gpointer font);
 
-static PurpleIMConversation * ggp_message_get_conv(PurpleConnection *gc,
+static PurpleConversation * ggp_message_get_conv(PurpleConnection *gc,
 	uin_t uin);
 static void ggp_message_got_data_free(ggp_message_got_data *msg);
 static void ggp_message_got_display(PurpleConnection *gc,
@@ -162,11 +162,11 @@ static void ggp_font_free(gpointer _font)
 
 /**/
 
-static PurpleIMConversation * ggp_message_get_conv(PurpleConnection *gc,
+static PurpleConversation * ggp_message_get_conv(PurpleConnection *gc,
 	uin_t uin)
 {
 	PurpleAccount *account = purple_connection_get_account(gc);
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	const gchar *who = ggp_uin_to_str(uin);
 
 	im = purple_conversations_find_im_with_account(who, account);
@@ -237,7 +237,7 @@ static void ggp_message_got_display(PurpleConnection *gc,
 	} else if (msg->type == GGP_MESSAGE_GOT_TYPE_MULTILOGON) {
 		GDateTime *dt = NULL;
 		PurpleAccount *account = NULL;
-		PurpleIMConversation *im = ggp_message_get_conv(gc, msg->user);
+		PurpleConversation *im = ggp_message_get_conv(gc, msg->user);
 		PurpleMessage *pmsg;
 		const gchar *me = NULL;
 
@@ -250,7 +250,7 @@ static void ggp_message_got_display(PurpleConnection *gc,
 		purple_message_set_timestamp(pmsg, dt);
 		g_date_time_unref(dt);
 
-		purple_conversation_write_message(PURPLE_CONVERSATION(im), pmsg);
+		purple_conversation_write_message(im, pmsg);
 
 		g_object_unref(G_OBJECT(pmsg));
 	} else {
@@ -646,7 +646,7 @@ int ggp_message_send_im(PurpleProtocolIM *pim, PurpleConnection *gc,
                         PurpleMessage *msg)
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	ggp_buddy_data *buddy_data;
 	gchar *gg_msg;
 	gboolean succ;
@@ -666,7 +666,7 @@ int ggp_message_send_im(PurpleProtocolIM *pim, PurpleConnection *gc,
 	im = purple_conversations_find_im_with_account(
 		rcpt, purple_connection_get_account(gc));
 
-	gg_msg = ggp_message_format_to_gg(PURPLE_CONVERSATION(im),
+	gg_msg = ggp_message_format_to_gg(im,
 		purple_message_get_contents(msg));
 
 	/* TODO: splitting messages */

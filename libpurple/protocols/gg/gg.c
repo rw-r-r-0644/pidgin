@@ -612,7 +612,7 @@ gg_uri_handler(const gchar *scheme, const gchar *screenname,
 {
 	GList *accounts;
 	GList *account_node;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 
 	g_return_val_if_fail(screenname != NULL, FALSE);
 
@@ -635,7 +635,7 @@ gg_uri_handler(const gchar *scheme, const gchar *screenname,
 	}
 
 	im = purple_im_conversation_new(account_node->data, screenname);
-	purple_conversation_present(PURPLE_CONVERSATION(im));
+	purple_conversation_present(im);
 
 	return TRUE;
 }

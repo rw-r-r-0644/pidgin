@@ -612,16 +612,16 @@ join_chat(PurpleChat *chat)
 {
 	PurpleAccount *account = purple_chat_get_account(chat);
 	const char *name;
-	PurpleChatConversation *conv;
+	PurpleConversation *conv;
 
 	name = purple_chat_get_name_only(chat);
 	conv = purple_conversations_find_chat_with_account(name, account);
 
-	if (!conv || purple_chat_conversation_has_left(conv)) {
+	if (!conv || purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv))) {
 		purple_serv_join_chat(purple_account_get_connection(account),
 				purple_chat_get_components(chat));
 	} else if (conv) {
-		purple_conversation_present(PURPLE_CONVERSATION(conv));
+		purple_conversation_present(conv);
 	}
 }
 
@@ -916,17 +916,17 @@ selection_activate(GntWidget *widget, FinchBuddyList *ggblist)
 	if (PURPLE_IS_BUDDY(node))
 	{
 		PurpleBuddy *buddy = (PurpleBuddy *)node;
-		PurpleIMConversation *im;
+		PurpleConversation *im;
 		im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy),
 					purple_buddy_get_account(buddy));
 		if (!im) {
 			im =  purple_im_conversation_new(purple_buddy_get_account(buddy),
 						purple_buddy_get_name(buddy));
 		} else {
-			FinchConv *ggconv = FINCH_CONV(PURPLE_CONVERSATION(im));
+			FinchConv *ggconv = FINCH_CONV(im);
 			gnt_window_present(ggconv->window);
 		}
-		finch_conversation_set_active(PURPLE_CONVERSATION(im));
+		finch_conversation_set_active(im);
 	}
 	else if (PURPLE_IS_CHAT(node))
 	{
@@ -2602,13 +2602,13 @@ send_im_select_cb(gpointer data, PurpleRequestFields *fields)
 {
 	PurpleAccount *account;
 	const char *username;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 
 	account  = purple_request_fields_get_account(fields, "account");
 	username = purple_request_fields_get_string(fields,  "screenname");
 
 	im = purple_im_conversation_new(account, username);
-	purple_conversation_present(PURPLE_CONVERSATION(im));
+	purple_conversation_present(im);
 }
 
 static void
@@ -2652,7 +2652,7 @@ join_chat_select_cb(gpointer data, PurpleRequestFields *fields)
 	PurpleConnection *gc;
 	PurpleChat *chat;
 	GHashTable *hash = NULL;
-	PurpleChatConversation *conv;
+	PurpleConversation *conv;
 
 	account = purple_request_fields_get_account(fields, "account");
 	name = purple_request_fields_get_string(fields,  "chat");
@@ -2666,9 +2666,9 @@ join_chat_select_cb(gpointer data, PurpleRequestFields *fields)
 	 * a new conversation window will pop up when we finally join the chat. */
 	if (!(conv = purple_conversations_find_chat_with_account(name, account))) {
 		conv = purple_chat_conversation_new(account, name);
-		purple_chat_conversation_leave(conv);
+		purple_chat_conversation_leave(PURPLE_CHAT_CONVERSATION(conv));
 	} else {
-		purple_conversation_present(PURPLE_CONVERSATION(conv));
+		purple_conversation_present(conv);
 	}
 
 	chat = purple_blist_find_chat(account, name);

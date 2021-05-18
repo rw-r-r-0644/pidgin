@@ -338,9 +338,9 @@ purple_chat_conversation_class_init(PurpleChatConversationClass *klass) {
 /******************************************************************************
  * Public API
  *****************************************************************************/
-PurpleChatConversation *
+PurpleConversation *
 purple_chat_conversation_new(PurpleAccount *account, const gchar *name) {
-	PurpleChatConversation *chat = NULL;
+	PurpleConversation *chat = NULL;
 	PurpleConnection *connection = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
@@ -349,7 +349,7 @@ purple_chat_conversation_new(PurpleAccount *account, const gchar *name) {
 	/* Check if this conversation already exists. */
 	chat = purple_conversations_find_chat_with_account(name, account);
 	if(PURPLE_IS_CHAT_CONVERSATION(chat)) {
-		if(!purple_chat_conversation_has_left(chat)) {
+		if(!purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(chat))) {
 			purple_debug_warning("chat-conversation", "A chat named %s "
 			                     "already exists.", name);
 			return NULL;
@@ -364,7 +364,7 @@ purple_chat_conversation_new(PurpleAccount *account, const gchar *name) {
 		return NULL;
 	}
 
-	return PURPLE_CHAT_CONVERSATION(g_object_new(
+	return PURPLE_CONVERSATION(g_object_new(
 		PURPLE_TYPE_CHAT_CONVERSATION,
 		"account", account,
 		"name", name,

@@ -211,7 +211,7 @@ static void
 purple_xfer_conversation_write_internal(PurpleXfer *xfer,
 	const char *message, gboolean is_error, gboolean print_thumbnail)
 {
-	PurpleIMConversation *im = NULL;
+	PurpleConversation *im = NULL;
 	PurpleMessageFlags flags = PURPLE_MESSAGE_SYSTEM;
 	char *escaped;
 	gconstpointer thumbnail_data;
@@ -243,11 +243,11 @@ purple_xfer_conversation_write_internal(PurpleXfer *xfer,
 		message_with_img = g_strdup_printf("<img src=\""
 			PURPLE_IMAGE_STORE_PROTOCOL "%u\"> %s", id, escaped);
 		purple_conversation_write_system_message(
-			PURPLE_CONVERSATION(im), message_with_img, flags);
+			im, message_with_img, flags);
 		g_free(message_with_img);
 	} else {
 		purple_conversation_write_system_message(
-			PURPLE_CONVERSATION(im), escaped, flags);
+			im, escaped, flags);
 	}
 	g_free(escaped);
 }
@@ -955,7 +955,7 @@ purple_xfer_set_completed(PurpleXfer *xfer, gboolean completed)
 
 	if (completed == TRUE) {
 		char *msg = NULL;
-		PurpleIMConversation *im;
+		PurpleConversation *im;
 
 		purple_xfer_set_status(xfer, PURPLE_XFER_STATUS_DONE);
 
@@ -983,7 +983,7 @@ purple_xfer_set_completed(PurpleXfer *xfer, gboolean completed)
 
 		if (im != NULL) {
 			purple_conversation_write_system_message(
-				PURPLE_CONVERSATION(im), msg, 0);
+				im, msg, 0);
 		}
 		g_free(msg);
 	}

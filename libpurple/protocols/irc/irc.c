@@ -151,7 +151,7 @@ irc_uri_handler(const gchar *scheme, const gchar *uri, GHashTable *params)
 	g_strfreev(target_tokens);
 
 	if (isnick) {
-		PurpleIMConversation *im;
+		PurpleConversation *im;
 
 		/* 'server' isn't needed here. Free it immediately. */
 		g_free(server);
@@ -160,14 +160,13 @@ irc_uri_handler(const gchar *scheme, const gchar *uri, GHashTable *params)
 		im = purple_im_conversation_new(account, target + 1);
 		g_free(target);
 
-		purple_conversation_present(PURPLE_CONVERSATION(im));
+		purple_conversation_present(im);
 
 		if (params != NULL) {
 			const gchar *msg = g_hash_table_lookup(params, "msg");
 
 			if (msg != NULL) {
-				purple_conversation_send_confirm(
-						PURPLE_CONVERSATION(im), msg);
+				purple_conversation_send_confirm(im, msg);
 			}
 		}
 

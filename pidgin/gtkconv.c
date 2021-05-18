@@ -1678,13 +1678,13 @@ menu_conv_sel_send_cb(GObject *m, gpointer data)
 {
 	PurpleAccount *account = g_object_get_data(m, "purple_account");
 	gchar *name = g_object_get_data(m, "purple_buddy_name");
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 
 	if (gtk_check_menu_item_get_active((GtkCheckMenuItem*) m) == FALSE)
 		return;
 
 	im = purple_im_conversation_new(account, name);
-	pidgin_conv_switch_active_conversation(PURPLE_CONVERSATION(im));
+	pidgin_conv_switch_active_conversation(im);
 }
 
 static void
@@ -3282,10 +3282,10 @@ pidgin_conv_find_gtkconv(PurpleConversation * conv)
 	cn = PURPLE_BLIST_NODE(c);
 	for (bn = purple_blist_node_get_first_child(cn); bn; bn = purple_blist_node_get_sibling_next(bn)) {
 		PurpleBuddy *b = PURPLE_BUDDY(bn);
-		PurpleIMConversation *im;
+		PurpleConversation *im;
 		if ((im = purple_conversations_find_im_with_account(purple_buddy_get_name(b), purple_buddy_get_account(b)))) {
-			if (PIDGIN_CONVERSATION(PURPLE_CONVERSATION(im)))
-				return PIDGIN_CONVERSATION(PURPLE_CONVERSATION(im));
+			if (PIDGIN_CONVERSATION(im))
+				return PIDGIN_CONVERSATION(im);
 		}
 	}
 
@@ -4493,10 +4493,10 @@ get_gtkconv_with_contact(PurpleContact *contact)
 	for (; node; node = node->next)
 	{
 		PurpleBuddy *buddy = (PurpleBuddy*)node;
-		PurpleIMConversation *im;
+		PurpleConversation *im;
 		im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
 		if (im)
-			return PIDGIN_CONVERSATION(PURPLE_CONVERSATION(im));
+			return PIDGIN_CONVERSATION(im);
 	}
 	return NULL;
 }
@@ -4594,21 +4594,21 @@ update_buddy_privacy_changed(PurpleBuddy *buddy)
 static void
 update_buddy_idle_changed(PurpleBuddy *buddy, gboolean old, gboolean newidle)
 {
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 
 	im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
 	if (im)
-		pidgin_conv_update_fields(PURPLE_CONVERSATION(im), PIDGIN_CONV_TAB_ICON);
+		pidgin_conv_update_fields(im, PIDGIN_CONV_TAB_ICON);
 }
 
 static void
 update_buddy_icon(PurpleBuddy *buddy)
 {
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 
 	im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
 	if (im)
-		pidgin_conv_update_fields(PURPLE_CONVERSATION(im), PIDGIN_CONV_BUDDY_ICON);
+		pidgin_conv_update_fields(im, PIDGIN_CONV_BUDDY_ICON);
 }
 
 static void

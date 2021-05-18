@@ -190,12 +190,12 @@ save_position_cb(GntWidget *w, int x, int y)
 	purple_prefs_set_int(PREF_ROOT "/position/y", y);
 }
 
-static PurpleIMConversation *
+static PurpleConversation *
 find_im_with_contact(PurpleAccount *account, const char *name)
 {
 	PurpleBlistNode *node;
 	PurpleBuddy *buddy = purple_blist_find_buddy(account, name);
-	PurpleIMConversation *im = NULL;
+	PurpleConversation *im = NULL;
 
 	if (!buddy)
 		return NULL;
@@ -224,16 +224,16 @@ static void
 update_buddy_typing(PurpleAccount *account, const char *who, gpointer null)
 {
 	FinchConv *ggc;
-	PurpleIMConversation *im;
 	PurpleConversation *conv;
+	PurpleIMConversation *im;
 	char *title, *str;
 
-	im = purple_conversations_find_im_with_account(who, account);
+	conv = purple_conversations_find_im_with_account(who, account);
 
-	if (!im)
+	if (!conv)
 		return;
 
-	conv = PURPLE_CONVERSATION(im);
+	im = PURPLE_IM_CONVERSATION(conv);
 	ggc = FINCH_CONV(conv);
 
 	if (purple_im_conversation_get_typing_state(im) == PURPLE_IM_TYPING) {
@@ -270,10 +270,10 @@ chat_left_cb(PurpleConversation *conv, gpointer null)
 static void
 buddy_signed_on_off(PurpleBuddy *buddy, gpointer null)
 {
-	PurpleIMConversation *im = find_im_with_contact(purple_buddy_get_account(buddy), purple_buddy_get_name(buddy));
+	PurpleConversation *im = find_im_with_contact(purple_buddy_get_account(buddy), purple_buddy_get_name(buddy));
 	if (im == NULL)
 		return;
-	generate_send_to_menu(FINCH_CONV(PURPLE_CONVERSATION(im)));
+	generate_send_to_menu(FINCH_CONV(im));
 }
 
 static void
@@ -282,10 +282,10 @@ account_signed_on_off(PurpleConnection *gc, gpointer null)
 	GList *list = purple_conversations_get_ims();
 	while (list) {
 		PurpleConversation *conv = list->data;
-		PurpleIMConversation *cc = find_im_with_contact(
+		PurpleConversation *cc = find_im_with_contact(
 				purple_conversation_get_account(conv), purple_conversation_get_name(conv));
 		if (cc)
-			generate_send_to_menu(FINCH_CONV(PURPLE_CONVERSATION(cc)));
+			generate_send_to_menu(FINCH_CONV(cc));
 		list = list->next;
 	}
 
@@ -462,8 +462,8 @@ send_to_cb(GntMenuItem *m, gpointer n)
 {
 	PurpleAccount *account = g_object_get_data(G_OBJECT(m), "purple_account");
 	gchar *buddy = g_object_get_data(G_OBJECT(m), "purple_buddy_name");
-	PurpleIMConversation *im = purple_im_conversation_new(account, buddy);
-	finch_conversation_set_active(PURPLE_CONVERSATION(im));
+	PurpleConversation *im = purple_im_conversation_new(account, buddy);
+	finch_conversation_set_active(im);
 }
 
 static void
@@ -736,7 +736,7 @@ finch_create_conversation(PurpleConversation *conv)
 	}
 
 	account = purple_conversation_get_account(conv);
-	cc = PURPLE_CONVERSATION(find_im_with_contact(account, purple_conversation_get_name(conv)));
+	cc = find_im_with_contact(account, purple_conversation_get_name(conv));
 	if (cc && FINCH_CONV(cc))
 		ggc = FINCH_CONV(cc);
 	else

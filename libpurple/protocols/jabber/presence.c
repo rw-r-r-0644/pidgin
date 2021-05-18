@@ -575,9 +575,11 @@ handle_presence_chat(JabberStream *js, JabberPresence *presence, PurpleXmlNode *
 		}
 
 		if(!chat->conv) {
+			PurpleConversation *conv;
 			char *room_jid = g_strdup_printf("%s@%s", presence->jid_from->node, presence->jid_from->domain);
 			chat->id = i++;
-			chat->conv = purple_serv_got_joined_chat(js->gc, chat->id, room_jid);
+			conv = purple_serv_got_joined_chat(js->gc, chat->id, room_jid);
+			chat->conv = PURPLE_CHAT_CONVERSATION(conv);
 			purple_chat_conversation_set_nick(chat->conv, chat->handle);
 
 			jabber_chat_disco_traffic(chat);
@@ -762,7 +764,7 @@ handle_presence_contact(JabberStream *js, JabberPresence *presence)
 	PurpleAccount *account;
 	PurpleBuddy *b;
 	char *buddy_name;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 
 	buddy_name = jabber_id_get_bare_jid(presence->jid_from);
 
@@ -777,8 +779,8 @@ handle_presence_contact(JabberStream *js, JabberPresence *presence)
 	im = purple_conversations_find_im_with_account(buddy_name, account);
 	if (im) {
 		purple_debug_info("jabber", "Changed conversation binding from %s to %s\n",
-				purple_conversation_get_name(PURPLE_CONVERSATION(im)), buddy_name);
-		purple_conversation_set_name(PURPLE_CONVERSATION(im), buddy_name);
+				purple_conversation_get_name(im), buddy_name);
+		purple_conversation_set_name(im, buddy_name);
 	}
 
 	if (b == NULL) {

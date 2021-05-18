@@ -116,12 +116,12 @@ static void foreach_null_gc(GcFunc fn, PurpleConnection *from,
 }
 
 
-typedef void(*ChatFunc)(PurpleChatConversation *from, PurpleChatConversation *to,
+typedef void(*ChatFunc)(PurpleConversation *from, PurpleConversation *to,
                         int id, const char *room, gpointer userdata);
 
 typedef struct {
   ChatFunc fn;
-  PurpleChatConversation *from_chat;
+  PurpleConversation *from_chat;
   gpointer userdata;
 } ChatFuncData;
 
@@ -129,16 +129,16 @@ static void call_chat_func(gpointer data, gpointer userdata) {
   PurpleConnection *to = (PurpleConnection *)data;
   ChatFuncData *cfdata = (ChatFuncData *)userdata;
 
-  int id = purple_chat_conversation_get_id(cfdata->from_chat);
-  PurpleChatConversation *chat = purple_conversations_find_chat(to, id);
+  int id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(cfdata->from_chat));
+  PurpleConversation *chat = purple_conversations_find_chat(to, id);
   if (chat)
     cfdata->fn(cfdata->from_chat, chat, id,
-               purple_conversation_get_name(PURPLE_CONVERSATION(chat)), cfdata->userdata);
+               purple_conversation_get_name(chat), cfdata->userdata);
 }
 
 static void foreach_gc_in_chat(ChatFunc fn, PurpleConnection *from,
                                int id, gpointer userdata) {
-  PurpleChatConversation *chat = purple_conversations_find_chat(from, id);
+  PurpleConversation *chat = purple_conversations_find_chat(from, id);
   ChatFuncData cfdata = { fn,
                           chat,
                           userdata };
@@ -718,13 +718,13 @@ static void null_set_permit_deny(PurpleProtocolPrivacy *privacy, PurpleConnectio
    */
 }
 
-static void joined_chat(PurpleChatConversation *from, PurpleChatConversation *to,
+static void joined_chat(PurpleConversation *from, PurpleConversation *to,
                         int id, const char *room, gpointer userdata) {
   /*  tell their chat window that we joined */
   purple_debug_info("nullprpl", "%s sees that %s joined chat room %s\n",
-                    purple_chat_conversation_get_nick(to), purple_chat_conversation_get_nick(from), room);
-  purple_chat_conversation_add_user(to,
-                            purple_chat_conversation_get_nick(from),
+                    purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(to)), purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(from)), room);
+  purple_chat_conversation_add_user(PURPLE_CHAT_CONVERSATION(to),
+                            purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(from)),
                             NULL,   /* user-provided join message, IRC style */
                             PURPLE_CHAT_USER_NONE,
                             TRUE);  /* show a join message */
@@ -732,9 +732,9 @@ static void joined_chat(PurpleChatConversation *from, PurpleChatConversation *to
   if (from != to) {
     /* add them to our chat window */
     purple_debug_info("nullprpl", "%s sees that %s is in chat room %s\n",
-                      purple_chat_conversation_get_nick(from), purple_chat_conversation_get_nick(to), room);
-    purple_chat_conversation_add_user(from,
-                              purple_chat_conversation_get_nick(to),
+                      purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(from)), purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(to)), room);
+    purple_chat_conversation_add_user(PURPLE_CHAT_CONVERSATION(from),
+                              purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(to)),
                               NULL,   /* user-provided join message, IRC style */
                               PURPLE_CHAT_USER_NONE,
                               FALSE);  /* show a join message */
@@ -805,15 +805,15 @@ null_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                  gint id, const gchar *message, const gchar *who)
 {
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
-  PurpleChatConversation *chat = purple_conversations_find_chat(gc, id);
-  const char *room = purple_conversation_get_name(PURPLE_CONVERSATION(chat));
+  PurpleConversation *chat = purple_conversations_find_chat(gc, id);
+  const char *room = purple_conversation_get_name(chat);
   PurpleAccount *to_acct = purple_accounts_find(who, "null");
 
   purple_debug_info("nullprpl", "%s is inviting %s to join chat room %s\n",
                     username, who, room);
 
   if (to_acct) {
-    PurpleChatConversation *to_conv = purple_conversations_find_chat(purple_account_get_connection(to_acct), id);
+    PurpleConversation *to_conv = purple_conversations_find_chat(purple_account_get_connection(to_acct), id);
     if (to_conv) {
       char *tmp = g_strdup_printf("%s is already in chat room %s.", who, room);
       purple_debug_info("nullprpl",
@@ -821,7 +821,7 @@ null_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                         "ignoring invitation from %s\n",
                         who, room, username);
       purple_notify_info(gc, _("Chat invitation"), _("Chat invitation"), tmp,
-                         purple_request_cpar_from_conversation(PURPLE_CONVERSATION(to_conv)));
+                         purple_request_cpar_from_conversation(to_conv));
       g_free(tmp);
     } else {
       GHashTable *components;
@@ -833,14 +833,14 @@ null_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
   }
 }
 
-static void left_chat_room(PurpleChatConversation *from, PurpleChatConversation *to,
+static void left_chat_room(PurpleConversation *from, PurpleConversation *to,
                            int id, const char *room, gpointer userdata) {
   if (from != to) {
     /*  tell their chat window that we left */
     purple_debug_info("nullprpl", "%s sees that %s left chat room %s\n",
-                      purple_chat_conversation_get_nick(to), purple_chat_conversation_get_nick(from), room);
-    purple_chat_conversation_remove_user(to,
-                                 purple_chat_conversation_get_nick(from),
+                      purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(to)), purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(from)), room);
+    purple_chat_conversation_remove_user(PURPLE_CHAT_CONVERSATION(to),
+                                 purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(from)),
                                  NULL);  /* user-provided message, IRC style */
   }
 }
@@ -849,24 +849,24 @@ static void
 null_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                 gint id)
 {
-  PurpleChatConversation *chat = purple_conversations_find_chat(gc, id);
+  PurpleConversation *chat = purple_conversations_find_chat(gc, id);
   purple_debug_info("nullprpl", "%s is leaving chat room %s\n",
                     purple_account_get_username(purple_connection_get_account(gc)),
-                    purple_conversation_get_name(PURPLE_CONVERSATION(chat)));
+                    purple_conversation_get_name(chat));
 
   /* tell everyone that we left */
   foreach_gc_in_chat(left_chat_room, gc, id, NULL);
 }
 
-static void receive_chat_message(PurpleChatConversation *from, PurpleChatConversation *to,
+static void receive_chat_message(PurpleConversation *from, PurpleConversation *to,
                                  int id, const char *room, gpointer userdata) {
   const char *message = (const char *)userdata;
-  PurpleConnection *to_gc = get_null_gc(purple_chat_conversation_get_nick(to));
+  PurpleConnection *to_gc = get_null_gc(purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(to)));
 
   purple_debug_info("nullprpl",
                     "%s receives message from %s in chat room %s: %s\n",
-                    purple_chat_conversation_get_nick(to), purple_chat_conversation_get_nick(from), room, message);
-  purple_serv_got_chat_in(to_gc, id, purple_chat_conversation_get_nick(from), PURPLE_MESSAGE_RECV, message,
+                    purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(to)), purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(from)), room, message);
+  purple_serv_got_chat_in(to_gc, id, purple_chat_conversation_get_nick(PURPLE_CHAT_CONVERSATION(from)), PURPLE_MESSAGE_RECV, message,
                    time(NULL));
 }
 
@@ -875,13 +875,13 @@ null_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                gint id, PurpleMessage *msg)
 {
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
-  PurpleChatConversation *chat = purple_conversations_find_chat(gc, id);
+  PurpleConversation *chat = purple_conversations_find_chat(gc, id);
   const gchar *message = purple_message_get_contents(msg);
 
   if (chat) {
     purple_debug_info("nullprpl",
                       "%s is sending message to chat room %s: %s\n", username,
-                      purple_conversation_get_name(PURPLE_CONVERSATION(chat)), message);
+                      purple_conversation_get_name(chat), message);
 
     /* send message to everyone in the chat room */
     foreach_gc_in_chat(receive_chat_message, gc, id, (gpointer)message);
@@ -966,21 +966,20 @@ null_remove_group(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
 }
 
 
-static void set_chat_topic_fn(PurpleChatConversation *from, PurpleChatConversation *to,
+static void set_chat_topic_fn(PurpleConversation *from, PurpleConversation *to,
                               int id, const char *room, gpointer userdata) {
   const char *topic = (const char *)userdata;
   const char *username = purple_account_get_username(purple_conversation_get_account(PURPLE_CONVERSATION(from)));
   char *msg;
 
-  purple_chat_conversation_set_topic(to, username, topic);
+  purple_chat_conversation_set_topic(PURPLE_CHAT_CONVERSATION(to), username, topic);
 
   if (topic && *topic)
     msg = g_strdup_printf(_("%s sets topic to: %s"), username, topic);
   else
     msg = g_strdup_printf(_("%s clears topic"), username);
 
-  purple_conversation_write_system_message(PURPLE_CONVERSATION(to),
-    msg, PURPLE_MESSAGE_NO_LOG);
+  purple_conversation_write_system_message(to, msg, PURPLE_MESSAGE_NO_LOG);
   g_free(msg);
 }
 
@@ -988,7 +987,7 @@ static void
 null_set_chat_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                     gint id, const gchar *topic)
 {
-  PurpleChatConversation *chat = purple_conversations_find_chat(gc, id);
+  PurpleConversation *chat = purple_conversations_find_chat(gc, id);
   const char *last_topic;
 
   if (!chat)
@@ -996,9 +995,9 @@ null_set_chat_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 
   purple_debug_info("nullprpl", "%s sets topic of chat room '%s' to '%s'\n",
                     purple_account_get_username(purple_connection_get_account(gc)),
-                    purple_conversation_get_name(PURPLE_CONVERSATION(chat)), topic);
+                    purple_conversation_get_name(chat), topic);
 
-  last_topic = purple_chat_conversation_get_topic(chat);
+  last_topic = purple_chat_conversation_get_topic(PURPLE_CHAT_CONVERSATION(chat));
   if (purple_strequal(topic, last_topic))
     return;  /* topic is unchanged, this is a noop */
 

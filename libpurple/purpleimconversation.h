@@ -101,7 +101,7 @@ GType purple_im_conversation_get_type(void);
  *
  * Returns: The new conversation.
  */
-PurpleIMConversation *purple_im_conversation_new(PurpleAccount *account, const gchar *name);
+PurpleConversation *purple_im_conversation_new(PurpleAccount *account, const gchar *name);
 
 /**
  * purple_im_conversation_set_icon:

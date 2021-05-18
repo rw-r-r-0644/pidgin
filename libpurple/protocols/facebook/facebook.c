@@ -390,7 +390,7 @@ fb_cb_api_events(FbApi *api, GSList *events, gpointer data)
 	GHashTableIter iter;
 	GSList *l;
 	PurpleAccount *acct;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 	PurpleConnection *gc;
 
 	gc = fb_data_get_connection(fata);
@@ -411,7 +411,7 @@ fb_cb_api_events(FbApi *api, GSList *events, gpointer data)
 
 		switch (event->type) {
 		case FB_API_EVENT_TYPE_THREAD_TOPIC:
-			purple_chat_conversation_set_topic(chat, uid,
+			purple_chat_conversation_set_topic(PURPLE_CHAT_CONVERSATION(chat), uid,
 			                                   event->text);
 			break;
 
@@ -431,12 +431,12 @@ fb_cb_api_events(FbApi *api, GSList *events, gpointer data)
 				}
 			}
 
-			purple_chat_conversation_add_user(chat, uid, NULL, 0,
+			purple_chat_conversation_add_user(PURPLE_CHAT_CONVERSATION(chat), uid, NULL, 0,
 			                                  TRUE);
 			break;
 
 		case FB_API_EVENT_TYPE_THREAD_USER_REMOVED:
-			purple_chat_conversation_remove_user(chat, uid, event->text);
+			purple_chat_conversation_remove_user(PURPLE_CHAT_CONVERSATION(chat), uid, event->text);
 			break;
 		}
 	}
@@ -506,7 +506,7 @@ fb_cb_api_messages(FbApi *api, GSList *msgs, gpointer data)
 	gint64 tstamp;
 	GSList *l;
 	PurpleAccount *acct;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 	PurpleConnection *gc;
 	PurpleMessageFlags flags;
 
@@ -577,7 +577,7 @@ fb_cb_api_messages(FbApi *api, GSList *msgs, gpointer data)
 			purple_serv_got_joined_chat(gc, id, tid);
 			fb_api_thread(api, msg->tid);
 		} else {
-			id = purple_chat_conversation_get_id(chat);
+			id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(chat));
 		}
 
 		if (mark && !isself) {
@@ -631,6 +631,7 @@ fb_cb_api_thread(FbApi *api, FbApiThread *thrd, gpointer data)
 	gint id;
 	GSList *l;
 	PurpleAccount *acct;
+	PurpleConversation *conv;
 	PurpleChatConversation *chat;
 	PurpleConnection *gc;
 
@@ -639,10 +640,10 @@ fb_cb_api_thread(FbApi *api, FbApiThread *thrd, gpointer data)
 	id = fb_id_hash(&thrd->tid);
 	FB_ID_TO_STR(thrd->tid, tid);
 
-	chat = purple_conversations_find_chat_with_account(tid, acct);
-
-	if ((chat == NULL) || purple_chat_conversation_has_left(chat)) {
-		chat = purple_serv_got_joined_chat(gc, id, tid);
+	conv = purple_conversations_find_chat_with_account(tid, acct);
+	if((conv == NULL) || purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv))) {
+		conv = purple_serv_got_joined_chat(gc, id, tid);
+		chat = PURPLE_CHAT_CONVERSATION(conv);
 		active = FALSE;
 	} else {
 		/* If there are no users in the group chat, including
@@ -650,6 +651,7 @@ fb_cb_api_thread(FbApi *api, FbApiThread *thrd, gpointer data)
 		 * setup by this function. As a result, any group chat
 		 * without users is inactive.
 		 */
+		chat = PURPLE_CHAT_CONVERSATION(conv);
 		active = purple_chat_conversation_get_users_count(chat) > 0;
 	}
 
@@ -700,7 +702,7 @@ fb_cb_api_thread_kicked(FbApi *api, FbApiThread *thrd, gpointer data)
 	gchar tid[FB_ID_STRMAX];
 	PurpleAccount *acct;
 	PurpleConnection *gc;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 
 	FB_ID_TO_STR(thrd->tid, tid);
 
@@ -720,10 +722,10 @@ fb_cb_api_thread_kicked(FbApi *api, FbApiThread *thrd, gpointer data)
 		return;
 	}
 
-	purple_conversation_write_system_message(PURPLE_CONVERSATION(chat),
+	purple_conversation_write_system_message(chat,
 		_("You have been removed from this chat"), 0);
 
-	purple_serv_got_chat_left(gc, purple_chat_conversation_get_id(chat));
+	purple_serv_got_chat_left(gc, purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(chat)));
 }
 
 static void
@@ -1305,7 +1307,7 @@ fb_chat_join(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	FbData *fata;
 	FbId tid;
 	gint id;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 	PurpleRequestCommonParameters *cpar;
 
 	name = g_hash_table_lookup(data, "name");
@@ -1325,8 +1327,8 @@ fb_chat_join(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	id = fb_id_hash(&tid);
 	chat = purple_conversations_find_chat(gc, id);
 
-	if ((chat != NULL) && !purple_chat_conversation_has_left(chat)) {
-		purple_conversation_present(PURPLE_CONVERSATION(chat));
+	if ((chat != NULL) && !purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(chat))) {
+		purple_conversation_present(chat);
 		return;
 	}
 
@@ -1355,7 +1357,7 @@ fb_chat_invite(PurpleProtocolChat *protocol_chat,  PurpleConnection *gc,
 	FbData *fata;
 	FbId tid;
 	FbId uid;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 	PurpleRequestCommonParameters *cpar;
 
 	if (!FB_ID_IS_STR(who)) {
@@ -1372,7 +1374,7 @@ fb_chat_invite(PurpleProtocolChat *protocol_chat,  PurpleConnection *gc,
 	api = fb_data_get_api(fata);
 	chat = purple_conversations_find_chat(gc, id);
 
-	name = purple_conversation_get_name(PURPLE_CONVERSATION(chat));
+	name = purple_conversation_get_name(chat);
 	tid = FB_ID_FROM_STR(name);
 	uid = FB_ID_FROM_STR(who);
 
@@ -1390,14 +1392,14 @@ fb_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, gint id,
 	FbId tid;
 	gchar *sext;
 	PurpleAccount *acct;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 
 	acct = purple_connection_get_account(gc);
 	fata = purple_connection_get_protocol_data(gc);
 	api = fb_data_get_api(fata);
 	chat = purple_conversations_find_chat(gc, id);
 
-	name = purple_conversation_get_name(PURPLE_CONVERSATION(chat));
+	name = purple_conversation_get_name(chat);
 	tid = FB_ID_FROM_STR(name);
 
 	text = purple_message_get_contents(msg);
@@ -1421,13 +1423,13 @@ fb_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	FbApi *api;
 	FbData *fata;
 	FbId tid;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 
 	fata = purple_connection_get_protocol_data(gc);
 	api = fb_data_get_api(fata);
 	chat = purple_conversations_find_chat(gc, id);
 
-	name = purple_conversation_get_name(PURPLE_CONVERSATION(chat));
+	name = purple_conversation_get_name(chat);
 	tid = FB_ID_FROM_STR(name);
 	fb_api_thread_topic(api, tid, topic);
 }

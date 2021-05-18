@@ -3796,18 +3796,17 @@ xmpp_uri_handler(const char *proto, const char *user, GHashTable *params,
 	/* params is NULL if the URI has no '?' (or anything after it) */
 	if (!params || g_hash_table_lookup_extended(params, "message", NULL, NULL)) {
 		if (user && *user) {
-			PurpleIMConversation *im =
-					purple_im_conversation_new(acct, user);
+			PurpleConversation *im = purple_im_conversation_new(acct, user);
 			const gchar *body = NULL;
 
-			purple_conversation_present(PURPLE_CONVERSATION(im));
+			purple_conversation_present(im);
 
 			if (params != NULL) {
 				body = g_hash_table_lookup(params, "body");
 			}
 
 			if (body && *body)
-				purple_conversation_send_confirm(PURPLE_CONVERSATION(im), body);
+				purple_conversation_send_confirm(im, body);
 			return TRUE;
 		}
 	} else if (g_hash_table_lookup_extended(params, "roster", NULL, NULL)) {

@@ -3290,6 +3290,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 		if (bnode && bnode->conv.conv) {
 			conv = PURPLE_CHAT_CONVERSATION(bnode->conv.conv);
 		} else {
+			PurpleConversation *chat_conv;
 			char *chat_name;
 			if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, get_name)) {
 				chat_name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol),
@@ -3298,9 +3299,13 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 				chat_name = g_strdup(purple_chat_get_name(chat));
 			}
 
-			conv = purple_conversations_find_chat_with_account(chat_name,
-			                                                   account);
+			chat_conv = purple_conversations_find_chat_with_account(chat_name,
+			                                                        account);
 			g_free(chat_name);
+
+			if(PURPLE_IS_CHAT_CONVERSATION(chat_conv)) {
+				conv = PURPLE_CHAT_CONVERSATION(chat_conv);
+			}
 		}
 
 		if (conv && !purple_chat_conversation_has_left(conv)) {
@@ -6123,7 +6128,7 @@ add_buddy_cb(GtkWidget *w, int resp, PidginAddBuddyData *data)
 	PurpleAccount *account;
 	PurpleGroup *g;
 	PurpleBuddy *b;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	PurpleBuddyIcon *icon;
 
 	if (resp == GTK_RESPONSE_OK)
@@ -6184,7 +6189,7 @@ add_buddy_cb(GtkWidget *w, int resp, PidginAddBuddyData *data)
 
 		im = purple_conversations_find_im_with_account(who, data->rq_data.account);
 		if (im != NULL) {
-			icon = purple_im_conversation_get_icon(im);
+			icon = purple_im_conversation_get_icon(PURPLE_IM_CONVERSATION(im));
 			if (icon != NULL)
 				purple_buddy_icon_update(icon);
 		}
