@@ -41,11 +41,7 @@ typedef struct {
 
 static gint cmds_compare_func(const PurpleCmd *a, const PurpleCmd *b)
 {
-	if (a->priority > b->priority)
-		return -1;
-	else if (a->priority < b->priority)
-		return 1;
-	else return 0;
+	return b->priority - a->priority;
 }
 
 PurpleCmdId purple_cmd_register(const gchar *cmd, const gchar *args,
@@ -94,25 +90,33 @@ static void purple_cmd_free(PurpleCmd *c)
 	g_free(c);
 }
 
+static gint
+purple_cmd_cmp_id(gconstpointer cmd, gconstpointer id)
+{
+	return ((PurpleCmd *)cmd)->id - GPOINTER_TO_UINT(id);
+}
+
 void purple_cmd_unregister(PurpleCmdId id)
 {
 	PurpleCmd *c;
 	GList *l;
+	PurpleCommandsUiOps *ops;
 
-	for (l = cmds; l; l = l->next) {
-		c = l->data;
-
-		if (c->id == id) {
-			PurpleCommandsUiOps *ops = purple_cmds_get_ui_ops();
-			if (ops && ops->unregister_command)
-				ops->unregister_command(c->cmd, c->protocol_id);
-
-			cmds = g_list_delete_link(cmds, l);
-			purple_signal_emit(purple_cmds_get_handle(), "cmd-removed", c->cmd);
-			purple_cmd_free(c);
-			return;
-		}
+	l = g_list_find_custom(cmds, GUINT_TO_POINTER(id), purple_cmd_cmp_id);
+	if (!l) {
+		return;
 	}
+
+	c = l->data;
+
+	ops = purple_cmds_get_ui_ops();
+	if (ops && ops->unregister_command) {
+		ops->unregister_command(c->cmd, c->protocol_id);
+	}
+
+	cmds = g_list_delete_link(cmds, l);
+	purple_signal_emit(purple_cmds_get_handle(), "cmd-removed", c->cmd);
+	purple_cmd_free(c);
 }
 
 /*
@@ -201,24 +205,31 @@ static void purple_cmd_strip_cmd_from_markup(char *markup)
 	}
 }
 
+static gboolean
+is_right_type(PurpleCmd *cmd, PurpleConversation *conv)
+{
+	return (PURPLE_IS_IM_CONVERSATION(conv) && (cmd->flags & PURPLE_CMD_FLAG_IM))
+	    || (PURPLE_IS_CHAT_CONVERSATION(conv) && (cmd->flags & PURPLE_CMD_FLAG_CHAT));
+}
+
+static gboolean
+is_right_protocol(PurpleCmd *cmd, PurpleConversation *conv)
+{
+	const gchar *protocol_id = purple_account_get_protocol_id(purple_conversation_get_account(conv));
+
+	return !(cmd->flags & PURPLE_CMD_FLAG_PROTOCOL_ONLY)
+	    || purple_strequal(cmd->protocol_id, protocol_id);
+}
+
 PurpleCmdStatus purple_cmd_do_command(PurpleConversation *conv, const gchar *cmdline,
                                   const gchar *markup, gchar **error)
 {
-	PurpleCmd *c;
-	GList *l;
 	gchar *err = NULL;
-	gboolean is_im = TRUE;
 	gboolean found = FALSE, tried_cmd = FALSE, right_type = FALSE, right_protocol = FALSE;
-	const gchar *protocol_id;
-	gchar **args = NULL;
 	gchar *cmd, *rest, *mrest;
 	PurpleCmdRet ret = PURPLE_CMD_RET_CONTINUE;
 
 	*error = NULL;
-	protocol_id = purple_account_get_protocol_id(purple_conversation_get_account(conv));
-
-	if (PURPLE_IS_CHAT_CONVERSATION(conv))
-		is_im = FALSE;
 
 	rest = strchr(cmdline, ' ');
 	if (rest) {
@@ -232,51 +243,45 @@ PurpleCmdStatus purple_cmd_do_command(PurpleConversation *conv, const gchar *cmd
 	mrest = g_strdup(markup);
 	purple_cmd_strip_cmd_from_markup(mrest);
 
-	for (l = cmds; l; l = l->next) {
-		c = l->data;
+	for (GList *l = cmds; l; l = l->next) {
+		PurpleCmd *c = l->data;
+		gchar **args = NULL;
 
 		if (!purple_strequal(c->cmd, cmd))
 			continue;
 
 		found = TRUE;
 
-		if (is_im)
-			if (!(c->flags & PURPLE_CMD_FLAG_IM))
-				continue;
-		if (!is_im)
-			if (!(c->flags & PURPLE_CMD_FLAG_CHAT))
-				continue;
+		if (!is_right_type(c, conv)) {
+			continue;
+		}
 
 		right_type = TRUE;
 
-		if ((c->flags & PURPLE_CMD_FLAG_PROTOCOL_ONLY) &&
-		    !purple_strequal(c->protocol_id, protocol_id))
+		if (!is_right_protocol(c, conv)) {
 			continue;
+		}
 
 		right_protocol = TRUE;
 
 		/* this checks the allow bad args flag for us */
 		if (!purple_cmd_parse_args(c, rest, mrest, &args)) {
 			g_strfreev(args);
-			args = NULL;
 			continue;
 		}
 
 		tried_cmd = TRUE;
 		ret = c->func(conv, cmd, args, &err, c->data);
+		g_strfreev(args);
 		if (ret == PURPLE_CMD_RET_CONTINUE) {
 			g_free(err);
 			err = NULL;
-			g_strfreev(args);
-			args = NULL;
 			continue;
-		} else {
-			break;
 		}
 
+		break;
 	}
 
-	g_strfreev(args);
 	g_free(cmd);
 	g_free(mrest);
 
@@ -290,9 +295,7 @@ PurpleCmdStatus purple_cmd_do_command(PurpleConversation *conv, const gchar *cmd
 	if (!tried_cmd)
 		return PURPLE_CMD_STATUS_WRONG_ARGS;
 
-	if (ret == PURPLE_CMD_RET_OK) {
-		return PURPLE_CMD_STATUS_OK;
-	} else {
+	if (ret != PURPLE_CMD_RET_OK) {
 		*error = err;
 		if (ret == PURPLE_CMD_RET_CONTINUE)
 			return PURPLE_CMD_STATUS_NOT_FOUND;
@@ -300,6 +303,7 @@ PurpleCmdStatus purple_cmd_do_command(PurpleConversation *conv, const gchar *cmd
 			return PURPLE_CMD_STATUS_FAILED;
 	}
 
+	return PURPLE_CMD_STATUS_OK;
 }
 
 gboolean purple_cmd_execute(PurpleCmdId id, PurpleConversation *conv,
@@ -311,28 +315,16 @@ gboolean purple_cmd_execute(PurpleCmdId id, PurpleConversation *conv,
 	gchar *err = NULL;
 	gchar **args = NULL;
 
-	for(l = cmds; l; l = l->next) {
-		cmd = (PurpleCmd*)l->data;
-
-		if(cmd->id == id) {
-			break;
-		}
-		cmd = NULL;
-	}
-	if(cmd == NULL) {
+	l = g_list_find_custom(cmds, GUINT_TO_POINTER(id), purple_cmd_cmp_id);
+	if (!l) {
 		return FALSE;
 	}
 
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		if (!(cmd->flags & PURPLE_CMD_FLAG_IM))
-			return FALSE;
-	}
-	else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		if (!(cmd->flags & PURPLE_CMD_FLAG_CHAT))
-			return FALSE;
-	}
-	else
+	cmd = l->data;
+
+	if (!is_right_type(cmd, conv)) {
 		return FALSE;
+	}
 
 	/* XXX: Don't worry much about the markup version of the command
 	   line, there's not a single use case... */
@@ -353,22 +345,13 @@ gboolean purple_cmd_execute(PurpleCmdId id, PurpleConversation *conv,
 GList *purple_cmd_list(PurpleConversation *conv)
 {
 	GList *ret = NULL;
-	PurpleCmd *c;
-	GList *l;
 
-	for (l = cmds; l; l = l->next) {
-		c = l->data;
+	for (GList *l = cmds; l; l = l->next) {
+		PurpleCmd *c = l->data;
 
-		if (conv && PURPLE_IS_IM_CONVERSATION(conv))
-			if (!(c->flags & PURPLE_CMD_FLAG_IM))
-				continue;
-		if (conv && PURPLE_IS_CHAT_CONVERSATION(conv))
-			if (!(c->flags & PURPLE_CMD_FLAG_CHAT))
-				continue;
-
-		if (conv && (c->flags & PURPLE_CMD_FLAG_PROTOCOL_ONLY) &&
-		    !purple_strequal(c->protocol_id, purple_account_get_protocol_id(purple_conversation_get_account(conv))))
+		if (conv && (!is_right_type(c, conv) || !is_right_protocol(c, conv))) {
 			continue;
+		}
 
 		ret = g_list_append(ret, c->cmd);
 	}
@@ -382,25 +365,16 @@ GList *purple_cmd_list(PurpleConversation *conv)
 GList *purple_cmd_help(PurpleConversation *conv, const gchar *cmd)
 {
 	GList *ret = NULL;
-	PurpleCmd *c;
-	GList *l;
 
-	for (l = cmds; l; l = l->next) {
-		c = l->data;
+	for (GList *l = cmds; l; l = l->next) {
+		PurpleCmd *c = l->data;
 
 		if (cmd && !purple_strequal(cmd, c->cmd))
 			continue;
 
-		if (conv && PURPLE_IS_IM_CONVERSATION(conv))
-			if (!(c->flags & PURPLE_CMD_FLAG_IM))
-				continue;
-		if (conv && PURPLE_IS_CHAT_CONVERSATION(conv))
-			if (!(c->flags & PURPLE_CMD_FLAG_CHAT))
-				continue;
-
-		if (conv && (c->flags & PURPLE_CMD_FLAG_PROTOCOL_ONLY) &&
-		    !purple_strequal(c->protocol_id, purple_account_get_protocol_id(purple_conversation_get_account(conv))))
+		if (conv && (!is_right_type(c, conv) || !is_right_protocol(c, conv))) {
 			continue;
+		}
 
 		ret = g_list_append(ret, c->help);
 	}
