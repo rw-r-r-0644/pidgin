@@ -38,7 +38,6 @@
 #include "gtkaccount.h"
 #include "gtkblist.h"
 #include "gtkdialogs.h"
-#include "gtkprefs.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
 #include "gtksmiley-manager.h"
@@ -49,6 +48,7 @@
 #include "pidginlog.h"
 #include "pidginmooddialog.h"
 #include "pidgin/pidginpluginsdialog.h"
+#include "pidginprefs.h"
 
 struct _PidginApplication {
 	GtkApplication parent;

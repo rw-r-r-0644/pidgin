@@ -23,8 +23,8 @@
 #include <purple.h>
 
 #include "gtkpluginpref.h"
-#include "gtkprefs.h"
 #include "gtkutils.h"
+#include "pidginprefs.h"
 
 static gboolean
 entry_cb(GtkWidget *entry, gpointer data) {

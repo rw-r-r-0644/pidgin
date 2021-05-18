@@ -40,7 +40,6 @@
 #include <talkatu.h>
 
 #include "gtkaccount.h"
-#include "gtkprefs.h"
 
 #include "gtkconv.h"
 #include "gtkdialogs.h"

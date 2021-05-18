@@ -37,13 +37,13 @@
 #include "gtkblist.h"
 #include "gtkconv.h"
 #include "gtkdialogs.h"
-#include "gtkprefs.h"
 #include "gtksavedstatuses.h"
 #include "gtksmiley-theme.h"
 #include "gtkstatus-icon-theme.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
+#include "pidginprefs.h"
 #include "pidginstock.h"
 #ifdef USE_VV
 #include <gst/video/videooverlay.h>
