@@ -12,7 +12,6 @@ libpidgin_SOURCES = [
 	'gtkmedia.c',
 	'gtknotify.c',
 	'gtkpluginpref.c',
-	'gtkprefs.c',
 	'gtkprivacy.c',
 	'gtkrequest.c',
 	'gtkroomlist.c',
@@ -44,8 +43,6 @@ libpidgin_SOURCES = [
 	'pidgincontactcompletion.c',
 	'pidginconversationwindow.c',
 	'pidgincontactlist.c',
-	'pidgincredentialproviderrow.c',
-	'pidgincredentialspage.c',
 	'pidgindebug.c',
 	'pidgindialog.c',
 	'pidgingdkpixbuf.c',
@@ -66,6 +63,9 @@ libpidgin_SOURCES = [
 	'pidgintalkatu.c',
 	'pidgintooltip.c',
 	'pidginwindow.c',
+	'prefs/pidginprefs.c',
+	'prefs/pidgincredentialproviderrow.c',
+	'prefs/pidgincredentialspage.c',
 ]
 
 libpidgin_headers = [
@@ -82,7 +82,6 @@ libpidgin_headers = [
 	'gtkmedia.h',
 	'gtknotify.h',
 	'gtkpluginpref.h',
-	'gtkprefs.h',
 	'gtkprivacy.h',
 	'gtkrequest.h',
 	'gtkroomlist.h',
@@ -114,8 +113,6 @@ libpidgin_headers = [
 	'pidginconversationwindow.h',
 	'pidgincontactlist.h',
 	'pidgincore.h',
-	'pidgincredentialproviderrow.h',
-	'pidgincredentialspage.h',
 	'pidgindialog.h',
 	'pidgindebug.h',
 	'pidgingdkpixbuf.h',
@@ -137,6 +134,12 @@ libpidgin_headers = [
 	'pidgintalkatu.h',
 	'pidgintooltip.h',
 	'pidginwindow.h',
+]
+
+libpidgin_prefs_headers = [
+	'prefs/pidginprefs.h',
+	'prefs/pidgincredentialproviderrow.h',
+	'prefs/pidgincredentialspage.h',
 ]
 
 libpidgin_enum_headers = [
@@ -200,7 +203,7 @@ if ENABLE_GTK
 	libpidgin_enums_h = libpidgin_enums[1]
 
 	PIDGIN_H_INCLUDES = []
-	foreach header : libpidgin_headers + ['pidginenums.h']
+	foreach header : libpidgin_headers + libpidgin_prefs_headers + ['pidginenums.h']
 		PIDGIN_H_INCLUDES += '#include <pidgin/@0@>'.format(header)
 	endforeach
 	pidgin_h_conf = configuration_data()
@@ -212,6 +215,7 @@ if ENABLE_GTK
 	                          install_dir : get_option('includedir') / pidgin_filebase)
 
 	install_headers(libpidgin_headers, subdir : pidgin_include_base)
+	install_headers(libpidgin_prefs_headers, subdir : pidgin_include_base / 'prefs')
 
 	_libpidgin_dependencies = [
 		glib,
@@ -245,7 +249,7 @@ if ENABLE_GTK
 	    libpidgin_SOURCES + libpidgin_built_sources + libpidgin_built_headers + ['pidginprivate.h'],
 	    package_revision,
 	    c_args : ['-DPIDGIN_COMPILATION', '-DG_LOG_DOMAIN="Pidgin"'],
-	    include_directories : [toplevel_inc],
+	    include_directories : [toplevel_inc, include_directories('prefs')],
 	    version : PURPLE_LIB_VERSION,
 	    dependencies : _libpidgin_dependencies,
 	    install : true)
@@ -311,7 +315,7 @@ if ENABLE_GTK
 	endif  # INSTALL_I18N
 
 	if enable_introspection
-		introspection_sources = libpidgin_headers
+		introspection_sources = libpidgin_headers + libpidgin_prefs_headers
 
 		Pidgin_gir_includes = [
 			'GObject-2.0', 'Gtk-3.0',

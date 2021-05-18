@@ -320,7 +320,6 @@ pidgin/gtkidle.c
 pidgin/gtkmedia.c
 pidgin/gtknotify.c
 pidgin/gtkpluginpref.c
-pidgin/gtkprefs.c
 pidgin/gtkprivacy.c
 pidgin/gtkrequest.c
 pidgin/gtkroomlist.c
@@ -353,8 +352,6 @@ pidgin/pidgincommands.c
 pidgin/pidgincontactcompletion.c
 pidgin/pidgincontactlist.c
 pidgin/pidginconversationwindow.c
-pidgin/pidgincredentialproviderrow.c
-pidgin/pidgincredentialspage.c
 pidgin/pidgindebug.c
 pidgin/pidgindialog.c
 pidgin/pidgingdkpixbuf.c
@@ -391,6 +388,9 @@ pidgin/plugins/transparency.c
 pidgin/plugins/unity.c
 pidgin/plugins/xmppconsole/console.ui
 pidgin/plugins/xmppconsole/xmppconsole.c
+pidgin/prefs/pidgincredentialproviderrow.c
+pidgin/prefs/pidgincredentialspage.c
+pidgin/prefs/pidginprefs.c
 pidgin/resources/About/about.ui
 pidgin/resources/Accounts/actionsmenu.ui
 pidgin/resources/Accounts/chooser.ui

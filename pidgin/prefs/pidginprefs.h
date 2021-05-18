@@ -24,12 +24,12 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef _PIDGINPREFS_H_
-#define _PIDGINPREFS_H_
+#ifndef PIDGIN_PREFS_H
+#define PIDGIN_PREFS_H
 /**
- * SECTION:gtkprefs
- * @section_id: pidgin-gtkprefs
- * @short_description: <filename>gtkprefs.h</filename>
+ * SECTION:pidginprefs
+ * @section_id: pidgin-pidginprefs
+ * @short_description: <filename>pidginprefs.h</filename>
  * @title: Preferences
  */
 
@@ -160,4 +160,4 @@ void pidgin_prefs_update_old(void);
 
 G_END_DECLS
 
-#endif /* _PIDGINPREFS_H_ */
+#endif /* PIDGIN_PREFS_H */

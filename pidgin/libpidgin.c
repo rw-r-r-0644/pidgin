@@ -41,7 +41,6 @@
 #include "gtkidle.h"
 #include "gtkmedia.h"
 #include "gtknotify.h"
-#include "gtkprefs.h"
 #include "gtkprivacy.h"
 #include "gtkrequest.h"
 #include "gtkroomlist.h"
@@ -54,6 +53,7 @@
 #include "pidgindebug.h"
 #include "pidginlog.h"
 #include "pidginplugininfo.h"
+#include "pidginprefs.h"
 #include "pidginprivate.h"
 #include "pidginstock.h"
 
