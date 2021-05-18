@@ -130,7 +130,7 @@ static void handle_chat(JabberMessage *jm)
 			purple_serv_got_typing(gc, contact, 0, PURPLE_IM_TYPED);
 			break;
 		case JM_STATE_GONE: {
-			PurpleIMConversation *im = purple_conversations_find_im_with_account(
+			PurpleConversation *im = purple_conversations_find_im_with_account(
 					contact, account);
 			if (im && jid->node && jid->domain) {
 				char buf[256];
@@ -152,8 +152,7 @@ static void handle_chat(JabberMessage *jm)
 					/* At some point when we restructure PurpleConversation,
 					 * this should be able to be implemented by removing the
 					 * user from the conversation like we do with chats now. */
-					purple_conversation_write_system_message(
-						PURPLE_CONVERSATION(im), buf, 0);
+					purple_conversation_write_system_message(im, buf, 0);
 				}
 			}
 			purple_serv_got_typing_stopped(gc, contact);
@@ -176,14 +175,14 @@ static void handle_chat(JabberMessage *jm)
 			 * This works because purple_im_conversation_send gets the name
 			 * from purple_conversation_get_name()
 			 */
-			PurpleIMConversation *im;
+			PurpleConversation *im;
 
 			im = purple_conversations_find_im_with_account(contact, account);
 			if (im && !purple_strequal(contact,
-					purple_conversation_get_name(PURPLE_CONVERSATION(im)))) {
+					purple_conversation_get_name(im))) {
 				purple_debug_info("jabber", "Binding conversation to %s\n",
 				                  contact);
-				purple_conversation_set_name(PURPLE_CONVERSATION(im), contact);
+				purple_conversation_set_name(im, contact);
 			}
 		}
 

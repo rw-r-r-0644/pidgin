@@ -33,7 +33,7 @@
  * @see_also: <link linkend="chapter-signals-conversation">Conversation signals</link>
  */
 
-#include "purplechatconversation.h"
+#include <purpleconversation.h>
 #include "server.h"
 
 G_BEGIN_DECLS
@@ -108,8 +108,7 @@ PurpleConversation *purple_conversations_find_with_account(const char *name,
  *
  * Returns: (transfer none): The conversation if found, or %NULL otherwise.
  */
-PurpleIMConversation *purple_conversations_find_im_with_account(const char *name,
-		PurpleAccount *account);
+PurpleConversation *purple_conversations_find_im_with_account(const char *name, PurpleAccount *account);
 
 /**
  * purple_conversations_find_chat_with_account:
@@ -120,8 +119,7 @@ PurpleIMConversation *purple_conversations_find_im_with_account(const char *name
  *
  * Returns: (transfer none): The conversation if found, or %NULL otherwise.
  */
-PurpleChatConversation *purple_conversations_find_chat_with_account(const char *name,
-		PurpleAccount *account);
+PurpleConversation *purple_conversations_find_chat_with_account(const char *name, PurpleAccount *account);
 
 /**
  * purple_conversations_find_chat:
@@ -132,7 +130,7 @@ PurpleChatConversation *purple_conversations_find_chat_with_account(const char *
  *
  * Returns: (transfer none): The chat conversation.
  */
-PurpleChatConversation *purple_conversations_find_chat(const PurpleConnection *gc, int id);
+PurpleConversation *purple_conversations_find_chat(const PurpleConnection *gc, int id);
 
 /**
  * purple_conversations_set_ui_ops:

@@ -292,7 +292,7 @@ static void convo_data_free(struct convo_data *conv);
 
 static void convo_features(struct mwConversation *conv);
 
-static PurpleIMConversation *convo_get_im(struct mwConversation *conv);
+static PurpleConversation *convo_get_im(struct mwConversation *conv);
 
 
 /* name and id */
@@ -1771,7 +1771,7 @@ static void mw_session_announce(struct mwSession *s,
 				const char *text) {
   struct mwPurpleProtocolData *pd;
   PurpleAccount *acct;
-  PurpleIMConversation *im;
+  PurpleConversation *im;
   PurpleBuddy *buddy;
   char *who = from->user_id;
   char *msg, *msg2;
@@ -1791,7 +1791,7 @@ static void mw_session_announce(struct mwSession *s,
   else
 	msg2 = g_strdup(who);
 
-  purple_conversation_write_system_message(PURPLE_CONVERSATION(im), msg2, 0);
+  purple_conversation_write_system_message(im, msg2, 0);
   g_free(who);
   g_free(msg);
   g_free(msg2);
@@ -1919,7 +1919,7 @@ static void mw_conf_opened(struct mwConference *conf, GList *members) {
   struct mwSession *session;
   struct mwPurpleProtocolData *pd;
   PurpleConnection *gc;
-  PurpleChatConversation *g_conf;
+  PurpleConversation *g_conf;
 
   const char *n = mwConference_getName(conf);
   const char *t = mwConference_getTitle(conf);
@@ -1938,7 +1938,7 @@ static void mw_conf_opened(struct mwConference *conf, GList *members) {
 
   for(; members; members = members->next) {
     struct mwLoginInfo *peer = members->data;
-    purple_chat_conversation_add_user(g_conf, peer->user_id,
+    purple_chat_conversation_add_user(PURPLE_CHAT_CONVERSATION(g_conf), peer->user_id,
 			    NULL, PURPLE_CHAT_USER_NONE, FALSE);
   }
 }
@@ -2452,7 +2452,7 @@ static void convo_data_new(struct mwConversation *conv) {
 }
 
 
-static PurpleIMConversation *convo_get_im(struct mwConversation *conv) {
+static PurpleConversation *convo_get_im(struct mwConversation *conv) {
   struct mwServiceIm *srvc;
   struct mwSession *session;
   struct mwPurpleProtocolData *pd;
@@ -2503,7 +2503,7 @@ static void convo_queue(struct mwConversation *conv,
 
 /* Does what it takes to get an error displayed for a conversation */
 static void convo_error(struct mwConversation *conv, guint32 err) {
-  PurpleIMConversation *im;
+  PurpleConversation *im;
   PurpleConnection *pc;
   char *tmp, *text;
   struct mwIdBlock *idb;
@@ -2515,13 +2515,12 @@ static void convo_error(struct mwConversation *conv, guint32 err) {
 
   im = convo_get_im(conv);
   if(im && !purple_conversation_present_error(idb->user,
-  		purple_conversation_get_account(PURPLE_CONVERSATION(im)), text)) {
+  		purple_conversation_get_account(im), text)) {
 
     g_free(text);
     text = g_strdup_printf(_("Unable to send message to %s:"),
 			   (idb->user)? idb->user: "(unknown)");
-	pc = purple_account_get_connection(purple_conversation_get_account(
-			   PURPLE_CONVERSATION(im)));
+	pc = purple_account_get_connection(purple_conversation_get_account(im));
 	purple_notify_error(pc, NULL, text, tmp, purple_request_cpar_from_connection(pc));
   }
 
@@ -2553,17 +2552,16 @@ static void convo_queue_send(struct mwConversation *conv) {
      inform the purple conversation that it's unsafe to offer any *cool*
      features. */
 static void convo_nofeatures(struct mwConversation *conv) {
-  PurpleIMConversation *im;
+  PurpleConversation *im;
   PurpleConnection *gc;
 
   im = convo_get_im(conv);
   if(! im) return;
 
-  gc = purple_conversation_get_connection(PURPLE_CONVERSATION(im));
+  gc = purple_conversation_get_connection(im);
   if(! gc) return;
 
-  purple_conversation_set_features(PURPLE_CONVERSATION(im),
-  		purple_connection_get_flags(gc));
+  purple_conversation_set_features(im, purple_connection_get_flags(gc));
 }
 
 
@@ -2571,13 +2569,13 @@ static void convo_nofeatures(struct mwConversation *conv) {
     to inform the purple conversation of what features to offer the
     user */
 static void convo_features(struct mwConversation *conv) {
-  PurpleIMConversation *im;
+  PurpleConversation *im;
   PurpleConnectionFlags feat;
 
   im = convo_get_im(conv);
   if(! im) return;
 
-  feat = purple_conversation_get_features(PURPLE_CONVERSATION(im));
+  feat = purple_conversation_get_features(im);
 
   if(mwConversation_isOpen(conv)) {
     if(mwConversation_supports(conv, mwImSend_HTML)) {
@@ -2593,7 +2591,7 @@ static void convo_features(struct mwConversation *conv) {
     }
 
     DEBUG_INFO("conversation features set to 0x%04x\n", feat);
-    purple_conversation_set_features(PURPLE_CONVERSATION(im), feat);
+    purple_conversation_set_features(im, feat);
 
   } else {
     convo_nofeatures(conv);
@@ -2872,7 +2870,7 @@ static void mw_place_opened(struct mwPlace *place) {
   struct mwSession *session;
   struct mwPurpleProtocolData *pd;
   PurpleConnection *gc;
-  PurpleChatConversation *gconf;
+  PurpleConversation *gconf;
 
   GList *members, *l;
 
@@ -2896,7 +2894,7 @@ static void mw_place_opened(struct mwPlace *place) {
 
   for(l = members; l; l = l->next) {
     struct mwIdBlock *idb = l->data;
-    purple_chat_conversation_add_user(gconf, idb->user,
+    purple_chat_conversation_add_user(PURPLE_CHAT_CONVERSATION(gconf), idb->user,
 			    NULL, PURPLE_CHAT_USER_NONE, FALSE);
   }
   g_list_free(members);
@@ -4039,14 +4037,14 @@ mw_protocol_set_idle(PurpleProtocolServer *protocol_server,
 
 static void notify_im(PurpleConnection *gc, GList *row, void *user_data) {
   PurpleAccount *acct;
-  PurpleIMConversation *im;
+  PurpleConversation *im;
   char *id;
 
   acct = purple_connection_get_account(gc);
   id = g_list_nth_data(row, 1);
   im = purple_conversations_find_im_with_account(id, acct);
   if(! im) im = purple_im_conversation_new(acct, id);
-  purple_conversation_present(PURPLE_CONVERSATION(im));
+  purple_conversation_present(im);
 }
 
 

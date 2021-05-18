@@ -113,7 +113,7 @@ void
 purple_contact_set_alias(PurpleContact *contact, const char *alias)
 {
 	PurpleContactPrivate *priv = NULL;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	PurpleBlistNode *bnode;
 	char *old_alias;
 	char *new_alias = NULL;
@@ -153,7 +153,7 @@ purple_contact_set_alias(PurpleContact *contact, const char *alias)
 		im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy),
 				purple_buddy_get_account(buddy));
 		if (im)
-			purple_conversation_autoset_title(PURPLE_CONVERSATION(im));
+			purple_conversation_autoset_title(im);
 	}
 
 	purple_signal_emit(purple_blist_get_handle(), "blist-node-aliased",

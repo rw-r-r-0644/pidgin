@@ -363,7 +363,7 @@ purple_protocol_send_attention(PurpleConnection *gc, const char *who, guint type
 	PurpleAttentionType *attn;
 	PurpleProtocol *protocol;
 	PurpleProtocolManager *manager;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	PurpleBuddy *buddy;
 	const char *alias;
 	gchar *description;

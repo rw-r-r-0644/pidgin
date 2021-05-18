@@ -25,7 +25,7 @@ static void
 write_status(PurpleBuddy *buddy, const char *message)
 {
 	PurpleAccount *account = NULL;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	const char *who;
 	char buf[256];
 	char *escaped;
@@ -49,7 +49,7 @@ write_status(PurpleBuddy *buddy, const char *message)
 	g_snprintf(buf, sizeof(buf), message, escaped);
 	g_free(escaped);
 
-	purple_conversation_write_system_message(PURPLE_CONVERSATION(im), buf,
+	purple_conversation_write_system_message(im, buf,
 		PURPLE_MESSAGE_ACTIVE_ONLY | PURPLE_MESSAGE_NO_LINKIFY);
 }
 

@@ -140,13 +140,15 @@ static ggp_chat_local_info * ggp_chat_get(PurpleConnection *gc, uint64_t id)
 
 static void ggp_chat_open_conv(ggp_chat_local_info *chat)
 {
+	PurpleConversation *conv;
 	int i;
 
 	if (chat->conv != NULL)
 		return;
 
-	chat->conv = purple_serv_got_joined_chat(chat->gc, chat->local_id,
+	conv = purple_serv_got_joined_chat(chat->gc, chat->local_id,
 		ggp_chat_get_name_from_id(chat->id));
+	chat->conv = PURPLE_CHAT_CONVERSATION(conv);
 	if (chat->previously_joined) {
 		purple_conversation_write_system_message(
 			PURPLE_CONVERSATION(chat->conv),
@@ -486,7 +488,7 @@ ggp_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	GDateTime *dt = NULL;
-	PurpleChatConversation *conv;
+	PurpleConversation *conv;
 	ggp_chat_local_info *chat;
 	gboolean succ = TRUE;
 	const gchar *me;
@@ -503,7 +505,7 @@ ggp_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 		ggp_chat_get_name_from_id(chat->id),
 		purple_connection_get_account(gc));
 
-	gg_msg = ggp_message_format_to_gg(PURPLE_CONVERSATION(conv),
+	gg_msg = ggp_message_format_to_gg(conv,
 		purple_message_get_contents(msg));
 
 	if (gg_chat_send_message(info->session, chat->id, gg_msg, TRUE) < 0)

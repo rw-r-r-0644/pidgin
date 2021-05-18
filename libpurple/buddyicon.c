@@ -378,7 +378,7 @@ purple_buddy_icon_unref(PurpleBuddyIcon *icon)
 void
 purple_buddy_icon_update(PurpleBuddyIcon *icon)
 {
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	PurpleAccount *account;
 	const char *username;
 	PurpleBuddyIcon *icon_to_set;
@@ -441,9 +441,10 @@ purple_buddy_icon_update(PurpleBuddyIcon *icon)
 	}
 
 	im = purple_conversations_find_im_with_account(username, account);
-
-	if (im != NULL)
-		purple_im_conversation_set_icon(im, icon_to_set);
+	if(PURPLE_IS_IM_CONVERSATION(im)) {
+		purple_im_conversation_set_icon(PURPLE_IM_CONVERSATION(im),
+		                                icon_to_set);
+	}
 
 	/* icon's refcount was incremented above */
 	purple_buddy_icon_unref(icon);
@@ -914,7 +915,7 @@ purple_buddy_icons_node_set_custom_icon(PurpleBlistNode *node,
 			 child = purple_blist_node_get_sibling_next(child))
 		{
 			PurpleBuddy *buddy;
-			PurpleIMConversation *im;
+			PurpleConversation *im;
 
 			if (!PURPLE_IS_BUDDY(child))
 				continue;
@@ -923,7 +924,7 @@ purple_buddy_icons_node_set_custom_icon(PurpleBlistNode *node,
 
 			im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
 			if (im)
-				purple_conversation_update(PURPLE_CONVERSATION(im), PURPLE_CONVERSATION_UPDATE_ICON);
+				purple_conversation_update(im, PURPLE_CONVERSATION_UPDATE_ICON);
 
 			/* Is this call necessary anymore? Can the buddies
 			 * themselves need updating when the custom buddy
@@ -932,11 +933,11 @@ purple_buddy_icons_node_set_custom_icon(PurpleBlistNode *node,
 			                         PURPLE_BLIST_NODE(buddy));
 		}
 	} else if (PURPLE_IS_CHAT(node)) {
-		PurpleChatConversation *chat = NULL;
+		PurpleConversation *chat = NULL;
 
 		chat = purple_conversations_find_chat_with_account(purple_chat_get_name((PurpleChat*)node), purple_chat_get_account((PurpleChat*)node));
 		if (chat) {
-			purple_conversation_update(PURPLE_CONVERSATION(chat), PURPLE_CONVERSATION_UPDATE_ICON);
+			purple_conversation_update(chat, PURPLE_CONVERSATION_UPDATE_ICON);
 		}
 	}
 

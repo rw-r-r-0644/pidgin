@@ -436,7 +436,7 @@ fb_util_serv_got_im(PurpleConnection *gc, const gchar *who, const gchar *text,
 	GDateTime *dt = NULL;
 	const gchar *name, *me;
 	PurpleAccount *acct;
-	PurpleIMConversation *conv;
+	PurpleConversation *conv;
 	PurpleMessage *msg;
 
 	if (!(flags & PURPLE_MESSAGE_SEND)) {
@@ -459,7 +459,7 @@ fb_util_serv_got_im(PurpleConnection *gc, const gchar *who, const gchar *text,
 	purple_message_set_timestamp(msg, dt);
 	g_date_time_unref(dt);
 
-	purple_conversation_write_message(PURPLE_CONVERSATION(conv), msg);
+	purple_conversation_write_message(conv, msg);
 
 	g_object_unref(G_OBJECT(msg));
 }
@@ -472,7 +472,7 @@ fb_util_serv_got_chat_in(PurpleConnection *gc, gint id, const gchar *who,
 	GDateTime *dt = NULL;
 	const gchar *name;
 	PurpleAccount *acct;
-	PurpleChatConversation *conv;
+	PurpleConversation *conv;
 	PurpleMessage *msg;
 	const gchar *me;
 
@@ -493,7 +493,7 @@ fb_util_serv_got_chat_in(PurpleConnection *gc, gint id, const gchar *who,
 	purple_message_set_timestamp(msg, dt);
 	g_date_time_unref(dt);
 
-	purple_conversation_write_message(PURPLE_CONVERSATION(conv), msg);
+	purple_conversation_write_message(conv, msg);
 
 	g_object_unref(G_OBJECT(msg));
 }

@@ -123,7 +123,7 @@ get_last_auto_response(PurpleConnection *gc, const char *name)
 
 int purple_serv_send_im(PurpleConnection *gc, PurpleMessage *msg)
 {
-	PurpleIMConversation *im = NULL;
+	PurpleConversation *im = NULL;
 	PurpleAccount *account = NULL;
 	PurplePresence *presence = NULL;
 	PurpleProtocol *protocol = NULL;
@@ -169,8 +169,8 @@ int purple_serv_send_im(PurpleConnection *gc, PurpleMessage *msg)
 		lar->sent = time(NULL);
 	}
 
-	if(im && purple_im_conversation_get_send_typed_timeout(im))
-		purple_im_conversation_stop_send_typed_timeout(im);
+	if(im && purple_im_conversation_get_send_typed_timeout(PURPLE_IM_CONVERSATION(im)))
+		purple_im_conversation_stop_send_typed_timeout(PURPLE_IM_CONVERSATION(im));
 
 	return val;
 }
@@ -241,7 +241,7 @@ purple_serv_got_alias(PurpleConnection *gc, const char *who, const char *alias)
 	PurpleAccount *account;
 	GSList *buddies;
 	PurpleBuddy *b;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 
 	account = purple_connection_get_account(gc);
 	buddies = purple_blist_find_buddies(account, who);
@@ -269,7 +269,7 @@ purple_serv_got_alias(PurpleConnection *gc, const char *who, const char *alias)
 										escaped, escaped2);
 
 			purple_conversation_write_system_message(
-				PURPLE_CONVERSATION(im), tmp,
+				im, tmp,
 				PURPLE_MESSAGE_NO_LINKIFY);
 
 			g_free(tmp);
@@ -440,7 +440,7 @@ void purple_serv_reject_chat(PurpleConnection *gc, GHashTable *data)
 void purple_serv_chat_invite(PurpleConnection *gc, int id, const char *message, const char *name)
 {
 	PurpleProtocol *protocol = NULL;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 	char *buffy;
 
 	chat = purple_conversations_find_chat(gc, id);
@@ -502,7 +502,7 @@ void purple_serv_got_im(PurpleConnection *gc, const char *who, const char *msg,
 				 PurpleMessageFlags flags, time_t mtime)
 {
 	PurpleAccount *account;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	char *message, *name;
 	char *angel, *buffy;
 	int plugin_return;
@@ -569,7 +569,7 @@ void purple_serv_got_im(PurpleConnection *gc, const char *who, const char *msg,
 		im = purple_im_conversation_new(account, name);
 
 	pmsg = purple_message_new_incoming(name, message, flags, mtime);
-	purple_conversation_write_message(PURPLE_CONVERSATION(im), pmsg);
+	purple_conversation_write_message(im, pmsg);
 	g_free(message);
 	g_object_unref(G_OBJECT(pmsg));
 
@@ -657,11 +657,17 @@ void purple_serv_got_im(PurpleConnection *gc, const char *who, const char *msg,
 
 void purple_serv_got_typing(PurpleConnection *gc, const char *name, int timeout,
 					 PurpleIMTypingState state) {
-	PurpleIMConversation *im;
+	PurpleConversation *conv;
 
-	im = purple_conversations_find_im_with_account(name, purple_connection_get_account(gc));
-	if (im != NULL) {
+	conv = purple_conversations_find_im_with_account(name, purple_connection_get_account(gc));
+	if(PURPLE_IS_IM_CONVERSATION(conv)) {
+		PurpleIMConversation *im = PURPLE_IM_CONVERSATION(conv);
+
 		purple_im_conversation_set_typing_state(im, state);
+
+		if(timeout > 0) {
+			purple_im_conversation_start_typing_timeout(im, timeout);
+		}
 	} else {
 		switch (state)
 		{
@@ -679,18 +685,16 @@ void purple_serv_got_typing(PurpleConnection *gc, const char *name, int timeout,
 				break;
 		}
 	}
-
-	if (im != NULL && timeout > 0)
-		purple_im_conversation_start_typing_timeout(im, timeout);
 }
 
 void purple_serv_got_typing_stopped(PurpleConnection *gc, const char *name) {
 
-	PurpleIMConversation *im;
+	PurpleConversation *conv;
 
-	im = purple_conversations_find_im_with_account(name, purple_connection_get_account(gc));
-	if (im != NULL)
+	conv = purple_conversations_find_im_with_account(name, purple_connection_get_account(gc));
+	if (conv != NULL)
 	{
+		PurpleIMConversation *im = PURPLE_IM_CONVERSATION(conv);
 		if (purple_im_conversation_get_typing_state(im) == PURPLE_IM_NOT_TYPING)
 			return;
 
@@ -788,10 +792,10 @@ void purple_serv_got_chat_invite(PurpleConnection *gc, const char *name,
 		chat_invite_reject(cid);
 }
 
-PurpleChatConversation *purple_serv_got_joined_chat(PurpleConnection *gc,
+PurpleConversation *purple_serv_got_joined_chat(PurpleConnection *gc,
 											   int id, const char *name)
 {
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 	PurpleAccount *account;
 
 	account = purple_connection_get_account(gc);
@@ -803,9 +807,9 @@ PurpleChatConversation *purple_serv_got_joined_chat(PurpleConnection *gc,
 	g_return_val_if_fail(chat != NULL, NULL);
 
 	if (!g_slist_find(purple_connection_get_active_chats(gc), chat))
-		_purple_connection_add_active_chat(gc, chat);
+		_purple_connection_add_active_chat(gc, PURPLE_CHAT_CONVERSATION(chat));
 
-	purple_chat_conversation_set_id(chat, id);
+	purple_chat_conversation_set_id(PURPLE_CHAT_CONVERSATION(chat), id);
 
 	purple_signal_emit(purple_conversations_get_handle(), "chat-joined", chat);
 

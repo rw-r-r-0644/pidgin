@@ -38,7 +38,7 @@
 
 static void
 buddy_typing_cb(PurpleAccount *acct, const char *name, void *data) {
-  PurpleIMConversation *im;
+  PurpleConversation *im;
 
   if(purple_prefs_get_bool(PREF_STATUS) &&
      ! purple_status_is_available(purple_account_get_active_status(acct))) {
@@ -63,7 +63,7 @@ buddy_typing_cb(PurpleAccount *acct, const char *name, void *data) {
     im = purple_im_conversation_new(acct, name);
 
     if(purple_prefs_get_bool(PREF_RAISE)) {
-      purple_conversation_present(PURPLE_CONVERSATION(im));
+      purple_conversation_present(im);
     }
 
     if(purple_prefs_get_bool(PREF_NOTICE)) {
@@ -72,13 +72,14 @@ buddy_typing_cb(PurpleAccount *acct, const char *name, void *data) {
 	 translate it literally.  If you can't find a fitting cultural
 	 reference in your language, consider translating something
 	 like this instead: "You feel a new message coming." */
-      purple_conversation_write_system_message(PURPLE_CONVERSATION(im),
+      purple_conversation_write_system_message(im,
 		_("You feel a disturbance in the force..."),
 		PURPLE_MESSAGE_NO_LOG | PURPLE_MESSAGE_ACTIVE_ONLY);
     }
 
     /* Necessary because we may be creating a new conversation window. */
-    purple_im_conversation_set_typing_state(im, PURPLE_IM_TYPING);
+    purple_im_conversation_set_typing_state(PURPLE_IM_CONVERSATION(im),
+                                            PURPLE_IM_TYPING);
   }
 }
 

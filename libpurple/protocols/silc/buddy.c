@@ -76,7 +76,7 @@ silcpurple_buddy_keyagr_cb(SilcClient client,
 	switch (status) {
 	case SILC_KEY_AGREEMENT_OK:
 		{
-			PurpleIMConversation *im;
+			PurpleConversation *im;
 			char tmp[128];
 
 			/* Set the private key for this client */
@@ -99,7 +99,7 @@ silcpurple_buddy_keyagr_cb(SilcClient client,
 								client_entry->nickname);
 			}
 			g_snprintf(tmp, sizeof(tmp), "%s [private key]", client_entry->nickname);
-			purple_conversation_set_title(PURPLE_CONVERSATION(im), tmp);
+			purple_conversation_set_title(im, tmp);
 		}
 		break;
 

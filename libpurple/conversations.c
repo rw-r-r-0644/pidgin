@@ -184,11 +184,11 @@ purple_conversations_find_with_account(const char *name,
 	return c;
 }
 
-PurpleIMConversation *
+PurpleConversation *
 purple_conversations_find_im_with_account(const char *name,
 		PurpleAccount *account)
 {
-	PurpleIMConversation *im = NULL;
+	PurpleConversation *im = NULL;
 	struct _purple_hconv hc;
 
 	g_return_val_if_fail(name != NULL, NULL);
@@ -202,11 +202,11 @@ purple_conversations_find_im_with_account(const char *name,
 	return im;
 }
 
-PurpleChatConversation *
+PurpleConversation *
 purple_conversations_find_chat_with_account(const char *name,
 		PurpleAccount *account)
 {
-	PurpleChatConversation *c = NULL;
+	PurpleConversation *c = NULL;
 	struct _purple_hconv hc;
 
 	g_return_val_if_fail(name != NULL, NULL);
@@ -220,17 +220,17 @@ purple_conversations_find_chat_with_account(const char *name,
 	return c;
 }
 
-PurpleChatConversation *
+PurpleConversation *
 purple_conversations_find_chat(const PurpleConnection *gc, int id)
 {
 	GList *l;
-	PurpleChatConversation *chat;
+	PurpleConversation *chat;
 
 	for (l = purple_conversations_get_chats(); l != NULL; l = l->next) {
-		chat = (PurpleChatConversation *)l->data;
+		chat = (PurpleConversation *)l->data;
 
-		if (purple_chat_conversation_get_id(chat) == id &&
-				purple_conversation_get_connection(PURPLE_CONVERSATION(chat)) == gc)
+		if (purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(chat)) == id &&
+				purple_conversation_get_connection(chat) == gc)
 			return chat;
 	}
 

@@ -1397,7 +1397,7 @@ silcpurple_send_im_resolved(SilcClient client,
 	PurpleConnection *gc = client->application;
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcPurpleIM im = context;
-	PurpleIMConversation *convo;
+	PurpleConversation *convo;
 	char tmp[256];
 	SilcClientEntry client_entry;
 	SilcDList list;
@@ -1445,7 +1445,7 @@ silcpurple_send_im_resolved(SilcClient client,
 								 silc_buffer_len(buf));
 			silc_mime_partial_free(list);
 			msg = purple_message_new_outgoing(me, conn->local_entry->nickname, im->message, 0);
-			purple_conversation_write_message(PURPLE_CONVERSATION(convo), msg);
+			purple_conversation_write_message(convo, msg);
 			g_object_unref(G_OBJECT(msg));
 			goto out;
 		}
@@ -1455,7 +1455,7 @@ silcpurple_send_im_resolved(SilcClient client,
 	silc_client_send_private_message(client, conn, client_entry, im->flags,
 					 sg->sha1hash, (unsigned char *)im->message, im->message_len);
 	msg = purple_message_new_outgoing(me, conn->local_entry->nickname, im->message, 0);
-	purple_conversation_write_message(PURPLE_CONVERSATION(convo), msg);
+	purple_conversation_write_message(convo, msg);
 	g_object_unref(G_OBJECT(msg));
 	goto out;
 
@@ -1463,7 +1463,7 @@ silcpurple_send_im_resolved(SilcClient client,
 	g_snprintf(tmp, sizeof(tmp),
 		   _("User <I>%s</I> is not present in the network"), im->nick);
 	purple_conversation_write_system_message(
-		PURPLE_CONVERSATION(convo), tmp, 0);
+		convo, tmp, 0);
 
  out:
 	if (free_list) {
@@ -1593,7 +1593,7 @@ static PurpleCmdRet silcpurple_cmd_chat_part(PurpleConversation *conv,
 		const char *cmd, char **args, char **error, void *data)
 {
 	PurpleConnection *gc;
-	PurpleChatConversation *chat = PURPLE_CHAT_CONVERSATION(conv);
+	PurpleConversation *chat = conv;
 	int id = 0;
 
 	gc = purple_conversation_get_connection(conv);
@@ -1606,7 +1606,7 @@ static PurpleCmdRet silcpurple_cmd_chat_part(PurpleConversation *conv,
 									purple_connection_get_account(gc));
 
 	if (chat != NULL)
-		id = purple_chat_conversation_get_id(chat);
+		id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(chat));
 
 	if (id == 0)
 		return PURPLE_CMD_RET_FAILED;
@@ -1731,7 +1731,7 @@ static PurpleCmdRet silcpurple_cmd_query(PurpleConversation *conv,
 		const char *cmd, char **args, char **error, void *data)
 {
 	int ret = 1;
-	PurpleIMConversation *im;
+	PurpleConversation *im;
 	PurpleConnection *gc;
 	PurpleAccount *account;
 
@@ -1755,7 +1755,7 @@ static PurpleCmdRet silcpurple_cmd_query(PurpleConversation *conv,
 		        me, args[0], args[1], 0);
 
 		ret = silcpurple_send_im(NULL, gc, msg);
-		purple_conversation_write_message(PURPLE_CONVERSATION(im), msg);
+		purple_conversation_write_message(im, msg);
 		g_object_unref(G_OBJECT(msg));
 	}
 

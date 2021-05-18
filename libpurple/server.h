@@ -42,6 +42,7 @@
 #include "group.h"
 #include "protocols.h"
 #include "purpleattentiontype.h"
+#include "purpleimconversation.h"
 #include "purplemessage.h"
 
 G_BEGIN_DECLS
@@ -330,7 +331,7 @@ void purple_serv_got_chat_invite(PurpleConnection *gc, const char *name,
  *
  * Returns: (transfer none): The resulting conversation.
  */
-PurpleChatConversation *purple_serv_got_joined_chat(PurpleConnection *gc,
+PurpleConversation *purple_serv_got_joined_chat(PurpleConnection *gc,
 									   int id, const char *name);
 /**
  * purple_serv_got_join_chat_failed:

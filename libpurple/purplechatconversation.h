@@ -88,7 +88,7 @@ GType purple_chat_conversation_get_type(void);
  *
  * Returns: The new conversation.
  */
-PurpleChatConversation *purple_chat_conversation_new(PurpleAccount *account, const gchar *name);
+PurpleConversation *purple_chat_conversation_new(PurpleAccount *account, const gchar *name);
 
 /**
  * purple_chat_conversation_get_users:
