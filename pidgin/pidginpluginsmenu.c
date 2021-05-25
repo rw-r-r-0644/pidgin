@@ -81,13 +81,28 @@ pidgin_plugins_menu_add_plugin_actions(PidginPluginsMenu *menu,
 	submenu = gtk_menu_new();
 
 	for(i = 0; actions != NULL; i++) {
-		PurplePluginAction *action = (PurplePluginAction *)actions->data;
+		PurplePluginAction *action = NULL;
 		GSimpleAction *gaction = NULL;
 		GtkWidget *action_item = NULL;
 		gchar *action_base_name = NULL;
 		gchar *action_full_name = NULL;
 
+		action = (PurplePluginAction *)actions->data;
+		if(action == NULL) {
+			action_item = gtk_separator_menu_item_new();
+			gtk_widget_show(action_item);
+			gtk_menu_shell_append(GTK_MENU_SHELL(submenu), action_item);
+
+			actions = g_list_delete_link(actions, actions);
+
+			continue;
+		}
+
 		if(action->label == NULL) {
+			actions = g_list_delete_link(actions, actions);
+
+			g_warn_if_reached();
+
 			continue;
 		}
 
