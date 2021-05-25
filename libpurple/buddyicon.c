@@ -483,7 +483,7 @@ purple_buddy_icon_save_to_filename(PurpleBuddyIcon *icon,
                                    const gchar *filename, GError **error)
 {
 	gconstpointer data;
-	size_t len;
+	size_t len = 0;
 
 	data = purple_buddy_icon_get_data(icon, &len);
 

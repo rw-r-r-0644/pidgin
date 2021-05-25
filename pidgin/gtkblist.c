@@ -3272,7 +3272,7 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 		GList *cur = NULL;
 		PurpleProtocolChatEntry *pce;
 		char *name, *value;
-		PurpleChatConversation *conv;
+		PurpleChatConversation *conv = NULL;
 		PidginBlistNode *bnode = g_object_get_data(G_OBJECT(node), UI_DATA);
 
 		chat = (PurpleChat *)node;

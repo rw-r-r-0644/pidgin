@@ -2717,7 +2717,6 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	GtkTreePath *newpath;
 	const char *stock;
 	GtkTreeIter iter;
-	gboolean is_me = FALSE;
 	gboolean is_buddy;
 	const gchar *name, *alias;
 	gchar *tmp, *alias_key;
@@ -2740,9 +2739,6 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	ls = GTK_LIST_STORE(tm);
 
 	stock = get_chat_user_status_icon(chat, name, flags);
-
-	if (purple_strequal(purple_chat_conversation_get_nick(chat), purple_normalize(purple_conversation_get_account(conv), old_name != NULL ? old_name : name)))
-		is_me = TRUE;
 
 	is_buddy = purple_chat_user_is_buddy(cb);
 
