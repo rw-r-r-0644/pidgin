@@ -83,14 +83,14 @@ purple_media_backend_base_init(gpointer iface)
 			G_TYPE_FROM_CLASS(iface),
 			G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
 			G_TYPE_NONE, 3, G_TYPE_POINTER,
-			G_TYPE_POINTER, PURPLE_TYPE_MEDIA_CANDIDATE);
+			G_TYPE_POINTER, PURPLE_MEDIA_TYPE_CANDIDATE);
 	purple_media_backend_signals[ACTIVE_CANDIDATE_PAIR] =
 			g_signal_new("active-candidate-pair",
 			G_TYPE_FROM_CLASS(iface),
 			G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
 			G_TYPE_NONE, 4, G_TYPE_STRING, G_TYPE_STRING,
-			PURPLE_TYPE_MEDIA_CANDIDATE,
-			PURPLE_TYPE_MEDIA_CANDIDATE);
+			PURPLE_MEDIA_TYPE_CANDIDATE,
+			PURPLE_MEDIA_TYPE_CANDIDATE);
 
 	is_initialized = TRUE;
 }
@@ -127,7 +127,7 @@ purple_media_backend_add_stream(PurpleMediaBackend *self,
 		const gchar *transmitter,
 		guint num_params, GParameter *params)
 {
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	return PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->add_stream(self,
 			sess_id, who, type, initiator, transmitter,
 			num_params, params);
@@ -138,7 +138,7 @@ purple_media_backend_add_remote_candidates(PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *participant,
 		GList *remote_candidates)
 {
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND(self));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND(self));
 	PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->add_remote_candidates(self,
 			sess_id, participant, remote_candidates);
 }
@@ -147,7 +147,7 @@ gboolean
 purple_media_backend_codecs_ready(PurpleMediaBackend *self,
 		const gchar *sess_id)
 {
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	return PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->codecs_ready(self,
 			sess_id);
 }
@@ -156,7 +156,7 @@ GList *
 purple_media_backend_get_codecs(PurpleMediaBackend *self,
 		const gchar *sess_id)
 {
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), NULL);
 	return PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->get_codecs(self,
 			sess_id);
 }
@@ -165,7 +165,7 @@ GList *
 purple_media_backend_get_local_candidates(PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *participant)
 {
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), NULL);
 	return PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->
 			get_local_candidates(self,
 			sess_id, participant);
@@ -176,7 +176,7 @@ purple_media_backend_set_remote_codecs(PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *participant,
 		GList *codecs)
 {
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	return PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->set_remote_codecs(
 			self, sess_id, participant, codecs);
 }
@@ -185,7 +185,7 @@ gboolean
 purple_media_backend_set_send_codec(PurpleMediaBackend *self,
 		const gchar *sess_id, PurpleMediaCodec *codec)
 {
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	return PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->set_send_codec(self,
 			sess_id, codec);
 }
@@ -197,7 +197,7 @@ purple_media_backend_set_encryption_parameters(PurpleMediaBackend *self,
 {
 	PurpleMediaBackendInterface *backend_iface;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	backend_iface = PURPLE_MEDIA_BACKEND_GET_INTERFACE(self);
 	g_return_val_if_fail(backend_iface->set_encryption_parameters, FALSE);
 	return backend_iface->set_encryption_parameters(self,
@@ -212,7 +212,7 @@ purple_media_backend_set_decryption_parameters(PurpleMediaBackend *self,
 {
 	PurpleMediaBackendInterface *backend_iface;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	backend_iface = PURPLE_MEDIA_BACKEND_GET_INTERFACE(self);
 	g_return_val_if_fail(backend_iface->set_decryption_parameters, FALSE);
 	return backend_iface->set_decryption_parameters(self,
@@ -226,7 +226,7 @@ purple_media_backend_set_require_encryption(PurpleMediaBackend *self,
 {
 	PurpleMediaBackendInterface *backend_iface;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	backend_iface = PURPLE_MEDIA_BACKEND_GET_INTERFACE(self);
 
 	if (!backend_iface->set_require_encryption) {
@@ -241,7 +241,7 @@ void
 purple_media_backend_set_params(PurpleMediaBackend *self,
 		guint num_params, GParameter *params)
 {
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND(self));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND(self));
 	PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->set_params(self, num_params, params);
 }
 
@@ -250,7 +250,7 @@ purple_media_backend_get_available_params(PurpleMediaBackend *self)
 {
 	static const gchar *NULL_ARRAY[] = { NULL };
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), NULL_ARRAY);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), NULL_ARRAY);
 	return PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->get_available_params();
 }
 
@@ -260,7 +260,7 @@ purple_media_backend_set_send_rtcp_mux(PurpleMediaBackend *self,
 {
 	PurpleMediaBackendInterface *backend_iface;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	backend_iface = PURPLE_MEDIA_BACKEND_GET_INTERFACE(self);
 	g_return_val_if_fail(backend_iface->set_send_rtcp_mux, FALSE);
 	return backend_iface->set_send_rtcp_mux(self,

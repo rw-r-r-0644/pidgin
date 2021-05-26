@@ -78,7 +78,7 @@ purple_media_codec_set_property (GObject *object, guint prop_id,
 		const GValue *value, GParamSpec *pspec)
 {
 	PurpleMediaCodecPrivate *priv;
-	g_return_if_fail(PURPLE_IS_MEDIA_CODEC(object));
+	g_return_if_fail(PURPLE_MEDIA_IS_CODEC(object));
 
 	priv = purple_media_codec_get_instance_private(
 			PURPLE_MEDIA_CODEC(object));
@@ -115,7 +115,7 @@ purple_media_codec_get_property (GObject *object, guint prop_id,
 		GValue *value, GParamSpec *pspec)
 {
 	PurpleMediaCodecPrivate *priv;
-	g_return_if_fail(PURPLE_IS_MEDIA_CODEC(object));
+	g_return_if_fail(PURPLE_MEDIA_IS_CODEC(object));
 
 	priv = purple_media_codec_get_instance_private(
 			PURPLE_MEDIA_CODEC(object));
@@ -172,7 +172,7 @@ purple_media_codec_class_init(PurpleMediaCodecClass *klass)
 	properties[PROP_MEDIA_TYPE] = g_param_spec_flags("media-type",
 			"Media Type",
 			"Whether this is an audio, video or application codec.",
-			PURPLE_TYPE_MEDIA_SESSION_TYPE,
+			PURPLE_MEDIA_TYPE_SESSION_TYPE,
 			PURPLE_MEDIA_NONE,
 			G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE |
 			G_PARAM_STATIC_STRINGS);
@@ -202,7 +202,7 @@ purple_media_codec_new(int id, const char *encoding_name,
 		PurpleMediaSessionType media_type, guint clock_rate)
 {
 	PurpleMediaCodec *codec =
-			g_object_new(PURPLE_TYPE_MEDIA_CODEC,
+			g_object_new(PURPLE_MEDIA_TYPE_CODEC,
 			"id", id,
 			"encoding_name", encoding_name,
 			"media_type", media_type,
@@ -214,7 +214,7 @@ guint
 purple_media_codec_get_id(PurpleMediaCodec *codec)
 {
 	guint id;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CODEC(codec), 0);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CODEC(codec), 0);
 	g_object_get(codec, "id", &id, NULL);
 	return id;
 }
@@ -223,7 +223,7 @@ gchar *
 purple_media_codec_get_encoding_name(PurpleMediaCodec *codec)
 {
 	gchar *name;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CODEC(codec), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CODEC(codec), NULL);
 	g_object_get(codec, "encoding-name", &name, NULL);
 	return name;
 }
@@ -232,7 +232,7 @@ guint
 purple_media_codec_get_clock_rate(PurpleMediaCodec *codec)
 {
 	guint clock_rate;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CODEC(codec), 0);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CODEC(codec), 0);
 	g_object_get(codec, "clock-rate", &clock_rate, NULL);
 	return clock_rate;
 }
@@ -241,7 +241,7 @@ guint
 purple_media_codec_get_channels(PurpleMediaCodec *codec)
 {
 	guint channels;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CODEC(codec), 0);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CODEC(codec), 0);
 	g_object_get(codec, "channels", &channels, NULL);
 	return channels;
 }
@@ -250,7 +250,7 @@ GList *
 purple_media_codec_get_optional_parameters(PurpleMediaCodec *codec)
 {
 	GList *optional_params;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CODEC(codec), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CODEC(codec), NULL);
 	g_object_get(codec, "optional-params", &optional_params, NULL);
 	return optional_params;
 }

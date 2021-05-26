@@ -173,7 +173,7 @@ enum {
 G_DEFINE_TYPE_WITH_CODE(PurpleMediaBackendFs2, purple_media_backend_fs2,
 		G_TYPE_OBJECT,
 		G_ADD_PRIVATE(PurpleMediaBackendFs2)
-		G_IMPLEMENT_INTERFACE(PURPLE_TYPE_MEDIA_BACKEND,
+		G_IMPLEMENT_INTERFACE(PURPLE_MEDIA_TYPE_BACKEND,
 				purple_media_backend_iface_init));
 
 static void
@@ -416,7 +416,7 @@ purple_media_backend_fs2_set_property(GObject *object, guint prop_id,
 		const GValue *value, GParamSpec *pspec)
 {
 	PurpleMediaBackendFs2Private *priv;
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(object));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(object));
 
 	priv = purple_media_backend_fs2_get_instance_private(
 			PURPLE_MEDIA_BACKEND_FS2(object));
@@ -454,7 +454,7 @@ purple_media_backend_fs2_get_property(GObject *object, guint prop_id,
 		GValue *value, GParamSpec *pspec)
 {
 	PurpleMediaBackendFs2Private *priv;
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(object));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(object));
 
 	priv = purple_media_backend_fs2_get_instance_private(
 			PURPLE_MEDIA_BACKEND_FS2(object));
@@ -724,7 +724,7 @@ get_session(PurpleMediaBackendFs2 *self, const gchar *sess_id)
 	PurpleMediaBackendFs2Private *priv;
 	PurpleMediaBackendFs2Session *session = NULL;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), NULL);
 
 	priv = purple_media_backend_fs2_get_instance_private(self);
 
@@ -740,7 +740,7 @@ get_participant(PurpleMediaBackendFs2 *self, const gchar *name)
 	PurpleMediaBackendFs2Private *priv;
 	FsParticipant *participant = NULL;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), NULL);
 
 	priv = purple_media_backend_fs2_get_instance_private(self);
 
@@ -757,7 +757,7 @@ get_stream(PurpleMediaBackendFs2 *self,
 	PurpleMediaBackendFs2Private *priv;
 	GList *streams;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), NULL);
 
 	priv = purple_media_backend_fs2_get_instance_private(self);
 	streams = priv->streams;
@@ -779,7 +779,7 @@ get_streams(PurpleMediaBackendFs2 *self,
 	PurpleMediaBackendFs2Private *priv;
 	GList *streams, *ret = NULL;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), NULL);
 
 	priv = purple_media_backend_fs2_get_instance_private(self);
 	streams = priv->streams;
@@ -807,7 +807,7 @@ get_session_from_fs_stream(PurpleMediaBackendFs2 *self, FsStream *stream)
 	FsSession *fssession;
 	GList *values;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), NULL);
 	g_return_val_if_fail(FS_IS_STREAM(stream), NULL);
 
 	g_object_get(stream, "session", &fssession, NULL);
@@ -919,7 +919,7 @@ gst_handle_message_element(GstBus *bus, GstMessage *msg,
 		return;
 	}
 
-	if (!FS_IS_CONFERENCE(src) || !PURPLE_IS_MEDIA_BACKEND(self) ||
+	if (!FS_IS_CONFERENCE(src) || !PURPLE_MEDIA_IS_BACKEND(self) ||
 			priv->conference != FS_CONFERENCE(src))
 		return;
 
@@ -2094,7 +2094,7 @@ purple_media_backend_fs2_add_remote_candidates(PurpleMediaBackend *self,
 	PurpleMediaBackendFs2Stream *stream;
 	GError *err = NULL;
 
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self));
 
 	priv = purple_media_backend_fs2_get_instance_private(
 			PURPLE_MEDIA_BACKEND_FS2(self));
@@ -2139,7 +2139,7 @@ purple_media_backend_fs2_codecs_ready(PurpleMediaBackend *self,
 	PurpleMediaBackendFs2Private *priv;
 	gboolean ret = FALSE;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), FALSE);
 
 	priv = purple_media_backend_fs2_get_instance_private(
 			PURPLE_MEDIA_BACKEND_FS2(self));
@@ -2209,7 +2209,7 @@ purple_media_backend_fs2_get_codecs(PurpleMediaBackend *self,
 	GList *fscodecs;
 	GList *codecs;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), NULL);
 
 	session = get_session(PURPLE_MEDIA_BACKEND_FS2(self), sess_id);
 
@@ -2231,7 +2231,7 @@ purple_media_backend_fs2_get_local_candidates(PurpleMediaBackend *self,
 	PurpleMediaBackendFs2Stream *stream;
 	GList *candidates = NULL;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), NULL);
 
 	stream = get_stream(PURPLE_MEDIA_BACKEND_FS2(self),
 			sess_id, participant);
@@ -2252,7 +2252,7 @@ purple_media_backend_fs2_set_remote_codecs(PurpleMediaBackend *self,
 	GList *fscodecs;
 	GError *err = NULL;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), FALSE);
 	stream = get_stream(PURPLE_MEDIA_BACKEND_FS2(self),
 			sess_id, participant);
 
@@ -2307,7 +2307,7 @@ purple_media_backend_fs2_set_encryption_parameters (PurpleMediaBackend *self,
 	GError *err = NULL;
 	gboolean result;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), FALSE);
 
 	session = get_session(PURPLE_MEDIA_BACKEND_FS2(self), sess_id);
 	if (!session)
@@ -2340,7 +2340,7 @@ purple_media_backend_fs2_set_decryption_parameters (PurpleMediaBackend *self,
 	GError *err = NULL;
 	gboolean result;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), FALSE);
 
 	stream = get_stream(PURPLE_MEDIA_BACKEND_FS2(self), sess_id,
 			participant);
@@ -2389,7 +2389,7 @@ purple_media_backend_fs2_set_send_codec(PurpleMediaBackend *self,
 	FsCodec *fscodec;
 	GError *err = NULL;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), FALSE);
 
 	session = get_session(PURPLE_MEDIA_BACKEND_FS2(self), sess_id);
 
@@ -2446,7 +2446,7 @@ purple_media_backend_fs2_set_params(PurpleMediaBackend *self,
 	guint i;
 	GstStructure *sdes;
 
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self));
 
 	priv = purple_media_backend_fs2_get_instance_private(
 			PURPLE_MEDIA_BACKEND_FS2(self));
@@ -2490,7 +2490,7 @@ purple_media_backend_fs2_send_dtmf(PurpleMediaBackend *self,
 	PurpleMediaBackendFs2Session *session;
 	FsDTMFEvent event;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), FALSE);
 
 	session = get_session(PURPLE_MEDIA_BACKEND_FS2(self), sess_id);
 	if (session == NULL)
@@ -2579,7 +2579,7 @@ purple_media_backend_fs2_set_input_volume(PurpleMediaBackendFs2 *self,
 	PurpleMediaBackendFs2Private *priv;
 	GList *sessions;
 
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self));
 
 	priv = purple_media_backend_fs2_get_instance_private(self);
 
@@ -2612,7 +2612,7 @@ purple_media_backend_fs2_set_output_volume(PurpleMediaBackendFs2 *self,
 #ifdef USE_VV
 	GList *streams;
 
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self));
 
 	purple_prefs_set_int("/purple/media/audio/volume/output", level);
 
@@ -2638,7 +2638,7 @@ purple_media_backend_fs2_set_send_rtcp_mux(PurpleMediaBackend *self,
 {
 	PurpleMediaBackendFs2Stream *stream;
 
-	g_return_val_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(self), FALSE);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self), FALSE);
 	stream = get_stream(PURPLE_MEDIA_BACKEND_FS2(self),
 			sess_id, participant);
 
