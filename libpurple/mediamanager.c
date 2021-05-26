@@ -193,7 +193,7 @@ purple_media_manager_init (PurpleMediaManager *media)
 	media->priv->medias = NULL;
 	media->priv->private_medias = NULL;
 	media->priv->next_output_window_id = 1;
-	media->priv->backend_type = PURPLE_TYPE_MEDIA_BACKEND_FS2;
+	media->priv->backend_type = PURPLE_MEDIA_TYPE_BACKEND_FS2;
 #ifdef HAVE_MEDIA_APPLICATION
 	media->priv->appdata_info = NULL;
 	g_mutex_init (&media->priv->appdata_mutex);

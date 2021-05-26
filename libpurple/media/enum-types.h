@@ -37,11 +37,11 @@
 G_BEGIN_DECLS
 
 /**
- * PURPLE_TYPE_MEDIA_CANDIDATE_TYPE:
+ * PURPLE_MEDIA_TYPE_CANDIDATE_TYPE:
  *
  * The standard _get_type macro for #PurpleMediaCandidateType.
  */
-#define PURPLE_TYPE_MEDIA_CANDIDATE_TYPE (purple_media_candidate_type_get_type())
+#define PURPLE_MEDIA_TYPE_CANDIDATE_TYPE (purple_media_candidate_type_get_type())
 
 /**
  * PURPLE_MEDIA_TYPE_CAPS:
@@ -58,18 +58,18 @@ G_BEGIN_DECLS
 #define PURPLE_MEDIA_TYPE_INFO_TYPE (purple_media_info_type_get_type())
 
 /**
- * PURPLE_TYPE_MEDIA_NETWORK_PROTOCOL:
+ * PURPLE_MEDIA_TYPE_NETWORK_PROTOCOL:
  *
  * The standard _get_type macro for #PurpleMediaNetworkProtocol.
  */
-#define PURPLE_TYPE_MEDIA_NETWORK_PROTOCOL (purple_media_network_protocol_get_type())
+#define PURPLE_MEDIA_TYPE_NETWORK_PROTOCOL (purple_media_network_protocol_get_type())
 
 /**
- * PURPLE_TYPE_MEDIA_SESSION_TYPE:
+ * PURPLE_MEDIA_TYPE_SESSION_TYPE:
  *
  * The standard _get_type macro for #PurpleMediaSessionType.
  */
-#define PURPLE_TYPE_MEDIA_SESSION_TYPE (purple_media_session_type_get_type())
+#define PURPLE_MEDIA_TYPE_SESSION_TYPE (purple_media_session_type_get_type())
 
 /**
  * PURPLE_MEDIA_TYPE_STATE:

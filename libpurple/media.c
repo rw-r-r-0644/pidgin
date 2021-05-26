@@ -211,7 +211,7 @@ purple_media_class_init (PurpleMediaClass *klass)
 	purple_media_signals[NEW_CANDIDATE] = g_signal_new("new-candidate", G_TYPE_FROM_CLASS(klass),
 					 G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
 					 G_TYPE_NONE, 3, G_TYPE_POINTER,
-					 G_TYPE_POINTER, PURPLE_TYPE_MEDIA_CANDIDATE);
+					 G_TYPE_POINTER, PURPLE_MEDIA_TYPE_CANDIDATE);
 	purple_media_signals[STATE_CHANGED] = g_signal_new("state-changed", G_TYPE_FROM_CLASS(klass),
 					 G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
 					 G_TYPE_NONE, 3, PURPLE_MEDIA_TYPE_STATE,
@@ -223,7 +223,7 @@ purple_media_class_init (PurpleMediaClass *klass)
 	purple_media_signals[CANDIDATE_PAIR_ESTABLISHED] = g_signal_new("candidate-pair-established", G_TYPE_FROM_CLASS(klass),
 					 G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
 					 G_TYPE_NONE, 4, G_TYPE_POINTER, G_TYPE_POINTER,
-					 PURPLE_TYPE_MEDIA_CANDIDATE, PURPLE_TYPE_MEDIA_CANDIDATE);
+					 PURPLE_MEDIA_TYPE_CANDIDATE, PURPLE_MEDIA_TYPE_CANDIDATE);
 }
 
 
@@ -520,13 +520,11 @@ GstElement *
 purple_media_get_src(PurpleMedia *media, const gchar *sess_id)
 {
 	g_return_val_if_fail(PURPLE_IS_MEDIA(media), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(media->priv->backend),
+	                     NULL);
 
-	if (PURPLE_IS_MEDIA_BACKEND_FS2(media->priv->backend))
-		return purple_media_backend_fs2_get_src(
-				PURPLE_MEDIA_BACKEND_FS2(
-				media->priv->backend), sess_id);
-
-	g_return_val_if_reached(NULL);
+	return purple_media_backend_fs2_get_src(
+	        PURPLE_MEDIA_BACKEND_FS2(media->priv->backend), sess_id);
 }
 #endif /* USE_VV */
 
@@ -1345,7 +1343,7 @@ void purple_media_set_input_volume(PurpleMedia *media,
 {
 #ifdef USE_VV
 	g_return_if_fail(PURPLE_IS_MEDIA(media));
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(media->priv->backend));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(media->priv->backend));
 
 	purple_media_backend_fs2_set_input_volume(
 			PURPLE_MEDIA_BACKEND_FS2(
@@ -1360,7 +1358,7 @@ void purple_media_set_output_volume(PurpleMedia *media,
 {
 #ifdef USE_VV
 	g_return_if_fail(PURPLE_IS_MEDIA(media));
-	g_return_if_fail(PURPLE_IS_MEDIA_BACKEND_FS2(media->priv->backend));
+	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(media->priv->backend));
 
 	purple_media_backend_fs2_set_output_volume(
 			PURPLE_MEDIA_BACKEND_FS2(
@@ -1411,13 +1409,12 @@ purple_media_get_tee(PurpleMedia *media,
 		const gchar *session_id, const gchar *participant)
 {
 	g_return_val_if_fail(PURPLE_IS_MEDIA(media), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(media->priv->backend),
+	                     NULL);
 
-	if (PURPLE_IS_MEDIA_BACKEND_FS2(media->priv->backend))
-		return purple_media_backend_fs2_get_tee(
-				PURPLE_MEDIA_BACKEND_FS2(
-				media->priv->backend),
-				session_id, participant);
-	g_return_val_if_reached(NULL);
+	return purple_media_backend_fs2_get_tee(
+	        PURPLE_MEDIA_BACKEND_FS2(media->priv->backend),
+	        session_id, participant);
 }
 #endif /* USE_VV */
 

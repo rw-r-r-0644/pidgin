@@ -106,7 +106,6 @@ purple_media_candidate_set_property (GObject *object, guint prop_id,
 		const GValue *value, GParamSpec *pspec)
 {
 	PurpleMediaCandidatePrivate *priv;
-	g_return_if_fail(PURPLE_IS_MEDIA_CANDIDATE(object));
 
 	priv = purple_media_candidate_get_instance_private(
 			PURPLE_MEDIA_CANDIDATE(object));
@@ -165,7 +164,6 @@ purple_media_candidate_get_property (GObject *object, guint prop_id,
 		GValue *value, GParamSpec *pspec)
 {
 	PurpleMediaCandidatePrivate *priv;
-	g_return_if_fail(PURPLE_IS_MEDIA_CANDIDATE(object));
 
 	priv = purple_media_candidate_get_instance_private(
 			PURPLE_MEDIA_CANDIDATE(object));
@@ -269,7 +267,7 @@ purple_media_candidate_class_init(PurpleMediaCandidateClass *klass)
 			g_param_spec_enum("protocol",
 			"Protocol",
 			"The protocol of the candidate.",
-			PURPLE_TYPE_MEDIA_NETWORK_PROTOCOL,
+			PURPLE_MEDIA_TYPE_NETWORK_PROTOCOL,
 			PURPLE_MEDIA_NETWORK_PROTOCOL_UDP,
 			G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
@@ -284,7 +282,7 @@ purple_media_candidate_class_init(PurpleMediaCandidateClass *klass)
 			g_param_spec_enum("type",
 			"Type",
 			"The type of the candidate.",
-			PURPLE_TYPE_MEDIA_CANDIDATE_TYPE,
+			PURPLE_MEDIA_TYPE_CANDIDATE_TYPE,
 			PURPLE_MEDIA_CANDIDATE_TYPE_HOST,
 			G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
@@ -316,7 +314,7 @@ purple_media_candidate_new(const gchar *foundation, guint component_id,
 		PurpleMediaNetworkProtocol proto,
 		const gchar *ip, guint port)
 {
-	return g_object_new(PURPLE_TYPE_MEDIA_CANDIDATE,
+	return g_object_new(PURPLE_MEDIA_TYPE_CANDIDATE,
 			"foundation", foundation,
 			"component-id", component_id,
 			"type", type,
@@ -365,7 +363,7 @@ gchar *
 purple_media_candidate_get_foundation(PurpleMediaCandidate *candidate)
 {
 	gchar *foundation;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), NULL);
 	g_object_get(candidate, "foundation", &foundation, NULL);
 	return foundation;
 }
@@ -374,7 +372,7 @@ guint
 purple_media_candidate_get_component_id(PurpleMediaCandidate *candidate)
 {
 	guint component_id;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), 0);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), 0);
 	g_object_get(candidate, "component-id", &component_id, NULL);
 	return component_id;
 }
@@ -383,7 +381,7 @@ gchar *
 purple_media_candidate_get_ip(PurpleMediaCandidate *candidate)
 {
 	gchar *ip;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), NULL);
 	g_object_get(candidate, "ip", &ip, NULL);
 	return ip;
 }
@@ -392,7 +390,7 @@ guint16
 purple_media_candidate_get_port(PurpleMediaCandidate *candidate)
 {
 	guint port;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), 0);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), 0);
 	g_object_get(candidate, "port", &port, NULL);
 	return port;
 }
@@ -401,7 +399,7 @@ gchar *
 purple_media_candidate_get_base_ip(PurpleMediaCandidate *candidate)
 {
 	gchar *base_ip;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), NULL);
 	g_object_get(candidate, "base-ip", &base_ip, NULL);
 	return base_ip;
 }
@@ -410,7 +408,7 @@ guint16
 purple_media_candidate_get_base_port(PurpleMediaCandidate *candidate)
 {
 	guint base_port;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), 0);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), 0);
 	g_object_get(candidate, "base_port", &base_port, NULL);
 	return base_port;
 }
@@ -419,7 +417,7 @@ PurpleMediaNetworkProtocol
 purple_media_candidate_get_protocol(PurpleMediaCandidate *candidate)
 {
 	PurpleMediaNetworkProtocol protocol;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate),
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate),
 			PURPLE_MEDIA_NETWORK_PROTOCOL_UDP);
 	g_object_get(candidate, "protocol", &protocol, NULL);
 	return protocol;
@@ -429,7 +427,7 @@ guint32
 purple_media_candidate_get_priority(PurpleMediaCandidate *candidate)
 {
 	guint priority;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), 0);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), 0);
 	g_object_get(candidate, "priority", &priority, NULL);
 	return priority;
 }
@@ -438,7 +436,7 @@ PurpleMediaCandidateType
 purple_media_candidate_get_candidate_type(PurpleMediaCandidate *candidate)
 {
 	PurpleMediaCandidateType type;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate),
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate),
 			PURPLE_MEDIA_CANDIDATE_TYPE_HOST);
 	g_object_get(candidate, "type", &type, NULL);
 	return type;
@@ -448,7 +446,7 @@ gchar *
 purple_media_candidate_get_username(PurpleMediaCandidate *candidate)
 {
 	gchar *username;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), NULL);
 	g_object_get(candidate, "username", &username, NULL);
 	return username;
 }
@@ -457,7 +455,7 @@ gchar *
 purple_media_candidate_get_password(PurpleMediaCandidate *candidate)
 {
 	gchar *password;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), NULL);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), NULL);
 	g_object_get(candidate, "password", &password, NULL);
 	return password;
 }
@@ -466,7 +464,7 @@ guint
 purple_media_candidate_get_ttl(PurpleMediaCandidate *candidate)
 {
 	guint ttl;
-	g_return_val_if_fail(PURPLE_IS_MEDIA_CANDIDATE(candidate), 0);
+	g_return_val_if_fail(PURPLE_MEDIA_IS_CANDIDATE(candidate), 0);
 	g_object_get(candidate, "ttl", &ttl, NULL);
 	return ttl;
 }

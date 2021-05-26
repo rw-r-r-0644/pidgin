@@ -39,11 +39,11 @@
 G_BEGIN_DECLS
 
 /**
- * PURPLE_TYPE_MEDIA_CANDIDATE:
+ * PURPLE_MEDIA_TYPE_CANDIDATE:
  *
  * The standard _get_type macro for #PurpleMediaCandidate.
  */
-#define PURPLE_TYPE_MEDIA_CANDIDATE  purple_media_candidate_get_type()
+#define PURPLE_MEDIA_TYPE_CANDIDATE  purple_media_candidate_get_type()
 
 /**
  * purple_media_candidate_get_type:
@@ -52,8 +52,8 @@ G_BEGIN_DECLS
  *
  * Returns: The media canditate's GType
  */
-G_DECLARE_FINAL_TYPE(PurpleMediaCandidate, purple_media_candidate, PURPLE,
-		MEDIA_CANDIDATE, GObject)
+G_DECLARE_FINAL_TYPE(PurpleMediaCandidate, purple_media_candidate,
+                     PURPLE_MEDIA, CANDIDATE, GObject)
 
 /**
  * purple_media_candidate_new:

@@ -39,7 +39,7 @@
 
 G_BEGIN_DECLS
 
-#define PURPLE_TYPE_MEDIA_BACKEND_FS2  purple_media_backend_fs2_get_type()
+#define PURPLE_MEDIA_TYPE_BACKEND_FS2  purple_media_backend_fs2_get_type()
 
 /**
  * purple_media_backend_fs2_get_type:
@@ -49,7 +49,7 @@ G_BEGIN_DECLS
  * Returns: The Farstream media backend's GType
  */
 G_DECLARE_FINAL_TYPE(PurpleMediaBackendFs2, purple_media_backend_fs2,
-		PURPLE, MEDIA_BACKEND_FS2, GObject)
+                     PURPLE_MEDIA, BACKEND_FS2, GObject)
 
 /*
  * Temporary function in order to be able to test while
