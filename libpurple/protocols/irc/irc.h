@@ -35,7 +35,7 @@
 #define IRC_TYPE_PROTOCOL (irc_protocol_get_type())
 G_DECLARE_FINAL_TYPE(IRCProtocol, irc_protocol, IRC, PROTOCOL, PurpleProtocol)
 
-#define IRC_DEFAULT_SERVER "irc.freenode.net"
+#define IRC_DEFAULT_SERVER "irc.libera.chat"
 #define IRC_DEFAULT_PORT 6667
 #define IRC_DEFAULT_SSL_PORT 994
 
