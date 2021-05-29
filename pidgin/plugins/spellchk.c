@@ -2266,8 +2266,8 @@ get_config_frame(PurplePlugin *plugin)
  *  EXPORTED FUNCTIONS
  */
 
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+spell_check_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Eric Warmenhoven <eric@warmenhoven.org>",
@@ -2290,7 +2290,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+spell_check_load(GPluginPlugin *plugin, GError **error)
 {
 	void *conv_handle = purple_conversations_get_handle();
 	GList *convs;
@@ -2317,7 +2317,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+spell_check_unload(GPluginPlugin *plugin, GError **error)
 {
 	GList *convs;
 
@@ -2334,4 +2334,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(spellcheck, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(spell_check)

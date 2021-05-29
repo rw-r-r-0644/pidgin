@@ -499,8 +499,8 @@ get_config_frame(PurplePlugin *plugin)
 	return ret;
 }
 
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+unity_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Ankit Vani <a@nevitus.org>",
@@ -524,8 +524,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
-{
+unity_load(GPluginPlugin *plugin, GError **error) {
 	GList *convs = purple_conversations_get_all();
 	PurpleSavedStatus *saved_status;
 	void *conv_handle = purple_conversations_get_handle();
@@ -583,8 +582,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
-{
+unity_unload(GPluginPlugin *plugin, GError **error) {
 	GList *convs = purple_conversations_get_all();
 	while (convs) {
 		PurpleConversation *conv = (PurpleConversation *)convs->data;
@@ -592,7 +590,7 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 		detach_signals(conv);
 		convs = convs->next;
 	}
-	
+
 	unity_launcher_entry_set_count_visible(launcher, FALSE);
 	messaging_menu_app_unregister(mmapp);
 
@@ -601,4 +599,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(unity, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(unity)

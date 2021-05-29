@@ -701,8 +701,8 @@ actions(PurplePlugin *plugin)
 	return l;
 }
 
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+xmpp_console_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Sean Egan <seanegan@gmail.com>",
@@ -726,7 +726,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+xmpp_console_load(GPluginPlugin *plugin, GError **error)
 {
 	int i;
 	gboolean any_registered = FALSE;
@@ -769,11 +769,11 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+xmpp_console_unload(GPluginPlugin *plugin, GError **error)
 {
 	if (console)
 		gtk_widget_destroy(console->window);
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(xmppconsole, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(xmpp_console)

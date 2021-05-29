@@ -28,6 +28,8 @@
 
 #include <gtk/gtk.h>
 
+#include <gplugin.h>
+
 #include <purple.h>
 
 G_BEGIN_DECLS
@@ -57,8 +59,7 @@ G_DECLARE_FINAL_TYPE(PidginPluginInfo, pidgin_plugin_info, PIDGIN, PLUGIN_INFO, 
  *
  * Since: 3.0.0
  */
-PidginPluginInfo *pidgin_plugin_info_new(const char *first_property, ...)
-                  G_GNUC_NULL_TERMINATED;
+GPluginPluginInfo *pidgin_plugin_info_new(const char *first_property, ...) G_GNUC_NULL_TERMINATED;
 
 G_END_DECLS
 

@@ -41,8 +41,8 @@ append_to_tooltip(PurpleBlistNode *node, GString *text, gboolean full)
 	}
 }
 
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+gtk_buddy_note_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Etan Reisner <deryni@pidgin.im>",
@@ -70,7 +70,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+gtk_buddy_note_load(GPluginPlugin *plugin, GError **error)
 {
 	purple_signal_connect(pidgin_blist_get_handle(), "drawing-tooltip",
 	                      plugin, PURPLE_CALLBACK(append_to_tooltip), NULL);
@@ -78,9 +78,9 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+gtk_buddy_note_unload(GPluginPlugin *plugin, GError **error)
 {
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(gtkbuddynote, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(gtk_buddy_note)

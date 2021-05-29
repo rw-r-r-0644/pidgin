@@ -125,8 +125,8 @@ signed_on_cb(PurpleConnection *gc, void *data) {
 /**************************************************************************
  * Plugin stuff
  **************************************************************************/
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+relnot_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Nathan Walp <faceprint@faceprint.com>",
@@ -149,7 +149,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+relnot_load(GPluginPlugin *plugin, GError **error)
 {
 	purple_prefs_add_none("/plugins/gtk/relnot");
 	purple_prefs_add_int("/plugins/gtk/relnot/last_check", 0);
@@ -167,11 +167,11 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+relnot_unload(GPluginPlugin *plugin, GError **error)
 {
 	soup_session_abort(session);
 	g_clear_object(&session);
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(relnot, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(relnot)

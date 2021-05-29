@@ -611,8 +611,8 @@ signed_off_cb(PurpleConnection *pc, gpointer unused)
 	g_hash_table_foreach_remove(iq_callbacks, remove_iq_callbacks_by_pc, pc);
 }
 
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+xmpp_disco_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Paul Aurich <paul@darkrain42.org>",
@@ -636,7 +636,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+xmpp_disco_load(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocol *xmpp_protocol;
 	PurpleProtocolManager *manager;
@@ -662,7 +662,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+xmpp_disco_unload(GPluginPlugin *plugin, GError **error)
 {
 	g_hash_table_destroy(iq_callbacks);
 	iq_callbacks = NULL;
@@ -673,4 +673,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(xmppdisco, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(xmpp_disco)
