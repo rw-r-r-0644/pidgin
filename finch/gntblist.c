@@ -26,6 +26,8 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+
 #include <purple.h>
 
 #include <gnt.h>
@@ -2450,6 +2452,13 @@ reconstruct_plugins_menu(void)
 }
 
 static void
+reconstruct_plugins_menu_cb(GObject *plugin_manager, GPluginPlugin *plugin,
+                            gpointer data)
+{
+	reconstruct_plugins_menu();
+}
+
+static void
 reconstruct_accounts_menu(void)
 {
 	GntWidget *sub;
@@ -2935,6 +2944,8 @@ group_collapsed(GntWidget *widget, PurpleBlistNode *node, gboolean collapsed, gp
 static void
 blist_show(PurpleBuddyList *list)
 {
+	GObject *plugin_manager = NULL;
+
 	if (ggblist->window) {
 		gnt_window_present(ggblist->window);
 		return;
@@ -2974,10 +2985,11 @@ blist_show(PurpleBuddyList *list)
 	purple_signal_connect(purple_blist_get_handle(), "buddy-idle-changed", finch_blist_get_handle(),
 				PURPLE_CALLBACK(buddy_idle_changed), ggblist);
 
-	purple_signal_connect(purple_plugins_get_handle(), "plugin-load", finch_blist_get_handle(),
-				PURPLE_CALLBACK(reconstruct_plugins_menu), NULL);
-	purple_signal_connect(purple_plugins_get_handle(), "plugin-unload", finch_blist_get_handle(),
-				PURPLE_CALLBACK(reconstruct_plugins_menu), NULL);
+	plugin_manager = gplugin_manager_get_instance();
+	g_signal_connect_object(plugin_manager, "loaded-plugin",
+	                        G_CALLBACK(reconstruct_plugins_menu_cb), ggblist, 0);
+	g_signal_connect_object(plugin_manager, "unloaded-plugin",
+	                        G_CALLBACK(reconstruct_plugins_menu_cb), ggblist, 0);
 
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-on", finch_blist_get_handle(),
 				PURPLE_CALLBACK(buddy_signed_on_off), ggblist);
