@@ -54,8 +54,8 @@ iconify_windows(PurpleAccount *account, PurpleStatus *old, PurpleStatus *newstat
  *  EXPORTED FUNCTIONS
  */
 
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+icon_away_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Eric Warmenhoven <eric@warmenhoven.org>",
@@ -79,7 +79,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+icon_away_load(GPluginPlugin *plugin, GError **error)
 {
 	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed",
 						plugin, PURPLE_CALLBACK(iconify_windows), NULL);
@@ -88,9 +88,9 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+icon_away_unload(GPluginPlugin *plugin, GError **error)
 {
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(iconaway, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(icon_away)

@@ -207,8 +207,8 @@ get_config_frame(PurplePlugin *plugin)
 	return ret;
 }
 
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+gestures_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Christian Hammond <chipx86@gnupdate.org>",
@@ -240,7 +240,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+gestures_load(GPluginPlugin *plugin, GError **error)
 {
 	PurpleConversation *conv;
 	GList *l;
@@ -272,7 +272,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+gestures_unload(GPluginPlugin *plugin, GError **error)
 {
 	PurpleConversation *conv;
 	PidginConversation *gtkconv;
@@ -293,4 +293,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(gestures, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(gestures)

@@ -869,8 +869,8 @@ get_config_frame(PurplePlugin *plugin)
 	return ret;
 }
 
-static PidginPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+notify_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Etan Reisner <deryni@eden.rutgers.edu>",
@@ -896,7 +896,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+notify_load(GPluginPlugin *plugin, GError **error)
 {
 	GList *convs = purple_conversations_get_all();
 	void *conv_handle = purple_conversations_get_handle();
@@ -959,7 +959,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+notify_unload(GPluginPlugin *plugin, GError **error)
 {
 	GList *convs = purple_conversations_get_all();
 
@@ -975,4 +975,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(notify, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(notify)

@@ -42,7 +42,7 @@ pidgin_plugin_info_class_init(PidginPluginInfoClass *klass) {
 /******************************************************************************
  * API
  *****************************************************************************/
-PidginPluginInfo *
+GPluginPluginInfo *
 pidgin_plugin_info_new(const char *first_property, ...)
 {
 	GObject *info;
@@ -60,5 +60,5 @@ pidgin_plugin_info_new(const char *first_property, ...)
 
 	g_object_set(info, "ui-requirement", PIDGIN_UI, NULL);
 
-	return PIDGIN_PLUGIN_INFO(info);
+	return GPLUGIN_PLUGIN_INFO(info);
 }
