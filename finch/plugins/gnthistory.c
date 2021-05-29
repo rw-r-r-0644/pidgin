@@ -181,9 +181,8 @@ static void history_prefs_cb(const char *name, PurplePrefType type,
 	history_prefs_check((PurplePlugin *)data);
 }
 
-static FinchPluginInfo *
-plugin_query(GError **error)
-{
+static GPluginPluginInfo *
+gnt_history_query(GError **error) {
 	const gchar * const authors[] = {
 		"Sean Egan <seanegan@gmail.com>",
 		"Sadrul H Chowdhury <sadrul@users.sourceforge.net>",
@@ -208,8 +207,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
-{
+gnt_history_load(GPluginPlugin *plugin, GError **error) {
 	purple_signal_connect(purple_conversations_get_handle(),
 						"conversation-created",
 						plugin, PURPLE_CALLBACK(historize), NULL);
@@ -225,9 +223,8 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
-{
+gnt_history_unload(GPluginPlugin *plugin, GError **error) {
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(gnthistory, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(gnt_history)

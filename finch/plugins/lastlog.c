@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#define PLUGIN_STATIC_NAME	GntLastlog
-
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
@@ -88,9 +86,8 @@ lastlog_cb(PurpleConversation *conv, const char *cmd, char **args, char **error,
 	return PURPLE_CMD_RET_OK;
 }
 
-static FinchPluginInfo *
-plugin_query(GError **error)
-{
+static GPluginPluginInfo *
+gnt_last_log_query(GError **error) {
 	const gchar * const authors[] = {
 		"Sadrul H Chowdhury <sadrul@users.sourceforge.net>",
 		NULL
@@ -111,8 +108,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
-{
+gnt_last_log_load(GPluginPlugin *plugin, GError **error) {
 	cmd = purple_cmd_register("lastlog", "s", PURPLE_CMD_P_DEFAULT,
 			PURPLE_CMD_FLAG_CHAT | PURPLE_CMD_FLAG_IM, NULL,
 			/* Translators: The "backlog" here refers to the the conversation buffer/history. */
@@ -121,10 +117,9 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
-{
+gnt_last_log_unload(GPluginPlugin *plugin, GError **error) {
 	purple_cmd_unregister(cmd);
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(PLUGIN_STATIC_NAME, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(gnt_last_log)
