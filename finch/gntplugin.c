@@ -128,7 +128,7 @@ static void finch_plugin_info_class_init(FinchPluginInfoClass *klass)
 		                     G_PARAM_STATIC_STRINGS));
 }
 
-FinchPluginInfo *
+GPluginPluginInfo *
 finch_plugin_info_new(const char *first_property, ...)
 {
 	GObject *info;
@@ -145,7 +145,7 @@ finch_plugin_info_new(const char *first_property, ...)
 
 	g_object_set(info, "ui-requirement", FINCH_UI, NULL);
 
-	return FINCH_PLUGIN_INFO(info);
+	return GPLUGIN_PLUGIN_INFO(info);
 }
 
 static void

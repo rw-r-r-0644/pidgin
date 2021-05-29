@@ -21,7 +21,6 @@
 
 #define PLUGIN_ID           "gntclipboard"
 #define PLUGIN_DOMAIN       (g_quark_from_static_string(PLUGIN_ID))
-#define PLUGIN_STATIC_NAME  GntClipboard
 
 #ifdef HAVE_X11
 #include <X11/Xlib.h>
@@ -102,9 +101,8 @@ clipboard_changed(GntWM *wm, gchar *string)
 }
 #endif
 
-static FinchPluginInfo *
-plugin_query(GError **error)
-{
+static GPluginPluginInfo *
+gnt_clipboard_query(GError **error) {
 	const gchar * const authors[] = {
 		"Richard Nelson <wabz@whatsbeef.net>",
 		NULL
@@ -126,8 +124,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
-{
+gnt_clipboard_load(GPluginPlugin *plugin, GError **error) {
 #ifdef HAVE_X11
 	if (!XOpenDisplay(NULL)) {
 		purple_debug_warning("gntclipboard", "Couldn't find X display\n");
@@ -151,8 +148,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
-{
+gnt_clipboard_unload(GPluginPlugin *plugin, GError **error) {
 #ifdef HAVE_X11
 	if (child) {
 		kill(child, SIGTERM);
@@ -163,4 +159,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(PLUGIN_STATIC_NAME, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(gnt_clipboard)

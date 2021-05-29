@@ -107,8 +107,7 @@ GType finch_plugin_info_get_type(void);
  *
  * Returns: A new #FinchPluginInfo instance.
  */
-FinchPluginInfo *finch_plugin_info_new(const char *first_property, ...)
-                 G_GNUC_NULL_TERMINATED;
+GPluginPluginInfo *finch_plugin_info_new(const char *first_property, ...) G_GNUC_NULL_TERMINATED;
 
 /**********************************************************************
  * GNT Plugins API

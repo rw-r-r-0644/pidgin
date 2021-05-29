@@ -21,7 +21,6 @@
 #include <glib.h>
 #include <libsoup/soup.h>
 
-#define PLUGIN_STATIC_NAME	TinyURL
 #define PREFS_BASE          "/plugins/gnt/tinyurl"
 #define PREF_LENGTH  PREFS_BASE "/length"
 #define PREF_URL  PREFS_BASE "/url"
@@ -453,9 +452,8 @@ get_plugin_pref_frame(PurplePlugin *plugin) {
   return frame;
 }
 
-static FinchPluginInfo *
-plugin_query(GError **error)
-{
+static GPluginPluginInfo *
+tiny_url_query(GError **error) {
 	const gchar * const authors[] = {
 		"Richard Nelson <wabz@whatsbeef.net>",
 		NULL
@@ -478,8 +476,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
-{
+tiny_url_load(GPluginPlugin *plugin, GError **error) {
 	PurpleNotifyUiOps *ops = purple_notify_get_ui_ops();
 
 	session = soup_session_new();
@@ -514,8 +511,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
-{
+tiny_url_unload(GPluginPlugin *plugin, GError **error) {
 	PurpleNotifyUiOps *ops = purple_notify_get_ui_ops();
 	if (ops->notify_uri == tinyurl_notify_uri)
 		ops->notify_uri = g_object_get_data(G_OBJECT(plugin), "notify-uri");
@@ -529,4 +525,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(PLUGIN_STATIC_NAME, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(tiny_url)

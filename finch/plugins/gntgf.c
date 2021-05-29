@@ -18,8 +18,6 @@
 
 #include NCURSES_HEADER
 
-#define PLUGIN_STATIC_NAME	GntGf
-
 #define PREFS_PREFIX          "/plugins/gnt/gntgf"
 #define PREFS_EVENT           PREFS_PREFIX "/events"
 #define PREFS_EVENT_SIGNONF   PREFS_EVENT "/signonf"
@@ -321,8 +319,8 @@ config_frame(void)
 	return window;
 }
 
-static FinchPluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+gnt_gf_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Sadrul H Chowdhury <sadrul@users.sourceforge.net>",
@@ -345,8 +343,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
-{
+gnt_gf_load(GPluginPlugin *plugin, GError **error) {
 	purple_prefs_add_none("/plugins");
 	purple_prefs_add_none("/plugins/gnt");
 
@@ -379,8 +376,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
-{
+gnt_gf_unload(GPluginPlugin *plugin, GError **error) {
 	while (toasters)
 	{
 		GntToast *toast = toasters->data;
@@ -389,4 +385,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(PLUGIN_STATIC_NAME, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(gnt_gf)
