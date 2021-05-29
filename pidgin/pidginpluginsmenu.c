@@ -214,15 +214,19 @@ pidgin_plugins_menu_remove_plugin_actions(PidginPluginsMenu *menu,
 }
 
 /******************************************************************************
- * Purple Signal Callbacks
+ * Callbacks
  *****************************************************************************/
 static void
-pidgin_plugins_menu_plugin_load_cb(PurplePlugin *plugin, gpointer data) {
+pidgin_plugins_menu_plugin_loaded_cb(GObject *manager, GPluginPlugin *plugin,
+                                     gpointer data)
+{
 	pidgin_plugins_menu_add_plugin_actions(PIDGIN_PLUGINS_MENU(data), plugin);
 }
 
 static void
-pidgin_plugins_menu_plugin_unload_cb(PurplePlugin *plugin, gpointer data) {
+pidgin_plugins_menu_plugin_unloaded_cb(GObject *manager, GPluginPlugin *plugin,
+                                       gpointer data)
+{
 	pidgin_plugins_menu_remove_plugin_actions(PIDGIN_PLUGINS_MENU(data),
 	                                          plugin);
 }
@@ -234,7 +238,7 @@ G_DEFINE_TYPE(PidginPluginsMenu, pidgin_plugins_menu, GTK_TYPE_MENU)
 
 static void
 pidgin_plugins_menu_init(PidginPluginsMenu *menu) {
-	gpointer handle;
+	GObject *manager = NULL;
 
 	/* initialize our template */
 	gtk_widget_init_template(GTK_WIDGET(menu));
@@ -250,29 +254,20 @@ pidgin_plugins_menu_init(PidginPluginsMenu *menu) {
 	                                           g_object_unref,
 	                                           (GDestroyNotify)gtk_widget_destroy);
 
-	/* finally connect to the purple signals to stay up to date */
-	handle = purple_plugins_get_handle();
-	purple_signal_connect(handle, "plugin-load", menu,
-	                      PURPLE_CALLBACK(pidgin_plugins_menu_plugin_load_cb),
-	                      menu);
-	purple_signal_connect(handle, "plugin-unload", menu,
-	                      PURPLE_CALLBACK(pidgin_plugins_menu_plugin_unload_cb),
-	                      menu);
+	/* Connect to the plugin manager's signals so we can stay up to date. */
+	manager = gplugin_manager_get_instance();
+
+	g_signal_connect_object(manager, "loaded-plugin",
+	                        G_CALLBACK(pidgin_plugins_menu_plugin_loaded_cb),
+	                        menu, 0);
+	g_signal_connect_object(manager, "unloaded-plugin",
+	                        G_CALLBACK(pidgin_plugins_menu_plugin_unloaded_cb),
+	                        menu, 0);
 };
 
 static void
-pidgin_plugins_menu_finalize(GObject *obj) {
-	purple_signals_disconnect_by_handle(obj);
-
-	G_OBJECT_CLASS(pidgin_plugins_menu_parent_class)->finalize(obj);
-}
-
-static void
 pidgin_plugins_menu_class_init(PidginPluginsMenuClass *klass) {
-	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-
-	obj_class->finalize = pidgin_plugins_menu_finalize;
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
