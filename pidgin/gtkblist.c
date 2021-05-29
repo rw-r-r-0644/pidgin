@@ -35,7 +35,6 @@
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
 #include "gtkstatusbox.h"
-#include "gtkscrollbook.h"
 #include "gtkutils.h"
 #include "pidgin/minidialog.h"
 #include "pidgin/pidginaccountchooser.h"
@@ -51,6 +50,7 @@
 #include "pidgin/pidginlog.h"
 #include "pidgin/pidginmooddialog.h"
 #include "pidgin/pidginplugininfo.h"
+#include "pidginscrollbook.h"
 #include "pidgin/pidginstylecontext.h"
 #include "pidgin/pidgintooltip.h"
 #include "pidgin/pidginwindow.h"
@@ -4365,7 +4365,9 @@ static gboolean pidgin_blist_select_notebook_page_cb(gpointer user_data)
 
 	/* this is far too ugly thanks to me not wanting to fix #3989 properly right now */
 	if (priv->error_scrollbook != NULL) {
-		errors = gtk_notebook_get_n_pages(GTK_NOTEBOOK(priv->error_scrollbook->notebook));
+		PidginScrollBook *scroll_book = PIDGIN_SCROLL_BOOK(priv->error_scrollbook);
+		GtkWidget *notebook = pidgin_scroll_book_get_notebook(scroll_book);
+		errors = gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));
 	}
 	if ((list = purple_accounts_get_all_active()) != NULL || errors) {
 		gtk_notebook_set_current_page(GTK_NOTEBOOK(gtkblist->notebook), 1);
@@ -4520,8 +4522,11 @@ find_child_widget_by_account(GtkContainer *container,
 	GList *children = NULL;
 	GtkWidget *ret = NULL;
 	/* XXX: Workaround for the currently incomplete implementation of PidginScrollBook */
-	if (PIDGIN_IS_SCROLL_BOOK(container))
-		container = GTK_CONTAINER(PIDGIN_SCROLL_BOOK(container)->notebook);
+	if(PIDGIN_IS_SCROLL_BOOK(container)) {
+		PidginScrollBook *scroll_book = PIDGIN_SCROLL_BOOK(container);
+		GtkWidget *notebook = pidgin_scroll_book_get_notebook(scroll_book);
+		container = GTK_CONTAINER(notebook);
+	}
 	children = gtk_container_get_children(container);
 	l = g_list_find_custom(children, account, (GCompareFunc) find_account_widget);
 	if (l)

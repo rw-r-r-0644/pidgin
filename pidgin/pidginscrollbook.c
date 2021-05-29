@@ -1,4 +1,6 @@
-/* pidgin
+/*
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,49 +17,27 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "gtkscrollbook.h"
+#include "pidginscrollbook.h"
 
-static void pidgin_scroll_book_init (PidginScrollBook *scroll_book);
-static void pidgin_scroll_book_class_init (PidginScrollBookClass *klass);
-static void pidgin_scroll_book_forall (GtkContainer *c,
-					 gboolean include_internals,
-					 GtkCallback callback,
-					 gpointer user_data);
+struct _PidginScrollBook {
+	GtkVBox parent;
 
-GType
-pidgin_scroll_book_get_type (void)
-{
-	static GType scroll_book_type = 0;
+	GtkWidget *notebook;
+	GtkWidget *hbox;
+	GtkWidget *label;
+	GtkWidget *left_arrow;
+	GtkWidget *right_arrow;
+	GList *children;
+};
 
-	if (!scroll_book_type)
-	{
-		static const GTypeInfo scroll_book_info =
-		{
-			sizeof (PidginScrollBookClass),
-			NULL, /* base_init */
-			NULL, /* base_finalize */
-			(GClassInitFunc) pidgin_scroll_book_class_init,
-			NULL, /* class_finalize */
-			NULL, /* class_data */
-			sizeof (PidginScrollBook),
-			0,
-			(GInstanceInitFunc) pidgin_scroll_book_init,
-			NULL  /* value_table */
-		};
+G_DEFINE_TYPE(PidginScrollBook, pidgin_scroll_book, GTK_TYPE_BOX)
 
-		scroll_book_type = g_type_register_static(GTK_TYPE_BOX,
-							 "PidginScrollBook",
-							 &scroll_book_info,
-							 0);
-	}
-
-	return scroll_book_type;
-}
-
+/******************************************************************************
+ * Helpers
+ *****************************************************************************/
 static gboolean
 scroll_left_cb(PidginScrollBook *scroll_book, GdkEventButton *event)
 {
@@ -148,6 +128,37 @@ switch_page_cb(GtkNotebook *notebook, GtkWidget *page, guint page_num, PidginScr
 	refresh_scroll_box(scroll_book, page_num, count);
 }
 
+static gboolean
+close_button_left_cb(GtkWidget *widget, GdkEventCrossing *event, GtkLabel *label)
+{
+	static GdkCursor *ptr = NULL;
+	if (ptr == NULL) {
+		GdkDisplay *display = gtk_widget_get_display(widget);
+		ptr = gdk_cursor_new_for_display(display, GDK_LEFT_PTR);
+	}
+
+	gtk_label_set_markup(label, "×");
+	gdk_window_set_cursor(event->window, ptr);
+	return FALSE;
+}
+
+static gboolean
+close_button_entered_cb(GtkWidget *widget, GdkEventCrossing *event, GtkLabel *label)
+{
+	static GdkCursor *hand = NULL;
+	if (hand == NULL) {
+		GdkDisplay *display = gtk_widget_get_display(widget);
+		hand = gdk_cursor_new_for_display(display, GDK_HAND2);
+	}
+
+	gtk_label_set_markup(label, "<u>×</u>");
+	gdk_window_set_cursor(event->window, hand);
+	return FALSE;
+}
+
+/******************************************************************************
+ * GtkContainer Implementation
+ *****************************************************************************/
 static void
 pidgin_scroll_book_add(GtkContainer *container, GtkWidget *widget)
 {
@@ -186,9 +197,6 @@ pidgin_scroll_book_forall(GtkContainer *container,
 			   GtkCallback callback,
 			   gpointer callback_data)
 {
-#if 0
-	GList *children;
-#endif
 	PidginScrollBook *scroll_book;
 
 	g_return_if_fail(GTK_IS_CONTAINER(container));
@@ -199,60 +207,25 @@ pidgin_scroll_book_forall(GtkContainer *container,
 		(*callback)(scroll_book->hbox, callback_data);
 		(*callback)(scroll_book->notebook, callback_data);
 	}
-
-#if 0
-	children = scroll_book->children;
-
-	while (children) {
-		GtkWidget *child;
-		child = children->data;
-		children = children->next;
-		(*callback)(child, callback_data);
-	}
-#endif
 }
 
+/******************************************************************************
+ * GObject Implementation
+ *****************************************************************************/
 static void
-pidgin_scroll_book_class_init (PidginScrollBookClass *klass)
-{
-	GtkContainerClass *container_class = (GtkContainerClass*)klass;
+pidgin_scroll_book_class_init(PidginScrollBookClass *klass) {
+	GtkContainerClass *container_class = GTK_CONTAINER_CLASS(klass);
 
 	container_class->add = pidgin_scroll_book_add;
 	container_class->remove = pidgin_scroll_book_remove;
 	container_class->forall = pidgin_scroll_book_forall;
 }
 
-static gboolean
-close_button_left_cb(GtkWidget *widget, GdkEventCrossing *event, GtkLabel *label)
-{
-	static GdkCursor *ptr = NULL;
-	if (ptr == NULL) {
-		GdkDisplay *display = gtk_widget_get_display(widget);
-		ptr = gdk_cursor_new_for_display(display, GDK_LEFT_PTR);
-	}
-
-	gtk_label_set_markup(label, "×");
-	gdk_window_set_cursor(event->window, ptr);
-	return FALSE;
-}
-
-static gboolean
-close_button_entered_cb(GtkWidget *widget, GdkEventCrossing *event, GtkLabel *label)
-{
-	static GdkCursor *hand = NULL;
-	if (hand == NULL) {
-		GdkDisplay *display = gtk_widget_get_display(widget);
-		hand = gdk_cursor_new_for_display(display, GDK_HAND2);
-	}
-
-	gtk_label_set_markup(label, "<u>×</u>");
-	gdk_window_set_cursor(event->window, hand);
-	return FALSE;
-}
-
 static void
-pidgin_scroll_book_init (PidginScrollBook *scroll_book)
-{
+pidgin_scroll_book_init(PidginScrollBook *scroll_book) {
+	GIcon *icon;
+	GtkWidget *eb;
+	GtkWidget *close_button;
 	const gchar *left_arrow_icon_names[] = {
 	        "pan-start-symbolic",
 	        "pan-left-symbolic",
@@ -261,9 +234,6 @@ pidgin_scroll_book_init (PidginScrollBook *scroll_book)
 	        "pan-end-symbolic",
 	        "pan-right-symbolic",
 	};
-	GIcon *icon;
-	GtkWidget *eb;
-	GtkWidget *close_button;
 
 	gtk_orientable_set_orientation(GTK_ORIENTABLE(scroll_book), GTK_ORIENTATION_VERTICAL);
 
@@ -319,8 +289,20 @@ pidgin_scroll_book_init (PidginScrollBook *scroll_book)
 	gtk_widget_show_all(scroll_book->notebook);
 }
 
+/******************************************************************************
+ * Public API
+ *****************************************************************************/
 GtkWidget *
-pidgin_scroll_book_new()
-{
-	return g_object_new(PIDGIN_TYPE_SCROLL_BOOK, NULL);
+pidgin_scroll_book_new() {
+	return g_object_new(
+		PIDGIN_TYPE_SCROLL_BOOK,
+		"orientation", GTK_ORIENTATION_VERTICAL,
+		NULL);
+}
+
+GtkWidget *
+pidgin_scroll_book_get_notebook(PidginScrollBook *scroll_book) {
+	g_return_val_if_fail(PIDGIN_IS_SCROLL_BOOK(scroll_book), NULL);
+
+	return scroll_book->notebook;
 }
