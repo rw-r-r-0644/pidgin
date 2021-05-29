@@ -26,6 +26,8 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+
 #include <purple.h>
 
 #include <gnt.h>
@@ -564,7 +566,7 @@ invite_cb(GntMenuItem *item, gpointer ggconv)
 }
 
 static void
-plugin_changed_cb(PurplePlugin *p, gpointer data)
+plugin_changed_cb(GObject *plugin_manager, GPluginPlugin *p, gpointer data)
 {
 	gg_extended_menu(data);
 }
@@ -726,6 +728,7 @@ static void
 finch_create_conversation(PurpleConversation *conv)
 {
 	FinchConv *ggc = FINCH_CONV(conv);
+	GObject *plugin_manager = NULL;
 	char *title;
 	PurpleConversation *cc;
 	PurpleAccount *account;
@@ -832,10 +835,11 @@ finch_create_conversation(PurpleConversation *conv)
 	purple_signal_connect(purple_cmds_get_handle(), "cmd-removed", ggc,
 			G_CALLBACK(cmd_removed_cb), ggc);
 
-	purple_signal_connect(purple_plugins_get_handle(), "plugin-load", ggc,
-				PURPLE_CALLBACK(plugin_changed_cb), ggc);
-	purple_signal_connect(purple_plugins_get_handle(), "plugin-unload", ggc,
-				PURPLE_CALLBACK(plugin_changed_cb), ggc);
+	plugin_manager = gplugin_manager_get_instance();
+	g_signal_connect_object(plugin_manager, "loaded-plugin",
+	                        G_CALLBACK(plugin_changed_cb), ggc, 0);
+	g_signal_connect_object(plugin_manager, "unloaded-plugin",
+	                        G_CALLBACK(plugin_changed_cb), ggc, 0);
 
 	g_free(title);
 	gnt_box_give_focus_to_child(GNT_BOX(ggc->window), ggc->entry);
