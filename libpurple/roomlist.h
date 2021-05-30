@@ -138,16 +138,11 @@ struct _PurpleRoomlistUiOps {
 
 /**
  * PurpleRoomlist:
- * @ui_data: The UI data associated with this room list. This is a convenience
- *           field provided to the UIs -- it is not used by the libpurple core.
  *
  * Represents a list of rooms for a given connection on a given protocol.
  */
 struct _PurpleRoomlist {
 	GObject gparent;
-
-	/*< public >*/
-	gpointer ui_data;
 };
 
 G_BEGIN_DECLS
@@ -312,27 +307,6 @@ gpointer purple_roomlist_get_protocol_data(PurpleRoomlist *list);
  * Set the protocol data associated with this room list.
  */
 void purple_roomlist_set_protocol_data(PurpleRoomlist *list, gpointer proto_data);
-
-/**
- * purple_roomlist_get_ui_data:
- * @list: The roomlist, which must not be %NULL.
- *
- * Get the UI data associated with this room list.
- *
- * Returns: The UI data associated with this room list.  This is a
- *         convenience field provided to the UIs--it is not
- *         used by the libpurple core.
- */
-gpointer purple_roomlist_get_ui_data(PurpleRoomlist *list);
-
-/**
- * purple_roomlist_set_ui_data:
- * @list: The roomlist, which must not be %NULL.
- * @ui_data: A pointer to associate with this room list.
- *
- * Set the UI data associated with this room list.
- */
-void purple_roomlist_set_ui_data(PurpleRoomlist *list, gpointer ui_data);
 
 /**************************************************************************/
 /* Protocol Roomlist Interface API                                        */

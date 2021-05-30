@@ -335,7 +335,7 @@ fl_show_with_account(PurpleAccount *account)
 static void
 fl_create(PurpleRoomlist *list)
 {
-	purple_roomlist_set_ui_data(list, &froomlist);
+	g_object_set_data(G_OBJECT(list), "finch-ui", &froomlist);
 	setup_roomlist(NULL);
 	update_roomlist(list);
 }
