@@ -244,20 +244,6 @@ void purple_roomlist_set_protocol_data(PurpleRoomlist *list, gpointer proto_data
 	priv->proto_data = proto_data;
 }
 
-gpointer purple_roomlist_get_ui_data(PurpleRoomlist *list)
-{
-	g_return_val_if_fail(PURPLE_IS_ROOMLIST(list), NULL);
-
-	return list->ui_data;
-}
-
-void purple_roomlist_set_ui_data(PurpleRoomlist *list, gpointer ui_data)
-{
-	g_return_if_fail(PURPLE_IS_ROOMLIST(list));
-
-	list->ui_data = ui_data;
-}
-
 /**************************************************************************/
 /* Room List GObject code                                                 */
 /**************************************************************************/
