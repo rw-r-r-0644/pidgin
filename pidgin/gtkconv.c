@@ -27,6 +27,8 @@
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
 
+#include <gplugin.h>
+
 #define BUF_LONG (4096)
 
 #ifdef HAVE_X11
@@ -5687,7 +5689,7 @@ create_icon_lists(GtkWidget *w)
 }
 
 static void
-plugin_changed_cb(PurplePlugin *p, gpointer data)
+plugin_changed_cb(GObject *manager, GPluginPlugin *p, gpointer data)
 {
 	regenerate_plugins_items(data);
 }
@@ -5779,6 +5781,7 @@ pidgin_conv_window_new()
 	GtkWidget *testidea;
 	GtkWidget *menubar;
 	GdkModifierType state;
+	GObject *manager;
 
 	win = g_malloc0(sizeof(PidginConvWindow));
 	win->menu = g_malloc0(sizeof(PidginConvWindowMenu));
@@ -5846,11 +5849,11 @@ pidgin_conv_window_new()
 	gtk_box_pack_start(GTK_BOX(testidea), win->notebook, TRUE, TRUE, 0);
 
 	/* Update the plugin actions when plugins are (un)loaded */
-	purple_signal_connect(purple_plugins_get_handle(), "plugin-load",
-			win, PURPLE_CALLBACK(plugin_changed_cb), win);
-	purple_signal_connect(purple_plugins_get_handle(), "plugin-unload",
-			win, PURPLE_CALLBACK(plugin_changed_cb), win);
-
+	manager = gplugin_manager_get_instance();
+	g_signal_connect(manager, "loaded-plugin", G_CALLBACK(plugin_changed_cb),
+	                 win);
+	g_signal_connect(manager, "unloaded-plugin",
+	                 G_CALLBACK(plugin_changed_cb), win);
 
 #ifdef _WIN32
 	g_signal_connect(G_OBJECT(win->window), "show",
