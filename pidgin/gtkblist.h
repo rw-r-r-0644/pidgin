@@ -62,8 +62,8 @@ typedef enum {
  * @refresh_timer:     The timer for refreshing every 30 seconds
  * @timeout:           The timeout for the tooltip.
  * @drag_timeout:      The timeout for expanding contacts on drags
- * @tip_rect:          This is the bounding rectangle of the cell we're
- *                     currently hovering over.  This is used for tooltips.
+ * @drag_rect:         This is the bounding rectangle of the cell we're
+ *                     currently hovering over.  This is used for drag'n'drop.
  * @contact_rect:      This is the bounding rectangle of the contact node and
  *                     its children.  This is used for auto-expand on mouseover.
  * @mouseover_contact: This is the contact currently mouse-over expanded
@@ -105,7 +105,7 @@ struct _PidginBuddyList {
 
 	guint      timeout;
 	guint      drag_timeout;
-	GdkRectangle tip_rect;
+	GdkRectangle drag_rect;
 	GdkRectangle contact_rect;
 	PurpleBlistNode *mouseover_contact;
 
