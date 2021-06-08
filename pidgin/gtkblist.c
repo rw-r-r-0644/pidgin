@@ -3094,9 +3094,14 @@ static gboolean pidgin_blist_expand_timeout(GtkWidget *tv)
 	PurpleBlistNode *node;
 	PidginBlistNode *gtknode;
 
-	if (!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tv), gtkblist->tip_rect.x, gtkblist->tip_rect.y + (gtkblist->tip_rect.height/2),
-		&path, NULL, NULL, NULL))
+	if (!gtk_tree_view_get_path_at_pos(
+	        GTK_TREE_VIEW(tv),
+	        gtkblist->drag_rect.x,
+	        gtkblist->drag_rect.y + (gtkblist->drag_rect.height/2),
+	        &path, NULL, NULL, NULL))
+	{
 		return FALSE;
+	}
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(gtkblist->treemodel), &iter, path);
 	gtk_tree_model_get(GTK_TREE_MODEL(gtkblist->treemodel), &iter, NODE_COLUMN, &node, -1);
 
@@ -3163,8 +3168,11 @@ static gboolean pidgin_blist_drag_motion_cb(GtkWidget *tv, GdkDragContext *drag_
 	delay = 900;
 
 	if (gtkblist->drag_timeout) {
-		if ((y > gtkblist->tip_rect.y) && ((y - gtkblist->tip_rect.height) < gtkblist->tip_rect.y))
+		if (y > gtkblist->drag_rect.y &&
+		        (y - gtkblist->drag_rect.height) < gtkblist->drag_rect.y)
+		{
 			return FALSE;
+		}
 		/* We've left the cell.  Remove the timeout and create a new one below */
 		g_source_remove(gtkblist->drag_timeout);
 	}
@@ -3183,8 +3191,7 @@ static gboolean pidgin_blist_drag_motion_cb(GtkWidget *tv, GdkDragContext *drag_
 	rect.height = rect.height / 3;
 	rect.y += rect.height;
 
-	gtkblist->tip_rect = rect;
-
+	gtkblist->drag_rect = rect;
 	gtkblist->drag_timeout = g_timeout_add(delay, (GSourceFunc)pidgin_blist_expand_timeout, tv);
 
 	if (gtkblist->mouseover_contact) {
