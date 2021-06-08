@@ -60,7 +60,6 @@ typedef enum {
  * @menutray:          The menu tray widget.
  * @menutrayicon:      The menu tray icon.
  * @refresh_timer:     The timer for refreshing every 30 seconds
- * @timeout:           The timeout for the tooltip.
  * @drag_timeout:      The timeout for expanding contacts on drags
  * @drag_rect:         This is the bounding rectangle of the cell we're
  *                     currently hovering over.  This is used for drag'n'drop.
@@ -103,7 +102,6 @@ struct _PidginBuddyList {
 
 	guint refresh_timer;
 
-	guint      timeout;
 	guint      drag_timeout;
 	GdkRectangle drag_rect;
 	GdkRectangle contact_rect;
