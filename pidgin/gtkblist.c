@@ -1920,14 +1920,6 @@ pidgin_blist_show_context_menu(GtkWidget *tv, PurpleBlistNode *node, GdkEvent *e
 
 #ifdef _WIN32
 	pidgin_blist_tooltip_destroy();
-
-	/* Unhook the tooltip-timeout since we don't want a tooltip
-	 * to appear and obscure the context menu we are about to show
-	   This is a workaround for GTK+ bug 107320. */
-	if (gtkblist->timeout) {
-		g_source_remove(gtkblist->timeout);
-		gtkblist->timeout = 0;
-	}
 #endif
 
 	/* Now display the menu */
@@ -2150,15 +2142,6 @@ static void pidgin_blist_drag_begin(GtkWidget *widget,
 		GdkDragContext *drag_context, gpointer user_data)
 {
 	pidgin_blist_tooltip_destroy();
-
-
-	/* Unhook the tooltip-timeout since we don't want a tooltip
-	 * to appear and obscure the dragging operation.
-	 * This is a workaround for GTK+ bug 107320. */
-	if (gtkblist->timeout) {
-		g_source_remove(gtkblist->timeout);
-		gtkblist->timeout = 0;
-	}
 }
 #endif
 
@@ -3242,11 +3225,6 @@ static gboolean pidgin_blist_motion_cb (GtkWidget *tv, GdkEventMotion *event, gp
 
 static gboolean pidgin_blist_leave_cb (GtkWidget *w, GdkEventCrossing *e, gpointer n)
 {
-	if (gtkblist->timeout) {
-		g_source_remove(gtkblist->timeout);
-		gtkblist->timeout = 0;
-	}
-
 	if (gtkblist->drag_timeout) {
 		g_source_remove(gtkblist->drag_timeout);
 		gtkblist->drag_timeout = 0;
@@ -6713,10 +6691,6 @@ pidgin_buddy_list_finalize(GObject *obj)
 	if (gtkblist->refresh_timer) {
 		g_source_remove(gtkblist->refresh_timer);
 		gtkblist->refresh_timer = 0;
-	}
-	if (gtkblist->timeout) {
-		g_source_remove(gtkblist->timeout);
-		gtkblist->timeout = 0;
 	}
 	if (gtkblist->drag_timeout) {
 		g_source_remove(gtkblist->drag_timeout);
