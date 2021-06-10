@@ -604,15 +604,6 @@ void purple_plugins_load_saved(const char *key);
 /**************************************************************************/
 
 /**
- * purple_plugins_get_handle:
- *
- * Returns the plugin subsystem handle.
- *
- * Returns: (transfer none): The plugin sybsystem handle.
- */
-void *purple_plugins_get_handle(void);
-
-/**
  * purple_plugins_init:
  *
  * Initializes the plugin subsystem

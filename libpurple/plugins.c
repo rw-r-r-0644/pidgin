@@ -131,7 +131,6 @@ plugin_loaded_cb(GObject *manager, PurplePlugin *plugin)
 
 	purple_debug_info("plugins", "Loaded plugin %s\n", filename);
 
-	purple_signal_emit(purple_plugins_get_handle(), "plugin-load", plugin);
 	g_free(filename);
 }
 
@@ -180,8 +179,6 @@ plugin_unloaded_cb(GObject *manager, PurplePlugin *plugin)
 
 	loaded_plugins     = g_list_remove(loaded_plugins, plugin);
 	plugins_to_disable = g_list_remove(plugins_to_disable, plugin);
-
-	purple_signal_emit(purple_plugins_get_handle(), "plugin-unload", plugin);
 
 	purple_prefs_disconnect_by_handle(plugin);
 }
@@ -791,26 +788,11 @@ purple_plugins_load_saved(const char *key)
 /**************************************************************************
  * Plugins Subsystem API
  **************************************************************************/
-void *
-purple_plugins_get_handle(void)
-{
-	static int handle;
-
-	return &handle;
-}
-
 void
 purple_plugins_init(void)
 {
-	void *handle = purple_plugins_get_handle();
+	GObject *manager = NULL;
 	const gchar *search_path;
-
-	purple_signal_register(handle, "plugin-load",
-	                       purple_marshal_VOID__POINTER,
-	                       G_TYPE_NONE, 1, PURPLE_TYPE_PLUGIN);
-	purple_signal_register(handle, "plugin-unload",
-	                       purple_marshal_VOID__POINTER,
-	                       G_TYPE_NONE, 1, PURPLE_TYPE_PLUGIN);
 
 	gplugin_init(GPLUGIN_CORE_FLAGS_NONE);
 
@@ -835,13 +817,14 @@ purple_plugins_init(void)
 		purple_debug_info("plugins", "PURPLE_PLUGINS_SKIP environment variable set, skipping normal plugin paths");
 	}
 
-	g_signal_connect(gplugin_manager_get_instance(), "loading-plugin",
-	                 G_CALLBACK(plugin_loading_cb), NULL);
-	g_signal_connect(gplugin_manager_get_instance(), "loaded-plugin",
-	                 G_CALLBACK(plugin_loaded_cb), NULL);
-	g_signal_connect(gplugin_manager_get_instance(), "unloading-plugin",
+	manager = gplugin_manager_get_instance();
+	g_signal_connect(manager, "loading-plugin", G_CALLBACK(plugin_loading_cb),
+	                 NULL);
+	g_signal_connect(manager, "loaded-plugin", G_CALLBACK(plugin_loaded_cb),
+	                 NULL);
+	g_signal_connect(manager, "unloading-plugin",
 	                 G_CALLBACK(plugin_unloading_cb), NULL);
-	g_signal_connect(gplugin_manager_get_instance(), "unloaded-plugin",
+	g_signal_connect(manager, "unloaded-plugin",
 	                 G_CALLBACK(plugin_unloaded_cb), NULL);
 
 	purple_plugins_refresh();
@@ -850,14 +833,9 @@ purple_plugins_init(void)
 void
 purple_plugins_uninit(void)
 {
-	void *handle = purple_plugins_get_handle();
-
 	purple_debug_info("plugins", "Unloading all plugins\n");
 	while (loaded_plugins != NULL)
 		purple_plugin_unload(loaded_plugins->data, NULL);
-
-	purple_signals_disconnect_by_handle(handle);
-	purple_signals_unregister_by_instance(handle);
 
 	gplugin_uninit();
 }
