@@ -425,10 +425,13 @@ version 3.0.0 (??/??/????):
 		* purple_plugin_probe
 		* purple_plugin_register
 		* purple_plugin_reload
+		* purple_plugins:plugin-load signal
+		* purple-plugins:plugin-unload signal
 		* purple_plugins_destroy_all
 		* purple_plugins_enabled
 		* purple_plugins_find_with_basename
 		* purple_plugins_find_with_name
+		* purple_plugins_get_handle
 		* purple_plugins_get_protocols
 		* purple_plugins_get_search_paths
 		* purple_plugins_register_load_notify_cb
