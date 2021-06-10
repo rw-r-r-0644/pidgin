@@ -572,6 +572,7 @@ version 3.0.0 (??/??/????):
 		* purple_time_build. Use g_date_time_new* instead.
 		* purple_time_format. Use g_date_time_format instead.
 		* purple_timeout_*. Use g_timeout_* or g_idle_* instead.
+		* pidgin_tooltip_setup_for_widget
 		* purple_txt_cancel
 		* purple_txt_resolve_account
 		* PurpleType, use GType instead.
