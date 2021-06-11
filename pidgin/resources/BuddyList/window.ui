@@ -336,7 +336,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <property name="action-name">app.online-help</property>
                         <property name="label" translatable="yes">Online _Help</property>
                         <property name="use-underline">True</property>
-                        <accelerator key="F1" signal="activate"/>
                       </object>
                     </child>
                     <child>
