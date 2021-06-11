@@ -66,14 +66,6 @@ typedef struct {
 	GtkWidget *tree;
 	GHashTable *cats; /* Meow. */
 	gint num_rooms, total_rooms;
-	GtkWidget *tipwindow;
-	GdkRectangle tip_rect;
-	PangoLayout *tip_layout;
-	PangoLayout *tip_name_layout;
-	int tip_height;
-	int tip_width;
-	int tip_name_height;
-	int tip_name_width;
 } PidginRoomlist;
 
 enum {
@@ -361,62 +353,19 @@ static void row_expanded_cb(GtkTreeView *treeview, GtkTreeIter *arg1, GtkTreePat
 }
 
 #define SMALL_SPACE 6
-#define TOOLTIP_BORDER 12
 
 static gboolean
-pidgin_roomlist_paint_tooltip(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+pidgin_roomlist_query_tooltip(GtkWidget *widget, int x, int y,
+                              gboolean keyboard_mode, GtkTooltip *tooltip,
+                              gpointer data)
 {
-	PurpleRoomlist *list = user_data;
+	PurpleRoomlist *list = data;
 	PidginRoomlist *grl = NULL;
-	int current_height, max_width;
-	int max_text_width;
-	GtkTextDirection dir;
-	GtkStyleContext *context;
-
-	grl = g_object_get_data(G_OBJECT(list), PIDGIN_ROOMLIST_UI_DATA);
-	dir = gtk_widget_get_direction(GTK_WIDGET(grl->tree));
-
-	context = gtk_widget_get_style_context(grl->tipwindow);
-	gtk_style_context_add_class(context, GTK_STYLE_CLASS_TOOLTIP);
-
-	max_text_width = MAX(grl->tip_width, grl->tip_name_width);
-	max_width = TOOLTIP_BORDER + SMALL_SPACE + max_text_width + TOOLTIP_BORDER;
-
-	current_height = 12;
-
-	if (dir == GTK_TEXT_DIR_RTL) {
-		gtk_render_layout(context, cr,
-		                  max_width - (TOOLTIP_BORDER + SMALL_SPACE) - PANGO_PIXELS(600000),
-		                  current_height,
-		                  grl->tip_name_layout);
-	} else {
-		gtk_render_layout(context, cr,
-		                  TOOLTIP_BORDER + SMALL_SPACE,
-		                  current_height,
-		                  grl->tip_name_layout);
-	}
-	if (dir != GTK_TEXT_DIR_RTL) {
-		gtk_render_layout(context, cr,
-		                  TOOLTIP_BORDER + SMALL_SPACE,
-		                  current_height + grl->tip_name_height,
-		                  grl->tip_layout);
-	} else {
-		gtk_render_layout(context, cr,
-		                  max_width - (TOOLTIP_BORDER + SMALL_SPACE) - PANGO_PIXELS(600000),
-		                  current_height + grl->tip_name_height,
-		                  grl->tip_layout);
-	}
-
-	return FALSE;
-}
-
-static gboolean pidgin_roomlist_create_tip(PurpleRoomlist *list, GtkTreePath *path)
-{
-	PidginRoomlist *grl = NULL;
+	GtkTreePath *path = NULL;
 	PurpleRoomlistRoom *room;
 	GtkTreeIter iter;
 	GValue val;
-	gchar *name, *tmp, *node_name;
+	gchar *name, *tmp;
 	GString *tooltip_text = NULL;
 	GList *l, *k;
 	gint j;
@@ -424,43 +373,78 @@ static gboolean pidgin_roomlist_create_tip(PurpleRoomlist *list, GtkTreePath *pa
 
 	grl = g_object_get_data(G_OBJECT(list), PIDGIN_ROOMLIST_UI_DATA);
 
-#if 0
-	if (!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tv), grl->tip_rect.x, grl->tip_rect.y + (grl->tip_rect.height/2),
-		&path, NULL, NULL, NULL))
-		return FALSE;
-#endif
-	gtk_tree_model_get_iter(GTK_TREE_MODEL(grl->model), &iter, path);
+	if (keyboard_mode) {
+		GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+		if (!gtk_tree_selection_get_selected(selection, NULL, &iter)) {
+			return FALSE;
+		}
+		path = gtk_tree_model_get_path(GTK_TREE_MODEL(grl->model), &iter);
+	} else {
+		gint bx, by;
+
+		gtk_tree_view_convert_widget_to_bin_window_coords(GTK_TREE_VIEW(widget),
+		                                                  x, y, &bx, &by);
+		gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget), bx, by, &path,
+		                              NULL, NULL, NULL);
+		if (path == NULL) {
+			return FALSE;
+		}
+
+		if (!gtk_tree_model_get_iter(GTK_TREE_MODEL(grl->model), &iter, path)) {
+			gtk_tree_path_free(path);
+			return FALSE;
+		}
+	}
 
 	val.g_type = 0;
-	gtk_tree_model_get_value(GTK_TREE_MODEL(grl->model), &iter, ROOM_COLUMN, &val);
+	gtk_tree_model_get_value(GTK_TREE_MODEL(grl->model), &iter, ROOM_COLUMN,
+	                         &val);
 	room = g_value_get_pointer(&val);
 
-	if (!room || !(purple_roomlist_room_get_room_type(room) & PURPLE_ROOMLIST_ROOMTYPE_ROOM))
+	if (!room ||
+	    !(purple_roomlist_room_get_room_type(room) & PURPLE_ROOMLIST_ROOMTYPE_ROOM))
+	{
+		gtk_tree_path_free(path);
 		return FALSE;
+	}
 
 	tooltip_text = g_string_new("");
+
 	gtk_tree_model_get(GTK_TREE_MODEL(grl->model), &iter, NAME_COLUMN, &name, -1);
+	tmp = g_markup_escape_text(name, -1);
+	g_free(name);
+	g_string_append_printf(
+	    tooltip_text, "<span size='x-large' weight='bold'>%s</span>\n", tmp);
+	g_free(tmp);
 
 	for (j = NUM_OF_COLUMNS,
-				l = purple_roomlist_room_get_fields(room),
-				k = purple_roomlist_get_fields(list);
-			l && k; j++, l = l->next, k = k->next)
+	     l = purple_roomlist_room_get_fields(room),
+	     k = purple_roomlist_get_fields(list);
+	     l && k;
+	     j++, l = l->next, k = k->next)
 	{
 		PurpleRoomlistField *f = k->data;
 		gchar *label;
-		if (purple_roomlist_field_get_hidden(f))
+		if (purple_roomlist_field_get_hidden(f)) {
 			continue;
+		}
 		label = g_markup_escape_text(purple_roomlist_field_get_label(f), -1);
 		switch (purple_roomlist_field_get_field_type(f)) {
 			case PURPLE_ROOMLIST_FIELD_BOOL:
-				g_string_append_printf(tooltip_text, "%s<b>%s:</b> %s", first ? "" : "\n", label, l->data ? "True" : "False");
+				g_string_append_printf(
+				    tooltip_text, "%s<b>%s:</b> %s", first ? "" : "\n", label,
+				    l->data ? "True" : "False");
 				break;
 			case PURPLE_ROOMLIST_FIELD_INT:
-				g_string_append_printf(tooltip_text, "%s<b>%s:</b> %d", first ? "" : "\n", label, GPOINTER_TO_INT(l->data));
+				g_string_append_printf(
+				    tooltip_text, "%s<b>%s:</b> %d", first ? "" : "\n", label,
+				    GPOINTER_TO_INT(l->data));
 				break;
 			case PURPLE_ROOMLIST_FIELD_STRING:
 				tmp = g_markup_escape_text((char *)l->data, -1);
-				g_string_append_printf(tooltip_text, "%s<b>%s:</b> %s", first ? "" : "\n", label, tmp);
+				g_string_append_printf(
+				    tooltip_text, "%s<b>%s:</b> %s", first ? "" : "\n", label,
+				    tmp);
 				g_free(tmp);
 				break;
 		}
@@ -468,53 +452,11 @@ static gboolean pidgin_roomlist_create_tip(PurpleRoomlist *list, GtkTreePath *pa
 		g_free(label);
 	}
 
-	grl->tip_layout = gtk_widget_create_pango_layout(grl->tipwindow, NULL);
-	grl->tip_name_layout = gtk_widget_create_pango_layout(grl->tipwindow, NULL);
-
-	tmp = g_markup_escape_text(name, -1);
-	g_free(name);
-	node_name = g_strdup_printf("<span size='x-large' weight='bold'>%s</span>", tmp);
-	g_free(tmp);
-
-	pango_layout_set_markup(grl->tip_layout, tooltip_text->str, -1);
-	pango_layout_set_wrap(grl->tip_layout, PANGO_WRAP_WORD);
-	pango_layout_set_width(grl->tip_layout, 600000);
-
-	pango_layout_get_size (grl->tip_layout, &grl->tip_width, &grl->tip_height);
-	grl->tip_width = PANGO_PIXELS(grl->tip_width);
-	grl->tip_height = PANGO_PIXELS(grl->tip_height);
-
-	pango_layout_set_markup(grl->tip_name_layout, node_name, -1);
-	pango_layout_set_wrap(grl->tip_name_layout, PANGO_WRAP_WORD);
-	pango_layout_set_width(grl->tip_name_layout, 600000);
-
-	pango_layout_get_size (grl->tip_name_layout, &grl->tip_name_width, &grl->tip_name_height);
-	grl->tip_name_width = PANGO_PIXELS(grl->tip_name_width) + SMALL_SPACE;
-	grl->tip_name_height = MAX(PANGO_PIXELS(grl->tip_name_height), SMALL_SPACE);
-
-	g_free(node_name);
+	gtk_tooltip_set_markup(tooltip, tooltip_text->str);
+	gtk_tree_view_set_tooltip_row(GTK_TREE_VIEW(widget), tooltip, path);
 	g_string_free(tooltip_text, TRUE);
+	gtk_tree_path_free(path);
 
-	return TRUE;
-}
-
-static gboolean
-pidgin_roomlist_create_tooltip(GtkWidget *widget, GtkTreePath *path,
-		gpointer data, int *w, int *h)
-{
-	PurpleRoomlist *list = data;
-	PidginRoomlist *grl = NULL;
-
-	grl = g_object_get_data(G_OBJECT(list), PIDGIN_ROOMLIST_UI_DATA);
-	grl->tipwindow = widget;
-	if (!pidgin_roomlist_create_tip(data, path))
-		return FALSE;
-	if (w)
-		*w = TOOLTIP_BORDER + SMALL_SPACE +
-			MAX(grl->tip_width, grl->tip_name_width) + TOOLTIP_BORDER;
-	if (h)
-		*h = TOOLTIP_BORDER + grl->tip_height + grl->tip_name_height
-			+ TOOLTIP_BORDER;
 	return TRUE;
 }
 
@@ -789,9 +731,9 @@ static void pidgin_roomlist_set_fields(PurpleRoomlist *list, GList *fields)
 	g_signal_connect(G_OBJECT(tree), "motion-notify-event", G_CALLBACK(row_motion_cb), list);
 	g_signal_connect(G_OBJECT(tree), "leave-notify-event", G_CALLBACK(row_leave_cb), list);
 #endif
-	pidgin_tooltip_setup_for_treeview(tree, list,
-		pidgin_roomlist_create_tooltip,
-		pidgin_roomlist_paint_tooltip);
+	gtk_widget_set_has_tooltip(tree, TRUE);
+	g_signal_connect(G_OBJECT(tree), "query-tooltip",
+	                 G_CALLBACK(pidgin_roomlist_query_tooltip), list);
 
 	/* Enable CTRL+F searching */
 	gtk_tree_view_set_search_column(GTK_TREE_VIEW(tree), NAME_COLUMN);
