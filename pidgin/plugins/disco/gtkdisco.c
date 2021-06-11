@@ -265,6 +265,7 @@ service_click_cb(GtkTreeView *tree, GdkEventButton *event, gpointer user_data)
 	PidginDiscoDialog *dialog = user_data;
 	XmppDiscoService *service;
 	GtkWidget *menu;
+	GtkWidget *menuitem = NULL;
 
 	GtkTreePath *path;
 	GtkTreeIter iter;
@@ -290,15 +291,17 @@ service_click_cb(GtkTreeView *tree, GdkEventButton *event, gpointer user_data)
 	menu = gtk_menu_new();
 
 	if (service->flags & XMPP_DISCO_ADD) {
-		pidgin_new_menu_item(menu, _("Add to Buddy List"), NULL,
-		                     G_CALLBACK(add_to_blist_cb), dialog);
+		menuitem = gtk_menu_item_new_with_label(_("Add to Buddy List"));
+		g_signal_connect(G_OBJECT(menuitem), "activate",
+		                 G_CALLBACK(add_to_blist_cb), dialog);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	}
 
 	if (service->flags & XMPP_DISCO_REGISTER) {
-		GtkWidget *item = pidgin_new_menu_item(menu, _("Register"),
-                                NULL, NULL, NULL);
-		g_signal_connect(G_OBJECT(item), "activate",
+		menuitem = gtk_menu_item_new_with_label(_("Register"));
+		g_signal_connect(G_OBJECT(menuitem), "activate",
 		                 G_CALLBACK(register_button_cb), dialog);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	}
 
 	gtk_widget_show_all(menu);
