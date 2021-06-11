@@ -230,14 +230,12 @@ purple_notification_sound_actions(PurplePlugin *plugin) {
  *****************************************************************************/
 static GPluginPluginInfo *
 notification_sound_query(G_GNUC_UNUSED GError **error) {
-	PurplePluginInfo *info = NULL;
-
 	const gchar * const authors[] = {
 		"Pidgin Developers <devel@pidgin.im>",
 		NULL
 	};
 
-	info = purple_plugin_info_new(
+	return purple_plugin_info_new(
 		"id", "purple/notification-sound",
 		"abi-version", PURPLE_ABI_VERSION,
 		"name", N_("Notification Sounds"),
@@ -247,8 +245,6 @@ notification_sound_query(G_GNUC_UNUSED GError **error) {
 		"actions-cb", purple_notification_sound_actions,
 		NULL
 	);
-
-	return GPLUGIN_PLUGIN_INFO(info);
 }
 
 static gboolean

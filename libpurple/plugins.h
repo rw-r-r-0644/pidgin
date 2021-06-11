@@ -198,25 +198,6 @@ struct _PurplePluginAction {
  */
 #define PURPLE_ABI_VERSION PURPLE_PLUGIN_ABI_VERSION(PURPLE_MAJOR_VERSION, PURPLE_MINOR_VERSION)
 
-/**
- * PURPLE_PLUGIN_INIT:
- *
- * Defines the plugin's entry points.
- */
-#define PURPLE_PLUGIN_INIT(pluginname,pluginquery,pluginload,pluginunload) \
-	G_MODULE_EXPORT GPluginPluginInfo *gplugin_query(GError **e); \
-	G_MODULE_EXPORT GPluginPluginInfo *gplugin_query(GError **e) { \
-		return GPLUGIN_PLUGIN_INFO(pluginquery(e)); \
-	} \
-	G_MODULE_EXPORT gboolean gplugin_load(GPluginNativePlugin *p, GError **e); \
-	G_MODULE_EXPORT gboolean gplugin_load(GPluginNativePlugin *p, GError **e) { \
-		return pluginload(PURPLE_PLUGIN(p), e); \
-	} \
-	G_MODULE_EXPORT gboolean gplugin_unload(GPluginNativePlugin *p, GError **e); \
-	G_MODULE_EXPORT gboolean gplugin_unload(GPluginNativePlugin *p, GError **e) { \
-		return pluginunload(PURPLE_PLUGIN(p), e); \
-	}
-
 G_BEGIN_DECLS
 
 /**************************************************************************/
@@ -414,8 +395,7 @@ G_DECLARE_FINAL_TYPE(PurplePluginInfo, purple_plugin_info, PURPLE, PLUGIN_INFO,
  *
  * Returns: A new #PurplePluginInfo instance.
  */
-PurplePluginInfo *purple_plugin_info_new(const char *first_property, ...)
-                  G_GNUC_NULL_TERMINATED;
+GPluginPluginInfo *purple_plugin_info_new(const char *first_property, ...) G_GNUC_NULL_TERMINATED;
 
 /**
  * purple_plugin_info_get_actions_cb:

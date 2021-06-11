@@ -28,6 +28,9 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #include "gg.h"
@@ -1215,8 +1218,8 @@ plugin_extra(PurplePlugin *plugin)
 	return g_strdup_printf("Using libgadu version %s", gg_libgadu_version());
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+gg_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"boler@sourceforge.net",
@@ -1241,7 +1244,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+gg_load(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -1274,7 +1277,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+gg_unload(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -1295,6 +1298,6 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(gg, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(gg)
 
 /* vim: set ts=8 sts=0 sw=8 noet: */

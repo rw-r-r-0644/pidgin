@@ -18,6 +18,9 @@
  */
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 static void
@@ -60,8 +63,8 @@ buddynote_extended_menu_cb(PurpleBlistNode *node, GList **m)
 	*m = g_list_append(*m, bna);
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+buddy_note_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Stu Tomlinson <stu@nosnilmot.com>",
@@ -84,7 +87,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+buddy_note_load(GPluginPlugin *plugin, GError **error)
 {
 
 	purple_signal_connect(purple_blist_get_handle(), "blist-node-extended-menu",
@@ -94,9 +97,9 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+buddy_note_unload(GPluginPlugin *plugin, GError **error)
 {
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(buddynote, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(buddy_note)

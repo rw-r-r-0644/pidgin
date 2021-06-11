@@ -27,6 +27,9 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #include "auth.h"
@@ -4250,8 +4253,8 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_XFER,
                                       jabber_protocol_xfer_iface_init));
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+jabber_query(GError **error)
 {
 	return purple_plugin_info_new(
 		"id",           "prpl-xmpp",
@@ -4269,7 +4272,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+jabber_load(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -4306,7 +4309,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+jabber_unload(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -4324,4 +4327,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(jabber, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(jabber)

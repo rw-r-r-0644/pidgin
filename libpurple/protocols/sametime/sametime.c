@@ -35,6 +35,9 @@
 #include <glib/gstdio.h>
 #include <gmime/gmime.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 /* purple includes */
 #include <purple.h>
 
@@ -5385,8 +5388,8 @@ mw_protocol_new(void) {
     NULL));
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+sametime_query(GError **error)
 {
   const gchar * const authors[] = PLUGIN_AUTHORS;
 
@@ -5408,7 +5411,7 @@ plugin_query(GError **error)
 
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+sametime_load(GPluginPlugin *plugin, GError **error)
 {
   PurpleProtocolManager *manager = purple_protocol_manager_get_default();
   GLogLevelFlags logflags =
@@ -5442,7 +5445,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+sametime_unload(GPluginPlugin *plugin, GError **error)
 {
   PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -5461,6 +5464,6 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 }
 
 
-PURPLE_PLUGIN_INIT(sametime, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(sametime)
 /* The End. */
 

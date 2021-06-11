@@ -17,6 +17,9 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #define PLUGIN_ID       "core-psychic"
@@ -114,9 +117,8 @@ get_plugin_pref_frame(PurplePlugin *plugin) {
 }
 
 
-static PurplePluginInfo *
-plugin_query(GError **error) {
-
+static GPluginPluginInfo *
+psychic_query(GError **error) {
   const gchar * const authors[] = PLUGIN_AUTHORS;
 
   return purple_plugin_info_new(
@@ -136,7 +138,7 @@ plugin_query(GError **error) {
 
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error) {
+psychic_load(GPluginPlugin *plugin, GError **error) {
 
   void *convs_handle;
 
@@ -155,10 +157,9 @@ plugin_load(PurplePlugin *plugin, GError **error) {
 
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error) {
+psychic_unload(GPluginPlugin *plugin, GError **error) {
 
   return TRUE;
 }
 
-
-PURPLE_PLUGIN_INIT(psychic, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(psychic)

@@ -47,6 +47,9 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #include "nullprpl.h"
@@ -1223,8 +1226,8 @@ null_protocol_new(void) {
     NULL));
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+null_query(GError **error)
 {
   return purple_plugin_info_new(
     "id",           "prpl-null",
@@ -1245,7 +1248,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+null_load(GPluginPlugin *plugin, GError **error)
 {
   PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -1273,7 +1276,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+null_unload(GPluginPlugin *plugin, GError **error)
 {
   PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -1289,5 +1292,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
   return TRUE;
 }
 
-/* initialize the plugin */
-PURPLE_PLUGIN_INIT(null, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(null);

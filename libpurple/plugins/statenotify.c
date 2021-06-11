@@ -17,6 +17,9 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #define STATENOTIFY_PLUGIN_ID "core-statenotify"
@@ -124,8 +127,8 @@ get_plugin_pref_frame(PurplePlugin *plugin)
 	return frame;
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+state_notify_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Christian Hammond <chipx86@gnupdate.org>",
@@ -150,7 +153,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+state_notify_load(GPluginPlugin *plugin, GError **error)
 {
 	void *blist_handle = purple_blist_get_handle();
 
@@ -172,9 +175,9 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+state_notify_unload(GPluginPlugin *plugin, GError **error)
 {
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(statenotify, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(state_notify)
