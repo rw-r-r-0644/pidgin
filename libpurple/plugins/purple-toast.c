@@ -191,14 +191,12 @@ purple_toast_chat_message_received(PurpleAccount *account,
  *****************************************************************************/
 static GPluginPluginInfo *
 purple_toast_query(G_GNUC_UNUSED GError **error) {
-	PurplePluginInfo *info = NULL;
-
 	const gchar * const authors[] = {
 		"Gary Kramlich <grim@reaperworld.com>",
 		NULL
 	};
 
-	info = purple_plugin_info_new(
+	return purple_plugin_info_new(
 		"id", "purple/toast",
 		"abi-version", PURPLE_ABI_VERSION,
 		"name", "Purple Toast",
@@ -207,8 +205,6 @@ purple_toast_query(G_GNUC_UNUSED GError **error) {
 		"authors", authors,
 		NULL
 	);
-
-	return GPLUGIN_PLUGIN_INFO(info);
 }
 
 static gboolean

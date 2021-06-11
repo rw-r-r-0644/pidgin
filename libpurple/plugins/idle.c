@@ -24,6 +24,9 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 /* This plugin no longer depends on gtk */
@@ -262,8 +265,8 @@ signing_off_cb(PurpleConnection *gc, void *data)
 	idled_accts = g_list_remove(idled_accts, account);
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+idle_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Eric Warmenhoven <eric@warmenhoven.org>",
@@ -288,7 +291,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+idle_load(GPluginPlugin *plugin, GError **error)
 {
 	purple_signal_connect(purple_connections_get_handle(), "signing-off",
 						plugin,
@@ -298,12 +301,11 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+idle_unload(GPluginPlugin *plugin, GError **error)
 {
 	unidle_all_action(NULL);
 
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(idle, plugin_query, plugin_load, plugin_unload);
-
+GPLUGIN_NATIVE_PLUGIN_DECLARE(idle);

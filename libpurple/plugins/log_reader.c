@@ -22,6 +22,9 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 /* Where is the Windows partition mounted? */
@@ -2602,8 +2605,8 @@ get_plugin_pref_frame(PurplePlugin *plugin)
 	return frame;
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+log_reader_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Richard Laager <rlaager@pidgin.im>",
@@ -2633,7 +2636,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+log_reader_load(GPluginPlugin *plugin, GError **error)
 {
 	g_return_val_if_fail(plugin != NULL, FALSE);
 
@@ -2703,7 +2706,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+log_reader_unload(GPluginPlugin *plugin, GError **error)
 {
 	g_return_val_if_fail(plugin != NULL, FALSE);
 
@@ -2730,4 +2733,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(log_reader, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(log_reader)

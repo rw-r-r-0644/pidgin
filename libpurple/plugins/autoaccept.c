@@ -32,6 +32,9 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #define PREF_PREFIX		"/plugins/core/" PLUGIN_ID
@@ -268,8 +271,8 @@ get_plugin_pref_frame(PurplePlugin *plugin)
 	return frame;
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+auto_accept_query(GError **error)
 {
 	const gchar * const authors[] = PLUGIN_AUTHORS;
 
@@ -289,7 +292,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+auto_accept_load(GPluginPlugin *plugin, GError **error)
 {
 	char *dirname;
 
@@ -324,9 +327,9 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+auto_accept_unload(GPluginPlugin *plugin, GError **error)
 {
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(PLUGIN_STATIC_NAME, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(auto_accept)

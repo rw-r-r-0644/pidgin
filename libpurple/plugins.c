@@ -485,7 +485,7 @@ static void purple_plugin_info_class_init(PurplePluginInfoClass *klass)
 /**************************************************************************
  * PluginInfo API
  **************************************************************************/
-PurplePluginInfo *
+GPluginPluginInfo *
 purple_plugin_info_new(const char *first_property, ...)
 {
 	GObject *info;
@@ -500,7 +500,7 @@ purple_plugin_info_new(const char *first_property, ...)
 	                           var_args);
 	va_end(var_args);
 
-	return PURPLE_PLUGIN_INFO(info);
+	return GPLUGIN_PLUGIN_INFO(info);
 }
 
 PurplePluginActionsCb

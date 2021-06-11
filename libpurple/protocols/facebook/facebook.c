@@ -21,7 +21,11 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
+
 #include "libpurple/glibcompat.h"
 
 #include "api.h"
@@ -1675,8 +1679,8 @@ fb_cmds_unregister(void)
 	g_slist_free_full(fb_cmds, fb_cmds_unregister_free);
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+facebook_query(GError **error)
 {
 	return purple_plugin_info_new(
 		"id",          FB_PROTOCOL_ID,
@@ -1694,7 +1698,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+facebook_load(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -1716,7 +1720,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+facebook_unload(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -1731,4 +1735,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(facebook, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(facebook)

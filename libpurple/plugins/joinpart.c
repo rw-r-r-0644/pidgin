@@ -22,6 +22,9 @@
 
 #include <glib/gi18n-lib.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #define JOINPART_PLUGIN_ID "core-rlaager-joinpart"
@@ -202,8 +205,8 @@ get_plugin_pref_frame(PurplePlugin *plugin)
 	return frame;
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+join_part_query(GError **error)
 {
 	const gchar * const authors[] = {
 		"Richard Laager <rlaager@pidgin.im>",
@@ -227,7 +230,8 @@ plugin_query(GError **error)
 	);
 }
 
-static gboolean plugin_load(PurplePlugin *plugin, GError **error)
+static gboolean
+join_part_load(GPluginPlugin *plugin, GError **error)
 {
 	void *conv_handle;
 	GHashTable *users;
@@ -261,7 +265,8 @@ static gboolean plugin_load(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-static gboolean plugin_unload(PurplePlugin *plugin, GError **error)
+static gboolean
+join_part_unload(GPluginPlugin *plugin, GError **error)
 {
 	/* Destroy the hash table. The core plugin code will
 	 * disconnect the signals, and since Purple is single-threaded,
@@ -273,4 +278,4 @@ static gboolean plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(joinpart, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(join_part)

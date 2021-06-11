@@ -32,6 +32,9 @@
 #include <lm.h>
 #endif
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #include "bonjour.h"
@@ -754,8 +757,8 @@ bonjour_protocol_new(void) {
 		NULL));
 }
 
-static PurplePluginInfo *
-plugin_query(GError **error)
+static GPluginPluginInfo *
+bonjour_query(GError **error)
 {
 	return purple_plugin_info_new(
 		"id",           "prpl-bonjour",
@@ -773,7 +776,7 @@ plugin_query(GError **error)
 }
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+bonjour_load(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -794,7 +797,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 }
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+bonjour_unload(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -810,4 +813,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-PURPLE_PLUGIN_INIT(bonjour, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(bonjour)

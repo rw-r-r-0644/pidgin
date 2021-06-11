@@ -32,6 +32,9 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#include <gplugin.h>
+#include <gplugin-native.h>
+
 #include <purple.h>
 
 #include "internal.h"
@@ -1714,7 +1717,8 @@ zephyr_protocol_new(void) {
 		NULL));
 }
 
-static PurplePluginInfo *plugin_query(GError **error)
+static GPluginPluginInfo *
+zephyr_query(GError **error)
 {
 	return purple_plugin_info_new(
 		"id",           "prpl-zephyr",
@@ -1733,7 +1737,7 @@ static PurplePluginInfo *plugin_query(GError **error)
 
 
 static gboolean
-plugin_load(PurplePlugin *plugin, GError **error)
+zephyr_load(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -1753,7 +1757,7 @@ plugin_load(PurplePlugin *plugin, GError **error)
 
 
 static gboolean
-plugin_unload(PurplePlugin *plugin, GError **error)
+zephyr_unload(GPluginPlugin *plugin, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 
@@ -1768,5 +1772,4 @@ plugin_unload(PurplePlugin *plugin, GError **error)
 	return TRUE;
 }
 
-
-PURPLE_PLUGIN_INIT(zephyr, plugin_query, plugin_load, plugin_unload);
+GPLUGIN_NATIVE_PLUGIN_DECLARE(zephyr)
