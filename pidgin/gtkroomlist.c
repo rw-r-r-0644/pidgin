@@ -302,6 +302,7 @@ static gboolean room_click_cb(GtkWidget *tv, GdkEventButton *event, PurpleRoomli
 	PurpleRoomlistRoom *room;
 	GtkTreeIter iter;
 	GtkWidget *menu;
+	GtkWidget *menuitem;
 	static struct _menu_cb_info info; /* XXX? */
 
 	if (!gdk_event_triggers_context_menu((GdkEvent *)event))
@@ -325,10 +326,16 @@ static gboolean room_click_cb(GtkWidget *tv, GdkEventButton *event, PurpleRoomli
 	info.room = room;
 
 	menu = gtk_menu_new();
-	pidgin_new_menu_item(menu, _("_Join"), PIDGIN_STOCK_CHAT,
-                        G_CALLBACK(do_join_cb), &info);
-	pidgin_new_menu_item(menu, _("_Add"), GTK_STOCK_ADD,
-                        G_CALLBACK(do_add_room_cb), &info);
+
+	menuitem = gtk_menu_item_new_with_mnemonic(_("_Join"));
+	g_signal_connect(G_OBJECT(menuitem), "activate",
+	                 G_CALLBACK(do_join_cb), &info);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+
+	menuitem = gtk_menu_item_new_with_mnemonic(_("_Add"));
+	g_signal_connect(G_OBJECT(menuitem), "activate",
+	                 G_CALLBACK(do_add_room_cb), &info);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
 	gtk_widget_show_all(menu);
 	gtk_menu_popup_at_pointer(GTK_MENU(menu), (GdkEvent *)event);
