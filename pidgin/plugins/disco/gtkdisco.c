@@ -418,39 +418,48 @@ static void close_button_cb(GtkButton *button, PidginDiscoDialog *dialog)
 }
 
 static gboolean
-disco_paint_tooltip(GtkWidget *tipwindow, cairo_t *cr, gpointer data)
-{
-	PangoLayout *layout = g_object_get_data(G_OBJECT(tipwindow), "tooltip-plugin");
-	GtkStyleContext *context = gtk_widget_get_style_context(tipwindow);
-	gtk_style_context_add_class(context, GTK_STYLE_CLASS_TOOLTIP);
-	gtk_render_layout(context, cr, 6, 6, layout);
-	return TRUE;
-}
-
-static gboolean
-disco_create_tooltip(GtkWidget *tipwindow, GtkTreePath *path,
-		gpointer data, int *w, int *h)
+disco_query_tooltip(GtkWidget *widget, int x, int y, gboolean keyboard_mode,
+                    GtkTooltip *tooltip, gpointer data)
 {
 	PidginDiscoDialog *dialog = data;
+	GtkTreePath *path = NULL;
 	GtkTreeIter iter;
-	PangoLayout *layout;
-	int width, height;
 	XmppDiscoService *service;
 	GValue val;
 	const char *type = NULL;
 	char *markup, *jid, *name, *desc = NULL;
 
-	if (!gtk_tree_model_get_iter(GTK_TREE_MODEL(dialog->model), &iter,
-	                             path)) {
-		return FALSE;
+	if (keyboard_mode) {
+		GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+		if (!gtk_tree_selection_get_selected(selection, NULL, &iter)) {
+			return FALSE;
+		}
+		path = gtk_tree_model_get_path(GTK_TREE_MODEL(dialog->model), &iter);
+	} else {
+		gint bx, by;
+
+		gtk_tree_view_convert_widget_to_bin_window_coords(GTK_TREE_VIEW(widget),
+		                                                  x, y, &bx, &by);
+		gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget), bx, by, &path,
+		                              NULL, NULL, NULL);
+		if (path == NULL) {
+			return FALSE;
+		}
+
+		if (!gtk_tree_model_get_iter(GTK_TREE_MODEL(dialog->model), &iter, path)) {
+			gtk_tree_path_free(path);
+			return FALSE;
+		}
 	}
 
 	val.g_type = 0;
 	gtk_tree_model_get_value(GTK_TREE_MODEL(dialog->model), &iter,
 	                         SERVICE_COLUMN, &val);
 	service = g_value_get_pointer(&val);
-	if (!service)
+	if (!service) {
+		gtk_tree_path_free(path);
 		return FALSE;
+	}
 
 	switch (service->type) {
 		case XMPP_DISCO_SERVICE_TYPE_UNSET:
@@ -489,22 +498,14 @@ disco_create_tooltip(GtkWidget *tipwindow, GtkTreePath *path,
 	                         service->description ? _("\n<b>Description:</b> ") : "",
 	                         service->description ? desc = g_markup_escape_text(service->description, -1) : "");
 
-	layout = gtk_widget_create_pango_layout(tipwindow, NULL);
-	pango_layout_set_markup(layout, markup, -1);
-	pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
-	pango_layout_set_width(layout, 500000);
-	pango_layout_get_size(layout, &width, &height);
-	g_object_set_data_full(G_OBJECT(tipwindow), "tooltip-plugin", layout, g_object_unref);
-
-	if (w)
-		*w = PANGO_PIXELS(width) + 12;
-	if (h)
-		*h = PANGO_PIXELS(height) + 12;
+	gtk_tooltip_set_markup(tooltip, markup);
+	gtk_tree_view_set_tooltip_row(GTK_TREE_VIEW(widget), tooltip, path);
 
 	g_free(markup);
 	g_free(jid);
 	g_free(name);
 	g_free(desc);
+	gtk_tree_path_free(path);
 
 	return TRUE;
 }
@@ -617,9 +618,9 @@ pidgin_disco_dialog_init(PidginDiscoDialog *dialog)
 	/* browse button */
 	gtk_widget_set_sensitive(dialog->browse_button, dialog->account != NULL);
 
-	pidgin_tooltip_setup_for_treeview(GTK_WIDGET(dialog->tree), dialog,
-	                                  disco_create_tooltip,
-	                                  disco_paint_tooltip);
+	gtk_widget_set_has_tooltip(GTK_WIDGET(dialog->tree), TRUE);
+	g_signal_connect(G_OBJECT(dialog->tree), "query-tooltip",
+	                 G_CALLBACK(disco_query_tooltip), dialog);
 }
 
 /******************************************************************************
