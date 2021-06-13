@@ -16,9 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
+#include <glib.h>
+#include <glib/gi18n-lib.h>
+
 #include <purple.h>
 
 #include <pidgin.h>
+
+#include <talkatu.h>
 
 #include <unity.h>
 #include <messaging-menu.h>
@@ -396,9 +401,9 @@ attach_signals(PurpleConversation *conv)
 			G_CALLBACK(unalert_cb), conv);
 	g_object_set_data(G_OBJECT(conv), "unity-entry-signal", GUINT_TO_POINTER(id));
 
-	id = g_signal_connect(G_OBJECT(gtkconv->webview), "focus-in-event",
+	id = g_signal_connect(G_OBJECT(gtkconv->history), "focus-in-event",
 			G_CALLBACK(unalert_cb), conv);
-	g_object_set_data(G_OBJECT(conv), "unity-webview-signal", GUINT_TO_POINTER(id));
+	g_object_set_data(G_OBJECT(conv), "unity-history-signal", GUINT_TO_POINTER(id));
 
 	return 0;
 }
@@ -412,8 +417,8 @@ detach_signals(PurpleConversation *conv)
 	if (!gtkconv)
 		return;
 
-	id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv), "unity-webview-signal"));
-	g_signal_handler_disconnect(gtkconv->webview, id);
+	id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv), "unity-history-signal"));
+	g_signal_handler_disconnect(gtkconv->history, id);
 
 	id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv), "unity-entry-signal"));
 	g_signal_handler_disconnect(gtkconv->entry, id);

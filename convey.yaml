@@ -76,3 +76,7 @@ plans:
     stages:
       - tasks: [import, build-target]
 
+  ubuntu:
+    environment: [TARGET=ubuntu-hirsute-amd64]
+    stages:
+      - tasks: [import, build-target]
