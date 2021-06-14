@@ -232,46 +232,6 @@ purple_debug_get_ui(void) {
 	return debug_ui;
 }
 
-gboolean
-purple_debug_ui_is_enabled(PurpleDebugUi *ui, PurpleDebugLevel level,
-                           const gchar *category)
-{
-	PurpleDebugUiInterface *iface = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_DEBUG_UI(ui), FALSE);
-
-	iface = PURPLE_DEBUG_UI_GET_IFACE(ui);
-	if(iface != NULL && iface->is_enabled != NULL) {
-		return iface->is_enabled(ui, level, category);
-	}
-
-	return FALSE;
-}
-
-void
-purple_debug_ui_print(PurpleDebugUi *ui, PurpleDebugLevel level,
-                      const gchar *category, const gchar *arg_s)
-{
-	PurpleDebugUiInterface *iface = NULL;
-
-	g_return_if_fail(PURPLE_IS_DEBUG_UI(ui));
-
-	if(!purple_debug_ui_is_enabled(ui, level, category)) {
-		return;
-	}
-
-	iface = PURPLE_DEBUG_UI_GET_IFACE(ui);
-	if(iface != NULL && iface->print != NULL) {
-		iface->print(ui, level, category, arg_s);
-	}
-}
-
-G_DEFINE_INTERFACE(PurpleDebugUi, purple_debug_ui, G_TYPE_OBJECT);
-
-static void
-purple_debug_ui_default_init(PurpleDebugUiInterface *iface) {
-}
-
 void
 purple_debug_init(void) {
 	/* Read environment variables once per init */

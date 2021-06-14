@@ -246,6 +246,7 @@ libpurple/purpleconversation.c
 libpurple/purpleconversationmanager.c
 libpurple/purplecredentialmanager.c
 libpurple/purplecredentialprovider.c
+libpurple/purpledebugui.c
 libpurple/purple-gio.c
 libpurple/purpleimconversation.c
 libpurple/purplekeyvaluepair.c

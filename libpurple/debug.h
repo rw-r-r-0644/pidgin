@@ -42,14 +42,6 @@
 G_BEGIN_DECLS
 
 /**
- * PURPLE_TYPE_DEBUG_UI:
- *
- * The standard _get_type macro for #PurpleDebugUi.
- */
-#define PURPLE_TYPE_DEBUG_UI (purple_debug_ui_get_type())
-G_DECLARE_INTERFACE(PurpleDebugUi, purple_debug_ui, PURPLE, DEBUG_UI, GObject)
-
-/**
  * PurpleDebugLevel:
  * @PURPLE_DEBUG_ALL: All debug levels.
  * @PURPLE_DEBUG_MISC: General chatter.
@@ -70,25 +62,7 @@ typedef enum {
 
 } PurpleDebugLevel;
 
-/**
- * PurpleDebugUiInterface:
- * @print: Called to output a debug string to the UI.
- * @is_enabled: Returns if debug printing is enabled in the UI for a @level and
- *              @category.
- *
- * Debug UI operations.
- */
-struct _PurpleDebugUiInterface {
-	/*< private >*/
-	GTypeInterface parent_iface;
-
-	/*< public >*/
-	void (*print)(PurpleDebugUi *ui, PurpleDebugLevel level, const gchar *category, const gchar *arg_s);
-	gboolean (*is_enabled)(PurpleDebugUi *ui, PurpleDebugLevel level, const gchar *category);
-
-	/*< private >*/
-	gpointer reserved[4];
-};
+#include "purpledebugui.h"
 
 /**
  * purple_debug:
@@ -268,37 +242,6 @@ void purple_debug_set_ui(PurpleDebugUi *ui);
  * Since: 3.0.0
  */
 PurpleDebugUi *purple_debug_get_ui(void);
-
-/**
- * purple_debug_ui_is_enabled:
- * @ui: The #PurpleDebugUi instance.
- * @level: The #PurpleLogLevel.
- * @category: An optional category.
- *
- * Checks if the ui should output messages at the given level and optional
- * category.
- *
- * Typically this function will not need to be called outside of libpurple.
- *
- * Returns: %TRUE if the given level and category will be output by @ui, %FALSE
- *          otherwise.
- *
- * Since: 3.0.0
- */
-gboolean purple_debug_ui_is_enabled(PurpleDebugUi *ui, PurpleDebugLevel level, const gchar *category);
-
-/**
- * purple_debug_ui_print:
- * @ui: The #PurpleDebugUi instance.
- * @level: The #PurpleDebugLevel.
- * @category: An optional category.
- * @arg_s: The debug string to output.
- *
- * Outputs @arg_s via @ui with the given @level and optional @category.
- *
- * Since: 3.0.0
- */
-void purple_debug_ui_print(PurpleDebugUi *ui, PurpleDebugLevel level, const gchar *category, const gchar *arg_s);
 
 /******************************************************************************
  * Debug Subsystem
