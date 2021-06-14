@@ -76,6 +76,7 @@
       <xi:include href="xml/purpleconversationuiops.xml" />
       <xi:include href="xml/purplecredentialmanager.xml" />
       <xi:include href="xml/purplecredentialprovider.xml" />
+      <xi:include href="xml/purpledebugui.xml" />
       <xi:include href="xml/purpleimconversation.xml" />
       <xi:include href="xml/purplekeyvaluepair.xml" />
       <xi:include href="xml/purplemarkup.xml" />
