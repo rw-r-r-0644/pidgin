@@ -172,6 +172,7 @@ purple_core_init(const char *ui)
 	purple_savedstatuses_init();
 	purple_notify_init();
 	purple_conversations_init();
+	purple_conversation_manager_startup();
 	purple_blist_init();
 	purple_log_init();
 	purple_network_init();
@@ -226,6 +227,7 @@ purple_core_quit(void)
 	_purple_smiley_custom_uninit();
 	_purple_smiley_parser_uninit();
 	purple_idle_uninit();
+	purple_conversation_manager_shutdown();
 	purple_conversations_uninit();
 	purple_blist_uninit();
 	purple_notify_uninit();

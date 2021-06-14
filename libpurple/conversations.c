@@ -22,219 +22,91 @@
 #include "internal.h"
 #include "purpleprivate.h"
 
-#include "conversations.h"
+#include "purpleconversationmanager.h"
 
-static GList *conversations = NULL;
-static GList *ims = NULL;
-static GList *chats = NULL;
 static PurpleConversationUiOps *default_ops = NULL;
 
-/*
- * A hash table used for efficient lookups of conversations by name.
- * struct _purple_hconv => PurpleConversation*
- */
-static GHashTable *conversation_cache = NULL;
-
-struct _purple_hconv {
-	gboolean im;
-	char *name;
-	PurpleAccount *account;
-};
-
-static guint
-_purple_conversations_hconv_hash(struct _purple_hconv *hc)
-{
-	return g_str_hash(hc->name) ^ hc->im ^ g_direct_hash(hc->account);
-}
-
-static guint
-_purple_conversations_hconv_equal(struct _purple_hconv *hc1, struct _purple_hconv *hc2)
-{
-	return (hc1->im == hc2->im &&
-	        hc1->account == hc2->account &&
-	        g_str_equal(hc1->name, hc2->name));
-}
-
-static void
-_purple_conversations_hconv_free_key(struct _purple_hconv *hc)
-{
-	g_free(hc->name);
-	g_free(hc);
-}
-
 void
-purple_conversations_add(PurpleConversation *conv)
-{
-	PurpleAccount *account;
-	struct _purple_hconv *hc;
+purple_conversations_add(PurpleConversation *conv) {
+	PurpleConversationManager *manager = NULL;
 
 	g_return_if_fail(conv != NULL);
 
-	if (g_list_find(conversations, conv) != NULL)
-		return;
+	manager = purple_conversation_manager_get_default();
 
-	conversations = g_list_prepend(conversations, conv);
-
-	if (PURPLE_IS_IM_CONVERSATION(conv))
-		ims = g_list_prepend(ims, conv);
-	else
-		chats = g_list_prepend(chats, conv);
-
-	account = purple_conversation_get_account(conv);
-
-	hc = g_new(struct _purple_hconv, 1);
-	hc->name = g_strdup(purple_normalize(account,
-				purple_conversation_get_name(conv)));
-	hc->account = account;
-	hc->im = PURPLE_IS_IM_CONVERSATION(conv);
-
-	g_hash_table_insert(conversation_cache, hc, conv);
+	purple_conversation_manager_register(manager, conv);
 }
 
 void
-purple_conversations_remove(PurpleConversation *conv)
-{
-	PurpleAccount *account;
-	struct _purple_hconv hc;
+purple_conversations_remove(PurpleConversation *conv) {
+	PurpleConversationManager *manager = NULL;
 
 	g_return_if_fail(conv != NULL);
 
-	conversations = g_list_remove(conversations, conv);
+	manager = purple_conversation_manager_get_default();
 
-	if (PURPLE_IS_IM_CONVERSATION(conv))
-		ims = g_list_remove(ims, conv);
-	else
-		chats = g_list_remove(chats, conv);
-
-	account = purple_conversation_get_account(conv);
-
-	hc.name = (gchar *)purple_normalize(account,
-				purple_conversation_get_name(conv));
-	hc.account = account;
-	hc.im = PURPLE_IS_IM_CONVERSATION(conv);
-
-	g_hash_table_remove(conversation_cache, &hc);
-}
-
-void
-_purple_conversations_update_cache(PurpleConversation *conv, const char *name,
-		PurpleAccount *account)
-{
-	PurpleAccount *old_account;
-	struct _purple_hconv *hc;
-
-	g_return_if_fail(conv != NULL);
-	g_return_if_fail(account != NULL || name != NULL);
-
-	old_account = purple_conversation_get_account(conv);
-
-	hc = g_new(struct _purple_hconv, 1);
-	hc->im = PURPLE_IS_IM_CONVERSATION(conv);
-	hc->account = old_account;
-	hc->name = (gchar *)purple_normalize(old_account,
-				purple_conversation_get_name(conv));
-
-	g_hash_table_remove(conversation_cache, hc);
-
-	if (account)
-		hc->account = account;
-	if (name)
-		hc->name = g_strdup(purple_normalize(hc->account, name));
-
-	g_hash_table_insert(conversation_cache, hc, conv);
+	purple_conversation_manager_unregister(manager, conv);
 }
 
 GList *
-purple_conversations_get_all(void)
-{
-	return conversations;
-}
+purple_conversations_get_all(void) {
+	PurpleConversationManager *manager = NULL;
 
-GList *
-purple_conversations_get_ims(void)
-{
-	return ims;
-}
+	manager = purple_conversation_manager_get_default();
 
-GList *
-purple_conversations_get_chats(void)
-{
-	return chats;
+	return purple_conversation_manager_get_all(manager);
 }
 
 PurpleConversation *
 purple_conversations_find_with_account(const char *name,
-		PurpleAccount *account)
+                                       PurpleAccount *account)
 {
-	PurpleConversation *c = NULL;
-	struct _purple_hconv hc;
+	PurpleConversationManager *manager = NULL;
 
 	g_return_val_if_fail(name != NULL, NULL);
 
-	hc.name = (gchar *)purple_normalize(account, name);
-	hc.account = account;
+	manager = purple_conversation_manager_get_default();
 
-	hc.im = TRUE;
-	c = g_hash_table_lookup(conversation_cache, &hc);
-	if (!c) {
-		hc.im = FALSE;
-		c = g_hash_table_lookup(conversation_cache, &hc);
-	}
-
-	return c;
+	return purple_conversation_manager_find(manager, account, name);
 }
 
 PurpleConversation *
-purple_conversations_find_im_with_account(const char *name,
-		PurpleAccount *account)
+purple_conversations_find_im_with_account(const gchar *name,
+                                          PurpleAccount *account)
 {
-	PurpleConversation *im = NULL;
-	struct _purple_hconv hc;
+	PurpleConversationManager *manager = NULL;
 
 	g_return_val_if_fail(name != NULL, NULL);
 
-	hc.name = (gchar *)purple_normalize(account, name);
-	hc.account = account;
-	hc.im = TRUE;
+	manager = purple_conversation_manager_get_default();
 
-	im = g_hash_table_lookup(conversation_cache, &hc);
-
-	return im;
+	return purple_conversation_manager_find_im(manager, account, name);
 }
 
 PurpleConversation *
-purple_conversations_find_chat_with_account(const char *name,
-		PurpleAccount *account)
+purple_conversations_find_chat_with_account(const gchar *name,
+                                            PurpleAccount *account)
 {
-	PurpleConversation *c = NULL;
-	struct _purple_hconv hc;
+	PurpleConversationManager *manager = NULL;
 
 	g_return_val_if_fail(name != NULL, NULL);
 
-	hc.name = (gchar *)purple_normalize(account, name);
-	hc.account = account;
-	hc.im = FALSE;
+	manager = purple_conversation_manager_get_default();
 
-	c = g_hash_table_lookup(conversation_cache, &hc);
-
-	return c;
+	return purple_conversation_manager_find_chat(manager, account, name);
 }
 
 PurpleConversation *
-purple_conversations_find_chat(const PurpleConnection *gc, int id)
-{
-	GList *l;
-	PurpleConversation *chat;
+purple_conversations_find_chat(PurpleConnection *gc, gint id) {
+	PurpleAccount *account = NULL;
+	PurpleConversationManager *manager = NULL;
 
-	for (l = purple_conversations_get_chats(); l != NULL; l = l->next) {
-		chat = (PurpleConversation *)l->data;
+	g_return_val_if_fail(PURPLE_IS_CONNECTION(gc), NULL);
 
-		if (purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(chat)) == id &&
-				purple_conversation_get_connection(chat) == gc)
-			return chat;
-	}
+	account = purple_connection_get_account(gc);
+	manager = purple_conversation_manager_get_default();
 
-	return NULL;
+	return purple_conversation_manager_find_chat_by_id(manager, account, id);
 }
 
 void
@@ -261,10 +133,6 @@ void
 purple_conversations_init(void)
 {
 	void *handle = purple_conversations_get_handle();
-
-	conversation_cache = g_hash_table_new_full((GHashFunc)_purple_conversations_hconv_hash,
-						(GEqualFunc)_purple_conversations_hconv_equal,
-						(GDestroyNotify)_purple_conversations_hconv_free_key, NULL);
 
 	/**********************************************************************
 	 * Register preferences
@@ -458,9 +326,5 @@ purple_conversations_init(void)
 void
 purple_conversations_uninit(void)
 {
-	while (conversations)
-		g_object_unref(G_OBJECT(conversations->data));
-
-	g_hash_table_destroy(conversation_cache);
 	purple_signals_unregister_by_instance(purple_conversations_get_handle());
 }

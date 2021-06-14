@@ -55,10 +55,8 @@ typedef enum {
  *                     into.  Your plugin might want to pack something in it
  *                     itself.  Go, plugins!
  * @treeview:          It's a treeview... d'uh.
- * @treemodel:         This is the treemodel. 
+ * @treemodel:         This is the treemodel.
  * @text_column:       Column
- * @menutray:          The menu tray widget.
- * @menutrayicon:      The menu tray icon.
  * @refresh_timer:     The timer for refreshing every 30 seconds
  * @drag_timeout:      The timeout for expanding contacts on drags
  * @drag_rect:         This is the bounding rectangle of the cell we're
@@ -97,8 +95,6 @@ struct _PidginBuddyList {
 	GtkCellRenderer *text_rend;
 
 	GtkWidget *menu;
-	GtkWidget *menutray;
-	GtkWidget *menutrayicon;
 
 	guint refresh_timer;
 

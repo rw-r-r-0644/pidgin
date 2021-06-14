@@ -153,22 +153,6 @@ void _purple_connection_remove_active_chat(PurpleConnection *gc,
                                            PurpleChatConversation *chat);
 
 /**
- * _purple_conversations_update_cache:
- * @conv:    The conversation.
- * @name:    The new name. If no change, use %NULL.
- * @account: The new account. If no change, use %NULL.
- *
- * Updates the conversation cache to use a new conversation name and/or
- * account. This function only updates the conversation cache. It is the
- * caller's responsibility to actually update the conversation.
- *
- * Note: This function should only be called by purple_conversation_set_name()
- *       and purple_conversation_set_account() in conversation.c.
- */
-void _purple_conversations_update_cache(PurpleConversation *conv,
-		const char *name, PurpleAccount *account);
-
-/**
  * _purple_statuses_get_primitive_scores:
  *
  * Note: This function should only be called by
@@ -195,6 +179,24 @@ int *_purple_statuses_get_primitive_scores(void);
  */
 void
 _purple_conversation_write_common(PurpleConversation *conv, PurpleMessage *msg);
+
+/**
+ * purple_conversation_manager_startup:
+ *
+ * Starts up the conversation manager by creating the default instance.
+ *
+ * Since: 3.0.0
+ */
+void purple_conversation_manager_startup(void);
+
+/**
+ * purple_conversation_manager_shutdown:
+ *
+ * Shuts down the conversation manager by destroying the default instance.
+ *
+ * Since: 3.0.0
+ */
+void purple_conversation_manager_shutdown(void);
 
 /**
  * purple_credential_manager_startup:

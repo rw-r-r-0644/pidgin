@@ -281,55 +281,88 @@ buddy_signed_on_off(PurpleBuddy *buddy, gpointer null)
 static void
 account_signed_on_off(PurpleConnection *gc, gpointer null)
 {
-	GList *list = purple_conversations_get_ims();
-	while (list) {
-		PurpleConversation *conv = list->data;
-		PurpleConversation *cc = find_im_with_contact(
-				purple_conversation_get_account(conv), purple_conversation_get_name(conv));
-		if (cc)
+	GList *list, *l;
+
+	list = purple_conversations_get_all();
+
+	for(l = list; l != NULL; l = l->next) {
+		PurpleConversation *conv = NULL;
+		PurpleConversation *cc = NULL;
+
+		if(!PURPLE_IS_IM_CONVERSATION(l->data)) {
+			continue;
+		}
+
+		conv = PURPLE_CONVERSATION(l->data);
+		cc = find_im_with_contact(purple_conversation_get_account(conv),
+		                          purple_conversation_get_name(conv));
+
+		if(cc) {
 			generate_send_to_menu(FINCH_CONV(cc));
-		list = list->next;
-	}
-
-	if (PURPLE_CONNECTION_IS_CONNECTED(gc)) {
-		/* We just signed on. Let's see if there's any chat that we have open,
-		 * and hadn't left before the disconnect. */
-		list = purple_conversations_get_chats();
-		while (list) {
-			PurpleConversation *conv = list->data;
-			PurpleChat *chat;
-			GHashTable *comps = NULL;
-
-			list = list->next;
-			if (purple_conversation_get_account(conv) != purple_connection_get_account(gc) ||
-					!g_object_get_data(G_OBJECT(conv), "want-to-rejoin"))
-				continue;
-
-			chat = find_chat_for_conversation(conv);
-			if (chat == NULL) {
-				PurpleProtocol *protocol = purple_connection_get_protocol(gc);
-				comps = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), gc,
-						purple_conversation_get_name(conv));
-			} else {
-				comps = purple_chat_get_components(chat);
-			}
-			purple_serv_join_chat(gc, comps);
-			if (chat == NULL && comps != NULL)
-				g_hash_table_destroy(comps);
 		}
 	}
+
+	/* If we disconnected we're done for now. */
+	if(!PURPLE_CONNECTION_IS_CONNECTED(gc)) {
+		g_list_free(list);
+
+		return;
+	}
+
+	/* Since we just signed on. Let's see if there's any chat that we have open,
+	 * and hadn't left before the disconnect.
+	 */
+	for(l = list; l != NULL; l = l->next) {
+		PurpleConversation *conv = NULL;
+		PurpleChat *chat;
+		GHashTable *comps = NULL;
+
+		conv = PURPLE_CONVERSATION(l->data);
+
+		if(!PURPLE_IS_CHAT_CONVERSATION(conv)) {
+			continue;
+		}
+
+		if (purple_conversation_get_account(conv) != purple_connection_get_account(gc) ||
+				!g_object_get_data(G_OBJECT(conv), "want-to-rejoin"))
+		{
+			continue;
+		}
+
+		chat = find_chat_for_conversation(conv);
+		if (chat == NULL) {
+			PurpleProtocol *protocol = purple_connection_get_protocol(gc);
+			comps = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), gc,
+					purple_conversation_get_name(conv));
+		} else {
+			comps = purple_chat_get_components(chat);
+		}
+		purple_serv_join_chat(gc, comps);
+		if(chat == NULL && comps != NULL) {
+			g_hash_table_destroy(comps);
+		}
+	}
+
+	g_list_free(list);
 }
 
 static void
 account_signing_off(PurpleConnection *gc)
 {
-	GList *list = purple_conversations_get_chats();
+	GList *list = purple_conversations_get_all();
 	PurpleAccount *account = purple_connection_get_account(gc);
 
 	/* We are about to sign off. See which chats we are currently in, and mark
 	 * them for rejoin on reconnect. */
-	while (list) {
-		PurpleConversation *conv = list->data;
+	while(list != NULL) {
+		PurpleConversation *conv = NULL;
+
+		if(!PURPLE_IS_CHAT_CONVERSATION(list->data)) {
+			continue;
+		}
+
+		conv = PURPLE_CONVERSATION(list->data);
+
 		if (!purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv)) &&
 				purple_conversation_get_account(conv) == account) {
 			g_object_set_data(G_OBJECT(conv), "want-to-rejoin", GINT_TO_POINTER(TRUE));
@@ -339,7 +372,8 @@ account_signing_off(PurpleConnection *gc)
 				"the account reconnects."),
 				PURPLE_MESSAGE_NO_LOG);
 		}
-		list = list->next;
+
+		list = g_list_delete_link(list, list);
 	}
 }
 
@@ -1001,7 +1035,7 @@ finch_chat_add_users(PurpleChatConversation *chat, GList *users, gboolean new_ar
 		/* Print the list of users in the room */
 		GString *string = g_string_new(NULL);
 		GList *iter;
-		int count = g_list_length(users);
+		gint count = g_list_length(users);
 
 		g_string_printf(string,
 				ngettext("List of %d user:\n", "List of %d users:\n", count), count);
