@@ -1036,11 +1036,19 @@ static PurpleRoomlist *null_roomlist_get_list(PurpleConnection *gc) {
 
   /* add each chat room. the chat ids are cached in seen_ids so that each room
    * is only returned once, even if multiple users are in it. */
-  for (chats  = purple_conversations_get_chats(); chats; chats = g_list_next(chats)) {
-    PurpleChatConversation *chat = PURPLE_CHAT_CONVERSATION(chats->data);
-    PurpleRoomlistRoom *room;
-    const char *name = purple_conversation_get_name(PURPLE_CONVERSATION(chat));
-    int id = purple_chat_conversation_get_id(chat);
+  for (chats  = purple_conversations_get_all(); chats; chats = g_list_next(chats)) {
+    PurpleChatConversation *chat = NULL;
+    PurpleRoomlistRoom *room = NULL;
+    const gchar *name = NULL;
+    gint id = 0;
+
+    if(!PURPLE_IS_CHAT_CONVERSATION(chats->data)) {
+      continue;
+    }
+
+    chat = PURPLE_CHAT_CONVERSATION(chats->data);
+    name = purple_conversation_get_name(PURPLE_CONVERSATION(chat));
+    id = purple_chat_conversation_get_id(chat);
 
     /* have we already added this room? */
     if (g_list_find_custom(seen_ids, name, (GCompareFunc)strcmp))

@@ -48,6 +48,7 @@ G_BEGIN_DECLS
  *
  * Adds a conversation to the list of conversations.
  */
+G_DEPRECATED_FOR(purple_conversation_manager_register)
 void purple_conversations_add(PurpleConversation *conv);
 
 /**
@@ -56,6 +57,7 @@ void purple_conversations_add(PurpleConversation *conv);
  *
  * Removes a conversation from the list of conversations.
  */
+G_DEPRECATED_FOR(purple_conversation_manager_unregister)
 void purple_conversations_remove(PurpleConversation *conv);
 
 /**
@@ -67,25 +69,8 @@ void purple_conversations_remove(PurpleConversation *conv);
  *
  * Returns: (element-type PurpleConversation) (transfer none): A GList of all conversations.
  */
+G_DEPRECATED_FOR(purple_conversation_manager_get_all)
 GList *purple_conversations_get_all(void);
-
-/**
- * purple_conversations_get_ims:
- *
- * Returns a list of all IMs.
- *
- * Returns: (element-type PurpleIMConversation) (transfer none): All IMs.
- */
-GList *purple_conversations_get_ims(void);
-
-/**
- * purple_conversations_get_chats:
- *
- * Returns a list of all chats.
- *
- * Returns: (element-type PurpleChatConversation) (transfer none): All chats.
- */
-GList *purple_conversations_get_chats(void);
 
 /**
  * purple_conversations_find_with_account:
@@ -96,6 +81,7 @@ GList *purple_conversations_get_chats(void);
  *
  * Returns: (transfer none): The conversation if found, or %NULL otherwise.
  */
+G_DEPRECATED_FOR(purple_conversation_manager_find)
 PurpleConversation *purple_conversations_find_with_account(const char *name,
 		PurpleAccount *account);
 
@@ -108,6 +94,7 @@ PurpleConversation *purple_conversations_find_with_account(const char *name,
  *
  * Returns: (transfer none): The conversation if found, or %NULL otherwise.
  */
+G_DEPRECATED_FOR(purple_conversation_manager_find_im)
 PurpleConversation *purple_conversations_find_im_with_account(const char *name, PurpleAccount *account);
 
 /**
@@ -119,6 +106,7 @@ PurpleConversation *purple_conversations_find_im_with_account(const char *name, 
  *
  * Returns: (transfer none): The conversation if found, or %NULL otherwise.
  */
+G_DEPRECATED_FOR(purple_conversation_manager_find_chat)
 PurpleConversation *purple_conversations_find_chat_with_account(const char *name, PurpleAccount *account);
 
 /**
@@ -130,7 +118,8 @@ PurpleConversation *purple_conversations_find_chat_with_account(const char *name
  *
  * Returns: (transfer none): The chat conversation.
  */
-PurpleConversation *purple_conversations_find_chat(const PurpleConnection *gc, int id);
+G_DEPRECATED_FOR(purple_conversation_manager_find_chat_by_id)
+PurpleConversation *purple_conversations_find_chat(PurpleConnection *gc, int id);
 
 /**
  * purple_conversations_set_ui_ops:

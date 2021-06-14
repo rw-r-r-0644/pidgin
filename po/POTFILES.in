@@ -243,6 +243,7 @@ libpurple/purplebuddypresence.c
 libpurple/purplechatconversation.c
 libpurple/purplechatuser.c
 libpurple/purpleconversation.c
+libpurple/purpleconversationmanager.c
 libpurple/purplecredentialmanager.c
 libpurple/purplecredentialprovider.c
 libpurple/purple-gio.c

@@ -54,7 +54,6 @@
 #include "pidgin/pidginstylecontext.h"
 #include "pidgin/pidgintooltip.h"
 #include "pidgin/pidginwindow.h"
-#include "pidginmenutray.h"
 #include "pidginstock.h"
 
 #include <gdk/gdkkeysyms.h>
@@ -4014,70 +4013,10 @@ static void pidgin_blist_hide_node(PurpleBuddyList *list, PurpleBlistNode *node,
 }
 
 static void
-unseen_conv_menu(GdkEvent *event)
-{
-	static GtkWidget *menu = NULL;
-	GList *convs = NULL;
-	GList *chats, *ims;
-
-	if (menu) {
-		gtk_widget_destroy(menu);
-		menu = NULL;
-	}
-
-	ims = pidgin_conversations_get_unseen_ims(PIDGIN_UNSEEN_TEXT, FALSE, 0);
-
-	chats = pidgin_conversations_get_unseen_chats(PIDGIN_UNSEEN_NICK, FALSE, 0);
-
-	if(ims && chats)
-		convs = g_list_concat(ims, chats);
-	else if(ims && !chats)
-		convs = ims;
-	else if(!ims && chats)
-		convs = chats;
-
-	if (!convs)
-		/* no conversations added, don't show the menu */
-		return;
-
-	menu = gtk_menu_new();
-
-	pidgin_conversations_fill_menu(menu, convs);
-	g_list_free(convs);
-	gtk_widget_show_all(menu);
-	gtk_menu_popup_at_pointer(GTK_MENU(menu), event);
-}
-
-static gboolean
-menutray_press_cb(GtkWidget *widget, GdkEventButton *event)
-{
-	GList *convs;
-
-	if (event->button == GDK_BUTTON_PRIMARY) {
-		convs = pidgin_conversations_get_unseen_ims(PIDGIN_UNSEEN_TEXT, FALSE, 1);
-		if(!convs)
-			convs = pidgin_conversations_get_unseen_chats(PIDGIN_UNSEEN_NICK, FALSE, 1);
-
-		if (convs) {
-			pidgin_conv_present_conversation((PurpleConversation*)convs->data);
-			g_list_free(convs);
-		}
-
-	} else if (gdk_event_triggers_context_menu((GdkEvent *)event)) {
-		unseen_conv_menu((GdkEvent *)event);
-	}
-
-	return TRUE;
-}
-
-static void
 conversation_updated_cb(PurpleConversation *conv, PurpleConversationUpdateType type,
                         PidginBuddyList *gtkblist)
 {
 	PurpleAccount *account = purple_conversation_get_account(conv);
-	GList *convs = NULL;
-	GList *ims, *chats;
-	GList *l = NULL;
 
 	if (type != PURPLE_CONVERSATION_UPDATE_UNSEEN)
 		return;
@@ -4086,60 +4025,6 @@ conversation_updated_cb(PurpleConversation *conv, PurpleConversationUpdateType t
 		PurpleBuddy *buddy = purple_blist_find_buddy(account, purple_conversation_get_name(conv));
 		if(buddy != NULL)
 			pidgin_blist_update_buddy(NULL, PURPLE_BLIST_NODE(buddy), TRUE);
-	}
-
-	if (gtkblist->menutrayicon) {
-		gtk_widget_destroy(gtkblist->menutrayicon);
-		gtkblist->menutrayicon = NULL;
-	}
-
-	ims = pidgin_conversations_get_unseen_ims(PIDGIN_UNSEEN_TEXT, FALSE, 0);
-
-	chats = pidgin_conversations_get_unseen_chats(PIDGIN_UNSEEN_NICK, FALSE, 0);
-
-	if(ims && chats)
-		convs = g_list_concat(ims, chats);
-	else if(ims && !chats)
-		convs = ims;
-	else if(!ims && chats)
-		convs = chats;
-
-	if (convs) {
-		GtkWidget *img = NULL;
-		GString *tooltip_text = NULL;
-
-		tooltip_text = g_string_new("");
-		l = convs;
-		while (l != NULL) {
-			int count = 0;
-			PidginConversation *gtkconv = PIDGIN_CONVERSATION((PurpleConversation *)l->data);
-
-			if(gtkconv)
-				count = gtkconv->unseen_count;
-			else if(g_object_get_data(G_OBJECT(l->data), "unseen-count"))
-				count = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(l->data), "unseen-count"));
-
-			g_string_append_printf(tooltip_text,
-					ngettext("%d unread message from %s\n", "%d unread messages from %s\n", count),
-					count, purple_conversation_get_title(l->data));
-			l = l->next;
-		}
-		if(tooltip_text->len > 0) {
-			/* get rid of the last newline */
-			g_string_truncate(tooltip_text, tooltip_text->len -1);
-			img = gtk_image_new_from_stock(PIDGIN_STOCK_TOOLBAR_PENDING,
-							gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL));
-
-			gtkblist->menutrayicon = gtk_event_box_new();
-			gtk_container_add(GTK_CONTAINER(gtkblist->menutrayicon), img);
-			gtk_widget_show(img);
-			gtk_widget_show(gtkblist->menutrayicon);
-			g_signal_connect(G_OBJECT(gtkblist->menutrayicon), "button-press-event", G_CALLBACK(menutray_press_cb), NULL);
-
-			pidgin_menu_tray_append(PIDGIN_MENU_TRAY(gtkblist->menutray), gtkblist->menutrayicon, tooltip_text->str);
-		}
-		g_string_free(tooltip_text, TRUE);
-		g_list_free(convs);
 	}
 }
 
@@ -5159,9 +5044,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	g_signal_connect(G_OBJECT(gtkblist->window), "window_state_event", G_CALLBACK(gtk_blist_window_state_cb), NULL);
 	g_signal_connect(G_OBJECT(gtkblist->window), "key_press_event", G_CALLBACK(gtk_blist_window_key_press_cb), gtkblist);
 	gtk_widget_add_events(gtkblist->window, GDK_VISIBILITY_NOTIFY_MASK);
-
-	/******************************* Menu bar *************************************/
-	gtkblist->menutray = pidgin_contact_list_get_menu_tray(PIDGIN_CONTACT_LIST(gtkblist->window));
 
 	/****************************** Notebook *************************************/
 	gtkblist->notebook = gtk_notebook_new();

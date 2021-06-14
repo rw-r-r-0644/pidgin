@@ -1783,24 +1783,6 @@ pidgin_conversations_get_unseen_all(PidginUnseenState min_state,
 			min_state, hidden_only, max_count);
 }
 
-GList *
-pidgin_conversations_get_unseen_ims(PidginUnseenState min_state,
-										gboolean hidden_only,
-										guint max_count)
-{
-	return pidgin_conversations_get_unseen(purple_conversations_get_ims(),
-			min_state, hidden_only, max_count);
-}
-
-GList *
-pidgin_conversations_get_unseen_chats(PidginUnseenState min_state,
-										gboolean hidden_only,
-										guint max_count)
-{
-	return pidgin_conversations_get_unseen(purple_conversations_get_chats(),
-			min_state, hidden_only, max_count);
-}
-
 static void
 unseen_conv_menu_cb(GtkMenuItem *item, PurpleConversation *conv)
 {
@@ -4537,13 +4519,19 @@ account_signed_off_cb(PurpleConnection *gc, gpointer event)
 static void
 account_signing_off(PurpleConnection *gc)
 {
-	GList *list = purple_conversations_get_chats();
+	GList *list = purple_conversations_get_all();
 	PurpleAccount *account = purple_connection_get_account(gc);
 
 	/* We are about to sign off. See which chats we are currently in, and mark
 	 * them for rejoin on reconnect. */
-	while (list) {
-		PurpleConversation *conv = list->data;
+	while(list != NULL) {
+		PurpleConversation *conv = NULL;
+
+		if(!PURPLE_IS_CHAT_CONVERSATION(list->data)) {
+			continue;
+		}
+
+		conv = PURPLE_CONVERSATION(list->data);
 		if (!purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv)) &&
 				purple_conversation_get_account(conv) == account) {
 			g_object_set_data(G_OBJECT(conv), "want-to-rejoin", GINT_TO_POINTER(TRUE));
@@ -4553,7 +4541,8 @@ account_signing_off(PurpleConnection *gc)
 				"rejoin the chat when the account reconnects."),
 				PURPLE_MESSAGE_NO_LOG);
 		}
-		list = list->next;
+
+		list = g_list_delete_link(list, list);
 	}
 }
 
@@ -4784,12 +4773,16 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 		if (PURPLE_IS_IM_CONVERSATION(conv)) {
 			GList *convs;
 			list = g_list_copy(list);
-			for (convs = purple_conversations_get_ims(); convs; convs = convs->next)
+			for (convs = purple_conversations_get_all(); convs; convs = convs->next) {
+				if(!PURPLE_IS_IM_CONVERSATION(convs->data)) {
+					continue;
+				}
 				if (convs->data != conv &&
 						pidgin_conv_find_gtkconv(convs->data) == gtkconv) {
 					pidgin_conv_attach(convs->data);
 					list = g_list_concat(list, g_list_copy(purple_conversation_get_message_history(convs->data)));
 				}
+			}
 			list = g_list_sort(list, (GCompareFunc)message_compare);
 			gtkconv->attach_current = list;
 			list = g_list_last(list);

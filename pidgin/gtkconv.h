@@ -188,48 +188,6 @@ pidgin_conversations_get_unseen_all(PidginUnseenState min_state,
 										guint max_count);
 
 /**
- * pidgin_conversations_get_unseen_ims:
- * @min_state:    The minimum unseen state.
- * @hidden_only:  If %TRUE, only consider hidden conversations.
- * @max_count:    Maximum number of conversations to return, or 0 for
- *                no maximum.
- *
- * Returns a list of IM conversations which have an unseen state greater
- * than or equal to the specified minimum state. Using the hidden_only
- * parameter, this search can be limited to hidden IM conversations. The
- * max_count parameter will limit the total number of IM converations
- * returned if greater than zero. The returned list should be freed by the
- * caller.
- *
- * Returns: (transfer container) (element-type PurpleConversation): List of PurpleIMConversation matching criteria, or %NULL.
- */
-GList *
-pidgin_conversations_get_unseen_ims(PidginUnseenState min_state,
-										gboolean hidden_only,
-										guint max_count);
-
-/**
- * pidgin_conversations_get_unseen_chats:
- * @min_state:    The minimum unseen state.
- * @hidden_only:  If %TRUE, only consider hidden conversations.
- * @max_count:    Maximum number of conversations to return, or 0 for
- *                no maximum.
- *
- * Returns a list of chat conversations which have an unseen state greater
- * than or equal to the specified minimum state. Using the hidden_only
- * parameter, this search can be limited to hidden chat conversations. The
- * max_count parameter will limit the total number of chat converations
- * returned if greater than zero. The returned list should be freed by the
- * caller.
- *
- * Returns: (transfer container) (element-type PurpleConversation): List of PurpleChatConversation matching criteria, or %NULL.
- */
-GList *
-pidgin_conversations_get_unseen_chats(PidginUnseenState min_state,
-										gboolean hidden_only,
-										guint max_count);
-
-/**
  * pidgin_conversations_fill_menu:
  * @menu: Menu widget to add items to.
  * @convs: (element-type PurpleConversation): List of PurpleConversation to add to menu.
