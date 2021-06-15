@@ -200,6 +200,32 @@ guint purple_message_get_id(PurpleMessage *message);
 const gchar *purple_message_get_author(PurpleMessage *message);
 
 /**
+ * purple_message_set_author_name_color:
+ * @message: The #PurpleMessage instance.
+ * @color: The hex color code for the author of @message.
+ *
+ * Sets the author's name color of @message to @color. This is the color that
+ * will be used to display the author's name in a user interface. The user
+ * interface might not use this exact color, as it might need to adapt for
+ * contrast or limits on the number of colors.
+ *
+ * Since: 3.0.0
+ */
+void purple_message_set_author_name_color(PurpleMessage *message, const gchar *color);
+
+/**
+ * purple_message_get_author_name_color:
+ * @message: The #PurpleMessage instance.
+ *
+ * Gets the author's name color for @message.
+ *
+ * Returns: (transfer none): The hex color for the author of @message's name.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_message_get_author_name_color(PurpleMessage *message);
+
+/**
  * purple_message_set_recipient:
  * @message: The #PurpleMessage instance.
  * @recipient: The name of the recipient.

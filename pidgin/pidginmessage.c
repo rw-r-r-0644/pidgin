@@ -1,4 +1,6 @@
-/* pidgin
+/*
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,13 +17,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "pidginmessage.h"
 
 #include "pidginattachment.h"
+#include "pidgincolor.h"
 
 struct _PidginMessage {
 	GObject parent;
@@ -42,6 +44,7 @@ enum {
 	PROP_ID = N_PROPERTIES,
 	PROP_CONTENT_TYPE,
 	PROP_AUTHOR,
+	PROP_AUTHOR_NAME_COLOR,
 	PROP_CONTENTS,
 	PROP_TIMESTAMP,
 	PROP_EDITED,
@@ -56,6 +59,32 @@ pidgin_message_set_message(PidginMessage *message, PurpleMessage *purple_msg) {
 	if(g_set_object(&message->message, purple_msg)) {
 		g_object_notify_by_pspec(G_OBJECT(message), properties[PROP_MESSAGE]);
 	}
+}
+
+static GdkRGBA *
+pidgin_message_parse_author_name_color(PidginMessage *message) {
+	GdkRGBA *ret = NULL;
+	const gchar *color = NULL;
+	gboolean set = FALSE;
+
+	ret = g_new0(GdkRGBA, 1);
+
+	color = purple_message_get_author_name_color(message->message);
+	if(color != NULL && gdk_rgba_parse(ret, color)) {
+		set = TRUE;
+	}
+
+	if(!set) {
+		const gchar *author = purple_message_get_author_alias(message->message);
+
+		if(author == NULL) {
+			author = purple_message_get_author(message->message);
+		}
+
+		pidgin_color_calculate_for_text(author, ret);
+	}
+
+	return ret;
 }
 
 /******************************************************************************
@@ -168,11 +197,14 @@ G_DEFINE_TYPE_EXTENDED(
 	pidgin_message,
 	G_TYPE_OBJECT,
 	0,
-	G_IMPLEMENT_INTERFACE(TALKATU_TYPE_MESSAGE, pidgin_message_talkatu_message_init)
+	G_IMPLEMENT_INTERFACE(TALKATU_TYPE_MESSAGE,
+	                      pidgin_message_talkatu_message_init)
 );
 
 static void
-pidgin_message_get_property(GObject *obj, guint param_id, GValue *value, GParamSpec *pspec) {
+pidgin_message_get_property(GObject *obj, guint param_id, GValue *value,
+                            GParamSpec *pspec)
+{
 	PidginMessage *message = PIDGIN_MESSAGE(obj);
 
 	switch(param_id) {
@@ -186,13 +218,20 @@ pidgin_message_get_property(GObject *obj, guint param_id, GValue *value, GParamS
 			g_value_set_enum(value, TALKATU_CONTENT_TYPE_PLAIN);
 			break;
 		case PROP_AUTHOR:
-			g_value_set_string(value, purple_message_get_author(message->message));
+			g_value_set_string(value,
+			                   purple_message_get_author(message->message));
+			break;
+		case PROP_AUTHOR_NAME_COLOR:
+			g_value_take_boxed(value,
+			                   pidgin_message_parse_author_name_color(message));
 			break;
 		case PROP_CONTENTS:
-			g_value_set_string(value, purple_message_get_contents(message->message));
+			g_value_set_string(value,
+			                   purple_message_get_contents(message->message));
 			break;
 		case PROP_TIMESTAMP:
-			g_value_set_boxed(value, purple_message_get_timestamp(message->message));
+			g_value_set_boxed(value,
+			                  purple_message_get_timestamp(message->message));
 			break;
 		case PROP_EDITED:
 			g_value_set_boolean(value, FALSE);
@@ -204,7 +243,9 @@ pidgin_message_get_property(GObject *obj, guint param_id, GValue *value, GParamS
 }
 
 static void
-pidgin_message_set_property(GObject *obj, guint param_id, const GValue *value, GParamSpec *pspec) {
+pidgin_message_set_property(GObject *obj, guint param_id, const GValue *value,
+                            GParamSpec *pspec)
+{
 	PidginMessage *message = PIDGIN_MESSAGE(obj);
 
 	switch(param_id) {
@@ -215,6 +256,7 @@ pidgin_message_set_property(GObject *obj, guint param_id, const GValue *value, G
 		case PROP_CONTENT_TYPE:
 		case PROP_TIMESTAMP:
 		case PROP_AUTHOR:
+		case PROP_AUTHOR_NAME_COLOR:
 		case PROP_CONTENTS:
 		case PROP_EDITED:
 			/* we don't allow settings these */
@@ -258,8 +300,11 @@ pidgin_message_class_init(PidginMessageClass *klass) {
 	/* add our overridden properties */
 	g_object_class_override_property(obj_class, PROP_ID, "id");
 	g_object_class_override_property(obj_class, PROP_TIMESTAMP, "timestamp");
-	g_object_class_override_property(obj_class, PROP_CONTENT_TYPE, "content-type");
+	g_object_class_override_property(obj_class, PROP_CONTENT_TYPE,
+	                                 "content-type");
 	g_object_class_override_property(obj_class, PROP_AUTHOR, "author");
+	g_object_class_override_property(obj_class, PROP_AUTHOR_NAME_COLOR,
+	                                 "author-name-color");
 	g_object_class_override_property(obj_class, PROP_CONTENTS, "contents");
 	g_object_class_override_property(obj_class, PROP_EDITED, "edited");
 }

@@ -39,6 +39,7 @@ struct _PurpleMessage {
 
 	guint id;
 	gchar *author;
+	gchar *author_name_color;
 	gchar *author_alias;
 	gchar *recipient;
 
@@ -56,6 +57,7 @@ enum {
 	PROP_ID,
 	PROP_AUTHOR,
 	PROP_AUTHOR_ALIAS,
+	PROP_AUTHOR_NAME_COLOR,
 	PROP_RECIPIENT,
 	PROP_CONTENTS,
 	PROP_CONTENT_TYPE,
@@ -198,6 +200,8 @@ purple_message_class_init(PurpleMessageClass *klass) {
 	 * PurpleMessage::id:
 	 *
 	 * The account specific identifier of the message.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_ID] = g_param_spec_uint(
 		"id", "ID",
@@ -209,6 +213,8 @@ purple_message_class_init(PurpleMessageClass *klass) {
 	 * PurpleMessage::author:
 	 *
 	 * The author of the message.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_AUTHOR] = g_param_spec_string(
 		"author", "Author",
@@ -217,9 +223,24 @@ purple_message_class_init(PurpleMessageClass *klass) {
 		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	/**
+	 * PurpleMessage::author-name-color:
+	 *
+	 * The hex color for the author's name.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_AUTHOR_NAME_COLOR] = g_param_spec_string(
+		"author-name-color", "author-name-color",
+		"The hex color to display the author's name with",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+	/**
 	 * PurpleMessage::author-alias:
 	 *
 	 * The alias of the author.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_AUTHOR_ALIAS] = g_param_spec_string(
 		"author-alias", "Author's alias",
@@ -231,6 +252,8 @@ purple_message_class_init(PurpleMessageClass *klass) {
 	 * PurpleMessage::recipient:
 	 *
 	 * The recipient of the message.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_RECIPIENT] = g_param_spec_string(
 		"recipient", "Recipient",
@@ -242,6 +265,8 @@ purple_message_class_init(PurpleMessageClass *klass) {
 	 * PurpleMessage::content:
 	 *
 	 * The contents of the message.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_CONTENTS] = g_param_spec_string(
 		"contents", "Contents",
@@ -253,6 +278,8 @@ purple_message_class_init(PurpleMessageClass *klass) {
 	 * PurpleMessage::content-type:
 	 *
 	 * The content-type of the message.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_CONTENT_TYPE] = g_param_spec_enum(
 		"content-type", "content-type",
@@ -264,6 +291,8 @@ purple_message_class_init(PurpleMessageClass *klass) {
 	 * PurpleMessage::timestamp:
 	 *
 	 * The timestamp of the message.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_TIMESTAMP] = g_param_spec_boxed(
 		"timestamp", "timestamp",
@@ -275,6 +304,8 @@ purple_message_class_init(PurpleMessageClass *klass) {
 	 * PurpleMessage::flags:
 	 *
 	 * The #PurpleMessageFlags for the message.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_FLAGS] = g_param_spec_flags(
 		"flags", "Flags",
@@ -380,6 +411,26 @@ purple_message_get_author(PurpleMessage *message) {
 	g_return_val_if_fail(PURPLE_IS_MESSAGE(message), NULL);
 
 	return message->author;
+}
+
+void
+purple_message_set_author_name_color(PurpleMessage *message,
+                                     const gchar *color)
+{
+	g_return_if_fail(PURPLE_IS_MESSAGE(message));
+
+	g_free(message->author_name_color);
+	message->author_name_color = g_strdup(color);
+
+	g_object_notify_by_pspec(G_OBJECT(message),
+	                         properties[PROP_AUTHOR_NAME_COLOR]);
+}
+
+const gchar *
+purple_message_get_author_name_color(PurpleMessage *message) {
+	g_return_val_if_fail(PURPLE_IS_MESSAGE(message), NULL);
+
+	return message->author_name_color;
 }
 
 void
