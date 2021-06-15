@@ -671,16 +671,6 @@ menu_view_log_cb(GtkAction *action, gpointer data)
 	pidgin_clear_cursor(win->window);
 }
 
-static void
-menu_clear_cb(GtkAction *action, gpointer data)
-{
-	PidginConvWindow *win = data;
-	PurpleConversation *conv;
-
-	conv = pidgin_conv_window_get_active_conversation(win);
-	purple_conversation_clear_message_history(conv);
-}
-
 #ifdef USE_VV
 static void
 menu_initiate_media_call_cb(GtkAction *action, gpointer data)
@@ -844,64 +834,6 @@ menu_close_conv_cb(GtkAction *action, gpointer data)
 	PidginConvWindow *win = data;
 
 	close_conv_cb(NULL, PIDGIN_CONVERSATION(pidgin_conv_window_get_active_conversation(win)));
-}
-
-static void
-menu_logging_cb(GtkAction *action, gpointer data)
-{
-	PidginConvWindow *win = data;
-	PurpleConversation *conv;
-	gboolean logging;
-	PurpleBlistNode *node;
-
-	conv = pidgin_conv_window_get_active_conversation(win);
-
-	if (conv == NULL)
-		return;
-
-	logging = gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action));
-
-	if (logging == purple_conversation_is_logging(conv))
-		return;
-
-	node = get_conversation_blist_node(conv);
-
-	if (logging)
-	{
-		/* Enable logging first so the message below can be logged. */
-		purple_conversation_set_logging(conv, TRUE);
-
-		purple_conversation_write_system_message(conv,
-			_("Logging started. Future messages in this conversation will be logged."), 0);
-	}
-	else
-	{
-		purple_conversation_write_system_message(conv,
-			_("Logging stopped. Future messages in this conversation will not be logged."), 0);
-
-		/* Disable the logging second, so that the above message can be logged. */
-		purple_conversation_set_logging(conv, FALSE);
-	}
-
-	/* Save the setting IFF it's different than the pref. */
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		if (logging == purple_prefs_get_bool("/purple/logging/log_ims"))
-			purple_blist_node_remove_setting(node, "enable-logging");
-		else
-			purple_blist_node_set_bool(node, "enable-logging", logging);
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		if (logging == purple_prefs_get_bool("/purple/logging/log_chats"))
-			purple_blist_node_remove_setting(node, "enable-logging");
-		else
-			purple_blist_node_set_bool(node, "enable-logging", logging);
-	}
-}
-
-static void
-menu_toolbar_cb(GtkAction *action, gpointer data)
-{
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar",
-	                    gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action)));
 }
 
 static void
@@ -1607,9 +1539,6 @@ pidgin_conv_switch_active_conversation(PurpleConversation *conv)
 	purple_conversation_close_logs(old_conv);
 	gtkconv->active_conv = conv;
 
-	purple_conversation_set_logging(conv,
-		gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(gtkconv->win->menu->logging)));
-
 	purple_signal_emit(pidgin_conversations_get_handle(), "conversation-switched", conv);
 
 	gray_stuff_out(gtkconv);
@@ -1634,48 +1563,6 @@ menu_conv_sel_send_cb(GObject *m, gpointer data)
 	im = purple_im_conversation_new(account, name);
 	pidgin_conv_switch_active_conversation(im);
 }
-
-static void
-update_tab_icon(PurpleConversation *conv)
-{
-	PidginConversation *gtkconv;
-	GdkPixbuf *emblem = NULL;
-
-	g_return_if_fail(conv != NULL);
-
-	gtkconv = PIDGIN_CONVERSATION(conv);
-	if (conv != gtkconv->active_conv)
-		return;
-
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		PurpleBuddy *b = purple_blist_find_buddy(purple_conversation_get_account(conv), purple_conversation_get_name(conv));
-		if (b)
-			emblem = pidgin_blist_get_emblem((PurpleBlistNode*)b);
-	}
-
-	gtk_list_store_set(GTK_LIST_STORE(gtkconv->infopane_model),
-			&(gtkconv->infopane_iter),
-			CONV_EMBLEM_COLUMN, emblem, -1);
-	if (emblem)
-		g_object_unref(emblem);
-
-	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_protocol_icons")) {
-		emblem = pidgin_create_protocol_icon(purple_conversation_get_account(gtkconv->active_conv), PIDGIN_PROTOCOL_ICON_SMALL);
-	} else {
-		emblem = NULL;
-	}
-
-	gtk_list_store_set(GTK_LIST_STORE(gtkconv->infopane_model),
-			&(gtkconv->infopane_iter),
-			CONV_PROTOCOL_ICON_COLUMN, emblem, -1);
-	if (emblem)
-		g_object_unref(emblem);
-
-	/* XXX seanegan Why do I have to do this? */
-	gtk_widget_queue_resize(gtkconv->infopane);
-	gtk_widget_queue_draw(gtkconv->infopane);
-}
-
 
 void
 pidgin_conv_present_conversation(PurpleConversation *conv)
@@ -1817,7 +1704,6 @@ static GtkActionEntry menu_entries[] =
 	{ "ConversationMenu", NULL, N_("_Conversation"), NULL, NULL, NULL },
 	{ "ViewLog", NULL, N_("View _Log"), NULL, NULL, G_CALLBACK(menu_view_log_cb) },
 	{ "SaveAs", GTK_STOCK_SAVE_AS, N_("_Save As..."), NULL, NULL, G_CALLBACK(menu_save_as_cb) },
-	{ "ClearScrollback", GTK_STOCK_CLEAR, N_("Clea_r Scrollback"), "<control>L", NULL, G_CALLBACK(menu_clear_cb) },
 
 #ifdef USE_VV
 	{ "MediaMenu", NULL, N_("M_edia"), NULL, NULL, NULL },
@@ -1844,19 +1730,12 @@ static GtkActionEntry menu_entries[] =
 	{ "OptionsMenu", NULL, N_("_Options"), NULL, NULL, NULL },
 };
 
-/* Toggle items */
-static const GtkToggleActionEntry menu_toggle_entries[] = {
-	{ "EnableLogging", NULL, N_("Enable _Logging"), NULL, NULL, G_CALLBACK(menu_logging_cb), FALSE },
-	{ "ShowFormattingToolbars", NULL, N_("Show Formatting _Toolbars"), NULL, NULL, G_CALLBACK(menu_toolbar_cb), FALSE },
-};
-
 static const char *conversation_menu =
 "<ui>"
 	"<menubar name='Conversation'>"
 		"<menu action='ConversationMenu'>"
 			"<menuitem action='ViewLog'/>"
 			"<menuitem action='SaveAs'/>"
-			"<menuitem action='ClearScrollback'/>"
 			"<separator/>"
 #ifdef USE_VV
 			"<menu action='MediaMenu'>"
@@ -1882,11 +1761,7 @@ static const char *conversation_menu =
 			"<separator/>"
 			"<menuitem action='Close'/>"
 		"</menu>"
-		"<menu action='OptionsMenu'>"
-			"<menuitem action='EnableLogging'/>"
-			"<separator/>"
-			"<menuitem action='ShowFormattingToolbars'/>"
-		"</menu>"
+		"<menu action='OptionsMenu'/>"
 	"</menubar>"
 "</ui>";
 
@@ -2206,10 +2081,6 @@ setup_menubar(PidginConvWindow *win)
 	                             menu_entries,
 	                             G_N_ELEMENTS(menu_entries),
 	                             win);
-	gtk_action_group_add_toggle_actions(action_group,
-	                                    menu_toggle_entries,
-	                                    G_N_ELEMENTS(menu_toggle_entries),
-	                                    win);
 
 	win->menu->ui = gtk_ui_manager_new();
 	gtk_ui_manager_insert_action_group(win->menu->ui, action_group, 0);
@@ -2305,13 +2176,6 @@ setup_menubar(PidginConvWindow *win)
 				"/Conversation/ConversationMenu/InsertImage");
 
 	/* --- */
-
-	win->menu->logging =
-		gtk_ui_manager_get_action(win->menu->ui,
-		                          "/Conversation/OptionsMenu/EnableLogging");
-	win->menu->show_formatting_toolbar =
-		gtk_ui_manager_get_action(win->menu->ui,
-		                          "/Conversation/OptionsMenu/ShowFormattingToolbars");
 
 	win->menu->tray = pidgin_menu_tray_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(win->menu->menubar),
@@ -3373,8 +3237,6 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 		purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar")
 	);
 
-	gtk_widget_show(gtkconv->infopane_hbox);
-
 	g_signal_connect_swapped(G_OBJECT(pane), "focus",
 	                         G_CALLBACK(gtk_widget_grab_focus),
 	                         gtkconv->editor);
@@ -3980,7 +3842,6 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 
 	if (fields & PIDGIN_CONV_TAB_ICON)
 	{
-		update_tab_icon(conv);
 		generate_send_to_items(win);		/* To update the icons in SendTo menu */
 	}
 
@@ -4058,10 +3919,6 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 			g_free(unaliased);
 			g_free(unaliased_esc);
 		}
-		gtk_list_store_set(gtkconv->infopane_model, &(gtkconv->infopane_iter),
-				CONV_TEXT_COLUMN, markup, -1);
-	        /* XXX seanegan Why do I have to do this? */
-		gtk_widget_queue_draw(gtkconv->infopane);
 
 		if (title != markup)
 			g_free(markup);
@@ -5681,17 +5538,11 @@ switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 
 	/* Update the menubar */
 
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtkconv->win->menu->logging),
-	                             purple_conversation_is_logging(conv));
-
 	generate_send_to_items(win);
 	regenerate_options_items(win);
 	regenerate_plugins_items(win);
 
 	pidgin_conv_switch_active_conversation(conv);
-
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu->show_formatting_toolbar),
-	                             purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar"));
 
 	purple_signal_emit(pidgin_conversations_get_handle(), "conversation-switched", conv);
 }
