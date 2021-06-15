@@ -425,6 +425,19 @@ gchar *pidgin_blist_get_name_markup(PurpleBuddy *buddy, gboolean selected, gbool
 void pidgin_blist_draw_tooltip(PurpleBlistNode *node, GtkWidget *widget);
 
 /**
+ * pidgin_blist_query_tooltip_for_node:
+ * @node: The buddy list to query a tooltip for.
+ * @tooltip: The tooltip object to add a tooltip to.
+ *
+ * Queries and creates a custom tooltip for a buddy list node.
+ *
+ * Returns: %TRUE if a custom tooltip was added, %FALSE otherwise.
+ *
+ * Since: 3.0.0
+ */
+gboolean pidgin_blist_query_tooltip_for_node(PurpleBlistNode *node, GtkTooltip *tooltip);
+
+/**
  * pidgin_blist_tooltip_destroy:
  *
  * Destroys the current (if any) Buddy List tooltip
