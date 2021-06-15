@@ -52,6 +52,7 @@
 #include "gtkutils.h"
 #include "pidginavatar.h"
 #include "pidginclosebutton.h"
+#include "pidgincolor.h"
 #include "pidginconversationwindow.h"
 #include "pidgincore.h"
 #include "pidgingdkpixbuf.h"
@@ -167,54 +168,6 @@ static void hide_conv(PidginConversation *gtkconv, gboolean closetimer);
 static void pidgin_conv_set_position_size(PidginConvWindow *win, int x, int y,
 		int width, int height);
 static gboolean pidgin_conv_xy_to_right_infopane(PidginConvWindow *win, int x, int y);
-
-/*<private>
- * get_nick_color:
- * @name: The name or text to get a color for.
- * @color: (out): The return address for a #GdkRGBA that will recieve the
- *         color.
- *
- * This function is based heavily on the implementation that gajim uses from
- * python-nbxmpp in nbxmpp.util.text_to_color.  However, we don't have an
- * implementation of HSL let alone HSLuv, so we're using HSV which is why
- * the value is 1.0 instead of a luminance of 0.5.
- *
- * Currently there is no caching as GCache is deprecated and writing a fast LRU
- * in glib is going to take a bit of finesse.  Also we'll need to figure out how
- * to scale to ginormous Twitch channels which will constantly break the cache.
- */
-static void
-get_nick_color(const gchar *name, GdkRGBA *color) {
-	GdkRGBA background;
-	GChecksum *checksum = NULL;
-	guchar digest[20];
-	gsize digest_len = sizeof(digest);
-	gdouble hue = 0, red = 0, green = 0, blue = 0;
-
-	pidgin_style_context_get_background_color(&background);
-
-	/* hash the string and get the first 2 bytes of the digest */
-	checksum = g_checksum_new(G_CHECKSUM_SHA1);
-	g_checksum_update(checksum, (const guchar *)name, -1);
-	g_checksum_get_digest(checksum, digest, &digest_len);
-	g_checksum_free(checksum);
-
-	/* Calculate the hue based on the digest.  We need a value between 0 and 1
-	 * so we divide the value by 65535 which is the maximum value for 2 bytes.
-	 */
-	hue = (digest[0] << 8 | digest[1]) / 65535.0;
-
-	/* Get the rgb values for the hue at full saturation and value. */
-	gtk_hsv_to_rgb(hue, 1.0, 1.0, &red, &green, &blue);
-
-	/* Finally calculate the color summing 20% of the inverted background color
-	 * with 80% of the color.
-	 */
-	color->red = (0.2 * (1 - background.red)) + (0.8 * red);
-	color->green = (0.2 * (1 - background.green)) + (0.8 * green);
-	color->blue = (0.2 * (1 - background.blue)) + (0.8 * blue);
-	color->alpha = 1.0;
-}
 
 static PurpleBlistNode *
 get_conversation_blist_node(PurpleConversation *conv)
@@ -2730,7 +2683,7 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	alias_key = g_utf8_collate_key(tmp, -1);
 	g_free(tmp);
 
-	get_nick_color(name, &color);
+	pidgin_color_calculate_for_text(name, &color);
 
 	gtk_list_store_insert_with_values(ls, &iter,
 /*

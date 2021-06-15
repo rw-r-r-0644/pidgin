@@ -1,5 +1,6 @@
 /*
- * pidgin
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -31,6 +32,8 @@
  * @section_id: pidgin-pidginmessage
  * @short_description: <filename>pidginmessage.h</filename>
  * @title: Pidgin Message API
+ *
+ * #PidginMessage maps a #PurpleMessage to a #TalkatuMessage.
  */
 
 #include <purple.h>
