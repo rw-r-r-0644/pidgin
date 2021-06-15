@@ -354,20 +354,24 @@ static void gtk_blist_menu_persistent_cb(GtkWidget *w, PurpleChat *chat)
 static PurpleConversation *
 find_conversation_with_buddy(PurpleBuddy *buddy)
 {
+	PurpleConversationManager *manager;
 	PidginBlistNode *ui = g_object_get_data(G_OBJECT(buddy), UI_DATA);
 
 	if(ui) {
 		return ui->conv.conv;
 	}
 
-	return PURPLE_CONVERSATION(purple_conversations_find_im_with_account(
-			purple_buddy_get_name(buddy), purple_buddy_get_account(buddy)));
+	manager = purple_conversation_manager_get_default();
+	return purple_conversation_manager_find_im(manager,
+	                                           purple_buddy_get_account(buddy),
+	                                           purple_buddy_get_name(buddy));
 }
 
 static void gtk_blist_join_chat(PurpleChat *chat)
 {
 	PurpleAccount *account;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PurpleProtocol *protocol;
 	GHashTable *components;
 	const char *name;
@@ -378,20 +382,21 @@ static void gtk_blist_join_chat(PurpleChat *chat)
 
 	components = purple_chat_get_components(chat);
 
-	if(protocol) {
+	if(PURPLE_IS_PROTOCOL_CHAT(protocol)) {
 		chat_name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol),
 		                                          components);
 	}
 
-	if (chat_name)
+	if(chat_name != NULL) {
 		name = chat_name;
-	else
+	} else {
 		name = purple_chat_get_name(chat);
+	}
 
-	conv = PURPLE_CONVERSATION(purple_conversations_find_chat_with_account(name,
-			account));
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find(manager, account, name);
 
-	if (conv != NULL) {
+	if(PURPLE_IS_CONVERSATION(conv)) {
 		pidgin_conv_attach_to_conversation(conv);
 		purple_conversation_present(conv);
 	}
@@ -3275,7 +3280,9 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 			conv = PURPLE_CHAT_CONVERSATION(bnode->conv.conv);
 		} else {
 			PurpleConversation *chat_conv;
+			PurpleConversationManager *manager;
 			char *chat_name;
+
 			if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, get_name)) {
 				chat_name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol),
 				                                          purple_chat_get_components(chat));
@@ -3283,8 +3290,9 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 				chat_name = g_strdup(purple_chat_get_name(chat));
 			}
 
-			chat_conv = purple_conversations_find_chat_with_account(chat_name,
-			                                                        account);
+			manager = purple_conversation_manager_get_default();
+			chat_conv = purple_conversation_manager_find_chat(manager, account,
+			                                                  chat_name);
 			g_free(chat_name);
 
 			if(PURPLE_IS_CHAT_CONVERSATION(chat_conv)) {
@@ -6005,6 +6013,8 @@ add_buddy_cb(GtkWidget *w, int resp, PidginAddBuddyData *data)
 
 	if (resp == GTK_RESPONSE_OK)
 	{
+		PurpleConversationManager *manager;
+
 		who = gtk_entry_get_text(GTK_ENTRY(data->entry));
 		grp = pidgin_text_combo_box_entry_get_text(data->combo);
 		whoalias = gtk_entry_get_text(GTK_ENTRY(data->entry_for_alias));
@@ -6059,11 +6069,14 @@ add_buddy_cb(GtkWidget *w, int resp, PidginAddBuddyData *data)
 		 * Or something.  --Mark
 		 */
 
-		im = purple_conversations_find_im_with_account(who, data->rq_data.account);
-		if (im != NULL) {
+		manager = purple_conversation_manager_get_default();
+		im = purple_conversation_manager_find_im(manager, data->rq_data.account,
+		                                         who);
+		if(PURPLE_IS_IM_CONVERSATION(im)) {
 			icon = purple_im_conversation_get_icon(PURPLE_IM_CONVERSATION(im));
-			if (icon != NULL)
+			if(icon != NULL) {
 				purple_buddy_icon_update(icon);
+			}
 		}
 	}
 

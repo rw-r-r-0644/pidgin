@@ -511,32 +511,46 @@ pidgin_media_finalize(GObject *media)
 static void
 pidgin_media_emit_message(PidginMedia *gtkmedia, const char *msg)
 {
-	PurpleAccount *account = purple_media_get_account(
-			gtkmedia->priv->media);
-	PurpleConversation *conv = purple_conversations_find_with_account(
-			gtkmedia->priv->screenname, account);
-	if (conv != NULL)
+	PurpleConversation *conv;
+	PurpleConversationManager *manager;
+	PurpleAccount *account;
+
+	account = purple_media_get_account(gtkmedia->priv->media);
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find(manager, account,
+	                                        gtkmedia->priv->screenname);
+
+	if(PURPLE_IS_CONVERSATION(conv)) {
 		purple_conversation_write_system_message(conv, msg, 0);
+	}
+
 	g_object_unref(account);
 }
 
 static void
-pidgin_media_error_cb(PidginMedia *media, const char *error, PidginMedia *gtkmedia)
+pidgin_media_error_cb(PidginMedia *media, const gchar *error,
+                      PidginMedia *gtkmedia)
 {
-	PurpleAccount *account = purple_media_get_account(
-			gtkmedia->priv->media);
-	PurpleConversation *conv = purple_conversations_find_with_account(
-			gtkmedia->priv->screenname, account);
-	if (conv != NULL) {
-		purple_conversation_write_system_message(
-			conv, error, PURPLE_MESSAGE_ERROR);
+	PurpleConversation *conv;
+	PurpleConversationManager *manager;
+	PurpleAccount *account;
+
+	account = purple_media_get_account(gtkmedia->priv->media);
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find(manager, account,
+	                                        gtkmedia->priv->screenname);
+
+	if(PURPLE_IS_CONVERSATION(conv)) {
+		purple_conversation_write_system_message(conv, error,
+		                                         PURPLE_MESSAGE_ERROR);
 	} else {
 		purple_notify_error(NULL, NULL, _("Media error"), error,
-			purple_request_cpar_from_conversation(conv));
+		                    purple_request_cpar_from_conversation(conv));
 	}
 
 	gtk_statusbar_push(GTK_STATUSBAR(gtkmedia->priv->statusbar),
-			0, error);
+	                   0, error);
+
 	g_object_unref(account);
 }
 

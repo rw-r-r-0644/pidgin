@@ -137,9 +137,19 @@ static PurpleCmdRet
 clearall_command_cb(PurpleConversation *conv,
                  const char *cmd, char **args, char **error, void *data)
 {
-	GList *l;
-	for (l = purple_conversations_get_all(); l != NULL; l = l->next)
-		purple_conversation_clear_message_history(PURPLE_CONVERSATION(l->data));
+	PurpleConversationManager *manager;
+	GList *list;
+
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
+
+	while(list != NULL) {
+		PurpleConversation *conv = PURPLE_CONVERSATION(list->data);
+
+		purple_conversation_clear_message_history(conv);
+
+		list = g_list_delete_link(list, list);
+	}
 
 	return PURPLE_CMD_RET_OK;
 }

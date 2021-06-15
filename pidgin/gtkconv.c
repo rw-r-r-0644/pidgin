@@ -1732,8 +1732,17 @@ pidgin_conversations_get_unseen_all(PidginUnseenState min_state,
 										gboolean hidden_only,
 										guint max_count)
 {
-	return pidgin_conversations_get_unseen(purple_conversations_get_all(),
-			min_state, hidden_only, max_count);
+	PurpleConversationManager *manager;
+	GList *list, *ret = NULL;
+
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
+
+	ret = pidgin_conversations_get_unseen(list, min_state, hidden_only,
+	                                      max_count);
+	g_list_free(list);
+
+	return ret;
 }
 
 static void
@@ -3215,9 +3224,15 @@ pidgin_conv_find_gtkconv(PurpleConversation * conv)
 	for (bn = purple_blist_node_get_first_child(cn); bn; bn = purple_blist_node_get_sibling_next(bn)) {
 		PurpleBuddy *b = PURPLE_BUDDY(bn);
 		PurpleConversation *im;
-		if ((im = purple_conversations_find_im_with_account(purple_buddy_get_name(b), purple_buddy_get_account(b)))) {
-			if (PIDGIN_CONVERSATION(im))
-				return PIDGIN_CONVERSATION(im);
+		PurpleConversationManager *manager;
+
+		manager = purple_conversation_manager_get_default();
+		im = purple_conversation_manager_find_im(manager,
+		                                         purple_buddy_get_account(b),
+		                                         purple_buddy_get_name(b));
+
+		if(PIDGIN_CONVERSATION(im)) {
+			return PIDGIN_CONVERSATION(im);
 		}
 	}
 
@@ -4280,22 +4295,31 @@ static void
 close_on_tabs_pref_cb(const char *name, PurplePrefType type,
 					  gconstpointer value, gpointer data)
 {
-	GList *l;
+	GList *list;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PidginConversation *gtkconv;
 
-	for (l = purple_conversations_get_all(); l != NULL; l = l->next) {
-		conv = (PurpleConversation *)l->data;
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
+	while(list != NULL) {
+		conv = PURPLE_CONVERSATION(list->data);
 
-		if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv))
+		if(!PIDGIN_IS_PIDGIN_CONVERSATION(conv)) {
+			list = g_list_delete_link(list, list);
+
 			continue;
+		}
 
 		gtkconv = PIDGIN_CONVERSATION(conv);
 
-		if (value)
+		if(value) {
 			gtk_widget_show(gtkconv->close);
-		else
+		} else {
 			gtk_widget_hide(gtkconv->close);
+		}
+
+		list = g_list_delete_link(list, list);
 	}
 }
 
@@ -4322,18 +4346,23 @@ static void
 show_formatting_toolbar_pref_cb(const char *name, PurplePrefType type,
 								gconstpointer value, gpointer data)
 {
-	GList *l;
+	GList *list;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PidginConversation *gtkconv;
 	PidginConvWindow *win;
 	gboolean visible = (gboolean)GPOINTER_TO_INT(value);
 
-	for (l = purple_conversations_get_all(); l != NULL; l = l->next)
-	{
-		conv = (PurpleConversation *)l->data;
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
+	while(list != NULL) {
+		conv = PURPLE_CONVERSATION(list->data);
 
-		if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv))
+		if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv)) {
+			list = g_list_delete_link(list, list);
+
 			continue;
+		}
 
 		gtkconv = PIDGIN_CONVERSATION(conv);
 		win     = gtkconv->win;
@@ -4344,6 +4373,8 @@ show_formatting_toolbar_pref_cb(const char *name, PurplePrefType type,
 		);
 
 		talkatu_editor_set_toolbar_visible(TALKATU_EDITOR(gtkconv->editor), visible);
+
+		list = g_list_delete_link(list, list);
 	}
 }
 
@@ -4426,9 +4457,15 @@ get_gtkconv_with_contact(PurpleContact *contact)
 	{
 		PurpleBuddy *buddy = (PurpleBuddy*)node;
 		PurpleConversation *im;
-		im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
-		if (im)
+		PurpleConversationManager *manager;
+
+		manager = purple_conversation_manager_get_default();
+		im = purple_conversation_manager_find_im(manager,
+		                                         purple_buddy_get_account(buddy),
+		                                         purple_buddy_get_name(buddy));
+		if(PURPLE_IS_IM_CONVERSATION(im)) {
 			return PIDGIN_CONVERSATION(im);
+		}
 	}
 	return NULL;
 }
@@ -4436,11 +4473,14 @@ get_gtkconv_with_contact(PurpleContact *contact)
 static void
 account_signed_off_cb(PurpleConnection *gc, gpointer event)
 {
-	GList *iter;
+	PurpleConversationManager *manager;
+	GList *list;
 
-	for (iter = purple_conversations_get_all(); iter; iter = iter->next)
-	{
-		PurpleConversation *conv = iter->data;
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
+
+	while(list != NULL) {
+		PurpleConversation *conv = PURPLE_CONVERSATION(list->data);
 
 		/* This seems fine in theory, but we also need to cover the
 		 * case of this account matching one of the other buddies in
@@ -4466,14 +4506,20 @@ account_signed_off_cb(PurpleConnection *gc, gpointer event)
 			if (chat == NULL && comps != NULL)
 				g_hash_table_destroy(comps);
 		}
+
+		list = g_list_delete_link(list, list);
 	}
 }
 
 static void
 account_signing_off(PurpleConnection *gc)
 {
-	GList *list = purple_conversations_get_all();
+	PurpleConversationManager *manager;
+	GList *list;
 	PurpleAccount *account = purple_connection_get_account(gc);
+
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
 
 	/* We are about to sign off. See which chats we are currently in, and mark
 	 * them for rejoin on reconnect. */
@@ -4534,20 +4580,31 @@ static void
 update_buddy_idle_changed(PurpleBuddy *buddy, gboolean old, gboolean newidle)
 {
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 
-	im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
-	if (im)
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager,
+	                                         purple_buddy_get_account(buddy),
+	                                         purple_buddy_get_name(buddy));
+	if(PURPLE_IS_IM_CONVERSATION(im)) {
 		pidgin_conv_update_fields(im, PIDGIN_CONV_TAB_ICON);
+	}
 }
 
 static void
 update_buddy_icon(PurpleBuddy *buddy)
 {
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 
-	im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
-	if (im)
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager,
+	                                         purple_buddy_get_account(buddy),
+	                                         purple_buddy_get_name(buddy));
+
+	if(PURPLE_IS_IM_CONVERSATION(im)) {
 		pidgin_conv_update_fields(im, PIDGIN_CONV_BUDDY_ICON);
+	}
 }
 
 static void
@@ -4580,15 +4637,19 @@ static void
 update_buddy_typing(PurpleAccount *account, const char *who)
 {
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PidginConversation *gtkconv;
 
-	conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(who, account));
-	if (!conv)
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find_im(manager, account, who);
+	if(!PURPLE_IS_CONVERSATION(conv)) {
 		return;
+	}
 
 	gtkconv = PIDGIN_CONVERSATION(conv);
-	if (gtkconv && gtkconv->active_conv == conv)
+	if(gtkconv && gtkconv->active_conv == conv) {
 		pidgin_conv_update_fields(conv, PIDGIN_CONV_COLORIZE_TITLE);
+	}
 }
 
 static void
@@ -4724,10 +4785,17 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 		GDateTime *dt = NULL;
 
 		if (PURPLE_IS_IM_CONVERSATION(conv)) {
+			PurpleConversationManager *manager;
 			GList *convs;
+
 			list = g_list_copy(list);
-			for (convs = purple_conversations_get_all(); convs; convs = convs->next) {
+			manager = purple_conversation_manager_get_default();
+			convs = purple_conversation_manager_get_all(manager);
+
+			while(convs != NULL) {
 				if(!PURPLE_IS_IM_CONVERSATION(convs->data)) {
+					convs = g_list_delete_link(convs, convs);
+
 					continue;
 				}
 				if (convs->data != conv &&
@@ -4735,6 +4803,8 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 					pidgin_conv_attach(convs->data);
 					list = g_list_concat(list, g_list_copy(purple_conversation_get_message_history(convs->data)));
 				}
+
+				convs = g_list_delete_link(convs, convs);
 			}
 			list = g_list_sort(list, (GCompareFunc)message_compare);
 			gtkconv->attach_current = list;
