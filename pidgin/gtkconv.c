@@ -1384,9 +1384,6 @@ conv_keypress_common(PidginConversation *gtkconv, GdkEventKey *event)
 	win     = gtkconv->win;
 	curconv = gtk_notebook_get_current_page(GTK_NOTEBOOK(win->notebook));
 
-	/* clear any tooltips */
-	pidgin_tooltip_destroy();
-
 	/* If CTRL was held down... */
 	if (event->state & GDK_CONTROL_MASK) {
 		switch (event->keyval) {
@@ -3005,32 +3002,68 @@ setup_chat_topic(PidginConversation *gtkconv, GtkWidget *vbox)
 }
 
 static gboolean
-pidgin_conv_userlist_create_tooltip(GtkWidget *tipwindow, GtkTreePath *path,
-		gpointer userdata, int *w, int *h)
+pidgin_conv_userlist_query_tooltip(GtkWidget *widget, int x, int y,
+                                   gboolean keyboard_mode, GtkTooltip *tooltip,
+                                   gpointer userdata)
 {
 	PidginConversation *gtkconv = userdata;
+	PurpleConversation *conv = NULL;
+	PurpleAccount *account = NULL;
+	PurpleConnection *connection = NULL;
+	GtkTreePath *path = NULL;
+	GtkTreeModel *model = NULL;
 	GtkTreeIter iter;
-	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->u.chat->list));
-	PurpleConversation *conv = gtkconv->active_conv;
-	PurpleBlistNode *node;
-	PurpleProtocol *protocol;
-	PurpleAccount *account = purple_conversation_get_account(conv);
+	PurpleBlistNode *node = NULL;
+	PurpleProtocol *protocol = NULL;
 	char *who = NULL;
 
-	if (purple_account_get_connection(account) == NULL)
+	conv = gtkconv->active_conv;
+	account = purple_conversation_get_account(conv);
+	connection = purple_account_get_connection(account);
+	if (!PURPLE_IS_CONNECTION(connection)) {
 		return FALSE;
+	}
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->u.chat->list));
 
-	if (!gtk_tree_model_get_iter(GTK_TREE_MODEL(model), &iter, path))
-		return FALSE;
+	if (keyboard_mode) {
+		GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+		if (!gtk_tree_selection_get_selected(selection, NULL, &iter)) {
+			return FALSE;
+		}
+		path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
+	} else {
+		gint bx, by;
 
-	gtk_tree_model_get(GTK_TREE_MODEL(model), &iter, CHAT_USERS_NAME_COLUMN, &who, -1);
+		gtk_tree_view_convert_widget_to_bin_window_coords(GTK_TREE_VIEW(widget),
+		                                                  x, y, &bx, &by);
+		gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget), bx, by, &path,
+		                              NULL, NULL, NULL);
+		if (path == NULL) {
+			return FALSE;
+		}
+		if (!gtk_tree_model_get_iter(GTK_TREE_MODEL(model),
+		                             &iter, path))
+		{
+			gtk_tree_path_free(path);
+			return FALSE;
+		}
+	}
 
-	protocol = purple_connection_get_protocol(purple_account_get_connection(account));
-	node = (PurpleBlistNode*)(purple_blist_find_buddy(purple_conversation_get_account(conv), who));
-	if (node && protocol && (purple_protocol_get_options(protocol) & OPT_PROTO_UNIQUE_CHATNAME))
-		pidgin_blist_draw_tooltip(node, gtkconv->infopane);
+	gtk_tree_model_get(model, &iter, CHAT_USERS_NAME_COLUMN, &who, -1);
 
+	protocol = purple_connection_get_protocol(connection);
+	node = (PurpleBlistNode*)purple_blist_find_buddy(account, who);
 	g_free(who);
+
+	if (node && protocol && (purple_protocol_get_options(protocol) & OPT_PROTO_UNIQUE_CHATNAME)) {
+		if (pidgin_blist_query_tooltip_for_node(node, tooltip)) {
+			gtk_tree_view_set_tooltip_row(GTK_TREE_VIEW(widget), tooltip, path);
+			gtk_tree_path_free(path);
+			return TRUE;
+		}
+	}
+
+	gtk_tree_path_free(path);
 	return FALSE;
 }
 
@@ -3094,8 +3127,10 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 			 G_CALLBACK(gtkconv_chat_popup_menu_cb), gtkconv);
 	g_signal_connect(G_OBJECT(lbox), "size-allocate", G_CALLBACK(lbox_size_allocate_cb), gtkconv);
 
-	pidgin_tooltip_setup_for_treeview(list, gtkconv,
-			pidgin_conv_userlist_create_tooltip, NULL);
+	gtk_widget_set_has_tooltip(list, TRUE);
+	g_signal_connect(list, "query-tooltip",
+	                 G_CALLBACK(pidgin_conv_userlist_query_tooltip),
+	                 gtkconv);
 
 	rend = gtk_cell_renderer_text_new();
 	g_object_set(rend,

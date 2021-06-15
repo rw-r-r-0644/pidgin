@@ -3331,9 +3331,8 @@ add_tip_for_node(GtkWidget *grid, gint row, PurpleBlistNode *node, gboolean full
 	g_free(tooltip_text);
 }
 
-static gboolean
-pidgin_blist_query_tooltip_for_node(PidginBuddyList *blist,
-                                    PurpleBlistNode *node, GtkTooltip *tooltip)
+gboolean
+pidgin_blist_query_tooltip_for_node(PurpleBlistNode *node, GtkTooltip *tooltip)
 {
 	GtkWidget *grid;
 
@@ -3426,7 +3425,7 @@ pidgin_blist_query_tooltip(GtkWidget *widget, int x, int y,
 
 	gtk_tree_model_get(GTK_TREE_MODEL(blist->treemodel), &iter,
 	                   NODE_COLUMN, &node, -1);
-	if (pidgin_blist_query_tooltip_for_node(blist, node, tooltip)) {
+	if (pidgin_blist_query_tooltip_for_node(node, tooltip)) {
 		gtk_tree_view_set_tooltip_row(GTK_TREE_VIEW(widget), tooltip, path);
 		gtk_tree_path_free(path);
 		return TRUE;
