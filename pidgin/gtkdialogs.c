@@ -322,14 +322,17 @@ void
 pidgin_dialogs_im_with_user(PurpleAccount *account, const char *username)
 {
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(username != NULL);
 
-	im = purple_conversations_find_im_with_account(username, account);
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager, account, username);
 
-	if (im == NULL)
+	if(!PURPLE_IS_IM_CONVERSATION(im)) {
 		im = purple_im_conversation_new(account, username);
+	}
 
 	pidgin_conv_attach_to_conversation(im);
 	purple_conversation_present(im);

@@ -243,7 +243,8 @@ static gboolean
 gestures_load(GPluginPlugin *plugin, GError **error)
 {
 	PurpleConversation *conv;
-	GList *l;
+	PurpleConversationManager *manager;
+	GList *list;
 
 	purple_prefs_add_none("/plugins/gtk");
 	purple_prefs_add_none("/plugins/gtk/X11");
@@ -255,13 +256,20 @@ gestures_load(GPluginPlugin *plugin, GError **error)
 	gstroke_set_draw_strokes(purple_prefs_get_bool(
 		"/plugins/gtk/X11/gestures/visual"));
 
-	for (l = purple_conversations_get_all(); l != NULL; l = l->next) {
-		conv = (PurpleConversation *)l->data;
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
+	while(list != NULL) {
+		conv = PURPLE_CONVERSATION(list->data);
 
-		if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv))
+		if(!PIDGIN_IS_PIDGIN_CONVERSATION(conv)) {
+			list = g_list_delete_link(list, list);
+
 			continue;
+		}
 
 		attach_signals(conv);
+
+		list = g_list_delete_link(list, list);
 	}
 
 	purple_signal_connect(purple_conversations_get_handle(),
@@ -275,19 +283,28 @@ static gboolean
 gestures_unload(GPluginPlugin *plugin, GError **error)
 {
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PidginConversation *gtkconv;
-	GList *l;
+	GList *list;
 
-	for (l = purple_conversations_get_all(); l != NULL; l = l->next) {
-		conv = (PurpleConversation *)l->data;
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
 
-		if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv))
+	while(list != NULL) {
+		conv = PURPLE_CONVERSATION(list->data);
+
+		if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv)) {
+			list = g_list_delete_link(list, list);
+
 			continue;
+		}
 
 		gtkconv = PIDGIN_CONVERSATION(conv);
 
 		gstroke_cleanup(gtkconv->history);
 		gstroke_disable(gtkconv->history);
+
+		list = g_list_delete_link(list, list);
 	}
 
 	return TRUE;
