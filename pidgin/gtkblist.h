@@ -64,8 +64,6 @@ typedef enum {
  * @contact_rect:      This is the bounding rectangle of the contact node and
  *                     its children.  This is used for auto-expand on mouseover.
  * @mouseover_contact: This is the contact currently mouse-over expanded
- * @tipwindow:         The window used by the tooltip
- * @tooltipdata:       The data for each "chunk" of the tooltip
  * @selected_node:     The currently selected node
  * @scrollbook:        Scrollbook for alerts
  * @headline:          Widget for headline notifications
@@ -102,9 +100,6 @@ struct _PidginBuddyList {
 	GdkRectangle drag_rect;
 	GdkRectangle contact_rect;
 	PurpleBlistNode *mouseover_contact;
-
-	GtkWidget *tipwindow;
-	GList *tooltipdata;
 
 	PurpleBlistNode *selected_node;
 
@@ -413,18 +408,6 @@ void pidgin_blist_set_headline(const char *text, const gchar *icon_name,
 gchar *pidgin_blist_get_name_markup(PurpleBuddy *buddy, gboolean selected, gboolean aliased);
 
 /**
- * pidgin_blist_draw_tooltip:
- * @node: The buddy list node to show a tooltip for
- * @widget: The widget to draw the tooltip on
- *
- * Creates the Buddy List tooltip at the current pointer location for the given buddy list node.
- *
- * This tooltip will be destroyed the next time this function is called, or when XXXX
- * is called
- */
-void pidgin_blist_draw_tooltip(PurpleBlistNode *node, GtkWidget *widget);
-
-/**
  * pidgin_blist_query_tooltip_for_node:
  * @node: The buddy list to query a tooltip for.
  * @tooltip: The tooltip object to add a tooltip to.
@@ -436,13 +419,6 @@ void pidgin_blist_draw_tooltip(PurpleBlistNode *node, GtkWidget *widget);
  * Since: 3.0.0
  */
 gboolean pidgin_blist_query_tooltip_for_node(PurpleBlistNode *node, GtkTooltip *tooltip);
-
-/**
- * pidgin_blist_tooltip_destroy:
- *
- * Destroys the current (if any) Buddy List tooltip
- */
-void pidgin_blist_tooltip_destroy(void);
 
 G_END_DECLS
 

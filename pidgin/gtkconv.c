@@ -64,10 +64,7 @@
 #include "pidginpresenceicon.h"
 #include "pidginstock.h"
 #include "pidginstylecontext.h"
-#include "pidgintooltip.h"
 #include "pidginwindow.h"
-
-#define GTK_TOOLTIPS_VAR gtkconv->tooltips
 
 #define ADD_MESSAGE_HISTORY_AT_ONCE 100
 
