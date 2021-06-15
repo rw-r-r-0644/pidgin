@@ -3191,28 +3191,249 @@ static gboolean pidgin_blist_drag_motion_cb(GtkWidget *tv, GdkDragContext *drag_
 	return FALSE;
 }
 
-static gboolean
-pidgin_blist_create_tooltip(GtkWidget *widget, GtkTreePath *path,
-		gpointer null, int *w, int *h)
+/* # - Status Icon
+ * P - Protocol Icon
+ * A - Buddy Icon
+ * [ - SMALL_SPACE
+ * = - LARGE_SPACE
+ *                   +--- STATUS_SIZE                +--- td->avatar_width
+ *                   |         +-- td->name_width    |
+ *                +----+   +-------+            +---------+
+ *                |    |   |       |            |         |
+ *                +-------------------------------------------+
+ *                |       [          =        [               |--- TOOLTIP_BORDER
+ *name_height --+-| ######[BuddyName = PP     [   AAAAAAAAAAA |--+
+ *              | | ######[          = PP     [   AAAAAAAAAAA |  |
+ * STATUS SIZE -| | ######[[[[[[[[[[[[[[[[[[[[[   AAAAAAAAAAA |  |
+ *           +--+-| ######[Account: So-and-so [   AAAAAAAAAAA |  |-- td->avatar_height
+ *           |    |       [Idle: 4h 15m       [   AAAAAAAAAAA |  |
+ *  height --+    |       [Foo: Bar, Baz      [   AAAAAAAAAAA |  |
+ *           |    |       [Status: Awesome    [   AAAAAAAAAAA |--+
+ *           +----|       [Stop: Hammer Time  [               |
+ *                |       [                   [               |--- TOOLTIP_BORDER
+ *                +-------------------------------------------+
+ *                 |       |                |                |
+ *                 |       +----------------+                |
+ *                 |               |                         |
+ *                 |               +-- td->width             |
+ *                 |                                         |
+ *                 +---- TOOLTIP_BORDER                      +---- TOOLTIP_BORDER
+ *
+ *
+ */
+static void
+add_tip_for_account(GtkWidget *grid, gint row, PurpleAccount *account)
 {
+	GdkPixbuf *protocol_icon = NULL;
+	GtkWidget *image = NULL;
+	GtkWidget *name = NULL;
+
+	protocol_icon = pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_SMALL);
+	if (purple_account_is_disconnected(account)) {
+		gdk_pixbuf_saturate_and_pixelate(protocol_icon, protocol_icon, 0.0, FALSE);
+	}
+	image = gtk_image_new_from_pixbuf(protocol_icon);
+	gtk_image_set_pixel_size(GTK_IMAGE(image), STATUS_SIZE);
+	gtk_grid_attach(GTK_GRID(grid), image, 0, row, 1, 1);
+	g_clear_object(&protocol_icon);
+
+	name = gtk_label_new(purple_account_get_username(account));
+	gtk_label_set_xalign(GTK_LABEL(name), 0);
+	gtk_label_set_yalign(GTK_LABEL(name), 0);
+	gtk_label_set_line_wrap(GTK_LABEL(name), TRUE);
+	gtk_label_set_max_width_chars(GTK_LABEL(name), 36);
+	gtk_grid_attach(GTK_GRID(grid), name, 1, row, 1, 1);
+}
+
+static void
+add_tip_for_node(GtkWidget *grid, gint row, PurpleBlistNode *node, gboolean full)
+{
+	GdkPixbuf *status_icon = NULL;
+	GtkWidget *image = NULL;
+	GtkWidget *name = NULL;
+	GdkPixbuf *avatar = NULL;
+	GtkWidget *avatar_image = NULL;
+	PurpleAccount *account = NULL;
+	char *tmp = NULL, *node_name = NULL, *tooltip_text = NULL;
+
+	if (PURPLE_IS_BUDDY(node)) {
+		account = purple_buddy_get_account(PURPLE_BUDDY(node));
+	} else if (PURPLE_IS_CHAT(node)) {
+		account = purple_chat_get_account(PURPLE_CHAT(node));
+	}
+
+	status_icon = pidgin_blist_get_status_icon(node, PIDGIN_STATUS_ICON_LARGE);
+	image = gtk_image_new_from_pixbuf(status_icon);
+	gtk_image_set_pixel_size(GTK_IMAGE(image), STATUS_SIZE);
+	gtk_grid_attach(GTK_GRID(grid), image, 0, row, 1, 1);
+	g_clear_object(&status_icon);
+
+	if (PURPLE_IS_BUDDY(node)) {
+		tmp = g_markup_escape_text(purple_buddy_get_name(PURPLE_BUDDY(node)), -1);
+	} else if (PURPLE_IS_CHAT(node)) {
+		tmp = g_markup_escape_text(purple_chat_get_name(PURPLE_CHAT(node)), -1);
+	} else if (PURPLE_IS_GROUP(node)) {
+		tmp = g_markup_escape_text(purple_group_get_name(PURPLE_GROUP(node)), -1);
+	} else {
+		/* I don't believe this can happen currently, I think
+		 * everything that calls this function checks for one of the
+		 * above node types first. */
+		tmp = g_strdup(_("Unknown node type"));
+	}
+	node_name = g_strdup_printf("<span size='x-large' weight='bold'>%s</span>",
+								tmp ? tmp : "");
+	g_free(tmp);
+
+	name = gtk_label_new(NULL);
+	gtk_label_set_xalign(GTK_LABEL(name), 0);
+	gtk_label_set_yalign(GTK_LABEL(name), 0);
+	gtk_label_set_markup(GTK_LABEL(name), node_name);
+	gtk_label_set_max_width_chars(GTK_LABEL(name), 36);
+	gtk_grid_attach(GTK_GRID(grid), name, 1, row, 1, 1);
+
+	if (account != NULL) {
+		GdkPixbuf *protocol_icon = pidgin_create_protocol_icon(
+		        account, PIDGIN_PROTOCOL_ICON_SMALL);
+		image = gtk_image_new_from_pixbuf(protocol_icon);
+		gtk_image_set_pixel_size(GTK_IMAGE(image), STATUS_SIZE);
+		gtk_widget_set_halign(image, GTK_ALIGN_END);
+		gtk_grid_attach(GTK_GRID(grid), image, 2, row, 1, 1);
+		g_clear_object(&protocol_icon);
+	}
+
+	tooltip_text = pidgin_get_tooltip_text(node, full);
+	if (tooltip_text && *tooltip_text) {
+		GtkWidget *contents = gtk_label_new(NULL);
+		gtk_label_set_xalign(GTK_LABEL(contents), 0);
+		gtk_label_set_yalign(GTK_LABEL(contents), 0);
+		gtk_label_set_markup(GTK_LABEL(contents), tooltip_text);
+		gtk_label_set_line_wrap(GTK_LABEL(contents), TRUE);
+		gtk_label_set_max_width_chars(GTK_LABEL(contents), 36);
+		gtk_grid_attach(GTK_GRID(grid), contents, 1, row+1, 2, 1);
+	}
+
+	avatar = pidgin_blist_get_buddy_icon(node, !full, FALSE);
+#if 0  /* Protocol Icon as avatar */
+	if(!avatar && full) {
+		avatar = pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_LARGE);
+	}
+#endif
+
+	if (avatar != NULL) {
+		avatar_image = gtk_image_new_from_pixbuf(avatar);
+		gtk_widget_set_halign(avatar_image, GTK_ALIGN_END);
+		gtk_widget_set_valign(avatar_image, GTK_ALIGN_START);
+		gtk_grid_attach(GTK_GRID(grid), avatar_image, 3, row, 1, 2);
+		g_object_unref(avatar);
+	}
+
+	g_free(node_name);
+	g_free(tooltip_text);
+}
+
+static gboolean
+pidgin_blist_query_tooltip_for_node(PidginBuddyList *blist,
+                                    PurpleBlistNode *node, GtkTooltip *tooltip)
+{
+	GtkWidget *grid;
+
+	grid = gtk_grid_new();
+
+	if (PURPLE_IS_CHAT(node) || PURPLE_IS_BUDDY(node)) {
+		add_tip_for_node(grid, 0, node, TRUE);
+
+	} else if (PURPLE_IS_GROUP(node)) {
+		PurpleGroup *group = PURPLE_GROUP(node);
+		GSList *accounts;
+		add_tip_for_node(grid, 0, node, TRUE);
+
+		/* Accounts with buddies in group */
+		accounts = purple_group_get_accounts(group);
+		for (gint row = 2; accounts != NULL;
+		     row++, accounts = g_slist_delete_link(accounts, accounts))
+		{
+			PurpleAccount *account = PURPLE_ACCOUNT(accounts->data);
+			add_tip_for_account(grid, row, account);
+		}
+
+	} else if (PURPLE_IS_CONTACT(node)) {
+		PurpleBlistNode *child;
+		PurpleBuddy *b = purple_contact_get_priority_buddy(PURPLE_CONTACT(node));
+		gint row = 0;
+
+		for(child = node->child; child; child = child->next) {
+			if(PURPLE_IS_BUDDY(child) && buddy_is_displayable(PURPLE_BUDDY(child))) {
+				if (b == (PurpleBuddy *)child) {
+					/* Priority buddy goes first (-2) and is more detailed. */
+					add_tip_for_node(grid, -2, child, TRUE);
+				} else {
+					add_tip_for_node(grid, row, child, FALSE);
+					row += 2;
+				}
+			}
+		}
+
+	} else {
+		return FALSE;
+	}
+
+	gtk_widget_show_all(grid);
+	gtk_tooltip_set_custom(tooltip, grid);
+
+	return TRUE;
+}
+
+static gboolean
+pidgin_blist_query_tooltip(GtkWidget *widget, int x, int y,
+                           gboolean keyboard_mode, GtkTooltip *tooltip,
+                           gpointer userdata)
+{
+	PidginBuddyList *blist = userdata;
 	GtkTreeIter iter;
 	PurpleBlistNode *node;
 	gboolean editable = FALSE;
+	GtkTreePath *path = NULL;
 
 	/* If we're editing a cell (e.g. alias editing), don't show the tooltip */
-	g_object_get(G_OBJECT(gtkblist->text_rend), "editable", &editable, NULL);
-	if (editable)
+	g_object_get(G_OBJECT(blist->text_rend), "editable", &editable, NULL);
+	if (editable) {
 		return FALSE;
-
-	if (gtkblist->tooltipdata) {
-		gtkblist->tipwindow = NULL;
-		pidgin_blist_destroy_tooltip_data();
 	}
 
-	gtk_tree_model_get_iter(GTK_TREE_MODEL(gtkblist->treemodel), &iter, path);
-	gtk_tree_model_get(GTK_TREE_MODEL(gtkblist->treemodel), &iter, NODE_COLUMN, &node, -1);
+	if (keyboard_mode) {
+		GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+		if (!gtk_tree_selection_get_selected(selection, NULL, &iter)) {
+			return FALSE;
+		}
+		path = gtk_tree_model_get_path(GTK_TREE_MODEL(blist->treemodel), &iter);
+	} else {
+		gint bx, by;
 
-	return pidgin_blist_create_tooltip_for_node(widget, node, w, h);
+		gtk_tree_view_convert_widget_to_bin_window_coords(GTK_TREE_VIEW(widget),
+		                                                  x, y, &bx, &by);
+		gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget), bx, by, &path,
+		                              NULL, NULL, NULL);
+		if (path == NULL) {
+			return FALSE;
+		}
+		if (!gtk_tree_model_get_iter(GTK_TREE_MODEL(blist->treemodel),
+		                             &iter, path))
+		{
+			gtk_tree_path_free(path);
+			return FALSE;
+		}
+	}
+
+	gtk_tree_model_get(GTK_TREE_MODEL(blist->treemodel), &iter,
+	                   NODE_COLUMN, &node, -1);
+	if (pidgin_blist_query_tooltip_for_node(blist, node, tooltip)) {
+		gtk_tree_view_set_tooltip_row(GTK_TREE_VIEW(widget), tooltip, path);
+		gtk_tree_path_free(path);
+		return TRUE;
+	} else {
+		gtk_tree_path_free(path);
+		return FALSE;
+	}
 }
 
 static gboolean pidgin_blist_motion_cb (GtkWidget *tv, GdkEventMotion *event, gpointer null)
@@ -5165,9 +5386,9 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	g_signal_connect(G_OBJECT(gtkblist->treeview), "leave-notify-event", G_CALLBACK(pidgin_blist_leave_cb), NULL);
 
 	/* Tooltips */
-	pidgin_tooltip_setup_for_treeview(gtkblist->treeview, NULL,
-			pidgin_blist_create_tooltip,
-			pidgin_blist_paint_tip);
+	gtk_widget_set_has_tooltip(gtkblist->treeview, TRUE);
+	g_signal_connect(G_OBJECT(gtkblist->treeview), "query-tooltip",
+	                 G_CALLBACK(pidgin_blist_query_tooltip), gtkblist);
 
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(gtkblist->treeview), FALSE);
 
