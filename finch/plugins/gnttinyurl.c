@@ -199,8 +199,12 @@ url_fetched(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 {
 	CbInfo *data = (CbInfo *)_data;
 	PurpleConversation *conv = data->conv;
-	GList *convs = purple_conversations_get_all();
+	PurpleConversationManager *manager;
+	GList *convs;
 	const gchar *url;
+
+	manager = purple_conversation_manager_get_default();
+	convs = purple_conversation_manager_get_all(manager);
 
 	if (SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
 		url = msg->response_body->data;

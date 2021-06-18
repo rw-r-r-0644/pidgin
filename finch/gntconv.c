@@ -197,19 +197,39 @@ find_im_with_contact(PurpleAccount *account, const char *name)
 {
 	PurpleBlistNode *node;
 	PurpleBuddy *buddy = purple_blist_find_buddy(account, name);
+	PurpleContact *contact;
 	PurpleConversation *im = NULL;
 
-	if (!buddy)
+	if(!PURPLE_IS_BUDDY(buddy)) {
 		return NULL;
-
-	for (node = purple_blist_node_get_first_child(purple_blist_node_get_parent((PurpleBlistNode*)buddy));
-				node; node = purple_blist_node_get_sibling_next(node)) {
-		if (node == (PurpleBlistNode*)buddy)
-			continue;
-		if ((im = purple_conversations_find_im_with_account(
-				purple_buddy_get_name((PurpleBuddy*)node), purple_buddy_get_account((PurpleBuddy*)node))) != NULL)
-			break;
 	}
+
+	contact = purple_buddy_get_contact(buddy);
+
+	node = purple_blist_node_get_first_child(PURPLE_BLIST_NODE(contact));
+	while(node != NULL) {
+		PurpleBuddy *cbuddy;
+		PurpleConversationManager *manager;
+
+		if(node == PURPLE_BLIST_NODE(buddy)) {
+			node = node->next;
+
+			continue;
+		}
+
+		cbuddy = PURPLE_BUDDY(node);
+		manager = purple_conversation_manager_get_default();
+		im = purple_conversation_manager_find_im(manager,
+		                                         purple_buddy_get_account(cbuddy),
+		                                         purple_buddy_get_name(cbuddy));
+
+		if(PURPLE_IS_IM_CONVERSATION(im)) {
+			break;
+		}
+
+		node = node->next;
+	}
+
 	return im;
 }
 
@@ -227,13 +247,16 @@ update_buddy_typing(PurpleAccount *account, const char *who, gpointer null)
 {
 	FinchConv *ggc;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PurpleIMConversation *im;
 	char *title, *str;
 
-	conv = purple_conversations_find_im_with_account(who, account);
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find_im(manager, account, who);
 
-	if (!conv)
+	if(!conv) {
 		return;
+	}
 
 	im = PURPLE_IM_CONVERSATION(conv);
 	ggc = FINCH_CONV(conv);
@@ -281,9 +304,11 @@ buddy_signed_on_off(PurpleBuddy *buddy, gpointer null)
 static void
 account_signed_on_off(PurpleConnection *gc, gpointer null)
 {
+	PurpleConversationManager *manager;
 	GList *list, *l;
 
-	list = purple_conversations_get_all();
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
 
 	for(l = list; l != NULL; l = l->next) {
 		PurpleConversation *conv = NULL;
@@ -349,8 +374,12 @@ account_signed_on_off(PurpleConnection *gc, gpointer null)
 static void
 account_signing_off(PurpleConnection *gc)
 {
-	GList *list = purple_conversations_get_all();
+	PurpleConversationManager *manager;
+	GList *list;
 	PurpleAccount *account = purple_connection_get_account(gc);
+
+	manager = purple_conversation_manager_get_default();
+	list = purple_conversation_manager_get_all(manager);
 
 	/* We are about to sign off. See which chats we are currently in, and mark
 	 * them for rejoin on reconnect. */
