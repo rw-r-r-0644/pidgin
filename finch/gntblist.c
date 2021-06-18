@@ -613,11 +613,13 @@ static void
 join_chat(PurpleChat *chat)
 {
 	PurpleAccount *account = purple_chat_get_account(chat);
+	PurpleConversationManager *manager;
 	const char *name;
 	PurpleConversation *conv;
 
 	name = purple_chat_get_name_only(chat);
-	conv = purple_conversations_find_chat_with_account(name, account);
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find_chat(manager, account, name);
 
 	if (!conv || purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv))) {
 		purple_serv_join_chat(purple_account_get_connection(account),
@@ -919,11 +921,16 @@ selection_activate(GntWidget *widget, FinchBuddyList *ggblist)
 	{
 		PurpleBuddy *buddy = (PurpleBuddy *)node;
 		PurpleConversation *im;
-		im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy),
-					purple_buddy_get_account(buddy));
-		if (!im) {
-			im =  purple_im_conversation_new(purple_buddy_get_account(buddy),
-						purple_buddy_get_name(buddy));
+		PurpleConversationManager *manager;
+
+		manager = purple_conversation_manager_get_default();
+		im = purple_conversation_manager_find_im(manager,
+		                                         purple_buddy_get_account(buddy),
+		                                         purple_buddy_get_name(buddy));
+
+		if(!PURPLE_IS_IM_CONVERSATION(im)) {
+			im = purple_im_conversation_new(purple_buddy_get_account(buddy),
+			                                purple_buddy_get_name(buddy));
 		} else {
 			FinchConv *ggconv = FINCH_CONV(im);
 			gnt_window_present(ggconv->window);
@@ -2659,6 +2666,7 @@ join_chat_select_cb(gpointer data, PurpleRequestFields *fields)
 	PurpleAccount *account;
 	const char *name;
 	PurpleConnection *gc;
+	PurpleConversationManager *manager;
 	PurpleChat *chat;
 	GHashTable *hash = NULL;
 	PurpleConversation *conv;
@@ -2670,10 +2678,13 @@ join_chat_select_cb(gpointer data, PurpleRequestFields *fields)
 		return;
 
 	gc = purple_account_get_connection(account);
+	manager = purple_conversation_manager_get_default();
+
 	/* Create a new conversation now. This will give focus to the new window.
 	 * But it's necessary to pretend that we left the chat, because otherwise
 	 * a new conversation window will pop up when we finally join the chat. */
-	if (!(conv = purple_conversations_find_chat_with_account(name, account))) {
+	conv = purple_conversation_manager_find_chat(manager, account, name);
+	if(!PURPLE_IS_CHAT_CONVERSATION(conv)) {
 		conv = purple_chat_conversation_new(account, name);
 		purple_chat_conversation_leave(PURPLE_CHAT_CONVERSATION(conv));
 	} else {
