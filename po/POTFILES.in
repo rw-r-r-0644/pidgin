@@ -255,6 +255,7 @@ libpurple/purplemessage.c
 libpurple/purplenoopcredentialprovider.c
 libpurple/purpleoptions.c
 libpurple/purplepresence.c
+libpurple/purpleplugininfo.c
 libpurple/purpleprotocolattention.c
 libpurple/purpleprotocolchat.c
 libpurple/purpleprotocolclient.c
