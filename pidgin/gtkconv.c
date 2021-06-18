@@ -4413,21 +4413,26 @@ account_signing_off(PurpleConnection *gc)
 	/* We are about to sign off. See which chats we are currently in, and mark
 	 * them for rejoin on reconnect. */
 	while(list != NULL) {
-		PurpleConversation *conv = NULL;
+		if(PURPLE_IS_CHAT_CONVERSATION(list->data)) {
+			PurpleConversation *conv;
+			PurpleChatConversation *chat;
+			gboolean left;
 
-		if(!PURPLE_IS_CHAT_CONVERSATION(list->data)) {
-			continue;
-		}
+			conv = PURPLE_CONVERSATION(list->data);
+			chat = PURPLE_CHAT_CONVERSATION(conv);
+			left = purple_chat_conversation_has_left(chat);
 
-		conv = PURPLE_CONVERSATION(list->data);
-		if (!purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv)) &&
-				purple_conversation_get_account(conv) == account) {
-			g_object_set_data(G_OBJECT(conv), "want-to-rejoin", GINT_TO_POINTER(TRUE));
-			purple_conversation_write_system_message(conv,
-				_("The account has disconnected and you are no "
-				"longer in this chat. You will automatically "
-				"rejoin the chat when the account reconnects."),
-				PURPLE_MESSAGE_NO_LOG);
+			if(!left && purple_conversation_get_account(conv) == account) {
+				g_object_set_data(G_OBJECT(conv), "want-to-rejoin",
+				                  GINT_TO_POINTER(TRUE));
+
+				purple_conversation_write_system_message(
+					conv,
+					_("The account has disconnected and you are no longer in "
+					  "this chat. You will automatically rejoin the chat when "
+					  "the account reconnects."),
+					PURPLE_MESSAGE_NO_LOG);
+			}
 		}
 
 		list = g_list_delete_link(list, list);
