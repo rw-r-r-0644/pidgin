@@ -31,49 +31,6 @@
 #include "signals.h"
 #include "util.h"
 
-typedef struct _PurplePluginInfoPrivate  PurplePluginInfoPrivate;
-
-/**************************************************************************
- * Plugin info private data
- **************************************************************************/
-struct _PurplePluginInfoPrivate {
-	char *ui_requirement;  /* ID of UI that is required to load the plugin */
-	char *error;           /* Why a plugin is not loadable                 */
-
-	PurplePluginInfoFlags flags; /* Flags for the plugin */
-
-	/* Callback that returns a list of actions the plugin can perform */
-	PurplePluginActionsCb actions_cb;
-
-	/* Callback that returns extra information about a plugin */
-	PurplePluginExtraCb extra_cb;
-
-	/* Callback that returns a preferences frame for a plugin */
-	PurplePluginPrefFrameCb pref_frame_cb;
-
-	/* Callback that returns a preferences request handle for a plugin */
-	PurplePluginPrefRequestCb pref_request_cb;
-
-	/* TRUE if a plugin has been unloaded at least once. Auto-load
-	 * plugins that have been unloaded once will not be auto-loaded again. */
-	gboolean unloaded;
-};
-
-enum
-{
-	PROP_0,
-	PROP_UI_REQUIREMENT,
-	PROP_ACTIONS_CB,
-	PROP_EXTRA_CB,
-	PROP_PREF_FRAME_CB,
-	PROP_PREF_REQUEST_CB,
-	PROP_FLAGS,
-	PROP_LAST
-};
-
-G_DEFINE_TYPE_WITH_PRIVATE(PurplePluginInfo, purple_plugin_info,
-		GPLUGIN_TYPE_PLUGIN_INFO);
-
 /**************************************************************************
  * Globals
  **************************************************************************/
@@ -88,7 +45,7 @@ plugin_loading_cb(GObject *manager, PurplePlugin *plugin, GError **error,
                   gpointer data)
 {
 	PurplePluginInfo *info;
-	PurplePluginInfoPrivate *priv;
+	const gchar *info_error = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PLUGIN(plugin), FALSE);
 
@@ -96,16 +53,15 @@ plugin_loading_cb(GObject *manager, PurplePlugin *plugin, GError **error,
 	if (!info)
 		return TRUE; /* a GPlugin internal plugin */
 
-	priv = purple_plugin_info_get_instance_private(info);
-
-	if (priv->error) {
+	info_error = purple_plugin_info_get_error(info);
+	if(info_error != NULL) {
 		gchar *filename = gplugin_plugin_get_filename(plugin);
 		purple_debug_error("plugins", "Failed to load plugin %s: %s",
 		                   filename,
-		                   priv->error);
+		                   info_error);
 
 		g_set_error(error, PURPLE_PLUGINS_DOMAIN, 0,
-				    "Plugin is not loadable: %s", priv->error);
+				    "Plugin is not loadable: %s", info_error);
 
 		g_free(filename);
 		return FALSE;
@@ -158,15 +114,12 @@ static void
 plugin_unloaded_cb(GObject *manager, PurplePlugin *plugin)
 {
 	PurplePluginInfo *info;
-	PurplePluginInfoPrivate *priv;
 
 	g_return_if_fail(PURPLE_IS_PLUGIN(plugin));
 
 	info = purple_plugin_get_info(plugin);
 	if (!info)
 		return; /* a GPlugin internal plugin */
-
-	priv = purple_plugin_info_get_instance_private(info);
 
 	/* cancel any pending dialogs the plugin has */
 	purple_request_close_with_handle(plugin);
@@ -175,7 +128,7 @@ plugin_unloaded_cb(GObject *manager, PurplePlugin *plugin)
 	purple_signals_disconnect_by_handle(plugin);
 	purple_signals_unregister_by_instance(plugin);
 
-	priv->unloaded = TRUE;
+	purple_plugin_info_set_unloaded(info, TRUE);
 
 	loaded_plugins     = g_list_remove(loaded_plugins, plugin);
 	plugins_to_disable = g_list_remove(plugins_to_disable, plugin);
@@ -299,277 +252,6 @@ purple_plugin_get_dependent_plugins(PurplePlugin *plugin)
 }
 
 /**************************************************************************
- * GObject code for PurplePluginInfo
- **************************************************************************/
-/* GObject initialization function */
-static void
-purple_plugin_info_init(PurplePluginInfo *info)
-{
-}
-
-/* Set method for GObject properties */
-static void
-purple_plugin_info_set_property(GObject *obj, guint param_id, const GValue *value,
-		GParamSpec *pspec)
-{
-	PurplePluginInfo *info = PURPLE_PLUGIN_INFO(obj);
-	PurplePluginInfoPrivate *priv =
-			purple_plugin_info_get_instance_private(info);
-
-	switch (param_id) {
-		case PROP_UI_REQUIREMENT:
-			priv->ui_requirement = g_value_dup_string(value);
-			break;
-		case PROP_ACTIONS_CB:
-			priv->actions_cb = g_value_get_pointer(value);
-			break;
-		case PROP_EXTRA_CB:
-			priv->extra_cb = g_value_get_pointer(value);
-			break;
-		case PROP_PREF_FRAME_CB:
-			priv->pref_frame_cb = g_value_get_pointer(value);
-			break;
-		case PROP_PREF_REQUEST_CB:
-			priv->pref_request_cb = g_value_get_pointer(value);
-			break;
-		case PROP_FLAGS:
-			priv->flags = g_value_get_flags(value);
-			break;
-		default:
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
-			break;
-	}
-}
-
-/* Get method for GObject properties */
-static void
-purple_plugin_info_get_property(GObject *obj, guint param_id, GValue *value,
-		GParamSpec *pspec)
-{
-	PurplePluginInfo *info = PURPLE_PLUGIN_INFO(obj);
-
-	switch (param_id) {
-		case PROP_ACTIONS_CB:
-			g_value_set_pointer(value,
-					purple_plugin_info_get_actions_cb(info));
-			break;
-		case PROP_EXTRA_CB:
-			g_value_set_pointer(value,
-					purple_plugin_info_get_extra_cb(info));
-			break;
-		case PROP_PREF_FRAME_CB:
-			g_value_set_pointer(value,
-					purple_plugin_info_get_pref_frame_cb(info));
-			break;
-		case PROP_PREF_REQUEST_CB:
-			g_value_set_pointer(value,
-					purple_plugin_info_get_pref_request_cb(info));
-			break;
-		case PROP_FLAGS:
-			g_value_set_flags(value, purple_plugin_info_get_flags(info));
-			break;
-		default:
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
-			break;
-	}
-}
-
-/* Called when done constructing */
-static void
-purple_plugin_info_constructed(GObject *object)
-{
-	PurplePluginInfo *info = PURPLE_PLUGIN_INFO(object);
-	GPluginPluginInfo *ginfo = GPLUGIN_PLUGIN_INFO(info);
-	PurplePluginInfoPrivate *priv =
-			purple_plugin_info_get_instance_private(info);
-	const char *id = gplugin_plugin_info_get_id(ginfo);
-	guint32 version;
-
-	G_OBJECT_CLASS(purple_plugin_info_parent_class)->constructed(object);
-
-	if (id == NULL || *id == '\0')
-		priv->error = g_strdup(_("This plugin has not defined an ID."));
-
-	if (priv->ui_requirement && !purple_strequal(priv->ui_requirement, purple_core_get_ui()))
-	{
-		priv->error = g_strdup_printf(_("You are using %s, but this plugin requires %s."),
-				purple_core_get_ui(), priv->ui_requirement);
-		purple_debug_error("plugins", "%s is not loadable: The UI requirement is not met. (%s)\n",
-				id, priv->error);
-	}
-
-	version = gplugin_plugin_info_get_abi_version(ginfo);
-	if (PURPLE_PLUGIN_ABI_MAJOR_VERSION(version) != PURPLE_MAJOR_VERSION ||
-		PURPLE_PLUGIN_ABI_MINOR_VERSION(version) > PURPLE_MINOR_VERSION)
-	{
-		priv->error = g_strdup_printf(_("Your libpurple version is %d.%d.x (need %d.%d.x)"),
-				PURPLE_MAJOR_VERSION, PURPLE_MINOR_VERSION,
-				PURPLE_PLUGIN_ABI_MAJOR_VERSION(version),
-				PURPLE_PLUGIN_ABI_MINOR_VERSION(version));
-		purple_debug_error("plugins", "%s is not loadable: libpurple version is %d.%d.x (need %d.%d.x)\n",
-				id, PURPLE_MAJOR_VERSION, PURPLE_MINOR_VERSION,
-				PURPLE_PLUGIN_ABI_MAJOR_VERSION(version),
-				PURPLE_PLUGIN_ABI_MINOR_VERSION(version));
-	}
-}
-
-/* GObject finalize function */
-static void
-purple_plugin_info_finalize(GObject *object)
-{
-	PurplePluginInfoPrivate *priv =
-			purple_plugin_info_get_instance_private(
-					PURPLE_PLUGIN_INFO(object));
-
-	g_free(priv->ui_requirement);
-	g_free(priv->error);
-
-	G_OBJECT_CLASS(purple_plugin_info_parent_class)->finalize(object);
-}
-
-/* Class initializer function */
-static void purple_plugin_info_class_init(PurplePluginInfoClass *klass)
-{
-	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
-
-	obj_class->constructed = purple_plugin_info_constructed;
-	obj_class->finalize    = purple_plugin_info_finalize;
-
-	/* Setup properties */
-	obj_class->get_property = purple_plugin_info_get_property;
-	obj_class->set_property = purple_plugin_info_set_property;
-
-	g_object_class_install_property(obj_class, PROP_UI_REQUIREMENT,
-		g_param_spec_string("ui-requirement",
-		                  "UI Requirement",
-		                  "ID of UI that is required by this plugin", NULL,
-		                  G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
-
-	g_object_class_install_property(obj_class, PROP_ACTIONS_CB,
-		g_param_spec_pointer("actions-cb",
-		                  "Plugin actions",
-		                  "Callback that returns list of plugin's actions",
-		                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
-		                  G_PARAM_STATIC_STRINGS));
-
-	g_object_class_install_property(obj_class, PROP_EXTRA_CB,
-		g_param_spec_pointer("extra-cb",
-		                  "Extra info callback",
-		                  "Callback that returns extra info about the plugin",
-		                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
-		                  G_PARAM_STATIC_STRINGS));
-
-	g_object_class_install_property(obj_class, PROP_PREF_FRAME_CB,
-		g_param_spec_pointer("pref-frame-cb",
-		                  "Preferences frame callback",
-		                  "The callback that returns the preferences frame",
-		                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
-		                  G_PARAM_STATIC_STRINGS));
-
-	g_object_class_install_property(obj_class, PROP_PREF_REQUEST_CB,
-		g_param_spec_pointer("pref-request-cb",
-		                  "Preferences request callback",
-		                  "Callback that returns preferences request handle",
-		                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
-		                  G_PARAM_STATIC_STRINGS));
-
-	g_object_class_install_property(obj_class, PROP_FLAGS,
-		g_param_spec_flags("flags",
-		                  "Plugin flags",
-		                  "The flags for the plugin",
-		                  PURPLE_TYPE_PLUGIN_INFO_FLAGS, 0,
-		                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
-		                  G_PARAM_STATIC_STRINGS));
-}
-
-/**************************************************************************
- * PluginInfo API
- **************************************************************************/
-GPluginPluginInfo *
-purple_plugin_info_new(const char *first_property, ...)
-{
-	GObject *info;
-	va_list var_args;
-
-	/* at least ID is required */
-	if (!first_property)
-		return NULL;
-
-	va_start(var_args, first_property);
-	info = g_object_new_valist(PURPLE_TYPE_PLUGIN_INFO, first_property,
-	                           var_args);
-	va_end(var_args);
-
-	return GPLUGIN_PLUGIN_INFO(info);
-}
-
-PurplePluginActionsCb
-purple_plugin_info_get_actions_cb(PurplePluginInfo *info)
-{
-	PurplePluginInfoPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PLUGIN_INFO(info), NULL);
-
-	priv = purple_plugin_info_get_instance_private(info);
-	return priv->actions_cb;
-}
-
-PurplePluginExtraCb
-purple_plugin_info_get_extra_cb(PurplePluginInfo *info)
-{
-	PurplePluginInfoPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PLUGIN_INFO(info), NULL);
-
-	priv = purple_plugin_info_get_instance_private(info);
-	return priv->extra_cb;
-}
-
-PurplePluginPrefFrameCb
-purple_plugin_info_get_pref_frame_cb(PurplePluginInfo *info)
-{
-	PurplePluginInfoPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PLUGIN_INFO(info), NULL);
-
-	priv = purple_plugin_info_get_instance_private(info);
-	return priv->pref_frame_cb;
-}
-
-PurplePluginPrefRequestCb
-purple_plugin_info_get_pref_request_cb(PurplePluginInfo *info)
-{
-	PurplePluginInfoPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PLUGIN_INFO(info), NULL);
-
-	priv = purple_plugin_info_get_instance_private(info);
-	return priv->pref_request_cb;
-}
-
-PurplePluginInfoFlags
-purple_plugin_info_get_flags(PurplePluginInfo *info)
-{
-	PurplePluginInfoPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PLUGIN_INFO(info), 0);
-
-	priv = purple_plugin_info_get_instance_private(info);
-	return priv->flags;
-}
-
-const gchar *
-purple_plugin_info_get_error(PurplePluginInfo *info)
-{
-	PurplePluginInfoPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PLUGIN_INFO(info), NULL);
-
-	priv = purple_plugin_info_get_instance_private(info);
-	return priv->error;
-}
-
-/**************************************************************************
  * PluginAction API
  **************************************************************************/
 PurplePluginAction *
@@ -657,16 +339,17 @@ purple_plugins_refresh(void)
 	for (l = plugins; l != NULL; l = l->next) {
 		PurplePlugin *plugin = PURPLE_PLUGIN(l->data);
 		PurplePluginInfo *info;
-		PurplePluginInfoPrivate *priv;
+		PurplePluginInfoFlags flags;
+		gboolean unloaded;
 
 		if (purple_plugin_is_loaded(plugin))
 			continue;
 
 		info = purple_plugin_get_info(plugin);
-		priv = purple_plugin_info_get_instance_private(info);
 
-		if (!priv->unloaded && purple_plugin_info_get_flags(info) &
-				PURPLE_PLUGIN_INFO_FLAGS_AUTO_LOAD) {
+		unloaded = purple_plugin_info_get_unloaded(info);
+		flags = purple_plugin_info_get_flags(info);
+		if (!unloaded && flags & PURPLE_PLUGIN_INFO_FLAGS_AUTO_LOAD) {
 			gchar *filename = gplugin_plugin_get_filename(plugin);
 			purple_debug_info("plugins", "Auto-loading plugin %s\n",
 			                  filename);
