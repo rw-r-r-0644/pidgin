@@ -3031,7 +3031,7 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 static GtkWidget *
 setup_common_pane(PidginConversation *gtkconv)
 {
-	GtkWidget *vbox, *input, *infopane;
+	GtkWidget *vbox, *input;
 	PurpleConversation *conv = gtkconv->active_conv;
 	gboolean chat = PURPLE_IS_CHAT_CONVERSATION(conv);
 
@@ -3040,9 +3040,9 @@ setup_common_pane(PidginConversation *gtkconv)
 	gtk_widget_show(vbox);
 
 	/* Setup the info pane */
-	infopane = pidgin_info_pane_new(conv);
-	gtk_box_pack_start(GTK_BOX(vbox), infopane, FALSE, FALSE, 0);
-	gtk_widget_show(infopane);
+	gtkconv->infopane = pidgin_info_pane_new(conv);
+	gtk_box_pack_start(GTK_BOX(vbox), gtkconv->infopane, FALSE, FALSE, 0);
+	gtk_widget_show(gtkconv->infopane);
 
 	/* Setup the history widget */
 	gtkconv->history_sw = talkatu_scrolled_window_new(NULL, NULL);
@@ -5221,7 +5221,7 @@ notebook_motion_cb(GtkWidget *widget, GdkEventButton *e, PidginConvWindow *win)
 		} else {
 			page_num = 0;
 			to_right = pidgin_conv_xy_to_right_infopane(dest_win, e->x_root, e->y_root);
-			tab = pidgin_conv_window_get_gtkconv_at_index(dest_win, page_num)->infopane_hbox;
+			tab = pidgin_conv_window_get_gtkconv_at_index(dest_win, page_num)->infopane;
 		}
 
 		if (gtk_notebook_get_tab_pos(dest_notebook) == GTK_POS_TOP ||

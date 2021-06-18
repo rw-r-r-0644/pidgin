@@ -124,10 +124,7 @@ struct _PidginConversation
 	} u;
 
 	time_t newday;
-	GtkWidget *infopane_hbox;
 	GtkWidget *infopane;
-	GtkListStore *infopane_model;
-	GtkTreeIter infopane_iter;
 
 	/* Used when attaching a PidginConversation to a PurpleConversation
 	 * with message history */
