@@ -90,7 +90,7 @@ A GNT (a.k.a. Finch) plugin. These plugins may use GNT code.
   <para>
 The <emphasis>username</emphasis> must be a unique identifier for you. It
 <emphasis>should</emphasis> be your https://developer.pidgin.im Trac user ID. Failing that, you
-could use your SourceForge user ID or your Freenode IRC nickname, if you
+could use your SourceForge user ID or your Libera.chat IRC nickname, if you
 have either. The https://developer.pidgin.im Trac user ID is preferred.
 Do <emphasis>not</emphasis> leave this field blank!
   </para>

@@ -6,7 +6,7 @@ Pidgin is a messaging client based on libpurple which is capable of connecting t
 
  * [Website](https://pidgin.im)
  * [Frequently Asked Questions](https://developer.pidgin.im/wiki/FAQ)
- * IRC Channel: #pidgin on irc.freenode.net
+ * IRC Channel: #pidgin on irc.libera.chat
  * XMPP MUC: devel@conference.pidgin.im
 
 **Help for Oracle Employees** is available from your normal internal helpdesk or IT department. The Pidgin developer and user communities cannot assist you in the configuration or use of Pidgin within Oracle, as we know nothing of Oracle's infrastructure.
