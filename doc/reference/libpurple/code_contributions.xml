@@ -169,8 +169,9 @@ wip = only(.,default)
         <ulink url="https://hub.imfreedom.org">hub.imfreedom.org</ulink>. You
         can create an account here in a number of ways and even turn on two
         factor authentication. But please note that if you turn on two factor
-        authentication you will need to create an application password to be
-        able to login to Review Board.
+        authentication you will need to create an
+        <ulink url="https://www.jetbrains.com/help/hub/application-passwords.html">application password</ulink>
+        to be able to login to Review Board.
       </para>
 
       <para>
