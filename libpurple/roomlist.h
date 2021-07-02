@@ -116,8 +116,6 @@ typedef enum
  * @create:            A new list was created.
  * @set_fields:        Sets the columns.
  * @add_room:          Add a room to the list.
- * @in_progress:       Are we fetching stuff still?
- * @destroy:           We're destroying list.
  *
  * The room list ops to be filled out by the UI.
  */
@@ -126,8 +124,6 @@ struct _PurpleRoomlistUiOps {
 	void (*create)(PurpleRoomlist *list);
 	void (*set_fields)(PurpleRoomlist *list, GList *fields);
 	void (*add_room)(PurpleRoomlist *list, PurpleRoomlistRoom *room);
-	void (*in_progress)(PurpleRoomlist *list, gboolean flag);
-	void (*destroy)(PurpleRoomlist *list);
 
 	/*< private >*/
 	void (*_purple_reserved1)(void);
@@ -286,27 +282,6 @@ void purple_roomlist_expand_category(PurpleRoomlist *list, PurpleRoomlistRoom *c
  * Returns: (element-type PurpleRoomlistField) (transfer none): A list of fields
  */
 GList *purple_roomlist_get_fields(PurpleRoomlist *roomlist);
-
-/**
- * purple_roomlist_get_protocol_data:
- * @list: The roomlist, which must not be %NULL.
- *
- * Get the protocol data associated with this room list.
- *
- * Returns: The protocol data associated with this room list.  This is a
- *         convenience field provided to the protocol -- it is not
- *         used the libpurple core.
- */
-gpointer purple_roomlist_get_protocol_data(PurpleRoomlist *list);
-
-/**
- * purple_roomlist_set_protocol_data:
- * @list: The roomlist, which must not be %NULL.
- * @proto_data: A pointer to associate with this room list.
- *
- * Set the protocol data associated with this room list.
- */
-void purple_roomlist_set_protocol_data(PurpleRoomlist *list, gpointer proto_data);
 
 /**************************************************************************/
 /* Protocol Roomlist Interface API                                        */
