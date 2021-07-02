@@ -105,13 +105,10 @@ typedef struct
 	/* Login Options */
 	GtkWidget *login_frame;
 	GtkWidget *protocol_menu;
-	GtkWidget *password_box;
 	gchar *password;
 	GtkWidget *username_entry;
 	GdkRGBA username_entry_hint_color;
-	GtkWidget *password_entry;
 	GtkWidget *alias_entry;
-	GtkWidget *remember_pass_check;
 
 	/* User Options */
 	GtkWidget *user_frame;
@@ -306,12 +303,8 @@ register_button_cb(GtkWidget *checkbox, AccountPrefsDialog *dialog)
 
 	if (register_noscreenname) {
 		gtk_entry_set_text(GTK_ENTRY(dialog->username_entry), "");
-		gtk_entry_set_text(GTK_ENTRY(dialog->password_entry), "");
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->remember_pass_check), FALSE);
 	}
 	gtk_widget_set_sensitive(dialog->username_entry, !register_noscreenname);
-	gtk_widget_set_sensitive(dialog->password_entry, !register_noscreenname);
-	gtk_widget_set_sensitive(dialog->remember_pass_check, !register_noscreenname);
 
 	if (dialog->ok_button) {
 		gtk_widget_set_sensitive(dialog->ok_button,
@@ -583,42 +576,6 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 		gtk_entry_set_text(GTK_ENTRY(dialog->username_entry), username);
 
 	g_free(username);
-
-
-	/* Password */
-	dialog->password_entry = gtk_entry_new();
-	gtk_entry_set_visibility(GTK_ENTRY(dialog->password_entry), FALSE);
-	dialog->password_box = add_pref_box(dialog, vbox, _("_Password:"),
-										  dialog->password_entry);
-
-	/* Remember Password */
-	dialog->remember_pass_check =
-		gtk_check_button_new_with_mnemonic(_("Remember pass_word"));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->remember_pass_check),
-								 FALSE);
-	gtk_box_pack_start(GTK_BOX(vbox), dialog->remember_pass_check,
-					   FALSE, FALSE, 0);
-	gtk_widget_show(dialog->remember_pass_check);
-
-	/* Set the fields. */
-	if (dialog->account != NULL) {
-		if (dialog->password && purple_account_get_remember_password(
-			dialog->account)) {
-			gtk_entry_set_text(GTK_ENTRY(dialog->password_entry),
-				dialog->password);
-		}
-
-		gtk_toggle_button_set_active(
-				GTK_TOGGLE_BUTTON(dialog->remember_pass_check),
-				purple_account_get_remember_password(dialog->account));
-	}
-
-	if (dialog->protocol != NULL &&
-		(purple_protocol_get_options(dialog->protocol) & OPT_PROTO_NO_PASSWORD)) {
-
-		gtk_widget_hide(dialog->password_box);
-		gtk_widget_hide(dialog->remember_pass_check);
-	}
 
 	/* Do not let the user change the protocol/username while connected. */
 	update_editable(NULL, dialog);
@@ -1285,7 +1242,6 @@ account_register_cb(PurpleAccount *account, gboolean succeeded, void *user_data)
 static void
 ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 {
-	PurpleCredentialManager *manager = NULL;
 	PurpleProxyInfo *proxy_info = NULL;
 	GList *l, *l2;
 	const char *value;
@@ -1293,10 +1249,7 @@ ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 	char *tmp;
 	gboolean new_acct = FALSE, icon_change = FALSE;
 	PurpleAccount *account;
-	gboolean remember;
 	PurpleBuddyIconSpec *icon_spec = NULL;
-
-	manager = purple_credential_manager_get_default();
 
 	/* Build the username string. */
 	username = g_strdup(gtk_entry_get_text(GTK_ENTRY(dialog->username_entry)));
@@ -1410,36 +1363,6 @@ ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 	}
 
 	purple_buddy_icon_spec_free(icon_spec);
-
-
-	/* Remember Password */
-	remember = gtk_toggle_button_get_active(
-		GTK_TOGGLE_BUTTON(dialog->remember_pass_check));
-	if(!remember) {
-		purple_credential_manager_clear_password_async(manager, account, NULL,
-		                                               NULL, NULL);
-	}
-
-	purple_account_set_remember_password(account, remember);
-
-	/* Password */
-	value = gtk_entry_get_text(GTK_ENTRY(dialog->password_entry));
-
-	/*
-	 * We set the password if this is a new account because new accounts
-	 * will be set to online, and if the user has entered a password into
-	 * the account editor (but has not checked the 'save' box), then we
-	 * don't want to prompt them.
-	 */
-	if ((purple_account_get_remember_password(account) || new_acct) &&
-	    (*value != '\0'))
-	{
-		purple_credential_manager_write_password_async(manager, account, value,
-		                                               NULL, NULL, NULL);
-	} else {
-		purple_credential_manager_clear_password_async(manager, account, NULL,
-		                                               NULL, NULL);
-	}
 
 	purple_account_set_username(account, username);
 	g_free(username);
