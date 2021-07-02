@@ -57,25 +57,9 @@ static void
 unset_roomlist(gpointer null)
 {
 	froomlist.window = NULL;
-	if (froomlist.roomlist) {
-		g_object_unref(froomlist.roomlist);
-		froomlist.roomlist = NULL;
-	}
+	g_clear_object(&froomlist.roomlist);
 	froomlist.account = NULL;
 	froomlist.tree = NULL;
-}
-
-static void
-update_roomlist(PurpleRoomlist *list)
-{
-	if (froomlist.roomlist == list)
-		return;
-
-	if (froomlist.roomlist)
-		g_object_unref(froomlist.roomlist);
-
-	if ((froomlist.roomlist = list) != NULL)
-		g_object_ref(list);
 }
 
 static void fl_stop(GntWidget *button, gpointer null)
@@ -93,7 +77,7 @@ static void fl_get_list(GntWidget *button, gpointer null)
 	if (!gc)
 		return;
 
-	update_roomlist(NULL);
+	g_clear_object(&froomlist.roomlist);
 	froomlist.roomlist = purple_roomlist_get_list(gc);
 	gnt_box_give_focus_to_child(GNT_BOX(froomlist.window), froomlist.tree);
 }
@@ -214,7 +198,7 @@ roomlist_account_changed(GntWidget *widget, gpointer old, gpointer current, gpoi
 	if (froomlist.roomlist) {
 		if (purple_roomlist_get_in_progress(froomlist.roomlist))
 			purple_roomlist_cancel_get_list(froomlist.roomlist);
-		update_roomlist(NULL);
+		g_clear_object(&froomlist.roomlist);
 	}
 
 	gnt_tree_remove_all(GNT_TREE(froomlist.tree));
@@ -333,11 +317,26 @@ fl_show_with_account(PurpleAccount *account)
 }
 
 static void
+fl_destroy(G_GNUC_UNUSED gpointer data, GObject *list)
+{
+	if (!froomlist.window) {
+		return;
+	}
+
+	if (G_OBJECT(froomlist.roomlist) == list) {
+		froomlist.roomlist = NULL;
+		gnt_tree_remove_all(GNT_TREE(froomlist.tree));
+		gnt_widget_draw(froomlist.tree);
+	}
+}
+
+static void
 fl_create(PurpleRoomlist *list)
 {
 	g_object_set_data(G_OBJECT(list), "finch-ui", &froomlist);
+	g_object_weak_ref(G_OBJECT(list), (GWeakNotify)fl_destroy, NULL);
 	setup_roomlist(NULL);
-	update_roomlist(list);
+	g_set_object(&froomlist.roomlist, list);
 }
 
 static void
@@ -362,27 +361,12 @@ fl_add_room(PurpleRoomlist *roomlist, PurpleRoomlistRoom *room)
 	gnt_tree_set_expanded(GNT_TREE(froomlist.tree), room, !category);
 }
 
-static void
-fl_destroy(PurpleRoomlist *list)
-{
-	if (!froomlist.window)
-		return;
-
-	if (froomlist.roomlist == list) {
-		froomlist.roomlist = NULL;
-		gnt_tree_remove_all(GNT_TREE(froomlist.tree));
-		gnt_widget_draw(froomlist.tree);
-	}
-}
-
 static PurpleRoomlistUiOps ui_ops =
 {
 	fl_show_with_account, /* void (*show_with_account)(PurpleAccount *account); **< Force the ui to pop up a dialog and get the list */
 	fl_create, /* void (*create)(PurpleRoomlist *list); **< A new list was created. */
 	fl_set_fields, /* void (*set_fields)(PurpleRoomlist *list, GList *fields); **< Sets the columns. */
 	fl_add_room, /* void (*add_room)(PurpleRoomlist *list, PurpleRoomlistRoom *room); **< Add a room to the list. */
-	NULL, /* void (*in_progress)(PurpleRoomlist *list, gboolean flag); **< Are we fetching stuff still? */
-	fl_destroy, /* void (*destroy)(PurpleRoomlist *list); **< We're destroying list. */
 
 	NULL, /* void (*_purple_reserved1)(void); */
 	NULL, /* void (*_purple_reserved2)(void); */

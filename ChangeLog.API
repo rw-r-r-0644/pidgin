@@ -501,6 +501,8 @@ version 3.0.0 (??/??/????):
 		  purple_request_field_choice_add_full instead
 		* purple_request_field_list_add
 		* purple_request_field_list_get_icons
+		* purple_roomlist_get_protocol_data and
+		  purple_roomlist_set_protocol_data
 		* PurpleSetPublicAliasFailureCallback
 		* PurpleSetPublicAliasSuccessCallback
 		* purple_socket_get_family

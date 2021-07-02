@@ -73,8 +73,6 @@ enum {
 	NUM_OF_COLUMNS,
 };
 
-static GList *roomlists = NULL;
-
 static gint delete_win_cb(GtkWidget *w, GdkEventAny *e, gpointer d)
 {
 	PidginRoomlistDialog *dialog = PIDGIN_ROOMLIST_DIALOG(w);
@@ -220,7 +218,8 @@ selection_changed_cb(GtkTreeSelection *selection, PidginRoomlist *grl) {
 	}
 }
 
-static void do_add_room_cb(GtkWidget *w, struct _menu_cb_info *info)
+static void
+do_add_room_cb(G_GNUC_UNUSED GtkWidget *w, struct _menu_cb_info *info)
 {
 	char *name;
 	PurpleAccount *account = purple_roomlist_get_account(info->list);
@@ -240,33 +239,30 @@ static void do_add_room_cb(GtkWidget *w, struct _menu_cb_info *info)
 	g_free(name);
 }
 
-static void add_room_to_blist_cb(GtkButton *button, PidginRoomlistDialog *dialog)
+static void
+add_room_to_blist_cb(GtkButton *button, G_GNUC_UNUSED gpointer data)
 {
-	PurpleRoomlist *rl = dialog->roomlist;
-	PidginRoomlist *grl = NULL;
 	struct _menu_cb_info *info = g_object_get_data(G_OBJECT(button), "room-info");
 
-	grl = g_object_get_data(G_OBJECT(rl), PIDGIN_ROOMLIST_UI_DATA);
-
-	if(info != NULL)
-		do_add_room_cb(grl->tree, info);
+	if(info != NULL) {
+		do_add_room_cb(NULL, info);
+	}
 }
 
-static void do_join_cb(GtkWidget *w, struct _menu_cb_info *info)
+static void
+do_join_cb(G_GNUC_UNUSED GtkWidget *w, struct _menu_cb_info *info)
 {
 	purple_roomlist_room_join(info->list, info->room);
 }
 
-static void join_button_cb(GtkButton *button, PidginRoomlistDialog *dialog)
+static void
+join_button_cb(GtkButton *button, G_GNUC_UNUSED gpointer data)
 {
-	PurpleRoomlist *rl = dialog->roomlist;
-	PidginRoomlist *grl = NULL;
 	struct _menu_cb_info *info = g_object_get_data(G_OBJECT(button), "room-info");
 
-	grl = g_object_get_data(G_OBJECT(rl), PIDGIN_ROOMLIST_UI_DATA);
-
-	if(info != NULL)
-		do_join_cb(grl->tree, info);
+	if(info != NULL) {
+		do_join_cb(NULL, info);
+	}
 }
 
 static void row_activated_cb(GtkTreeView *tv, GtkTreePath *path, GtkTreeViewColumn *arg2,
@@ -290,7 +286,7 @@ static void row_activated_cb(GtkTreeView *tv, GtkTreePath *path, GtkTreeViewColu
 	info.list = list;
 	info.room = room;
 
-	do_join_cb(GTK_WIDGET(tv), &info);
+	do_join_cb(NULL, &info);
 }
 
 static gboolean room_click_cb(GtkWidget *tv, GdkEventButton *event, PurpleRoomlist *list)
@@ -578,17 +574,6 @@ void pidgin_roomlist_dialog_show(void)
 	pidgin_roomlist_dialog_new_with_account(NULL);
 }
 
-static void pidgin_roomlist_new(PurpleRoomlist *list)
-{
-	PidginRoomlist *rl = g_new0(PidginRoomlist, 1);
-
-	g_object_set_data(G_OBJECT(list), PIDGIN_ROOMLIST_UI_DATA, rl);
-
-	rl->cats = g_hash_table_new_full(NULL, NULL, NULL, (GDestroyNotify)gtk_tree_row_reference_free);
-
-	roomlists = g_list_append(roomlists, list);
-}
-
 static void int_cell_data_func(GtkTreeViewColumn *col, GtkCellRenderer *renderer,
                                    GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
@@ -836,42 +821,50 @@ static void pidgin_roomlist_add_room(PurpleRoomlist *list, PurpleRoomlistRoom *r
 	}
 }
 
-static void pidgin_roomlist_in_progress(PurpleRoomlist *list, gboolean in_progress)
+static void
+pidgin_roomlist_in_progress(GObject *obj, G_GNUC_UNUSED GParamSpec *pspec,
+                            gpointer data)
 {
-	PidginRoomlist *rl = NULL;
+	PurpleRoomlist *list = PURPLE_ROOMLIST(obj);
+	PidginRoomlist *rl = data;
 
-	rl = g_object_get_data(G_OBJECT(list), PIDGIN_ROOMLIST_UI_DATA);
-	if (!rl || !rl->dialog)
-		return;
-
-	if (in_progress) {
-		if (rl->dialog->account_widget)
+	if (purple_roomlist_get_in_progress(list)) {
+		if (rl->dialog->account_widget) {
 			gtk_widget_set_sensitive(rl->dialog->account_widget, FALSE);
+		}
 		gtk_widget_set_sensitive(rl->dialog->stop_button, TRUE);
 		gtk_widget_set_sensitive(rl->dialog->list_button, FALSE);
 	} else {
 		rl->dialog->pg_needs_pulse = FALSE;
 		gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(rl->dialog->progress), 0.0);
-		if (rl->dialog->account_widget)
+		if (rl->dialog->account_widget) {
 			gtk_widget_set_sensitive(rl->dialog->account_widget, TRUE);
+		}
 		gtk_widget_set_sensitive(rl->dialog->stop_button, FALSE);
 		gtk_widget_set_sensitive(rl->dialog->list_button, TRUE);
 	}
 }
 
-static void pidgin_roomlist_destroy(PurpleRoomlist *list)
+static void
+pidgin_roomlist_destroy(PidginRoomlist *rl)
 {
-	PidginRoomlist *rl = NULL;
-
-	rl = g_object_get_data(G_OBJECT(list), PIDGIN_ROOMLIST_UI_DATA);
-
-	roomlists = g_list_remove(roomlists, list);
-
-	g_return_if_fail(rl != NULL);
-
 	g_hash_table_destroy(rl->cats);
 	g_free(rl);
-	g_object_set_data(G_OBJECT(list), PIDGIN_ROOMLIST_UI_DATA, NULL);
+}
+
+static void
+pidgin_roomlist_new(PurpleRoomlist *list)
+{
+	PidginRoomlist *rl = g_new0(PidginRoomlist, 1);
+
+	g_object_set_data_full(G_OBJECT(list), PIDGIN_ROOMLIST_UI_DATA, rl,
+	                       (GDestroyNotify)pidgin_roomlist_destroy);
+
+	rl->cats = g_hash_table_new_full(
+	        NULL, NULL, NULL, (GDestroyNotify)gtk_tree_row_reference_free);
+
+	g_signal_connect(list, "notify::in-progress",
+	                 G_CALLBACK(pidgin_roomlist_in_progress), rl);
 }
 
 static PurpleRoomlistUiOps ops = {
@@ -879,8 +872,6 @@ static PurpleRoomlistUiOps ops = {
 	pidgin_roomlist_new,
 	pidgin_roomlist_set_fields,
 	pidgin_roomlist_add_room,
-	pidgin_roomlist_in_progress,
-	pidgin_roomlist_destroy,
 	NULL,
 	NULL,
 	NULL,

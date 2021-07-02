@@ -28,20 +28,15 @@
 #include "roomlist.h"
 #include "server.h"
 
-typedef struct _PurpleRoomlistPrivate  PurpleRoomlistPrivate;
-
 /*
  * Private data for a room list.
  */
-struct _PurpleRoomlistPrivate {
+typedef struct {
 	PurpleAccount *account;  /* The account this list belongs to. */
 	GList *fields;           /* The fields.                       */
 	GList *rooms;            /* The list of rooms.                */
 	gboolean in_progress;    /* The listing is in progress.       */
-
-	/* TODO Remove this and use protocol-specific subclasses. */
-	gpointer proto_data;     /* Protocol private data.             */
-};
+} PurpleRoomlistPrivate;
 
 /*
  * Represents a room.
@@ -126,9 +121,6 @@ void purple_roomlist_set_in_progress(PurpleRoomlist *list, gboolean in_progress)
 
 	priv = purple_roomlist_get_instance_private(list);
 	priv->in_progress = in_progress;
-
-	if (ops && ops->in_progress)
-		ops->in_progress(list, in_progress);
 
 	g_object_notify_by_pspec(G_OBJECT(list), properties[PROP_IN_PROGRESS]);
 }
@@ -224,26 +216,6 @@ GList * purple_roomlist_get_fields(PurpleRoomlist *list)
 	return priv->fields;
 }
 
-gpointer purple_roomlist_get_protocol_data(PurpleRoomlist *list)
-{
-	PurpleRoomlistPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_ROOMLIST(list), NULL);
-
-	priv = purple_roomlist_get_instance_private(list);
-	return priv->proto_data;
-}
-
-void purple_roomlist_set_protocol_data(PurpleRoomlist *list, gpointer proto_data)
-{
-	PurpleRoomlistPrivate *priv = NULL;
-
-	g_return_if_fail(PURPLE_IS_ROOMLIST(list));
-
-	priv = purple_roomlist_get_instance_private(list);
-	priv->proto_data = proto_data;
-}
-
 /**************************************************************************/
 /* Room List GObject code                                                 */
 /**************************************************************************/
@@ -323,9 +295,6 @@ purple_roomlist_finalize(GObject *object)
 	GList *l;
 
 	purple_debug_misc("roomlist", "destroying list %p\n", list);
-
-	if (ops && ops->destroy)
-		ops->destroy(list);
 
 	for (l = priv->rooms; l; l = l->next) {
 		PurpleRoomlistRoom *r = l->data;
