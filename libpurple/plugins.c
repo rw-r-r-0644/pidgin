@@ -474,7 +474,7 @@ purple_plugins_load_saved(const char *key)
 void
 purple_plugins_init(void)
 {
-	GObject *manager = NULL;
+	GPluginManager *manager = NULL;
 	const gchar *search_path;
 
 	gplugin_init(GPLUGIN_CORE_FLAGS_NONE);

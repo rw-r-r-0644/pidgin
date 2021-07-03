@@ -238,7 +238,7 @@ G_DEFINE_TYPE(PidginPluginsMenu, pidgin_plugins_menu, GTK_TYPE_MENU)
 
 static void
 pidgin_plugins_menu_init(PidginPluginsMenu *menu) {
-	GObject *manager = NULL;
+	GPluginManager *manager = NULL;
 
 	/* initialize our template */
 	gtk_widget_init_template(GTK_WIDGET(menu));
