@@ -23,8 +23,8 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef __PIDGIN_MINI_DIALOG_H__
-#define __PIDGIN_MINI_DIALOG_H__
+#ifndef PIDGIN_MINI_DIALOG_H
+#define PIDGIN_MINI_DIALOG_H
 /**
  * SECTION:minidialog
  * @section_id: pidgin-minidialog
@@ -37,27 +37,8 @@
 
 G_BEGIN_DECLS
 
-#define PIDGIN_TYPE_MINI_DIALOG pidgin_mini_dialog_get_type()
-
-#define PIDGIN_MINI_DIALOG(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-  PIDGIN_TYPE_MINI_DIALOG, PidginMiniDialog))
-
-#define PIDGIN_MINI_DIALOG_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), \
-  PIDGIN_TYPE_MINI_DIALOG, PidginMiniDialogClass))
-
-#define PIDGIN_IS_MINI_DIALOG(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
-  PIDGIN_TYPE_MINI_DIALOG))
-
-#define PIDGIN_IS_MINI_DIALOG_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), \
-  PIDGIN_TYPE_MINI_DIALOG))
-
-#define PIDGIN_MINI_DIALOG_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), \
-  PIDGIN_TYPE_MINI_DIALOG, PidginMiniDialogClass))
+#define PIDGIN_TYPE_MINI_DIALOG (pidgin_mini_dialog_get_type())
+G_DECLARE_FINAL_TYPE(PidginMiniDialog, pidgin_mini_dialog, PIDGIN, MINI_DIALOG, GtkBox)
 
 /**
  * PidginMiniDialog:
@@ -93,28 +74,12 @@ G_BEGIN_DECLS
  *   </tbody></tgroup>
  * </informaltable>
  */
-typedef struct {
+struct _PidginMiniDialog {
 	GtkBox parent;
-	gpointer priv;
 
 	/*< public >*/
 	GtkBox *contents;
-} PidginMiniDialog;
-
-/**
- * PidginMiniDialogClass:
- *
- * The class of #PidginMiniDialog objects.
- */
-typedef struct {
-	GtkBoxClass parent_class;
-
-	/*< private >*/
-	void (*_purple_reserved1) (void);
-	void (*_purple_reserved2) (void);
-	void (*_purple_reserved3) (void);
-	void (*_purple_reserved4) (void);
-} PidginMiniDialogClass;
+};
 
 /**
  * PidginMiniDialogCallback:
@@ -134,7 +99,6 @@ typedef void (*PidginMiniDialogCallback)(PidginMiniDialog *mini_dialog,
  *
  * Get the GType of #PidginMiniDialog.
  */
-GType pidgin_mini_dialog_get_type (void);
 
 /**
  * pidgin_mini_dialog_new:
@@ -167,7 +131,7 @@ PidginMiniDialog *pidgin_mini_dialog_new_with_custom_icon(const gchar *title,
  * Shortcut for setting a mini-dialog's title via GObject properties.
  */
 void pidgin_mini_dialog_set_title(PidginMiniDialog *mini_dialog,
-	const char *title);
+	const gchar *title);
 
 /**
  * pidgin_mini_dialog_set_description:
@@ -178,7 +142,7 @@ void pidgin_mini_dialog_set_title(PidginMiniDialog *mini_dialog,
  * Shortcut for setting a mini-dialog's description via GObject properties.
  */
 void pidgin_mini_dialog_set_description(PidginMiniDialog *mini_dialog,
-	const char *description);
+	const gchar *description);
 
 /**
  * pidgin_mini_dialog_enable_description_markup:
@@ -206,7 +170,7 @@ void pidgin_mini_dialog_set_link_callback(PidginMiniDialog *mini_dialog, GCallba
  * Shortcut for setting a mini-dialog's icon via GObject properties.
  */
 void pidgin_mini_dialog_set_icon_name(PidginMiniDialog *mini_dialog,
-	const char *icon_name);
+	const gchar *icon_name);
 
 /**
  * pidgin_mini_dialog_set_custom_icon:
@@ -231,7 +195,7 @@ void pidgin_mini_dialog_set_custom_icon(PidginMiniDialog *mini_dialog,
  * is destroyed.
  */
 void pidgin_mini_dialog_add_button(PidginMiniDialog *mini_dialog,
-	const char *text, PidginMiniDialogCallback clicked_cb,
+	const gchar *text, PidginMiniDialogCallback clicked_cb,
 	gpointer user_data);
 
 /**
@@ -246,7 +210,7 @@ void pidgin_mini_dialog_add_button(PidginMiniDialog *mini_dialog,
  * is that the mini-dialog won't be closed after the button is clicked.
  */
 void pidgin_mini_dialog_add_non_closing_button(PidginMiniDialog *mini_dialog,
-	const char *text, PidginMiniDialogCallback clicked_cb,
+	const gchar *text, PidginMiniDialogCallback clicked_cb,
 	gpointer user_data);
 
 /**
@@ -261,4 +225,4 @@ guint pidgin_mini_dialog_get_num_children(PidginMiniDialog *mini_dialog);
 
 G_END_DECLS
 
-#endif /* __PIDGIN_MINI_DIALOG_H__ */
+#endif /* PIDGIN_MINI_DIALOG_H */
