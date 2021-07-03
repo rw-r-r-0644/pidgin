@@ -2955,7 +2955,7 @@ group_collapsed(GntWidget *widget, PurpleBlistNode *node, gboolean collapsed, gp
 static void
 blist_show(PurpleBuddyList *list)
 {
-	GObject *plugin_manager = NULL;
+	GPluginManager *plugin_manager = NULL;
 
 	if (ggblist->window) {
 		gnt_window_present(ggblist->window);

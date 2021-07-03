@@ -795,7 +795,7 @@ static void
 finch_create_conversation(PurpleConversation *conv)
 {
 	FinchConv *ggc = FINCH_CONV(conv);
-	GObject *plugin_manager = NULL;
+	GPluginManager *plugin_manager = NULL;
 	char *title;
 	PurpleConversation *cc;
 	PurpleAccount *account;

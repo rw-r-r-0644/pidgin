@@ -5685,7 +5685,7 @@ pidgin_conv_window_new()
 	GtkWidget *testidea;
 	GtkWidget *menubar;
 	GdkModifierType state;
-	GObject *manager;
+	GPluginManager *manager;
 
 	win = g_malloc0(sizeof(PidginConvWindow));
 	win->menu = g_malloc0(sizeof(PidginConvWindowMenu));
