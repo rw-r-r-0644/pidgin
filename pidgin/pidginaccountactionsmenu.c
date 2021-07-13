@@ -146,6 +146,9 @@ pidgin_account_actions_menu_set_account(PidginAccountActionsMenu *menu,
 				continue;
 			}
 
+			/* Make sure the action has its connection set. */
+			action->connection = connection;
+
 			/* now add the action */
 			item = gtk_menu_item_new_with_label(action->label);
 			g_signal_connect_data(G_OBJECT(item), "activate",
