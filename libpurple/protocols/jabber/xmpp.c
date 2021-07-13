@@ -146,6 +146,7 @@ xmpp_protocol_new(void) {
 		XMPP_TYPE_PROTOCOL,
 		"id", XMPP_PROTOCOL_ID,
 		"name", "XMPP",
+		"description", "Extensible Messaging and Presence Protocol for IM, voice and video",
 		"options", options,
 		NULL
 	));

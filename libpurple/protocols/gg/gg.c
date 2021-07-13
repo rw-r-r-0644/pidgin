@@ -1209,6 +1209,7 @@ ggp_protocol_new(void) {
 		GGP_TYPE_PROTOCOL,
 		"id", "prpl-gg",
 		"name", "Gadu-Gadu",
+		"description", "Gadu-Gadu is a Polish instant messaging client",
 		NULL));
 }
 

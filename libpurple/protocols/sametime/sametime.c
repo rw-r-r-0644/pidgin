@@ -68,6 +68,7 @@ static PurpleProtocol *my_protocol = NULL;
 
 #define PROTOCOL_ID        "prpl-meanwhile"
 #define PROTOCOL_NAME      "Sametime"
+#define PROTOCOL_DESCRIPTION "Sametime chat by Lotus"
 
 
 /* considering that there's no display of this information for protocols,
@@ -5385,6 +5386,7 @@ mw_protocol_new(void) {
     MW_TYPE_PROTOCOL,
     "id", PROTOCOL_ID,
     "name", PROTOCOL_NAME,
+    "description", PROTOCOL_DESCRIPTION,
     NULL));
 }
 

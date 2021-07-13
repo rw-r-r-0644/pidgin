@@ -1706,6 +1706,7 @@ facebook_load(GPluginPlugin *plugin, GError **error)
 	fb_protocol = g_object_new(FACEBOOK_TYPE_PROTOCOL,
 	                           "id", FB_PROTOCOL_ID,
 	                           "name", "Facebook",
+				   "description", "Facebook is a chat protocol, developed by Facebook",
 	                           "options", OPT_PROTO_CHAT_TOPIC,
 	                           NULL);
 

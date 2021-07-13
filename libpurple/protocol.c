@@ -28,6 +28,7 @@ enum {
 	PROP_0,
 	PROP_ID,
 	PROP_NAME,
+	PROP_DESCRIPTION,
 	PROP_OPTIONS,
 	N_PROPERTIES,
 };
@@ -36,6 +37,7 @@ static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 typedef struct {
 	gchar *id;
 	gchar *name;
+	gchar *description;
 
 	PurpleProtocolOptions options;
 } PurpleProtocolPrivate;
@@ -69,6 +71,17 @@ purple_protocol_set_name(PurpleProtocol *protocol, const gchar *name) {
 }
 
 static void
+purple_protocol_set_description(PurpleProtocol *protocol, const gchar *description) {
+	PurpleProtocolPrivate *priv = NULL;
+
+	priv = purple_protocol_get_instance_private(protocol);
+	g_free(priv->description);
+	priv->description = g_strdup(description);
+
+	g_object_notify_by_pspec(G_OBJECT(protocol), properties[PROP_DESCRIPTION]);
+}
+
+static void
 purple_protocol_set_options(PurpleProtocol *protocol,
                             PurpleProtocolOptions options)
 {
@@ -96,6 +109,9 @@ purple_protocol_get_property(GObject *obj, guint param_id, GValue *value,
 		case PROP_NAME:
 			g_value_set_string(value, purple_protocol_get_name(protocol));
 			break;
+		case PROP_DESCRIPTION:
+			g_value_set_string(value, purple_protocol_get_description(protocol));
+			break;
 		case PROP_OPTIONS:
 			g_value_set_flags(value, purple_protocol_get_options(protocol));
 			break;
@@ -117,6 +133,9 @@ purple_protocol_set_property(GObject *obj, guint param_id, const GValue *value,
 			break;
 		case PROP_NAME:
 			purple_protocol_set_name(protocol, g_value_get_string(value));
+			break;
+		case PROP_DESCRIPTION:
+			purple_protocol_set_description(protocol, g_value_get_string(value));
 			break;
 		case PROP_OPTIONS:
 			purple_protocol_set_options(protocol, g_value_get_flags(value));
@@ -141,7 +160,7 @@ purple_protocol_finalize(GObject *object) {
 
 	g_clear_pointer(&priv->id, g_free);
 	g_clear_pointer(&priv->name, g_free);
-
+	g_clear_pointer(&priv->description, g_free);
 	/* I'm not sure that we can finalize a protocol plugin if an account is
 	 * still using it..  Right now accounts don't ref protocols, but maybe
 	 * they should?
@@ -203,6 +222,17 @@ purple_protocol_class_init(PurpleProtocolClass *klass) {
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
 	/**
+	 * PurpleProtocol::description:
+	 *
+	 * The description to show in user interface for the protocol.
+	 */
+	properties[PROP_DESCRIPTION] = g_param_spec_string(
+		"description", "description",
+		"The description of the protocol to show in the user interface",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	/**
 	 * PurpleProtocol::options:
 	 *
 	 * The #PurpleProtocolOptions for the protocol.
@@ -240,6 +270,17 @@ purple_protocol_get_name(PurpleProtocol *protocol) {
 	priv = purple_protocol_get_instance_private(protocol);
 
 	return priv->name;
+}
+
+const gchar *
+purple_protocol_get_description(PurpleProtocol *protocol) {
+	PurpleProtocolPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	priv = purple_protocol_get_instance_private(protocol);
+
+	return priv->description;
 }
 
 PurpleProtocolOptions
