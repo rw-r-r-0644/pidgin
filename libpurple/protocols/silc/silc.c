@@ -2341,6 +2341,7 @@ silcpurple_protocol_new(void) {
 	        SILCPURPLE_TYPE_PROTOCOL,
 	        "id", "prpl-silc",
 	        "name", "SILC",
+		"description", "SILC - Secure Internet Live Conferencing protocol",
 	        "options", OPT_PROTO_CHAT_TOPIC | OPT_PROTO_UNIQUE_CHATNAME |
 	                   OPT_PROTO_PASSWORD_OPTIONAL |
 	                   OPT_PROTO_SLASH_COMMANDS_NATIVE,

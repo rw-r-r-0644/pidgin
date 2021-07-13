@@ -199,6 +199,18 @@ const gchar *purple_protocol_get_id(PurpleProtocol *protocol);
 const gchar *purple_protocol_get_name(PurpleProtocol *protocol);
 
 /**
+ * purple_protocol_get_description:
+ * @protocol: The #PurpleProtocol instance.
+ *
+ * Gets the description of a protocol.
+ *
+ * Returns: The Description of the protocol.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_protocol_get_description(PurpleProtocol *protocol);
+
+/**
  * purple_protocol_get_options:
  * @protocol: The #PurpleProtocol instance.
  *
