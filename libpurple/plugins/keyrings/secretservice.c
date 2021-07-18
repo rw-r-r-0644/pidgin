@@ -310,8 +310,7 @@ secret_service_load(GPluginPlugin *plugin, GError **error) {
 
 	instance = purple_secret_service_new();
 
-	return purple_credential_manager_register_provider(manager, instance,
-	                                                   error);
+	return purple_credential_manager_register(manager, instance, error);
 }
 
 static gboolean
@@ -320,8 +319,7 @@ secret_service_unload(G_GNUC_UNUSED GPluginPlugin *plugin, GError **error) {
 	gboolean ret = FALSE;
 
 	manager = purple_credential_manager_get_default();
-	ret = purple_credential_manager_unregister_provider(manager, instance,
-	                                                    error);
+	ret = purple_credential_manager_unregister(manager, instance, error);
 	if(!ret) {
 		return ret;
 	}
