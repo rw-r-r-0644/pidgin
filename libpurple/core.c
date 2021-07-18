@@ -217,7 +217,7 @@ purple_core_quit(void)
 
 	/* Remove the active provider in the credential manager. */
 	manager = purple_credential_manager_get_default();
-	purple_credential_manager_set_active_provider(manager, NULL, NULL);
+	purple_credential_manager_set_active(manager, NULL, NULL);
 
 	/* Transmission ends */
 	purple_connections_disconnect_all();

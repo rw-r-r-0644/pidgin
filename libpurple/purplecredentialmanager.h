@@ -74,12 +74,11 @@ G_DECLARE_DERIVABLE_TYPE(PurpleCredentialManager, purple_credential_manager,
 
 /**
  * PurpleCredentialManagerClass:
- * @provider_registered: The default signal handler for when a provider is
- *                       registered.
- * @provider_unregistered: The default signal handler for when a provider is
- *                         unregistered.
- * @active_provider_changed: The default signal handler for when the active
- *                           provider is changed.
+ * @registered: The default signal handler for when a provider is registered.
+ * @unregistered: The default signal handler for when a provider is
+ *                unregistered.
+ * @active_changed: The default signal handler for when the active provider is
+ *                  changed.
  *
  * The class structure for #PurpleCredentialProvider.
  *
@@ -90,9 +89,9 @@ struct _PurpleCredentialManagerClass {
 	GObjectClass parent;
 
 	/*< public >*/
-	void (*provider_registered)(PurpleCredentialManager *manager, PurpleCredentialProvider *provider);
-	void (*provider_unregistered)(PurpleCredentialManager *manager, PurpleCredentialProvider *provider);
-	void (*active_provider_changed)(PurpleCredentialManager *manager, PurpleCredentialProvider *old, PurpleCredentialProvider *current);
+	void (*registered)(PurpleCredentialManager *manager, PurpleCredentialProvider *provider);
+	void (*unregistered)(PurpleCredentialManager *manager, PurpleCredentialProvider *provider);
+	void (*active_changed)(PurpleCredentialManager *manager, PurpleCredentialProvider *previous, PurpleCredentialProvider *current);
 
 	/*< private >*/
 	gpointer reserved[8];
@@ -103,8 +102,7 @@ struct _PurpleCredentialManagerClass {
  * @provider: The #PurpleCredentialProvider instance.
  * @data: User supplied data.
  *
- * A function to be used as a callback with
- * purple_credential_manager_foreach_provider().
+ * A function to be used as a callback with purple_credential_manager_foreach().
  *
  * Since: 3.0.0
  */
@@ -122,7 +120,7 @@ typedef void (*PurpleCredentialManagerForeachFunc)(PurpleCredentialProvider *pro
 PurpleCredentialManager *purple_credential_manager_get_default(void);
 
 /**
- * purple_credential_manager_register_provider:
+ * purple_credential_manager_register:
  * @manager: The #PurpleCredentialManager instance.
  * @provider: The #PurpleCredentialProvider to register.
  * @error: (out) (optional) (nullable): A return address for a #GError.
@@ -134,10 +132,10 @@ PurpleCredentialManager *purple_credential_manager_get_default(void);
  *
  * Since: 3.0.0
  */
-gboolean purple_credential_manager_register_provider(PurpleCredentialManager *manager, PurpleCredentialProvider *provider, GError **error);
+gboolean purple_credential_manager_register(PurpleCredentialManager *manager, PurpleCredentialProvider *provider, GError **error);
 
 /**
- * purple_credential_manager_unregister_provider:
+ * purple_credential_manager_unregister:
  * @manager: The #PurpleCredentialManager instance.
  * @provider: The #PurpleCredentialProvider to unregister.
  * @error: (out) (optional) (nullable): A return address for a #GError.
@@ -149,10 +147,10 @@ gboolean purple_credential_manager_register_provider(PurpleCredentialManager *ma
  *
  * Since: 3.0.0
  */
-gboolean purple_credential_manager_unregister_provider(PurpleCredentialManager *manager, PurpleCredentialProvider *provider, GError **error);
+gboolean purple_credential_manager_unregister(PurpleCredentialManager *manager, PurpleCredentialProvider *provider, GError **error);
 
 /**
- * purple_credential_manager_set_active_provider:
+ * purple_credential_manager_set_active:
  * @manager: The #PurpleCredentialManager instance.
  * @id: The id of the #PurpleCredentialProvider to use or %NULL to disable the
  *      active provider.
@@ -165,10 +163,10 @@ gboolean purple_credential_manager_unregister_provider(PurpleCredentialManager *
  *
  * Since: 3.0.0
  */
-gboolean purple_credential_manager_set_active_provider(PurpleCredentialManager *manager, const gchar *id, GError **error);
+gboolean purple_credential_manager_set_active(PurpleCredentialManager *manager, const gchar *id, GError **error);
 
 /**
- * purple_credential_manager_get_active_provider:
+ * purple_credential_manager_get_active:
  * @manager: The #PurpleCredentialManager instance.
  *
  * Gets the currently active #PurpleCredentialProvider or %NULL if there is no
@@ -178,7 +176,7 @@ gboolean purple_credential_manager_set_active_provider(PurpleCredentialManager *
  *
  * Since: 3.0.0
  */
-PurpleCredentialProvider *purple_credential_manager_get_active_provider(PurpleCredentialManager *manager);
+PurpleCredentialProvider *purple_credential_manager_get_active(PurpleCredentialManager *manager);
 
 /**
  * purple_credential_manager_read_password_async:
@@ -309,7 +307,7 @@ gboolean purple_credential_manager_write_settings(PurpleCredentialManager *manag
 
 
 /**
- * purple_credential_manager_foreach_provider:
+ * purple_credential_manager_foreach:
  * @manager: The #PurpleCredentialManager instance.
  * @func: (scope call): The #PurpleCredentialManagerForeachFunc to call.
  * @data: User data to pass to @func.
@@ -318,7 +316,7 @@ gboolean purple_credential_manager_write_settings(PurpleCredentialManager *manag
  *
  * Since: 3.0.0
  */
-void purple_credential_manager_foreach_provider(PurpleCredentialManager *manager, PurpleCredentialManagerForeachFunc func, gpointer data);
+void purple_credential_manager_foreach(PurpleCredentialManager *manager, PurpleCredentialManagerForeachFunc func, gpointer data);
 
 G_END_DECLS
 

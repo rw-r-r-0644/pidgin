@@ -28,9 +28,9 @@
 #include "util.h"
 
 enum {
-	SIG_PROVIDER_REGISTERED,
-	SIG_PROVIDER_UNREGISTERED,
-	SIG_ACTIVE_PROVIDER_CHANGED,
+	SIG_REGISTERED,
+	SIG_UNREGISTERED,
+	SIG_ACTIVE_CHANGED,
 	N_SIGNALS,
 };
 static guint signals[N_SIGNALS] = {0, };
@@ -38,7 +38,7 @@ static guint signals[N_SIGNALS] = {0, };
 typedef struct {
 	GHashTable *providers;
 
-	PurpleCredentialProvider *active_provider;
+	PurpleCredentialProvider *active;
 } PurpleCredentialManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(PurpleCredentialManager, purple_credential_manager,
@@ -127,7 +127,7 @@ purple_credential_manager_core_init_cb(gpointer data) {
 	PurpleCredentialManagerPrivate *priv = NULL;
 
 	priv = purple_credential_manager_get_instance_private(manager);
-	if(!PURPLE_IS_CREDENTIAL_PROVIDER(priv->active_provider)) {
+	if(!PURPLE_IS_CREDENTIAL_PROVIDER(priv->active)) {
 		purple_notify_error(NULL, _("Credential Manager"),
 		                    _("Failed to load the selected credential "
 		                      "provider."),
@@ -148,7 +148,7 @@ purple_credential_manager_finalize(GObject *obj) {
 	priv = purple_credential_manager_get_instance_private(manager);
 
 	g_clear_pointer(&priv->providers, g_hash_table_destroy);
-	g_clear_object(&priv->active_provider);
+	g_clear_object(&priv->active);
 
 	G_OBJECT_CLASS(purple_credential_manager_parent_class)->finalize(obj);
 }
@@ -164,7 +164,7 @@ purple_credential_manager_init(PurpleCredentialManager *manager) {
 	                                        g_object_unref);
 
 	noop = purple_noop_credential_provider_new();
-	purple_credential_manager_register_provider(manager, noop, NULL);
+	purple_credential_manager_register(manager, noop, NULL);
 	g_object_unref(G_OBJECT(noop));
 
 	/* Connect to the core-initialized signal so we can alert the user if we
@@ -182,7 +182,7 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 	obj_class->finalize = purple_credential_manager_finalize;
 
 	/**
-	 * PurpleCredentialManager::provider-registered:
+	 * PurpleCredentialManager::registered:
 	 * @manager: The #PurpleCredentialManager instance.
 	 * @provider: The #PurpleCredentialProvider that was registered.
 	 *
@@ -190,11 +190,11 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_PROVIDER_REGISTERED] = g_signal_new(
-		"provider-registered",
+	signals[SIG_REGISTERED] = g_signal_new(
+		"registered",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleCredentialManagerClass, provider_registered),
+		G_STRUCT_OFFSET(PurpleCredentialManagerClass, registered),
 		NULL,
 		NULL,
 		NULL,
@@ -203,7 +203,7 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 		PURPLE_TYPE_CREDENTIAL_PROVIDER);
 
 	/**
-	 * PurpleCredentialManager::provider-unregistered:
+	 * PurpleCredentialManager::unregistered:
 	 * @manager: The #PurpleCredentialManager instance.
 	 * @provider: The #PurpleCredentialProvider that was unregistered.
 	 *
@@ -211,11 +211,11 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_PROVIDER_UNREGISTERED] = g_signal_new(
-		"provider-unregistered",
+	signals[SIG_UNREGISTERED] = g_signal_new(
+		"unregistered",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleCredentialManagerClass, provider_unregistered),
+		G_STRUCT_OFFSET(PurpleCredentialManagerClass, unregistered),
 		NULL,
 		NULL,
 		NULL,
@@ -224,20 +224,20 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 		PURPLE_TYPE_CREDENTIAL_PROVIDER);
 
 	/**
-	 * PurpleCredentialManager::active-provider-changed:
+	 * PurpleCredentialManager::active-changed:
 	 * @manager: The #PurpleCredentialManager instance.
-	 * @old: The #PurpleCredentialProvider that was previously active.
+	 * @previous: The #PurpleCredentialProvider that was previously active.
 	 * @current: The #PurpleCredentialProvider that is now currently active.
 	 *
 	 * Emitted after @provider has become the active provider for @manager.
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_ACTIVE_PROVIDER_CHANGED] = g_signal_new(
-		"active-provider-changed",
+	signals[SIG_ACTIVE_CHANGED] = g_signal_new(
+		"active-changed",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleCredentialManagerClass, active_provider_changed),
+		G_STRUCT_OFFSET(PurpleCredentialManagerClass, active_changed),
 		NULL,
 		NULL,
 		NULL,
@@ -285,9 +285,9 @@ purple_credential_manager_get_default(void) {
 }
 
 gboolean
-purple_credential_manager_register_provider(PurpleCredentialManager *manager,
-                                            PurpleCredentialProvider *provider,
-                                            GError **error)
+purple_credential_manager_register(PurpleCredentialManager *manager,
+                                   PurpleCredentialProvider *provider,
+                                   GError **error)
 {
 	PurpleCredentialManagerPrivate *priv = NULL;
 	const gchar *id = NULL;
@@ -313,20 +313,19 @@ purple_credential_manager_register_provider(PurpleCredentialManager *manager,
 
 	g_hash_table_insert(priv->providers, g_strdup(id), g_object_ref(provider));
 
-	g_signal_emit(G_OBJECT(manager), signals[SIG_PROVIDER_REGISTERED], 0,
-	              provider);
+	g_signal_emit(G_OBJECT(manager), signals[SIG_REGISTERED], 0, provider);
 
 	/* If we don't currently have an active provider, check if the newly
 	 * registered provider has the id of the stored provider in preferences.
 	 * If it is, go ahead and make it the active provider.
 	 */
-	if(!PURPLE_IS_CREDENTIAL_PROVIDER(priv->active_provider)) {
+	if(!PURPLE_IS_CREDENTIAL_PROVIDER(priv->active)) {
 		const gchar *wanted = NULL;
 
 		wanted = purple_prefs_get_string("/purple/credentials/active-provider");
 
 		if(purple_strequal(wanted, id)) {
-			purple_credential_manager_set_active_provider(manager, id, error);
+			purple_credential_manager_set_active(manager, id, error);
 		}
 	}
 
@@ -334,9 +333,9 @@ purple_credential_manager_register_provider(PurpleCredentialManager *manager,
 }
 
 gboolean
-purple_credential_manager_unregister_provider(PurpleCredentialManager *manager,
-                                              PurpleCredentialProvider *provider,
-                                              GError **error)
+purple_credential_manager_unregister(PurpleCredentialManager *manager,
+                                     PurpleCredentialProvider *provider,
+                                     GError **error)
 {
 	PurpleCredentialManagerPrivate *priv = NULL;
 	const gchar *id = NULL;
@@ -347,7 +346,7 @@ purple_credential_manager_unregister_provider(PurpleCredentialManager *manager,
 	priv = purple_credential_manager_get_instance_private(manager);
 	id = purple_credential_provider_get_id(provider);
 
-	if(provider == priv->active_provider) {
+	if(provider == priv->active) {
 		g_set_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
 		            _("provider %s is currently in use"), id);
 
@@ -355,7 +354,7 @@ purple_credential_manager_unregister_provider(PurpleCredentialManager *manager,
 	}
 
 	if(g_hash_table_remove(priv->providers, id)) {
-		g_signal_emit(G_OBJECT(manager), signals[SIG_PROVIDER_UNREGISTERED], 0,
+		g_signal_emit(G_OBJECT(manager), signals[SIG_UNREGISTERED], 0,
 		              provider);
 
 		return TRUE;
@@ -368,11 +367,11 @@ purple_credential_manager_unregister_provider(PurpleCredentialManager *manager,
 }
 
 gboolean
-purple_credential_manager_set_active_provider(PurpleCredentialManager *manager,
-                                              const gchar *id, GError **error)
+purple_credential_manager_set_active(PurpleCredentialManager *manager,
+                                     const gchar *id, GError **error)
 {
 	PurpleCredentialManagerPrivate *priv = NULL;
-	PurpleCredentialProvider *old = NULL, *provider = NULL;
+	PurpleCredentialProvider *previous = NULL, *provider = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), FALSE);
 
@@ -389,24 +388,24 @@ purple_credential_manager_set_active_provider(PurpleCredentialManager *manager,
 		}
 	}
 
-	if(PURPLE_IS_CREDENTIAL_PROVIDER(priv->active_provider)) {
-		old = PURPLE_CREDENTIAL_PROVIDER(g_object_ref(priv->active_provider));
+	if(PURPLE_IS_CREDENTIAL_PROVIDER(priv->active)) {
+		previous = PURPLE_CREDENTIAL_PROVIDER(g_object_ref(priv->active));
 	}
 
-	if(g_set_object(&priv->active_provider, provider)) {
-		if(PURPLE_IS_CREDENTIAL_PROVIDER(old)) {
-			purple_credential_provider_deactivate(old);
+	if(g_set_object(&priv->active, provider)) {
+		if(PURPLE_IS_CREDENTIAL_PROVIDER(previous)) {
+			purple_credential_provider_deactivate(previous);
 		}
 
 		if(PURPLE_IS_CREDENTIAL_PROVIDER(provider)) {
 			purple_credential_provider_activate(provider);
 		}
 
-		g_signal_emit(G_OBJECT(manager), signals[SIG_ACTIVE_PROVIDER_CHANGED],
-		              0, old, priv->active_provider);
+		g_signal_emit(G_OBJECT(manager), signals[SIG_ACTIVE_CHANGED], 0,
+		              previous, priv->active);
 	}
 
-	g_clear_object(&old);
+	g_clear_object(&previous);
 
 	purple_debug_info("credential-manager", "set active provider to '%s'", id);
 
@@ -414,15 +413,14 @@ purple_credential_manager_set_active_provider(PurpleCredentialManager *manager,
 }
 
 PurpleCredentialProvider *
-purple_credential_manager_get_active_provider(PurpleCredentialManager *manager)
-{
+purple_credential_manager_get_active(PurpleCredentialManager *manager) {
 	PurpleCredentialManagerPrivate *priv = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_MANAGER(manager), NULL);
 
 	priv = purple_credential_manager_get_instance_private(manager);
 
-	return priv->active_provider;
+	return priv->active;
 }
 
 void
@@ -442,24 +440,17 @@ purple_credential_manager_read_password_async(PurpleCredentialManager *manager,
 
 	task = g_task_new(manager, cancellable, callback, data);
 
-	if(priv->active_provider == NULL) {
-		GError *error = NULL;
-
-		error = g_error_new_literal(PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
-		                            _("can not read password, no active "
-		                              "credential provider"));
-
-		g_task_return_error(task, error);
+	if(priv->active != NULL) {
+		purple_credential_provider_read_password_async(priv->active, account,
+		                                               cancellable,
+		                                               purple_credential_manager_read_password_callback,
+		                                               task);
+	} else {
+		g_task_return_new_error(task, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
+		                        _("can not read password, no active "
+		                          "credential provider"));
 		g_object_unref(G_OBJECT(task));
-
-		return;
 	}
-
-	purple_credential_provider_read_password_async(priv->active_provider,
-	                                               account,
-	                                               cancellable,
-	                                               purple_credential_manager_read_password_callback,
-	                                               task);
 }
 
 gchar *
@@ -491,37 +482,29 @@ purple_credential_manager_write_password_async(PurpleCredentialManager *manager,
 	task = g_task_new(manager, cancellable, callback, data);
 
 	if(!purple_account_get_remember_password(account)) {
-		GError *error = NULL;
 		const gchar *name = purple_account_get_username(account);
 
-		error = g_error_new(PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
-		                    _("account \"%s\" is not marked to be stored"),
-		                    name);
-
-		g_task_return_error(task, error);
+		g_task_return_new_error(task, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
+		                        _("account \"%s\" is not marked to be stored"),
+		                        name);
 		g_object_unref(G_OBJECT(task));
 
 		return;
 	}
 
-	if(priv->active_provider == NULL) {
-		GError *error = NULL;
+	if(priv->active != NULL) {
+		purple_credential_provider_write_password_async(priv->active, account,
+		                                                password, cancellable,
+		                                                purple_credential_manager_write_password_callback,
+		                                                task);
+	} else {
+		g_task_return_new_error(task, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
+		                        _("can not write password, no active "
+		                          "credential provider"));
 
-		error = g_error_new_literal(PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
-		                            _("can not write password, no active "
-		                              "credential provider"));
-
-		g_task_return_error(task, error);
 		g_object_unref(G_OBJECT(task));
-
-		return;
 	}
 
-	purple_credential_provider_write_password_async(priv->active_provider,
-	                                                account, password,
-	                                                cancellable,
-	                                                purple_credential_manager_write_password_callback,
-	                                                task);
 }
 
 gboolean
@@ -551,24 +534,18 @@ purple_credential_manager_clear_password_async(PurpleCredentialManager *manager,
 
 	task = g_task_new(manager, cancellable, callback, data);
 
-	if(priv->active_provider == NULL) {
-		GError *error = NULL;
+	if(priv->active != NULL) {
+		purple_credential_provider_clear_password_async(priv->active, account,
+		                                                cancellable,
+		                                                purple_credential_manager_clear_password_callback,
+		                                                task);
+	} else {
+		g_task_return_new_error(task, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
+		                        _("can not clear password, no active "
+		                          "credential provider"));
 
-		error = g_error_new_literal(PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
-		                            _("can not clear password, no active "
-		                              "credential provider"));
-
-		g_task_return_error(task, error);
 		g_object_unref(G_OBJECT(task));
-
-		return;
 	}
-
-	purple_credential_provider_clear_password_async(priv->active_provider,
-	                                                account,
-	                                                cancellable,
-	                                                purple_credential_manager_clear_password_callback,
-	                                                task);
 }
 
 gboolean
@@ -591,14 +568,14 @@ purple_credential_manager_read_settings(PurpleCredentialManager *manager,
 
 	priv = purple_credential_manager_get_instance_private(manager);
 
-	if(priv->active_provider == NULL) {
-		g_set_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
-		            _("can not read settings, no active credential provider"));
-
-		return NULL;
+	if(priv->active != NULL) {
+		return purple_credential_provider_read_settings(priv->active);
 	}
 
-	return purple_credential_provider_read_settings(priv->active_provider);
+	g_set_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
+	            _("can not read settings, no active credential provider"));
+
+	return NULL;
 }
 
 gboolean
@@ -612,21 +589,20 @@ purple_credential_manager_write_settings(PurpleCredentialManager *manager,
 
 	priv = purple_credential_manager_get_instance_private(manager);
 
-	if(priv->active_provider == NULL) {
-		g_set_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
-		            _("can not write settings, no active credential provider"));
-
-		return FALSE;
+	if(priv->active != NULL) {
+		return purple_credential_provider_write_settings(priv->active, fields);
 	}
 
-	return purple_credential_provider_write_settings(priv->active_provider,
-	                                                 fields);
+	g_set_error(error, PURPLE_CREDENTIAL_MANAGER_DOMAIN, 0,
+	            _("can not write settings, no active credential provider"));
+
+	return FALSE;
 }
 
 void
-purple_credential_manager_foreach_provider(PurpleCredentialManager *manager,
-                                           PurpleCredentialManagerForeachFunc func,
-                                           gpointer data)
+purple_credential_manager_foreach(PurpleCredentialManager *manager,
+                                  PurpleCredentialManagerForeachFunc func,
+                                  gpointer data)
 {
 	GHashTableIter iter;
 	PurpleCredentialManagerPrivate *priv = NULL;
@@ -642,3 +618,4 @@ purple_credential_manager_foreach_provider(PurpleCredentialManager *manager,
 		func(PURPLE_CREDENTIAL_PROVIDER(value), data);
 	}
 }
+
