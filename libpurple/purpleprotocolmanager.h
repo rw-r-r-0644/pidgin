@@ -88,6 +88,17 @@ struct _PurpleProtocolManagerClass {
 };
 
 /**
+ * PurpleProtocolManagerForeachFunc:
+ * @protocol: The #PurpleProtocol instance.
+ * @data: User supplied data.
+ *
+ * A function to be used as a callback with purple_protocol_manager_foreach().
+ *
+ * Since: 3.0.0
+ */
+typedef void (*PurpleProtocolManagerForeachFunc)(PurpleProtocol *protocol, gpointer data);
+
+/**
  * purple_protocol_manager_get_default:
  *
  * Gets the default #PurpleProtocolManager instance.
@@ -140,6 +151,18 @@ gboolean purple_protocol_manager_unregister(PurpleProtocolManager *manager, Purp
  * Since: 3.0.0
  */
 PurpleProtocol *purple_protocol_manager_find(PurpleProtocolManager *manager, const gchar *id);
+
+/**
+ * purple_protocol_manager_foreach:
+ * @manager: The #PurpleProtocolManager instance.
+ * @func: (scope call): The #PurpleProtocolManagerForeachFunc to call.
+ * @data: User data to pass to @func.
+ *
+ * Calls @func for each #PurpleProtocol that @manager knows about.
+ *
+ * Since: 3.0.0
+ */
+void purple_protocol_manager_foreach(PurpleProtocolManager *manager, PurpleProtocolManagerForeachFunc func, gpointer data);
 
 /**
  * purple_protocol_manager_get_all:

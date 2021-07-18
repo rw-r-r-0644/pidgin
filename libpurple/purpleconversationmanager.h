@@ -44,6 +44,18 @@ G_DECLARE_FINAL_TYPE(PurpleConversationManager, purple_conversation_manager,
                      PURPLE, CONVERSATION_MANAGER, GObject)
 
 /**
+ * PurpleConversationManagerForeachFunc:
+ * @conversation: The #PurpleConversation instance.
+ * @data: User supplied data.
+ *
+ * A function to be used as a callback with
+ * purple_conversation_manager_foreach().
+ *
+ * Since: 3.0.0
+ */
+typedef void (*PurpleConversationManagerForeachFunc)(PurpleConversation *conversation, gpointer data);
+
+/**
  * purple_conversation_manager_get_default:
  *
  * Gets the default instance of #PurpleConversationManager.  This instance
@@ -94,6 +106,18 @@ gboolean purple_conversation_manager_unregister(PurpleConversationManager *manag
  * Since: 3.0.0
  */
 gboolean purple_conversation_manager_is_registered(PurpleConversationManager *manager, PurpleConversation *conversation);
+
+/**
+ * purple_conversation_manager_foreach:
+ * @manager: The #PurpleConversationManager instance.
+ * @func: (scope call): The #PurpleConversationManagerForeachFunc to call.
+ * @data: User data to pass to @func.
+ *
+ * Calls @func for each #PurpleConversation that @manager knows about.
+ *
+ * Since: 3.0.0
+ */
+void purple_conversation_manager_foreach(PurpleConversationManager *manager, PurpleConversationManagerForeachFunc func, gpointer data);
 
 /**
  * purple_conversation_manager_get_all:

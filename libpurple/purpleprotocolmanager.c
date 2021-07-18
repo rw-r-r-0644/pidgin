@@ -218,6 +218,26 @@ purple_protocol_manager_find(PurpleProtocolManager *manager, const gchar *id) {
 	return PURPLE_PROTOCOL(value);
 }
 
+void
+purple_protocol_manager_foreach(PurpleProtocolManager *manager,
+                                PurpleProtocolManagerForeachFunc func,
+                                gpointer data)
+{
+	GHashTableIter iter;
+	PurpleProtocolManagerPrivate *priv = NULL;
+	gpointer value;
+
+	g_return_if_fail(PURPLE_IS_PROTOCOL_MANAGER(manager));
+	g_return_if_fail(func != NULL);
+
+	priv = purple_protocol_manager_get_instance_private(manager);
+
+	g_hash_table_iter_init(&iter, priv->protocols);
+	while(g_hash_table_iter_next(&iter, NULL, &value)) {
+		func(PURPLE_PROTOCOL(value), data);
+	}
+}
+
 GList *
 purple_protocol_manager_get_all(PurpleProtocolManager *manager) {
 	PurpleProtocolManagerPrivate *priv = NULL;
