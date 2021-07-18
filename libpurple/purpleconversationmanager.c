@@ -178,6 +178,23 @@ purple_conversation_manager_is_registered(PurpleConversationManager *manager,
 	                                    NULL, NULL);
 }
 
+void
+purple_conversation_manager_foreach(PurpleConversationManager *manager,
+                                    PurpleConversationManagerForeachFunc func,
+                                    gpointer data)
+{
+	GHashTableIter iter;
+	gpointer key;
+
+	g_return_if_fail(PURPLE_IS_CONVERSATION_MANAGER(manager));
+	g_return_if_fail(func != NULL);
+
+	g_hash_table_iter_init(&iter, manager->conversations);
+	while(g_hash_table_iter_next(&iter, &key, NULL)) {
+		func(PURPLE_CONVERSATION(key), data);
+	}
+}
+
 GList *
 purple_conversation_manager_get_all(PurpleConversationManager *manager) {
 	g_return_val_if_fail(PURPLE_IS_CONVERSATION_MANAGER(manager), NULL);
