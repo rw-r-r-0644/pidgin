@@ -517,7 +517,7 @@ if get_option('buildtype') != 'plain' and SUNCC
 	add_project_arguments('-features=extensions', language : 'c')
 endif
 
-pidginpath = find_program('pidgin', required : false)
+pidgin3path = find_program('pidgin3', required : false)
 
 #######################################################################
 # Check for Unity and Messaging Menu
@@ -771,8 +771,8 @@ message('Generate documentation........ : ' + ENABLE_DOC.to_string())
 message('')
 bindir = get_option('prefix') / get_option('bindir')
 message('Pidgin will be installed in @0@.'.format(bindir))
-if pidginpath.found()
-	message('Warning: You have an old copy of Pidgin at @0@.'.format(pidginpath.path()))
+if pidgin3path.found()
+	message('Warning: You have an old copy of pidgin3 at @0@.'.format(pidgin3path.path()))
 endif
 if not INSTALL_PIXMAPS
 	message('')
