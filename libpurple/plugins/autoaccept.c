@@ -70,14 +70,19 @@ static void
 auto_accept_complete_cb(PurpleXfer *xfer, G_GNUC_UNUSED GParamSpec *pspec,
                         G_GNUC_UNUSED gpointer data)
 {
+	PurpleConversationManager *manager = NULL;
+
 	if (purple_xfer_get_status(xfer) != PURPLE_XFER_STATUS_DONE) {
 		return;
 	}
 
-	if (purple_prefs_get_bool(PREF_NOTIFY) &&
-	    !purple_conversations_find_im_with_account(
-	            purple_xfer_get_remote_user(xfer),
-	            purple_xfer_get_account(xfer))) {
+	manager = purple_conversation_manager_get_default();
+
+	if(purple_prefs_get_bool(PREF_NOTIFY) &&
+	   !purple_conversation_manager_find_im(manager,
+	                                        purple_xfer_get_account(xfer),
+	                                        purple_xfer_get_remote_user(xfer)))
+	{
 		char *message = g_strdup_printf(_("Autoaccepted file transfer of \"%s\" from \"%s\" completed."),
 					purple_xfer_get_filename(xfer), purple_xfer_get_remote_user(xfer));
 		purple_notify_info(NULL, _("Autoaccept complete"), message,

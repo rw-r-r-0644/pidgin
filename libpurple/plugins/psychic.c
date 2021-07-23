@@ -42,6 +42,7 @@
 static void
 buddy_typing_cb(PurpleAccount *acct, const char *name, void *data) {
   PurpleConversation *im;
+  PurpleConversationManager *manager;
 
   if(purple_prefs_get_bool(PREF_STATUS) &&
      ! purple_status_is_available(purple_account_get_active_status(acct))) {
@@ -60,7 +61,8 @@ buddy_typing_cb(PurpleAccount *acct, const char *name, void *data) {
     return;
   }
 
-  im = purple_conversations_find_im_with_account(name, acct);
+  manager = purple_conversation_manager_get_default();
+  im = purple_conversation_manager_find_im(manager, acct, name);
   if(! im) {
     purple_debug_info("psychic", "no previous conversation exists\n");
     im = purple_im_conversation_new(acct, name);

@@ -29,6 +29,7 @@ write_status(PurpleBuddy *buddy, const char *message)
 {
 	PurpleAccount *account = NULL;
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 	const char *who;
 	char buf[256];
 	char *escaped;
@@ -37,7 +38,8 @@ write_status(PurpleBuddy *buddy, const char *message)
 	account = purple_buddy_get_account(buddy);
 	buddy_name = purple_buddy_get_name(buddy);
 
-	im = purple_conversations_find_im_with_account(buddy_name, account);
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager, account, buddy_name);
 
 	if (im == NULL)
 		return;
