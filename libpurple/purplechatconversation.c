@@ -25,6 +25,7 @@
 #include "internal.h"
 #include "debug.h"
 #include "enums.h"
+#include "purpleconversationmanager.h"
 #include "purplechatconversation.h"
 #include "purpleprivate.h"
 
@@ -341,13 +342,15 @@ purple_chat_conversation_class_init(PurpleChatConversationClass *klass) {
 PurpleConversation *
 purple_chat_conversation_new(PurpleAccount *account, const gchar *name) {
 	PurpleConversation *chat = NULL;
+	PurpleConversationManager *manager = NULL;
 	PurpleConnection *connection = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(name != NULL, NULL);
 
 	/* Check if this conversation already exists. */
-	chat = purple_conversations_find_chat_with_account(name, account);
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, account, name);
 	if(PURPLE_IS_CHAT_CONVERSATION(chat)) {
 		if(!purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(chat))) {
 			purple_debug_warning("chat-conversation", "A chat named %s "

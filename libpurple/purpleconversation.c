@@ -32,6 +32,7 @@
 #include "prefs.h"
 #include "protocol.h"
 #include "purpleconversation.h"
+#include "purpleconversationmanager.h"
 #include "purplemarkup.h"
 #include "purpleprivate.h"
 #include "purpleprotocolclient.h"
@@ -288,6 +289,7 @@ purple_conversation_constructed(GObject *object) {
 	PurpleConversation *conv = PURPLE_CONVERSATION(object);
 	PurpleAccount *account;
 	PurpleConnection *gc;
+	PurpleConversationManager *manager;
 	PurpleConversationUiOps *ops;
 
 	G_OBJECT_CLASS(purple_conversation_parent_class)->constructed(object);
@@ -299,7 +301,8 @@ purple_conversation_constructed(GObject *object) {
 	purple_conversation_set_features(conv, purple_connection_get_flags(gc));
 
 	/* add the conversation to the appropriate lists */
-	purple_conversations_add(conv);
+	manager = purple_conversation_manager_get_default();
+	purple_conversation_manager_register(manager, conv);
 
 	/* Auto-set the title. */
 	purple_conversation_autoset_title(conv);
@@ -328,6 +331,7 @@ purple_conversation_dispose(GObject *obj) {
 static void
 purple_conversation_finalize(GObject *object) {
 	PurpleConversation *conv = PURPLE_CONVERSATION(object);
+	PurpleConversationManager *manager;
 	PurpleConversationPrivate *priv =
 			purple_conversation_get_instance_private(conv);
 	PurpleConversationUiOps *ops  = purple_conversation_get_ui_ops(conv);
@@ -335,7 +339,8 @@ purple_conversation_finalize(GObject *object) {
 	purple_request_close_with_handle(conv);
 
 	/* remove from conversations and im/chats lists prior to emit */
-	purple_conversations_remove(conv);
+	manager = purple_conversation_manager_get_default();
+	purple_conversation_manager_unregister(manager, conv);
 
 	purple_signal_emit(purple_conversations_get_handle(),
 	                   "deleting-conversation", conv);
@@ -682,7 +687,10 @@ _purple_conversation_write_common(PurpleConversation *conv,
 			return;
 		}
 	} else if(PURPLE_IS_IM_CONVERSATION(conv)) {
-		if(!g_list_find(purple_conversations_get_all(), conv)) {
+		PurpleConversationManager *manager = NULL;
+
+		manager = purple_conversation_manager_get_default();
+		if(!purple_conversation_manager_is_registered(manager, conv)) {
 			return;
 		}
 	}
@@ -852,14 +860,17 @@ purple_conversation_present_error(const gchar *who, PurpleAccount *account,
                                   const gchar *what)
 {
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 
 	g_return_val_if_fail(who != NULL, FALSE);
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
 	g_return_val_if_fail(what != NULL, FALSE);
 
-	conv = purple_conversations_find_with_account(who, account);
-	if(conv != NULL) {
-		purple_conversation_write_system_message(conv, what, PURPLE_MESSAGE_ERROR);
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find(manager, account, who);
+	if(PURPLE_IS_CONVERSATION(conv)) {
+		purple_conversation_write_system_message(conv, what,
+		                                         PURPLE_MESSAGE_ERROR);
 		return TRUE;
 	}
 

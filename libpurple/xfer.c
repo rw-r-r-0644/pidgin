@@ -36,6 +36,7 @@
 #include "prefs.h"
 #include "proxy.h"
 #include "purple-gio.h"
+#include "purpleconversationmanager.h"
 #include "request.h"
 #include "util.h"
 #include "xfer.h"
@@ -212,6 +213,7 @@ purple_xfer_conversation_write_internal(PurpleXfer *xfer,
 	const char *message, gboolean is_error, gboolean print_thumbnail)
 {
 	PurpleConversation *im = NULL;
+	PurpleConversationManager *manager = NULL;
 	PurpleMessageFlags flags = PURPLE_MESSAGE_SYSTEM;
 	char *escaped;
 	gconstpointer thumbnail_data;
@@ -220,11 +222,13 @@ purple_xfer_conversation_write_internal(PurpleXfer *xfer,
 
 	thumbnail_data = purple_xfer_get_thumbnail(xfer, &size);
 
-	im = purple_conversations_find_im_with_account(priv->who,
-											   purple_xfer_get_account(xfer));
-
-	if (im == NULL)
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager,
+	                                         purple_xfer_get_account(xfer),
+	                                         priv->who);
+	if(PURPLE_IS_IM_CONVERSATION(im)) {
 		return;
+	}
 
 	escaped = g_markup_escape_text(message, -1);
 
@@ -956,11 +960,11 @@ purple_xfer_set_completed(PurpleXfer *xfer, gboolean completed)
 	if (completed == TRUE) {
 		char *msg = NULL;
 		PurpleConversation *im;
+		PurpleConversationManager *manager;
 
 		purple_xfer_set_status(xfer, PURPLE_XFER_STATUS_DONE);
 
-		if (purple_xfer_get_filename(xfer) != NULL)
-		{
+		if(purple_xfer_get_filename(xfer) != NULL) {
 			char *filename = g_markup_escape_text(purple_xfer_get_filename(xfer), -1);
 			if (purple_xfer_get_local_filename(xfer)
 			 && purple_xfer_get_xfer_type(xfer) == PURPLE_XFER_TYPE_RECEIVE)
@@ -974,16 +978,15 @@ purple_xfer_set_completed(PurpleXfer *xfer, gboolean completed)
 				msg = g_strdup_printf(_("Transfer of file %s complete"),
 				                      filename);
 			g_free(filename);
-		}
-		else
+		} else {
 			msg = g_strdup(_("File transfer complete"));
+		}
 
-		im = purple_conversations_find_im_with_account(priv->who,
-		                                             purple_xfer_get_account(xfer));
-
-		if (im != NULL) {
-			purple_conversation_write_system_message(
-				im, msg, 0);
+		manager = purple_conversation_manager_get_default();
+		im = purple_conversation_manager_find_im(manager, priv->account,
+		                                         priv->who);
+		if(PURPLE_IS_IM_CONVERSATION(im)) {
+			purple_conversation_write_system_message(im, msg, 0);
 		}
 		g_free(msg);
 	}
