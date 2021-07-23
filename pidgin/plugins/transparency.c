@@ -21,17 +21,16 @@
  * 02111-1301, USA.
  *
  */
-#include "internal.h"
+
+#include <glib.h>
+#include <glib/gi18n-lib.h>
 
 #include <purple.h>
 
-#include "gtkconv.h"
-#include "gtkplugin.h"
-#include "gtkprefs.h"
-#include "gtkblist.h"
-#include "gtkutils.h"
-#include "signals.h"
-#include "version.h"
+#include <gplugin.h>
+#include <gplugin-native.h>
+
+#include <pidgin.h>
 
 /*
  *  MACROS & DEFINES
@@ -39,12 +38,6 @@
 /* The plugin name is left unchanged from its WinAPI days in order to keep it
  * loading for users who were using it. */
 #define WINTRANS_PLUGIN_ID	"gtk-win-trans"
-
-#define blist	(purple_get_blist() \
-		? (PIDGIN_BLIST(purple_get_blist()) \
-			? ((PIDGIN_BLIST(purple_get_blist()))->window) \
-			: NULL) \
-		: NULL)
 
 /*
  *  DATA STRUCTS
@@ -72,15 +65,31 @@ static GSList *window_list = NULL;
  *  CODE
  */
 
+static GtkWidget *
+get_buddy_list_window(void) {
+	PurpleBuddyList *purple_blist = NULL;
+
+	purple_blist = purple_blist_get_default();
+	if(PIDGIN_IS_BUDDY_LIST(purple_blist)) {
+		PidginBuddyList *pidgin_blist = PIDGIN_BUDDY_LIST(purple_blist);
+
+		return pidgin_blist->window;
+	}
+
+	return NULL;
+}
+
 /* Set window transparency level */
 static void set_wintrans(GtkWidget *window, int alpha, gboolean enabled,
 		gboolean always_on_top) {
+	GdkWindow *gdk_window = gtk_widget_get_window(window);
+
 	if (enabled) {
-		gdk_window_set_opacity(window->window, alpha / 255.0);
-		gdk_window_set_keep_above(window->window, always_on_top);
+		gdk_window_set_opacity(gdk_window, alpha / 255.0);
+		gdk_window_set_keep_above(gdk_window, always_on_top);
 	} else {
-		gdk_window_set_opacity(window->window, 1);
-		gdk_window_set_keep_above(window->window, 0);
+		gdk_window_set_opacity(gdk_window, 1);
+		gdk_window_set_keep_above(gdk_window, 0);
 	}
 }
 
@@ -145,19 +154,18 @@ static GtkWidget *wintrans_slider(GtkWidget *win) {
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
 	gtk_widget_show(frame);
 
-	hbox = gtk_hbox_new(FALSE, 5);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	gtk_container_add(GTK_CONTAINER(frame), hbox);
 
 	label = gtk_label_new(_("Opacity:"));
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
 	gtk_widget_show(hbox);
 
-	slider = gtk_hscale_new_with_range(50, 255, 1);
+	slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 50, 255, 1);
 	gtk_range_set_value(GTK_RANGE(slider), imalpha);
-	gtk_widget_set_usize(GTK_WIDGET(slider), 200, -1);
 
 	/* On slider val change, update window's transparency level */
-	g_signal_connect(GTK_OBJECT(slider), "value-changed",
+	g_signal_connect(G_OBJECT(slider), "value-changed",
 		G_CALLBACK(change_alpha), win);
 
 	gtk_box_pack_start(GTK_BOX(hbox), slider, FALSE, TRUE, 5);
@@ -183,7 +191,7 @@ static slider_win* find_slidwin(GtkWidget *win) {
 }
 
 /* Clean up transparency stuff for the conv window */
-static void cleanup_conv_window(PidginWindow *win) {
+static void cleanup_conv_window(PidginConvWindow *win) {
 	GtkWidget *window = win->window;
 	slider_win *slidwin = NULL;
 
@@ -203,17 +211,18 @@ static void cleanup_conv_window(PidginWindow *win) {
 
 static void
 conversation_delete_cb(PurpleConversation *conv) {
-	PidginWindow *win = pidgin_conv_get_window(PIDGIN_CONVERSATION(conv));
+	PidginConvWindow *win = pidgin_conv_get_window(PIDGIN_CONVERSATION(conv));
 	/* If it is the last conversation in the window, cleanup */
 	if (win != NULL && pidgin_conv_window_get_gtkconv_count(win) == 1)
 		cleanup_conv_window(win);
 }
 
 static void set_blist_trans(GtkWidget *w, const char *pref) {
+	GtkWidget *window = get_buddy_list_window();
 	gboolean enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w));
 	purple_prefs_set_bool(pref, enabled);
-	if (blist) {
-		set_wintrans(blist, purple_prefs_get_int(OPT_WINTRANS_BL_ALPHA),
+	if (window != NULL) {
+		set_wintrans(window, purple_prefs_get_int(OPT_WINTRANS_BL_ALPHA),
 			purple_prefs_get_bool(OPT_WINTRANS_BL_ENABLED),
 			purple_prefs_get_bool(OPT_WINTRANS_IM_ONTOP));
 	}
@@ -227,15 +236,13 @@ static void add_slider(GtkWidget *win) {
 	if (!find_slidwin(win)) {
 		GtkWidget *slider_box = NULL;
 		slider_win *slidwin = NULL;
-		GtkRequisition slidereq;
-		gint width, height;
 
 		/* Get top vbox */
 		for (wl1 = wl = gtk_container_get_children(
 					GTK_CONTAINER(win));
 				wl != NULL;
 				wl = wl->next) {
-			if (GTK_IS_VBOX(GTK_OBJECT(wl->data)))
+			if (GTK_IS_BOX(G_OBJECT(wl->data)))
 				vbox = GTK_WIDGET(wl->data);
 			else {
 				purple_debug_error(WINTRANS_PLUGIN_ID,
@@ -246,11 +253,8 @@ static void add_slider(GtkWidget *win) {
 		g_list_free(wl1);
 
 		slider_box = wintrans_slider(win);
-		/* Figure out how tall the slider wants to be */
-		gtk_widget_size_request(slider_box, &slidereq);
-		gtk_window_get_size(GTK_WINDOW(win), &width, &height);
-		gtk_box_pack_start(GTK_BOX(vbox),
-			slider_box, FALSE, FALSE, 0);
+		gtk_box_pack_start(GTK_BOX(vbox), slider_box, FALSE, FALSE, 0);
+
 		/* Add window to list, to track that it has a slider */
 		slidwin = g_new0(slider_win, 1);
 		slidwin->win = win;
@@ -281,7 +285,7 @@ static void remove_convs_wintrans(gboolean remove_signal) {
 	GList *wins;
 
 	for (wins = pidgin_conv_windows_get_list(); wins; wins = wins->next) {
-		PidginWindow *win = wins->data;
+		PidginConvWindow *win = wins->data;
 		GtkWidget *window = win->window;
 
 		if (purple_prefs_get_bool(OPT_WINTRANS_IM_ENABLED))
@@ -296,7 +300,7 @@ static void remove_convs_wintrans(gboolean remove_signal) {
 	remove_sliders();
 }
 
-static void set_conv_window_trans(PidginWindow *oldwin, PidginWindow *newwin) {
+static void set_conv_window_trans(PidginConvWindow *oldwin, PidginConvWindow *newwin) {
 	GtkWidget *win = newwin->window;
 
 	/* check prefs to see if we want trans */
@@ -333,7 +337,7 @@ static void update_convs_wintrans(GtkWidget *toggle_btn, const char *pref) {
 		GList *wins;
 
 		for (wins = pidgin_conv_windows_get_list(); wins; wins = wins->next) {
-			PidginWindow *win = wins->data;
+			PidginConvWindow *win = wins->data;
 			set_conv_window_trans(NULL, win);
 		}
 
@@ -345,11 +349,11 @@ static void update_convs_wintrans(GtkWidget *toggle_btn, const char *pref) {
 }
 
 static void
-conv_updated_cb(PurpleConversation *conv, PurpleConvUpdateType type) {
+conv_updated_cb(PurpleConversation *conv, PurpleConversationUpdateType type) {
 	PidginConversation *pconv = PIDGIN_CONVERSATION(conv);
-	PidginWindow *win = pidgin_conv_get_window(pconv);
+	PidginConvWindow *win = pidgin_conv_get_window(pconv);
 
-	if (type == PURPLE_CONV_UPDATE_UNSEEN && !pidgin_conv_is_hidden(pconv)
+	if (type == PURPLE_CONVERSATION_UPDATE_UNSEEN && !pidgin_conv_is_hidden(pconv)
 			&& pconv->unseen_state == PIDGIN_UNSEEN_NONE
 			&& pidgin_conv_window_get_gtkconv_count(win) == 1) {
 		GtkWidget *window = win->window;
@@ -372,7 +376,7 @@ conv_updated_cb(PurpleConversation *conv, PurpleConvUpdateType type) {
 
 static void
 new_conversation_cb(PurpleConversation *conv) {
-	PidginWindow *win = pidgin_conv_get_window(PIDGIN_CONVERSATION(conv));
+	PidginConvWindow *win = pidgin_conv_get_window(PIDGIN_CONVERSATION(conv));
 
 	/* If it is the first conversation in the window,
 	 * add the sliders, and set transparency */
@@ -390,18 +394,19 @@ new_conversation_cb(PurpleConversation *conv) {
 
 static void
 blist_created_cb(PurpleBuddyList *purple_blist, gpointer data) {
-	if (blist) {
+	GtkWidget *window = get_buddy_list_window();
+	if (window != NULL) {
 		if (purple_prefs_get_bool(OPT_WINTRANS_BL_ENABLED)) {
-			set_wintrans(blist,
+			set_wintrans(window,
 				purple_prefs_get_int(OPT_WINTRANS_BL_ALPHA),
 				TRUE,
 				purple_prefs_get_bool(OPT_WINTRANS_BL_ONTOP));
 		}
 
-		g_signal_connect(G_OBJECT(blist), "focus_in_event",
-			G_CALLBACK(focus_blist_win_cb), blist);
-		g_signal_connect(G_OBJECT(blist), "focus_out_event",
-			G_CALLBACK(focus_blist_win_cb), blist);
+		g_signal_connect(G_OBJECT(window), "focus_in_event",
+			G_CALLBACK(focus_blist_win_cb), window);
+		g_signal_connect(G_OBJECT(window), "focus_out_event",
+			G_CALLBACK(focus_blist_win_cb), window);
 	}
 }
 
@@ -410,7 +415,7 @@ static void alpha_change(GtkWidget *w, gpointer data) {
 	int imalpha = gtk_range_get_value(GTK_RANGE(w));
 
 	for (wins = pidgin_conv_windows_get_list(); wins; wins = wins->next) {
-		PidginWindow *win = wins->data;
+		PidginConvWindow *win = wins->data;
 		set_wintrans(win->window, imalpha, TRUE,
 			purple_prefs_get_bool(OPT_WINTRANS_IM_ONTOP));
 	}
@@ -423,15 +428,17 @@ static void alpha_pref_set_int (GtkWidget *w, GdkEventFocus *e, const char *pref
 }
 
 static void bl_alpha_change(GtkWidget *w, gpointer data) {
-	if (blist)
-		change_alpha(w, blist);
+	GtkWidget *window = get_buddy_list_window();
+	if (window != NULL) {
+		change_alpha(w, window);
+	}
 }
 
 static void update_existing_convs() {
 	GList *wins;
 
 	for (wins = pidgin_conv_windows_get_list(); wins; wins = wins->next) {
-		PidginWindow *win = wins->data;
+		PidginConvWindow *win = wins->data;
 		GtkWidget *window = win->window;
 
 		set_conv_window_trans(NULL, win);
@@ -443,59 +450,8 @@ static void update_existing_convs() {
 	}
 }
 
-/*
- *  EXPORTED FUNCTIONS
- */
-static gboolean plugin_load(PurplePlugin *plugin) {
-
-	purple_signal_connect(purple_conversations_get_handle(),
-		"conversation-created", plugin,
-		PURPLE_CALLBACK(new_conversation_cb), NULL);
-
-	/* Set callback to remove window from the list, if the window is destroyed */
-	purple_signal_connect(purple_conversations_get_handle(),
-		"deleting-conversation", plugin,
-		PURPLE_CALLBACK(conversation_delete_cb), NULL);
-
-	purple_signal_connect(pidgin_conversations_get_handle(),
-		"conversation-dragging", plugin,
-		PURPLE_CALLBACK(set_conv_window_trans), NULL);
-
-	purple_signal_connect(purple_conversations_get_handle(),
-		"conversation-updated", plugin,
-		PURPLE_CALLBACK(conv_updated_cb), NULL);
-
-	update_existing_convs();
-
-	if (blist)
-		blist_created_cb(NULL, NULL);
-	else
-		purple_signal_connect(pidgin_blist_get_handle(),
-			"gtkblist-created", plugin,
-			PURPLE_CALLBACK(blist_created_cb), NULL);
-
-
-	return TRUE;
-}
-
-static gboolean plugin_unload(PurplePlugin *plugin) {
-	purple_debug_info(WINTRANS_PLUGIN_ID, "Unloading transparency plugin\n");
-
-	remove_convs_wintrans(TRUE);
-
-	if (blist) {
-		if (purple_prefs_get_bool(OPT_WINTRANS_BL_ENABLED))
-			set_wintrans(blist, 0, FALSE, FALSE);
-
-		/* Remove the focus cbs */
-		g_signal_handlers_disconnect_by_func(G_OBJECT(blist),
-			G_CALLBACK(focus_blist_win_cb), blist);
-	}
-
-	return TRUE;
-}
-
-static GtkWidget *get_config_frame(PurplePlugin *plugin) {
+static GtkWidget *
+get_config_frame(PurplePlugin *plugin) {
 	GtkWidget *ret;
 	GtkWidget *imtransbox, *bltransbox;
 	GtkWidget *hbox;
@@ -503,25 +459,25 @@ static GtkWidget *get_config_frame(PurplePlugin *plugin) {
 	GtkWidget *button;
 	GtkWidget *trans_box;
 
-	ret = gtk_vbox_new(FALSE, 18);
+	ret = gtk_box_new(GTK_ORIENTATION_VERTICAL, 18);
 	gtk_container_set_border_width(GTK_CONTAINER (ret), 12);
 
 	/* IM Convo trans options */
 	imtransbox = pidgin_make_frame(ret, _("IM Conversation Windows"));
 	button = pidgin_prefs_checkbox(_("_IM window transparency"),
 		OPT_WINTRANS_IM_ENABLED, imtransbox);
-	g_signal_connect(GTK_OBJECT(button), "clicked",
+	g_signal_connect(G_OBJECT(button), "clicked",
 		G_CALLBACK(update_convs_wintrans),
 		(gpointer) OPT_WINTRANS_IM_ENABLED);
 
-	trans_box = gtk_vbox_new(FALSE, 18);
+	trans_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 18);
 	gtk_widget_show(trans_box);
 	g_object_bind_property(button, "active", trans_box, "sensitive",
 			G_BINDING_SYNC_CREATE);
 
 	button = pidgin_prefs_checkbox(_("_Show slider bar in IM window"),
 		OPT_WINTRANS_IM_SLIDER, trans_box);
-	g_signal_connect(GTK_OBJECT(button), "clicked",
+	g_signal_connect(G_OBJECT(button), "clicked",
 		G_CALLBACK(update_convs_wintrans),
 		(gpointer) OPT_WINTRANS_IM_SLIDER);
 
@@ -531,26 +487,25 @@ static GtkWidget *get_config_frame(PurplePlugin *plugin) {
 
 	button = pidgin_prefs_checkbox(_("Always on top"), OPT_WINTRANS_IM_ONTOP,
 		trans_box);
-	g_signal_connect(GTK_OBJECT(button), "clicked",
+	g_signal_connect(G_OBJECT(button), "clicked",
 		G_CALLBACK(update_convs_wintrans),
 		(gpointer) OPT_WINTRANS_IM_ONTOP);
 
 	gtk_box_pack_start(GTK_BOX(imtransbox), trans_box, FALSE, FALSE, 5);
 
 	/* IM transparency slider */
-	hbox = gtk_hbox_new(FALSE, 5);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
 	label = gtk_label_new(_("Opacity:"));
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
 
-	slider = gtk_hscale_new_with_range(50, 255, 1);
+	slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 50, 255, 1);
 	gtk_range_set_value(GTK_RANGE(slider),
 		purple_prefs_get_int(OPT_WINTRANS_IM_ALPHA));
-	gtk_widget_set_usize(GTK_WIDGET(slider), 200, -1);
 
-	g_signal_connect(GTK_OBJECT(slider), "value-changed",
+	g_signal_connect(G_OBJECT(slider), "value-changed",
 		G_CALLBACK(alpha_change), NULL);
-	g_signal_connect(GTK_OBJECT(slider), "focus-out-event",
+	g_signal_connect(G_OBJECT(slider), "focus-out-event",
 		G_CALLBACK(alpha_pref_set_int),
 		(gpointer) OPT_WINTRANS_IM_ALPHA);
 
@@ -564,11 +519,11 @@ static GtkWidget *get_config_frame(PurplePlugin *plugin) {
 	bltransbox = pidgin_make_frame (ret, _("Buddy List Window"));
 	button = pidgin_prefs_checkbox(_("_Buddy List window transparency"),
 		OPT_WINTRANS_BL_ENABLED, bltransbox);
-	g_signal_connect(GTK_OBJECT(button), "clicked",
+	g_signal_connect(G_OBJECT(button), "clicked",
 		G_CALLBACK(set_blist_trans),
 		(gpointer) OPT_WINTRANS_BL_ENABLED);
 
-	trans_box = gtk_vbox_new(FALSE, 18);
+	trans_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 18);
 	gtk_widget_show(trans_box);
 	g_object_bind_property(button, "active", trans_box, "sensitive",
 			G_BINDING_SYNC_CREATE);
@@ -577,26 +532,24 @@ static GtkWidget *get_config_frame(PurplePlugin *plugin) {
 		OPT_WINTRANS_BL_ONFOCUS, trans_box);
 	button = pidgin_prefs_checkbox(_("Always on top"), OPT_WINTRANS_BL_ONTOP,
 		trans_box);
-	g_signal_connect(GTK_OBJECT(button), "clicked",
+	g_signal_connect(G_OBJECT(button), "clicked",
 		G_CALLBACK(set_blist_trans),
 		(gpointer) OPT_WINTRANS_BL_ONTOP);
 	gtk_box_pack_start(GTK_BOX(bltransbox), trans_box, FALSE, FALSE, 5);
 
 	/* IM transparency slider */
-	hbox = gtk_hbox_new(FALSE, 5);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
 	label = gtk_label_new(_("Opacity:"));
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
 
-	slider = gtk_hscale_new_with_range(50, 255, 1);
+	slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 50, 255, 1);
 	gtk_range_set_value(GTK_RANGE(slider),
 		purple_prefs_get_int(OPT_WINTRANS_BL_ALPHA));
 
-	gtk_widget_set_usize(GTK_WIDGET(slider), 200, -1);
-
-	g_signal_connect(GTK_OBJECT(slider), "value-changed",
+	g_signal_connect(G_OBJECT(slider), "value-changed",
 		G_CALLBACK(bl_alpha_change), NULL);
-	g_signal_connect(GTK_OBJECT(slider), "focus-out-event",
+	g_signal_connect(G_OBJECT(slider), "focus-out-event",
 		G_CALLBACK(alpha_pref_set_int),
 		(gpointer) OPT_WINTRANS_BL_ALPHA);
 
@@ -610,55 +563,33 @@ static GtkWidget *get_config_frame(PurplePlugin *plugin) {
 	return ret;
 }
 
-static PidginPluginUiInfo ui_info =
-{
-	get_config_frame,
-	0, /* page_num (Reserved) */
+static GPluginPluginInfo *
+transparency_query(GError **error) {
+	const gchar * const authors[] = {
+		"Pidgin Developers <devel@pidgin.im>",
+		NULL
+	};
 
-	/* padding */
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
+	return pidgin_plugin_info_new(
+		"id", WINTRANS_PLUGIN_ID,
+		"name", N_("Transparency"),
+		"version", DISPLAY_VERSION,
+		"category", N_("User interface"),
+		"summary", N_("Variable Transparency for the buddy list and conversations."),
+		"description", N_("This plugin enables variable alpha transparency on conversation windows and the buddy list."),
+		"authors", authors,
+		"website", PURPLE_WEBSITE,
+		"abi-version", PURPLE_ABI_VERSION,
+		"gtk-config-frame-cb", get_config_frame,
+		NULL
+	);
+}
 
-static PurplePluginInfo info =
-{
-	PURPLE_PLUGIN_MAGIC,
-	PURPLE_MAJOR_VERSION,
-	PURPLE_MINOR_VERSION,
-	PURPLE_PLUGIN_STANDARD,		/**< type           */
-	PIDGIN_PLUGIN_TYPE,		/**< ui_requirement */
-	0,				/**< flags          */
-	NULL,				/**< dependencies   */
-	PURPLE_PRIORITY_DEFAULT,		/**< priority       */
-	WINTRANS_PLUGIN_ID,		/**< id             */
-	N_("Transparency"),		/**< name           */
-	DISPLAY_VERSION,		/**< version        */
-					/**  summary        */
-	N_("Variable Transparency for the buddy list and conversations."),
-					/**  description    */
-	N_("This plugin enables variable alpha transparency on conversation windows and the buddy list."),
-	"Herman Bloggs <hermanator12002@yahoo.com>",	/**< author         */
-	PURPLE_WEBSITE,			/**< homepage       */
-	plugin_load,			/**< load           */
-	plugin_unload,			/**< unload         */
-	NULL,				/**< destroy        */
-	&ui_info,			/**< ui_info        */
-	NULL,				/**< extra_info     */
-	NULL,				/**< prefs_info     */
-	NULL,				/**< actions        */
+static gboolean
+transparency_load(GPluginPlugin *plugin, GError **error) {
+	GtkWidget *window = NULL;
+	gpointer conv_handle = NULL;
 
-	/* padding */
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-static void
-init_plugin(PurplePlugin *plugin)
-{
 	purple_prefs_add_none("/plugins/gtk");
 	purple_prefs_add_none("/plugins/gtk/transparency");
 	purple_prefs_add_bool(OPT_WINTRANS_IM_ENABLED, FALSE);
@@ -671,6 +602,55 @@ init_plugin(PurplePlugin *plugin)
 	purple_prefs_add_bool(OPT_WINTRANS_BL_ONFOCUS, FALSE);
 	purple_prefs_add_bool(OPT_WINTRANS_BL_ONTOP, FALSE);
 	purple_prefs_rename("/plugins/gtk/win32/wintrans", "/plugins/gtk/transparency");
+
+	conv_handle = purple_conversations_get_handle();
+	purple_signal_connect(conv_handle, "conversation-created", plugin,
+	                      PURPLE_CALLBACK(new_conversation_cb), NULL);
+
+	/* Set callback to remove window from the list, if the window is destroyed */
+	purple_signal_connect(conv_handle, "deleting-conversation", plugin,
+	                      PURPLE_CALLBACK(conversation_delete_cb), NULL);
+
+	purple_signal_connect(conv_handle, "conversation-dragging", plugin,
+	                      PURPLE_CALLBACK(set_conv_window_trans), NULL);
+
+	purple_signal_connect(conv_handle, "conversation-updated", plugin,
+	                      PURPLE_CALLBACK(conv_updated_cb), NULL);
+
+	update_existing_convs();
+
+	window = get_buddy_list_window();
+	if(window != NULL) {
+		blist_created_cb(NULL, NULL);
+	} else {
+		purple_signal_connect(pidgin_blist_get_handle(),
+			"gtkblist-created", plugin,
+			PURPLE_CALLBACK(blist_created_cb), NULL);
+	}
+
+	return TRUE;
 }
 
-PURPLE_INIT_PLUGIN(wintrans, init_plugin, info)
+static gboolean
+transparency_unload(GPluginPlugin *plugin, GError **error) {
+	GtkWidget *window = NULL;
+
+	purple_debug_info(WINTRANS_PLUGIN_ID, "Unloading transparency plugin\n");
+
+	remove_convs_wintrans(TRUE);
+
+	window = get_buddy_list_window();
+	if (window != NULL) {
+		if (purple_prefs_get_bool(OPT_WINTRANS_BL_ENABLED))
+			set_wintrans(window, 0, FALSE, FALSE);
+
+		/* Remove the focus cbs */
+		g_signal_handlers_disconnect_by_func(G_OBJECT(window),
+			G_CALLBACK(focus_blist_win_cb), window);
+	}
+
+	return TRUE;
+}
+
+GPLUGIN_NATIVE_PLUGIN_DECLARE(transparency)
+
