@@ -25,8 +25,8 @@
 <refsect2 id="gtkconvs-conversation-dragging" role="signal">
  <title>The <literal>&quot;conversation-dragging&quot;</literal> signal</title>
 <programlisting>
-void                user_function                      (PidginWindow *source,
-                                                        PidginWindow *destination,
+void                user_function                      (PidginConvWindow *source,
+                                                        PidginConvWindow *destination,
                                                         gpointer user_data)
 </programlisting>
   <para>

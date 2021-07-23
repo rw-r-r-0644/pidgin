@@ -62,7 +62,6 @@ libpidgin_SOURCES = [
 	'pidginscrollbook.c',
 	'pidginstylecontext.c',
 	'pidgintalkatu.c',
-	'pidginwindow.c',
 	'prefs/pidginprefs.c',
 	'prefs/pidgincredentialproviderrow.c',
 	'prefs/pidgincredentialspage.c',
@@ -133,7 +132,6 @@ libpidgin_headers = [
 	'pidginscrollbook.h',
 	'pidginstylecontext.h',
 	'pidgintalkatu.h',
-	'pidginwindow.h',
 ]
 
 libpidgin_prefs_headers = [

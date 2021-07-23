@@ -64,7 +64,6 @@
 #include "pidginpresenceicon.h"
 #include "pidginstock.h"
 #include "pidginstylecontext.h"
-#include "pidginwindow.h"
 
 #define ADD_MESSAGE_HISTORY_AT_ONCE 100
 
