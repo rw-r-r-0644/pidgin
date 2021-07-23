@@ -4266,15 +4266,30 @@ remove_child_widget_by_account(GtkContainer *container,
 /* Generic error buttons */
 
 static void
-generic_error_modify_cb(PurpleAccount *account)
+generic_account_connect_cb(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+                           G_GNUC_UNUSED GtkButton *button,
+                           gpointer user_data)
 {
+	PurpleAccount *account = user_data;
+	purple_account_connect(account);
+}
+
+static void
+generic_error_modify_cb(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+                        G_GNUC_UNUSED GtkButton *button,
+                        gpointer user_data)
+{
+	PurpleAccount *account = user_data;
 	purple_account_clear_current_error(account);
 	pidgin_account_dialog_show(PIDGIN_MODIFY_ACCOUNT_DIALOG, account);
 }
 
 static void
-generic_error_enable_cb(PurpleAccount *account)
+generic_error_enable_cb(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+                        G_GNUC_UNUSED GtkButton *button,
+                        gpointer user_data)
 {
+	PurpleAccount *account = user_data;
 	purple_account_clear_current_error(account);
 	purple_account_set_enabled(account, purple_core_get_ui(), TRUE);
 }
@@ -4316,12 +4331,11 @@ add_generic_error_dialog(PurpleAccount *account,
 	else
 		primary = g_strdup_printf(_("%s disabled"), username);
 
-	mini_dialog = pidgin_make_mini_dialog(NULL, "dialog-error",
-		primary, err->description, account,
-		(enabled ? _("Reconnect") : _("Re-enable")),
-		(enabled ? PURPLE_CALLBACK(purple_account_connect)
-		         : PURPLE_CALLBACK(generic_error_enable_cb)),
-		_("Modify Account"), PURPLE_CALLBACK(generic_error_modify_cb),
+	mini_dialog = pidgin_mini_dialog_new_with_buttons(
+		primary, err->description, "dialog-error", account,
+		enabled ? _("Reconnect") : _("Re-enable"),
+		enabled ? generic_account_connect_cb : generic_error_enable_cb,
+		_("Modify Account"), generic_error_modify_cb,
 		NULL);
 
 	g_free(primary);

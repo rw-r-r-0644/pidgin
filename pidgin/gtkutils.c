@@ -110,18 +110,11 @@ struct _icon_chooser {
 	gpointer data;
 };
 
-struct _old_button_clicked_cb_data
-{
-	PidginUtilMiniDialogCallback cb;
-	gpointer data;
-};
-
 /******************************************************************************
  * Globals
  *****************************************************************************/
 
 static guint accels_save_timer = 0;
-static GSList *minidialogs = NULL;
 
 /******************************************************************************
  * Code
@@ -1685,116 +1678,6 @@ pidgin_convert_buddy_icon(PurpleProtocol *protocol, const char *path, size_t *le
 	purple_buddy_icon_spec_free(spec);
 
 	return NULL;
-}
-
-static void *
-pidgin_utils_get_handle(void)
-{
-	static int handle;
-
-	return &handle;
-}
-
-static void connection_signed_off_cb(PurpleConnection *gc)
-{
-	GSList *list, *l_next;
-	for (list = minidialogs; list; list = l_next) {
-		l_next = list->next;
-		if (g_object_get_data(G_OBJECT(list->data), "gc") == gc) {
-				gtk_widget_destroy(GTK_WIDGET(list->data));
-		}
-	}
-}
-
-static void alert_killed_cb(GtkWidget *widget)
-{
-	minidialogs = g_slist_remove(minidialogs, widget);
-}
-
-static void
-old_mini_dialog_button_clicked_cb(PidginMiniDialog *mini_dialog,
-                                  GtkButton *button,
-                                  gpointer user_data)
-{
-	struct _old_button_clicked_cb_data *data = user_data;
-	data->cb(data->data, button);
-}
-
-static void
-old_mini_dialog_destroy_cb(GtkWidget *dialog,
-                           GList *cb_datas)
-{
-	g_list_free_full(cb_datas, g_free);
-}
-
-static void
-mini_dialog_init(PidginMiniDialog *mini_dialog, PurpleConnection *gc, void *user_data, va_list args)
-{
-	const char *button_text;
-	GList *cb_datas = NULL;
-	static gboolean first_call = TRUE;
-
-	if (first_call) {
-		first_call = FALSE;
-		purple_signal_connect(purple_connections_get_handle(), "signed-off",
-		                      pidgin_utils_get_handle(),
-		                      PURPLE_CALLBACK(connection_signed_off_cb), NULL);
-	}
-
-	g_object_set_data(G_OBJECT(mini_dialog), "gc" ,gc);
-	g_signal_connect(G_OBJECT(mini_dialog), "destroy",
-		G_CALLBACK(alert_killed_cb), NULL);
-
-	while ((button_text = va_arg(args, char*))) {
-		struct _old_button_clicked_cb_data *data = NULL;
-		PidginMiniDialogCallback wrapper_cb = NULL;
-		PidginUtilMiniDialogCallback callback =
-			va_arg(args, PidginUtilMiniDialogCallback);
-
-		if (callback != NULL) {
-			data = g_new0(struct _old_button_clicked_cb_data, 1);
-			data->cb = callback;
-			data->data = user_data;
-			wrapper_cb = old_mini_dialog_button_clicked_cb;
-		}
-		pidgin_mini_dialog_add_button(mini_dialog, button_text,
-			wrapper_cb, data);
-		cb_datas = g_list_append(cb_datas, data);
-	}
-
-	g_signal_connect(G_OBJECT(mini_dialog), "destroy",
-		G_CALLBACK(old_mini_dialog_destroy_cb), cb_datas);
-}
-
-#define INIT_AND_RETURN_MINI_DIALOG(mini_dialog) \
-	va_list args; \
-	va_start(args, user_data); \
-	mini_dialog_init(mini_dialog, gc, user_data, args); \
-	va_end(args); \
-	return GTK_WIDGET(mini_dialog);
-
-GtkWidget *
-pidgin_make_mini_dialog(PurpleConnection *gc,
-                        const char *icon_name,
-                        const char *primary,
-                        const char *secondary,
-                        void *user_data,
-                        ...)
-{
-	PidginMiniDialog *mini_dialog = pidgin_mini_dialog_new(primary, secondary, icon_name);
-	INIT_AND_RETURN_MINI_DIALOG(mini_dialog);
-}
-
-GtkWidget *
-pidgin_make_mini_dialog_with_custom_icon(PurpleConnection *gc,
-					GdkPixbuf *custom_icon,
-					const char *primary,
-					const char *secondary,
-					void *user_data,
-					...)
-{
-	PidginMiniDialog *mini_dialog = pidgin_mini_dialog_new_with_custom_icon(primary, secondary, custom_icon);
-	INIT_AND_RETURN_MINI_DIALOG(mini_dialog);
 }
 
 /*

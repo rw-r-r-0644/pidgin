@@ -124,6 +124,32 @@ PidginMiniDialog *pidgin_mini_dialog_new_with_custom_icon(const gchar *title,
 	const gchar *description, GdkPixbuf *custom_icon);
 
 /**
+ * pidgin_mini_dialog_new_with_buttons:
+ * @title: The primary text.
+ * @description: The secondary text, or %NULL for no description.
+ * @icon_name: The name of an icon to use in the mini dialog.
+ * @user_data: Data to pass to the callbacks.
+ * @...: A %NULL-terminated list of button labels (<type>char *</type>) and
+ *       callbacks (#PidginMiniDialogCallback).  (Callbacks may be %NULL to
+ *       take no action when the corresponding button is pressed.) When a
+ *       button is pressed, the callback (if any) will be called; when the
+ *       callback returns the dialog will be destroyed.
+ *
+ * Creates a #PidginMiniDialog, suitable for embedding in the buddy list
+ * scrollbook with pidgin_blist_add_alert().
+ *
+ * Returns: (transfer full): A #PidginMiniDialog, suitable for passing to
+ *          pidgin_blist_add_alert().
+ *
+ * Since: 3.0.0
+ */
+GtkWidget *pidgin_mini_dialog_new_with_buttons(const gchar *title,
+                                               const gchar *description,
+                                               const gchar *icon_name,
+                                               gpointer user_data, ...)
+                                               G_GNUC_NULL_TERMINATED;
+
+/**
  * pidgin_mini_dialog_set_title:
  * @mini_dialog: a mini-dialog
  * @title:       the new title for @mini_dialog

@@ -2422,16 +2422,21 @@ pidgin_accounts_window_hide(void)
 }
 
 static void
-free_add_user_data(PidginAccountAddUserData *data)
+free_add_user_data(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+                   G_GNUC_UNUSED GtkButton *button,
+                   gpointer user_data)
 {
+	PidginAccountAddUserData *data = user_data;
 	g_free(data->username);
 	g_free(data->alias);
 	g_free(data);
 }
 
 static void
-add_user_cb(PidginAccountAddUserData *data)
+add_user_cb(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+            G_GNUC_UNUSED GtkButton *button, gpointer user_data)
 {
+	PidginAccountAddUserData *data = user_data;
 	PurpleConnection *gc = purple_account_get_connection(data->account);
 
 	if (g_list_find(purple_connections_get_all(), gc))
@@ -2440,7 +2445,7 @@ add_user_cb(PidginAccountAddUserData *data)
 									 NULL, data->alias);
 	}
 
-	free_add_user_data(data);
+	free_add_user_data(NULL, NULL, user_data);
 }
 
 static char *
@@ -2476,8 +2481,9 @@ pidgin_accounts_notify_added(PurpleAccount *account, const char *remote_user,
 	gc = purple_account_get_connection(account);
 
 	buffer = make_info(account, gc, remote_user, id, alias, msg);
-	alert = pidgin_make_mini_dialog(gc, "dialog-information", buffer,
-					  NULL, NULL, _("Close"), NULL, NULL);
+	alert = pidgin_mini_dialog_new_with_buttons(
+		buffer, NULL, "dialog-information", NULL,
+		_("Close"), NULL, NULL);
 	pidgin_blist_add_alert(alert);
 
 	g_free(buffer);
@@ -2501,10 +2507,9 @@ pidgin_accounts_request_add(PurpleAccount *account, const char *remote_user,
 	data->alias    = g_strdup(alias);
 
 	buffer = make_info(account, gc, remote_user, id, alias, msg);
-	alert = pidgin_make_mini_dialog(gc, "dialog-question",
-					  _("Add buddy to your list?"), buffer, data,
-					  _("Add"), G_CALLBACK(add_user_cb),
-					  _("Cancel"), G_CALLBACK(free_add_user_data), NULL);
+	alert = pidgin_mini_dialog_new_with_buttons(
+		_("Add buddy to your list?"), buffer, "dialog-question", data,
+		_("Add"), add_user_cb, _("Cancel"), free_add_user_data, NULL);
 	pidgin_blist_add_alert(alert);
 
 	g_free(buffer);
@@ -2545,8 +2550,10 @@ authorize_noreason_cb(struct auth_request *ar)
 }
 
 static void
-authorize_reason_cb(struct auth_request *ar)
+authorize_reason_cb(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+                    G_GNUC_UNUSED GtkButton *button, gpointer user_data)
 {
+	struct auth_request *ar = user_data;
 	PurpleProtocol *protocol = purple_account_get_protocol(ar->account);
 
 	if (protocol && (purple_protocol_get_options(protocol) & OPT_PROTO_AUTHORIZATION_GRANTED_MESSAGE)) {
@@ -2584,8 +2591,10 @@ deny_noreason_cb(struct auth_request *ar)
 }
 
 static void
-deny_reason_cb(struct auth_request *ar)
+deny_reason_cb(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+               G_GNUC_UNUSED GtkButton *button, gpointer user_data)
 {
+	struct auth_request *ar = user_data;
 	PurpleProtocol *protocol = purple_account_get_protocol(ar->account);
 
 	if (protocol && (purple_protocol_get_options(protocol) & OPT_PROTO_AUTHORIZATION_DENIED_MESSAGE)) {
@@ -2621,8 +2630,8 @@ get_user_info_cb(GtkWidget   *label,
 }
 
 static void
-send_im_cb(PidginMiniDialog *mini_dialog,
-           GtkButton *button,
+send_im_cb(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+           G_GNUC_UNUSED GtkButton *button,
            gpointer data)
 {
 	struct auth_request *ar = data;
@@ -2694,17 +2703,15 @@ pidgin_accounts_request_authorization(PurpleAccount *account,
 	aa->account = account;
 	aa->add_buddy_after_auth = !on_list;
 
-	alert = pidgin_make_mini_dialog_with_custom_icon(
-		gc, protocol_icon,
-		_("Authorize buddy?"), NULL, aa,
-		_("Authorize"), authorize_reason_cb,
-		_("Deny"), deny_reason_cb,
-		NULL);
+	dialog = pidgin_mini_dialog_new_with_custom_icon(
+		_("Authorize buddy?"), NULL, protocol_icon);
+	alert = GTK_WIDGET(dialog);
 
-	dialog = PIDGIN_MINI_DIALOG(alert);
 	pidgin_mini_dialog_enable_description_markup(dialog);
 	pidgin_mini_dialog_set_link_callback(dialog, G_CALLBACK(get_user_info_cb), aa);
 	pidgin_mini_dialog_set_description(dialog, buffer);
+	pidgin_mini_dialog_add_button(dialog, _("Authorize"), authorize_reason_cb, aa);
+	pidgin_mini_dialog_add_button(dialog, _("Deny"), deny_reason_cb, aa);
 	pidgin_mini_dialog_add_non_closing_button(dialog, _("Send Instant Message"), send_im_cb, aa);
 
 	g_signal_connect_swapped(G_OBJECT(alert), "destroy", G_CALLBACK(free_auth_request), aa);
