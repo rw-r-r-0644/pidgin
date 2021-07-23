@@ -20,7 +20,6 @@
     <glade-widget-class name="PidginProtocolStore" generic-name="protocol_store" title="ProtocolStore"/>
     <glade-widget-class name="PidginScrollBook" generic-name="scroll_book" title="ScrollBook"/>
     <glade-widget-class name="PidginStatusBox" generic-name="status_box" title="StatusBox"/>
-    <glade-widget-class name="PidginWindow" generic-name="window" title="Window"/>
   </glade-widget-classes>
   <glade-widget-group name="pidgin" title="Pidgin">
     <glade-widget-class-ref name="PidginAccountChooser"/>
@@ -42,6 +41,5 @@
     <glade-widget-class-ref name="PidginProtocolStore"/>
     <glade-widget-class-ref name="PidginScrollBook"/>
     <glade-widget-class-ref name="PidginStatusBox"/>
-    <glade-widget-class-ref name="PidginWindow"/>
   </glade-widget-group>
 </glade-catalog>
