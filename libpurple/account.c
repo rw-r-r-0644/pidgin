@@ -30,6 +30,7 @@
 #include "notify.h"
 #include "prefs.h"
 #include "purpleaccountpresence.h"
+#include "purpleconversationmanager.h"
 #include "purplecredentialmanager.h"
 #include "purpleprivate.h"
 #include "purpleprotocolclient.h"
@@ -1051,17 +1052,22 @@ purple_account_finalize(GObject *object)
 	GList *l;
 	PurpleAccount *account = PURPLE_ACCOUNT(object);
 	PurpleAccountPrivate *priv = purple_account_get_instance_private(account);
+	PurpleConversationManager *manager = NULL;
 
 	purple_debug_info("account", "Destroying account %p\n", account);
 	purple_signal_emit(purple_accounts_get_handle(), "account-destroying",
 						account);
 
-	for (l = purple_conversations_get_all(); l != NULL; l = l->next)
-	{
-		PurpleConversation *conv = (PurpleConversation *)l->data;
+	manager = purple_conversation_manager_get_default();
+	l = purple_conversation_manager_get_all(manager);
+	while(l != NULL) {
+		PurpleConversation *conv = PURPLE_CONVERSATION(l->data);
 
-		if (purple_conversation_get_account(conv) == account)
+		if (purple_conversation_get_account(conv) == account) {
 			purple_conversation_set_account(conv, NULL);
+		}
+
+		l = g_list_delete_link(l, l);
 	}
 
 	purple_account_set_status_types(account, NULL);

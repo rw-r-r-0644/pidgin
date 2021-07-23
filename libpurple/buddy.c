@@ -25,6 +25,7 @@
 #include "debug.h"
 #include "internal.h"
 #include "purplebuddypresence.h"
+#include "purpleconversationmanager.h"
 #include "purpleprotocolclient.h"
 #include "util.h"
 
@@ -437,6 +438,7 @@ purple_buddy_set_local_alias(PurpleBuddy *buddy, const gchar *alias) {
 	PurpleBuddyList *blist = NULL;
 	PurpleBuddyPrivate *priv = NULL;
 	PurpleConversation *im = NULL;
+	PurpleConversationManager *manager = NULL;
 	gchar *old_alias = NULL, *new_alias = NULL;
 
 	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
@@ -467,7 +469,9 @@ purple_buddy_set_local_alias(PurpleBuddy *buddy, const gchar *alias) {
 	purple_blist_save_node(blist, PURPLE_BLIST_NODE(buddy));
 	purple_blist_update_node(blist, PURPLE_BLIST_NODE(buddy));
 
-	im = purple_conversations_find_im_with_account(priv->name, priv->account);
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager, priv->account,
+	                                         priv->name);
 	if(PURPLE_IS_IM_CONVERSATION(im)) {
 		purple_conversation_autoset_title(im);
 	}
@@ -493,6 +497,7 @@ purple_buddy_set_server_alias(PurpleBuddy *buddy, const gchar *alias) {
 	PurpleBuddyList *blist = NULL;
 	PurpleBuddyPrivate *priv = NULL;
 	PurpleConversation *im = NULL;
+	PurpleConversationManager *manager = NULL;
 	gchar *old_alias = NULL, *new_alias = NULL;
 
 	g_return_if_fail(PURPLE_IS_BUDDY(buddy));
@@ -525,7 +530,9 @@ purple_buddy_set_server_alias(PurpleBuddy *buddy, const gchar *alias) {
 	purple_blist_save_node(blist, PURPLE_BLIST_NODE(buddy));
 	purple_blist_update_node(blist, PURPLE_BLIST_NODE(buddy));
 
-	im = purple_conversations_find_im_with_account(priv->name, priv->account);
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager, priv->account,
+	                                         priv->name);
 	if(PURPLE_IS_IM_CONVERSATION(im)) {
 		purple_conversation_autoset_title(im);
 	}

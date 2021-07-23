@@ -30,6 +30,7 @@
 #include "protocol.h"
 #include "purpleaccountoption.h"
 #include "purpleconversation.h"
+#include "purpleconversationmanager.h"
 #include "purplecredentialmanager.h"
 #include "purpleprotocolattention.h"
 #include "purpleprotocolmanager.h"
@@ -452,14 +453,17 @@ void
 purple_protocol_got_attention(PurpleConnection *gc, const char *who, guint type_code)
 {
 	PurpleConversation *conv = NULL;
+	PurpleConversationManager *manager = NULL;
 	PurpleAccount *account = purple_connection_get_account(gc);
 
 	got_attention(gc, -1, who, type_code);
-	conv =
-		purple_conversations_find_with_account(who, account);
-	if (conv)
+
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find(manager, account, who);
+	if(PURPLE_IS_CONVERSATION(conv)) {
 		purple_protocol_attention(conv, who, type_code, PURPLE_MESSAGE_RECV,
-			time(NULL));
+		                          time(NULL));
+	}
 }
 
 void

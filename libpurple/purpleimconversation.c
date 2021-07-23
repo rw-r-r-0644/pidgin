@@ -23,6 +23,7 @@
 
 #include <libpurple/debug.h>
 #include <libpurple/enums.h>
+#include <libpurple/purpleconversationmanager.h>
 #include <libpurple/purpleprivate.h>
 #include <libpurple/purpleprotocolclient.h>
 
@@ -252,12 +253,15 @@ PurpleConversation *
 purple_im_conversation_new(PurpleAccount *account, const char *name)
 {
 	PurpleConversation *im = NULL;
+	PurpleConversationManager *manager = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(name != NULL, NULL);
 
 	/* Check if this conversation already exists. */
-	if((im = purple_conversations_find_im_with_account(name, account)) != NULL) {
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager, account, name);
+	if(PURPLE_IS_IM_CONVERSATION(im)) {
 		return g_object_ref(im);
 	}
 

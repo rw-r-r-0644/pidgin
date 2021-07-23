@@ -27,6 +27,7 @@
 #include "debug.h"
 #include "enums.h"
 #include "network.h"
+#include "purpleconversationmanager.h"
 #include "purplecredentialmanager.h"
 #include "purpleprivate.h"
 
@@ -584,7 +585,8 @@ void
 purple_accounts_delete(PurpleAccount *account)
 {
 	PurpleBlistNode *gnode, *cnode, *bnode;
-	PurpleCredentialManager *manager = NULL;
+	PurpleConversationManager *conv_manager = NULL;
+	PurpleCredentialManager *cred_manager = NULL;
 	GList *iter;
 
 	g_return_if_fail(account != NULL);
@@ -636,11 +638,16 @@ purple_accounts_delete(PurpleAccount *account)
 	}
 
 	/* Remove any open conversation for this account */
-	for (iter = purple_conversations_get_all(); iter; ) {
+	conv_manager = purple_conversation_manager_get_default();
+	iter = purple_conversation_manager_get_all(conv_manager);
+	while(iter != NULL) {
 		PurpleConversation *conv = iter->data;
-		iter = iter->next;
-		if (purple_conversation_get_account(conv) == account)
+
+		if(purple_conversation_get_account(conv) == account) {
 			g_object_unref(conv);
+		}
+
+		iter = g_list_delete_link(iter, iter);
 	}
 
 	/* This will cause the deletion of an old buddy icon. */
@@ -649,8 +656,8 @@ purple_accounts_delete(PurpleAccount *account)
 	/* This is async because we do not want the
 	 * account being overwritten before we are done.
 	 */
-	manager = purple_credential_manager_get_default();
-	purple_credential_manager_clear_password_async(manager, account, NULL,
+	cred_manager = purple_credential_manager_get_default();
+	purple_credential_manager_clear_password_async(cred_manager, account, NULL,
 	                                               purple_accounts_delete_set,
 	                                               NULL);
 }

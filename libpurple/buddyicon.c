@@ -24,6 +24,7 @@
 #include "debug.h"
 #include "image.h"
 #include "purpleconversation.h"
+#include "purpleconversationmanager.h"
 #include "purpleprivate.h"
 #include "purpleprotocolserver.h"
 #include "util.h"
@@ -379,6 +380,7 @@ void
 purple_buddy_icon_update(PurpleBuddyIcon *icon)
 {
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 	PurpleAccount *account;
 	const char *username;
 	PurpleBuddyIcon *icon_to_set;
@@ -440,7 +442,8 @@ purple_buddy_icon_update(PurpleBuddyIcon *icon)
 		buddies = g_slist_delete_link(buddies, buddies);
 	}
 
-	im = purple_conversations_find_im_with_account(username, account);
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager, account, username);
 	if(PURPLE_IS_IM_CONVERSATION(im)) {
 		purple_im_conversation_set_icon(PURPLE_IM_CONVERSATION(im),
 		                                icon_to_set);
@@ -873,6 +876,7 @@ purple_buddy_icons_node_set_custom_icon(PurpleBlistNode *node,
                                         guchar *icon_data, size_t icon_len)
 {
 	char *old_icon;
+	PurpleConversationManager *manager = NULL;
 	PurpleImage *old_img;
 	PurpleImage *img = NULL;
 
@@ -908,6 +912,8 @@ purple_buddy_icons_node_set_custom_icon(PurpleBlistNode *node,
 	else
 		g_hash_table_remove(pointer_icon_cache, node);
 
+	manager = purple_conversation_manager_get_default();
+
 	if (PURPLE_IS_CONTACT(node)) {
 		PurpleBlistNode *child;
 		for (child = purple_blist_node_get_first_child(node);
@@ -917,26 +923,31 @@ purple_buddy_icons_node_set_custom_icon(PurpleBlistNode *node,
 			PurpleBuddy *buddy;
 			PurpleConversation *im;
 
-			if (!PURPLE_IS_BUDDY(child))
+			if(!PURPLE_IS_BUDDY(child)) {
 				continue;
+			}
 
-			buddy = (PurpleBuddy *)child;
+			buddy = PURPLE_BUDDY(child);
 
-			im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
-			if (im)
+			im = purple_conversation_manager_find_im(manager,
+			                                         purple_buddy_get_account(buddy),
+			                                         purple_buddy_get_name(buddy));
+			if(PURPLE_IS_IM_CONVERSATION(im)) {
 				purple_conversation_update(im, PURPLE_CONVERSATION_UPDATE_ICON);
+			}
 
 			/* Is this call necessary anymore? Can the buddies
 			 * themselves need updating when the custom buddy
 			 * icon changes? */
-			purple_blist_update_node(purple_blist_get_default(),
-			                         PURPLE_BLIST_NODE(buddy));
+			purple_blist_update_node(purple_blist_get_default(), child);
 		}
 	} else if (PURPLE_IS_CHAT(node)) {
+		PurpleAccount *account = purple_chat_get_account(PURPLE_CHAT(node));
 		PurpleConversation *chat = NULL;
+		const gchar *name = purple_chat_get_name(PURPLE_CHAT(node));
 
-		chat = purple_conversations_find_chat_with_account(purple_chat_get_name((PurpleChat*)node), purple_chat_get_account((PurpleChat*)node));
-		if (chat) {
+		chat = purple_conversation_manager_find_chat(manager, account, name);
+		if(PURPLE_IS_CHAT_CONVERSATION(chat)) {
 			purple_conversation_update(chat, PURPLE_CONVERSATION_UPDATE_ICON);
 		}
 	}

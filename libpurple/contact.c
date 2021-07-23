@@ -24,6 +24,7 @@
 #include "contact.h"
 #include "internal.h" /* TODO: this needs to die */
 #include "purplebuddypresence.h"
+#include "purpleconversationmanager.h"
 #include "purpleprivate.h"
 #include "util.h"
 
@@ -113,7 +114,7 @@ void
 purple_contact_set_alias(PurpleContact *contact, const char *alias)
 {
 	PurpleContactPrivate *priv = NULL;
-	PurpleConversation *im;
+	PurpleConversationManager *manager = NULL;
 	PurpleBlistNode *bnode;
 	char *old_alias;
 	char *new_alias = NULL;
@@ -131,33 +132,37 @@ purple_contact_set_alias(PurpleContact *contact, const char *alias)
 
 	old_alias = priv->alias;
 
-	if ((new_alias != NULL) && (*new_alias != '\0'))
+	if ((new_alias != NULL) && (*new_alias != '\0')) {
 		priv->alias = new_alias;
-	else {
+	} else {
 		priv->alias = NULL;
 		g_free(new_alias); /* could be "\0" */
 	}
 
-	g_object_notify_by_pspec(G_OBJECT(contact),
-			properties[PROP_ALIAS]);
+	g_object_notify_by_pspec(G_OBJECT(contact), properties[PROP_ALIAS]);
 
 	purple_blist_save_node(purple_blist_get_default(),
 	                       PURPLE_BLIST_NODE(contact));
 	purple_blist_update_node(purple_blist_get_default(),
 	                         PURPLE_BLIST_NODE(contact));
 
+	manager = purple_conversation_manager_get_default();
+
 	for(bnode = PURPLE_BLIST_NODE(contact)->child; bnode != NULL; bnode = bnode->next)
 	{
 		PurpleBuddy *buddy = PURPLE_BUDDY(bnode);
+		PurpleConversation *im;
 
-		im = purple_conversations_find_im_with_account(purple_buddy_get_name(buddy),
-				purple_buddy_get_account(buddy));
-		if (im)
+		im = purple_conversation_manager_find_im(manager,
+		                                         purple_buddy_get_account(buddy),
+		                                         purple_buddy_get_name(buddy));
+		if(PURPLE_IS_IM_CONVERSATION(im)) {
 			purple_conversation_autoset_title(im);
+		}
 	}
 
 	purple_signal_emit(purple_blist_get_handle(), "blist-node-aliased",
-					 contact, old_alias);
+	                   contact, old_alias);
 	g_free(old_alias);
 }
 
