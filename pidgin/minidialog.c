@@ -379,6 +379,31 @@ pidgin_mini_dialog_new_with_custom_icon(const gchar *title,
 	return mini_dialog;
 }
 
+GtkWidget *
+pidgin_mini_dialog_new_with_buttons(const gchar *title,
+                                    const gchar *description,
+                                    const gchar *icon_name, gpointer user_data,
+                                    ...)
+{
+	PidginMiniDialog *mini_dialog = NULL;
+	const gchar *button_text = NULL;
+	va_list args;
+
+	mini_dialog = pidgin_mini_dialog_new(title, description, icon_name);
+
+	va_start(args, user_data);
+	while ((button_text = va_arg(args, gchar *)) != NULL) {
+		PidginMiniDialogCallback callback =
+			va_arg(args, PidginMiniDialogCallback);
+
+		pidgin_mini_dialog_add_button(mini_dialog, button_text, callback,
+		                              user_data);
+	}
+	va_end(args);
+
+	return GTK_WIDGET(mini_dialog);
+}
+
 void
 pidgin_mini_dialog_set_title(PidginMiniDialog *mini_dialog, const gchar *title)
 {

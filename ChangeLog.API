@@ -670,6 +670,9 @@ version 3.0.0 (??/??/????):
 		* PALETTE_NUM_COLORS renamed to PIDGIN_PALETTE_NUM_COLORS
 		* pidgin_account_option_menu_* renamed to
 		  pidgin_account_chooser_*
+		* pidgin_make_mini_dialog renamed to
+		  pidgin_mini_dialog_new_with_buttons; note the argument order
+		  has changed to match pidgin_mini_dialog_new
 		* pidgin_new_item_from_stock renamed to pidgin_new_menu_item and
 		  removed the accel related parameters.
 		* pidgin_setup_screenname_autocomplete now takes a filter function and
@@ -750,6 +753,8 @@ version 3.0.0 (??/??/????):
 		* pidgin_create_window, use pidgin_window_new instead.
 		* PIDGIN_DIALOG
 		* pidgin_dialogs_alias_contact
+		* pidgin_make_mini_dialog_with_custom_icon; use
+		  pidgin_mini_dialog_new_with_custom_icon instead.
 		* pidgin_make_pretty_arrows
 		* pidgin_menu_position_func_helper
 		* pidgin_mini_dialog_links_supported
@@ -796,6 +801,8 @@ version 3.0.0 (??/??/????):
 		* pidgin_tooltip_setup_for_widget
 		* pidgin_tooltip_show
 		* PidginThemeFont
+		* PidginUtilMiniDialogCallback; use PidginMiniDialogCallback
+		  instead
 		* struct _GtkIMHtmlAnimation
 		* struct _GtkIMHtmlFontDetail
 		* struct _GtkIMHtmlHr

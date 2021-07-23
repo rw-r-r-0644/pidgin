@@ -34,14 +34,18 @@ static SoupSession *session = NULL;
 #define MIN_CHECK_INTERVAL 60 * 60 * 24
 
 static void
-release_hide()
+release_hide(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+             G_GNUC_UNUSED GtkButton *button,
+             G_GNUC_UNUSED gpointer user_data)
 {
 	/* No-op.  We may use this method in the future to avoid showing
 	 * the popup twice */
 }
 
 static void
-release_show()
+release_show(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
+             G_GNUC_UNUSED GtkButton *button,
+             G_GNUC_UNUSED gpointer user_data)
 {
 	purple_notify_uri(NULL, PURPLE_WEBSITE);
 }
@@ -77,14 +81,9 @@ version_fetch_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	g_string_append_printf(message, _("You can upgrade to %s %s today."),
 			PIDGIN_NAME, cur_ver);
 
-	release_dialog = pidgin_make_mini_dialog(
-		NULL, "dialog-information",
-		_("New Version Available"),
-		message->str,
-		NULL,
-		_("Later"), PURPLE_CALLBACK(release_hide),
-		_("Download Now"), PURPLE_CALLBACK(release_show),
-		NULL);
+	release_dialog = pidgin_mini_dialog_new_with_buttons(
+		_("New Version Available"), message->str, "dialog-information", NULL,
+		_("Later"), release_hide, _("Download Now"), release_show, NULL);
 
 	pidgin_blist_add_alert(release_dialog);
 
