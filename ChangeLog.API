@@ -361,6 +361,20 @@ version 3.0.0 (??/??/????):
 		* purple_contact_set_alias
 		* purple_conv_chat_set_users
 		* PurpleConversationType
+		* purple_conversations_add. Use purple_conversation_manager_register
+		  instead.
+		* purple_conversations_remove. Use
+		  purple_conversation_manager_unregister instead.
+		* purple_conversations_get_all. Use purple_conversation_manager_get_all
+		  instead.
+		* purple_conversations_find_with_account. Use
+		  purple_conversation_manager_find instead.
+		* purple_conversations_find_im_with_account. Use
+		  purple_conversation_manager_find_im instead.
+		* purple_conversations_find_chat_with_account. Use
+		  purple_conversation_manager_find_chat instead.
+		* purple_conversations_find_chat. Use
+		  purple_conversation_manager_find_chat_by_id instead.
 		* purple_core_ensure_single_instance. Check via GApplication
 		  or whatever is appropriate for your UI.
 		* purple_core_migrate
