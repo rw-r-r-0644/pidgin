@@ -268,8 +268,11 @@ _send_data_write_cb(GObject *stream, gpointer data)
 		g_clear_error(&error);
 		return;
 	} else if (ret <= 0) {
-		PurpleConversation *conv = NULL;
 		PurpleAccount *account = NULL;
+		PurpleConversation *conv = NULL;
+		PurpleConversationManager *manager = NULL;
+
+		manager = purple_conversation_manager_get_default();
 
 		purple_debug_error(
 		        "bonjour",
@@ -279,11 +282,12 @@ _send_data_write_cb(GObject *stream, gpointer data)
 
 		account = purple_buddy_get_account(pb);
 
-		conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(bb->name, account));
-		if (conv != NULL)
+		conv = purple_conversation_manager_find_im(manager, account, bb->name);
+		if (conv != NULL) {
 			purple_conversation_write_system_message(conv,
 				_("Unable to send message."),
 				PURPLE_MESSAGE_ERROR);
+		}
 
 		bonjour_xmpp_close_conversation(bb->conversation);
 		bb->conversation = NULL;
@@ -321,8 +325,11 @@ _send_data(PurpleBuddy *pb, char *message)
 		ret = 0;
 		g_clear_error(&error);
 	} else if (ret <= 0) {
-		PurpleConversation *conv;
 		PurpleAccount *account;
+		PurpleConversation *conv;
+		PurpleConversationManager *manager;
+
+		manager = purple_conversation_manager_get_default();
 
 		purple_debug_error(
 		        "bonjour",
@@ -332,11 +339,12 @@ _send_data(PurpleBuddy *pb, char *message)
 
 		account = purple_buddy_get_account(pb);
 
-		conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(bb->name, account));
-		if (conv != NULL)
+		conv = purple_conversation_manager_find_im(manager, account, bb->name);
+		if (conv != NULL) {
 			purple_conversation_write_system_message(conv,
 				_("Unable to send message."),
 				PURPLE_MESSAGE_ERROR);
+		}
 
 		bonjour_xmpp_close_conversation(bb->conversation);
 		bb->conversation = NULL;
@@ -470,8 +478,11 @@ _start_stream(GObject *stream, gpointer data)
 		return;
 	} else if (ret <= 0) {
 		PurpleConversation *conv;
-		const char *bname = bconv->buddy_name;
+		PurpleConversationManager *manager;
 		BonjourBuddy *bb = NULL;
+		const char *bname = bconv->buddy_name;
+
+		manager = purple_conversation_manager_get_default();
 
 		if(bconv->pb) {
 			bb = purple_buddy_get_protocol_data(bconv->pb);
@@ -484,15 +495,18 @@ _start_stream(GObject *stream, gpointer data)
 		        bname ? bname : "(unknown)", bconv->ip,
 		        error ? error->message : "(null)");
 
-		conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(bname, bconv->account));
-		if (conv != NULL)
+		conv = purple_conversation_manager_find_im(manager, bconv->account,
+		                                           bname);
+		if (conv != NULL) {
 			purple_conversation_write_system_message(conv,
 				_("Unable to send the message, the conversation couldn't be started."),
 				PURPLE_MESSAGE_ERROR);
+		}
 
 		bonjour_xmpp_close_conversation(bconv);
-		if(bb != NULL)
+		if(bb != NULL) {
 			bb->conversation = NULL;
+		}
 
 		g_clear_error(&error);
 		return;
@@ -558,11 +572,17 @@ bonjour_xmpp_send_stream_init(BonjourXMPPConversation *bconv,
 
 		if (bconv->pb) {
 			PurpleConversation *conv;
-			conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(bname, bconv->account));
-			if (conv != NULL)
+			PurpleConversationManager *manager;
+
+			manager = purple_conversation_manager_get_default();
+
+			conv = purple_conversation_manager_find_im(manager, bconv->account,
+			                                           bname);
+			if (conv != NULL) {
 				purple_conversation_write_system_message(conv,
 					_("Unable to send the message, the conversation couldn't be started."),
 					PURPLE_MESSAGE_ERROR);
+			}
 		}
 
 		purple_gio_graceful_close(G_IO_STREAM(bconv->socket),
@@ -621,11 +641,17 @@ bonjour_xmpp_stream_started(BonjourXMPPConversation *bconv)
 
 		if (bconv->pb) {
 			PurpleConversation *conv;
-			conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(bname, bconv->account));
-			if (conv != NULL)
+			PurpleConversationManager *manager;
+
+			manager = purple_conversation_manager_get_default();
+
+			conv = purple_conversation_manager_find_im(manager, bconv->account,
+			                                           bname);
+			if (conv != NULL) {
 				purple_conversation_write_system_message(conv,
 					_("Unable to send the message, the conversation couldn't be started."),
 					PURPLE_MESSAGE_ERROR);
+			}
 		}
 
 		/* We don't want to recieve anything else */
@@ -780,8 +806,9 @@ _connected_to_buddy(GObject *source, GAsyncResult *res, gpointer user_data)
 	                                              res, &error);
 
 	if (conn == NULL) {
-		PurpleConversation *conv = NULL;
 		PurpleAccount *account = NULL;
+		PurpleConversation *conv = NULL;
+		PurpleConversationManager *manager = NULL;
 		GSList *tmp;
 
 		if (error && error->code == G_IO_ERROR_CANCELLED) {
@@ -833,11 +860,14 @@ _connected_to_buddy(GObject *source, GAsyncResult *res, gpointer user_data)
 
 		purple_debug_error("bonjour", "No more addresses for buddy %s. Aborting", purple_buddy_get_name(pb));
 
-		conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(bb->name, account));
-		if (conv != NULL)
+		manager = purple_conversation_manager_get_default();
+
+		conv = purple_conversation_manager_find_im(manager, account, bb->name);
+		if (conv != NULL) {
 			purple_conversation_write_system_message(conv,
 				_("Unable to send the message, the conversation couldn't be started."),
 				PURPLE_MESSAGE_ERROR);
+		}
 
 		bonjour_xmpp_close_conversation(bb->conversation);
 		bb->conversation = NULL;
@@ -851,8 +881,9 @@ _connected_to_buddy(GObject *source, GAsyncResult *res, gpointer user_data)
 	        g_object_ref(g_io_stream_get_output_stream(G_IO_STREAM(conn)));
 
 	if (!bonjour_xmpp_send_stream_init(bb->conversation, &error)) {
-		PurpleConversation *conv = NULL;
 		PurpleAccount *account = NULL;
+		PurpleConversation *conv = NULL;
+		PurpleConversationManager *manager = NULL;
 
 		purple_debug_error("bonjour",
 		                   "Error starting stream with buddy %s at "
@@ -863,11 +894,14 @@ _connected_to_buddy(GObject *source, GAsyncResult *res, gpointer user_data)
 
 		account = purple_buddy_get_account(pb);
 
-		conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(bb->name, account));
-		if (conv != NULL)
+		manager = purple_conversation_manager_get_default();
+
+		conv = purple_conversation_manager_find_im(manager, account, bb->name);
+		if (conv != NULL) {
 			purple_conversation_write_system_message(conv,
 				_("Unable to send the message, the conversation couldn't be started."),
 				PURPLE_MESSAGE_ERROR);
+		}
 
 		bonjour_xmpp_close_conversation(bb->conversation);
 		bb->conversation = NULL;

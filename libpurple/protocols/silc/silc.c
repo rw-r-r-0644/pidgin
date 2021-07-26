@@ -1401,6 +1401,7 @@ silcpurple_send_im_resolved(SilcClient client,
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcPurpleIM im = context;
 	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 	char tmp[256];
 	SilcClientEntry client_entry;
 	SilcDList list;
@@ -1408,13 +1409,15 @@ silcpurple_send_im_resolved(SilcClient client,
 	const gchar *me;
 	PurpleMessage *msg;
 
-	convo = purple_conversations_find_im_with_account(im->nick,
-						      sg->account);
-	if (!convo)
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find_im(manager, sg->account, im->nick);
+	if (!convo) {
 		return;
+	}
 
-	if (!clients)
+	if (!clients) {
 		goto err;
+	}
 
 	if (silc_dlist_count(clients) > 1) {
 		/* Find the correct one. The im->nick might be a formatted nick
@@ -1604,9 +1607,15 @@ static PurpleCmdRet silcpurple_cmd_chat_part(PurpleConversation *conv,
 	if (gc == NULL)
 		return PURPLE_CMD_RET_FAILED;
 
-	if(args && args[0])
-		chat = purple_conversations_find_chat_with_account(args[0],
-									purple_connection_get_account(gc));
+	if(args && args[0]) {
+		PurpleConversationManager *manager;
+
+		manager = purple_conversation_manager_get_default();
+
+		chat = purple_conversation_manager_find_chat(manager,
+		                                             purple_connection_get_account(gc),
+		                                             args[0]);
+	}
 
 	if (chat != NULL)
 		id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(chat));

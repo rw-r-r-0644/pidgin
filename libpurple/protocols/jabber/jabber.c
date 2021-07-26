@@ -3229,8 +3229,12 @@ gboolean jabber_send_attention(PurpleProtocolAttention *attn, PurpleConnection *
 
 	if (!_jabber_send_buzz(js, username, &error)) {
 		PurpleAccount *account = purple_connection_get_account(gc);
-		PurpleConversation *conv =
-			purple_conversations_find_with_account(username, account);
+		PurpleConversation *conv;
+		PurpleConversationManager *manager;
+
+		manager = purple_conversation_manager_get_default();
+		conv = purple_conversation_manager_find(manager, account, username);
+
 		purple_debug_error("jabber", "jabber_send_attention: jabber_cmd_buzz failed with error: %s\n", error ? error : "(NULL)");
 
 		if (conv) {

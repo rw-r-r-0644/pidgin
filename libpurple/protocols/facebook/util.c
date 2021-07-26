@@ -437,6 +437,7 @@ fb_util_serv_got_im(PurpleConnection *gc, const gchar *who, const gchar *text,
 	const gchar *name, *me;
 	PurpleAccount *acct;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PurpleMessage *msg;
 
 	if (!(flags & PURPLE_MESSAGE_SEND)) {
@@ -445,7 +446,9 @@ fb_util_serv_got_im(PurpleConnection *gc, const gchar *who, const gchar *text,
 	}
 
 	acct = purple_connection_get_account(gc);
-	conv = purple_conversations_find_im_with_account(who, acct);
+	manager = purple_conversation_manager_get_default();
+
+	conv = purple_conversation_manager_find_im(manager, acct, who);
 
 	if (conv == NULL) {
 		conv = purple_im_conversation_new(acct, who);
@@ -473,6 +476,7 @@ fb_util_serv_got_chat_in(PurpleConnection *gc, gint id, const gchar *who,
 	const gchar *name;
 	PurpleAccount *acct;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PurpleMessage *msg;
 	const gchar *me;
 
@@ -482,7 +486,9 @@ fb_util_serv_got_chat_in(PurpleConnection *gc, gint id, const gchar *who,
 	}
 
 	acct = purple_connection_get_account(gc);
-	conv = purple_conversations_find_chat(gc, id);
+	manager = purple_conversation_manager_get_default();
+
+	conv = purple_conversation_manager_find_chat_by_id(manager, acct, id);
 
 	me = purple_account_get_name_for_display(acct);
 	name = purple_account_get_username(acct);

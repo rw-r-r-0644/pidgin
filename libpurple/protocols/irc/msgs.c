@@ -130,6 +130,7 @@ void irc_msg_default(struct irc_conn *irc, const char *name, const char *from, c
 	const char *end, *cur, *numeric = NULL;
 	char *clean, *tmp, *convname;
 	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 
 	for (cur = args[0], i = 0; i < 4; i++) {
 		end = strchr(cur, ' ');
@@ -164,7 +165,8 @@ void irc_msg_default(struct irc_conn *irc, const char *name, const char *from, c
 	g_free(tmp);
 
 	/* Check for an existing conversation */
-	convo = purple_conversations_find_with_account(convname, irc->account);
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find(manager, irc->account, convname);
 	g_free(convname);
 
 	if (convo == NULL) {
@@ -259,8 +261,11 @@ void irc_msg_badmode(struct irc_conn *irc, const char *name, const char *from, c
 void irc_msg_ban(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 
-	chat = purple_conversations_find_chat_with_account(args[1], irc->account);
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[1]);
 
 	if (purple_strequal(name, "367")) {
 		char *msg = NULL;
@@ -308,28 +313,35 @@ void irc_msg_banned(struct irc_conn *irc, const char *name, const char *from, ch
 void irc_msg_banfull(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	char *buf, *nick;
 
-	chat = purple_conversations_find_chat_with_account(args[1], irc->account);
-	if (!chat)
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[1]);
+	if (!chat) {
 		return;
+	}
 
 	nick = g_markup_escape_text(args[2], -1);
 	buf = g_strdup_printf(_("Cannot ban %s: banlist is full"), nick);
 	g_free(nick);
-	purple_conversation_write_system_message(chat,
-		buf, PURPLE_MESSAGE_NO_LOG);
+	purple_conversation_write_system_message(chat, buf, PURPLE_MESSAGE_NO_LOG);
 	g_free(buf);
 }
 
 void irc_msg_chanmode(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	char *buf, *escaped;
 
-	chat = purple_conversations_find_chat_with_account(args[1], irc->account);
-	if (!chat)	/* XXX punt on channels we are not in for now */
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[1]);
+	if (!chat) { /* XXX punt on channels we are not in for now */
 		return;
+	}
 
 	escaped = (args[3] != NULL) ? g_markup_escape_text(args[3], -1) : NULL;
 	buf = g_strdup_printf("mode for %s: %s %s", args[1], args[2], escaped ? escaped : "");
@@ -466,13 +478,16 @@ void irc_msg_who(struct irc_conn *irc, const char *name, const char *from, char 
 {
 	if (purple_strequal(name, "352")) {
 		PurpleConversation *chat;
+		PurpleConversationManager *manager;
 		PurpleChatUser *cb;
 
 		char *cur, *userhost, *realname;
 
 		PurpleChatUserFlags flags;
 
-		chat = purple_conversations_find_chat_with_account(args[1], irc->account);
+		manager = purple_conversation_manager_get_default();
+		chat = purple_conversation_manager_find_chat(manager, irc->account,
+		                                             args[1]);
 		if (!chat) {
 			purple_debug_error("irc", "Got a WHO response for %s, which doesn't exist", args[1]);
 			return;
@@ -483,7 +498,7 @@ void irc_msg_who(struct irc_conn *irc, const char *name, const char *from, char 
 			purple_debug_error("irc", "Got a WHO response for %s who isn't a buddy.", args[5]);
 			return;
 		}
-		
+
 		userhost = g_strdup_printf("%s@%s", args[2], args[3]);
 
 		/* The final argument is a :-argument, but annoyingly
@@ -553,6 +568,7 @@ void irc_msg_topic(struct irc_conn *irc, const char *name, const char *from, cha
 {
 	char *chan, *topic, *msg, *nick, *tmp, *tmp2;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 
 	if (purple_strequal(name, "topic")) {
 		chan = args[0];
@@ -562,7 +578,8 @@ void irc_msg_topic(struct irc_conn *irc, const char *name, const char *from, cha
 		topic = irc_mirc2txt (args[2]);
 	}
 
-	chat = purple_conversations_find_chat_with_account(chan, irc->account);
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account, chan);
 	if (!chat) {
 		purple_debug_error("irc", "Got a topic for %s, which doesn't exist", chan);
 		g_free(topic);
@@ -606,11 +623,14 @@ void irc_msg_topic(struct irc_conn *irc, const char *name, const char *from, cha
 void irc_msg_topicinfo(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	GDateTime *dt, *local;
 	gint64 mtime;
 	char *msg, *timestamp, *datestamp;
 
-	chat = purple_conversations_find_chat_with_account(args[1], irc->account);
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[1]);
 	if (!chat) {
 		purple_debug_error("irc", "Got topic info for %s, which doesn't exist", args[1]);
 		return;
@@ -659,10 +679,14 @@ void irc_msg_unknown(struct irc_conn *irc, const char *name, const char *from, c
 void irc_msg_names(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	char *names, *cur, *end, *tmp, *msg;
-	PurpleConversation *convo;
 
 	if (purple_strequal(name, "366")) {
-		convo = purple_conversations_find_with_account(args[1], irc->account);
+		PurpleConversation *convo;
+		PurpleConversationManager *manager;
+
+		manager = purple_conversation_manager_get_default();
+		convo = purple_conversation_manager_find(manager, irc->account,
+		                                         args[1]);
 		if (!convo) {
 			purple_debug_error("irc", "Got a NAMES list for %s, which doesn't exist", args[1]);
 			g_string_free(irc->names, TRUE);
@@ -798,8 +822,10 @@ void irc_msg_nonick(struct irc_conn *irc, const char *name, const char *from, ch
 {
 	PurpleConnection *gc;
 	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 
-	convo = purple_conversations_find_with_account(args[1], irc->account);
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find(manager, irc->account, args[1]);
 	if (convo) {
 		purple_conversation_write_system_message(convo,
 			PURPLE_IS_IM_CONVERSATION(convo) ? _("User is not logged in") : _("no such channel"),
@@ -822,8 +848,11 @@ void irc_msg_nosend(struct irc_conn *irc, const char *name, const char *from, ch
 {
 	PurpleConnection *gc;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 
-	chat = purple_conversations_find_chat_with_account(args[1], irc->account);
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[1]);
 	if (chat) {
 		purple_conversation_write_system_message(chat, args[2],
 			PURPLE_MESSAGE_NO_LOG);
@@ -837,7 +866,12 @@ void irc_msg_nosend(struct irc_conn *irc, const char *name, const char *from, ch
 
 void irc_msg_notinchan(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
-	PurpleConversation *chat = purple_conversations_find_chat_with_account(args[1], irc->account);
+	PurpleConversation *chat;
+	PurpleConversationManager *manager;
+
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[1]);
 
 	purple_debug_info("irc", "We're apparently not in %s, but tried to use it", args[1]);
 	if (chat) {
@@ -851,10 +885,14 @@ void irc_msg_notinchan(struct irc_conn *irc, const char *name, const char *from,
 void irc_msg_notop(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 
-	chat = purple_conversations_find_chat_with_account(args[1], irc->account);
-	if (!chat)
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[1]);
+	if (!chat) {
 		return;
+	}
 
 	purple_conversation_write_system_message(chat, args[2], 0);
 }
@@ -932,6 +970,7 @@ void irc_msg_join(struct irc_conn *irc, const char *name, const char *from, char
 {
 	PurpleConnection *gc = purple_account_get_connection(irc->account);
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	PurpleChatUser *cb;
 
 	char *nick, *userhost, *buf;
@@ -942,11 +981,14 @@ void irc_msg_join(struct irc_conn *irc, const char *name, const char *from, char
 
 	nick = irc_mask_nick(from);
 
+	manager = purple_conversation_manager_get_default();
+
 	if (!purple_utf8_strcasecmp(nick, purple_connection_get_display_name(gc))) {
 		/* We are joining a channel for the first time */
 		purple_serv_got_joined_chat(gc, id++, args[0]);
 		g_free(nick);
-		chat = purple_conversations_find_chat_with_account(args[0], irc->account);
+		chat = purple_conversation_manager_find_chat(manager, irc->account,
+		                                             args[0]);
 
 		if (chat == NULL) {
 			purple_debug_error("irc", "tried to join %s but couldn't\n", args[0]);
@@ -967,7 +1009,8 @@ void irc_msg_join(struct irc_conn *irc, const char *name, const char *from, char
 		return;
 	}
 
-	chat = purple_conversations_find_chat_with_account(args[0], irc->account);
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[0]);
 	if (chat == NULL) {
 		purple_debug_error("irc", "JOIN for %s failed", args[0]);
 		g_free(nick);
@@ -995,10 +1038,15 @@ void irc_msg_join(struct irc_conn *irc, const char *name, const char *from, char
 void irc_msg_kick(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleConnection *gc = purple_account_get_connection(irc->account);
-	PurpleConversation *chat = purple_conversations_find_chat_with_account(args[0], irc->account);
+	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	char *nick, *buf;
 
 	g_return_if_fail(gc);
+
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             args[0]);
 
 	nick = irc_mask_nick(from);
 
@@ -1024,12 +1072,16 @@ void irc_msg_kick(struct irc_conn *irc, const char *name, const char *from, char
 
 void irc_msg_mode(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
-	PurpleConversation *chat;
 	char *nick = irc_mask_nick(from), *buf;
 
 	if (*args[0] == '#' || *args[0] == '&') {	/* Channel	*/
+		PurpleConversation *chat;
+		PurpleConversationManager *manager;
 		char *escaped;
-		chat = purple_conversations_find_chat_with_account(args[0], irc->account);
+
+		manager = purple_conversation_manager_get_default();
+		chat = purple_conversation_manager_find_chat(manager, irc->account,
+		                                             args[0]);
 		if (!chat) {
 			purple_debug_error("irc", "MODE received for %s, which we are not in", args[0]);
 			g_free(nick);
@@ -1093,6 +1145,7 @@ void irc_msg_nick(struct irc_conn *irc, const char *name, const char *from, char
 {
 	PurpleConnection *gc = purple_account_get_connection(irc->account);
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 	GSList *chats;
 	char *nick = irc_mask_nick(from);
 
@@ -1116,10 +1169,11 @@ void irc_msg_nick(struct irc_conn *irc, const char *name, const char *from, char
 		chats = chats->next;
 	}
 
-	im = purple_conversations_find_im_with_account(nick,
-						   irc->account);
-	if (im != NULL)
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager, irc->account, nick);
+	if (im != NULL) {
 		purple_conversation_set_name(im, args[0]);
+	}
 
 	g_free(nick);
 }
@@ -1202,6 +1256,7 @@ void irc_msg_part(struct irc_conn *irc, const char *name, const char *from, char
 {
 	PurpleConnection *gc = purple_account_get_connection(irc->account);
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	char *nick, *msg, *channel;
 
 	g_return_if_fail(gc);
@@ -1210,7 +1265,9 @@ void irc_msg_part(struct irc_conn *irc, const char *name, const char *from, char
 	 * that I can see.  This catches that. */
 	channel = (args[0][0] == ':') ? &args[0][1] : args[0];
 
-	chat = purple_conversations_find_chat_with_account(channel, irc->account);
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account,
+	                                             channel);
 	if (!chat) {
 		purple_debug_info("irc", "Got a PART on %s, which doesn't exist -- probably closed", channel);
 		return;
@@ -1246,6 +1303,7 @@ void irc_msg_ping(struct irc_conn *irc, const char *name, const char *from, char
 void irc_msg_pong(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 	PurpleConnection *gc;
 	char **parts, *msg;
 	gint64 oldstamp;
@@ -1265,7 +1323,8 @@ void irc_msg_pong(struct irc_conn *irc, const char *name, const char *from, char
 		                              (gdouble)G_USEC_PER_SEC);
 	}
 
-	convo = purple_conversations_find_with_account(parts[0], irc->account);
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find(manager, irc->account, parts[0]);
 	g_strfreev(parts);
 	if (convo) {
 		purple_conversation_write_system_message(convo, msg, PURPLE_MESSAGE_NO_LOG);
@@ -1319,7 +1378,11 @@ static void irc_msg_handle_privmsg(struct irc_conn *irc, const char *name, const
 	if (!purple_utf8_strcasecmp(to, purple_connection_get_display_name(gc))) {
 		purple_serv_got_im(gc, nick, msg, 0, time(NULL));
 	} else {
-		chat = purple_conversations_find_chat_with_account(irc_nick_skip_mode(irc, to), irc->account);
+		PurpleConversationManager *manager;
+
+		manager = purple_conversation_manager_get_default();
+		chat = purple_conversation_manager_find_chat(manager, irc->account,
+		                                             irc_nick_skip_mode(irc, to));
 		if (chat) {
 			purple_serv_got_chat_in(gc, purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(chat)),
 				nick, PURPLE_MESSAGE_RECV, msg, time(NULL));
@@ -1334,11 +1397,14 @@ static void irc_msg_handle_privmsg(struct irc_conn *irc, const char *name, const
 void irc_msg_regonly(struct irc_conn *irc, const char *name, const char *from, char **args)
 {
 	PurpleConnection *gc = purple_account_get_connection(irc->account);
+	PurpleConversationManager *manager;
 	char *msg;
 
 	g_return_if_fail(gc);
 
-	if (purple_conversations_find_chat_with_account(args[1], irc->account)) {
+	manager = purple_conversation_manager_get_default();
+
+	if(purple_conversation_manager_find_chat(manager, irc->account, args[1])) {
 		/* This is a channel we're already in; for some reason,
 		 * freenode feels the need to notify us that in some
 		 * hypothetical other situation this might not have

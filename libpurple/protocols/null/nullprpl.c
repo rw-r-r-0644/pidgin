@@ -130,24 +130,38 @@ typedef struct {
 
 static void call_chat_func(gpointer data, gpointer userdata) {
   PurpleConnection *to = (PurpleConnection *)data;
+  PurpleConversation *chat;
+  PurpleConversationManager *manager;
   ChatFuncData *cfdata = (ChatFuncData *)userdata;
-
   int id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(cfdata->from_chat));
-  PurpleConversation *chat = purple_conversations_find_chat(to, id);
-  if (chat)
+
+  manager = purple_conversation_manager_get_default();
+  chat = purple_conversation_manager_find_chat_by_id(manager,
+                                                     purple_connection_get_account(to),
+                                                     id);
+  if (chat) {
     cfdata->fn(cfdata->from_chat, chat, id,
                purple_conversation_get_name(chat), cfdata->userdata);
+  }
 }
 
 static void foreach_gc_in_chat(ChatFunc fn, PurpleConnection *from,
                                int id, gpointer userdata) {
-  PurpleConversation *chat = purple_conversations_find_chat(from, id);
-  ChatFuncData cfdata = { fn,
-                          chat,
-                          userdata };
+  PurpleConversation *chat;
+  PurpleConversationManager *manager;
+  ChatFuncData cfdata = {
+    .fn = fn,
+    .userdata = userdata
+  };
 
-  g_list_foreach(purple_connections_get_all(), call_chat_func,
-                 &cfdata);
+  manager = purple_conversation_manager_get_default();
+  chat = purple_conversation_manager_find_chat_by_id(manager,
+                                                     purple_connection_get_account(from),
+                                                     id);
+
+  cfdata.from_chat = chat;
+
+  g_list_foreach(purple_connections_get_all(), call_chat_func, &cfdata);
 }
 
 
@@ -748,12 +762,17 @@ static void
 null_join_chat(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                GHashTable *components)
 {
-  const char *username = purple_account_get_username(purple_connection_get_account(gc));
+  PurpleAccount *account = purple_connection_get_account(gc);
+  PurpleConversationManager *manager;
+  const char *username = purple_account_get_username(account);
   const char *room = g_hash_table_lookup(components, "room");
   int chat_id = g_str_hash(room);
+
   purple_debug_info("nullprpl", "%s is joining chat room %s\n", username, room);
 
-  if (!purple_conversations_find_chat(gc, chat_id)) {
+  manager = purple_conversation_manager_get_default();
+
+  if(!purple_conversation_manager_find_chat_by_id(manager, account, chat_id)) {
     purple_serv_got_joined_chat(gc, chat_id, room);
 
     /* tell everyone that we joined, and add them if they're already there */
@@ -807,16 +826,24 @@ static void
 null_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                  gint id, const gchar *message, const gchar *who)
 {
-  const char *username = purple_account_get_username(purple_connection_get_account(gc));
-  PurpleConversation *chat = purple_conversations_find_chat(gc, id);
-  const char *room = purple_conversation_get_name(chat);
+  PurpleAccount *account = purple_connection_get_account(gc);
   PurpleAccount *to_acct = purple_accounts_find(who, "null");
+  PurpleConversation *chat;
+  PurpleConversationManager *manager;
+  const char *username = purple_account_get_username(account);
+  const char *room = NULL;
+
+  manager = purple_conversation_manager_get_default();
+  chat = purple_conversation_manager_find_chat_by_id(manager, account, id);
+  room = purple_conversation_get_name(chat);
 
   purple_debug_info("nullprpl", "%s is inviting %s to join chat room %s\n",
                     username, who, room);
 
   if (to_acct) {
-    PurpleConversation *to_conv = purple_conversations_find_chat(purple_account_get_connection(to_acct), id);
+    PurpleConversation *to_conv;
+
+    to_conv = purple_conversation_manager_find_chat_by_id(manager, to_acct, id);
     if (to_conv) {
       char *tmp = g_strdup_printf("%s is already in chat room %s.", who, room);
       purple_debug_info("nullprpl",
@@ -852,7 +879,13 @@ static void
 null_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                 gint id)
 {
-  PurpleConversation *chat = purple_conversations_find_chat(gc, id);
+  PurpleConversationManager *manager;
+  PurpleConversation *chat;
+
+  manager = purple_conversation_manager_get_default();
+  chat = purple_conversation_manager_find_chat_by_id(manager,
+                                                     purple_connection_get_account(gc),
+                                                     id);
   purple_debug_info("nullprpl", "%s is leaving chat room %s\n",
                     purple_account_get_username(purple_connection_get_account(gc)),
                     purple_conversation_get_name(chat));
@@ -877,10 +910,14 @@ static gint
 null_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                gint id, PurpleMessage *msg)
 {
-  const char *username = purple_account_get_username(purple_connection_get_account(gc));
-  PurpleConversation *chat = purple_conversations_find_chat(gc, id);
+  PurpleAccount *account = purple_connection_get_account(gc);
+  PurpleConversation *chat;
+  PurpleConversationManager *manager;
   const gchar *message = purple_message_get_contents(msg);
+  const gchar *username = purple_account_get_username(account);
 
+  manager = purple_conversation_manager_get_default();
+  chat = purple_conversation_manager_find_chat_by_id(manager, account, id);
   if (chat) {
     purple_debug_info("nullprpl",
                       "%s is sending message to chat room %s: %s\n", username,
@@ -990,11 +1027,17 @@ static void
 null_set_chat_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                     gint id, const gchar *topic)
 {
-  PurpleConversation *chat = purple_conversations_find_chat(gc, id);
+  PurpleConversation *chat = NULL;
+  PurpleConversationManager *manager = NULL;
   const char *last_topic;
 
-  if (!chat)
+  manager = purple_conversation_manager_get_default();
+  chat = purple_conversation_manager_find_chat_by_id(manager,
+                                                     purple_connection_get_account(gc),
+                                                     id);
+  if (!chat) {
     return;
+  }
 
   purple_debug_info("nullprpl", "%s sets topic of chat room '%s' to '%s'\n",
                     purple_account_get_username(purple_connection_get_account(gc)),
@@ -1016,6 +1059,7 @@ static gboolean null_finish_get_roomlist(gpointer roomlist) {
 
 static PurpleRoomlist *null_roomlist_get_list(PurpleConnection *gc) {
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
+  PurpleConversationManager *manager;
   PurpleRoomlist *roomlist = purple_roomlist_new(purple_connection_get_account(gc));
   GList *fields = NULL;
   PurpleRoomlistField *field;
@@ -1034,9 +1078,11 @@ static PurpleRoomlist *null_roomlist_get_list(PurpleConnection *gc) {
 
   purple_roomlist_set_fields(roomlist, fields);
 
+  manager = purple_conversation_manager_get_default();
+
   /* add each chat room. the chat ids are cached in seen_ids so that each room
    * is only returned once, even if multiple users are in it. */
-  for (chats  = purple_conversations_get_all(); chats; chats = g_list_next(chats)) {
+  for (chats = purple_conversation_manager_get_all(manager); chats; chats = g_list_next(chats)) {
     PurpleChatConversation *chat = NULL;
     PurpleRoomlistRoom *room = NULL;
     const gchar *name = NULL;

@@ -104,6 +104,7 @@ static void handle_chat(JabberMessage *jm)
 	JabberID *jid = jabber_id_new(contact);
 
 	PurpleConnection *gc;
+	PurpleConversationManager *manager;
 	PurpleAccount *account;
 	PurpleMessageFlags flags = 0;
 	JabberBuddy *jb;
@@ -112,6 +113,8 @@ static void handle_chat(JabberMessage *jm)
 
 	if(!jid)
 		return;
+
+	manager = purple_conversation_manager_get_default();
 
 	gc = jm->js->gc;
 	account = purple_connection_get_account(gc);
@@ -130,8 +133,10 @@ static void handle_chat(JabberMessage *jm)
 			purple_serv_got_typing(gc, contact, 0, PURPLE_IM_TYPED);
 			break;
 		case JM_STATE_GONE: {
-			PurpleConversation *im = purple_conversations_find_im_with_account(
-					contact, account);
+			PurpleConversation *im = NULL;
+
+			im = purple_conversation_manager_find_im(manager, account, contact);
+
 			if (im && jid->node && jid->domain) {
 				char buf[256];
 				PurpleBuddy *buddy;
@@ -177,7 +182,7 @@ static void handle_chat(JabberMessage *jm)
 			 */
 			PurpleConversation *im;
 
-			im = purple_conversations_find_im_with_account(contact, account);
+			im = purple_conversation_manager_find_im(manager, account, contact);
 			if (im && !purple_strequal(contact,
 					purple_conversation_get_name(im))) {
 				purple_debug_info("jabber", "Binding conversation to %s\n",
@@ -752,9 +757,14 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 								jabber_id_free(jid);
 							}
 						} else if (jm->type == JABBER_MESSAGE_NORMAL ||
-						           jm->type == JABBER_MESSAGE_CHAT) {
-							conv =
-								purple_conversations_find_with_account(from, account);
+						           jm->type == JABBER_MESSAGE_CHAT)
+						{
+							PurpleConversationManager *manager;
+
+							manager = purple_conversation_manager_get_default();
+							conv = purple_conversation_manager_find(manager,
+							                                        account,
+							                                        from);
 							if (!conv) {
 								/* we need to create the conversation here */
 								conv = PURPLE_CONVERSATION(
@@ -975,10 +985,12 @@ jabber_message_smileyfy_xhtml(JabberMessage *jm, const char *xhtml)
 	PurpleAccount *account = purple_connection_get_account(jm->js->gc);
 	GList *found_smileys, *it, *it_next;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	gboolean has_too_large_smiley = FALSE;
 	gchar *smileyfied_xhtml = NULL;
 
-	conv = purple_conversations_find_with_account(jm->to, account);
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find(manager, account, jm->to);
 
 	if (!jabber_conv_support_custom_smileys(jm->js, conv, jm->to))
 		return NULL;

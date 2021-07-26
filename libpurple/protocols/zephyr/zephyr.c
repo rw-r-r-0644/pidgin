@@ -315,6 +315,7 @@ handle_message(PurpleConnection *gc, ZNotice_t *notice)
 			gchar *send_inst_utf8;
 			GSList *l = g_slist_find_custom(zephyr->subscrips, &sub, (GCompareFunc)zephyr_triple_subset);
 			PurpleConversation *gcc;
+			PurpleConversationManager *manager;
 
 			if (!l) {
 				/* This is a server supplied subscription */
@@ -340,7 +341,10 @@ handle_message(PurpleConnection *gc, ZNotice_t *notice)
 				}
 			}
 
-			gcc = purple_conversations_find_chat_with_account(zt->name, purple_connection_get_account(gc));
+			manager = purple_conversation_manager_get_default();
+			gcc = purple_conversation_manager_find_chat(manager,
+			                                            purple_connection_get_account(gc),
+			                                            zt->name);
 			if (!purple_chat_conversation_has_user(PURPLE_CHAT_CONVERSATION(gcc), stripped_sender)) {
 				GInetAddress *inet_addr = NULL;
 				gchar *ipaddr = NULL;
@@ -924,6 +928,7 @@ zephyr_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	zephyr_triple *zt;
 	const char *sig;
 	PurpleConversation *gcc;
+	PurpleConversationManager *manager;
 	char *inst;
 	char *recipient;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
@@ -937,7 +942,10 @@ zephyr_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	zt = l->data;
 	sig = zephyr_get_signature();
 
-	gcc = purple_conversations_find_chat_with_account(zt->name, purple_connection_get_account(gc));
+	manager = purple_conversation_manager_get_default();
+	gcc = purple_conversation_manager_find_chat(manager,
+	                                            purple_connection_get_account(gc),
+	                                            zt->name);
 
 	if (!(inst = (char *)purple_chat_conversation_get_topic(PURPLE_CHAT_CONVERSATION(gcc))))
 		inst = g_strdup("PERSONAL");
@@ -1354,6 +1362,7 @@ static void zephyr_chat_set_topic(PurpleConnection * gc, int id, const char *top
 {
 	zephyr_triple *zt;
 	PurpleConversation *gcc;
+	PurpleConversationManager *manager;
 	gchar *topic_utf8;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
 	GSList *l;
@@ -1364,7 +1373,10 @@ static void zephyr_chat_set_topic(PurpleConnection * gc, int id, const char *top
 	}
 	zt = l->data;
 
-	gcc = purple_conversations_find_chat_with_account(zt->name, purple_connection_get_account(gc));
+	manager = purple_conversation_manager_get_default();
+	gcc = purple_conversation_manager_find_chat(manager,
+	                                            purple_connection_get_account(gc),
+	                                            zt->name);
 
 	topic_utf8 = convert_to_utf8(topic, zephyr->encoding);
 	purple_chat_conversation_set_topic(PURPLE_CHAT_CONVERSATION(gcc), zephyr->username, topic_utf8);
