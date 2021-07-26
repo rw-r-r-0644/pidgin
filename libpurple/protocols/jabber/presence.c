@@ -765,18 +765,20 @@ handle_presence_contact(JabberStream *js, JabberPresence *presence)
 	PurpleBuddy *b;
 	char *buddy_name;
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 
 	buddy_name = jabber_id_get_bare_jid(presence->jid_from);
 
 	account = purple_connection_get_account(js->gc);
 	b = purple_blist_find_buddy(account, buddy_name);
 
+	manager = purple_conversation_manager_get_default();
 	/*
 	 * Unbind/unlock from sending messages to a specific resource on
 	 * presence changes.  This is locked to a specific resource when
 	 * receiving a message (in message.c).
 	 */
-	im = purple_conversations_find_im_with_account(buddy_name, account);
+	im = purple_conversation_manager_find_im(manager, account, buddy_name);
 	if (im) {
 		purple_debug_info("jabber", "Changed conversation binding from %s to %s\n",
 				purple_conversation_get_name(im), buddy_name);

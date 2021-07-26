@@ -168,6 +168,7 @@ void ggp_image_send(PurpleConnection *gc,
 	ggp_image_session_data *sdata = ggp_image_get_sdata(gc);
 	ggp_image_sent *sent_image;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	uint64_t id;
 	gchar *gg_filename;
 
@@ -208,9 +209,10 @@ void ggp_image_send(PurpleConnection *gc,
 		purple_image_get_data_size(sent_image->image));
 	g_free(gg_filename);
 
-	conv = purple_conversations_find_with_account(
-		sent_image->conv_name,
-		purple_connection_get_account(gc));
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find(manager,
+	                                        purple_connection_get_account(gc),
+	                                        sent_image->conv_name);
 	if (conv != NULL) {
 		gchar *msg = g_strdup_printf(_("Image delivered to %u."),
 			image_request->sender);

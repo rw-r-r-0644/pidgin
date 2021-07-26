@@ -77,6 +77,7 @@ silcpurple_buddy_keyagr_cb(SilcClient client,
 	case SILC_KEY_AGREEMENT_OK:
 		{
 			PurpleConversation *im;
+			PurpleConversationManager *manager;
 			char tmp[128];
 
 			/* Set the private key for this client */
@@ -85,10 +86,11 @@ silcpurple_buddy_keyagr_cb(SilcClient client,
 								NULL, NULL, key);
 			silc_ske_free_key_material(key);
 
+			manager = purple_conversation_manager_get_default();
 
 			/* Open IM window */
-			im = purple_conversations_find_im_with_account(
-								      client_entry->nickname, sg->account);
+			im = purple_conversation_manager_find_im(manager, sg->account,
+			                                         client_entry->nickname);
 			if (im) {
 				/* we don't have windows in the core anymore...but we may want to
 				 * provide some method for asking the UI to show the window

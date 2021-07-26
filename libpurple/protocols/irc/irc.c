@@ -858,9 +858,14 @@ irc_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                 gint id, const gchar *message, const gchar *name)
 {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
-	PurpleConversation *convo = PURPLE_CONVERSATION(purple_conversations_find_chat(gc, id));
+	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 	const char *args[2];
 
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find_chat_by_id(manager,
+	                                                    purple_connection_get_account(gc),
+	                                                    id);
 	if (!convo) {
 		purple_debug_error("irc", "Got chat invite request for bogus chat");
 		return;
@@ -876,11 +881,17 @@ irc_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                gint id)
 {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
-	PurpleConversation *convo = PURPLE_CONVERSATION(purple_conversations_find_chat(gc, id));
+	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 	const char *args[2];
 
-	if (!convo)
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find_chat_by_id(manager,
+	                                                    purple_connection_get_account(gc),
+	                                                    id);
+	if (!convo) {
 		return;
+	}
 
 	args[0] = purple_conversation_get_name(convo);
 	args[1] = NULL;
@@ -893,9 +904,15 @@ irc_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, gint id,
               PurpleMessage *msg)
 {
 	struct irc_conn *irc = purple_connection_get_protocol_data(gc);
-	PurpleConversation *convo = PURPLE_CONVERSATION(purple_conversations_find_chat(gc, id));
+	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 	const char *args[2];
 	char *tmp;
+
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find_chat_by_id(manager,
+	                                                    purple_connection_get_account(gc),
+	                                                    id);
 
 	if (!convo) {
 		purple_debug_error("irc", "chat send on nonexistent chat");
@@ -942,16 +959,23 @@ static void
 irc_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                    gint id, const gchar *topic)
 {
+	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	char *buf;
 	const char *name = NULL;
 	struct irc_conn *irc;
 
-	irc = purple_connection_get_protocol_data(gc);
-	name = purple_conversation_get_name(PURPLE_CONVERSATION(
-			purple_conversations_find_chat(gc, id)));
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find_chat_by_id(manager,
+	                                                   purple_connection_get_account(gc),
+	                                                   id);
 
-	if (name == NULL)
+	irc = purple_connection_get_protocol_data(gc);
+	name = purple_conversation_get_name(conv);
+
+	if (name == NULL) {
 		return;
+	}
 
 	buf = irc_format(irc, "vt:", "TOPIC", name, topic);
 	irc_send(irc, buf);

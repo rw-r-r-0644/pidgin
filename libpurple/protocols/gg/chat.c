@@ -489,6 +489,7 @@ ggp_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	GDateTime *dt = NULL;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	ggp_chat_local_info *chat;
 	gboolean succ = TRUE;
 	const gchar *me;
@@ -501,9 +502,10 @@ ggp_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 		return -1;
 	}
 
-	conv = purple_conversations_find_chat_with_account(
-		ggp_chat_get_name_from_id(chat->id),
-		purple_connection_get_account(gc));
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find_chat(manager,
+	                                             purple_connection_get_account(gc),
+	                                             ggp_chat_get_name_from_id(chat->id));
 
 	gg_msg = ggp_message_format_to_gg(conv,
 		purple_message_get_contents(msg));

@@ -395,17 +395,20 @@ fb_cb_api_events(FbApi *api, GSList *events, gpointer data)
 	GSList *l;
 	PurpleAccount *acct;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	PurpleConnection *gc;
 
 	gc = fb_data_get_connection(fata);
 	acct = purple_connection_get_account(gc);
 	fetch = g_hash_table_new(fb_id_hash, fb_id_equal);
 
+	manager = purple_conversation_manager_get_default();
+
 	for (l = events; l != NULL; l = l->next) {
 		event = l->data;
 
 		FB_ID_TO_STR(event->tid, tid);
-		chat = purple_conversations_find_chat_with_account(tid, acct);
+		chat = purple_conversation_manager_find_chat(manager, acct, tid);
 
 		if (chat == NULL) {
 			continue;
@@ -511,6 +514,7 @@ fb_cb_api_messages(FbApi *api, GSList *msgs, gpointer data)
 	GSList *l;
 	PurpleAccount *acct;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	PurpleConnection *gc;
 	PurpleMessageFlags flags;
 
@@ -519,6 +523,8 @@ fb_cb_api_messages(FbApi *api, GSList *msgs, gpointer data)
 	mark = purple_account_get_bool(acct, "mark-read", TRUE);
 	open = purple_account_get_bool(acct, "group-chat-open", TRUE);
 	self = purple_account_get_bool(acct, "show-self", TRUE);
+
+	manager = purple_conversation_manager_get_default();
 
 	for (l = msgs; l != NULL; l = l->next) {
 		msg = l->data;
@@ -569,7 +575,7 @@ fb_cb_api_messages(FbApi *api, GSList *msgs, gpointer data)
 		}
 
 		FB_ID_TO_STR(msg->tid, tid);
-		chat = purple_conversations_find_chat_with_account(tid, acct);
+		chat = purple_conversation_manager_find_chat(manager, acct, tid);
 
 		if (chat == NULL) {
 			if (!open) {
@@ -636,6 +642,7 @@ fb_cb_api_thread(FbApi *api, FbApiThread *thrd, gpointer data)
 	GSList *l;
 	PurpleAccount *acct;
 	PurpleConversation *conv;
+	PurpleConversationManager *manager;
 	PurpleChatConversation *chat;
 	PurpleConnection *gc;
 
@@ -644,7 +651,8 @@ fb_cb_api_thread(FbApi *api, FbApiThread *thrd, gpointer data)
 	id = fb_id_hash(&thrd->tid);
 	FB_ID_TO_STR(thrd->tid, tid);
 
-	conv = purple_conversations_find_chat_with_account(tid, acct);
+	manager = purple_conversation_manager_get_default();
+	conv = purple_conversation_manager_find_chat(manager, acct, tid);
 	if((conv == NULL) || purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv))) {
 		conv = purple_serv_got_joined_chat(gc, id, tid);
 		chat = PURPLE_CHAT_CONVERSATION(conv);
@@ -707,12 +715,15 @@ fb_cb_api_thread_kicked(FbApi *api, FbApiThread *thrd, gpointer data)
 	PurpleAccount *acct;
 	PurpleConnection *gc;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 
 	FB_ID_TO_STR(thrd->tid, tid);
 
 	gc = fb_data_get_connection(fata);
 	acct = purple_connection_get_account(gc);
-	chat = purple_conversations_find_chat_with_account(tid, acct);
+
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, acct, tid);
 
 	if (chat == NULL) {
 		PurpleRequestCommonParameters *cpar;
@@ -1312,6 +1323,7 @@ fb_chat_join(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	FbId tid;
 	gint id;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	PurpleRequestCommonParameters *cpar;
 
 	name = g_hash_table_lookup(data, "name");
@@ -1329,7 +1341,11 @@ fb_chat_join(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 
 	tid = FB_ID_FROM_STR(name);
 	id = fb_id_hash(&tid);
-	chat = purple_conversations_find_chat(gc, id);
+
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat_by_id(manager,
+	                                                   purple_connection_get_account(gc),
+	                                                   id);
 
 	if ((chat != NULL) && !purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(chat))) {
 		purple_conversation_present(chat);
@@ -1362,6 +1378,7 @@ fb_chat_invite(PurpleProtocolChat *protocol_chat,  PurpleConnection *gc,
 	FbId tid;
 	FbId uid;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	PurpleRequestCommonParameters *cpar;
 
 	if (!FB_ID_IS_STR(who)) {
@@ -1376,7 +1393,11 @@ fb_chat_invite(PurpleProtocolChat *protocol_chat,  PurpleConnection *gc,
 
 	fata = purple_connection_get_protocol_data(gc);
 	api = fb_data_get_api(fata);
-	chat = purple_conversations_find_chat(gc, id);
+
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat_by_id(manager,
+	                                                   purple_connection_get_account(gc),
+	                                                   id);
 
 	name = purple_conversation_get_name(chat);
 	tid = FB_ID_FROM_STR(name);
@@ -1397,11 +1418,14 @@ fb_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, gint id,
 	gchar *sext;
 	PurpleAccount *acct;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 
 	acct = purple_connection_get_account(gc);
 	fata = purple_connection_get_protocol_data(gc);
 	api = fb_data_get_api(fata);
-	chat = purple_conversations_find_chat(gc, id);
+
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat_by_id(manager, acct, id);
 
 	name = purple_conversation_get_name(chat);
 	tid = FB_ID_FROM_STR(name);
@@ -1428,10 +1452,15 @@ fb_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	FbData *fata;
 	FbId tid;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 
 	fata = purple_connection_get_protocol_data(gc);
 	api = fb_data_get_api(fata);
-	chat = purple_conversations_find_chat(gc, id);
+
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat_by_id(manager,
+	                                                   purple_connection_get_account(gc),
+	                                                   id);
 
 	name = purple_conversation_get_name(chat);
 	tid = FB_ID_FROM_STR(name);

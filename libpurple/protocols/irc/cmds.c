@@ -29,11 +29,16 @@ static void irc_do_mode(struct irc_conn *irc, const char *target, const char *si
 
 int irc_cmd_default(struct irc_conn *irc, const char *cmd, const char *target, const char **args)
 {
-	PurpleConversation *convo = purple_conversations_find_with_account(target, irc->account);
+	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 	char *buf;
 
-	if (!convo)
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find(manager, irc->account, target);
+
+	if (!convo) {
 		return 1;
+	}
 
 	buf = g_strdup_printf(_("Unknown command: %s"), cmd);
 	purple_conversation_write_system_message(convo, buf, PURPLE_MESSAGE_NO_LOG);
@@ -92,12 +97,15 @@ int irc_cmd_ctcp_action(struct irc_conn *irc, const char *cmd, const char *targe
 	const gchar *src, *me;
 	gchar *msg;
 	PurpleConversation *convo;
+	PurpleConversationManager *manager;
 	PurpleMessage *pmsg;
 
-	if (!args || !args[0] || !gc)
+	if (!args || !args[0] || !gc) {
 		return 0;
+	}
 
-	convo = purple_conversations_find_with_account(target, irc->account);
+	manager = purple_conversation_manager_get_default();
+	convo = purple_conversation_manager_find(manager, irc->account, target);
 	me = purple_account_get_name_for_display(irc->account);
 
 	msg = g_strdup_printf("/me %s", args[0]);
@@ -257,18 +265,23 @@ int irc_cmd_join(struct irc_conn *irc, const char *cmd, const char *target, cons
 
 int irc_cmd_kick(struct irc_conn *irc, const char *cmd, const char *target, const char **args)
 {
+	PurpleConversationManager *manager;
 	char *buf;
 
-	if (!args || !args[0])
+	if(!args || !args[0]) {
 		return 0;
+	}
 
-	if (!purple_conversations_find_chat_with_account(target, irc->account))
+	manager = purple_conversation_manager_get_default();
+	if(!purple_conversation_manager_find_chat(manager, irc->account, target)) {
 		return 0;
+	}
 
-	if (args[1])
+	if(args[1]) {
 		buf = irc_format(irc, "vcn:", "KICK", target, args[0], args[1]);
-	else
+	} else {
 		buf = irc_format(irc, "vcn", "KICK", target, args[0]);
+	}
 	irc_send(irc, buf);
 	g_free(buf);
 
@@ -599,16 +612,20 @@ int irc_cmd_time(struct irc_conn *irc, const char *cmd, const char *target, cons
 
 int irc_cmd_topic(struct irc_conn *irc, const char *cmd, const char *target, const char **args)
 {
+	PurpleConversation *chat;
+	PurpleConversationManager *manager;
 	char *buf;
 	const char *topic;
-	PurpleConversation *chat;
 
-	if (!args)
+	if (!args) {
 		return 0;
+	}
 
-	chat = purple_conversations_find_chat_with_account(target, irc->account);
-	if (!chat)
+	manager = purple_conversation_manager_get_default();
+	chat = purple_conversation_manager_find_chat(manager, irc->account, target);
+	if (!chat) {
 		return 0;
+	}
 
 	if (!args[0]) {
 		topic = purple_chat_conversation_get_topic (PURPLE_CHAT_CONVERSATION(chat));

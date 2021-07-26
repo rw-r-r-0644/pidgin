@@ -1776,14 +1776,19 @@ static void mw_session_announce(struct mwSession *s,
   struct mwPurpleProtocolData *pd;
   PurpleAccount *acct;
   PurpleConversation *im;
+  PurpleConversationManager *manager;
   PurpleBuddy *buddy;
   char *who = from->user_id;
   char *msg, *msg2;
 
   pd = mwSession_getClientData(s);
   acct = purple_connection_get_account(pd->gc);
-  im = purple_conversations_find_im_with_account(who, acct);
-  if(! im) im = purple_im_conversation_new(acct, who);
+
+  manager = purple_conversation_manager_get_default();
+  im = purple_conversation_manager_find_im(manager, acct, who);
+  if(!PURPLE_IS_IM_CONVERSATION(im)) {
+    im = purple_im_conversation_new(acct, who);
+  }
 
   buddy = purple_blist_find_buddy(acct, who);
   if(buddy) who = (char *) purple_buddy_get_contact_alias(buddy);
@@ -1888,12 +1893,8 @@ static void mw_conf_invited(struct mwConference *conf,
 #define CONF_TO_ID(conf)   (GPOINTER_TO_INT(conf))
 #define ID_TO_CONF(pd, id) (conf_find_by_id((pd), (id)))
 
-#define CHAT_TO_ID(chat)   (purple_chat_conversation_get_id(chat))
-#define ID_TO_CHAT(id)     (purple_conversations_find_chat(id))
-
 #define CHAT_TO_CONF(pd, chat)  (ID_TO_CONF((pd), CHAT_TO_ID(chat)))
 #define CONF_TO_CHAT(conf)      (ID_TO_CHAT(CONF_TO_ID(conf)))
-
 
 static struct mwConference *
 conf_find_by_id(struct mwPurpleProtocolData *pd, int id) {
@@ -1907,7 +1908,7 @@ conf_find_by_id(struct mwPurpleProtocolData *pd, int id) {
     struct mwConference *c = l->data;
     PurpleChatConversation *h = mwConference_getClientData(c);
 
-    if(CHAT_TO_ID(h) == id) {
+    if(purple_chat_conversation_get_id(h) == id) {
       conf = c;
       break;
     }
@@ -2461,6 +2462,7 @@ static PurpleConversation *convo_get_im(struct mwConversation *conv) {
   struct mwSession *session;
   struct mwPurpleProtocolData *pd;
   PurpleConnection *gc;
+  PurpleConversationManager *manager;
   PurpleAccount *acct;
 
   struct mwIdBlock *idb;
@@ -2473,7 +2475,9 @@ static PurpleConversation *convo_get_im(struct mwConversation *conv) {
 
   idb = mwConversation_getTarget(conv);
 
-  return purple_conversations_find_im_with_account(idb->user, acct);
+  manager = purple_conversation_manager_get_default();
+
+  return purple_conversation_manager_find_im(manager, acct, idb->user);
 }
 
 
@@ -2859,7 +2863,7 @@ place_find_by_id(struct mwPurpleProtocolData *pd, int id) {
     struct mwPlace *p = l->data;
     PurpleChatConversation *h = mwPlace_getClientData(p);
 
-    if(CHAT_TO_ID(h) == id) {
+    if(purple_chat_conversation_get_id(h) == id) {
       place = p;
       break;
     }
@@ -4042,12 +4046,17 @@ mw_protocol_set_idle(PurpleProtocolServer *protocol_server,
 static void notify_im(PurpleConnection *gc, GList *row, void *user_data) {
   PurpleAccount *acct;
   PurpleConversation *im;
+  PurpleConversationManager *manager;
   char *id;
 
   acct = purple_connection_get_account(gc);
   id = g_list_nth_data(row, 1);
-  im = purple_conversations_find_im_with_account(id, acct);
-  if(! im) im = purple_im_conversation_new(acct, id);
+
+  manager = purple_conversation_manager_get_default();
+  im = purple_conversation_manager_find_im(manager, acct, id);
+  if(!PURPLE_IS_IM_CONVERSATION(im)) {
+    im = purple_im_conversation_new(acct, id);
+  }
   purple_conversation_present(im);
 }
 

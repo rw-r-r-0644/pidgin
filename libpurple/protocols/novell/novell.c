@@ -224,11 +224,15 @@ _get_details_resp_send_msg(NMUser * user, NMERR_T ret_code,
 	if (ret_code == NM_OK) {
 		user_record = (NMUserRecord *) resp_data;
 		if (user_record) {
+			PurpleConversationManager *manager = NULL;
+
+			manager = purple_conversation_manager_get_default();
 
 			/* Set the title for the conversation */
 			/* XXX - Should this be find_im_with_account? */
-			gconv =	purple_conversations_find_with_account(nm_user_record_get_display_id(user_record),
-														(PurpleAccount *) user->client_data);
+			gconv = purple_conversation_manager_find(manager,
+			                                         (PurpleAccount *)user->client_data,
+			                                         nm_user_record_get_display_id(user_record));
 			if (gconv) {
 
 				dn = nm_user_record_get_dn(user_record);
@@ -1791,19 +1795,22 @@ _evt_receive_message(NMUser * user, NMEvent * event)
 
 			user_record = nm_find_user_record(user, nm_event_get_source(event));
 			if (user_record) {
+				PurpleConversationManager *manager = NULL;
 
 				flags = 0;
-				if (nm_event_get_type(event) == NMEVT_RECEIVE_AUTOREPLY)
+				if(nm_event_get_type(event) == NMEVT_RECEIVE_AUTOREPLY) {
 					flags |= PURPLE_MESSAGE_AUTO_RESP;
+				}
 
 				purple_serv_got_im(purple_account_get_connection(user->client_data),
 							nm_user_record_get_display_id(user_record),
 							text, flags,
 							nm_event_get_gmt(event));
 
-				im = purple_conversations_find_im_with_account(
-					nm_user_record_get_display_id(user_record),
-					(PurpleAccount *) user->client_data);
+				manager = purple_conversation_manager_get_default();
+				im = purple_conversation_manager_find_im(manager,
+				                                         PURPLE_ACCOUNT(user->client_data),
+				                                         nm_user_record_get_display_id(user_record));
 				if (im) {
 
 					contact = nm_find_contact(user, nm_event_get_source(event));
@@ -2091,10 +2098,14 @@ _evt_undeliverable_status(NMUser * user, NMEvent * event)
 
 	ur = nm_find_user_record(user, nm_event_get_source(event));
 	if (ur) {
+		PurpleConversationManager *manager = NULL;
+
+		manager = purple_conversation_manager_get_default();
+
 		/* XXX - Should this be PURPLE_CONV_TYPE_IM? */
-		gconv =
-			purple_conversations_find_with_account(nm_user_record_get_display_id(ur),
-												user->client_data);
+		gconv = purple_conversation_manager_find(manager,
+		                                         PURPLE_ACCOUNT(user->client_data),
+		                                         nm_user_record_get_display_id(ur));
 		if (gconv) {
 			const char *name = nm_user_record_get_full_name(ur);
 
@@ -2474,6 +2485,7 @@ novell_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 {
 	NMConference *conference;
 	PurpleConversation *chat;
+	PurpleConversationManager *manager = NULL;
 	GSList *cnode;
 	NMMessage *message;
 	NMUser *user;
@@ -2535,9 +2547,12 @@ novell_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 		}
 	}
 
+	manager = purple_conversation_manager_get_default();
 
 	/* The conference was not found, must be closed */
-	chat = purple_conversations_find_chat(gc, id);
+	chat = purple_conversation_manager_find_chat_by_id(manager,
+	                                                   purple_connection_get_account(gc),
+	                                                   id);
 	if (chat) {
 		str = g_strdup(_("This conference has been closed."
 						 " No more messages can be sent."));

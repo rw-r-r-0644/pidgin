@@ -167,11 +167,14 @@ static PurpleConversation * ggp_message_get_conv(PurpleConnection *gc,
 {
 	PurpleAccount *account = purple_connection_get_account(gc);
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 	const gchar *who = ggp_uin_to_str(uin);
 
-	im = purple_conversations_find_im_with_account(who, account);
-	if (im)
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager, account, who);
+	if (im) {
 		return im;
+	}
 	im = purple_im_conversation_new(account, who);
 	return im;
 }
@@ -647,6 +650,7 @@ int ggp_message_send_im(PurpleProtocolIM *pim, PurpleConnection *gc,
 {
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	PurpleConversation *im;
+	PurpleConversationManager *manager;
 	ggp_buddy_data *buddy_data;
 	gchar *gg_msg;
 	gboolean succ;
@@ -663,8 +667,10 @@ int ggp_message_send_im(PurpleProtocolIM *pim, PurpleConnection *gc,
 	if (buddy_data->blocked)
 		return -1;
 
-	im = purple_conversations_find_im_with_account(
-		rcpt, purple_connection_get_account(gc));
+	manager = purple_conversation_manager_get_default();
+	im = purple_conversation_manager_find_im(manager,
+	                                         purple_connection_get_account(gc),
+	                                         rcpt);
 
 	gg_msg = ggp_message_format_to_gg(im,
 		purple_message_get_contents(msg));
