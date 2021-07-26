@@ -176,7 +176,7 @@ purple_buddy_icon_set_data(PurpleBuddyIcon *icon, guchar *data,
  * purple_buddy_icon_save_to_filename:
  * @icon: The #PurpleBuddyIcon instance.
  * @filename: The filename to write.
- * @error: (optional): A return address for a #GError.
+ * @error: (out) (optional): A return address for a #GError.
  *
  * Writes the contents of @icon to @filename.
  *
