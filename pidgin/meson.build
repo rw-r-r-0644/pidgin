@@ -262,7 +262,7 @@ if ENABLE_GTK
 	    c_args : ['-DPIDGIN_COMPILATION', '-DG_LOG_DOMAIN="Pidgin"'],
 	    include_directories : toplevel_inc,
 	    dependencies : IS_WIN32 ? [] : [libpurple_dep, libpidgin_dep],
-	    gui_app : true,
+	    win_subsystem : 'windows',
 	    install : true)
 
 	pkgconfig.generate(
@@ -285,7 +285,7 @@ if ENABLE_GTK
 		desktop_file = i18n.merge_file(
 		    input : desktop_file_in,
 		    output : PIDGIN_DESKTOP_FILE,
-		    po_dir : meson.source_root() / 'po',
+		    po_dir : meson.project_source_root() / 'po',
 		    type : 'desktop',
 		    install : true,
 		    install_dir : get_option('datadir') / 'applications')
@@ -293,7 +293,7 @@ if ENABLE_GTK
 		appdata = i18n.merge_file(
 		    input : 'data/im.pidgin.Pidgin3.appdata.xml.in',
 		    output : 'im.pidgin.Pidgin3.appdata.xml',
-		    po_dir : meson.source_root() / 'po',
+		    po_dir : meson.project_source_root() / 'po',
 		    install : true,
 		    install_dir : get_option('datadir') / 'metainfo')
 	else
