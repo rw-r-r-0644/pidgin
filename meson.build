@@ -737,54 +737,59 @@ subdir('po')
 configure_file(output : 'config.h',
     configuration : conf)
 
-message('')
-message('pidgin ' + meson.project_version())
+summary({
+    'prefix': get_option('prefix'),
+    'bindir': get_option('bindir'),
+    'libdir': get_option('libdir'),
+    'datadir': get_option('datadir'),
+}, section : 'Directories')
 
-message('')
-message('Build GTK+ UI................. : ' + get_option('gtkui').to_string())
-message('Build console UI.............. : ' + enable_consoleui.to_string())
-message('Build for X11................. : ' + x11.found().to_string())
-message('')
-message('Protocols to build dynamically : @0@'.format(DYNAMIC_PRPLS))
-message('')
-message('Build with voice and video.... : ' + enable_vv.to_string())
-message('Build with Nettle support..... : ' + nettle.found().to_string())
-message('Build with Cyrus SASL support. : ' + sasl.found().to_string())
-message('Use external libzephyr........ : ' + EXTERNAL_LIBZEPHYR.to_string())
-if not EXTERNAL_LIBZEPHYR
-message('Use kerberos 4 with zephyr.... : ' + kerberos.to_string())
-endif
-message('Install pixmaps............... : ' + INSTALL_PIXMAPS.to_string())
-message('Install translations.......... : ' + get_option('nls').to_string())
-message('Has you....................... : yes')
-message('')
-message('Build Unity integration plugin.: ' + enable_unity.to_string())
-message('')
-message('Build with KWallet............ : ' + kwallet.found().to_string())
-message('Build with Secret Service..... : ' + secretservice.found().to_string())
-message('')
-message('Build plugins................. : ' + PLUGINS.to_string())
-message('Enable Introspection...........: ' + enable_introspection.to_string())
-message('')
-message('Print debugging messages...... : ' + enable_debug.to_string())
-message('Generate documentation........ : ' + ENABLE_DOC.to_string())
-message('')
-bindir = get_option('prefix') / get_option('bindir')
-message('Pidgin will be installed in @0@.'.format(bindir))
+summary({
+    'GTK': get_option('gtkui'),
+    'console': enable_consoleui,
+    'Voice and Video': enable_vv,
+    'X11 support': x11.found(),
+}, section: 'User Interfaces', bool_yn: true)
+
+summary({
+    'Dynamic protocols': DYNAMIC_PRPLS,
+    'Cyrus SASL support (IRC and XMPP)': sasl.found(),
+    'External libzephyr': EXTERNAL_LIBZEPHYR,
+    'Use kerberos 4 with zephyr': kerberos,
+}, section: 'Protocol Support', bool_yn: true, list_sep: ', ')
+
+summary({
+    'Build plugins': PLUGINS,
+    'Internal credential provider (via Nettle)': nettle.found(),
+    'KWallet credential provider': kwallet.found(),
+    'Secret Service credential provider': secretservice.found(),
+    'Unity integration': enable_unity,
+}, section: 'Plugin support', bool_yn: true)
+
+summary({
+    'Enable Introspection': enable_introspection,
+    'Generate documentation': ENABLE_DOC,
+    'Has you': true,
+    'Install pixmaps': INSTALL_PIXMAPS,
+    'Install translations': get_option('nls'),
+    'Print debugging messages': enable_debug,
+}, section: 'Miscellaneous', bool_yn: true)
+
 if pidgin3path.found()
-	message('Warning: You have an old copy of pidgin3 at @0@.'.format(pidgin3path.full_path()))
+    summary('You have an old copy of pidgin3 at', pidgin3path.full_path(),
+            section: 'Warnings')
 endif
 if not INSTALL_PIXMAPS
-	message('')
-	message('Warning: You have disabled the installation of pixmap data, but Pidgin')
-	message('still requires installed pixmaps.  Be sure you know what you are doing.')
+    summary('Pixmaps disabled',
+            'You have disabled the installation of pixmap data, ' +
+            'but Pidgin still requires installed pixmaps. ' +
+            'Be sure you know what you are doing.',
+            section: 'Warnings')
 endif
 if not get_option('nls')
-	message('')
-	message('Warning: You have disabled the building and installation of translation')
-	message('data.  This will prevent building Pidgin desktop files.')
-	message('Be sure you know what you are doing.')
+    summary('Translations disabled',
+            'You have disabled the building and installation of translation data. ' +
+            'This will prevent building Pidgin desktop files. ' +
+            'Be sure you know what you are doing.',
+            section: 'Warnings')
 endif
-message('')
-message('configure complete, now type \'ninja\'')
-message('')
