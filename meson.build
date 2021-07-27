@@ -22,7 +22,7 @@
 #
 project('pidgin', 'c',
     version : '3.0.0-devel',
-    meson_version : '>=0.52.0')
+    meson_version : '>=0.56.0')
 purple_soversion = 20
 
 parts = meson.project_version().split('-')
@@ -280,7 +280,7 @@ if get_option('gtkui')
 		)
 		talkatu_dep = talkatu_proj.get_variable('talkatu_dep')
 
-		talkatu_docpath = meson.build_root() / 'subprojects/talkatu/talkatu/reference/'
+		talkatu_docpath = meson.project_build_root() / 'subprojects/talkatu/talkatu/reference/'
 		if enable_introspection
 			talkatu_gir = talkatu_proj.get_variable('talkatu_gir')[0]
 		endif
@@ -548,7 +548,7 @@ endif
 # Check for KWallet headers
 #######################################################################
 
-if IS_WIN32 or not add_languages('cpp', required : get_option('kwallet'))
+if IS_WIN32 or not add_languages('cpp', required : get_option('kwallet'), native: false)
 	kwallet = disabler()
 else
 	# Use C++ compiler
@@ -606,7 +606,7 @@ else
 
 	gplugin_dep = gplugin_proj.get_variable('gplugin_dep')
 
-	gplugin_docpath = meson.build_root() / 'subprojects/gplugin/gplugin/reference/'
+	gplugin_docpath = meson.project_build_root() / 'subprojects/gplugin/gplugin/reference/'
 
 	if enable_introspection
 		gplugin_gir = gplugin_proj.get_variable('gplugin_gir')[0]
@@ -616,7 +616,7 @@ else
 	if get_option('gtkui')
 		gplugin_gtk_dep = gplugin_proj.get_variable('gplugin_gtk_dep')
 
-		gplugin_gtk_docpath = meson.build_root() / 'subprojects/gplugin/gplugin-gtk/reference/'
+		gplugin_gtk_docpath = meson.project_build_root() / 'subprojects/gplugin/gplugin-gtk/reference/'
 
 		if enable_introspection
 			gplugin_gtk_gir = gplugin_proj.get_variable('gplugin_gtk_gir')[0]
@@ -772,7 +772,7 @@ message('')
 bindir = get_option('prefix') / get_option('bindir')
 message('Pidgin will be installed in @0@.'.format(bindir))
 if pidgin3path.found()
-	message('Warning: You have an old copy of pidgin3 at @0@.'.format(pidgin3path.path()))
+	message('Warning: You have an old copy of pidgin3 at @0@.'.format(pidgin3path.full_path()))
 endif
 if not INSTALL_PIXMAPS
 	message('')

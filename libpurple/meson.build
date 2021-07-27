@@ -353,7 +353,7 @@ if get_option('nls')
 	i18n.merge_file(
 	    input : desktop_file_in,
 	    output : PURPLE3_URL_HANDLER_DESKTOP,
-	    po_dir : meson.source_root() / 'po',
+	    po_dir : meson.project_source_root() / 'po',
 	    type : 'desktop',
 	    install : true,
 	    install_dir : get_option('datadir') / 'applications')
