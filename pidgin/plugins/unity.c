@@ -61,10 +61,16 @@ update_launcher()
 		return;
 
 	if (launcher_count == LAUNCHER_COUNT_MESSAGES) {
-		for (convs = purple_conversations_get_all(); convs != NULL; convs = convs->next) {
+		PurpleConversationManager *manager = NULL;
+
+		manager = purple_conversation_manager_get_default();
+		convs = purple_conversation_manager_get_all(manager);
+
+		while(convs != NULL) {
 			PurpleConversation *conv = convs->data;
 			count += GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv),
 					"unity-message-count"));
+			convs = g_list_delete_link(convs, convs);
 		}
 	} else {
 		count = n_sources;
@@ -125,13 +131,17 @@ messaging_menu_remove_conversation(PurpleConversation *conv)
 static void
 refill_messaging_menu()
 {
+	PurpleConversationManager *manager = NULL;
 	GList *convs;
 
-	for (convs = purple_conversations_get_all(); convs != NULL; convs = convs->next) {
+	manager = purple_conversation_manager_get_default();
+	convs = purple_conversation_manager_get_all(manager);
+	while(convs != NULL) {
 		PurpleConversation *conv = convs->data;
 		messaging_menu_add_conversation(conv,
 			GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv),
 			"unity-message-count")));
+		convs = g_list_delete_link(convs, convs);
 	}
 }
 
@@ -199,18 +209,28 @@ message_displayed_cb(PurpleConversation *conv, PurpleMessage *msg, gpointer _unu
 static void
 im_sent_im(PurpleAccount *account, PurpleMessage *msg, gpointer _unused)
 {
-	PurpleIMConversation *im = NULL;
-	im = purple_conversations_find_im_with_account(
-		purple_message_get_recipient(msg), account);
-	unalert(PURPLE_CONVERSATION(im));
+	PurpleConversation *im = NULL;
+	PurpleConversationManager *manager = NULL;
+
+	manager = purple_conversation_manager_get_default();
+
+	im = purple_conversation_manager_find_im(manager, account,
+	                                         purple_message_get_recipient(msg));
+
+	unalert(im);
 }
 
 static void
 chat_sent_im(PurpleAccount *account, PurpleMessage *msg, int id)
 {
-	PurpleChatConversation *chat = NULL;
-	chat = purple_conversations_find_chat(purple_account_get_connection(account), id);
-	unalert(PURPLE_CONVERSATION(chat));
+	PurpleConversation *chat = NULL;
+	PurpleConversationManager *manager = NULL;
+
+	manager = purple_conversation_manager_get_default();
+
+	chat = purple_conversation_manager_find_chat_by_id(manager, account, id);
+
+	unalert(chat);
 }
 
 static void
@@ -234,6 +254,7 @@ message_source_activated(MessagingMenuApp *app, const gchar *id,
 {
 	gchar **sections = g_strsplit(id, ":", 0);
 	PurpleConversation *conv = NULL;
+	PurpleConversationManager *manager = NULL;
 	PurpleAccount *account;
 	PidginConvWindow *purplewin = NULL;
 
@@ -242,14 +263,17 @@ message_source_activated(MessagingMenuApp *app, const gchar *id,
 	char *aname    = sections[2];
 	char *protocol = sections[3];
 
+	manager = purple_conversation_manager_get_default();
+
 	account = purple_accounts_find(aname, protocol);
 
-	if (g_strcmp0(type, "im") == 0)
-		conv = PURPLE_CONVERSATION(purple_conversations_find_im_with_account(cname, account));
-	else if (g_strcmp0(type, "chat") == 0)
-		conv = PURPLE_CONVERSATION(purple_conversations_find_chat_with_account(cname, account));
-	else
-		conv = purple_conversations_find_with_account(cname, account);
+	if (g_strcmp0(type, "im") == 0) {
+		conv = purple_conversation_manager_find_im(manager, account, cname);
+	} else if (g_strcmp0(type, "chat") == 0) {
+		conv = purple_conversation_manager_find_chat(manager, account, cname);
+	} else {
+		conv = purple_conversation_manager_find(manager, account, cname);
+	}
 
 	if (conv) {
 		unalert(conv);
@@ -530,7 +554,8 @@ unity_query(GError **error)
 
 static gboolean
 unity_load(GPluginPlugin *plugin, GError **error) {
-	GList *convs = purple_conversations_get_all();
+	GList *convs = NULL;
+	PurpleConversationManager *manager = NULL;
 	PurpleSavedStatus *saved_status;
 	void *conv_handle = purple_conversations_get_handle();
 	void *gtk_conv_handle = pidgin_conversations_get_handle();
@@ -577,10 +602,12 @@ unity_load(GPluginPlugin *plugin, GError **error) {
 	purple_signal_connect(conv_handle, "deleting-conversation", plugin,
 			PURPLE_CALLBACK(deleting_conv), NULL);
 
-	while (convs) {
-		PurpleConversation *conv = (PurpleConversation *)convs->data;
+	manager = purple_conversation_manager_get_default();
+	convs = purple_conversation_manager_get_all(manager);
+	while(convs != NULL) {
+		PurpleConversation *conv = PURPLE_CONVERSATION(convs->data);
 		attach_signals(conv);
-		convs = convs->next;
+		convs = g_list_delete_link(convs, convs);
 	}
 
 	return TRUE;
@@ -588,12 +615,17 @@ unity_load(GPluginPlugin *plugin, GError **error) {
 
 static gboolean
 unity_unload(GPluginPlugin *plugin, GError **error) {
-	GList *convs = purple_conversations_get_all();
-	while (convs) {
-		PurpleConversation *conv = (PurpleConversation *)convs->data;
+	GList *convs = NULL;
+	PurpleConversationManager *manager = NULL;
+
+	manager = purple_conversation_manager_get_default();
+	convs = purple_conversation_manager_get_all(manager);
+
+	while(convs != NULL) {
+		PurpleConversation *conv = PURPLE_CONVERSATION(convs->data);
 		unalert(conv);
 		detach_signals(conv);
-		convs = convs->next;
+		convs = g_list_delete_link(convs, convs);
 	}
 
 	unity_launcher_entry_set_count_visible(launcher, FALSE);
