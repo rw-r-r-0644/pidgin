@@ -1045,12 +1045,12 @@ create_chat_menu(PurpleChatConversation *chat, const char *who, PurpleConnection
 	if (!is_me && protocol && !(purple_protocol_get_options(protocol) & OPT_PROTO_UNIQUE_CHATNAME) && PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, add_buddy)) {
 		if ((buddy = purple_blist_find_buddy(account, who)) != NULL)
 			button = pidgin_new_menu_item(menu, _("Remove"),
-                                        GTK_STOCK_REMOVE,
+                                        NULL,
                                         G_CALLBACK(menu_chat_add_remove_cb),
                                         PIDGIN_CONVERSATION(conv));
 		else
 			button = pidgin_new_menu_item(menu, _("Add"),
-                                        GTK_STOCK_ADD,
+                                        NULL,
                                         G_CALLBACK(menu_chat_add_remove_cb),
                                         PIDGIN_CONVERSATION(conv));
 
@@ -1702,7 +1702,7 @@ static GtkActionEntry menu_entries[] =
 	/* Conversation menu */
 	{ "ConversationMenu", NULL, N_("_Conversation"), NULL, NULL, NULL },
 	{ "ViewLog", NULL, N_("View _Log"), NULL, NULL, G_CALLBACK(menu_view_log_cb) },
-	{ "SaveAs", GTK_STOCK_SAVE_AS, N_("_Save As..."), NULL, NULL, G_CALLBACK(menu_save_as_cb) },
+	{ "SaveAs", NULL, N_("_Save As..."), NULL, NULL, G_CALLBACK(menu_save_as_cb) },
 
 #ifdef USE_VV
 	{ "MediaMenu", NULL, N_("M_edia"), NULL, NULL, NULL },
@@ -1719,11 +1719,11 @@ static GtkActionEntry menu_entries[] =
 	{ "Alias", NULL, N_("Al_ias..."), NULL, NULL, G_CALLBACK(menu_alias_cb) },
 	{ "Block", PIDGIN_STOCK_TOOLBAR_BLOCK, N_("_Block..."), NULL, NULL, G_CALLBACK(menu_block_cb) },
 	{ "Unblock", PIDGIN_STOCK_TOOLBAR_UNBLOCK, N_("_Unblock..."), NULL, NULL, G_CALLBACK(menu_unblock_cb) },
-	{ "Add", GTK_STOCK_ADD, N_("_Add..."), NULL, NULL, G_CALLBACK(menu_add_remove_cb) },
-	{ "Remove", GTK_STOCK_REMOVE, N_("_Remove..."), NULL, NULL, G_CALLBACK(menu_add_remove_cb) },
+	{ "Add", NULL, N_("_Add..."), NULL, NULL, G_CALLBACK(menu_add_remove_cb) },
+	{ "Remove", NULL, N_("_Remove..."), NULL, NULL, G_CALLBACK(menu_add_remove_cb) },
 	{ "InsertLink", PIDGIN_STOCK_TOOLBAR_INSERT_LINK, N_("Insert Lin_k..."), NULL, NULL, NULL },
 	{ "InsertImage", PIDGIN_STOCK_TOOLBAR_INSERT_IMAGE, N_("Insert Imag_e..."), NULL, NULL, NULL },
-	{ "Close", GTK_STOCK_CLOSE, N_("_Close"), "<control>W", NULL, G_CALLBACK(menu_close_conv_cb) },
+	{ "Close", NULL, N_("_Close"), "<control>W", NULL, G_CALLBACK(menu_close_conv_cb) },
 
 	/* Options */
 	{ "OptionsMenu", NULL, N_("_Options"), NULL, NULL, NULL },
