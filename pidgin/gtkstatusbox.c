@@ -172,7 +172,7 @@ enum {
 
 	/*
  	 * This column stores the GdkPixbuf for the status emblem. Currently only 'saved' is stored.
-	 * In the GtkTreeModel for the dropdown, this is the stock-id (gchararray), and for the
+	 * In the GtkTreeModel for the dropdown, this is the icon-name (gchararray), and for the
 	 * GtkTreeModel for the cell_view (for the account-specific statusbox), this is the protocol icon
 	 * (GdkPixbuf) of the account.
  	 */
@@ -1320,7 +1320,7 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 	gtk_tree_view_column_pack_start(status_box->column, emblem_rend, FALSE);
 	gtk_tree_view_column_set_attributes(status_box->column, icon_rend, "stock-id", ICON_STOCK_COLUMN, NULL);
 	gtk_tree_view_column_set_attributes(status_box->column, text_rend, "markup", TEXT_COLUMN, NULL);
-	gtk_tree_view_column_set_attributes(status_box->column, emblem_rend, "stock-id", EMBLEM_COLUMN, "visible", EMBLEM_VISIBLE_COLUMN, NULL);
+	gtk_tree_view_column_set_attributes(status_box->column, emblem_rend, "icon-name", EMBLEM_COLUMN, "visible", EMBLEM_VISIBLE_COLUMN, NULL);
 
 	status_box->scrolled_window = pidgin_make_scrollable(status_box->tree_view, GTK_POLICY_NEVER, GTK_POLICY_NEVER, GTK_SHADOW_NONE, -1, -1);
 	gtk_container_add (GTK_CONTAINER (status_box->popup_frame),
@@ -1584,7 +1584,7 @@ pidgin_status_box_add(PidginStatusBox *status_box, PidginStatusBoxItemType type,
 			DESC_COLUMN, desc,
 			DATA_COLUMN, data,
 			EMBLEM_VISIBLE_COLUMN, type == PIDGIN_STATUS_BOX_TYPE_SAVED_POPULAR,
-			EMBLEM_COLUMN, GTK_STOCK_SAVE,
+			EMBLEM_COLUMN, "document-save",
 			-1);
 	g_free(text);
 }
