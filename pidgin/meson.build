@@ -265,6 +265,10 @@ if ENABLE_GTK
 	    win_subsystem : 'windows',
 	    install : true)
 
+	if meson.version().version_compare('>=0.54.0')
+		meson.override_dependency(pidgin_filebase, libpidgin_dep)
+	endif
+
 	pkgconfig.generate(
 	    name : 'Pidgin',
 	    description : 'Pidgin is a GTK3-based instant messenger application.',

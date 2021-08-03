@@ -308,6 +308,10 @@ install_headers(purple_coreheaders,
 install_headers(purple_mediaheaders,
                 subdir : purple_include_base / 'media')
 
+if meson.version().version_compare('>=0.54.0')
+	meson.override_dependency(purple_filebase, libpurple_dep)
+endif
+
 pkgconfig.generate(
     name : 'libpurple',
     description : 'libpurple is a GLib-based instant messenger library.',
