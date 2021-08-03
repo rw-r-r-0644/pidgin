@@ -256,7 +256,7 @@ nice = dependency('nice', version : '>=0.1.13')
 # Check Pidgin dependencies
 #######################################################################
 if get_option('gtkui')
-	gtk = dependency('gtk+-3.0', version : '>= 3.22.0')
+	gtk = dependency('gtk+-3.0', version : '>= 3.24.0')
 	libhandy = dependency('libhandy-1', version : '>= 1')
 
 	talkatu_dep = dependency('talkatu', version: '>=0.1.0', required : false)
