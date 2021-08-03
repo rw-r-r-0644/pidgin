@@ -22,7 +22,7 @@
 
 #include "protocol.h"
 
-#include "enums.h"
+#include "purpleenums.h"
 
 enum {
 	PROP_0,

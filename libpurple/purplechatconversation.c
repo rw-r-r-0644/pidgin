@@ -24,9 +24,9 @@
 
 #include "internal.h"
 #include "debug.h"
-#include "enums.h"
 #include "purpleconversationmanager.h"
 #include "purplechatconversation.h"
+#include "purpleenums.h"
 #include "purpleprivate.h"
 
 typedef struct {

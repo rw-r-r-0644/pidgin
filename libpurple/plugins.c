@@ -26,8 +26,8 @@
 
 #include "core.h"
 #include "debug.h"
-#include "enums.h"
 #include "plugins.h"
+#include "purpleenums.h"
 #include "signals.h"
 #include "util.h"
 

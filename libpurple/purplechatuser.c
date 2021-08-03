@@ -21,7 +21,7 @@
  */
 
 #include "purplechatuser.h"
-#include "enums.h"
+#include "purpleenums.h"
 
 struct _PurpleChatUser {
 	GObject parent;

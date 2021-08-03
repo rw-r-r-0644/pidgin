@@ -25,10 +25,10 @@
 #include "accounts.h"
 #include "core.h"
 #include "debug.h"
-#include "enums.h"
 #include "network.h"
 #include "purpleconversationmanager.h"
 #include "purplecredentialmanager.h"
+#include "purpleenums.h"
 #include "purpleprivate.h"
 
 static PurpleAccountUiOps *account_ui_ops = NULL;
