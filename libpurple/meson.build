@@ -246,10 +246,8 @@ purple_enumheaders = [
 ]
 
 
-enums = gnome.mkenums('enums',
+enums = gnome.mkenums_simple('purpleenums',
     sources : purple_enumheaders,
-    h_template : 'enums.h.in',
-    c_template : 'enums.c.in',
     install_header : true,
     install_dir : get_option('includedir') / purple_include_base)
 enums_c = enums[0]
