@@ -22,8 +22,8 @@
 #include <libpurple/purpleimconversation.h>
 
 #include <libpurple/debug.h>
-#include <libpurple/enums.h>
 #include <libpurple/purpleconversationmanager.h>
+#include <libpurple/purpleenums.h>
 #include <libpurple/purpleprivate.h>
 #include <libpurple/purpleprotocolclient.h>
 

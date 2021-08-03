@@ -25,8 +25,8 @@
 #include "internal.h"
 
 #include "debug.h"
+#include "purpleenums.h"
 #include "purplemessage.h"
-#include "enums.h"
 #include "purpleprivate.h"
 
 /**

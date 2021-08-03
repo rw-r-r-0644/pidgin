@@ -254,7 +254,7 @@ enums_c = enums[0]
 enums_h = enums[1]
 
 PURPLE_H_INCLUDES = []
-foreach header : purple_coreheaders + purple_mediaheaders + ['version.h', 'enums.h']
+foreach header : purple_coreheaders + purple_mediaheaders + ['version.h', 'purpleenums.h']
 	PURPLE_H_INCLUDES += '#include <libpurple/@0@>'.format(header)
 endforeach
 purple_h_conf = configuration_data()

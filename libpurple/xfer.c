@@ -28,7 +28,6 @@
 #include <glib/gstdio.h>
 
 #include "debug.h"
-#include "enums.h"
 #include "glibcompat.h"
 #include "image-store.h"
 #include "network.h"
@@ -37,6 +36,7 @@
 #include "proxy.h"
 #include "purple-gio.h"
 #include "purpleconversationmanager.h"
+#include "purpleenums.h"
 #include "request.h"
 #include "util.h"
 #include "xfer.h"

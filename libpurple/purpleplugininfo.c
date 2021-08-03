@@ -21,7 +21,7 @@
 
 #include "core.h"
 #include "debug.h"
-#include "enums.h"
+#include "purpleenums.h"
 #include "util.h"
 
 #include "purpleplugininfo.h"
