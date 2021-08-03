@@ -215,6 +215,10 @@ if enable_consoleui
 	    dependencies : [libpurple_dep, libgnt_dep, libfinch_dep],
 	    install : true)
 
+	if meson.version().version_compare('>=0.54.0')
+		meson.override_dependency('finch-3', libfinch_dep)
+	endif
+
 	pkgconfig.generate(
 	    name : 'Finch',
 	    description : 'Finch is an instant messenger application that uses libpurple for protocol support and ncurses (libgnt) for the UI.',
