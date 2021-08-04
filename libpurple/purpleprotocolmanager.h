@@ -34,6 +34,7 @@ G_BEGIN_DECLS
  * SECTION:purpleprotocolmanager
  * @section_id: libpurple-purpleprotocolmanager
  * @title: Purple Protocol Manager
+ * @short_description: Management of protocols.
  *
  * #PurpleProtocolManager keeps track of all protocols and emits signals when
  * protocols are registered and unregistered.

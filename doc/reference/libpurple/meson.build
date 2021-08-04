@@ -53,7 +53,6 @@ content_files = [
     'signals_log.xml',
     'signals_notify.xml',
     'signals_plugin.xml',
-    'signals_protocol.xml',
     'signals_savedstatus.xml',
     'signals_xfer.xml',
     'tut_c_plugins.xml',

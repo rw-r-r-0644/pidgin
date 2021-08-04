@@ -30,7 +30,6 @@
  * @section_id: libpurple-protocols
  * @short_description: <filename>protocols.h</filename>
  * @title: Protocols Subsystem API
- * @see_also: <link linkend="chapter-signals-protocol">Protocol signals</link>
  */
 
 /**************************************************************************/

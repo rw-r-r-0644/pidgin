@@ -60,8 +60,6 @@
       <xi:include href="xml/plugins.xml" />
       <xi:include href="xml/prefs.xml" />
       <xi:include href="xml/pluginpref.xml" />
-      <xi:include href="xml/protocol.xml" />
-      <xi:include href="xml/protocols.xml" />
       <xi:include href="xml/proxy.xml" />
       <xi:include href="xml/purple-gio.xml" />
       <xi:include href="xml/purpleaccountoption.xml" />
@@ -74,25 +72,13 @@
       <xi:include href="xml/purpleconversation.xml" />
       <xi:include href="xml/purpleconversationmanager.xml" />
       <xi:include href="xml/purpleconversationuiops.xml" />
-      <xi:include href="xml/purplecredentialmanager.xml" />
-      <xi:include href="xml/purplecredentialprovider.xml" />
       <xi:include href="xml/purpledebugui.xml" />
       <xi:include href="xml/purpleimconversation.xml" />
       <xi:include href="xml/purplekeyvaluepair.xml" />
       <xi:include href="xml/purplemarkup.xml" />
-      <xi:include href="xml/purplenoopcredentialprovider.xml" />
       <xi:include href="xml/purpleoptions.xml" />
       <xi:include href="xml/purpleplugininfo.xml" />
       <xi:include href="xml/purplepresence.xml" />
-      <xi:include href="xml/purpleprotocolattention.xml" />
-      <xi:include href="xml/purpleprotocolchat.xml" />
-      <xi:include href="xml/purpleprotocolclient.xml" />
-      <xi:include href="xml/purpleprotocolfactory.xml" />
-      <xi:include href="xml/purpleprotocolim.xml" />
-      <xi:include href="xml/purpleprotocolmanager.xml" />
-      <xi:include href="xml/purpleprotocolmedia.xml" />
-      <xi:include href="xml/purpleprotocolprivacy.xml" />
-      <xi:include href="xml/purpleprotocolserver.xml" />
       <xi:include href="xml/purplewhiteboard.xml" />
       <xi:include href="xml/purplewhiteboardops.xml" />
       <xi:include href="xml/purplewhiteboarduiops.xml" />
@@ -115,6 +101,30 @@
       <xi:include href="xml/xmlnode.xml" />
       <xi:include href="xml/version.xml" />
       <xi:include href="xml/util.xml" />
+  </part>
+
+  <part id="Credentials">
+    <title>Credentials</title>
+
+    <xi:include href="xml/purplecredentialmanager.xml" />
+    <xi:include href="xml/purplecredentialprovider.xml" />
+    <xi:include href="xml/purplenoopcredentialprovider.xml" />
+  </part>
+
+  <part id="Protocols">
+    <title>Protocols</title>
+
+    <xi:include href="xml/protocol.xml" />
+    <xi:include href="xml/protocols.xml" />
+    <xi:include href="xml/purpleprotocolattention.xml" />
+    <xi:include href="xml/purpleprotocolchat.xml" />
+    <xi:include href="xml/purpleprotocolclient.xml" />
+    <xi:include href="xml/purpleprotocolfactory.xml" />
+    <xi:include href="xml/purpleprotocolim.xml" />
+    <xi:include href="xml/purpleprotocolmanager.xml" />
+    <xi:include href="xml/purpleprotocolmedia.xml" />
+    <xi:include href="xml/purpleprotocolprivacy.xml" />
+    <xi:include href="xml/purpleprotocolserver.xml" />
   </part>
 
   <part id="Submodules">
@@ -172,7 +182,6 @@
       <xi:include href="signals_log.xml" />
       <xi:include href="signals_notify.xml" />
       <xi:include href="signals_plugin.xml" />
-      <xi:include href="signals_protocol.xml" />
       <xi:include href="signals_savedstatus.xml" />
       <xi:include href="signals_jabber.xml" />
   </part>

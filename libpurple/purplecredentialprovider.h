@@ -33,6 +33,12 @@
  * SECTION:purplecredentialprovider
  * @section_id: libpurple-purplecredentialprovider
  * @title: Credential Provider Object
+ * @short_description: Abstraction of credential providers.
+ *
+ * #PurpleCredentialProvider is an abstract base class for implementing support
+ * for a specific password or keyring manager. At the time of this writing,
+ * libpurple ships with plugins for libsecret, KWallet, and the Windows
+ * Credentials store by subclassing #PurpleCredentialProvider.
  */
 
 G_BEGIN_DECLS
@@ -56,7 +62,25 @@ G_BEGIN_DECLS
  * Since: 3.0.0
  */
 
+/**
+ * PURPLE_TYPE_CREDENTIAL_PROVIDER:
+ *
+ * The standard _TYPE_ macro for PurpleCredentialProvider.
+ *
+ * Since: 3.0.0
+ */
+
 #define PURPLE_TYPE_CREDENTIAL_PROVIDER (purple_credential_provider_get_type())
+
+/**
+ * purple_credential_provider_get_type:
+ *
+ * Gets the #GType of #PurpleCredentialProvider.
+ *
+ * Returns: The #GType of #PurpleCredentialProvider.
+ *
+ * Since: 3.0.0
+ */
 G_DECLARE_DERIVABLE_TYPE(PurpleCredentialProvider, purple_credential_provider,
                          PURPLE, CREDENTIAL_PROVIDER, GObject)
 

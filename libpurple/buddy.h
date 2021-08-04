@@ -53,11 +53,23 @@ typedef struct _PurpleBuddyClass PurpleBuddyClass;
 #include "purplepresence.h"
 #include "status.h"
 
+/**
+ * PURPLE_BUDDY_IS_ONLINE:
+ * @b: The #PurpleBuddy instance.
+ *
+ * Checks whether @b is online or not.
+ */
 #define PURPLE_BUDDY_IS_ONLINE(b) \
 	(PURPLE_IS_BUDDY(b) \
 	&& purple_account_is_connected(purple_buddy_get_account(PURPLE_BUDDY(b))) \
 	&& purple_presence_is_online(purple_buddy_get_presence(PURPLE_BUDDY(b))))
 
+/**
+ * PURPLE_BLIST_NODE_NAME:
+ * @n: The #PurpleBlistNode instance.
+ *
+ * Gets the name of @n.
+ */
 #define PURPLE_BLIST_NODE_NAME(n) \
 	(PURPLE_IS_CHAT(n) ? purple_chat_get_name(PURPLE_CHAT(n)) : \
 	PURPLE_IS_BUDDY(n) ? purple_buddy_get_name(PURPLE_BUDDY(n)) : NULL)

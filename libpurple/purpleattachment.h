@@ -39,6 +39,14 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_ATTACHMENT:
+ *
+ * The standard _TYPE_ macro for #PurpleAttachment.
+ *
+ * Since: 3.0.0
+ */
+
 #define PURPLE_TYPE_ATTACHMENT purple_attachment_get_type()
 
 /**
@@ -56,7 +64,6 @@ G_DECLARE_FINAL_TYPE(PurpleAttachment, purple_attachment, PURPLE, ATTACHMENT, GO
  * @data: User supplied data.
  *
  * Called when iterating #PurpleAttachment's.
- *
  *
  * Since: 3.0.0
  */

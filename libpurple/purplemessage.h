@@ -73,6 +73,7 @@ G_BEGIN_DECLS
  * @PURPLE_MESSAGE_REMOTE_SEND: Message sent from another location, not an echo
  *                              of a local one.
  *                              Since: 2.12.0
+ * @PURPLE_MESSAGE_FORWARDED: The message has been forward to the recipient.
  *
  * Flags applicable to a message. Most will have send, recv or system.
  */

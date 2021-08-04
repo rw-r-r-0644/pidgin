@@ -80,8 +80,6 @@ typedef enum {
 	PURPLE_CMD_RET_CONTINUE
 } PurpleCmdRet;
 
-#define PURPLE_CMD_FUNC(func) ((PurpleCmdFunc)func)
-
 /**
  * PurpleCmdFunc:
  * @conversation: The #PurpleConversation where the command is being run.

@@ -27,9 +27,13 @@
  * SECTION:purpleplugininfo
  * @section_id: libpurple-purpleplugininfo
  * @title: PurplePluginInfo Object
+ * @short_description: An object representing information about purple plugins.
  * @see_also: <link linkend="chapter-signals-plugin">Plugin signals</link>,
  *     <link linkend="chapter-plugin-ids">Plugin IDs</link>,
  *     <link linkend="chapter-plugin-i18n">Third Party Plugin Translation</link>
+ *
+ * #PurplePluginInfo is a #GPluginPluginInfo subclass that adds additional
+ * libpurple specific properties.
  */
 
 #include <glib.h>
@@ -43,19 +47,32 @@
  * PURPLE_TYPE_PLUGIN_INFO:
  *
  * The standard _get_type macro for #PurplePluginInfo.
+ *
+ * Since: 3.0.0
  */
 #define PURPLE_TYPE_PLUGIN_INFO (purple_plugin_info_get_type())
 
 /**
  * purple_plugin_info_get_type:
  *
+ * The standard _get_type function for #PurplePluginInfo.
+ *
  * Returns: The #GType for the #PurplePluginInfo object.
+ *
+ * Since: 3.0.0
  */
-G_DECLARE_DERIVABLE_TYPE(PurplePluginInfo, purple_plugin_info, PURPLE, PLUGIN_INFO,
-                         GPluginPluginInfo)
+G_DECLARE_DERIVABLE_TYPE(PurplePluginInfo, purple_plugin_info, PURPLE,
+                         PLUGIN_INFO, GPluginPluginInfo)
 
 #include "plugins.h"
 
+/**
+ * PurplePluginInfoClass:
+ *
+ * An opaque type representing the class of a #PurplePluginInfo.
+ *
+ * Since: 3.0.0
+ */
 struct _PurplePluginInfoClass {
 	/*< private >*/
 	GPluginPluginInfoClass parent;
@@ -104,17 +121,24 @@ typedef PurplePluginPrefFrame *(*PurplePluginPrefFrameCb)(PurplePlugin *plugin);
 typedef gpointer (*PurplePluginPrefRequestCb)(PurplePlugin *plugin);
 
 /**
+ * PURPLE_TYPE_PLUGIN_INFO_FLAGS:
+ *
+ * The standard type macro for #PurplePluginInfoFlags.
+ */
+
+/**
  * PurplePluginInfoFlags:
  * @PURPLE_PLUGIN_INFO_FLAGS_INTERNAL:  Plugin is not shown in UI lists
  * @PURPLE_PLUGIN_INFO_FLAGS_AUTO_LOAD: Auto-load the plugin
  *
  * Flags that can be used to treat plugins differently.
+ *
+ * Since: 3.0.0
  */
 typedef enum /*< flags >*/
 {
 	PURPLE_PLUGIN_INFO_FLAGS_INTERNAL  = 1 << 1,
 	PURPLE_PLUGIN_INFO_FLAGS_AUTO_LOAD = 1 << 2,
-
 } PurplePluginInfoFlags;
 
 /**
@@ -127,6 +151,11 @@ typedef enum /*< flags >*/
 
 /**
  * PURPLE_PLUGIN_ABI_VERSION:
+ * @major: The major version of libpurple to target.
+ * @minor: The minor version of libpurple to target.
+ *
+ * Packs @major and @minor into an integer to be used as an abi version for
+ * gplugin.
  *
  * Note: The lower six nibbles represent the ABI version for libpurple, the
  *       rest are required by GPlugin.
@@ -138,6 +167,9 @@ typedef enum /*< flags >*/
 
 /**
  * PURPLE_PLUGIN_ABI_MAJOR_VERSION:
+ * @abi: The abi version.
+ *
+ * Extracts the purple major version from @abi.
  *
  * Returns: The major version from an ABI version
  */
@@ -146,6 +178,9 @@ typedef enum /*< flags >*/
 
 /**
  * PURPLE_PLUGIN_ABI_MINOR_VERSION:
+ * @abi: The abi version.
+ *
+ * Extracts the purple minor version from @abi.
  *
  * Returns: The minor version from an ABI version
  */
