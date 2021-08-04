@@ -5752,9 +5752,9 @@ pidgin_conv_window_new()
 	gtk_box_pack_start(GTK_BOX(testidea), win->notebook, TRUE, TRUE, 0);
 
 	/* Update the plugin actions when plugins are (un)loaded */
-	manager = gplugin_manager_get_instance();
-	g_signal_connect(manager, "loaded-plugin", G_CALLBACK(plugin_changed_cb),
-	                 win);
+	manager = gplugin_manager_get_default();
+	g_signal_connect(manager, "loaded-plugin",
+	                 G_CALLBACK(plugin_changed_cb), win);
 	g_signal_connect(manager, "unloaded-plugin",
 	                 G_CALLBACK(plugin_changed_cb), win);
 

@@ -902,7 +902,7 @@ finch_create_conversation(PurpleConversation *conv)
 	purple_signal_connect(purple_cmds_get_handle(), "cmd-removed", ggc,
 			G_CALLBACK(cmd_removed_cb), ggc);
 
-	plugin_manager = gplugin_manager_get_instance();
+	plugin_manager = gplugin_manager_get_default();
 	g_signal_connect_object(plugin_manager, "loaded-plugin",
 	                        G_CALLBACK(plugin_changed_cb), ggc, 0);
 	g_signal_connect_object(plugin_manager, "unloaded-plugin",
