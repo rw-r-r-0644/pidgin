@@ -12,6 +12,7 @@ ignore_hfiles = [
     'glibcompat.h',
     'internal.h',
     'purple.h',
+    'purpleenums.h',
     'purpleprivate.h',
 ]
 
