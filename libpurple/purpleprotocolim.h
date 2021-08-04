@@ -30,8 +30,8 @@
 /**
  * SECTION:purpleprotocolim
  * @section_id: libpurple-purpleprotocolim
- * @short_description: Protocol Instant Message Interface
  * @title: ProtocolIM Interface
+ * @short_description: Protocol Instant Message Interface
  *
  * #PurpleProtocolIM describes the API that protocols need to implement for
  * handling one on one conversations.
@@ -42,17 +42,35 @@
 
 #include <libpurple/connection.h>
 
-#define PURPLE_TYPE_PROTOCOL_IM (purple_protocol_im_get_type())
-G_DECLARE_INTERFACE(PurpleProtocolIM, purple_protocol_im, PURPLE, PROTOCOL_IM,
-                    GObject)
-
 /**
  * PURPLE_TYPE_PROTOCOL_IM:
  *
- * The standard _get_type method for #PurpleProtocolIM.
+ * The standard _TYPE_ macro for #PurpleProtocolIM.
  *
  * Since: 3.0.0
  */
+#define PURPLE_TYPE_PROTOCOL_IM (purple_protocol_im_get_type())
+
+/**
+ * purple_protocol_im_get_type:
+ *
+ * Gets the #GType for #PurpleProtocolIM.
+ *
+ * Returns: The #GType for #PurpleProtocolIM.
+ *
+ * Since: 3.0.0
+ */
+
+/**
+ * PurpleProtocolIM:
+ *
+ * An opaque data structure that represents and object that implements
+ * #PurpleProtocolIMInterface.
+ *
+ * Since: 3.0.0
+ */
+G_DECLARE_INTERFACE(PurpleProtocolIM, purple_protocol_im, PURPLE, PROTOCOL_IM,
+                    GObject)
 
 /**
  * PurpleProtocolIMInterface:
@@ -106,7 +124,7 @@ gint purple_protocol_im_send(PurpleProtocolIM *im,
                              PurpleMessage *msg);
 
 /**
- * purple_protocol_im_send_type:
+ * purple_protocol_im_send_typing:
  * @im: The #PurpleProtocolIM instance.
  * @connection: The #PurpleConversation to use.
  * @name: The name of the user to send a typing notification to.

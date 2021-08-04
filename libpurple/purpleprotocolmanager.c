@@ -70,7 +70,7 @@ purple_protocol_manager_class_init(PurpleProtocolManagerClass *klass) {
 	obj_class->finalize = purple_protocol_manager_finalize;
 
 	/**
-	 * PurpleProtocolManager::protocol-registered:
+	 * PurpleProtocolManager::registered:
 	 * @manager: The #PurpleProtocolManager instance.
 	 * @protocol: The #PurpleProtocol that was registered.
 	 *
@@ -91,7 +91,7 @@ purple_protocol_manager_class_init(PurpleProtocolManagerClass *klass) {
 		PURPLE_TYPE_PROTOCOL);
 
 	/**
-	 * PurpleProtocolManager::protocol-unregistered:
+	 * PurpleProtocolManager::unregistered:
 	 * @manager: The #PurpleProtocolManager instance.
 	 * @protocol: The #PurpleProtocol that was unregistered.
 	 *

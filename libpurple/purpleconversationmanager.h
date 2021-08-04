@@ -30,7 +30,8 @@
 /**
  * SECTION:purpleconversationmanager
  * @section_id: libpurple-purpleconversationmanager
- * @title: Management of conversations
+ * @title: Conversation Management
+ * @short_description: Management of conversations.
  *
  * #PurpleConversationManager keeps track of all #PurpleConversation's inside of
  * libpurple and allows searching of them.
@@ -39,7 +40,32 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PURPLE_TYPE_CONVERSATION_MANAGER:
+ *
+ * The standard _TYPE_ macro for PurpleConversationManager.
+ *
+ * Since: 3.0.0
+ */
 #define PURPLE_TYPE_CONVERSATION_MANAGER (purple_conversation_manager_get_type())
+
+/**
+ * purple_conversation_manager_get_type:
+ *
+ * Gets the #GType of #PurpleConversationManager.
+ *
+ * Returns: The #GType of #PurpleConversationManager.
+ *
+ * Since: 3.0.0
+ */
+
+/**
+ * PurpleConversationManager:
+ *
+ * An opaque structure that represents the conversation manager.
+ *
+ * Since: 3.0.0
+ */
 G_DECLARE_FINAL_TYPE(PurpleConversationManager, purple_conversation_manager,
                      PURPLE, CONVERSATION_MANAGER, GObject)
 

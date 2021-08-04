@@ -34,6 +34,10 @@
  * SECTION:purpleprotocolattention
  * @section_id: libpurple-purpleprotocolattention
  * @title: Protocol Attention Interface
+ * @short_description: Protocol interface for attention.
+ *
+ * @PurpleProtocolAttention is an interface that PurpleProtocols can implement
+ * to support getting a contact's attention.
  */
 
 #include "account.h"
@@ -45,13 +49,28 @@ G_BEGIN_DECLS
  * PURPLE_TYPE_PROTOCOL_ATTENTION:
  *
  * The standard _get_type macro for #PurpleProtocolAttention.
+ *
+ * Since: 3.0.0
  */
 #define PURPLE_TYPE_PROTOCOL_ATTENTION (purple_protocol_attention_get_type())
 
 /**
  * purple_protocol_attention_get_type:
  *
+ * Gets the #GType for #PurpleProtocolAttentionInterface.
+ *
  * Returns: The #GType for the protocol attention interface.
+ *
+ * Since: 3.0.0
+ */
+
+/**
+ * PurpleProtocolAttention:
+ *
+ * An opaque data structure used to represent an object that implements the
+ * #PurpleProtocolAttention interface.
+ *
+ * Since: 3.0.0
  */
 G_DECLARE_INTERFACE(PurpleProtocolAttention, purple_protocol_attention, PURPLE,
                     PROTOCOL_ATTENTION, GObject)
@@ -67,6 +86,8 @@ G_DECLARE_INTERFACE(PurpleProtocolAttention, purple_protocol_attention, PURPLE,
  *
  * This interface provides attention API for sending and receiving
  * zaps/nudges/buzzes etc.
+ *
+ * Since: 3.0.0
  */
 struct _PurpleProtocolAttentionInterface {
 	/*< private >*/

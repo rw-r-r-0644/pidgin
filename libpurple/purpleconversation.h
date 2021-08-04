@@ -43,6 +43,13 @@
 
 #include <purplemessage.h>
 
+/**
+ * PURPLE_TYPE_CONVERSATION:
+ *
+ * The standard _TYPE_ macro for PurpleConversation.
+ *
+ * Since: 3.0.0
+ */
 #define PURPLE_TYPE_CONVERSATION (purple_conversation_get_type())
 G_DECLARE_DERIVABLE_TYPE(PurpleConversation, purple_conversation, PURPLE,
                          CONVERSATION, GObject)

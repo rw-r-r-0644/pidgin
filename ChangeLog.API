@@ -353,6 +353,7 @@ version 3.0.0 (??/??/????):
 		* purple_certificate_get_fingerprint_sha256
 		* Purple Cipher API (PurpleCipherContext and friends).
 		  Use GLib's GHmac or GChecksum instead.
+		* PURPLE_CMD_FUNC
 		* purple_connection_error_reason
 		* purple_connection_new
 		* purple_connection_new_unregister

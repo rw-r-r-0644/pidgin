@@ -39,7 +39,25 @@
  * #PurpleProtocol is the base type for all protocols in libpurple.
  */
 
+/**
+ * PURPLE_TYPE_PROTOCOL:
+ *
+ * The standard _TYPE_ macro for #PurpleProtocol.
+ *
+ * Since: 3.0.0
+ */
 #define PURPLE_TYPE_PROTOCOL (purple_protocol_get_type())
+
+/**
+ * purple_protocol_get_type:
+ *
+ * Gets the #GType for #PurpleProtocol.
+ *
+ * Returns: The #GType of #PurpleProtocol.
+ *
+ * Since: 3.0.0
+ */
+
 G_DECLARE_DERIVABLE_TYPE(PurpleProtocol, purple_protocol, PURPLE, PROTOCOL,
                          GObject)
 

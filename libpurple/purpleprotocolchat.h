@@ -43,19 +43,37 @@
 #include <libpurple/connection.h>
 #include <libpurple/purplemessage.h>
 
+/**
+ * PURPLE_TYPE_PROTOCOL_CHAT:
+ *
+ * The standard _TYPE_ macro for #PurpleProtocolChat.
+ *
+ * Since: 3.0.0
+ */
 #define PURPLE_TYPE_PROTOCOL_CHAT (purple_protocol_chat_get_type())
+
+/**
+ * purple_protocol_chat_get_type:
+ *
+ * Gets the #GType for #PurpleProtocolChat.
+ *
+ * Returns: The #GType for #PurpleProtocolChat.
+ *
+ * Since: 3.0.0
+ */
+
+/**
+ * PurpleProtocolChat:
+ *
+ * An opaque representation of an object that implements
+ * #PurpleProtocolChatInterface.
+ *
+ * Since: 3.0.0
+ */
 G_DECLARE_INTERFACE(PurpleProtocolChat, purple_protocol_chat, PURPLE, PROTOCOL_CHAT,
                     GObject)
 
 G_BEGIN_DECLS
-
-/**
- * PURPLE_TYPE_PROTOCOL_CHAT:
- *
- * The standard _get_type method for #PurpleProtocolChat.
- *
- * Since: 3.0.0
- */
 
 /**
  * PurpleProtocolChatInterface:
