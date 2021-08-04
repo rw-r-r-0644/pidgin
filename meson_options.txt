@@ -31,9 +31,6 @@ option('gstreamer-video', type : 'feature',
 option('kwallet', type : 'feature',
        description : 'enable KWallet support')
 
-option('plugins', type : 'boolean', value : true,
-       description : 'compile plugins')
-
 option('secret-service', type : 'feature',
        description : 'enable Secret Service support')
 

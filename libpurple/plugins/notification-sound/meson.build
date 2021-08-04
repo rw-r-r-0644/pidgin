@@ -1,5 +1,3 @@
-if PLUGINS
-
 if target_machine.system() != 'windows'
 	CANBERRA = dependency('libcanberra', version: '>= 0.30')
 
@@ -7,7 +5,5 @@ if target_machine.system() != 'windows'
 		dependencies : [libpurple_dep, glib, CANBERRA],
 		name_prefix : '',
 		install : true, install_dir : PURPLE_PLUGINDIR)
-endif
-
 endif
 

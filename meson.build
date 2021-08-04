@@ -625,8 +625,6 @@ else
 	endif
 endif
 
-PLUGINS = get_option('plugins')
-
 #######################################################################
 # Check for Nettle (Crypto Library)
 #######################################################################
@@ -759,7 +757,6 @@ summary({
 }, section: 'Protocol Support', bool_yn: true, list_sep: ', ')
 
 summary({
-    'Build plugins': PLUGINS,
     'Internal credential provider (via Nettle)': nettle.found(),
     'KWallet credential provider': kwallet.found(),
     'Secret Service credential provider': secretservice.found(),
