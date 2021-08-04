@@ -425,8 +425,9 @@ pidgin_about_dialog_load_gtk_settings(PidginAboutDialog *about) {
 static void
 pidgin_about_dialog_load_plugin_search_paths(PidginAboutDialog *about) {
 	GtkTreeIter section;
-	GList *path = NULL;
+	GList *paths = NULL;
 	gchar *markup = NULL;
+	GPluginManager *manager = gplugin_manager_get_default();
 
 	/* create the section */
 	markup = g_strdup_printf("<b>%s</b>", _("Plugin Search Paths"));
@@ -437,13 +438,16 @@ pidgin_about_dialog_load_plugin_search_paths(PidginAboutDialog *about) {
 	g_free(markup);
 
 	/* add the search paths */
-	for(path = gplugin_manager_get_paths(); path != NULL; path = path->next) {
+	paths = gplugin_manager_get_paths(manager);
+	while(paths != NULL) {
 		GtkTreeIter iter;
 
 		gtk_tree_store_append(about->build_info_store, &iter, &section);
 		gtk_tree_store_set(about->build_info_store, &iter,
-		                   0, (gchar*)path->data,
+		                   0, (gchar*)(paths->data),
 		                   -1);
+
+		paths = paths->next;
 	}
 }
 

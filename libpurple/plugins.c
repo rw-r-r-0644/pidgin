@@ -139,6 +139,7 @@ plugin_unloaded_cb(GObject *manager, PurplePlugin *plugin)
 gboolean
 purple_plugin_load(PurplePlugin *plugin, GError **error)
 {
+	GPluginManager *manager = NULL;
 	GError *err = NULL;
 	gchar *filename;
 
@@ -147,15 +148,16 @@ purple_plugin_load(PurplePlugin *plugin, GError **error)
 	if (purple_plugin_is_loaded(plugin))
 		return TRUE;
 
-	if (!gplugin_manager_load_plugin(plugin, &err)) {
-	        filename = gplugin_plugin_get_filename(plugin);
+	manager = gplugin_manager_get_default();
+
+	if (!gplugin_manager_load_plugin(manager, plugin, &err)) {
+		filename = gplugin_plugin_get_filename(plugin);
 		purple_debug_error("plugins", "Failed to load plugin %s: %s",
 		                   filename,
 		                   err ? err->message : "Unknown reason");
 
-		if (error)
-			*error = g_error_copy(err);
-		g_error_free(err);
+		g_propagate_error(error, err);
+
 		g_free(filename);
 		return FALSE;
 	}
@@ -168,21 +170,23 @@ purple_plugin_unload(PurplePlugin *plugin, GError **error)
 {
 	GError *err = NULL;
 	gchar *filename;
+	GPluginManager *manager = NULL;
 
 	g_return_val_if_fail(plugin != NULL, FALSE);
 
 	if (!purple_plugin_is_loaded(plugin))
 		return TRUE;
 
-	if (!gplugin_manager_unload_plugin(plugin, &err)) {
-	        filename = gplugin_plugin_get_filename(plugin);
+	manager = gplugin_manager_get_default();
+
+	if (!gplugin_manager_unload_plugin(manager, plugin, &err)) {
+		filename = gplugin_plugin_get_filename(plugin);
 		purple_debug_error("plugins", "Failed to unload plugin %s: %s",
 		                   filename,
 		                   err ? err->message : "Unknown reason");
 
-		if (error)
-			*error = g_error_copy(err);
-		g_error_free(err);
+		g_propagate_error(error, err);
+
 		g_free(filename);
 
 		return FALSE;
@@ -297,11 +301,12 @@ purple_plugins_find_all(void)
 {
 	GList *ret = NULL, *ids, *l;
 	GSList *plugins, *ll;
+	GPluginManager *manager = gplugin_manager_get_default();
 
-	ids = gplugin_manager_list_plugins();
+	ids = gplugin_manager_list_plugins(manager);
 
 	for (l = ids; l; l = l->next) {
-		plugins = gplugin_manager_find_plugins(l->data);
+		plugins = gplugin_manager_find_plugins(manager, l->data);
 
 		for (ll = plugins; ll; ll = ll->next) {
 			PurplePlugin *plugin = PURPLE_PLUGIN(ll->data);
@@ -325,15 +330,18 @@ purple_plugins_get_loaded(void)
 void
 purple_plugins_add_search_path(const gchar *path)
 {
-	gplugin_manager_append_path(path);
+	GPluginManager *manager = gplugin_manager_get_default();
+
+	gplugin_manager_append_path(manager, path);
 }
 
 void
 purple_plugins_refresh(void)
 {
 	GList *plugins, *l;
+	GPluginManager *manager = gplugin_manager_get_default();
 
-	gplugin_manager_refresh();
+	gplugin_manager_refresh(manager);
 
 	plugins = purple_plugins_find_all();
 	for (l = plugins; l != NULL; l = l->next) {
@@ -365,10 +373,13 @@ PurplePlugin *
 purple_plugins_find_plugin(const gchar *id)
 {
 	PurplePlugin *plugin;
+	GPluginManager *manager = NULL;
 
 	g_return_val_if_fail(id != NULL && *id != '\0', NULL);
 
-	plugin = gplugin_manager_find_plugin(id);
+	manager = gplugin_manager_get_default();
+
+	plugin = gplugin_manager_find_plugin(manager, id);
 
 	if (!plugin)
 		return NULL;
@@ -479,32 +490,33 @@ purple_plugins_init(void)
 
 	gplugin_init(GPLUGIN_CORE_FLAGS_NONE);
 
+	manager = gplugin_manager_get_default();
+
 	search_path = g_getenv("PURPLE_PLUGIN_PATH");
 	if (search_path) {
 		gchar **paths;
-		int i;
+		gint i;
 
 		paths = g_strsplit(search_path, G_SEARCHPATH_SEPARATOR_S, 0);
 		for (i = 0; paths[i]; ++i) {
-			purple_plugins_add_search_path(paths[i]);
+			gplugin_manager_append_path(manager, paths[i]);
 		}
 
 		g_strfreev(paths);
 	}
 
-	gplugin_manager_add_default_paths();
+	gplugin_manager_add_default_paths(manager);
 
 	if(!g_getenv("PURPLE_PLUGINS_SKIP")) {
-		purple_plugins_add_search_path(PURPLE_LIBDIR);
+		gplugin_manager_append_path(manager, PURPLE_LIBDIR);
 	} else {
 		purple_debug_info("plugins", "PURPLE_PLUGINS_SKIP environment variable set, skipping normal plugin paths");
 	}
 
-	manager = gplugin_manager_get_instance();
-	g_signal_connect(manager, "loading-plugin", G_CALLBACK(plugin_loading_cb),
-	                 NULL);
-	g_signal_connect(manager, "loaded-plugin", G_CALLBACK(plugin_loaded_cb),
-	                 NULL);
+	g_signal_connect(manager, "loading-plugin",
+	                 G_CALLBACK(plugin_loading_cb), NULL);
+	g_signal_connect(manager, "loaded-plugin",
+	                 G_CALLBACK(plugin_loaded_cb), NULL);
 	g_signal_connect(manager, "unloading-plugin",
 	                 G_CALLBACK(plugin_unloading_cb), NULL);
 	g_signal_connect(manager, "unloaded-plugin",

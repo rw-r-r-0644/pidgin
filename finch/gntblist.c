@@ -2996,7 +2996,7 @@ blist_show(PurpleBuddyList *list)
 	purple_signal_connect(purple_blist_get_handle(), "buddy-idle-changed", finch_blist_get_handle(),
 				PURPLE_CALLBACK(buddy_idle_changed), ggblist);
 
-	plugin_manager = gplugin_manager_get_instance();
+	plugin_manager = gplugin_manager_get_default();
 	g_signal_connect_object(plugin_manager, "loaded-plugin",
 	                        G_CALLBACK(reconstruct_plugins_menu_cb), ggblist, 0);
 	g_signal_connect_object(plugin_manager, "unloaded-plugin",

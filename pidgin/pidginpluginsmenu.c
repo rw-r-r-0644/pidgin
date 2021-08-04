@@ -255,7 +255,7 @@ pidgin_plugins_menu_init(PidginPluginsMenu *menu) {
 	                                           (GDestroyNotify)gtk_widget_destroy);
 
 	/* Connect to the plugin manager's signals so we can stay up to date. */
-	manager = gplugin_manager_get_instance();
+	manager = gplugin_manager_get_default();
 
 	g_signal_connect_object(manager, "loaded-plugin",
 	                        G_CALLBACK(pidgin_plugins_menu_plugin_loaded_cb),
