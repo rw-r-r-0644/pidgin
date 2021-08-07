@@ -27,21 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
   <object class="PidginAccountStore" id="accounts"/>
-  <object class="GtkImage" id="add_image">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="stock">gtk-add</property>
-  </object>
-  <object class="GtkImage" id="join_image">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="stock">pidgin-chat</property>
-  </object>
-  <object class="GtkImage" id="refresh_image">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="stock">gtk-refresh</property>
-  </object>
   <template class="PidginRoomlistDialog" parent="GtkDialog">
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">Room List</property>
@@ -59,12 +44,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="stop_button">
-                <property name="label">gtk-stop</property>
+                <property name="label">_Stop</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="use-stock">True</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="stop_button_cb" object="PidginRoomlistDialog" swapped="no"/>
               </object>
               <packing>
@@ -79,7 +64,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="image">refresh_image</property>
                 <property name="use-underline">True</property>
                 <signal name="clicked" handler="list_button_cb" object="PidginRoomlistDialog" swapped="no"/>
               </object>
@@ -96,7 +80,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <property name="sensitive">False</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="image">add_image</property>
                 <property name="use-underline">True</property>
                 <signal name="clicked" handler="add_room_to_blist_cb" object="PidginRoomlistDialog" swapped="no"/>
               </object>
@@ -113,7 +96,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <property name="sensitive">False</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="image">join_image</property>
                 <property name="use-underline">True</property>
                 <signal name="clicked" handler="join_button_cb" object="PidginRoomlistDialog" swapped="no"/>
               </object>
@@ -125,11 +107,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             </child>
             <child>
               <object class="GtkButton" id="close_button">
-                <property name="label">gtk-close</property>
+                <property name="label">_Close</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="use-stock">True</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="gtk_widget_destroy" object="PidginRoomlistDialog" swapped="yes"/>
               </object>
               <packing>
