@@ -42,7 +42,6 @@
 #include "pidgincore.h"
 #include "pidgindialog.h"
 #include "pidginlog.h"
-#include "pidginstock.h"
 
 static GList *dialogwindows = NULL;
 

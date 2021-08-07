@@ -34,7 +34,6 @@
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
-#include "pidginstock.h"
 
 #include <gdk/gdkkeysyms.h>
 

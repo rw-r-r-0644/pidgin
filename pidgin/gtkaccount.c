@@ -35,7 +35,6 @@
 #include "gtkstatusbox.h"
 #include "pidgincore.h"
 #include "pidgindialog.h"
-#include "pidginstock.h"
 #include "minidialog.h"
 #include "pidginprotocolchooser.h"
 

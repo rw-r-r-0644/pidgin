@@ -32,7 +32,6 @@
 #include "gtkmedia.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
-#include "pidginstock.h"
 
 #ifdef USE_VV
 

@@ -26,7 +26,6 @@
 #include "gtkdialogs.h"
 #include "gtkstatusbox.h"
 #include "pidgincore.h"
-#include "pidginstock.h"
 #include "gtkutils.h"
 
 #define INITIAL_RECON_DELAY_MIN 8
