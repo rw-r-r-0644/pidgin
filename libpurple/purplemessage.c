@@ -37,7 +37,7 @@
 struct _PurpleMessage {
 	GObject parent;
 
-	guint id;
+	gchar *id;
 	gchar *author;
 	gchar *author_name_color;
 	gchar *author_alias;
@@ -73,8 +73,9 @@ G_DEFINE_TYPE(PurpleMessage, purple_message, G_TYPE_OBJECT)
  * Helpers
  *****************************************************************************/
 static void
-purple_message_set_id(PurpleMessage *message, guint id) {
-	message->id = id;
+purple_message_set_id(PurpleMessage *message, const gchar *id) {
+	g_free(message->id);
+	message->id = g_strdup(id);
 
 	g_object_notify_by_pspec(G_OBJECT(message), properties[PROP_ID]);
 }
@@ -98,13 +99,17 @@ purple_message_get_property(GObject *object, guint param_id, GValue *value,
 
 	switch(param_id) {
 		case PROP_ID:
-			g_value_set_uint(value, purple_message_get_id(message));
+			g_value_set_string(value, purple_message_get_id(message));
 			break;
 		case PROP_AUTHOR:
 			g_value_set_string(value, purple_message_get_author(message));
 			break;
 		case PROP_AUTHOR_ALIAS:
 			g_value_set_string(value, purple_message_get_author_alias(message));
+			break;
+		case PROP_AUTHOR_NAME_COLOR:
+			g_value_set_string(value,
+			                   purple_message_get_author_name_color(message));
 			break;
 		case PROP_RECIPIENT:
 			g_value_set_string(value, purple_message_get_recipient(message));
@@ -135,13 +140,17 @@ purple_message_set_property(GObject *object, guint param_id,
 
 	switch(param_id) {
 		case PROP_ID:
-			purple_message_set_id(message, g_value_get_uint(value));
+			purple_message_set_id(message, g_value_get_string(value));
 			break;
 		case PROP_AUTHOR:
 			purple_message_set_author(message, g_value_get_string(value));
 			break;
 		case PROP_AUTHOR_ALIAS:
 			purple_message_set_author_alias(message, g_value_get_string(value));
+			break;
+		case PROP_AUTHOR_NAME_COLOR:
+			purple_message_set_author_name_color(message,
+			                                     g_value_get_string(value));
 			break;
 		case PROP_RECIPIENT:
 			purple_message_set_recipient(message, g_value_get_string(value));
@@ -168,6 +177,7 @@ static void
 purple_message_finalize(GObject *obj) {
 	PurpleMessage *message = PURPLE_MESSAGE(obj);
 
+	g_free(message->id);
 	g_free(message->author);
 	g_free(message->author_alias);
 	g_free(message->recipient);
@@ -203,11 +213,11 @@ purple_message_class_init(PurpleMessageClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	properties[PROP_ID] = g_param_spec_uint(
+	properties[PROP_ID] = g_param_spec_string(
 		"id", "ID",
 		"The session-unique message id",
-		0, G_MAXUINT, 0,
-		G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
 	/**
 	 * PurpleMessage::author:
@@ -399,7 +409,7 @@ purple_message_new_system(const gchar *contents, PurpleMessageFlags flags) {
 	return message;
 }
 
-guint
+const gchar *
 purple_message_get_id(PurpleMessage *message) {
 	g_return_val_if_fail(PURPLE_IS_MESSAGE(message), 0);
 
