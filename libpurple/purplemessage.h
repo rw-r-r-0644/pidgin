@@ -186,7 +186,7 @@ PurpleMessage *purple_message_new_system(const gchar *contents, PurpleMessageFla
  *
  * Since: 3.0.0
  */
-guint purple_message_get_id(PurpleMessage *message);
+const gchar *purple_message_get_id(PurpleMessage *message);
 
 /**
  * purple_message_get_author:

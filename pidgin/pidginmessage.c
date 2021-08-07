@@ -212,7 +212,7 @@ pidgin_message_get_property(GObject *obj, guint param_id, GValue *value,
 			g_value_set_object(value, message->message);
 			break;
 		case PROP_ID:
-			g_value_set_uint(value, purple_message_get_id(message->message));
+			g_value_set_string(value, purple_message_get_id(message->message));
 			break;
 		case PROP_CONTENT_TYPE:
 			g_value_set_enum(value, TALKATU_CONTENT_TYPE_PLAIN);
