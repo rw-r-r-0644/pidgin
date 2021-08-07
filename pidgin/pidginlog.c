@@ -32,7 +32,6 @@
 #include "gtkblist.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
-#include "pidginstock.h"
 
 #define PIDGIN_TYPE_LOG_VIEWER pidgin_log_viewer_get_type()
 /**
@@ -582,7 +581,7 @@ static void populate_log_tree(PidginLogViewer *lv)
 
 static PidginLogViewer *
 display_log_viewer(struct log_viewer_hash *ht, GList *logs, const char *title,
-                   GtkWidget *icon, int log_size)
+                   int log_size)
 {
 	PidginLogViewer *lv;
 
@@ -606,9 +605,6 @@ display_log_viewer(struct log_viewer_hash *ht, GList *logs, const char *title,
 			g_free(ht);
 		}
 
-		if(icon != NULL)
-			gtk_widget_destroy(icon);
-
 		purple_notify_info(NULL, title, _("No logs were found"), log_preferences, NULL);
 		return NULL;
 	}
@@ -627,12 +623,6 @@ display_log_viewer(struct log_viewer_hash *ht, GList *logs, const char *title,
 #endif
 
 	g_signal_connect(G_OBJECT(lv), "response", G_CALLBACK(destroy_cb), ht);
-
-	/* Icon *************/
-	if (icon != NULL) {
-		gtk_box_pack_start(GTK_BOX(lv->title_box), icon, FALSE, FALSE,
-		                   0);
-	}
 
 	/* Label ************/
 	gtk_label_set_markup(lv->label, title);
@@ -721,7 +711,6 @@ void pidgin_log_show(PurpleLogType type, const char *buddyname, PurpleAccount *a
 	PidginLogViewer *lv = NULL;
 	const char *name = buddyname;
 	char *title;
-	GdkPixbuf *protocol_icon;
 
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(buddyname != NULL);
@@ -759,14 +748,9 @@ void pidgin_log_show(PurpleLogType type, const char *buddyname, PurpleAccount *a
 		title = g_strdup_printf(_("Conversations with %s"), name);
 	}
 
-	protocol_icon = pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_MEDIUM);
-
 	display_log_viewer(ht, purple_log_get_logs(type, buddyname, account),
-			title, gtk_image_new_from_pixbuf(protocol_icon),
-			purple_log_get_total_size(type, buddyname, account));
+			title, purple_log_get_total_size(type, buddyname, account));
 
-	if (protocol_icon)
-		g_object_unref(protocol_icon);
 	g_free(title);
 }
 
@@ -775,8 +759,6 @@ void pidgin_log_show_contact(PurpleContact *contact) {
 	PurpleBlistNode *child;
 	PidginLogViewer *lv = NULL;
 	GList *logs = NULL;
-	GdkPixbuf *pixbuf;
-	GtkWidget *image;
 	const char *name = NULL;
 	char *title;
 	int total_log_size = 0;
@@ -811,17 +793,6 @@ void pidgin_log_show_contact(PurpleContact *contact) {
 	}
 	logs = g_list_sort(logs, purple_log_compare);
 
-	image = gtk_image_new();
-	pixbuf = gtk_widget_render_icon(image, PIDGIN_STOCK_STATUS_PERSON,
-					gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_SMALL), "GtkWindow");
-	if (pixbuf) {
-		gtk_image_set_from_pixbuf(GTK_IMAGE(image), pixbuf);
-		g_object_unref(pixbuf);
-	} else {
-		gtk_widget_destroy(image);
-		image = NULL;
-	}
-
 	name = purple_contact_get_alias(contact);
 
 	/* This will happen if the contact doesn't have an alias,
@@ -837,7 +808,7 @@ void pidgin_log_show_contact(PurpleContact *contact) {
 	}
 
 	title = g_strdup_printf(_("Conversations with %s"), name);
-	display_log_viewer(ht, logs, title, image, total_log_size);
+	display_log_viewer(ht, logs, title, total_log_size);
 	g_free(title);
 }
 
@@ -861,7 +832,7 @@ void pidgin_syslog_show()
 	}
 	logs = g_list_sort(logs, purple_log_compare);
 
-	syslog_viewer = display_log_viewer(NULL, logs, _("System Log"), NULL, 0);
+	syslog_viewer = display_log_viewer(NULL, logs, _("System Log"), 0);
 }
 
 /****************************************************************************
