@@ -59,11 +59,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="add_button">
-                <property name="label">gtk-add</property>
+                <property name="label">_Add</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="use-stock">True</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="add_cb" object="PidginPrivacyDialog" swapped="no"/>
               </object>
               <packing>
@@ -74,12 +74,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             </child>
             <child>
               <object class="GtkButton" id="remove_button">
-                <property name="label">gtk-remove</property>
+                <property name="label">_Remove</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="use-stock">True</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="remove_cb" object="PidginPrivacyDialog" swapped="no"/>
               </object>
               <packing>
@@ -105,11 +105,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             </child>
             <child>
               <object class="GtkButton" id="close_button">
-                <property name="label">gtk-close</property>
+                <property name="label">_Close</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="use-stock">True</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="gtk_widget_destroy" object="PidginPrivacyDialog" swapped="yes"/>
               </object>
               <packing>
