@@ -37,8 +37,7 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
           <object class="PidginPresenceIcon" id="presence_icon">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="stock">gtk-missing-image</property>
-            <property name="icon-name">chat</property>
+            <property name="icon-name">image-missing</property>
             <property name="use-fallback">True</property>
             <property name="fallback">chat</property>
             <property name="icon_size">3</property>
