@@ -917,40 +917,33 @@ void pidgin_buddy_icon_get_scale_size(GdkPixbuf *buf, PurpleBuddyIconSpec *spec,
 		*height = 100;
 }
 
-static const char *
-stock_id_from_status_primitive_idle(PurpleStatusPrimitive prim, gboolean idle)
-{
-	const char *stock = NULL;
+const gchar *
+pidgin_stock_id_from_status_primitive(PurpleStatusPrimitive prim) {
+	const gchar *stock = NULL;
 	switch (prim) {
 		case PURPLE_STATUS_UNSET:
 			stock = NULL;
 			break;
 		case PURPLE_STATUS_UNAVAILABLE:
-			stock = idle ? PIDGIN_STOCK_STATUS_BUSY_I : PIDGIN_STOCK_STATUS_BUSY;
+			stock = PIDGIN_STOCK_STATUS_BUSY;
 			break;
 		case PURPLE_STATUS_AWAY:
-			stock = idle ? PIDGIN_STOCK_STATUS_AWAY_I : PIDGIN_STOCK_STATUS_AWAY;
+			stock = PIDGIN_STOCK_STATUS_AWAY;
 			break;
 		case PURPLE_STATUS_EXTENDED_AWAY:
-			stock = idle ? PIDGIN_STOCK_STATUS_XA_I : PIDGIN_STOCK_STATUS_XA;
+			stock = PIDGIN_STOCK_STATUS_XA;
 			break;
 		case PURPLE_STATUS_INVISIBLE:
 			stock = PIDGIN_STOCK_STATUS_INVISIBLE;
 			break;
 		case PURPLE_STATUS_OFFLINE:
-			stock = idle ? PIDGIN_STOCK_STATUS_OFFLINE_I : PIDGIN_STOCK_STATUS_OFFLINE;
+			stock = PIDGIN_STOCK_STATUS_OFFLINE;
 			break;
 		default:
-			stock = idle ? PIDGIN_STOCK_STATUS_AVAILABLE_I : PIDGIN_STOCK_STATUS_AVAILABLE;
+			stock = PIDGIN_STOCK_STATUS_AVAILABLE;
 			break;
 	}
 	return stock;
-}
-
-const char *
-pidgin_stock_id_from_status_primitive(PurpleStatusPrimitive prim)
-{
-	return stock_id_from_status_primitive_idle(prim, FALSE);
 }
 
 GdkPixbuf *
