@@ -850,16 +850,16 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 				button = gtk_dialog_add_button(GTK_DIALOG(window), _("Add"), GTK_RESPONSE_NONE);
 				break;
 			case PURPLE_NOTIFY_BUTTON_INFO:
-				button = gtk_dialog_add_button(GTK_DIALOG(window), PIDGIN_STOCK_TOOLBAR_USER_INFO, GTK_RESPONSE_NONE);
+				button = gtk_dialog_add_button(GTK_DIALOG(window), _("_Get Info"), GTK_RESPONSE_NONE);
 				break;
 			case PURPLE_NOTIFY_BUTTON_IM:
-				button = gtk_dialog_add_button(GTK_DIALOG(window), PIDGIN_STOCK_TOOLBAR_MESSAGE_NEW, GTK_RESPONSE_NONE);
+				button = gtk_dialog_add_button(GTK_DIALOG(window), _("I_M"), GTK_RESPONSE_NONE);
 				break;
 			case PURPLE_NOTIFY_BUTTON_JOIN:
-				button = gtk_dialog_add_button(GTK_DIALOG(window), PIDGIN_STOCK_CHAT, GTK_RESPONSE_NONE);
+				button = gtk_dialog_add_button(GTK_DIALOG(window), _("_Join"), GTK_RESPONSE_NONE);
 				break;
 			case PURPLE_NOTIFY_BUTTON_INVITE:
-				button = gtk_dialog_add_button(GTK_DIALOG(window), PIDGIN_STOCK_INVITE, GTK_RESPONSE_NONE);
+				button = gtk_dialog_add_button(GTK_DIALOG(window), _("_Invite"), GTK_RESPONSE_NONE);
 				break;
 			default:
 				purple_debug_warning("gtknotify", "Incorrect button type: %d\n", b->type);
@@ -1046,8 +1046,8 @@ pidgin_create_notification_dialog(PidginNotifyType type)
 		gtk_dialog_add_button(GTK_DIALOG(dialog),
 					 _("Open All Messages"), GTK_RESPONSE_ACCEPT);
 
-		button = gtk_dialog_add_button(GTK_DIALOG(dialog),
-						 PIDGIN_STOCK_OPEN_MAIL, GTK_RESPONSE_YES);
+		button = gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Open Mail"),
+		                               GTK_RESPONSE_YES);
 		spec_dialog->open_button = button;
 
 		gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(spec_dialog->treeview), FALSE);
