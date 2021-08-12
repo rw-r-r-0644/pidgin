@@ -1158,7 +1158,7 @@ pidgin_blist_joinchat_show(void)
 	gtk_dialog_add_buttons(GTK_DIALOG(data->rq_data.window),
 		_("Room _List"), 1,
 		_("Cancel"), GTK_RESPONSE_CANCEL,
-		PIDGIN_STOCK_CHAT, GTK_RESPONSE_OK, NULL);
+		_("_Join"), GTK_RESPONSE_OK, NULL);
 	gtk_dialog_set_default_response(GTK_DIALOG(data->rq_data.window),
 		GTK_RESPONSE_OK);
 	data->default_chat_name = NULL;
@@ -1424,9 +1424,8 @@ void pidgin_append_blist_node_privacy_menu(GtkWidget *menu, PurpleBlistNode *nod
 	account = purple_buddy_get_account(buddy);
 	permitted = purple_account_privacy_check(account, purple_buddy_get_name(buddy));
 
-	pidgin_new_menu_item(menu, permitted ? _("_Block") : _("Un_block"),
-                        permitted ? PIDGIN_STOCK_TOOLBAR_BLOCK : PIDGIN_STOCK_TOOLBAR_UNBLOCK,
-                        G_CALLBACK(toggle_privacy), node);
+	pidgin_new_menu_item(menu, permitted ? _("_Block") : _("Un_block"), NULL,
+                         G_CALLBACK(toggle_privacy), node);
 }
 
 void
@@ -1515,10 +1514,10 @@ pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean sub) 
 	}
 
 	if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, get_info)) {
-		pidgin_new_menu_item(menu, _("Get _Info"), PIDGIN_STOCK_TOOLBAR_USER_INFO,
-                                G_CALLBACK(gtk_blist_menu_info_cb), buddy);
+		pidgin_new_menu_item(menu, _("Get _Info"), NULL,
+		                     G_CALLBACK(gtk_blist_menu_info_cb), buddy);
 	}
-	pidgin_new_menu_item(menu, _("I_M"), PIDGIN_STOCK_TOOLBAR_MESSAGE_NEW,
+	pidgin_new_menu_item(menu, _("I_M"), NULL,
 			G_CALLBACK(gtk_blist_menu_im_cb), buddy);
 
 #ifdef USE_VV
@@ -1527,18 +1526,18 @@ pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean sub) 
 		const gchar *who = purple_buddy_get_name(buddy);
 		PurpleMediaCaps caps = purple_protocol_get_media_caps(account, who);
 		if (caps & PURPLE_MEDIA_CAPS_AUDIO) {
-			pidgin_new_menu_item(menu, _("_Audio Call"),
-				PIDGIN_STOCK_TOOLBAR_AUDIO_CALL,
-				G_CALLBACK(gtk_blist_menu_audio_call_cb), buddy);
+			pidgin_new_menu_item(menu, _("_Audio Call"), NULL,
+			                     G_CALLBACK(gtk_blist_menu_audio_call_cb),
+			                     buddy);
 		}
 		if (caps & PURPLE_MEDIA_CAPS_AUDIO_VIDEO) {
-			pidgin_new_menu_item(menu, _("Audio/_Video Call"),
-				PIDGIN_STOCK_TOOLBAR_VIDEO_CALL,
-				G_CALLBACK(gtk_blist_menu_video_call_cb), buddy);
+			pidgin_new_menu_item(menu, _("Audio/_Video Call"), NULL,
+			                     G_CALLBACK(gtk_blist_menu_video_call_cb),
+			                     buddy);
 		} else if (caps & PURPLE_MEDIA_CAPS_VIDEO) {
-			pidgin_new_menu_item(menu, _("_Video Call"),
-				PIDGIN_STOCK_TOOLBAR_VIDEO_CALL,
-				G_CALLBACK(gtk_blist_menu_video_call_cb), buddy);
+			pidgin_new_menu_item(menu, _("_Video Call"), NULL,
+			                     G_CALLBACK(gtk_blist_menu_video_call_cb),
+			                     buddy);
 		}
 	}
 
@@ -1549,10 +1548,9 @@ pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean sub) 
 			PURPLE_PROTOCOL_XFER(protocol),
 			purple_account_get_connection(purple_buddy_get_account(buddy)), purple_buddy_get_name(buddy)
 		)) {
-			pidgin_new_menu_item(menu, _("_Send File..."),
-                                        PIDGIN_STOCK_TOOLBAR_SEND_FILE,
-                                        G_CALLBACK(gtk_blist_menu_send_file_cb),
-                                        buddy);
+			pidgin_new_menu_item(menu, _("_Send File..."), NULL,
+		                         G_CALLBACK(gtk_blist_menu_send_file_cb),
+		                         buddy);
 		}
 	}
 
@@ -1582,17 +1580,17 @@ pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean sub) 
 	    !sub && !contact_expanded) {
 		pidgin_separator(menu);
 		pidgin_append_blist_node_privacy_menu(menu, node);
-		pidgin_new_menu_item(menu, _("_Alias..."), PIDGIN_STOCK_ALIAS,
-				G_CALLBACK(gtk_blist_menu_alias_cb), contact);
+		pidgin_new_menu_item(menu, _("_Alias..."), NULL,
+		                     G_CALLBACK(gtk_blist_menu_alias_cb), contact);
 		pidgin_new_menu_item(menu, _("_Remove"), NULL,
-				G_CALLBACK(pidgin_blist_remove_cb), contact);
+		                     G_CALLBACK(pidgin_blist_remove_cb), contact);
 	} else if (!sub || contact_expanded) {
 		pidgin_separator(menu);
 		pidgin_append_blist_node_privacy_menu(menu, node);
-		pidgin_new_menu_item(menu, _("_Alias..."), PIDGIN_STOCK_ALIAS,
-				G_CALLBACK(gtk_blist_menu_alias_cb), buddy);
+		pidgin_new_menu_item(menu, _("_Alias..."), NULL,
+		                     G_CALLBACK(gtk_blist_menu_alias_cb), buddy);
 		pidgin_new_menu_item(menu, _("_Remove"), NULL,
-				G_CALLBACK(pidgin_blist_remove_cb), buddy);
+		                     G_CALLBACK(pidgin_blist_remove_cb), buddy);
 	}
 }
 
@@ -1771,14 +1769,16 @@ create_chat_menu(PurpleBlistNode *node, PurpleChat *c)
 	autojoin = purple_blist_node_get_bool(node, "gtk-autojoin");
 	persistent = purple_blist_node_get_bool(node, "gtk-persistent");
 
-	pidgin_new_menu_item(menu, _("_Join"), PIDGIN_STOCK_CHAT,
-			G_CALLBACK(gtk_blist_menu_join_cb), node);
+	pidgin_new_menu_item(menu, _("_Join"), NULL,
+	                     G_CALLBACK(gtk_blist_menu_join_cb), node);
 	pidgin_new_check_item(menu, _("Auto-Join"),
-			G_CALLBACK(gtk_blist_menu_autojoin_cb), node, autojoin);
+	                      G_CALLBACK(gtk_blist_menu_autojoin_cb), node,
+	                      autojoin);
 	pidgin_new_check_item(menu, _("Persistent"),
-			G_CALLBACK(gtk_blist_menu_persistent_cb), node, persistent);
+	                      G_CALLBACK(gtk_blist_menu_persistent_cb), node,
+	                      persistent);
 	pidgin_new_menu_item(menu, _("View _Log"), NULL,
-			G_CALLBACK(gtk_blist_menu_showlog_cb), node);
+	                     G_CALLBACK(gtk_blist_menu_showlog_cb), node);
 
 	pidgin_append_blist_node_proto_menu(menu, purple_account_get_connection(purple_chat_get_account(c)), node);
 	pidgin_append_blist_node_extended_menu(menu, node);
@@ -1786,11 +1786,11 @@ create_chat_menu(PurpleBlistNode *node, PurpleChat *c)
 	pidgin_separator(menu);
 
 	pidgin_new_menu_item(menu, _("_Edit Settings..."), NULL,
-				 G_CALLBACK(chat_components_edit), node);
-	pidgin_new_menu_item(menu, _("_Alias..."), PIDGIN_STOCK_ALIAS,
-				 G_CALLBACK(gtk_blist_menu_alias_cb), node);
+	                     G_CALLBACK(chat_components_edit), node);
+	pidgin_new_menu_item(menu, _("_Alias..."), NULL,
+	                     G_CALLBACK(gtk_blist_menu_alias_cb), node);
 	pidgin_new_menu_item(menu, _("_Remove"), NULL,
-				 G_CALLBACK(pidgin_blist_remove_cb), node);
+	                     G_CALLBACK(pidgin_blist_remove_cb), node);
 
 	add_buddy_icon_menu_items(menu, node);
 
@@ -1810,20 +1810,20 @@ create_contact_menu (PurpleBlistNode *node)
 
 	pidgin_separator(menu);
 
-	pidgin_new_menu_item(menu, _("_Alias..."), PIDGIN_STOCK_ALIAS,
-				 G_CALLBACK(gtk_blist_menu_alias_cb), node);
+	pidgin_new_menu_item(menu, _("_Alias..."), NULL,
+	                     G_CALLBACK(gtk_blist_menu_alias_cb), node);
 	pidgin_new_menu_item(menu, _("_Remove"), NULL,
-				 G_CALLBACK(pidgin_blist_remove_cb), node);
+	                     G_CALLBACK(pidgin_blist_remove_cb), node);
 
 	add_buddy_icon_menu_items(menu, node);
 
 	pidgin_separator(menu);
 
 	pidgin_new_menu_item(menu, _("_Collapse"), NULL,
-				 G_CALLBACK(pidgin_blist_collapse_contact_cb),
-				 node);
+	                     G_CALLBACK(pidgin_blist_collapse_contact_cb), node);
 
 	pidgin_append_blist_node_extended_menu(menu, node);
+
 	return menu;
 }
 
@@ -1859,9 +1859,7 @@ create_buddy_menu(PurpleBlistNode *node, PurpleBuddy *b)
 
 			for(bnode = node->child; bnode; bnode = bnode->next) {
 				PurpleBuddy *buddy = (PurpleBuddy*)bnode;
-				GdkPixbuf *buf;
 				GtkWidget *submenu;
-				GtkWidget *image;
 
 				if(buddy == b)
 					continue;
@@ -1870,13 +1868,7 @@ create_buddy_menu(PurpleBlistNode *node, PurpleBuddy *b)
 				if(!show_offline && !PURPLE_BUDDY_IS_ONLINE(buddy))
 					continue;
 
-				menuitem = gtk_image_menu_item_new_with_label(purple_buddy_get_name(buddy));
-				buf = pidgin_create_protocol_icon(purple_buddy_get_account(buddy), PIDGIN_PROTOCOL_ICON_SMALL);
-				image = gtk_image_new_from_pixbuf(buf);
-				g_object_unref(G_OBJECT(buf));
-				gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem),
-											  image);
-				gtk_widget_show(image);
+				menuitem = gtk_menu_item_new_with_label(purple_buddy_get_name(buddy));
 				gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 				gtk_widget_show(menuitem);
 
@@ -4434,7 +4426,7 @@ ensure_signed_on_elsewhere_minidialog(PidginBuddyList *gtkblist)
 		return;
 
 	mini_dialog = priv->signed_on_elsewhere =
-		pidgin_mini_dialog_new(_("Welcome back!"), NULL, PIDGIN_STOCK_DISCONNECT);
+		pidgin_mini_dialog_new(_("Welcome back!"), NULL, "pidgin-disconnect");
 
 	pidgin_mini_dialog_add_button(mini_dialog, _("Re-enable"),
 		reconnect_elsewhere_accounts, NULL);
