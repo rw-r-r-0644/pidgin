@@ -974,7 +974,7 @@ create_chat_menu(PurpleChatConversation *chat, const char *who, PurpleConnection
 
 	if (!is_me) {
                 button = pidgin_new_menu_item(menu, _("IM"),
-                                PIDGIN_STOCK_TOOLBAR_MESSAGE_NEW,
+                                NULL,
                                 G_CALLBACK(menu_chat_im_cb),
                                 PIDGIN_CONVERSATION(conv));
 
@@ -989,7 +989,7 @@ create_chat_menu(PurpleChatConversation *chat, const char *who, PurpleConnection
 			gboolean can_receive_file = TRUE;
 
 			button = pidgin_new_menu_item(menu, _("Send File"),
-				PIDGIN_STOCK_TOOLBAR_SEND_FILE, G_CALLBACK(menu_chat_send_file_cb),
+				NULL, G_CALLBACK(menu_chat_send_file_cb),
 				PIDGIN_CONVERSATION(conv));
 
 			if (gc == NULL) {
@@ -1017,11 +1017,11 @@ create_chat_menu(PurpleChatConversation *chat, const char *who, PurpleConnection
 
 		if (purple_chat_conversation_is_ignored_user(chat, who))
 			button = pidgin_new_menu_item(menu, _("Un-Ignore"),
-                                        PIDGIN_STOCK_IGNORE, G_CALLBACK(ignore_cb),
+                                        NULL, G_CALLBACK(ignore_cb),
                                         PIDGIN_CONVERSATION(conv));
 		else
 			button = pidgin_new_menu_item(menu, _("Ignore"),
-                                        PIDGIN_STOCK_IGNORE, G_CALLBACK(ignore_cb),
+                                        NULL, G_CALLBACK(ignore_cb),
                                         PIDGIN_CONVERSATION(conv));
 
 		if (gc == NULL)
@@ -1032,7 +1032,7 @@ create_chat_menu(PurpleChatConversation *chat, const char *who, PurpleConnection
 
 	if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, get_info)) {
 		button = pidgin_new_menu_item(menu, _("Info"),
-                                PIDGIN_STOCK_TOOLBAR_USER_INFO,
+                                NULL,
                                 G_CALLBACK(menu_chat_info_cb),
                                 PIDGIN_CONVERSATION(conv));
 
@@ -1706,23 +1706,23 @@ static GtkActionEntry menu_entries[] =
 
 #ifdef USE_VV
 	{ "MediaMenu", NULL, N_("M_edia"), NULL, NULL, NULL },
-	{ "AudioCall", PIDGIN_STOCK_TOOLBAR_AUDIO_CALL, N_("_Audio Call"), NULL, NULL, G_CALLBACK(menu_initiate_media_call_cb) },
-	{ "VideoCall", PIDGIN_STOCK_TOOLBAR_VIDEO_CALL, N_("_Video Call"), NULL, NULL, G_CALLBACK(menu_initiate_media_call_cb) },
-	{ "AudioVideoCall", PIDGIN_STOCK_TOOLBAR_VIDEO_CALL, N_("Audio/Video _Call"), NULL, NULL, G_CALLBACK(menu_initiate_media_call_cb) },
+	{ "AudioCall", NULL, N_("_Audio Call"), NULL, NULL, G_CALLBACK(menu_initiate_media_call_cb) },
+	{ "VideoCall", NULL, N_("_Video Call"), NULL, NULL, G_CALLBACK(menu_initiate_media_call_cb) },
+	{ "AudioVideoCall", NULL, N_("Audio/Video _Call"), NULL, NULL, G_CALLBACK(menu_initiate_media_call_cb) },
 #endif
 
-	{ "SendFile", PIDGIN_STOCK_TOOLBAR_SEND_FILE, N_("Se_nd File..."), NULL, NULL, G_CALLBACK(menu_send_file_cb) },
-	{ "GetAttention", PIDGIN_STOCK_TOOLBAR_SEND_ATTENTION, N_("Get _Attention"), NULL, NULL, G_CALLBACK(menu_get_attention_cb) },
-	{ "GetInfo", PIDGIN_STOCK_TOOLBAR_USER_INFO, N_("_Get Info"), "<control>O", NULL, G_CALLBACK(menu_get_info_cb) },
+	{ "SendFile", NULL, N_("Se_nd File..."), NULL, NULL, G_CALLBACK(menu_send_file_cb) },
+	{ "GetAttention", NULL, N_("Get _Attention"), NULL, NULL, G_CALLBACK(menu_get_attention_cb) },
+	{ "GetInfo", NULL, N_("_Get Info"), "<control>O", NULL, G_CALLBACK(menu_get_info_cb) },
 	{ "Invite", NULL, N_("In_vite..."), NULL, NULL, G_CALLBACK(menu_invite_cb) },
 	{ "MoreMenu", NULL, N_("M_ore"), NULL, NULL, NULL },
 	{ "Alias", NULL, N_("Al_ias..."), NULL, NULL, G_CALLBACK(menu_alias_cb) },
-	{ "Block", PIDGIN_STOCK_TOOLBAR_BLOCK, N_("_Block..."), NULL, NULL, G_CALLBACK(menu_block_cb) },
-	{ "Unblock", PIDGIN_STOCK_TOOLBAR_UNBLOCK, N_("_Unblock..."), NULL, NULL, G_CALLBACK(menu_unblock_cb) },
+	{ "Block", NULL, N_("_Block..."), NULL, NULL, G_CALLBACK(menu_block_cb) },
+	{ "Unblock", NULL, N_("_Unblock..."), NULL, NULL, G_CALLBACK(menu_unblock_cb) },
 	{ "Add", NULL, N_("_Add..."), NULL, NULL, G_CALLBACK(menu_add_remove_cb) },
 	{ "Remove", NULL, N_("_Remove..."), NULL, NULL, G_CALLBACK(menu_add_remove_cb) },
-	{ "InsertLink", PIDGIN_STOCK_TOOLBAR_INSERT_LINK, N_("Insert Lin_k..."), NULL, NULL, NULL },
-	{ "InsertImage", PIDGIN_STOCK_TOOLBAR_INSERT_IMAGE, N_("Insert Imag_e..."), NULL, NULL, NULL },
+	{ "InsertLink", NULL, N_("Insert Lin_k..."), NULL, NULL, NULL },
+	{ "InsertImage", NULL, N_("Insert Imag_e..."), NULL, NULL, NULL },
 	{ "Close", NULL, N_("_Close"), "<control>W", NULL, G_CALLBACK(menu_close_conv_cb) },
 
 	/* Options */
