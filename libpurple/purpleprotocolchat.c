@@ -25,7 +25,8 @@
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
-G_DEFINE_INTERFACE(PurpleProtocolChat, purple_protocol_chat, G_TYPE_INVALID)
+G_DEFINE_INTERFACE(PurpleProtocolChat, purple_protocol_chat,
+                   PURPLE_TYPE_PROTOCOL)
 
 static void
 purple_protocol_chat_default_init(PurpleProtocolChatInterface *iface) {

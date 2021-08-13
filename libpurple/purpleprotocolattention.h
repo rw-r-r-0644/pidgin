@@ -40,8 +40,9 @@
  * to support getting a contact's attention.
  */
 
-#include "account.h"
-#include "connection.h"
+#include <libpurple/account.h>
+#include <libpurple/connection.h>
+#include <libpurple/protocol.h>
 
 G_BEGIN_DECLS
 
@@ -73,7 +74,7 @@ G_BEGIN_DECLS
  * Since: 3.0.0
  */
 G_DECLARE_INTERFACE(PurpleProtocolAttention, purple_protocol_attention, PURPLE,
-                    PROTOCOL_ATTENTION, GObject)
+                    PROTOCOL_ATTENTION, PurpleProtocol)
 
 /**
  * PurpleProtocolAttentionInterface:

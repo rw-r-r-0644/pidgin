@@ -41,6 +41,7 @@
 #include <glib-object.h>
 
 #include <libpurple/connection.h>
+#include <libpurple/protocol.h>
 
 /**
  * PURPLE_TYPE_PROTOCOL_IM:
@@ -70,7 +71,7 @@
  * Since: 3.0.0
  */
 G_DECLARE_INTERFACE(PurpleProtocolIM, purple_protocol_im, PURPLE, PROTOCOL_IM,
-                    GObject)
+                    PurpleProtocol)
 
 /**
  * PurpleProtocolIMInterface:

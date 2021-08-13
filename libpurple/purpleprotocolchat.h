@@ -42,6 +42,7 @@
 
 #include <libpurple/connection.h>
 #include <libpurple/purplemessage.h>
+#include <libpurple/protocol.h>
 
 /**
  * PURPLE_TYPE_PROTOCOL_CHAT:
@@ -70,8 +71,8 @@
  *
  * Since: 3.0.0
  */
-G_DECLARE_INTERFACE(PurpleProtocolChat, purple_protocol_chat, PURPLE, PROTOCOL_CHAT,
-                    GObject)
+G_DECLARE_INTERFACE(PurpleProtocolChat, purple_protocol_chat, PURPLE,
+                    PROTOCOL_CHAT, PurpleProtocol)
 
 G_BEGIN_DECLS
 

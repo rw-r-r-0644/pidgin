@@ -25,7 +25,7 @@
  * GObject Implementation
  *****************************************************************************/
 G_DEFINE_INTERFACE(PurpleProtocolPrivacy, purple_protocol_privacy,
-                   G_TYPE_INVALID)
+                   PURPLE_TYPE_PROTOCOL)
 
 static void
 purple_protocol_privacy_default_init(PurpleProtocolPrivacyInterface *iface) {

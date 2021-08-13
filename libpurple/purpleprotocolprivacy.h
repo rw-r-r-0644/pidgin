@@ -40,6 +40,7 @@
 #include <glib-object.h>
 
 #include <libpurple/connection.h>
+#include <libpurple/protocol.h>
 
 /**
  * PURPLE_TYPE_PROTOCOL_PRIVACY:
@@ -48,7 +49,7 @@
  */
 #define PURPLE_TYPE_PROTOCOL_PRIVACY (purple_protocol_privacy_get_type())
 G_DECLARE_INTERFACE(PurpleProtocolPrivacy, purple_protocol_privacy, PURPLE,
-                    PROTOCOL_PRIVACY, GObject)
+                    PROTOCOL_PRIVACY, PurpleProtocol)
 
 /**
  * PurpleProtocolPrivacyInterface:
