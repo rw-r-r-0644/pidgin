@@ -51,8 +51,9 @@ typedef struct _PurpleXferUiOps PurpleXferUiOps;
 #include <glib.h>
 #include <stdio.h>
 
-#include "account.h"
-#include "connection.h"
+#include <libpurple/account.h>
+#include <libpurple/connection.h>
+#include <libpurple/protocol.h>
 
 /**
  * PurpleXferType:
@@ -834,7 +835,7 @@ PurpleXferUiOps *purple_xfers_get_ui_ops(void);
  * Returns: The #GType for the protocol xfer interface.
  */
 G_DECLARE_INTERFACE(PurpleProtocolXfer, purple_protocol_xfer, PURPLE,
-                    PROTOCOL_XFER, GObject)
+                    PROTOCOL_XFER, PurpleProtocol)
 
 /**
  * PurpleProtocolXferInterface:

@@ -22,7 +22,8 @@
 
 #include "purpleprotocolfactory.h"
 
-G_DEFINE_INTERFACE(PurpleProtocolFactory, purple_protocol_factory, G_TYPE_INVALID);
+G_DEFINE_INTERFACE(PurpleProtocolFactory, purple_protocol_factory,
+                   PURPLE_TYPE_PROTOCOL);
 
 /******************************************************************************
  * GInterface Implementation

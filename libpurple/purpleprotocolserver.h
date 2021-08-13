@@ -44,11 +44,12 @@
 #include <libpurple/buddy.h>
 #include <libpurple/connection.h>
 #include <libpurple/group.h>
+#include <libpurple/protocol.h>
 #include <libpurple/purplemessage.h>
 
 #define PURPLE_TYPE_PROTOCOL_SERVER (purple_protocol_server_get_type())
 G_DECLARE_INTERFACE(PurpleProtocolServer, purple_protocol_server, PURPLE,
-                    PROTOCOL_SERVER, GObject)
+                    PROTOCOL_SERVER, PurpleProtocol)
 
 G_BEGIN_DECLS
 

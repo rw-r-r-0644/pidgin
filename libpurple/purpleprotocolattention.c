@@ -23,7 +23,7 @@
 #include "purpleprotocolattention.h"
 
 G_DEFINE_INTERFACE(PurpleProtocolAttention, purple_protocol_attention,
-                   G_TYPE_INVALID)
+                   PURPLE_TYPE_PROTOCOL)
 
 /******************************************************************************
  * GInterface Implementation

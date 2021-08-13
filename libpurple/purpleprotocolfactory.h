@@ -53,7 +53,7 @@ G_BEGIN_DECLS
  */
 #define PURPLE_TYPE_PROTOCOL_FACTORY (purple_protocol_factory_iface_get_type())
 G_DECLARE_INTERFACE(PurpleProtocolFactory, purple_protocol_factory, PURPLE,
-                    PROTOCOL_FACTORY, GObject)
+                    PROTOCOL_FACTORY, PurpleProtocol)
 
 /**
  * PurpleProtocolFactory:

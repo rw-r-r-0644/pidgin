@@ -2519,7 +2519,8 @@ purple_xfer_ui_ops_get_type(void)
 /**************************************************************************
  * PurpleXferProtocolInterface
  **************************************************************************/
-G_DEFINE_INTERFACE(PurpleProtocolXfer, purple_protocol_xfer, G_TYPE_INVALID);
+G_DEFINE_INTERFACE(PurpleProtocolXfer, purple_protocol_xfer,
+                   PURPLE_TYPE_PROTOCOL)
 
 static void
 purple_protocol_xfer_default_init(PurpleProtocolXferInterface *face) {
