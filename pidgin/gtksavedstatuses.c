@@ -573,12 +573,13 @@ pidgin_status_window_show(void)
 					 G_CALLBACK(status_window_use_cb), dialog);
 
 	/* Add button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), PIDGIN_STOCK_ADD,
-			G_CALLBACK(status_window_add_cb), dialog);
+	pidgin_dialog_add_button(GTK_DIALOG(win), _("_Add"),
+	                         G_CALLBACK(status_window_add_cb), dialog);
 
 	/* Modify button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), PIDGIN_STOCK_MODIFY,
-			G_CALLBACK(status_window_modify_cb), dialog);
+	button = pidgin_dialog_add_button(GTK_DIALOG(win), _("_Modify"),
+	                                  G_CALLBACK(status_window_modify_cb),
+	                                  dialog);
 	dialog->modify_button = button;
 	gtk_widget_set_sensitive(button, FALSE);
 
@@ -1422,9 +1423,6 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	dialog->box = GTK_COMBO_BOX(combo);
 
 	rend = GTK_CELL_RENDERER(gtk_cell_renderer_pixbuf_new());
-	g_object_set(G_OBJECT(rend),
-			"stock-size", gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL),
-			NULL);
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo), rend, FALSE);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo), rend,
 						"stock-id", STATUS_COLUMN_ICON, NULL);
@@ -1655,7 +1653,7 @@ pidgin_status_menu_update_iter(GtkWidget *combobox, GtkListStore *store, GtkTree
 			SS_MENU_ICON_COLUMN, pidgin_stock_id_from_status_primitive(primitive),
 			SS_MENU_TEXT_COLUMN, purple_savedstatus_get_title(status),
 			SS_MENU_DATA_COLUMN, GINT_TO_POINTER(purple_savedstatus_get_creation_time(status)),
-			SS_MENU_EMBLEM_COLUMN, GTK_STOCK_SAVE,
+			SS_MENU_EMBLEM_COLUMN, "document-save",
 			SS_MENU_EMBLEM_VISIBLE_COLUMN, TRUE,
 			-1);
 }
@@ -1789,10 +1787,7 @@ GtkWidget *pidgin_status_menu(PurpleSavedStatus *current_status, GCallback callb
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox), icon_rend, "stock-id", SS_MENU_ICON_COLUMN, NULL);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox), text_rend, "markup", SS_MENU_TEXT_COLUMN, NULL);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox), emblem_rend,
-					"stock-id", SS_MENU_EMBLEM_COLUMN, "visible", SS_MENU_EMBLEM_VISIBLE_COLUMN, NULL);
-	g_object_set(G_OBJECT(icon_rend),
-			"stock-size", gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL),
-			NULL);
+					"icon-name", SS_MENU_EMBLEM_COLUMN, "visible", SS_MENU_EMBLEM_VISIBLE_COLUMN, NULL);
 	g_object_set(text_rend, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), index);
