@@ -1468,7 +1468,8 @@ fb_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 }
 
 static PurpleRoomlist *
-fb_roomlist_get_list(PurpleConnection *gc)
+fb_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
+                     PurpleConnection *gc)
 {
 	FbApi *api;
 	FbData *fata;
@@ -1503,7 +1504,8 @@ fb_roomlist_get_list(PurpleConnection *gc)
 }
 
 static void
-fb_roomlist_cancel(PurpleRoomlist *list)
+fb_roomlist_cancel(PurpleProtocolRoomlist *protocol_roomlist,
+                   PurpleRoomlist *list)
 {
 	FbData *fata;
 	PurpleAccount *acct;

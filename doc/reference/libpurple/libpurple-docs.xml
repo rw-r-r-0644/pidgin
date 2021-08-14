@@ -124,6 +124,7 @@
     <xi:include href="xml/purpleprotocolmanager.xml" />
     <xi:include href="xml/purpleprotocolmedia.xml" />
     <xi:include href="xml/purpleprotocolprivacy.xml" />
+    <xi:include href="xml/purpleprotocolroomlist.xml" />
     <xi:include href="xml/purpleprotocolserver.xml" />
   </part>
 

@@ -1329,7 +1329,9 @@ void silcpurple_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnecti
 				 chu->channel->channel_name, topic, NULL);
 }
 
-PurpleRoomlist *silcpurple_roomlist_get_list(PurpleConnection *gc)
+PurpleRoomlist *
+silcpurple_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
+                             PurpleConnection *gc)
 {
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;
@@ -1364,7 +1366,9 @@ PurpleRoomlist *silcpurple_roomlist_get_list(PurpleConnection *gc)
 	return sg->roomlist;
 }
 
-void silcpurple_roomlist_cancel(PurpleRoomlist *list)
+void
+silcpurple_roomlist_cancel(PurpleProtocolRoomlist *protocol_roomlist,
+                           PurpleRoomlist *list)
 {
 	PurpleAccount *account = purple_roomlist_get_account(list);
 	PurpleConnection *gc = purple_account_get_connection(account);

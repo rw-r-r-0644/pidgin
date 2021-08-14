@@ -138,8 +138,8 @@ void silcpurple_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection 
 void silcpurple_chat_leave(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id);
 int silcpurple_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, PurpleMessage *msg);
 void silcpurple_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, const char *topic);
-PurpleRoomlist *silcpurple_roomlist_get_list(PurpleConnection *gc);
-void silcpurple_roomlist_cancel(PurpleRoomlist *list);
+PurpleRoomlist *silcpurple_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist, PurpleConnection *gc);
+void silcpurple_roomlist_cancel(PurpleProtocolRoomlist *protocol_roomlist, PurpleRoomlist *list);
 void silcpurple_chat_chauth_show(SilcPurple sg, SilcChannelEntry channel,
 				 SilcDList channel_pubkeys);
 void silcpurple_parse_attrs(SilcDList attrs, char **moodstr, char **statusstr,

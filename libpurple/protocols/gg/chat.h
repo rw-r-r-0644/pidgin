@@ -54,6 +54,6 @@ int ggp_chat_send(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int l
 void ggp_chat_got_message(PurpleConnection *gc, uint64_t chat_id,
 	const char *message, time_t time, uin_t who);
 
-PurpleRoomlist * ggp_chat_roomlist_get_list(PurpleConnection *gc);
+PurpleRoomlist * ggp_chat_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist, PurpleConnection *gc);
 
 #endif /* PURPLE_GG_CHAT_H */

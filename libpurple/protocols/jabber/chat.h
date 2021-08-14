@@ -101,12 +101,11 @@ gboolean jabber_chat_role_user(JabberChat *chat, const char *who,
 		const char *role, const char *why);
 gboolean jabber_chat_role_list(JabberChat *chat, const char *role);
 
-PurpleRoomlist *jabber_roomlist_get_list(PurpleConnection *gc);
-void jabber_roomlist_cancel(PurpleRoomlist *list);
+PurpleRoomlist *jabber_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist, PurpleConnection *gc);
+void jabber_roomlist_cancel(PurpleProtocolRoomlist *protocol_roomlist, PurpleRoomlist *list);
+char *jabber_roomlist_room_serialize(PurpleProtocolRoomlist *protocol_roomlist, PurpleRoomlistRoom *room);
 
 void jabber_chat_disco_traffic(JabberChat *chat);
-
-char *jabber_roomlist_room_serialize(PurpleRoomlistRoom *room);
 
 gboolean jabber_chat_all_participants_have_capability(const JabberChat *chat,
 	const gchar *cap);

@@ -225,13 +225,16 @@ do_add_room_cb(G_GNUC_UNUSED GtkWidget *w, struct _menu_cb_info *info)
 	PurpleConnection *gc = purple_account_get_connection(account);
 	PurpleProtocol *protocol = NULL;
 
-	if(gc != NULL)
+	if(gc != NULL) {
 		protocol = purple_connection_get_protocol(gc);
+	}
 
-	if(protocol != NULL && PURPLE_PROTOCOL_IMPLEMENTS(protocol, ROOMLIST, room_serialize))
-		name = purple_protocol_roomlist_iface_room_serialize(protocol, info->room);
-	else
+	if(protocol != NULL && PURPLE_PROTOCOL_IMPLEMENTS(protocol, ROOMLIST, room_serialize)) {
+		name = purple_protocol_roomlist_room_serialize(PURPLE_PROTOCOL_ROOMLIST(protocol),
+		                                               info->room);
+	} else {
 		name = g_strdup(purple_roomlist_room_get_name(info->room));
+	}
 
 	purple_blist_request_add_chat(account, NULL, NULL, name);
 
