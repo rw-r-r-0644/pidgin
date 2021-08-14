@@ -138,7 +138,7 @@ Show the workspace list
 Create a new workspace and switch to it
 
 .SH FILES
-\fI~/.gntrc\fR: configuration file for gnt applications.
+\fIgntrc\fR: configuration file for gnt applications. Its location depends on the platform and/or the $XDG_CONFIG_HOME environment variable. If this environment variable is set, Finch will look for the gntrc file at \fB$XDG_CONFIG_HOME/gnt/gntrc\fR. Otherwise it will look for the file at \fB$HOME/.config/gnt/gntrc\fR and \fB%LOCALAPPDATA%\(rsgnt\(rsgntrc\fR, respectively depending on the platform.
 .br
 .TP
 A sample file looks like:
@@ -292,7 +292,7 @@ q =
 
 .SH Widget Actions
 You can specify key-bindings for specific widgets. The following entries in
-\fI~/.gntrc\fR correspond to the default keybindings for the actions:
+\fIgntrc\fR correspond to the default keybindings for the actions:
 
 .br
 [GntBox::binding]
@@ -423,7 +423,7 @@ To unbind a key which has a default binding, you simply bind it to the empty str
 a-q =
 
 .SH Menus
-You can also specify key-bindings to trigger specific menuitems in windows. For example, the following entry in \fI~/.gntrc\fR will bind \fBCtrl + t\fR to the 'Send IM...' item in the buddylist:
+You can also specify key-bindings to trigger specific menuitems in windows. For example, the following entry in \fIgntrc\fR will bind \fBCtrl + t\fR to the 'Send IM...' item in the buddylist:
 
 [buddylist::menu]
 .br
@@ -455,7 +455,7 @@ add-group
 There is experimental mouse support. You can focus windows, activate buttons,
 select rows in a list, scroll using the wheel-scroll etc. Selecting text in a
 text-view copies it to the gnt clipboard. Mouse support is disabled by default,
-so you need to enable it in \fI~/.gntrc\fR (see the sample above).
+so you need to enable it in \fIgntrc\fR (see the sample above).
 
 .SH Window Management
 The default window management is very limited. But it is possible to write
@@ -465,9 +465,9 @@ removes the borders from the buddylist and pops up new windows in the middle of
 the screen, instead of at the upper-left corder. It is provided as a sample
 simple manager, but it should be possible to write more complex managers, and
 it's very possible that the window-manager API will need to be enhanced. Look at
-the sample \fI~/.gntrc\fR file above to see how to select a window-manager.
+the sample \fIgntrc\fR file above to see how to select a window-manager.
 
-It is also possible to rebind the window-manager actions in \fI~/.gntrc\fR, eg:
+It is also possible to rebind the window-manager actions in \fIgntrc\fR, eg:
 
 .br
 [GntWM::binding]
