@@ -264,6 +264,7 @@ libpurple/purpleprotocolim.c
 libpurple/purpleprotocolmedia.c
 libpurple/purpleprotocolmanager.c
 libpurple/purpleprotocolprivacy.c
+libpurple/purpleprotocolroomlist.c
 libpurple/purpleprotocolserver.c
 libpurple/purpleuiinfo.c
 libpurple/purplewhiteboard.c

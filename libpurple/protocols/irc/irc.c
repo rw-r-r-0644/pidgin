@@ -982,7 +982,9 @@ irc_chat_set_topic(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
 	g_free(buf);
 }
 
-static PurpleRoomlist *irc_roomlist_get_list(PurpleConnection *gc)
+static PurpleRoomlist *
+irc_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
+                      PurpleConnection *gc)
 {
 	struct irc_conn *irc;
 	GList *fields = NULL;
@@ -1014,7 +1016,9 @@ static PurpleRoomlist *irc_roomlist_get_list(PurpleConnection *gc)
 	return irc->roomlist;
 }
 
-static void irc_roomlist_cancel(PurpleRoomlist *list)
+static void
+irc_roomlist_cancel(PurpleProtocolRoomlist *protocol_roomlist,
+                    PurpleRoomlist *list)
 {
 	PurpleAccount *account = purple_roomlist_get_account(list);
 	PurpleConnection *gc = purple_account_get_connection(account);

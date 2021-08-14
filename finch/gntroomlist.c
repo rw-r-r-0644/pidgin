@@ -95,7 +95,7 @@ static void fl_add_chat(GntWidget *button, gpointer null)
 	protocol = purple_connection_get_protocol(gc);
 
 	if (PURPLE_PROTOCOL_IMPLEMENTS(protocol, ROOMLIST, room_serialize)) {
-		name = purple_protocol_roomlist_iface_room_serialize(protocol, room);
+		name = purple_protocol_roomlist_room_serialize(PURPLE_PROTOCOL_ROOMLIST(protocol), room);
 	} else {
 		name = g_strdup(purple_roomlist_room_get_name(room));
 	}

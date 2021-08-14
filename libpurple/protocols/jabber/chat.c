@@ -891,13 +891,9 @@ static void roomlist_ok_cb(JabberStream *js, const char *server)
 	jabber_iq_send(iq);
 }
 
-char *jabber_roomlist_room_serialize(PurpleRoomlistRoom *room)
-{
-	GList *fields = purple_roomlist_room_get_fields(room);
-	return g_strdup_printf("%s@%s", (char*)fields->data, (char*)fields->next->data);
-}
-
-PurpleRoomlist *jabber_roomlist_get_list(PurpleConnection *gc)
+PurpleRoomlist *
+jabber_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
+                         PurpleConnection *gc)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
 	GList *fields = NULL;
@@ -932,7 +928,9 @@ PurpleRoomlist *jabber_roomlist_get_list(PurpleConnection *gc)
 	return js->roomlist;
 }
 
-void jabber_roomlist_cancel(PurpleRoomlist *list)
+void
+jabber_roomlist_cancel(PurpleProtocolRoomlist *protocol_roomlist,
+                       PurpleRoomlist *list)
 {
 	PurpleAccount *account;
 	PurpleConnection *gc;
@@ -948,6 +946,14 @@ void jabber_roomlist_cancel(PurpleRoomlist *list)
 		js->roomlist = NULL;
 		g_object_unref(list);
 	}
+}
+
+char *
+jabber_roomlist_room_serialize(PurpleProtocolRoomlist *protocol_roomlist,
+                               PurpleRoomlistRoom *room)
+{
+	GList *fields = purple_roomlist_room_get_fields(room);
+	return g_strdup_printf("%s@%s", (char*)fields->data, (char*)fields->next->data);
 }
 
 void jabber_chat_member_free(JabberChatMember *jcm)

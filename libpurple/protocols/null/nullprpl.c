@@ -1057,7 +1057,10 @@ static gboolean null_finish_get_roomlist(gpointer roomlist) {
   return FALSE;
 }
 
-static PurpleRoomlist *null_roomlist_get_list(PurpleConnection *gc) {
+static PurpleRoomlist *
+null_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
+                       PurpleConnection *gc)
+{
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
   PurpleConversationManager *manager;
   PurpleRoomlist *roomlist = purple_roomlist_new(purple_connection_get_account(gc));
@@ -1117,14 +1120,20 @@ static PurpleRoomlist *null_roomlist_get_list(PurpleConnection *gc) {
   return roomlist;
 }
 
-static void null_roomlist_cancel(PurpleRoomlist *list) {
+static void
+null_roomlist_cancel(PurpleProtocolRoomlist *protocol_roomlist,
+                     PurpleRoomlist *list)
+{
  PurpleAccount *account = purple_roomlist_get_account(list);
  purple_debug_info("nullprpl", "%s asked to cancel room list request\n",
                    purple_account_get_username(account));
 }
 
-static void null_roomlist_expand_category(PurpleRoomlist *list,
-                                              PurpleRoomlistRoom *category) {
+static void
+null_roomlist_expand_category(PurpleProtocolRoomlist *protocol_roomlist,
+                              PurpleRoomlist *list,
+                              PurpleRoomlistRoom *category)
+{
  PurpleAccount *account = purple_roomlist_get_account(list);
  purple_debug_info("nullprpl", "%s asked to expand room list category %s\n",
                    purple_account_get_username(account),

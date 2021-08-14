@@ -570,7 +570,9 @@ static gboolean ggp_chat_roomlist_get_list_finish(gpointer roomlist)
 	return FALSE;
 }
 
-PurpleRoomlist * ggp_chat_roomlist_get_list(PurpleConnection *gc)
+PurpleRoomlist *
+ggp_chat_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
+                           PurpleConnection *gc)
 {
 	ggp_chat_session_data *sdata = ggp_chat_get_sdata(gc);
 	PurpleRoomlist *roomlist;

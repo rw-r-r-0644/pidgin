@@ -28,6 +28,9 @@
 #include "roomlist.h"
 #include "server.h"
 
+/* This must be after roomlist.h otherwise you'll get an include cycle. */
+#include "purpleprotocolroomlist.h"
+
 /*
  * Private data for a room list.
  */
@@ -158,8 +161,10 @@ PurpleRoomlist *purple_roomlist_get_list(PurpleConnection *gc)
 
 	protocol = purple_connection_get_protocol(gc);
 
-	if(protocol)
-		return purple_protocol_roomlist_iface_get_list(protocol, gc);
+	if(PURPLE_IS_PROTOCOL_ROOMLIST(protocol)) {
+		return purple_protocol_roomlist_get_list(PURPLE_PROTOCOL_ROOMLIST(protocol),
+		                                         gc);
+	}
 
 	return NULL;
 }
@@ -180,8 +185,9 @@ void purple_roomlist_cancel_get_list(PurpleRoomlist *list)
 	if(gc)
 		protocol = purple_connection_get_protocol(gc);
 
-	if(protocol)
-		purple_protocol_roomlist_iface_cancel(protocol, list);
+	if(PURPLE_IS_PROTOCOL_ROOMLIST(protocol)) {
+		purple_protocol_roomlist_cancel(PURPLE_PROTOCOL_ROOMLIST(protocol), list);
+	}
 }
 
 void purple_roomlist_expand_category(PurpleRoomlist *list, PurpleRoomlistRoom *category)
@@ -199,11 +205,14 @@ void purple_roomlist_expand_category(PurpleRoomlist *list, PurpleRoomlistRoom *c
 	gc = purple_account_get_connection(priv->account);
 	g_return_if_fail(PURPLE_IS_CONNECTION(gc));
 
-	if(gc)
+	if(gc) {
 		protocol = purple_connection_get_protocol(gc);
+	}
 
-	if(protocol)
-		purple_protocol_roomlist_iface_expand_category(protocol, list, category);
+	if(PURPLE_IS_PROTOCOL_ROOMLIST(protocol)) {
+		purple_protocol_roomlist_expand_category(PURPLE_PROTOCOL_ROOMLIST(protocol),
+		                                         list, category);
+	}
 }
 
 GList * purple_roomlist_get_fields(PurpleRoomlist *list)
@@ -364,70 +373,6 @@ PurpleRoomlist *purple_roomlist_new(PurpleAccount *account)
 
 	return list;
 }
-
-/**************************************************************************
- * Protocol Roomlist Interface API
- **************************************************************************/
-#define DEFINE_PROTOCOL_FUNC(protocol,funcname,...) \
-	PurpleProtocolRoomlistInterface *roomlist_iface = \
-		PURPLE_PROTOCOL_ROOMLIST_GET_IFACE(protocol); \
-	if (roomlist_iface && roomlist_iface->funcname) \
-		roomlist_iface->funcname(__VA_ARGS__);
-
-#define DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol,defaultreturn,funcname,...) \
-	PurpleProtocolRoomlistInterface *roomlist_iface = \
-		PURPLE_PROTOCOL_ROOMLIST_GET_IFACE(protocol); \
-	if (roomlist_iface && roomlist_iface->funcname) \
-		return roomlist_iface->funcname(__VA_ARGS__); \
-	else \
-		return defaultreturn;
-
-GType
-purple_protocol_roomlist_iface_get_type(void)
-{
-	static GType type = 0;
-
-	if (G_UNLIKELY(type == 0)) {
-		static const GTypeInfo info = {
-			.class_size = sizeof(PurpleProtocolRoomlistInterface),
-		};
-
-		type = g_type_register_static(G_TYPE_INTERFACE,
-				"PurpleProtocolRoomlistInterface", &info, 0);
-	}
-	return type;
-}
-
-PurpleRoomlist *
-purple_protocol_roomlist_iface_get_list(PurpleProtocol *protocol,
-		PurpleConnection *gc)
-{
-	DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol, NULL, get_list, gc);
-}
-
-void
-purple_protocol_roomlist_iface_cancel(PurpleProtocol *protocol,
-		PurpleRoomlist *list)
-{
-	DEFINE_PROTOCOL_FUNC(protocol, cancel, list);
-}
-
-void
-purple_protocol_roomlist_iface_expand_category(PurpleProtocol *protocol,
-		PurpleRoomlist *list, PurpleRoomlistRoom *category)
-{
-	DEFINE_PROTOCOL_FUNC(protocol, expand_category, list, category);
-}
-
-char *
-purple_protocol_roomlist_iface_room_serialize(PurpleProtocol *protocol,
-		PurpleRoomlistRoom *room)
-{
-	DEFINE_PROTOCOL_FUNC_WITH_RETURN(protocol, NULL, room_serialize, room);
-}
-
-#undef DEFINE_PROTOCOL_FUNC_WITH_RETURN
-#undef DEFINE_PROTOCOL_FUNC
 
 /**************************************************************************/
 /* Room API                                                               */
