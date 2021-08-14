@@ -68,7 +68,7 @@
       <xi:include href="xml/pidgindebug.xml" />
       <xi:include href="xml/pidgindialog.xml" />
       <xi:include href="xml/pidgingdkpixbuf.xml" />
-      <xi:include href="xml/pidginicon.xml" />
+      <xi:include href="xml/pidginiconname.xml" />
       <xi:include href="xml/pidgininfopane.xml" />
       <xi:include href="xml/pidgininvitedialog.xml" />
       <xi:include href="xml/pidginlog.xml" />
@@ -79,7 +79,6 @@
       <xi:include href="xml/pidginpluginsdialog.xml" />
       <xi:include href="xml/pidginpluginsmenu.xml" />
       <xi:include href="xml/pidginprefs.xml" />
-      <xi:include href="xml/pidginpresence.xml" />
       <xi:include href="xml/pidginpresenceicon.xml" />
       <xi:include href="xml/pidginprotocolchooser.xml" />
       <xi:include href="xml/pidginprotocolstore.xml" />

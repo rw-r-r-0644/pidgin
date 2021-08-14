@@ -20,31 +20,16 @@
  * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "pidgin/pidginpresence.h"
+#include "pidginiconname.h"
 
 /******************************************************************************
  * Public API
  *****************************************************************************/
 const gchar *
-pidgin_presence_get_icon_name(PurplePresence *presence, const gchar *fallback) {
-	PurpleStatus *status = NULL;
-	PurpleStatusType *type = NULL;
-
-	if(!PURPLE_IS_PRESENCE(presence)) {
-		return fallback;
-	}
-
-	status = purple_presence_get_active_status(presence);
-	if(!PURPLE_IS_STATUS(status)) {
-		return fallback;
-	}
-
-	type = purple_status_get_status_type(status);
-	if(type == NULL) {
-		return fallback;
-	}
-
-	switch(purple_status_type_get_primitive(type)) {
+pidgin_icon_name_from_status_primitive(PurpleStatusPrimitive primitive,
+                                       const gchar *fallback)
+{
+	switch(primitive) {
 		case PURPLE_STATUS_OFFLINE:
 			return "pidgin-user-offline";
 			break;
@@ -72,4 +57,48 @@ pidgin_presence_get_icon_name(PurplePresence *presence, const gchar *fallback) {
 	}
 
 	return fallback;
+}
+
+const gchar *
+pidgin_icon_name_from_status_type(PurpleStatusType *type, const gchar *fallback)
+{
+	PurpleStatusPrimitive primitive;
+
+	if(type == NULL) {
+		return fallback;
+	}
+
+	primitive = purple_status_type_get_primitive(type);
+
+	return pidgin_icon_name_from_status_primitive(primitive, fallback);
+}
+
+const gchar *
+pidgin_icon_name_from_status(PurpleStatus *status, const gchar *fallback) {
+	PurpleStatusType *type = NULL;
+
+	if(!PURPLE_IS_STATUS(status)) {
+		return fallback;
+	}
+
+	type = purple_status_get_status_type(status);
+	if(type == NULL) {
+		return fallback;
+	}
+
+	return pidgin_icon_name_from_status_type(type, fallback);
+}
+
+const gchar *
+pidgin_icon_name_from_presence(PurplePresence *presence, const gchar *fallback)
+{
+	PurpleStatus *status = NULL;
+
+	if(!PURPLE_IS_PRESENCE(presence)) {
+		return fallback;
+	}
+
+	status = purple_presence_get_active_status(presence);
+
+	return pidgin_icon_name_from_status(status, fallback);
 }

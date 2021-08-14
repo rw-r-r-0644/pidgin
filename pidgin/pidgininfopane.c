@@ -26,7 +26,6 @@
 #include "pidgin/gtkutils.h"
 #include "pidgin/pidginavatar.h"
 #include "pidgin/pidgincore.h"
-#include "pidgin/pidginpresence.h"
 #include "pidgin/pidginpresenceicon.h"
 
 struct _PidginInfoPane {

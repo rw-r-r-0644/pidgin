@@ -22,7 +22,7 @@
 
 #include "pidgin/pidginpresenceicon.h"
 
-#include "pidgin/pidginpresence.h"
+#include "pidgin/pidginiconname.h"
 
 struct _PidginPresenceIcon {
 	GtkImage parent;
@@ -50,7 +50,7 @@ static void
 pidgin_presence_icon_update(PidginPresenceIcon *icon) {
 	const gchar *icon_name = NULL;
 
-	icon_name = pidgin_presence_get_icon_name(icon->presence, icon->fallback);
+	icon_name = pidgin_icon_name_from_presence(icon->presence, icon->fallback);
 
 	gtk_image_set_from_icon_name(GTK_IMAGE(icon), icon_name, icon->icon_size);
 }
