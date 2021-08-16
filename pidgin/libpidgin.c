@@ -165,11 +165,13 @@ debug_init(void)
 static void
 pidgin_ui_init(void)
 {
+	GtkIconTheme *theme = NULL;
 	gchar *path;
 
+	theme = gtk_icon_theme_get_default();
+
 	path = g_build_filename(PURPLE_DATADIR, "pidgin", "icons", NULL);
-	gtk_icon_theme_prepend_search_path(gtk_icon_theme_get_default(), path);
-	gtk_icon_theme_add_resource_path(gtk_icon_theme_get_default(), path);
+	gtk_icon_theme_prepend_search_path(theme, path);
 	g_free(path);
 
 	pidgin_stock_init();
