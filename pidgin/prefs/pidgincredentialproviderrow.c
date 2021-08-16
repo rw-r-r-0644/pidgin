@@ -175,7 +175,7 @@ pidgin_credential_provider_row_class_init(PidginCredentialProviderRowClass *klas
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
-	    "/im/pidgin/Pidgin/Prefs/credentialprovider.ui"
+	    "/im/pidgin/Pidgin3/Prefs/credentialprovider.ui"
 	);
 
 	gtk_widget_class_bind_template_child(widget_class,

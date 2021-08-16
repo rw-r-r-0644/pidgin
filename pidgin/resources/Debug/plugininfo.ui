@@ -69,7 +69,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <object class="GtkImage" id="logo">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="resource">/im/pidgin/Pidgin/logo.png</property>
+            <property name="resource">/im/pidgin/Pidgin3/logo.png</property>
           </object>
           <packing>
             <property name="expand">False</property>

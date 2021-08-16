@@ -564,7 +564,7 @@ pidgin_disco_dialog_class_init(PidginDiscoDialogClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 	gtk_widget_class_set_template_from_resource(
-	        widget_class, "/im/pidgin/Pidgin/Plugin/XMPPDisco/disco.ui");
+	        widget_class, "/im/pidgin/Pidgin3/Plugin/XMPPDisco/disco.ui");
 
 	gtk_widget_class_bind_template_child(widget_class, PidginDiscoDialog,
 	                                     account_chooser);

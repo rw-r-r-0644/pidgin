@@ -105,7 +105,7 @@ pidgin_account_chooser_class_init(PidginAccountChooserClass *klass)
 
 	/* Widget template */
 	gtk_widget_class_set_template_from_resource(
-	        widget_class, "/im/pidgin/Pidgin/Accounts/chooser.ui");
+	        widget_class, "/im/pidgin/Pidgin3/Accounts/chooser.ui");
 }
 
 static void

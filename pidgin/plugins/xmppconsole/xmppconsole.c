@@ -568,7 +568,7 @@ create_console(PurplePluginAction *action)
 	console = g_new0(XmppConsole, 1);
 
 	builder = gtk_builder_new_from_resource(
-	        "/im/pidgin/Pidgin/Plugin/XMPPConsole/console.ui");
+	        "/im/pidgin/Pidgin3/Plugin/XMPPConsole/console.ui");
 	gtk_builder_set_translation_domain(builder, GETTEXT_PACKAGE);
 	console->window = GTK_WIDGET(
 	        gtk_builder_get_object(builder, "PidginXmppConsole"));

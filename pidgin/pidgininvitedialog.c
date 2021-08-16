@@ -176,7 +176,7 @@ pidgin_invite_dialog_class_init(PidginInviteDialogClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 		widget_class,
-		"/im/pidgin/Pidgin/Conversations/invite_dialog.ui"
+		"/im/pidgin/Pidgin3/Conversations/invite_dialog.ui"
 	);
 
 	gtk_widget_class_bind_template_child_private(

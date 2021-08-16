@@ -46,7 +46,7 @@ pidgin_conversation_window_init(PidginConversationWindow *window) {
 	                           GTK_APPLICATION(g_application_get_default()));
 
 	/* setup our menu */
-	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin/Conversations/menu.ui");
+	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin3/Conversations/menu.ui");
 
 	model = (GMenuModel *)gtk_builder_get_object(builder, "conversation");
 	menubar = gtk_menu_bar_new_from_model(model);
@@ -62,7 +62,7 @@ pidgin_conversation_window_class_init(PidginConversationWindowClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
-	    "/im/pidgin/Pidgin/Conversations/window.ui"
+	    "/im/pidgin/Pidgin3/Conversations/window.ui"
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginConversationWindow,

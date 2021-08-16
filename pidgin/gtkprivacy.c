@@ -265,7 +265,7 @@ pidgin_privacy_dialog_class_init(PidginPrivacyDialogClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 	gtk_widget_class_set_template_from_resource(
-	        widget_class, "/im/pidgin/Pidgin/Privacy/dialog.ui");
+	        widget_class, "/im/pidgin/Pidgin3/Privacy/dialog.ui");
 
 	gtk_widget_class_bind_template_child(widget_class, PidginPrivacyDialog,
 	                                     account_chooser);

@@ -238,7 +238,7 @@ pidgin_accounts_menu_class_init(PidginAccountsMenuClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
-	    "/im/pidgin/Pidgin/Accounts/menu.ui"
+	    "/im/pidgin/Pidgin3/Accounts/menu.ui"
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginAccountsMenu,

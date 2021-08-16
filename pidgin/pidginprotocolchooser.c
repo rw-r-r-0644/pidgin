@@ -64,7 +64,7 @@ pidgin_protocol_chooser_class_init(PidginProtocolChooserClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 	gtk_widget_class_set_template_from_resource(widget_class,
-	                                            "/im/pidgin/Pidgin/Protocols/chooser.ui");
+	                                            "/im/pidgin/Pidgin3/Protocols/chooser.ui");
 
 	gtk_widget_class_bind_template_child(widget_class, PidginProtocolChooser,
 	                                     model);

@@ -176,7 +176,7 @@ pidgin_info_pane_class_init(PidginInfoPaneClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
-	    "/im/pidgin/Pidgin/Conversations/infopane.ui"
+	    "/im/pidgin/Pidgin3/Conversations/infopane.ui"
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginInfoPane, hbox);

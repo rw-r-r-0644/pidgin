@@ -1717,7 +1717,7 @@ bind_network_page(PidginPrefsWindow *win)
 {
 	GtkStyleContext *context;
 	GtkCssProvider *ip_css;
-	const gchar *res = "/im/pidgin/Pidgin/Prefs/ip.css";
+	const gchar *res = "/im/pidgin/Pidgin3/Prefs/ip.css";
 
 	gtk_entry_set_text(GTK_ENTRY(win->network.stun_server),
 			purple_prefs_get_string("/purple/network/stun_server"));
@@ -2375,7 +2375,7 @@ vv_page(PidginPrefsWindow *win)
 	GtkWidget *ret;
 	PurpleMediaManager *manager;
 
-	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin/Prefs/vv.ui");
+	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin3/Prefs/vv.ui");
 	gtk_builder_set_translation_domain(builder, PACKAGE);
 
 	ret = GTK_WIDGET(gtk_builder_get_object(builder, "vv.page"));
@@ -2459,7 +2459,7 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 
 	gtk_widget_class_set_template_from_resource(
 		widget_class,
-		"/im/pidgin/Pidgin/Prefs/prefs.ui"
+		"/im/pidgin/Pidgin3/Prefs/prefs.ui"
 	);
 
 	/* Main window */

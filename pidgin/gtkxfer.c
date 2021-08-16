@@ -546,7 +546,7 @@ pidgin_xfer_dialog_class_init(PidginXferDialogClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 	gtk_widget_class_set_template_from_resource(
-	        widget_class, "/im/pidgin/Pidgin/Xfer/xfer.ui");
+	        widget_class, "/im/pidgin/Pidgin3/Xfer/xfer.ui");
 
 	gtk_widget_class_bind_template_callback(widget_class, delete_win_cb);
 

@@ -431,7 +431,7 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	GList *l, *l2;
 	char *username = NULL;
 	GtkCssProvider *entry_css;
-	const gchar *res = "/im/pidgin/Pidgin/Accounts/entry.css";
+	const gchar *res = "/im/pidgin/Pidgin3/Accounts/entry.css";
 
 	entry_css = gtk_css_provider_new();
 	gtk_css_provider_load_from_resource(entry_css, res);
