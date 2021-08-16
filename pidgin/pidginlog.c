@@ -658,7 +658,7 @@ pidgin_log_viewer_class_init(PidginLogViewerClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 	gtk_widget_class_set_template_from_resource(
-	        widget_class, "/im/pidgin/Pidgin/Log/log-viewer.ui");
+	        widget_class, "/im/pidgin/Pidgin3/Log/log-viewer.ui");
 
 	gtk_widget_class_bind_template_child_internal(
 	        widget_class, PidginLogViewer, browse_button);

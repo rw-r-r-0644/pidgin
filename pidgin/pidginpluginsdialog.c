@@ -301,7 +301,7 @@ pidgin_plugins_dialog_class_init(PidginPluginsDialogClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 		widget_class,
-		"/im/pidgin/Pidgin/Plugins/dialog.ui"
+		"/im/pidgin/Pidgin3/Plugins/dialog.ui"
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginPluginsDialog, tree_view);

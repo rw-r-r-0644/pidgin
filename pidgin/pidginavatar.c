@@ -307,7 +307,7 @@ pidgin_avatar_button_press_handler(GtkWidget *widget, GdkEventButton *event,
 		return FALSE;
 	}
 
-	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin/Avatar/menu.ui");
+	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin3/Avatar/menu.ui");
 	model = (GMenuModel *)gtk_builder_get_object(builder, "menu");
 
 	menu = gtk_menu_new_from_model(model);
@@ -498,7 +498,7 @@ pidgin_avatar_class_init(PidginAvatarClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
-	    "/im/pidgin/Pidgin/Avatar/avatar.ui"
+	    "/im/pidgin/Pidgin3/Avatar/avatar.ui"
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginAvatar, icon);

@@ -89,7 +89,7 @@ pidgin_about_dialog_load_main_page(PidginAboutDialog *about) {
 
 	/* now load the html */
 	istream = g_resource_open_stream(pidgin_get_resource(),
-	                                 "/im/pidgin/Pidgin/About/about.md",
+	                                 "/im/pidgin/Pidgin3/About/about.md",
 	                                 G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
 
 	str = g_string_new("");
@@ -121,7 +121,7 @@ pidgin_about_dialog_load_json(GtkTreeStore *store, const gchar *json_section) {
 
 	/* get a stream to the credits resource */
 	istream = g_resource_open_stream(pidgin_get_resource(),
-	                                 "/im/pidgin/Pidgin/About/credits.json",
+	                                 "/im/pidgin/Pidgin3/About/credits.json",
 	                                 G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
 
 	/* create our parser */
@@ -522,7 +522,7 @@ pidgin_about_dialog_class_init(PidginAboutDialogClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 		widget_class,
-		"/im/pidgin/Pidgin/About/about.ui"
+		"/im/pidgin/Pidgin3/About/about.ui"
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, close_button);

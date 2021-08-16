@@ -497,7 +497,7 @@ pidgin_roomlist_dialog_class_init(PidginRoomlistDialogClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 	gtk_widget_class_set_template_from_resource(
-	        widget_class, "/im/pidgin/Pidgin/Roomlist/roomlist.ui");
+	        widget_class, "/im/pidgin/Pidgin3/Roomlist/roomlist.ui");
 
 	gtk_widget_class_bind_template_child(widget_class, PidginRoomlistDialog,
 	                                     account_widget);

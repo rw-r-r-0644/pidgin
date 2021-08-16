@@ -5845,7 +5845,7 @@ static void
 set_default_tab_colors(GtkWidget *widget)
 {
 	GtkCssProvider *provider = gtk_css_provider_new();
-	const gchar *res = "/im/pidgin/Pidgin/Conversations/tab-label.css";
+	const gchar *res = "/im/pidgin/Pidgin3/Conversations/tab-label.css";
 
 	gtk_css_provider_load_from_resource(provider, res);
 

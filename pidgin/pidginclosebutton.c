@@ -41,7 +41,7 @@ pidgin_close_button_class_init(PidginCloseButtonClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
-	    "/im/pidgin/Pidgin/closebutton.ui"
+	    "/im/pidgin/Pidgin3/closebutton.ui"
 	);
 }
 

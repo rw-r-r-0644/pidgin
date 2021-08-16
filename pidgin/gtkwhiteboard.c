@@ -663,7 +663,7 @@ pidgin_whiteboard_class_init(PidginWhiteboardClass *klass)
 	obj_class->finalize = pidgin_whiteboard_finalize;
 
 	gtk_widget_class_set_template_from_resource(
-	        widget_class, "/im/pidgin/Pidgin/Whiteboard/whiteboard.ui");
+	        widget_class, "/im/pidgin/Pidgin3/Whiteboard/whiteboard.ui");
 
 	gtk_widget_class_bind_template_child(widget_class, PidginWhiteboard,
 	                                     drawing_area);

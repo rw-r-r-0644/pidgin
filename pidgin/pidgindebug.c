@@ -513,7 +513,7 @@ pidgin_debug_window_class_init(PidginDebugWindowClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 		widget_class,
-		"/im/pidgin/Pidgin/Debug/debug.ui"
+		"/im/pidgin/Pidgin3/Debug/debug.ui"
 	);
 
 	gtk_widget_class_bind_template_child(
@@ -580,7 +580,7 @@ pidgin_debug_window_init(PidginDebugWindow *win)
 	GtkTextIter end;
 	GtkStyleContext *context;
 	GtkCssProvider *filter_css;
-	const gchar *res = "/im/pidgin/Pidgin/Debug/filter.css";
+	const gchar *res = "/im/pidgin/Pidgin3/Debug/filter.css";
 
 	gtk_widget_init_template(GTK_WIDGET(win));
 

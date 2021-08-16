@@ -239,7 +239,7 @@ pidgin_account_actions_menu_class_init(PidginAccountActionsMenuClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
-	    "/im/pidgin/Pidgin/Accounts/actionsmenu.ui"
+	    "/im/pidgin/Pidgin3/Accounts/actionsmenu.ui"
 	);
 
 	obj_class->get_property = pidgin_account_actions_menu_get_property;

@@ -271,7 +271,7 @@ pidgin_plugins_menu_class_init(PidginPluginsMenuClass *klass) {
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
-	    "/im/pidgin/Pidgin/Plugins/menu.ui"
+	    "/im/pidgin/Pidgin3/Plugins/menu.ui"
 	);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginPluginsMenu,
