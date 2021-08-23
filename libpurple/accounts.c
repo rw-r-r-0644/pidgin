@@ -573,7 +573,7 @@ purple_accounts_delete_set(GObject *obj, GAsyncResult *res, gpointer d) {
 		purple_debug_warning("accounts",
 		                     "Failed to remove password for account %s: %s",
 		                     purple_account_get_name_for_display(account),
-		                     error->message);
+		                     (error != NULL) ? error->message : "Unknown error");
 
 		g_clear_error(&error);
 	}

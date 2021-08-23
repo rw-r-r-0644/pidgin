@@ -123,14 +123,18 @@ purple_secret_service_clear_password_callback(GObject *obj,
 {
 	GTask *task = G_TASK(data);
 	GError *error = NULL;
-	gboolean ret = FALSE;
 
-	ret = secret_password_clear_finish(result, &error);
+	/* This returns whether a password was removed or not. Which means that it
+	 * can return FALSE with error unset. This would complicate all of the other
+	 * credential API and we don't need to make this distinction, so we just
+	 * return TRUE unless error is set.
+	 */
+	secret_password_clear_finish(result, &error);
 
 	if(error != NULL) {
 		g_task_return_error(task, error);
 	} else {
-		g_task_return_boolean(task, ret);
+		g_task_return_boolean(task, TRUE);
 	}
 
 	g_object_unref(G_OBJECT(task));
