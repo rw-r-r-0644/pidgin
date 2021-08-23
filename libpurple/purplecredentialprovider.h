@@ -269,8 +269,8 @@ void purple_credential_provider_clear_password_async(PurpleCredentialProvider *p
  * Finishes a previous call to
  * purple_credential_provider_clear_password_async().
  *
- * Returns: %TRUE if the password was cleared successfully, otherwise %FALSE
- *          with @error set.
+ * Returns: %TRUE if the password didn't exist or was cleared successfully,
+ *          otherwise %FALSE with @error set.
  *
  * Since: 3.0.0
  */

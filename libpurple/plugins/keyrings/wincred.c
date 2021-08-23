@@ -292,28 +292,26 @@ purple_wincred_clear_password_async(PurpleCredentialProvider *provider,
 		DWORD error_code = GetLastError();
 
 		if (error_code == ERROR_NOT_FOUND) {
-			if (purple_debug_is_verbose()) {
-				purple_debug_misc(
-				        "keyring-wincred",
-				        "Password for account %s was already removed.",
-				        purple_account_get_username(account));
-			}
-		} else if (error_code == ERROR_NO_SUCH_LOGON_SESSION) {
-			purple_debug_error(
-			        "keyring-wincred",
-			        "Cannot remove password, no valid logon session");
-			error = g_error_new(
-			        PURPLE_WINCRED_ERROR, error_code,
-			        _("Cannot remove password, no valid logon session."));
+			/* If there was no password we just return TRUE. */
+			g_task_return_boolean(task, TRUE);
 		} else {
-			purple_debug_error("keyring-wincred",
-			                   "Cannot remove password, error %lx", error_code);
-			error = g_error_new(
-			        PURPLE_WINCRED_ERROR, error_code,
-			        _("Cannot remove password (error %lx)."), error_code);
-		}
+			if (error_code == ERROR_NO_SUCH_LOGON_SESSION) {
+				purple_debug_error(
+				        "keyring-wincred",
+				        "Cannot remove password, no valid logon session");
+				error = g_error_new(
+				        PURPLE_WINCRED_ERROR, error_code,
+				        _("Cannot remove password, no valid logon session."));
+			} else {
+				purple_debug_error("keyring-wincred",
+				                   "Cannot remove password, error %lx", error_code);
+				error = g_error_new(
+				        PURPLE_WINCRED_ERROR, error_code,
+				        _("Cannot remove password (error %lx)."), error_code);
+			}
 
-		g_task_return_error(task, error);
+			g_task_return_error(task, error);
+		}
 	}
 
 	g_object_unref(G_OBJECT(task));
