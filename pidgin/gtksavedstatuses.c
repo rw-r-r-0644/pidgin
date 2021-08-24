@@ -53,6 +53,15 @@ enum
 	STATUS_WINDOW_NUM_COLUMNS
 };
 
+enum {
+	STATUS_RESPONSE_USE = 1,
+	STATUS_RESPONSE_ADD,
+	STATUS_RESPONSE_MODIFY,
+	STATUS_RESPONSE_DELETE,
+	STATUS_RESPONSE_SAVE,
+	STATUS_RESPONSE_SAVE_AND_USE,
+};
+
 /*
  * These are used for the GtkTreeView containing the list of accounts
  * at the bottom of the window when you're editing a particular
@@ -103,8 +112,8 @@ typedef struct
 	GtkWidget *window;
 	GtkListStore *model;
 	GtkWidget *treeview;
-	GtkButton *saveanduse_button;
-	GtkButton *save_button;
+	GtkWidget *saveanduse_button;
+	GtkWidget *save_button;
 
 	gchar *original_title;
 	GtkEntry *title;
@@ -171,7 +180,7 @@ status_window_destroy_cb(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 static void
-status_window_use_cb(GtkButton *button, StatusWindow *dialog)
+status_window_use(StatusWindow *dialog)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
@@ -207,12 +216,6 @@ status_window_use_cb(GtkButton *button, StatusWindow *dialog)
 }
 
 static void
-status_window_add_cb(GtkButton *button, gpointer user_data)
-{
-	pidgin_status_editor_show(FALSE, NULL);
-}
-
-static void
 status_window_modify_foreach(GtkTreeModel *model, GtkTreePath *path,
 							 GtkTreeIter *iter, gpointer user_data)
 {
@@ -226,14 +229,13 @@ status_window_modify_foreach(GtkTreeModel *model, GtkTreePath *path,
 }
 
 static void
-status_window_modify_cb(GtkButton *button, gpointer user_data)
-{
-	StatusWindow *dialog = user_data;
+status_window_modify(StatusWindow *dialog) {
 	GtkTreeSelection *selection;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->treeview));
 
-	gtk_tree_selection_selected_foreach(selection, status_window_modify_foreach, user_data);
+	gtk_tree_selection_selected_foreach(selection,
+	                                    status_window_modify_foreach, NULL);
 }
 
 static void
@@ -263,9 +265,7 @@ status_window_delete_confirm_cb(gpointer data)
 }
 
 static void
-status_window_delete_cb(GtkButton *button, gpointer user_data)
-{
-	StatusWindow *dialog = user_data;
+status_window_delete(StatusWindow *dialog) {
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
 	GList *sel_paths, *l, *sel_titles = NULL;
@@ -307,12 +307,6 @@ status_window_delete_cb(GtkButton *button, gpointer user_data)
 		_("Cancel"), status_window_delete_cancel_cb);
 
 	g_free(title);
-}
-
-static void
-status_window_close_cb(GtkButton *button, gpointer user_data)
-{
-	pidgin_status_window_hide();
 }
 
 static void
@@ -409,8 +403,8 @@ search_func(GtkTreeModel *model, gint column, const gchar *key, GtkTreeIter *ite
 static void
 savedstatus_activated_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column, StatusWindow *dialog)
 {
-	status_window_use_cb(NULL, dialog);
-	status_window_close_cb(NULL, dialog);
+	status_window_use(dialog);
+	pidgin_status_window_hide();
 }
 
 static void
@@ -517,6 +511,31 @@ configure_cb(GtkWidget *widget, GdkEventConfigure *event, StatusWindow *dialog)
 }
 
 static void
+response_cb(GtkDialog *dialog, gint response_id, gpointer data) {
+	StatusWindow *window = data;
+
+	switch(response_id) {
+		case STATUS_RESPONSE_USE:
+			status_window_use(window);
+			break;
+		case STATUS_RESPONSE_ADD:
+			pidgin_status_editor_show(FALSE, NULL);
+			break;
+		case STATUS_RESPONSE_MODIFY:
+			status_window_modify(window);
+			break;
+		case STATUS_RESPONSE_DELETE:
+			status_window_delete(window);
+			break;
+		case GTK_RESPONSE_CLOSE:
+			pidgin_status_window_hide();
+			break;
+		default:
+			break;
+	}
+}
+
+static void
 current_status_changed(PurpleSavedStatus *old, PurpleSavedStatus *new_status,
 		StatusWindow *dialog)
 {
@@ -527,8 +546,6 @@ void
 pidgin_status_window_show(void)
 {
 	StatusWindow *dialog;
-	GtkWidget *bbox;
-	GtkWidget *button;
 	GtkWidget *list;
 	GtkWidget *vbox;
 	GtkWidget *win;
@@ -548,10 +565,10 @@ pidgin_status_window_show(void)
 	dialog->window = win = pidgin_dialog_new(_("Saved Statuses"), 12, "statuses", TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(win), width, height);
 
-	g_signal_connect(G_OBJECT(win), "delete_event",
-					 G_CALLBACK(status_window_destroy_cb), dialog);
-	g_signal_connect(G_OBJECT(win), "configure_event",
-					 G_CALLBACK(configure_cb), dialog);
+	g_signal_connect(win, "delete_event", G_CALLBACK(status_window_destroy_cb),
+	                 dialog);
+	g_signal_connect(win, "configure_event", G_CALLBACK(configure_cb), dialog);
+	g_signal_connect(win, "response", G_CALLBACK(response_cb), dialog);
 
 	/* Setup the vbox */
 	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
@@ -560,38 +577,23 @@ pidgin_status_window_show(void)
 	list = create_saved_status_list(dialog);
 	gtk_box_pack_start(GTK_BOX(vbox), list, TRUE, TRUE, 0);
 
-	/* Button box. */
-	bbox = pidgin_dialog_get_action_area(GTK_DIALOG(win));
+	/* Add our buttons */
+	dialog->use_button = gtk_dialog_add_button(GTK_DIALOG(win), _("_Use"),
+	                                           STATUS_RESPONSE_USE);
+	gtk_widget_set_sensitive(dialog->use_button, FALSE);
 
-	/* Use button */
-	button = gtk_button_new_with_mnemonic(_("_Use"));
-	dialog->use_button = button;
-	gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
-	gtk_widget_set_sensitive(button, FALSE);
+	gtk_dialog_add_button(GTK_DIALOG(win), _("_Add"), STATUS_RESPONSE_ADD);
 
-	g_signal_connect(G_OBJECT(button), "clicked",
-					 G_CALLBACK(status_window_use_cb), dialog);
+	dialog->modify_button = gtk_dialog_add_button(GTK_DIALOG(win),
+	                                              _("_Modify"),
+	                                              STATUS_RESPONSE_MODIFY);
+	gtk_widget_set_sensitive(dialog->modify_button, FALSE);
 
-	/* Add button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), _("_Add"),
-	                         G_CALLBACK(status_window_add_cb), dialog);
+	dialog->delete_button = gtk_dialog_add_button(GTK_DIALOG(win), _("Delete"),
+	                                              STATUS_RESPONSE_DELETE);
+	gtk_widget_set_sensitive(dialog->delete_button, FALSE);
 
-	/* Modify button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), _("_Modify"),
-	                                  G_CALLBACK(status_window_modify_cb),
-	                                  dialog);
-	dialog->modify_button = button;
-	gtk_widget_set_sensitive(button, FALSE);
-
-	/* Delete button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), _("Delete"),
-			G_CALLBACK(status_window_delete_cb), dialog);
-	dialog->delete_button = button;
-	gtk_widget_set_sensitive(button, FALSE);
-
-	/* Close button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), _("Close"),
-			G_CALLBACK(status_window_close_cb), dialog);
+	gtk_dialog_add_button(GTK_DIALOG(win), _("Close"), GTK_RESPONSE_CLOSE);
 
 	purple_signal_connect(purple_savedstatuses_get_handle(),
 			"savedstatus-changed", status_window,
@@ -681,16 +683,7 @@ status_editor_destroy_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
-status_editor_cancel_cb(GtkButton *button, gpointer user_data)
-{
-	StatusEditor *dialog = user_data;
-	gtk_widget_destroy(dialog->window);
-}
-
-static void
-status_editor_ok_cb(GtkButton *button, gpointer user_data)
-{
-	StatusEditor *dialog = user_data;
+status_editor_ok(StatusEditor *dialog, gboolean use, gboolean save) {
 	const char *title;
 	PurpleStatusPrimitive type;
 	char *message, *unformatted;
@@ -704,8 +697,7 @@ status_editor_ok_cb(GtkButton *button, gpointer user_data)
 	 * If we're saving this status, and the title is already taken
 	 * then show an error dialog and don't do anything.
 	 */
-	if (((button == dialog->saveanduse_button) || (button == dialog->save_button)) &&
-		(purple_savedstatus_find(title) != NULL) &&
+	if ((save) && (purple_savedstatus_find(title) != NULL) &&
 		((dialog->original_title == NULL) || (!purple_strequal(title, dialog->original_title))))
 	{
 		purple_notify_error(status_window, NULL, _("Title already in use.  You must "
@@ -732,20 +724,18 @@ status_editor_ok_cb(GtkButton *button, gpointer user_data)
 			gtk_list_store_remove(status_window->model, &iter);
 	}
 
-	if (saved_status == NULL)
-	{
+	if(saved_status == NULL) {
 		/* This is a new status */
-		if ((button == dialog->saveanduse_button)
-				|| (button == dialog->save_button))
+		if(save) {
 			saved_status = purple_savedstatus_new(title, type);
-		else
+		} else {
 			saved_status = purple_savedstatus_new(NULL, type);
-	}
-	else
-	{
+		}
+	} else {
 		/* Modify the old status */
-		if (!purple_strequal(title, dialog->original_title))
+		if(!purple_strequal(title, dialog->original_title)) {
 			purple_savedstatus_set_title(saved_status, title);
+		}
 		purple_savedstatus_set_primitive_type(saved_status, type);
 	}
 
@@ -789,10 +779,34 @@ status_editor_ok_cb(GtkButton *button, gpointer user_data)
 	g_free(unformatted);
 
 	/* If they clicked on "Save and Use" or "Use," then activate the status */
-	if (button != dialog->save_button)
+	if(use) {
 		purple_savedstatus_activate(saved_status);
+	}
 
 	gtk_widget_destroy(dialog->window);
+}
+
+
+static void
+status_editor_response_cb(GtkDialog *dialog, gint response, gpointer data) {
+	StatusEditor *window = data;
+
+	switch(response) {
+		case GTK_RESPONSE_CLOSE:
+			gtk_widget_destroy(window->window);
+			break;
+		case STATUS_RESPONSE_USE:
+			status_editor_ok(window, TRUE, FALSE);
+			break;
+		case STATUS_RESPONSE_SAVE_AND_USE:
+			status_editor_ok(window, TRUE, TRUE);
+			break;
+		case STATUS_RESPONSE_SAVE:
+			status_editor_ok(window, FALSE, TRUE);
+			break;
+		default:
+			break;
+	}
 }
 
 static void
@@ -1056,8 +1070,6 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	GtkTreeIter iter;
 	StatusEditor *dialog;
 	GtkSizeGroup *sg;
-	GtkWidget *bbox;
-	GtkWidget *button;
 	GtkWidget *dbox;
 	GtkWidget *expander;
 	GtkWidget *dropdown;
@@ -1066,7 +1078,6 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	GtkWidget *hbox;
 	GtkWidget *vbox;
 	GtkWidget *win;
-	GList *focus_chain = NULL;
 
 	if (edit)
 	{
@@ -1100,8 +1111,10 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 
 	dialog->window = win = pidgin_dialog_new(_("Status"), 12, "status", TRUE);
 
-	g_signal_connect(G_OBJECT(win), "destroy",
-					 G_CALLBACK(status_editor_destroy_cb), dialog);
+	g_signal_connect(win, "destroy", G_CALLBACK(status_editor_destroy_cb),
+	                 dialog);
+	g_signal_connect(win, "response", G_CALLBACK(status_editor_response_cb),
+	                 dialog);
 
 	/* Setup the vbox */
 	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
@@ -1137,9 +1150,6 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(dialog->message_view), dialog->message_buffer);
 
 	gtk_container_child_set(GTK_CONTAINER(vbox), hbox, "expand", TRUE, "fill", TRUE, NULL);
-	focus_chain = g_list_prepend(focus_chain, dialog->message_view);
-	gtk_container_set_focus_chain(GTK_CONTAINER(hbox), focus_chain);
-	g_list_free(focus_chain);
 
 	if ((saved_status != NULL) && (purple_savedstatus_get_message(saved_status) != NULL)) {
 		talkatu_markup_set_html(
@@ -1186,36 +1196,22 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	gtk_expander_set_expanded(GTK_EXPANDER(expander),
 		(saved_status != NULL) && purple_savedstatus_has_substatuses(saved_status));
 
-	/* Button box */
-	bbox = pidgin_dialog_get_action_area(GTK_DIALOG(win));
-	gtk_box_set_spacing(GTK_BOX(bbox), 6);
-	gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
+	/* Buttons */
+	gtk_dialog_add_button(GTK_DIALOG(win), _("Cancel"), GTK_RESPONSE_CLOSE);
+	gtk_dialog_add_button(GTK_DIALOG(win), _("_Use"), STATUS_RESPONSE_USE);
 
-	/* Cancel button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), _("Cancel"),
-			G_CALLBACK(status_editor_cancel_cb), dialog);
+	dialog->saveanduse_button = gtk_dialog_add_button(GTK_DIALOG(win),
+	                                                  _("Sa_ve and Use"),
+	                                                  STATUS_RESPONSE_SAVE_AND_USE);
+	if(dialog->original_title == NULL) {
+		gtk_widget_set_sensitive(dialog->saveanduse_button, FALSE);
+	}
 
-	/* Use button */
-	button = gtk_button_new_with_mnemonic(_("_Use"));
-	gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
-	g_signal_connect(G_OBJECT(button), "clicked",
-					 G_CALLBACK(status_editor_ok_cb), dialog);
-
-	/* Save and Use button */
-	button = gtk_button_new_with_mnemonic(_("Sa_ve and Use"));
-	dialog->saveanduse_button = GTK_BUTTON(button);
-	gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
-	if (dialog->original_title == NULL)
-		gtk_widget_set_sensitive(button, FALSE);
-	g_signal_connect(G_OBJECT(button), "clicked",
-					 G_CALLBACK(status_editor_ok_cb), dialog);
-
-	/* Save button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), _("Save"),
-			G_CALLBACK(status_editor_ok_cb), dialog);
-	if (dialog->original_title == NULL)
-		gtk_widget_set_sensitive(button, FALSE);
-	dialog->save_button = GTK_BUTTON(button);
+	dialog->save_button = gtk_dialog_add_button(GTK_DIALOG(win), _("Save"),
+	                                            STATUS_RESPONSE_SAVE);
+	if(dialog->original_title == NULL) {
+		gtk_widget_set_sensitive(dialog->save_button, FALSE);
+	}
 
 	gtk_widget_show_all(win);
 	g_object_unref(sg);
