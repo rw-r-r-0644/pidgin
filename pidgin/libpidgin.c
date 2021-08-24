@@ -45,7 +45,6 @@
 #include "gtkrequest.h"
 #include "gtkroomlist.h"
 #include "gtksavedstatuses.h"
-#include "gtksmiley-theme.h"
 #include "gtkutils.h"
 #include "gtkwhiteboard.h"
 #include "pidginapplication.h"
@@ -197,7 +196,6 @@ pidgin_ui_init(void)
 	pidgin_xfers_init();
 	pidgin_roomlist_init();
 	pidgin_log_init();
-	_pidgin_smiley_theme_init();
 	pidgin_medias_init();
 	pidgin_notify_init();
 }
@@ -209,7 +207,6 @@ pidgin_quit(void)
 	PurpleDebugUi *ui;
 
 	pidgin_notify_uninit();
-	_pidgin_smiley_theme_uninit();
 	pidgin_commands_uninit();
 	pidgin_conversations_uninit();
 	pidgin_status_uninit();

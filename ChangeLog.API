@@ -355,13 +355,20 @@ version 3.0.0 (??/??/????):
 		  Use GLib's GHmac or GChecksum instead.
 		* PURPLE_CMD_FUNC
 		* purple_connection_error_reason
+		* PURPLE_CONNECTION_FLAG_ALLOW_CUSTOM_SMILEY
 		* purple_connection_new
 		* purple_connection_new_unregister
 		* purple_connection_destroy
 		* purple_connection_set_account
 		* purple_contact_set_alias
 		* purple_conv_chat_set_users
+		* purple_conv_custom_smiley_add
+		* purple_conv_custom_smiley_close
+		* purple_conv_custom_smiley_write
 		* PurpleConversationType
+		* purple_conversation_add_smiley
+		* purple_conversation_get_remote_smileys
+		* purple_conversation_get_smiley
 		* purple_conversations_add. Use purple_conversation_manager_register
 		  instead.
 		* purple_conversations_remove. Use
@@ -520,6 +527,24 @@ version 3.0.0 (??/??/????):
 		  purple_roomlist_set_protocol_data
 		* PurpleSetPublicAliasFailureCallback
 		* PurpleSetPublicAliasSuccessCallback
+		* purple_smiley_get_type
+		* purple_smiley_new
+		* purple_smiley_new_from_file
+		* purple_smiley_delete
+		* purple_smiley_set_shortcut
+		* purple_smiley_set_data
+		* purple_smiley_get_shortcut
+		* purple_smiley_get_checksum
+		* purple_smiley_get_stored_image
+		* purple_smiley_get_data
+		* purple_smiley_get_extension
+		* purple_smiley_get_full_path
+		* purple_smileys_get_all
+		* purple_smileys_find_by_shortcut
+		* purple_smileys_find_by_checksum
+		* purple_smileys_get_storing_dir
+		* purple_smileys_init
+		* purple_smileys_uninit
 		* purple_socket_get_family
 		* purple_socket_speaks_ipv4
 		* PurpleSoundUiOps
@@ -692,9 +717,6 @@ version 3.0.0 (??/??/????):
 		  removed the accel related parameters.
 		* pidgin_setup_screenname_autocomplete now takes a filter function and
 		  its data as final two arguments
-		* smiley_list renamed to PidginSmileyList
-		* smiley_parse_markup renamed to pidgin_smiley_parse_markup
-		* smiley_theme renamed to PidginSmileyTheme
 		* PidginWindow renamed to PidginConvWindow
 
 		Removed:
@@ -785,6 +807,17 @@ version 3.0.0 (??/??/????):
 		* pidgin_set_sensitive_if_input
 		* pidgin_set_urgent, use gtk_window_set_urgency_hint instead.
 		* pidgin_setup_screenname_autocomplete_with_filter
+		* PidginSmiley
+		* pidgin_smiley_add_to_list
+		* pidgin_smiley_del_from_list
+		* pidgin_smiley_manager_show
+		* pidgin_smiley_edit
+		* pidgin_smiley_editor_set_shortcut
+		* pidgin_smiley_editor_set_image
+		* pidgin_smiley_editor_set_data
+		* pidgin_smileys_init
+		* pidgin_smileys_uninit
+		* pidgin_smileys_get_all
 		* pidgin_sound_get_event_label
 		* pidgin_sound_get_event_option
 		* pidgin_sound_get_handle
@@ -797,6 +830,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_status_box_set_buddy_icon
 		* pidgin_status_box_set_network_available
 		* pidgin_stock_id_from_presence
+		* PIDGIN_STOCK_TOOLBAR_SMILEY
 		* pidgin_text_combo_box_entry_set_text
 		* pidgin_theme_font_free
 		* pidgin_theme_font_get_color
@@ -826,6 +860,9 @@ version 3.0.0 (??/??/????):
 		* struct _GtkSmileyTree
 		* struct _PidginChatPane
 		* struct _PidginImPane
+		* smiley_list
+		* smiley_parse_markup
+		* smiley_theme
 
 	Finch:
 		Added:

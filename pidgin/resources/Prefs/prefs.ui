@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <interface>
-  <requires lib="Talkatu" version="0.0"/>
   <requires lib="gtk+" version="3.22"/>
+  <requires lib="Talkatu" version="0.0"/>
   <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
@@ -75,13 +75,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="lower">1</property>
     <property name="upper">1440</property>
     <property name="value">1</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="conversations.custom_smiley_size.adjustment">
-    <property name="lower">16</property>
-    <property name="upper">512</property>
-    <property name="value">16</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
@@ -674,7 +667,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">5</property>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -688,7 +681,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">6</property>
+                                    <property name="position">4</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -703,58 +696,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">7</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="can-focus">False</property>
-                                    <property name="spacing">6</property>
-                                    <child>
-                                      <object class="GtkCheckButton" id="conversations.resize_custom_smileys">
-                                        <property name="label" translatable="yes">Resize incoming custom smileys</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="draw-indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="label" translatable="yes">Maximum size:</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkSpinButton" id="conversations.custom_smileys_size">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="input-purpose">number</property>
-                                        <property name="adjustment">conversations.custom_smiley_size.adjustment</property>
-                                        <property name="numeric">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">2</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">8</property>
+                                    <property name="position">5</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -792,7 +734,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">9</property>
+                                    <property name="position">6</property>
                                   </packing>
                                 </child>
                               </object>
@@ -927,38 +869,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="TalkatuEditor">
-                                    <property name="orientation">vertical</property>
                                     <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <child internal-child="toolbar">
-                                      <object class="TalkatuToolbar">
-                                        <property name="visible">True</property>
-                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                      </object>
-                                      <packing>
-                                        <property name="fill">False</property>
-                                      </packing>
-                                    </child>
-                                    <child internal-child="input">
-                                      <object class="TalkatuView" id="conversations.format_view">
-                                        <property name="width_request">450</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                        <property name="wrap_mode">word</property>
-                                        <property name="buffer">conversations.format_buffer</property>
-                                      </object>
-                                      <packing>
-                                        <property name="fill">False</property>
-                                      </packing>
-                                    </child>
+                                    <property name="orientation">vertical</property>
                                     <child internal-child="send_button">
                                       <object class="GtkButton">
                                         <property name="can-focus">False</property>
                                         <property name="receives-default">False</property>
                                       </object>
                                       <packing>
+                                        <property name="expand">False</property>
                                         <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child internal-child="toolbar">
+                                      <object class="TalkatuToolbar">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child internal-child="input">
+                                      <object class="TalkatuInput" id="conversations.format_view">
+                                        <property name="width-request">450</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                        <property name="wrap-mode">word</property>
+                                        <property name="buffer">conversations.format_buffer</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
                                       </packing>
                                     </child>
                                   </object>
@@ -2285,7 +2235,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   <packing>
                     <property name="name">away</property>
                     <property name="title" translatable="yes">Status / Idle</property>
-                    <property name="position">6</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -2380,60 +2330,6 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                                     <property name="position">2</property>
                                   </packing>
                                 </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="spacing">6</property>
-                                    <child>
-                                      <object class="GtkLabel" id="label18">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="label" translatable="yes">Smiley Theme:</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkComboBox" id="theme.smiley">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <signal name="changed" handler="prefs_set_smiley_theme_cb" swapped="no"/>
-                                        <child>
-                                          <object class="GtkCellRendererPixbuf">
-                                            <property name="width">32</property>
-                                            <property name="height">32</property>
-                                          </object>
-                                          <attributes>
-                                            <attribute name="pixbuf">0</attribute>
-                                          </attributes>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCellRendererText">
-                                            <property name="ellipsize">end</property>
-                                          </object>
-                                          <attributes>
-                                            <attribute name="markup">1</attribute>
-                                          </attributes>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">3</property>
-                                  </packing>
-                                </child>
                               </object>
                             </child>
                           </object>
@@ -2460,24 +2356,18 @@ New themes can be installed by dragging and dropping them onto the theme list.</
                   <packing>
                     <property name="name">theme</property>
                     <property name="title" translatable="yes">Themes</property>
-                    <property name="position">7</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
                   <object class="PidginCredentialsPage">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
                   </object>
                   <packing>
                     <property name="name">credentials</property>
                     <property name="title" translatable="yes">Credentials</property>
-                    <property name="position">8</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
               </object>
@@ -2527,13 +2417,11 @@ New themes can be installed by dragging and dropping them onto the theme list.</
   <object class="GtkSizeGroup" id="theme.combo_sg">
     <widgets>
       <widget name="theme.status"/>
-      <widget name="theme.smiley"/>
     </widgets>
   </object>
   <object class="GtkSizeGroup" id="theme.label_sg">
     <widgets>
       <widget name="label20"/>
-      <widget name="label18"/>
     </widgets>
   </object>
 </interface>

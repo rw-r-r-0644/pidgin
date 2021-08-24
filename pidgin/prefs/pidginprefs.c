@@ -38,7 +38,6 @@
 #include "gtkconv.h"
 #include "gtkdialogs.h"
 #include "gtksavedstatuses.h"
-#include "gtksmiley-theme.h"
 #include "gtkstatus-icon-theme.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
@@ -123,8 +122,6 @@ struct _PidginPrefsWindow {
 		struct {
 			GtkWidget *blink_im;
 		} win32;
-		GtkWidget *resize_custom_smileys;
-		GtkWidget *custom_smileys_size;
 		GtkWidget *minimum_entry_lines;
 		GtkTextBuffer *format_buffer;
 		GtkWidget *format_view;
@@ -194,7 +191,6 @@ struct _PidginPrefsWindow {
 	struct {
 		SoupSession *session;
 		GtkWidget *status;
-		GtkWidget *smiley;
 	} theme;
 
 #ifdef USE_VV
@@ -227,11 +223,9 @@ static PidginPrefsWindow *prefs = NULL;
 
 /* Themes page */
 static GtkWidget *prefs_status_themes_combo_box;
-static GtkWidget *prefs_smiley_themes_combo_box;
 
 /* These exist outside the lifetime of the prefs dialog */
 static GtkListStore *prefs_status_icon_themes;
-static GtkListStore *prefs_smiley_themes;
 
 /*
  * PROTOTYPES
@@ -821,7 +815,6 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 
 	/* NULL-ify globals */
 	prefs_status_themes_combo_box = NULL;
-	prefs_smiley_themes_combo_box = NULL;
 
 	g_free(prefs->proxy.gnome_program_path);
 	prefs = NULL;
@@ -836,39 +829,6 @@ get_theme_markup(const char *name, gboolean custom, const char *author,
 						   name, custom ? " " : "", custom ? _("(Custom)") : "",
 						   author != NULL ? " - " : "", author != NULL ? author : "",
 						   description != NULL ? description : "");
-}
-
-static void
-smileys_refresh_theme_list(void)
-{
-	GList *it;
-	GtkTreeIter iter;
-	gchar *description;
-
-	description = get_theme_markup(_("none"), FALSE, _("Penguin Pimps"),
-		_("Selecting this disables graphical emoticons."));
-	gtk_list_store_append(prefs_smiley_themes, &iter);
-	gtk_list_store_set(prefs_smiley_themes, &iter,
-		0, NULL, 1, description, 2, "none", -1);
-	g_free(description);
-
-	for (it = pidgin_smiley_theme_get_all(); it; it = g_list_next(it)) {
-		PidginSmileyTheme *theme = it->data;
-
-		description = get_theme_markup(
-			_(pidgin_smiley_theme_get_name(theme)), FALSE,
-			_(pidgin_smiley_theme_get_author(theme)),
-			_(pidgin_smiley_theme_get_description(theme)));
-
-		gtk_list_store_append(prefs_smiley_themes, &iter);
-		gtk_list_store_set(prefs_smiley_themes, &iter,
-			0, pidgin_smiley_theme_get_icon(theme),
-			1, description,
-			2, pidgin_smiley_theme_get_name(theme),
-			-1);
-
-		g_free(description);
-	}
 }
 
 /* adds the themes to the theme list from the manager so they can be displayed in prefs */
@@ -957,15 +917,10 @@ prefs_themes_refresh(void)
 	if (pixbuf)
 		g_object_unref(G_OBJECT(pixbuf));
 
-	/* smiley themes */
-	gtk_list_store_clear(prefs_smiley_themes);
-
 	purple_theme_manager_for_each_theme(prefs_themes_sort);
-	smileys_refresh_theme_list();
 
 	/* set active */
 	prefs_set_active_theme_combo(prefs_status_themes_combo_box, prefs_status_icon_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/status/icon-theme"));
-	prefs_set_active_theme_combo(prefs_smiley_themes_combo_box, prefs_smiley_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/smileys/theme"));
 }
 
 /* init all the theme variables so that the themes can be sorted later and used by pref pages */
@@ -973,8 +928,6 @@ static void
 prefs_themes_init(void)
 {
 	prefs_status_icon_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
-
-	prefs_smiley_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
 }
 
 /*
@@ -1053,7 +1006,7 @@ theme_install_theme(char *path, struct theme_info *info)
 {
 	gchar *destdir;
 	const char *tail;
-	gboolean is_smiley_theme, is_archive;
+	gboolean is_archive;
 	PurpleTheme *theme = NULL;
 
 	if (info == NULL)
@@ -1072,10 +1025,7 @@ theme_install_theme(char *path, struct theme_info *info)
 	/* Just to be safe */
 	g_strchomp(path);
 
-	if ((is_smiley_theme = purple_strequal(info->type, "smiley")))
-		destdir = g_build_filename(purple_data_dir(), "smileys", NULL);
-	else
-		destdir = g_build_filename(purple_data_dir(), "themes", "temp", NULL);
+	destdir = g_build_filename(purple_data_dir(), "themes", "temp", NULL);
 
 	/* We'll check this just to make sure. This also lets us do something different on
 	 * other platforms, if need be */
@@ -1112,11 +1062,7 @@ theme_install_theme(char *path, struct theme_info *info)
 #endif
 	}
 
-	if (is_smiley_theme) {
-		/* just extract the folder to the smiley directory */
-		prefs_themes_refresh();
-
-	} else if (is_archive) {
+	if (is_archive) {
 		theme = prefs_theme_find_theme(destdir, info->type);
 
 		if (PURPLE_IS_THEME(theme)) {
@@ -1329,59 +1275,6 @@ prefs_build_theme_combo_box(GtkWidget *combo_box, GtkListStore *store,
 	g_signal_connect(G_OBJECT(combo_box), "drag_data_received", G_CALLBACK(theme_dnd_recv), (gpointer) type);
 }
 
-/* sets the current smiley theme */
-static void
-prefs_set_smiley_theme_cb(GtkComboBox *combo_box, gpointer user_data)
-{
-	gchar *new_theme;
-	GtkTreeIter new_iter;
-
-	if (gtk_combo_box_get_active_iter(combo_box, &new_iter)) {
-
-		gtk_tree_model_get(GTK_TREE_MODEL(prefs_smiley_themes), &new_iter, 2, &new_theme, -1);
-
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/smileys/theme", new_theme);
-
-		g_free(new_theme);
-	}
-}
-
-
-/* Does same as normal sort, except "none" is sorted first */
-static gint pidgin_sort_smileys (GtkTreeModel	*model,
-						GtkTreeIter		*a,
-						GtkTreeIter		*b,
-						gpointer		userdata)
-{
-	gint ret = 0;
-	gchar *name1 = NULL, *name2 = NULL;
-
-	gtk_tree_model_get(model, a, 2, &name1, -1);
-	gtk_tree_model_get(model, b, 2, &name2, -1);
-
-	if (name1 == NULL || name2 == NULL) {
-		if (!(name1 == NULL && name2 == NULL))
-			ret = (name1 == NULL) ? -1: 1;
-	} else if (!g_ascii_strcasecmp(name1, "none")) {
-		if (!g_utf8_collate(name1, name2))
-			ret = 0;
-		else
-			/* Sort name1 first */
-			ret = -1;
-	} else if (!g_ascii_strcasecmp(name2, "none")) {
-		/* Sort name2 first */
-		ret = 1;
-	} else {
-		/* Neither string is "none", default to normal sort */
-		ret = purple_utf8_strcasecmp(name1, name2);
-	}
-
-	g_free(name1);
-	g_free(name2);
-
-	return ret;
-}
-
 /* sets the current icon theme */
 static void
 prefs_set_status_icon_theme_cb(GtkComboBox *combo_box, gpointer user_data)
@@ -1412,18 +1305,6 @@ bind_theme_page(PidginPrefsWindow *win)
 	                            PIDGIN_PREFS_ROOT "/status/icon-theme",
 	                            "icon");
 	prefs_status_themes_combo_box = win->theme.status;
-
-	/* Smiley Themes */
-	prefs_build_theme_combo_box(win->theme.smiley, prefs_smiley_themes,
-	                            PIDGIN_PREFS_ROOT "/smileys/theme",
-	                            "smiley");
-	prefs_smiley_themes_combo_box = win->theme.smiley;
-
-	/* Custom sort so "none" theme is at top of list */
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(prefs_smiley_themes),
-	                                2, pidgin_sort_smileys, NULL, NULL);
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(prefs_smiley_themes),
-										 2, GTK_SORT_ASCENDING);
 }
 
 static void
@@ -1532,21 +1413,6 @@ bind_conv_page(PidginPrefsWindow *win)
 			win->conversations.win32.blink_im);
 #else
 	gtk_widget_hide(win->conversations.win32.blink_im);
-#endif
-
-#if 0
-	/* TODO: it's not implemented */
-	pidgin_prefs_bind_checkbox(
-			PIDGIN_PREFS_ROOT "/conversations/resize_custom_smileys",
-			win->conversations.resize_custom_smileys);
-
-	pidgin_prefs_bind_spin_button(
-			PIDGIN_PREFS_ROOT "/conversations/custom_smileys_size",
-			win->conversations.custom_smileys_size);
-
-	g_object_bind_property(win->conversations.resize_custom_smileys, "active",
-			win->conversations.custom_smileys_size, "sensitive",
-			G_BINDING_SYNC_CREATE);
 #endif
 
 	pidgin_prefs_bind_spin_button(
@@ -2508,12 +2374,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 			conversations.win32.blink_im);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
-			conversations.resize_custom_smileys);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.custom_smileys_size);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
 			conversations.minimum_entry_lines);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
@@ -2650,12 +2510,8 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	/* Themes page */
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow, theme.status);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, theme.smiley);
 	gtk_widget_class_bind_template_callback(widget_class,
 			prefs_set_status_icon_theme_cb);
-	gtk_widget_class_bind_template_callback(widget_class,
-			prefs_set_smiley_theme_cb);
 }
 
 static void
@@ -2687,31 +2543,6 @@ pidgin_prefs_show(void)
 	gtk_window_present(GTK_WINDOW(prefs));
 }
 
-static void
-smiley_theme_pref_cb(const char *name, PurplePrefType type,
-					 gconstpointer value, gpointer data)
-{
-	const gchar *theme_name = value;
-	GList *themes, *it;
-
-	if (purple_strequal(theme_name, "none")) {
-		purple_smiley_theme_set_current(NULL);
-		return;
-	}
-
-	/* XXX: could be cached when initializing prefs view */
-	themes = pidgin_smiley_theme_get_all();
-
-	for (it = themes; it; it = g_list_next(it)) {
-		PidginSmileyTheme *theme = it->data;
-
-		if (!purple_strequal(pidgin_smiley_theme_get_name(theme), theme_name))
-			continue;
-
-		purple_smiley_theme_set_current(PURPLE_SMILEY_THEME(theme));
-	}
-}
-
 void
 pidgin_prefs_init(void)
 {
@@ -2730,14 +2561,6 @@ pidgin_prefs_init(void)
 
 	/* Themes */
 	prefs_themes_init();
-
-	/* Smiley Themes */
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/smileys");
-	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/smileys/theme", "Default");
-
-	/* Smiley Callbacks */
-	purple_prefs_connect_callback(&prefs, PIDGIN_PREFS_ROOT "/smileys/theme",
-								smiley_theme_pref_cb, NULL);
 
 #ifdef USE_VV
 	/* Voice/Video */
@@ -2794,9 +2617,7 @@ pidgin_prefs_update_old(void)
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/html_shortcuts");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/icons_on_tabs");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/send_formatting");
-	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/show_smileys");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/show_urls_as_links");
-	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/smiley_shortcuts");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/use_custom_bgcolor");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/use_custom_fgcolor");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/use_custom_font");

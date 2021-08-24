@@ -40,7 +40,6 @@
 #include "gtkdialogs.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
-#include "gtksmiley-manager.h"
 #include "gtkxfer.h"
 #include "pidginabout.h"
 #include "pidgincore.h"
@@ -190,13 +189,6 @@ pidgin_application_add_group(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
-pidgin_application_custom_smiley(GSimpleAction *simple, GVariant *parameter,
-                                 gpointer data)
-{
-	pidgin_smiley_manager_show();
-}
-
-static void
 pidgin_application_debug(GSimpleAction *simple, GVariant *parameter,
                          gpointer data)
 {
@@ -315,9 +307,6 @@ static GActionEntry app_entries[] = {
 	}, {
 		.name = "add-group",
 		.activate = pidgin_application_add_group,
-	}, {
-		.name = "custom-smiley",
-		.activate = pidgin_application_custom_smiley,
 	}, {
 		.name = "debug",
 		.activate = pidgin_application_debug,

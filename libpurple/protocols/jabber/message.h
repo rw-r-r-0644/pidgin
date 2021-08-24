@@ -79,6 +79,4 @@ unsigned int jabber_send_typing(PurpleProtocolIM *pim, PurpleConnection *gc, con
 
 gboolean jabber_buzz_isenabled(JabberStream *js, const gchar *namespace);
 
-gboolean jabber_custom_smileys_isenabled(JabberStream *js, const gchar *namespace);
-
 #endif /* PURPLE_JABBER_MESSAGE_H */

@@ -104,7 +104,6 @@ typedef enum
 	PIDGIN_CONV_MENU			= 1 << 2,
 	PIDGIN_CONV_TAB_ICON			= 1 << 3,
 	PIDGIN_CONV_TOPIC			= 1 << 4,
-	PIDGIN_CONV_SMILEY_THEME		= 1 << 5,
 	PIDGIN_CONV_COLORIZE_TITLE		= 1 << 6,
 }PidginConvFields;
 
@@ -4750,9 +4749,6 @@ pidgin_conversations_init(void)
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_underline", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_strike", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/show_incoming_formatting", TRUE);
-	/* TODO: it's about *remote* smileys, not local ones */
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/resize_custom_smileys", TRUE);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/custom_smileys_size", 96);
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/minimum_entry_lines", 2);
 
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar", TRUE);

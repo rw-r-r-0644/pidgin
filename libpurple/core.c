@@ -40,9 +40,6 @@
 #include "purpleprivate.h"
 #include "savedstatuses.h"
 #include "signals.h"
-#include "smiley-custom.h"
-#include "smiley-parser.h"
-#include "smiley-theme.h"
 #include "status.h"
 #include "stun.h"
 #include "theme-manager.h"
@@ -180,8 +177,6 @@ purple_core_init(const char *ui)
 	purple_stun_init();
 	purple_xfers_init();
 	purple_idle_init();
-	_purple_smiley_custom_init();
-	_purple_smiley_parser_init();
 
 	/*
 	 * Call this early on to try to auto-detect our IP address and
@@ -223,9 +218,6 @@ purple_core_quit(void)
 	purple_connections_disconnect_all();
 
 	/* Save .xml files, remove signals, etc. */
-	_purple_smiley_theme_uninit();
-	_purple_smiley_custom_uninit();
-	_purple_smiley_parser_uninit();
 	purple_idle_uninit();
 	purple_conversation_manager_shutdown();
 	purple_conversations_uninit();
@@ -371,14 +363,12 @@ purple_core_migrate_to_xdg_base_dirs(void)
 	xdg_dir_exists = g_file_test(purple_data_dir(), G_FILE_TEST_EXISTS);
 	if (!xdg_dir_exists) {
 		MIGRATE_TO_XDG_DIR(purple_data_dir(), "certificates");
-		MIGRATE_TO_XDG_DIR(purple_data_dir(), "custom_smiley");
 		MIGRATE_TO_XDG_DIR(purple_data_dir(), "logs");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "accounts.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "blist.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "fs-codec.conf");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "fs-element.conf");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "prefs.xml");
-		MIGRATE_TO_XDG_DIR(purple_config_dir(), "smileys.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "status.xml");
 	}
 
