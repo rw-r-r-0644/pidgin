@@ -409,11 +409,11 @@ purple_str_to_date_time(const char *timestamp, gboolean utc)
 				if (str != end) {
 					/* Trim anything trailing a purely numeric time zone. */
 					gchar *tzstr = g_strndup(str, end - str);
-					tz = g_time_zone_new(tzstr);
+					tz = g_time_zone_new_identifier(tzstr);
 					g_free(tzstr);
 				} else {
 					/* Just try whatever is there. */
-					tz = g_time_zone_new(str);
+					tz = g_time_zone_new_identifier(str);
 				}
 			}
 		}
