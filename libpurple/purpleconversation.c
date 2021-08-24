@@ -38,7 +38,6 @@
 #include "purpleprotocolclient.h"
 #include "request.h"
 #include "signals.h"
-#include "smiley-list.h"
 
 typedef struct {
 	PurpleAccount *account;           /* The user using this conversation. */
@@ -54,11 +53,6 @@ typedef struct {
 
 	PurpleConnectionFlags features;   /* The supported features            */
 	GList *message_history; /* Message history, as a GList of PurpleMessages */
-
-	/* The list of remote smileys. This should be per-buddy (PurpleBuddy),
-	 * but we don't have any class for people not on our buddy
-	 * list (PurpleDude?). So, if we have one, we should switch to it. */
-	PurpleSmileyList *remote_smileys;
 } PurpleConversationPrivate;
 
 enum {
@@ -978,61 +972,4 @@ purple_conversation_get_max_message_size(PurpleConversation *conv) {
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), 0);
 
 	return purple_protocol_client_get_max_message_size(PURPLE_PROTOCOL_CLIENT(protocol), conv);
-}
-
-void
-purple_conversation_add_smiley(PurpleConversation *conv, PurpleSmiley *smiley) {
-	PurpleConversationPrivate *priv = NULL;
-
-	g_return_if_fail(PURPLE_IS_CONVERSATION(conv));
-	g_return_if_fail(smiley);
-
-	priv = purple_conversation_get_instance_private(conv);
-
-	if(priv->remote_smileys == NULL) {
-		priv->remote_smileys = purple_smiley_list_new();
-		g_object_set(priv->remote_smileys, "drop-failed-remotes", TRUE, NULL);
-	}
-
-	if(purple_smiley_list_get_by_shortcut(
-	   priv->remote_smileys,
-	   purple_smiley_get_shortcut(smiley)))
-	{
-		/* smiley was already added */
-		return;
-	}
-
-	if(!purple_smiley_list_add(priv->remote_smileys, smiley)) {
-		purple_debug_error("conversation", "failed adding remote smiley to "
-		                   "the list");
-	}
-}
-
-PurpleSmiley *
-purple_conversation_get_smiley(PurpleConversation *conv,
-                               const gchar *shortcut)
-{
-	PurpleConversationPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_CONVERSATION(conv), NULL);
-	g_return_val_if_fail(shortcut, NULL);
-
-	priv = purple_conversation_get_instance_private(conv);
-
-	if(priv->remote_smileys == NULL) {
-		return NULL;
-	}
-
-	return purple_smiley_list_get_by_shortcut(priv->remote_smileys, shortcut);
-}
-
-PurpleSmileyList *
-purple_conversation_get_remote_smileys(PurpleConversation *conv) {
-	PurpleConversationPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_CONVERSATION(conv), NULL);
-
-	priv = purple_conversation_get_instance_private(conv);
-
-	return priv->remote_smileys;
 }

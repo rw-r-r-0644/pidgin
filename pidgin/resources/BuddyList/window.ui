@@ -235,16 +235,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkMenuItem" id="custom_smileys">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.custom-smiley</property>
-                        <property name="label" translatable="yes">Custom Smile_ys</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="y" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkMenuItem" id="preferences">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>

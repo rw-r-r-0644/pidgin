@@ -123,7 +123,6 @@ const SizedStockIcon sized_stock_icons [] = {
 	{ PIDGIN_STOCK_TOOLBAR_BGCOLOR,         "actions", "change-bgcolor.png", FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
 	{ PIDGIN_STOCK_TOOLBAR_BLOCK,           "emblems", "emblem-blocked.png", FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
 	{ PIDGIN_STOCK_TOOLBAR_FGCOLOR,         "actions", "change-fgcolor.png", FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
-	{ PIDGIN_STOCK_TOOLBAR_SMILEY,          "actions", "emote-select.png",   FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
 	{ PIDGIN_STOCK_TOOLBAR_FONT_FACE,       "actions", "font-face.png",      FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
 	{ PIDGIN_STOCK_TOOLBAR_TEXT_SMALLER,    "actions", "font-size-down.png", FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
 	{ PIDGIN_STOCK_TOOLBAR_TEXT_LARGER,     "actions", "font-size-up.png",	 FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },

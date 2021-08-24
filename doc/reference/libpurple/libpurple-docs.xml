@@ -139,16 +139,6 @@
         <xi:include href="xml/cmds.xml" />
     </chapter>
 
-    <chapter id="smiley">
-      <title>Smiley APIs</title>
-
-        <xi:include href="xml/smiley.xml" />
-        <xi:include href="xml/smiley-custom.xml" />
-        <xi:include href="xml/smiley-list.xml" />
-        <xi:include href="xml/smiley-theme.xml" />
-        <xi:include href="xml/smiley-parser.xml" />
-    </chapter>
-
     <chapter id="image">
       <title>Graphics</title>
 

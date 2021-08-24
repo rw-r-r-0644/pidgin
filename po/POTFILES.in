@@ -276,11 +276,6 @@ libpurple/roomlist.c
 libpurple/savedstatuses.c
 libpurple/server.c
 libpurple/signals.c
-libpurple/smiley.c
-libpurple/smiley-custom.c
-libpurple/smiley-list.c
-libpurple/smiley-parser.c
-libpurple/smiley-theme.c
 libpurple/status.c
 libpurple/stun.c
 libpurple/tests/test_account_option.c
@@ -295,8 +290,6 @@ libpurple/tests/test_protocol_action.c
 libpurple/tests/test_protocol_attention.c
 libpurple/tests/test_protocol_xfer.c
 libpurple/tests/test_queued_output_stream.c
-libpurple/tests/test_smiley.c
-libpurple/tests/test_smiley_list.c
 libpurple/tests/test_trie.c
 libpurple/tests/test_ui.c
 libpurple/tests/test_util.c
@@ -328,8 +321,6 @@ pidgin/gtkprivacy.c
 pidgin/gtkrequest.c
 pidgin/gtkroomlist.c
 pidgin/gtksavedstatuses.c
-pidgin/gtksmiley-manager.c
-pidgin/gtksmiley-theme.c
 pidgin/gtkstatusbox.c
 pidgin/gtkstatus-icon-theme.c
 pidgin/gtkutils.c

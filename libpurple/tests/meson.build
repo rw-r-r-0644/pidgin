@@ -11,8 +11,6 @@ PROGS = [
     'protocol_attention',
     'protocol_xfer',
     'queued_output_stream',
-    'smiley',
-    'smiley_list',
     'trie',
     'util',
     'xmlnode'

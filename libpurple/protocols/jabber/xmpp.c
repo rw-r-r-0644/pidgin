@@ -74,13 +74,6 @@ xmpp_protocol_get_account_options(PurpleProtocol *protocol) {
 	option = purple_account_option_string_new(_("BOSH URL"), "bosh_url", NULL);
 	opts = g_list_append(opts, option);
 
-	/* this should probably be part of global smiley theme settings
-	 * later on
-	 */
-	option = purple_account_option_bool_new(_("Show Custom Smileys"),
-	                                        "custom_smileys", TRUE);
-	opts = g_list_append(opts, option);
-
 	return opts;
 }
 

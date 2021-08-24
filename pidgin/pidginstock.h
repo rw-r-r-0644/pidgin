@@ -98,7 +98,6 @@
 #define PIDGIN_STOCK_TOOLBAR_BGCOLOR      "pidgin-bgcolor"
 #define PIDGIN_STOCK_TOOLBAR_BLOCK        "pidgin-block"
 #define PIDGIN_STOCK_TOOLBAR_FGCOLOR      "pidgin-fgcolor"
-#define PIDGIN_STOCK_TOOLBAR_SMILEY       "pidgin-smiley"
 #define PIDGIN_STOCK_TOOLBAR_FONT_FACE	  "pidgin-font-face"
 #define PIDGIN_STOCK_TOOLBAR_TEXT_SMALLER "pidgin-text-smaller"
 #define PIDGIN_STOCK_TOOLBAR_TEXT_LARGER  "pidgin-text-larger"

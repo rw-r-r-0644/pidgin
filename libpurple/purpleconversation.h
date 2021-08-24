@@ -140,7 +140,6 @@ struct _PurpleConversationClass {
 #include "account.h"
 #include "buddyicon.h"
 #include "log.h"
-#include "smiley-list.h"
 
 G_BEGIN_DECLS
 
@@ -444,36 +443,6 @@ gboolean purple_conversation_do_command(PurpleConversation *conv, const gchar *c
  * Returns: Maximum message size, 0 if unspecified, -1 for infinite.
  */
 gssize purple_conversation_get_max_message_size(PurpleConversation *conv);
-
-/**
- * purple_conversation_add_smiley:
- * @conv: The conversation that receives new smiley.
- * @smiley: The smiley.
- *
- * Adds a smiley to the list of smileys that belong to this conversation.
- */
-void purple_conversation_add_smiley(PurpleConversation *conv, PurpleSmiley *smiley);
-
-/**
- * purple_conversation_get_smiley:
- * @conv: The conversation.
- * @shortcut: The shortcut.
- *
- * Lookups for the smiley previously added to this conversation.
- *
- * Returns: (transfer none): The smiley, or %NULL if it doesn't exists.
- */
-PurpleSmiley *purple_conversation_get_smiley(PurpleConversation *conv, const gchar *shortcut);
-
-/**
- * purple_conversation_get_remote_smileys:
- * @conv: The conversation.
- *
- * Get all remote smileys previously added to this conversation.
- *
- * Returns: (transfer none): The list of remote smileys.
- */
-PurpleSmileyList *purple_conversation_get_remote_smileys(PurpleConversation *conv);
 
 /**
  * purple_conversation_present_error:
