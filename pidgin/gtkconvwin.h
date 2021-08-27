@@ -243,34 +243,6 @@ GList *pidgin_conv_window_get_gtkconvs(PidginConvWindow *win);
  */
 guint pidgin_conv_window_get_gtkconv_count(PidginConvWindow *win);
 
-/**
- * pidgin_conv_window_first_im:
- *
- * Returns: The window which has the first IM, %NULL if no IM is found.
- */
-PidginConvWindow *pidgin_conv_window_first_im(void);
-
-/**
- * pidgin_conv_window_last_im:
- *
- * Returns: The window which has the last IM, %NULL if no IM is found.
- */
-PidginConvWindow *pidgin_conv_window_last_im(void);
-
-/**
- * pidgin_conv_window_first_chat:
- *
- * Returns: The window which has the first chat, %NULL if no chat is found.
- */
-PidginConvWindow *pidgin_conv_window_first_chat(void);
-
-/**
- * pidgin_conv_window_last_chat:
- *
- * Returns: The window which has the last chat, %NULL if no chat is found.
- */
-PidginConvWindow *pidgin_conv_window_last_chat(void);
-
 void pidgin_conv_placement_place(PidginConversation *conv);
 
 G_END_DECLS
