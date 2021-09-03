@@ -49,6 +49,13 @@ enum
 	NUM_COLUMNS
 };
 
+enum {
+	RESPONSE_ADD = 0,
+	RESPONSE_MODIFY,
+	RESPONSE_DELETE,
+	RESPONSE_CLOSE,
+};
+
 typedef struct
 {
 	PurpleAccount *account;
@@ -1216,12 +1223,6 @@ account_win_destroy_cb(GtkWidget *w, GdkEvent *event,
 }
 
 static void
-cancel_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
-{
-	account_win_destroy_cb(NULL, NULL, dialog);
-}
-
-static void
 account_register_cb(PurpleAccount *account, gboolean succeeded, void *user_data)
 {
 	if (succeeded)
@@ -1239,7 +1240,7 @@ account_register_cb(PurpleAccount *account, gboolean succeeded, void *user_data)
 }
 
 static void
-ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
+account_prefs_save(AccountPrefsDialog *dialog)
 {
 	PurpleProxyInfo *proxy_info = NULL;
 	GList *l, *l2;
@@ -1497,6 +1498,22 @@ ok_account_prefs_cb(GtkWidget *w, AccountPrefsDialog *dialog)
 
 }
 
+static void
+account_prefs_response_cb(GtkDialog *dialog, gint response_id, gpointer data) {
+	AccountPrefsDialog *window = (AccountPrefsDialog *)data;
+
+	switch(response_id) {
+		case RESPONSE_ADD:
+			account_prefs_save(window);
+			break;
+		case RESPONSE_CLOSE:
+			account_win_destroy_cb(NULL, NULL, window);
+			break;
+		default:
+			break;
+	}
+}
+
 static const GtkTargetEntry dnd_targets[] = {
 	{"text/plain", 0, 0},
 	{"text/uri-list", 0, 1},
@@ -1549,8 +1566,10 @@ pidgin_account_dialog_show_continue(PidginAccountDialogType type,
 	dialog->window = win = pidgin_dialog_new((type == PIDGIN_ADD_ACCOUNT_DIALOG) ? _("Add Account") : _("Modify Account"),
 		6, "account", FALSE);
 
-	g_signal_connect(G_OBJECT(win), "delete_event",
-					 G_CALLBACK(account_win_destroy_cb), dialog);
+	g_signal_connect(win, "delete_event", G_CALLBACK(account_win_destroy_cb),
+	                 dialog);
+	g_signal_connect(win, "response", G_CALLBACK(account_prefs_response_cb),
+	                 dialog);
 
 	/* Setup the vbox */
 	main_vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 6);
@@ -1595,18 +1614,15 @@ pidgin_account_dialog_show_continue(PidginAccountDialogType type,
 
 	add_voice_options(dialog);
 
-	/* Cancel button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), _("_Cancel"),
-			G_CALLBACK(cancel_account_prefs_cb), dialog);
+	/* Buttons */
+	gtk_dialog_add_button(GTK_DIALOG(win), _("_Cancel"), RESPONSE_CLOSE);
+	dialog->ok_button = gtk_dialog_add_button(GTK_DIALOG(win),
+	                                          (type == PIDGIN_ADD_ACCOUNT_DIALOG) ? _("_Add") : _("_Save"),
+	                                          RESPONSE_ADD);
 
-	/* Save button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win),
-	                                  (type == PIDGIN_ADD_ACCOUNT_DIALOG) ? _("_Add") : _("_Save"),
-	                                  G_CALLBACK(ok_account_prefs_cb),
-	                                  dialog);
-	if (dialog->account == NULL)
-		gtk_widget_set_sensitive(button, FALSE);
-	dialog->ok_button = button;
+	if (dialog->account == NULL) {
+		gtk_widget_set_sensitive(dialog->ok_button, FALSE);
+	}
 
 	/* Set up DND */
 	gtk_drag_dest_set(dialog->window,
@@ -1919,12 +1935,6 @@ accedit_win_destroy_cb(GtkWidget *w, GdkEvent *event, AccountsWindow *dialog)
 }
 
 static void
-add_account_cb(GtkWidget *w, AccountsWindow *dialog)
-{
-	pidgin_account_dialog_show(PIDGIN_ADD_ACCOUNT_DIALOG, NULL);
-}
-
-static void
 modify_account_sel(GtkTreeModel *model, GtkTreePath *path,
 				   GtkTreeIter *iter, gpointer data)
 {
@@ -1937,7 +1947,7 @@ modify_account_sel(GtkTreeModel *model, GtkTreePath *path,
 }
 
 static void
-modify_account_cb(GtkWidget *w, AccountsWindow *dialog)
+modify_account(AccountsWindow *dialog)
 {
 	GtkTreeSelection *selection;
 
@@ -1976,7 +1986,7 @@ ask_delete_account_sel(GtkTreeModel *model, GtkTreePath *path,
 }
 
 static void
-ask_delete_account_cb(GtkWidget *w, AccountsWindow *dialog)
+ask_delete_account(AccountsWindow *dialog)
 {
 	GtkTreeSelection *selection;
 
@@ -1987,11 +1997,26 @@ ask_delete_account_cb(GtkWidget *w, AccountsWindow *dialog)
 }
 
 static void
-close_accounts_cb(GtkWidget *w, AccountsWindow *dialog)
-{
-	pidgin_accounts_window_hide();
-}
+accedit_win_response_cb(GtkDialog *dialog, guint response, gpointer data) {
+	AccountsWindow *window = data;
 
+	switch(response) {
+		case RESPONSE_ADD:
+			pidgin_account_dialog_show(PIDGIN_ADD_ACCOUNT_DIALOG, NULL);
+			break;
+		case RESPONSE_MODIFY:
+			modify_account(window);
+			break;
+		case RESPONSE_DELETE:
+			ask_delete_account(window);
+			break;
+		case RESPONSE_CLOSE:
+			pidgin_accounts_window_hide();
+			break;
+		default:
+			break;
+	}
+}
 
 static void
 enabled_cb(GtkCellRendererToggle *renderer, gchar *path_str,
@@ -2347,7 +2372,6 @@ pidgin_accounts_window_show(void)
 	GtkWidget *win;
 	GtkWidget *vbox;
 	GtkWidget *sw;
-	GtkWidget *button;
 	int width, height;
 
 	if (accounts_window != NULL) {
@@ -2363,8 +2387,10 @@ pidgin_accounts_window_show(void)
 	dialog->window = win = pidgin_dialog_new(_("Accounts"), 0, "accounts", TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(win), width, height);
 
-	g_signal_connect(G_OBJECT(win), "delete_event",
-					 G_CALLBACK(accedit_win_destroy_cb), accounts_window);
+	g_signal_connect(win, "delete_event", G_CALLBACK(accedit_win_destroy_cb),
+	                 accounts_window);
+	g_signal_connect(win, "response", G_CALLBACK(accedit_win_response_cb),
+	                 accounts_window);
 
 	/* Setup the vbox */
 	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
@@ -2374,26 +2400,22 @@ pidgin_accounts_window_show(void)
 	gtk_box_pack_start(GTK_BOX(vbox), sw, TRUE, TRUE, 0);
 	gtk_widget_show(sw);
 
-	/* Add button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), _("_Add..."),
-			G_CALLBACK(add_account_cb), dialog);
+	/* Add buttons */
+	gtk_dialog_add_button(GTK_DIALOG(win), _("_Add..."), RESPONSE_ADD);
 
-	/* Modify button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), _("_Modify..."),
-			G_CALLBACK(modify_account_cb), dialog);
-	dialog->modify_button = button;
-	gtk_widget_set_sensitive(button, FALSE);
+	dialog->modify_button = gtk_dialog_add_button(GTK_DIALOG(win),
+	                                              _("_Modify..."),
+	                                              RESPONSE_MODIFY);
+	gtk_widget_set_sensitive(dialog->modify_button, FALSE);
 
-	/* Delete button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), _("_Delete"),
-			G_CALLBACK(ask_delete_account_cb), dialog);
-	dialog->delete_button = button;
-	gtk_widget_set_sensitive(button, FALSE);
+	dialog->delete_button = gtk_dialog_add_button(GTK_DIALOG(win),
+	                                              _("_Delete"),
+	                                              RESPONSE_DELETE);
+	gtk_widget_set_sensitive(dialog->delete_button, FALSE);
 
-	/* Close button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), _("_Close"),
-			G_CALLBACK(close_accounts_cb), dialog);
+	gtk_dialog_add_button(GTK_DIALOG(win), _("_Close"), RESPONSE_CLOSE);
 
+	/* Signals */
 	purple_signal_connect(pidgin_accounts_get_handle(), "account-modified",
 	                    accounts_window,
 	                    PURPLE_CALLBACK(account_modified_cb), accounts_window);
