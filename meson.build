@@ -570,7 +570,7 @@ endif
 #######################################################################
 # Check for GPlugin
 #######################################################################
-gplugin_dep = dependency('gplugin', version : '>=0.33.0,<0.34.0', required : false)
+gplugin_dep = dependency('gplugin', version : ['>=0.33.0', '<0.34.0'], required : false)
 if gplugin_dep.found()
 	gplugin_docpath = gplugin_dep.get_pkgconfig_variable('prefix') / 'share/gtk-doc/html'
 
