@@ -13,7 +13,8 @@ PROGS = [
     'queued_output_stream',
     'trie',
     'util',
-    'xmlnode'
+    'whiteboard_manager',
+    'xmlnode',
 ]
 
 test_ui = static_library(

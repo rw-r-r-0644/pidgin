@@ -105,13 +105,24 @@ typedef struct {
 PurpleWhiteboard *silcpurple_wb_init(SilcPurple sg, SilcClientEntry client_entry)
 {
 	PurpleWhiteboard *wb;
+	PurpleWhiteboardManager *manager;
 	SilcPurpleWb wbs;
+	gchar *id = NULL;
 
-	wb = purple_whiteboard_get_session(sg->account, client_entry->nickname);
-	if (!wb)
-		wb = purple_whiteboard_new(sg->account, client_entry->nickname, 0);
-	if (!wb)
+	manager = purple_whiteboard_manager_get_default();
+
+	id = g_strdup_printf("silc-client-%s", client_entry->nickname);
+	wb = purple_whiteboard_manager_find(manager, id);
+	if(!PURPLE_IS_WHITEBOARD(wb)) {
+		wb = purple_whiteboard_new(sg->account, id, 0);
+		purple_whiteboard_manager_register(manager, wb, NULL);
+	}
+
+	g_free(id);
+
+	if(!PURPLE_IS_WHITEBOARD(wb)) {
 		return NULL;
+	}
 
 	if (!purple_whiteboard_get_protocol_data(wb)) {
 		wbs = silc_calloc(1, sizeof(*wbs));
@@ -135,14 +146,24 @@ PurpleWhiteboard *silcpurple_wb_init(SilcPurple sg, SilcClientEntry client_entry
 
 PurpleWhiteboard *silcpurple_wb_init_ch(SilcPurple sg, SilcChannelEntry channel)
 {
+	PurpleWhiteboardManager *manager = NULL;
 	PurpleWhiteboard *wb;
 	SilcPurpleWb wbs;
+	gchar *id;
 
-	wb = purple_whiteboard_get_session(sg->account, channel->channel_name);
-	if (!wb)
-		wb = purple_whiteboard_new(sg->account, channel->channel_name, 0);
-	if (!wb)
+	manager = purple_whiteboard_manager_get_default();
+
+	id = g_strdup_printf("silc-channel-%s", channel->channel_name);
+	wb = purple_whiteboard_manager_find(manager, id);
+	if(!PURPLE_IS_WHITEBOARD(wb)) {
+		wb = purple_whiteboard_new(sg->account, id, 0);
+	}
+
+	g_free(id);
+
+	if(!PURPLE_IS_WHITEBOARD(wb)) {
 		return NULL;
+	}
 
 	if (!purple_whiteboard_get_protocol_data(wb)) {
 		wbs = silc_calloc(1, sizeof(*wbs));
@@ -315,18 +336,19 @@ void silcpurple_wb_receive(SilcClient client, SilcClientConnection conn,
 			 SilcMessageFlags flags, const unsigned char *message,
 			 SilcUInt32 message_len)
 {
-	SilcPurple sg;
-	PurpleConnection *gc;
 	PurpleWhiteboard *wb;
+	PurpleWhiteboardManager *manager;
+	gchar *id = NULL;
 
-	gc = client->application;
-	sg = purple_connection_get_protocol_data(gc);
+	manager = purple_whiteboard_manager_get_default();
 
-	wb = purple_whiteboard_get_session(sg->account, sender->nickname);
-	if (!wb) {
+	id = g_strdup_printf("silc-client-%s", sender->nickname);
+	wb = purple_whiteboard_manager_find(manager, id);
+	g_free(id);
+
+	if(!PURPLE_IS_WHITEBOARD(wb)) {
 		/* Ask user if they want to open the whiteboard */
-		silcpurple_wb_request(client, message, message_len,
-				    sender, NULL);
+		silcpurple_wb_request(client, message, message_len, sender, NULL);
 		return;
 	}
 
@@ -342,18 +364,20 @@ void silcpurple_wb_receive_ch(SilcClient client, SilcClientConnection conn,
 			    const unsigned char *message,
 			    SilcUInt32 message_len)
 {
-	SilcPurple sg;
-	PurpleConnection *gc;
 	PurpleWhiteboard *wb;
+	PurpleWhiteboardManager *manager;
+	gchar *id;
 
-	gc = client->application;
-	sg = purple_connection_get_protocol_data(gc);
+	manager = purple_whiteboard_manager_get_default();
 
-	wb = purple_whiteboard_get_session(sg->account, channel->channel_name);
-	if (!wb) {
+	id = g_strdup_printf("silc-channel-%s", channel->channel_name);
+	wb = purple_whiteboard_manager_find(manager, id);
+	g_free(id);
+
+	if(!PURPLE_IS_WHITEBOARD(wb)) {
 		/* Ask user if they want to open the whiteboard */
-		silcpurple_wb_request(client, message, message_len,
-				    sender, channel);
+		silcpurple_wb_request(client, message, message_len, sender, channel);
+
 		return;
 	}
 
@@ -430,9 +454,14 @@ void silcpurple_wb_start(PurpleWhiteboard *wb)
 void silcpurple_wb_end(PurpleWhiteboard *wb)
 {
 	SilcPurpleWb wbs = purple_whiteboard_get_protocol_data(wb);
+	PurpleWhiteboardManager *manager;
+
+	manager = purple_whiteboard_manager_get_default();
 
 	silc_free(wbs);
 	purple_whiteboard_set_protocol_data(wb, NULL);
+
+	purple_whiteboard_manager_unregister(manager, wb, NULL);
 }
 
 void silcpurple_wb_get_dimensions(const PurpleWhiteboard *wb, int *width, int *height)

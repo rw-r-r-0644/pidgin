@@ -588,13 +588,13 @@ pidgin_whiteboard_create(PurpleWhiteboard *wb)
 	 * their username
 	 */
 	buddy = purple_blist_find_buddy(purple_whiteboard_get_account(wb),
-	                                purple_whiteboard_get_who(wb));
+	                                purple_whiteboard_get_id(wb));
 
 	gtk_window_set_title(GTK_WINDOW(gtkwb),
 	                     buddy != NULL
 	                             ? purple_buddy_get_contact_alias(buddy)
-	                             : purple_whiteboard_get_who(wb));
-	gtk_widget_set_name(GTK_WIDGET(gtkwb), purple_whiteboard_get_who(wb));
+	                             : purple_whiteboard_get_id(wb));
+	gtk_widget_set_name(GTK_WIDGET(gtkwb), purple_whiteboard_get_id(wb));
 
 	gtk_widget_set_size_request(GTK_WIDGET(gtkwb->drawing_area),
 	                            gtkwb->width, gtkwb->height);
