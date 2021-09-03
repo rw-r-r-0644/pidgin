@@ -132,6 +132,8 @@ typedef enum  /*< flags >*/
  * PurpleProtocol:
  *
  * Represents an instance of a protocol registered with #PurpleProtocolManager.
+ *
+ * Since: 3.0.0
  */
 
 /**
@@ -185,6 +187,8 @@ struct _PurpleProtocolClass {
  *
  * Returns: %TRUE if a protocol implements a function in an interface,
  *          %FALSE otherwise.
+ *
+ * Since: 3.0.0
  */
 #define PURPLE_PROTOCOL_IMPLEMENTS(protocol, IFACE, func) \
 	(PURPLE_IS_PROTOCOL_##IFACE(protocol) && \
@@ -342,6 +346,56 @@ GList *purple_protocol_get_status_types(PurpleProtocol *protocol, PurpleAccount 
  * Since: 3.0.0
  */
 const gchar *purple_protocol_get_list_icon(PurpleProtocol *protocol, PurpleAccount *account, PurpleBuddy *buddy);
+
+/**
+ * purple_protocol_get_icon_name:
+ * @protocol: The #PurpleProtocol instance.
+ *
+ * Gets the name of the icon that the protocol made available via either
+ * purple_protocol_get_icon_search_path() or
+ * purple_protocol_get_resource_path().
+ *
+ * Returns: The name of the icon for @protocol.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_protocol_get_icon_name(PurpleProtocol *protocol);
+
+/**
+ * purple_protocol_get_icon_search_path:
+ * @protocol: The #PurpleProtocol instance.
+ *
+ * Gets the icon search path for @protocol. This is used to allow protocol
+ * plugins to install their icons in any XDG icon theme compliant directory.
+ * The returned value should be the path of where the icons are on disk. See
+ * gtk_icon_theme_add_search_path() for additional information.
+ *
+ * User interfaces will look for icons in this path named
+ * %chat-&lt;protocol-name&gt; where protocol-name is the name property of @protocol.
+ *
+ * Returns: The file system path where the icons can be found.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_protocol_get_icon_search_path(PurpleProtocol *protocol);
+
+/**
+ * purple_protocol_get_icon_resource_path:
+ * @protocol: The #PurpleProtocol instance.
+ *
+ * Gets the icon resource path for @protocol. This is used to make icons that
+ * have been embedded into a plugin available to libpurple. The returned value
+ * should be the path of where the icons are in the resource. See
+ * gtk_icon_theme_add_resource_path() for additional information.
+ *
+ * User interfaces will look for icons in this path named
+ * %chat-&lt;protocol-name&gt; where protocol-name is the name property of @protocol.
+ *
+ * Returns: The gresource path where the icons can be found.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_protocol_get_icon_resource_path(PurpleProtocol *protocol);
 
 G_END_DECLS
 

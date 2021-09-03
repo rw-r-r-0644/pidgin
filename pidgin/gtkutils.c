@@ -254,12 +254,39 @@ pidgin_make_frame(GtkWidget *parent, const char *title)
 }
 
 GdkPixbuf *
-pidgin_create_icon_from_protocol(PurpleProtocol *protocol, PidginProtocolIconSize size, PurpleAccount *account)
+pidgin_create_icon_from_protocol(PurpleProtocol *protocol,
+                                 PidginProtocolIconSize size,
+                                 PurpleAccount *account)
 {
+	GInputStream *stream = NULL;
+	GdkPixbuf *pixbuf;
 	const char *protoname = NULL;
+	const gchar *icon_name = NULL;
 	char *tmp;
 	char *filename = NULL;
-	GdkPixbuf *pixbuf;
+
+	/* If the protocol specified an icon-name try to load it from the icon
+	 * theme.
+	 */
+	icon_name = purple_protocol_get_icon_name(protocol);
+	if(icon_name != NULL) {
+		GtkIconTheme *theme = gtk_icon_theme_get_default();
+		gint dimensions = 48;
+
+		if(size == PIDGIN_PROTOCOL_ICON_SMALL) {
+			dimensions = 16;
+		} else if(size == PIDGIN_PROTOCOL_ICON_MEDIUM) {
+			dimensions = 22;
+		}
+
+		pixbuf = gtk_icon_theme_load_icon(theme, icon_name, dimensions,
+		                                  GTK_ICON_LOOKUP_FORCE_SIZE, NULL);
+
+		if(GDK_IS_PIXBUF(pixbuf)) {
+			return pixbuf;
+		}
+
+	}
 
 	protoname = purple_protocol_get_list_icon(protocol, account, NULL);
 	if (protoname == NULL)

@@ -1164,8 +1164,10 @@ irc_protocol_new(void) {
 		"id", "prpl-irc",
 		"name", "IRC",
 		"description", "Internet Relay Chat (IRC) is a text-based chat system",
+		"icon-name", "im-irc",
+		"icon-resource-path", "/im/pidgin/libpurple/irc/icons",
 		"options", OPT_PROTO_CHAT_TOPIC | OPT_PROTO_PASSWORD_OPTIONAL |
-	               OPT_PROTO_SLASH_COMMANDS_NATIVE,
+		           OPT_PROTO_SLASH_COMMANDS_NATIVE,
 		NULL));
 }
 
