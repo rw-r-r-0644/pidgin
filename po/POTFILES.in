@@ -268,6 +268,7 @@ libpurple/purpleprotocolroomlist.c
 libpurple/purpleprotocolserver.c
 libpurple/purpleuiinfo.c
 libpurple/purplewhiteboard.c
+libpurple/purplewhiteboardmanager.c
 libpurple/purplewhiteboarduiops.c
 libpurple/queuedoutputstream.c
 libpurple/request.c

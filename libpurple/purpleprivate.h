@@ -255,6 +255,25 @@ void purple_credential_provider_activate(PurpleCredentialProvider *provider);
  */
 void purple_credential_provider_deactivate(PurpleCredentialProvider *provider);
 
+/**
+ * purple_whiteboard_manager_startup:
+ *
+ * Starts up the whiteboard manager by creating the default instance.
+ *
+ * Since: 3.0.0
+ */
+void purple_whiteboard_manager_startup(void);
+
+/**
+ * purple_whiteboard_manager_shutdown:
+ *
+ * Shuts down the whiteboard manager by destroying the default instance.
+ *
+ * Since: 3.0.0
+ */
+void purple_whiteboard_manager_shutdown(void);
+
+
 G_END_DECLS
 
 #endif /* PURPLE_PRIVATE_H */

@@ -80,6 +80,7 @@
       <xi:include href="xml/purpleplugininfo.xml" />
       <xi:include href="xml/purplepresence.xml" />
       <xi:include href="xml/purplewhiteboard.xml" />
+      <xi:include href="xml/purplewhiteboardmanager.xml" />
       <xi:include href="xml/purplewhiteboardops.xml" />
       <xi:include href="xml/purplewhiteboarduiops.xml" />
       <xi:include href="xml/purpleuiinfo.xml" />

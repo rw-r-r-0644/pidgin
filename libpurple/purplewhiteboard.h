@@ -94,14 +94,14 @@ void purple_whiteboard_set_protocol_ops(PurpleWhiteboard *whiteboard, PurpleWhit
 /**
  * purple_whiteboard_new:
  * @account: A #PurpleAccount instance.
- * @who: Who you're drawing with.
+ * @id: The identifier of the whiteboard.
  * @state: The state.
  *
  * Creates a new whiteboard.
  *
  * Returns: (transfer full): The new #PurpleWhiteboard instance.
  */
-PurpleWhiteboard *purple_whiteboard_new(PurpleAccount *account, const gchar *who, gint state);
+PurpleWhiteboard *purple_whiteboard_new(PurpleAccount *account, const gchar *id, gint state);
 
 /**
  * purple_whiteboard_get_account:
@@ -114,14 +114,16 @@ PurpleWhiteboard *purple_whiteboard_new(PurpleAccount *account, const gchar *who
 PurpleAccount *purple_whiteboard_get_account(PurpleWhiteboard *whiteboard);
 
 /**
- * purple_whiteboard_get_who:
+ * purple_whiteboard_get_id:
  * @whiteboard: The #PurpleWhiteboard instance.
  *
- * Gets the name of who you're drawing with.
+ * Gets the id of @whiteboard.
  *
- * Returns: The name of who you're drawing with.
+ * Returns: The id of @whiteboard.
+ *
+ * Since: 3.0.0
  */
-const gchar *purple_whiteboard_get_who(PurpleWhiteboard *whiteboard);
+const gchar *purple_whiteboard_get_id(PurpleWhiteboard *whiteboard);
 
 /**
  * purple_whiteboard_set_state:
@@ -149,18 +151,6 @@ gint purple_whiteboard_get_state(PurpleWhiteboard *whiteboard);
  * Puts @whiteboard into the started state if it wasn't already.
  */
 void purple_whiteboard_start(PurpleWhiteboard *whiteboard);
-
-/**
- * purple_whiteboard_get_session:
- * @account: A #PurpleAccount instance.
- * @who: The name of the user you're drawing with.
- *
- * Finds a whiteboard from @account and @who.
- *
- * Returns: (transfer none): The #PurpleWhiteboard instance if found, otherwise
- *          %NULL.
- */
-PurpleWhiteboard *purple_whiteboard_get_session(PurpleAccount *account, const gchar *who);
 
 /**
  * purple_whiteboard_draw_list_destroy:
@@ -312,6 +302,20 @@ void purple_whiteboard_set_protocol_data(PurpleWhiteboard *whiteboard, gpointer 
  * Returns: The protocol data for the whiteboard.
  */
 gpointer purple_whiteboard_get_protocol_data(PurpleWhiteboard *whiteboard);
+
+/**
+ * purple_whiteboard_equal:
+ * @whiteboard1: The first #PurpleWhiteboard instance to check.
+ * @whiteboard2: The second #PurpleWhiteboard instance to check.
+ *
+ * Checks the id's for @whiteboard1 and @whiteboard2 and return whether or not
+ * they are equal.
+ *
+ * Returns: %TRUE if the id's of @whiteboard1 and @whiteboard2 are equal.
+ *
+ * Since: 3.0.0
+ */
+gboolean purple_whiteboard_equal(PurpleWhiteboard *whiteboard1, PurpleWhiteboard *whiteboard2);
 
 G_END_DECLS
 

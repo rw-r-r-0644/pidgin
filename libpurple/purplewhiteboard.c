@@ -27,12 +27,13 @@
 #include "purpleprotocolfactory.h"
 #include "purplewhiteboarduiops.h"
 #include "protocol.h"
+#include "util.h"
 
 typedef struct {
 	int state;
 
 	PurpleAccount *account;
-	char *who;
+	gchar *id;
 
 	/* TODO Remove this and use protocol-specific subclasses. */
 	void *proto_data;
@@ -47,18 +48,13 @@ enum {
 	PROP_0,
 	PROP_STATE,
 	PROP_ACCOUNT,
-	PROP_WHO,
+	PROP_ID,
 	PROP_DRAW_LIST,
 	N_PROPERTIES,
 };
 static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
 G_DEFINE_TYPE_WITH_PRIVATE(PurpleWhiteboard, purple_whiteboard, G_TYPE_OBJECT)
-
-/******************************************************************************
- * Globals
- *****************************************************************************/
-static GList *wb_list = NULL;
 
 /******************************************************************************
  * Helpers
@@ -78,15 +74,15 @@ purple_whiteboard_set_account(PurpleWhiteboard *whiteboard,
 }
 
 static void
-purple_whiteboard_set_who(PurpleWhiteboard *whiteboard, const gchar *who) {
+purple_whiteboard_set_id(PurpleWhiteboard *whiteboard, const gchar *id) {
 	PurpleWhiteboardPrivate *priv = NULL;
 
 	priv = purple_whiteboard_get_instance_private(whiteboard);
 
-	g_clear_pointer(&priv->who, g_free);
-	priv->who = g_strdup(who);
+	g_free(priv->id);
+	priv->id = g_strdup(id);
 
-	g_object_notify_by_pspec(G_OBJECT(whiteboard), properties[PROP_WHO]);
+	g_object_notify_by_pspec(G_OBJECT(whiteboard), properties[PROP_ID]);
 }
 
 /******************************************************************************
@@ -106,8 +102,8 @@ purple_whiteboard_set_property(GObject *obj, guint param_id,
 			purple_whiteboard_set_account(whiteboard,
 			                              g_value_get_object(value));
 			break;
-		case PROP_WHO:
-			purple_whiteboard_set_who(whiteboard, g_value_get_string(value));
+		case PROP_ID:
+			purple_whiteboard_set_id(whiteboard, g_value_get_string(value));
 			break;
 		case PROP_DRAW_LIST:
 			purple_whiteboard_set_draw_list(whiteboard,
@@ -133,9 +129,9 @@ purple_whiteboard_get_property(GObject *obj, guint param_id, GValue *value,
 			g_value_set_object(value,
 			                   purple_whiteboard_get_account(whiteboard));
 			break;
-		case PROP_WHO:
+		case PROP_ID:
 			g_value_set_string(value,
-			                   purple_whiteboard_get_who(whiteboard));
+			                   purple_whiteboard_get_id(whiteboard));
 			break;
 		case PROP_DRAW_LIST:
 			g_value_set_pointer(value,
@@ -170,8 +166,6 @@ purple_whiteboard_constructed(GObject *object) {
 	if(priv->protocol_ops != NULL && priv->protocol_ops->start != NULL) {
 		priv->protocol_ops->start(whiteboard);
 	}
-
-	wb_list = g_list_append(wb_list, whiteboard);
 }
 
 static void
@@ -186,10 +180,8 @@ purple_whiteboard_finalize(GObject *object) {
 		priv->protocol_ops->end(whiteboard);
 	}
 
-	wb_list = g_list_remove(wb_list, whiteboard);
-
 	g_clear_object(&priv->account);
-	g_clear_pointer(&priv->who, g_free);
+	g_clear_pointer(&priv->id, g_free);
 
 	/* TODO: figure out how we need to clean up the drawlist */
 
@@ -216,9 +208,9 @@ purple_whiteboard_class_init(PurpleWhiteboardClass *klass) {
 		"The whiteboard's account.", PURPLE_TYPE_ACCOUNT,
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
-	properties[PROP_WHO] = g_param_spec_string(
-		"who", "Who",
-		"Who you're drawing with.", NULL,
+	properties[PROP_ID] = g_param_spec_string(
+		"id", "id",
+		"The ID of the whiteboard.", NULL,
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_DRAW_LIST] = g_param_spec_pointer(
@@ -257,14 +249,14 @@ purple_whiteboard_get_account(PurpleWhiteboard *whiteboard) {
 }
 
 const gchar *
-purple_whiteboard_get_who(PurpleWhiteboard *whiteboard) {
+purple_whiteboard_get_id(PurpleWhiteboard *whiteboard) {
 	PurpleWhiteboardPrivate *priv = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_WHITEBOARD(whiteboard), NULL);
 
 	priv = purple_whiteboard_get_instance_private(whiteboard);
 
-	return priv->who;
+	return priv->id;
 }
 
 void
@@ -294,24 +286,6 @@ purple_whiteboard_get_state(PurpleWhiteboard *whiteboard) {
 void
 purple_whiteboard_start(PurpleWhiteboard *whiteboard) {
 	purple_whiteboard_ui_ops_create(whiteboard);
-}
-
-PurpleWhiteboard *
-purple_whiteboard_get_session(PurpleAccount *account, const gchar *who) {
-	PurpleWhiteboard *whiteboard = NULL;
-	PurpleWhiteboardPrivate *priv = NULL;
-	GList *l = NULL;
-
-	for(l = wb_list; l != NULL; l = l->next) {
-		whiteboard = PURPLE_WHITEBOARD(l->data);
-		priv = purple_whiteboard_get_instance_private(whiteboard);
-
-		if(priv->account == account && purple_strequal(priv->who, who)) {
-			return whiteboard;
-		}
-	}
-
-	return NULL;
 }
 
 void
@@ -491,12 +465,12 @@ purple_whiteboard_get_protocol_data(PurpleWhiteboard *whiteboard) {
 }
 
 PurpleWhiteboard *
-purple_whiteboard_new(PurpleAccount *account, const gchar *who, gint state) {
+purple_whiteboard_new(PurpleAccount *account, const gchar *id, gint state) {
 	PurpleWhiteboard *whiteboard = NULL;
 	PurpleProtocol *protocol = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
-	g_return_val_if_fail(who != NULL, NULL);
+	g_return_val_if_fail(id != NULL, NULL);
 
 	protocol = purple_account_get_protocol(account);
 
@@ -504,12 +478,12 @@ purple_whiteboard_new(PurpleAccount *account, const gchar *who, gint state) {
 
 	if(PURPLE_IS_PROTOCOL_FACTORY(protocol)) {
 		whiteboard = purple_protocol_factory_whiteboard_new(
-			PURPLE_PROTOCOL_FACTORY(protocol), account, who, state);
+			PURPLE_PROTOCOL_FACTORY(protocol), account, id, state);
 	} else {
 		whiteboard = g_object_new(PURPLE_TYPE_WHITEBOARD,
 			"account", account,
-			"who",     who,
-			"state",   state,
+			"id", id,
+			"state", state,
 			NULL
 		);
 	}
@@ -517,3 +491,20 @@ purple_whiteboard_new(PurpleAccount *account, const gchar *who, gint state) {
 	return whiteboard;
 }
 
+gboolean
+purple_whiteboard_equal(PurpleWhiteboard *whiteboard1,
+                        PurpleWhiteboard *whiteboard2)
+{
+	PurpleWhiteboardPrivate *priv1 = NULL, *priv2 = NULL;
+
+	if(whiteboard1 == NULL) {
+		return (whiteboard2 == NULL);
+	} else if(whiteboard2 == NULL) {
+		return FALSE;
+	}
+
+	priv1 = purple_whiteboard_get_instance_private(whiteboard1);
+	priv2 = purple_whiteboard_get_instance_private(whiteboard2);
+
+	return purple_strequal(priv1->id, priv2->id);
+}
