@@ -29,6 +29,9 @@ enum {
 	PROP_ID,
 	PROP_NAME,
 	PROP_DESCRIPTION,
+	PROP_ICON_NAME,
+	PROP_ICON_SEARCH_PATH,
+	PROP_ICON_RESOURCE_PATH,
 	PROP_OPTIONS,
 	N_PROPERTIES,
 };
@@ -38,6 +41,10 @@ typedef struct {
 	gchar *id;
 	gchar *name;
 	gchar *description;
+
+	gchar *icon_name;
+	gchar *icon_search_path;
+	gchar *icon_resource_path;
 
 	PurpleProtocolOptions options;
 } PurpleProtocolPrivate;
@@ -82,6 +89,50 @@ purple_protocol_set_description(PurpleProtocol *protocol, const gchar *descripti
 }
 
 static void
+purple_protocol_set_icon_name(PurpleProtocol *protocol,
+                              const gchar *icon_name)
+{
+	PurpleProtocolPrivate *priv = NULL;
+
+	priv = purple_protocol_get_instance_private(protocol);
+
+	g_free(priv->icon_name);
+	priv->icon_name = g_strdup(icon_name);
+
+	g_object_notify_by_pspec(G_OBJECT(protocol), properties[PROP_ICON_NAME]);
+}
+
+static void
+purple_protocol_set_icon_search_path(PurpleProtocol *protocol,
+                                     const gchar *path)
+{
+	PurpleProtocolPrivate *priv = NULL;
+
+	priv = purple_protocol_get_instance_private(protocol);
+
+	g_free(priv->icon_search_path);
+	priv->icon_search_path = g_strdup(path);
+
+	g_object_notify_by_pspec(G_OBJECT(protocol),
+	                         properties[PROP_ICON_SEARCH_PATH]);
+}
+
+static void
+purple_protocol_set_icon_resource_path(PurpleProtocol *protocol,
+                                       const gchar *path)
+{
+	PurpleProtocolPrivate *priv = NULL;
+
+	priv = purple_protocol_get_instance_private(protocol);
+
+	g_free(priv->icon_resource_path);
+	priv->icon_resource_path = g_strdup(path);
+
+	g_object_notify_by_pspec(G_OBJECT(protocol),
+	                         properties[PROP_ICON_RESOURCE_PATH]);
+}
+
+static void
 purple_protocol_set_options(PurpleProtocol *protocol,
                             PurpleProtocolOptions options)
 {
@@ -110,7 +161,19 @@ purple_protocol_get_property(GObject *obj, guint param_id, GValue *value,
 			g_value_set_string(value, purple_protocol_get_name(protocol));
 			break;
 		case PROP_DESCRIPTION:
-			g_value_set_string(value, purple_protocol_get_description(protocol));
+			g_value_set_string(value,
+			                   purple_protocol_get_description(protocol));
+			break;
+		case PROP_ICON_NAME:
+			g_value_set_string(value, purple_protocol_get_icon_name(protocol));
+			break;
+		case PROP_ICON_SEARCH_PATH:
+			g_value_set_string(value,
+			                   purple_protocol_get_icon_search_path(protocol));
+			break;
+		case PROP_ICON_RESOURCE_PATH:
+			g_value_set_string(value,
+			                   purple_protocol_get_icon_resource_path(protocol));
 			break;
 		case PROP_OPTIONS:
 			g_value_set_flags(value, purple_protocol_get_options(protocol));
@@ -135,7 +198,19 @@ purple_protocol_set_property(GObject *obj, guint param_id, const GValue *value,
 			purple_protocol_set_name(protocol, g_value_get_string(value));
 			break;
 		case PROP_DESCRIPTION:
-			purple_protocol_set_description(protocol, g_value_get_string(value));
+			purple_protocol_set_description(protocol,
+			                                g_value_get_string(value));
+			break;
+		case PROP_ICON_NAME:
+			purple_protocol_set_icon_name(protocol, g_value_get_string(value));
+			break;
+		case PROP_ICON_SEARCH_PATH:
+			purple_protocol_set_icon_search_path(protocol,
+			                                     g_value_get_string(value));
+			break;
+		case PROP_ICON_RESOURCE_PATH:
+			purple_protocol_set_icon_resource_path(protocol,
+			                                       g_value_get_string(value));
 			break;
 		case PROP_OPTIONS:
 			purple_protocol_set_options(protocol, g_value_get_flags(value));
@@ -203,6 +278,8 @@ purple_protocol_class_init(PurpleProtocolClass *klass) {
 	 * PurpleProtocol::id:
 	 *
 	 * The identifier for the protocol.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_ID] = g_param_spec_string(
 		"id", "id",
@@ -214,6 +291,8 @@ purple_protocol_class_init(PurpleProtocolClass *klass) {
 	 * PurpleProtocol::name:
 	 *
 	 * The name to show in user interface for the protocol.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_NAME] = g_param_spec_string(
 		"name", "name",
@@ -225,6 +304,8 @@ purple_protocol_class_init(PurpleProtocolClass *klass) {
 	 * PurpleProtocol::description:
 	 *
 	 * The description to show in user interface for the protocol.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_DESCRIPTION] = g_param_spec_string(
 		"description", "description",
@@ -233,9 +314,55 @@ purple_protocol_class_init(PurpleProtocolClass *klass) {
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
 	/**
+	 * PurpleProtocol::icon-name:
+	 *
+	 * The name of an icon that has been installed to either the path specified
+	 * via PurpleProtocol::icon-search-path or
+	 * PurpleProtocol::icon-resource-path.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_ICON_NAME] = g_param_spec_string(
+		"icon-name", "icon-name",
+		"The name of the XDG icon.",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	/**
+	 * PurpleProtocol::icon-search-path:
+	 *
+	 * The path to an XDG Icon Theme directory which contains the icons for the
+	 * protocol. See purple_protocol_get_icon_search_path() for more
+	 * information.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_ICON_SEARCH_PATH] = g_param_spec_string(
+		"icon-search-path", "icon-search-path",
+		"The path to an XDG Icon Theme directory.",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	/**
+	 * PurpleProtocol::icon-resource-path:
+	 *
+	 * A #GResource path which contains the icons for the protocol. See
+	 * purple_protocol_get_icon_resource_path() for more information.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_ICON_RESOURCE_PATH] = g_param_spec_string(
+		"icon-resource-path", "icon-resource-path",
+		"The GResource path to the icons.",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	/**
 	 * PurpleProtocol::options:
 	 *
 	 * The #PurpleProtocolOptions for the protocol.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_OPTIONS] = g_param_spec_flags(
 		"options", "options",
@@ -281,6 +408,39 @@ purple_protocol_get_description(PurpleProtocol *protocol) {
 	priv = purple_protocol_get_instance_private(protocol);
 
 	return priv->description;
+}
+
+const gchar *
+purple_protocol_get_icon_name(PurpleProtocol *protocol) {
+	PurpleProtocolPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	priv = purple_protocol_get_instance_private(protocol);
+
+	return priv->icon_name;
+}
+
+const gchar *
+purple_protocol_get_icon_search_path(PurpleProtocol *protocol) {
+	PurpleProtocolPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	priv = purple_protocol_get_instance_private(protocol);
+
+	return priv->icon_search_path;
+}
+
+const gchar *
+purple_protocol_get_icon_resource_path(PurpleProtocol *protocol) {
+	PurpleProtocolPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
+
+	priv = purple_protocol_get_instance_private(protocol);
+
+	return priv->icon_resource_path;
 }
 
 PurpleProtocolOptions
