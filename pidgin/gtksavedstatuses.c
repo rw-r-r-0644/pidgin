@@ -633,7 +633,7 @@ pidgin_status_window_hide(void)
 * Status editor
 **************************************************************************/
 
-static void substatus_editor_cancel_cb(GtkButton *button, gpointer user_data);
+static void substatus_editor_cancel(SubStatusEditor *dialog);
 
 static void
 status_editor_remove_dialog(StatusEditor *dialog)
@@ -664,7 +664,7 @@ status_editor_remove_dialog(StatusEditor *dialog)
 				gtk_list_store_set(dialog->model, &iter,
 								   STATUS_EDITOR_COLUMN_WINDOW, NULL,
 								   -1);
-				substatus_editor_cancel_cb(NULL, substatus_dialog);
+				substatus_editor_cancel(substatus_dialog);
 			}
 		} while (gtk_tree_model_iter_next(model, &iter));
 	}
@@ -1297,17 +1297,15 @@ substatus_editor_destroy_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
-substatus_editor_cancel_cb(GtkButton *button, gpointer user_data)
+substatus_editor_cancel(SubStatusEditor *dialog)
 {
-	SubStatusEditor *dialog = user_data;
 	gtk_widget_destroy(dialog->window);
 }
 
 
 static void
-substatus_editor_ok_cb(GtkButton *button, gpointer user_data)
+substatus_editor_ok(SubStatusEditor *dialog)
 {
-	SubStatusEditor *dialog = user_data;
 	StatusEditor *status_editor;
 	GtkTreeIter iter;
 	PurpleStatusType *type;
@@ -1348,6 +1346,24 @@ substatus_editor_ok_cb(GtkButton *button, gpointer user_data)
 	gtk_widget_destroy(dialog->window);
 	g_free(id);
 	g_free(message);
+}
+
+static void
+substatus_editor_response_cb(GtkDialog *dialog, gint response_id,
+                             gpointer data)
+{
+	SubStatusEditor *editor = data;
+
+	switch(response_id) {
+		case GTK_RESPONSE_CANCEL:
+			substatus_editor_cancel(editor);
+			break;
+		case GTK_RESPONSE_OK:
+			substatus_editor_ok(editor);
+			break;
+		default:
+			break;
+	}
 }
 
 static void
@@ -1396,6 +1412,8 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 
 	g_signal_connect(G_OBJECT(win), "destroy",
 					 G_CALLBACK(substatus_editor_destroy_cb), dialog);
+	g_signal_connect(win, "response", G_CALLBACK(substatus_editor_response_cb),
+	                 dialog);
 
 	/* Setup the vbox */
 	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
@@ -1449,13 +1467,9 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	dialog->message_buffer = talkatu_html_buffer_new();
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(dialog->message_view), dialog->message_buffer);
 
-	/* Cancel button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), _("Cancel"),
-			G_CALLBACK(substatus_editor_cancel_cb), dialog);
-
-	/* OK button */
-	pidgin_dialog_add_button(GTK_DIALOG(win), _("Okay"),
-			G_CALLBACK(substatus_editor_ok_cb), dialog);
+	/* Add the buttons */
+	gtk_dialog_add_button(GTK_DIALOG(win), _("Cancel"), GTK_RESPONSE_CANCEL);
+	gtk_dialog_add_button(GTK_DIALOG(win), _("Okay"), GTK_RESPONSE_OK);
 
 	/* Seed the input widgets with the current values */
 
