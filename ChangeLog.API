@@ -801,6 +801,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_mini_dialog_links_supported
 		* pidgin_pixbuf_button_from_stock
 		* pidgin_pixbuf_toolbar_button_from_stock
+		* pidgin_dialogs_plugins_info
 		* pidgin_pounce_editor_show
 		* pidgin_pounces_get_handle
 		* pidgin_pounces_init
