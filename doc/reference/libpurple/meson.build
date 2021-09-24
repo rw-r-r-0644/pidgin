@@ -31,7 +31,6 @@ mkdb_args = [
 
 # Extra options to supply to gtkdoc-fixxref
 fixxref_args = [
-    '--extra-dir=@0@'.format(gplugin_docpath),
 ]
 
 libpurple_version_xml = configure_file(

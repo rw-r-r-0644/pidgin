@@ -26,7 +26,6 @@ mkdb_args = [
 
 # Extra options to supply to fixxref
 fixxref_args = [
-    '--extra-dir=@0@'.format(gplugin_gtk_docpath),
     '--extra-dir=@0@'.format(talkatu_docpath),
     '--extra-dir=../libpurple',
 ]

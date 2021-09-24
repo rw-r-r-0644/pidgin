@@ -234,7 +234,7 @@ if enable_consoleui
 
 		Finch_gir_includes = [
 			libgnt_gir[0],
-			gplugin_gir,
+			'GPlugin-1.0',
 			# subproject needs to be before libpurple in the repo so that
 			# meson will use our variables and not try to discover them from
 			# libpurple.
@@ -250,9 +250,6 @@ if enable_consoleui
 		    export_packages : 'finch',
 		    nsversion : '@0@.@1@'.format(purple_major_version,
 		                                 purple_minor_version),
-		    include_directories : [
-		        gplugin_include_directories,
-		    ],
 		    install : true,
 		    extra_args : ['-DFINCH_COMPILATION', '--quiet'])
 	endif
