@@ -321,7 +321,7 @@ if enable_introspection
 	introspection_sources = (purple_coreheaders + purple_builtheaders +
 	                         purple_mediaheaders)
 
-	Purple_gir_includes = ['GObject-2.0', 'Gio-2.0', 'Gst-1.0', gplugin_gir]
+	Purple_gir_includes = ['GObject-2.0', 'Gio-2.0', 'Gst-1.0', 'GPlugin-1.0']
 
 	libpurple_gir = gnome.generate_gir(libpurple,
 	    sources : introspection_sources,
@@ -332,9 +332,7 @@ if enable_introspection
 	    export_packages : purple_filebase,
 	    nsversion : '@0@.@1@'.format(purple_major_version,
 	                                 purple_minor_version),
-	    include_directories : [
-	        gplugin_include_directories,
-	    ],
+	    dependencies: [ gplugin_dep ],
 	    install : true,
 	    extra_args : ['-DPURPLE_COMPILATION', '--quiet'])
 endif
