@@ -151,6 +151,7 @@ libfinch_enum_headers = [
 # the built lists are append to below
 libfinch_built_sources = []
 libfinch_built_headers = []
+libfinch_generated_sources = []
 
 finch_SOURCES = [
 	'finch.c'
@@ -203,10 +204,38 @@ if enable_consoleui
 	    version : PURPLE_LIB_VERSION,
 	    dependencies : [libpurple_dep, libgnt_dep, ncurses, glib, winmm],
 	    install : true)
+
+	if enable_introspection
+		introspection_sources = libfinch_headers
+
+		Finch_gir_includes = [
+			libgnt_gir[0],
+			'GPlugin-1.0',
+			# subproject needs to be before libpurple in the repo so that
+			# meson will use our variables and not try to discover them from
+			# libpurple.
+			libpurple_gir[0],
+		]
+
+		libfinch_gir = gnome.generate_gir(libfinch,
+		    sources : introspection_sources,
+		    includes : Finch_gir_includes,
+		    namespace : 'Finch',
+		    symbol_prefix : 'finch',
+		    identifier_prefix : 'Finch',
+		    export_packages : 'finch',
+		    nsversion : '@0@.@1@'.format(purple_major_version,
+		                                 purple_minor_version),
+		    install : true,
+		    dependencies: [libgnt_dep, gplugin_dep],
+		    extra_args : ['-DFINCH_COMPILATION', '--quiet'])
+		libfinch_generated_sources += libfinch_gir
+	endif
+
 	libfinch_dep = declare_dependency(
 	    include_directories : [toplevel_inc, libfinch_inc],
 	    link_with : libfinch,
-	    sources: libfinch_built_headers,
+	    sources: libfinch_built_headers + libfinch_generated_sources,
 	    dependencies : [libpurple_dep, libgnt_dep, glib])
 
 	finch = executable('finch3',
@@ -228,31 +257,6 @@ if enable_consoleui
 	    libraries : [libfinch],
 	    requires : ['gnt', 'purple-3'],
 	    variables : ['plugindir=${libdir}/finch-@0@'.format(purple_major_version)])
-
-	if enable_introspection
-		introspection_sources = libfinch_headers
-
-		Finch_gir_includes = [
-			libgnt_gir[0],
-			'GPlugin-1.0',
-			# subproject needs to be before libpurple in the repo so that
-			# meson will use our variables and not try to discover them from
-			# libpurple.
-			libpurple_gir[0],
-		]
-
-		gnome.generate_gir(libfinch,
-		    sources : introspection_sources,
-		    includes : Finch_gir_includes,
-		    namespace : 'Finch',
-		    symbol_prefix : 'finch',
-		    identifier_prefix : 'Finch',
-		    export_packages : 'finch',
-		    nsversion : '@0@.@1@'.format(purple_major_version,
-		                                 purple_minor_version),
-		    install : true,
-		    extra_args : ['-DFINCH_COMPILATION', '--quiet'])
-	endif
 
 	subdir('plugins')
 endif  # enable_consoleui

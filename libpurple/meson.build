@@ -188,6 +188,8 @@ purple_coreheaders = [
 	'xmlnode.h',
 ]
 
+purple_generated_sources = []
+
 purple_filebase = 'purple-@0@'.format(purple_major_version)
 purple_include_base = purple_filebase / 'libpurple'
 
@@ -289,22 +291,11 @@ libpurple = library('purple',
                          libxml, farstream, gstreamer, gstreamer_video,
                          gstreamer_app, json, math])
 
-libpurple_dep = declare_dependency(
-    # Ensure purple headers built before any dependencies:
-    sources : [purple_builtheaders],
-    include_directories : [toplevel_inc, libpurple_inc],
-    link_with : libpurple,
-    dependencies : [gstreamer, gplugin_dep, glib, gio])
-
 install_headers(purple_coreheaders,
                 subdir : purple_include_base)
 
 install_headers(purple_mediaheaders,
                 subdir : purple_include_base / 'media')
-
-if meson.version().version_compare('>=0.54.0')
-	meson.override_dependency(purple_filebase, libpurple_dep)
-endif
 
 pkgconfig.generate(
     name : 'libpurple',
@@ -332,9 +323,22 @@ if enable_introspection
 	    export_packages : purple_filebase,
 	    nsversion : '@0@.@1@'.format(purple_major_version,
 	                                 purple_minor_version),
-	    dependencies: [ gplugin_dep ],
+	    dependencies: [gplugin_dep],
 	    install : true,
 	    extra_args : ['-DPURPLE_COMPILATION', '--quiet'])
+
+	purple_generated_sources += libpurple_gir
+endif
+
+libpurple_dep = declare_dependency(
+    # Ensure purple headers built before any dependencies:
+    sources : [purple_builtheaders] + purple_generated_sources,
+    include_directories : [toplevel_inc, libpurple_inc],
+    link_with : libpurple,
+    dependencies : [gstreamer, gplugin_dep, glib, gio])
+
+if meson.version().version_compare('>=0.54.0')
+	meson.override_dependency(purple_filebase, libpurple_dep)
 endif
 
 PURPLE3_URL_HANDLER_DESKTOP = 'purple3-url-handler.desktop'
