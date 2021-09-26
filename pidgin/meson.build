@@ -332,9 +332,7 @@ if ENABLE_GTK
 			export_packages : 'pidgin-@0@'.format(purple_major_version),
 			nsversion : '@0@.@1@'.format(purple_major_version,
 			                             purple_minor_version),
-			include_directories : [
-				talkatu_include_directories,
-			],
+			dependencies : [gplugin_dep, gplugin_gtk_dep, talkatu_dep],
 			install : true,
 			extra_args : ['-DPIDGIN_COMPILATION', '--quiet'])
 	endif
