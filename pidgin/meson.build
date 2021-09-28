@@ -316,7 +316,7 @@ if ENABLE_GTK
 
 		Pidgin_gir_includes = [
 			'GObject-2.0', 'Gtk-3.0', 'GPlugin-1.0', 'GPluginGtk-1.0',
-			talkatu_gir,
+			'Talkatu-0.0',
 			# subproject needs to be before libpurple in the repo so that
 			# meson will use our variables and not try to discover them from
 			# libpurple.
