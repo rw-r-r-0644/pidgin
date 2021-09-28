@@ -20,7 +20,6 @@ mkdb_args = [
 
 # Extra options to supply to fixxrefs
 fixxref_args = [
-    '--extra-dir=@0@'.format(libgnt_docpath),
     '--extra-dir=../libpurple',
 ]
 

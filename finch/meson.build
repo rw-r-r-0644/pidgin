@@ -1,26 +1,8 @@
 enable_consoleui = false
 if get_option('consoleui')
-	libgnt_dep = dependency('gnt3', version : '>= 3.0.0', required : false)
-	if libgnt_dep.found()
-		libgnt_docpath = libgnt_dep.get_pkgconfig_variable('prefix') / 'share/gtk-doc/html'
-
-		if enable_introspection
-			libgnt_gir = ['Gnt-3.0']
-		endif
-	else
-		libgnt_proj = subproject('libgnt',
-		    default_options : [
-		        'doc=' + get_option('doc').to_string(),
-		        'introspection=' + enable_introspection.to_string(),
-		    ]
-		)
-		libgnt_dep = libgnt_proj.get_variable('libgnt_dep')
-
-		libgnt_docpath = meson.project_build_root() / 'subprojects/libgnt/doc/'
-		if enable_introspection
-			libgnt_gir = libgnt_proj.get_variable('libgnt_gir')
-		endif
-	endif
+	libgnt_dep = dependency('gnt3',
+		version : '>= 3.0.0',
+		fallback : ['libgnt', 'libgnt_dep'])
 
 	#######################################################################
 	# Check for ncurses and other things used by it
@@ -209,7 +191,7 @@ if enable_consoleui
 		introspection_sources = libfinch_headers
 
 		Finch_gir_includes = [
-			libgnt_gir[0],
+			'Gnt-3.0',
 			'GPlugin-1.0',
 			# subproject needs to be before libpurple in the repo so that
 			# meson will use our variables and not try to discover them from
