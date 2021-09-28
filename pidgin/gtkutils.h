@@ -64,52 +64,6 @@ typedef gboolean (*PidginFilterBuddyCompletionEntryFunc) (const PidginBuddyCompl
 G_BEGIN_DECLS
 
 /**
- * pidgin_dialog_get_vbox_with_properties:
- * @dialog:       The dialog window
- * @homogeneous:  TRUE if all children are to be given equal space allotments.
- * @spacing:      the number of pixels to place by default between children
- *
- * Retrieves the main content box (vbox) from a pidgin dialog window
- *
- * Returns: (transfer none): The main vbox from @dialog.
- */
-GtkWidget *pidgin_dialog_get_vbox_with_properties(GtkDialog *dialog, gboolean homogeneous, gint spacing);
-
-/**
- * pidgin_dialog_get_vbox:
- * @dialog:       The dialog window
- *
- * Retrieves the main content box (vbox) from a pidgin dialog window
- *
- * Returns: (transfer none): the main vbox from @dialog.
- */
-GtkWidget *pidgin_dialog_get_vbox(GtkDialog *dialog);
-
-/**
- * pidgin_dialog_add_button:
- * @dialog: The dialog window
- * @label: The label for the button
- * @callback: (scope call): The callback function for the button
- * @callbackdata: The user data for the callback function
- *
- * Add a button to a dialog created by #pidgin_create_dialog.
- *
- * Returns: (transfer full): The created button.
- */
-GtkWidget *pidgin_dialog_add_button(GtkDialog *dialog, const char *label,
-		GCallback callback, gpointer callbackdata);
-
-/**
- * pidgin_dialog_get_action_area:
- * @dialog:       The dialog window
- *
- * Retrieves the action area (button box) from a pidgin dialog window
- *
- * Returns: (transfer none): The action area (button box) from @dialog.
- */
-GtkWidget *pidgin_dialog_get_action_area(GtkDialog *dialog);
-
-/**
  * pidgin_separator:
  * @menu: The menu to add a separator to.
  *

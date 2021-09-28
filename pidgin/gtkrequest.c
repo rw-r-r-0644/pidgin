@@ -923,8 +923,9 @@ pidgin_request_wait(const char *title, const char *primary,
 	gtk_box_pack_start(GTK_BOX(hbox), img, FALSE, FALSE, 0);
 
 	/* Cancel button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(dialog), _("Cancel"),
-			G_CALLBACK(wait_cancel_cb), data);
+	button = gtk_dialog_add_button(GTK_DIALOG(dialog), _("Cancel"), GTK_RESPONSE_CANCEL);
+	g_signal_connect(G_OBJECT(button), "clicked",
+		G_CALLBACK(wait_cancel_cb), data);
 	gtk_widget_set_can_default(button, FALSE);
 
 	/* Vertical box */
@@ -1925,7 +1926,8 @@ pidgin_request_fields(const char *title, const char *primary,
 
 	/* Setup the main horizontal box */
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
-	gtk_container_add(GTK_CONTAINER(pidgin_dialog_get_vbox(GTK_DIALOG(win))), hbox);
+	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(win))),
+	                  hbox);
 	gtk_widget_show(hbox);
 
 	/* Dialog icon. */
@@ -1937,16 +1939,19 @@ pidgin_request_fields(const char *title, const char *primary,
 
 	pidgin_request_add_help(GTK_DIALOG(win), cpar);
 
+	i = 0;
 	for (GSList *it = extra_actions; it != NULL; it = it->next) {
 		PurpleKeyValuePair *extra_action = it->data;
 
-		button = pidgin_dialog_add_button(GTK_DIALOG(win), extra_action->key,
+		button = gtk_dialog_add_button(GTK_DIALOG(win), extra_action->key, i++);
+		g_signal_connect(G_OBJECT(button), "clicked",
 				G_CALLBACK(multifield_extra_cb), data);
 		g_object_set_data(G_OBJECT(button), "extra-cb", extra_action->value);
 	}
 
 	/* Cancel button */
-	button = pidgin_dialog_add_button(GTK_DIALOG(win), cancel_text,
+	button = gtk_dialog_add_button(GTK_DIALOG(win), cancel_text, GTK_RESPONSE_CANCEL);
+	g_signal_connect(G_OBJECT(button), "clicked",
 			G_CALLBACK(multifield_cancel_cb), data);
 	gtk_widget_set_can_default(button, TRUE);
 
@@ -1954,7 +1959,8 @@ pidgin_request_fields(const char *title, const char *primary,
 	if (!ok_btn) {
 		gtk_window_set_default(GTK_WINDOW(win), button);
 	} else {
-		button = pidgin_dialog_add_button(GTK_DIALOG(win), ok_text,
+		button = gtk_dialog_add_button(GTK_DIALOG(win), ok_text, GTK_RESPONSE_OK);
+		g_signal_connect(G_OBJECT(button), "clicked",
 				G_CALLBACK(multifield_ok_cb), data);
 		data->ok_button = button;
 		gtk_widget_set_can_default(button, TRUE);
