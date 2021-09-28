@@ -259,33 +259,9 @@ if get_option('gtkui')
 	gtk = dependency('gtk+-3.0', version : '>= 3.24.0')
 	libhandy = dependency('libhandy-1', version : '>= 1')
 
-	talkatu_dep = dependency('talkatu', version: '>=0.1.0', required : false)
-	if talkatu_dep.found()
-		talkatu_docpath = talkatu_dep.get_pkgconfig_variable('prefix') / 'share/gtk-doc/html'
-
-		if enable_introspection
-			talkatu_gir = 'Talkatu-0.0'
-			talkatu_include_directories = include_directories(
-			    talkatu_dep.get_pkgconfig_variable('prefix') / 'share/gir-1.0')
-		else
-			talkatu_include_directories = []
-		endif
-	else
-		talkatu_proj = subproject('talkatu',
-		    default_options : [
-		        'doc=' + get_option('doc').to_string(),
-		        'introspection=' + enable_introspection.to_string(),
-		        'nls=' + get_option('nls').to_string(),
-		    ]
-		)
-		talkatu_dep = talkatu_proj.get_variable('talkatu_dep')
-
-		talkatu_docpath = meson.project_build_root() / 'subprojects/talkatu/talkatu/reference/'
-		if enable_introspection
-			talkatu_gir = talkatu_proj.get_variable('talkatu_gir')[0]
-		endif
-		talkatu_include_directories = []
-	endif
+	talkatu_dep = dependency('talkatu',
+		version: '>=0.1.0',
+		fallback: ['talkatu', 'talkatu_dep'])
 endif	# GTK
 
 ENABLE_GTK = get_option('gtkui')
