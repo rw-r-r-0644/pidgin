@@ -793,6 +793,10 @@ version 3.0.0 (??/??/????):
 		* pidgin_create_status_icon
 		* pidgin_create_window, use pidgin_window_new instead.
 		* PIDGIN_DIALOG
+		* pidgin_dialog_add_button
+		* pidgin_dialog_get_action_area
+		* pidgin_dialog_get_vbox
+		* pidgin_dialog_get_vbox_with_properties
 		* pidgin_dialogs_alias_contact
 		* pidgin_make_mini_dialog_with_custom_icon; use
 		  pidgin_mini_dialog_new_with_custom_icon instead.

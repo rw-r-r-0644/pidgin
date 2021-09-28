@@ -571,7 +571,8 @@ pidgin_status_window_show(void)
 	g_signal_connect(win, "response", G_CALLBACK(response_cb), dialog);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
+	vbox = gtk_dialog_get_content_area(GTK_DIALOG(win));
+	gtk_box_set_spacing(GTK_BOX(vbox), 12);
 
 	/* List of saved status states */
 	list = create_saved_status_list(dialog);
@@ -1117,7 +1118,8 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	                 dialog);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
+	vbox = gtk_dialog_get_content_area(GTK_DIALOG(win));
+	gtk_box_set_spacing(GTK_BOX(vbox), 12);
 
 	sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
@@ -1416,7 +1418,8 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	                 dialog);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
+	vbox = gtk_dialog_get_content_area(GTK_DIALOG(win));
+	gtk_box_set_spacing(GTK_BOX(vbox), 12);
 
 	sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 

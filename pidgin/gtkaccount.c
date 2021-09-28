@@ -1572,7 +1572,8 @@ pidgin_account_dialog_show_continue(PidginAccountDialogType type,
 	                 dialog);
 
 	/* Setup the vbox */
-	main_vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 6);
+	main_vbox = gtk_dialog_get_content_area(GTK_DIALOG(win));
+	gtk_box_set_spacing(GTK_BOX(main_vbox), 6);
 
 	dialog->notebook = notebook = gtk_notebook_new();
 	gtk_box_pack_start(GTK_BOX(main_vbox), notebook, FALSE, FALSE, 0);
@@ -2393,7 +2394,8 @@ pidgin_accounts_window_show(void)
 	                 accounts_window);
 
 	/* Setup the vbox */
-	vbox = pidgin_dialog_get_vbox_with_properties(GTK_DIALOG(win), FALSE, 12);
+	vbox = gtk_dialog_get_content_area(GTK_DIALOG(win));
+	gtk_box_set_spacing(GTK_BOX(vbox), 12);
 
 	/* Setup the scrolled window that will contain the list of accounts. */
 	sw = create_accounts_list(dialog);
