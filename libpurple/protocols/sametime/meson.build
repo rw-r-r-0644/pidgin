@@ -11,5 +11,7 @@ if DYNAMIC_SAMETIME
 	    dependencies : [meanwhile, gmime, libpurple_dep, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
+
 	subdir('tests')
 endif

@@ -74,4 +74,6 @@ if DYNAMIC_ZEPHYR
 	    c_args : '-Dlint',
 	    dependencies : [extdep, libpurple_dep, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
+
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
 endif

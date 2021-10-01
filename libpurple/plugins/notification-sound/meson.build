@@ -5,5 +5,6 @@ if target_machine.system() != 'windows'
 		dependencies : [libpurple_dep, glib, CANBERRA],
 		name_prefix : '',
 		install : true, install_dir : PURPLE_PLUGINDIR)
-endif
 
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
+endif

@@ -8,3 +8,4 @@ library('xmppconsole',
     name_prefix : '',
     install : true, install_dir : PIDGIN_PLUGINDIR)
 
+devenv.append('PIDGIN_PLUGIN_PATH', meson.current_build_dir())

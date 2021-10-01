@@ -53,4 +53,6 @@ if DYNAMIC_GG
 	gg_prpl = shared_library('gg', GG_SOURCES,
 	    dependencies : [libgadu, json, libpurple_dep, libsoup, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
+
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
 endif

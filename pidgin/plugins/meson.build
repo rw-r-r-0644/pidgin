@@ -43,3 +43,4 @@ if enable_unity
 	    install : true, install_dir : PIDGIN_PLUGINDIR)
 endif
 
+devenv.append('PIDGIN_PLUGIN_PATH', meson.current_build_dir())

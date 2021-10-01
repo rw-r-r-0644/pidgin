@@ -16,3 +16,4 @@ xmppdisco = library('xmppdisco', xmppdisco_SOURCES,
     name_prefix : '',
     install : true, install_dir : PIDGIN_PLUGINDIR)
 
+devenv.append('PIDGIN_PLUGIN_PATH', meson.current_build_dir())

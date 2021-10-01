@@ -27,4 +27,6 @@ if DYNAMIC_NOVELL
 	novell_prpl = shared_library('novell', NOVELL_SOURCES,
 	    dependencies : [libpurple_dep, glib, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
+
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
 endif
