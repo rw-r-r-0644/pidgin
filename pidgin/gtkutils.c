@@ -227,27 +227,27 @@ pidgin_create_icon_from_protocol(PurpleProtocol *protocol,
                                  PidginProtocolIconSize size,
                                  PurpleAccount *account)
 {
-	GInputStream *stream = NULL;
 	GdkPixbuf *pixbuf;
 	const char *protoname = NULL;
 	const gchar *icon_name = NULL;
 	char *tmp;
-	char *filename = NULL;
+	GtkIconTheme *theme = NULL;
+	gint dimensions = 0;
+
+	theme = gtk_icon_theme_get_default();
+	if(size == PIDGIN_PROTOCOL_ICON_SMALL) {
+		dimensions = 16;
+	} else if(size == PIDGIN_PROTOCOL_ICON_MEDIUM) {
+		dimensions = 22;
+	} else {
+		dimensions = 48;
+	}
 
 	/* If the protocol specified an icon-name try to load it from the icon
 	 * theme.
 	 */
 	icon_name = purple_protocol_get_icon_name(protocol);
 	if(icon_name != NULL) {
-		GtkIconTheme *theme = gtk_icon_theme_get_default();
-		gint dimensions = 48;
-
-		if(size == PIDGIN_PROTOCOL_ICON_SMALL) {
-			dimensions = 16;
-		} else if(size == PIDGIN_PROTOCOL_ICON_MEDIUM) {
-			dimensions = 22;
-		}
-
 		pixbuf = gtk_icon_theme_load_icon(theme, icon_name, dimensions,
 		                                  GTK_ICON_LOOKUP_FORCE_SIZE, NULL);
 
@@ -258,25 +258,18 @@ pidgin_create_icon_from_protocol(PurpleProtocol *protocol,
 	}
 
 	protoname = purple_protocol_get_list_icon(protocol, account, NULL);
-	if (protoname == NULL)
+	if (protoname == NULL) {
 		return NULL;
+	}
 
 	/*
 	 * Status icons will be themeable too, and then it will look up
 	 * protoname from the theme
 	 */
-	tmp = g_strconcat("im-", protoname, ".png", NULL);
-
-	filename = g_build_filename(PURPLE_DATADIR,
-		"pidgin", "icons", "hicolor",
-		(size == PIDGIN_PROTOCOL_ICON_SMALL) ? "16x16" :
-			((size == PIDGIN_PROTOCOL_ICON_MEDIUM) ? "22x22" :
-				"48x48"),
-		"apps", tmp, NULL);
+	tmp = g_strconcat("im-", protoname, NULL);
+	pixbuf = gtk_icon_theme_load_icon(theme, tmp, dimensions,
+					  GTK_ICON_LOOKUP_FORCE_SIZE, NULL);
 	g_free(tmp);
-
-	pixbuf = pidgin_pixbuf_new_from_file(filename);
-	g_free(filename);
 
 	return pixbuf;
 }
