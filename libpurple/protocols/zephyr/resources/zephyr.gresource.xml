@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/im/pidgin/libpurple/zephyr">
+    <file>icons/16x16/apps/im-zephyr.png</file>
+    <file>icons/16x16/apps/scalable/im-zephyr.svg</file>
+    <file>icons/22x22/apps/im-zephyr.png</file>
+    <file>icons/22x22/apps/scalable/im-zephyr.svg</file>
+    <file>icons/48x48/apps/im-zephyr.png</file>
+    <file>icons/scalable/apps/im-zephyr.svg</file>
+  </gresource>
+</gresources>

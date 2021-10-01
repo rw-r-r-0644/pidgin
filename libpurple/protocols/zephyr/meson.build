@@ -70,6 +70,12 @@ else
 endif
 
 if DYNAMIC_ZEPHYR
+	zephyr_resources = gnome.compile_resources('zephyrresource',
+		'resources/zephyr.gresource.xml',
+		source_dir : 'resources',
+		c_name : 'zephyr')
+	ZEPHYR_SOURCES += zephyr_resources
+
 	zephyr_prpl = shared_library('zephyr', ZEPHYR_SOURCES,
 	    c_args : '-Dlint',
 	    dependencies : [extdep, libpurple_dep, glib],
