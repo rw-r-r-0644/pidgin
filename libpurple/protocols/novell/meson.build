@@ -24,6 +24,12 @@ NOVELL_SOURCES = [
 ]
 
 if DYNAMIC_NOVELL
+	novell_resources = gnome.compile_resources('novellresource',
+		'resources/novell.gresource.xml',
+		source_dir : 'resources',
+		c_name : 'novell')
+	NOVELL_SOURCES += novell_resources
+
 	novell_prpl = shared_library('novell', NOVELL_SOURCES,
 	    dependencies : [libpurple_dep, glib, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)

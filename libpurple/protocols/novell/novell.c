@@ -3641,6 +3641,8 @@ novell_protocol_new(void) {
 		"id", "prpl-novell",
 		"name", "GroupWise",
 		"description", "GroupWise is a messaging and collaboration platform from Micro Focus",
+		"icon-name", "im-novell",
+		"icon-resource-path", "/im/pidgin/libpurple/novell/icons",
 		NULL));
 }
 
