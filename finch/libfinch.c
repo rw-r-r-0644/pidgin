@@ -83,6 +83,7 @@ init_libpurple(int argc, char **argv)
 	gboolean debug_enabled = FALSE;
 	GOptionContext *context;
 	gchar **args;
+	const gchar *plugin_path = NULL;
 	GError *error = NULL;
 
 	GOptionEntry option_entries[] = {
@@ -169,6 +170,19 @@ init_libpurple(int argc, char **argv)
 				"Initialization of the Purple core failed. Dumping core.\n"
 				"Please report this!\n");
 		abort();
+	}
+
+	plugin_path = g_getenv("FINCH_PLUGIN_PATH");
+	if (plugin_path) {
+		gchar **paths;
+		gint i;
+
+		paths = g_strsplit(plugin_path, G_SEARCHPATH_SEPARATOR_S, 0);
+		for (i = 0; paths[i]; ++i) {
+			purple_plugins_add_search_path(paths[i]);
+		}
+
+		g_strfreev(paths);
 	}
 
 	path = g_build_filename(purple_data_dir(), "plugins", NULL);
