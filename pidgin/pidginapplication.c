@@ -480,6 +480,7 @@ pidgin_application_startup(GApplication *application) {
 	GError *error = NULL;
 	GList *active_accounts = NULL;
 	gchar *search_path = NULL;
+	const gchar *plugin_path = NULL;
 	gpointer handle = NULL;
 
 	G_APPLICATION_CLASS(pidgin_application_parent_class)->startup(application);
@@ -529,6 +530,19 @@ pidgin_application_startup(GApplication *application) {
 				_("Initialization of the libpurple core failed. Aborting!\n"
 				  "Please report this!\n"));
 		g_abort();
+	}
+
+	plugin_path = g_getenv("PIDGIN_PLUGIN_PATH");
+	if (plugin_path) {
+		gchar **paths;
+		gint i;
+
+		paths = g_strsplit(plugin_path, G_SEARCHPATH_SEPARATOR_S, 0);
+		for (i = 0; paths[i]; ++i) {
+			purple_plugins_add_search_path(paths[i]);
+		}
+
+		g_strfreev(paths);
 	}
 
 	if(g_getenv("PURPLE_PLUGINS_SKIP")) {
