@@ -26,6 +26,12 @@ else
 endif
 
 if DYNAMIC_BONJOUR
+	bonjour_resources = gnome.compile_resources('bonjourresource',
+		'resources/bonjour.gresource.xml',
+		source_dir : 'resources',
+		c_name : 'bonjour')
+	BONJOUR_SOURCES += bonjour_resources
+
 	bonjour_prpl = shared_library('bonjour', BONJOUR_SOURCES,
 	    link_args : bonjour_link_args,
 	    dependencies : [libxml, avahi, libpurple_dep, glib, nice, ws2_32],
