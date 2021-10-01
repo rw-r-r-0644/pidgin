@@ -30,4 +30,6 @@ if DYNAMIC_BONJOUR
 	    link_args : bonjour_link_args,
 	    dependencies : [libxml, avahi, libpurple_dep, glib, nice, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
+
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
 endif

@@ -1,6 +1,9 @@
 ##############################################################################
 # General Options
 
+option('devenv-config-dir', type : 'string',
+       description : 'config directory for running a devenv (defaults to a subdirectory of buildroot)')
+
 option('doc', type : 'boolean', value : false,
        description : 'build documentation with gtk-doc')
 

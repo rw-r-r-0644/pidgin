@@ -40,3 +40,5 @@ purple_toast = library('purple-toast', 'purple-toast.c',
 	dependencies : [libpurple_dep],
 	name_prefix: '',
 	install : true, install_dir : PURPLE_PLUGINDIR)
+
+devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())

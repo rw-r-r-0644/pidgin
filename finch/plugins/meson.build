@@ -31,3 +31,4 @@ grouping = library('grouping', 'grouping.c',
     name_prefix : '',
     install : true, install_dir : FINCH_PLUGINDIR)
 
+devenv.append('FINCH_PLUGIN_PATH', meson.current_build_dir())

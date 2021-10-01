@@ -28,4 +28,6 @@ if DYNAMIC_FACEBOOK
 	facebook_dep = declare_dependency(
 	    link_with : facebook_prpl,
 	    dependencies : [json, libpurple_dep, glib])
+
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
 endif

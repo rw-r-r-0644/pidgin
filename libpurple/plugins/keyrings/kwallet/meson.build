@@ -14,5 +14,6 @@ if kwallet.found()
 	    dependencies : [kwallet, qt5_dep, libpurple_dep],
 	    name_prefix : '',
 	    install : true, install_dir : PURPLE_PLUGINDIR)
-endif
 
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
+endif

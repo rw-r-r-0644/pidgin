@@ -75,6 +75,9 @@ package_revision = vcs_tag(
     output : 'package_revision.h',
     fallback : meson.project_version())
 
+# For running `meson devenv`.
+devenv = environment()
+
 # For man pages.
 man_conf.set('VERSION', meson.project_version())
 man_conf.set('prefix', get_option('prefix'))
@@ -665,6 +668,16 @@ subdir('po')
 
 configure_file(output : 'config.h',
     configuration : conf)
+
+if meson.version().version_compare('>=0.58.0')
+	config_home = get_option('devenv-config-dir')
+	if config_home == ''
+		config_home = meson.build_root() / 'config'
+	endif
+	devenv.set('XDG_CONFIG_HOME', config_home)
+
+	meson.add_devenv(devenv)
+endif
 
 summary({
     'prefix': get_option('prefix'),

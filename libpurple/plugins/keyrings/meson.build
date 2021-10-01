@@ -22,3 +22,6 @@ if IS_WIN32
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 endif
 
+if nettle.found() or secretservice.found() or IS_WIN32
+	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
+endif
