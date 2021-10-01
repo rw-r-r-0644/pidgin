@@ -91,6 +91,12 @@ endif
 if DYNAMIC_JABBER
 	idn = dependency('libidn', version : '>= 0.0.0')
 
+	xmpp_resources = gnome.compile_resources('xmppresource',
+		'resources/xmpp.gresource.xml',
+		source_dir : 'resources',
+		c_name : 'xmpp')
+	JABBER_SOURCES += xmpp_resources
+
 	jabber_prpl = shared_library('jabber', JABBER_SOURCES,
 	    link_args : jabber_link_args,
 	    dependencies : [gstreamer, idn, libxml, sasl, libpurple_dep, libsoup, glib, gio, math, nice, ws2_32],

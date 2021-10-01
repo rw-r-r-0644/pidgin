@@ -140,6 +140,8 @@ xmpp_protocol_new(void) {
 		"id", XMPP_PROTOCOL_ID,
 		"name", "XMPP",
 		"description", "Extensible Messaging and Presence Protocol for IM, voice and video",
+		"icon-name", "im-jabber",
+		"icon-resource-path", "/im/pidgin/libpurple/xmpp/icons",
 		"options", options,
 		NULL
 	));
