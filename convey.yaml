@@ -1,9 +1,9 @@
+---
 environment:
-  - PACKAGECLOUD_REPO=experimental
-  - ARCH=amd64
   - BUILD_NUMBER
-  - REGISTRY_HOST=docker.io
   - REPOSITORY=pidgin/builders
+  - REGISTRY=docker.io
+  - DOCS_BUILD_IMAGE=${REGISTRY}/${REPOSITORY}:debian-bookworm-amd64
 
 tasks:
   import:
@@ -12,26 +12,47 @@ tasks:
 
   build:
     type: docker/run
-    image: ${REGISTRY_HOST}/${REPOSITORY}:${DISTRO}-${VERSION}-${ARCH}
+    image: ${REGISTRY}/${REPOSITORY}:${TARGET}
 
   clean:
     type: convey/clean
     files:
       - appimage-x86_64
-      - pvs-studio
+      - clang
+      - debian-bullseye-amd64
+      - debian-bookworm-amd64
+      - fedora-34-amd64
       - scanbuild
+      - ubuntu-hirsute-amd64
+
+  docs-clean:
+    type: convey/clean
+    files:
+      - facebook3-docs
+      - finch3-docs
+      - pidgin3-docs
+      - purple3-docs
+
+  docs-build:
+    type: docker/run
+    image: ${DOCS_BUILD_IMAGE}
+    workdir: ${CONVEY_WORKSPACE}
+    script:
+      - set -ex
+      - meson -Ddoc=true build-docs
+      - ninja -C build-docs doc
+
+  docs-export:
+    type: docker/export
+    files:
+      - build-docs/doc/reference/finch/html/:finch3-docs
+      - build-docs/doc/reference/libpurple/html/:purple3-docs
+      - build-docs/doc/reference/pidgin/html/:pidgin3-docs
+      - build-docs/doc/reference/protocols/facebook/html/:facebook3-docs
 
   export:
     type: docker/export
-    files: ${DISTRO}-${VERSION}-${ARCH}
-
-  build-target:
-    type: docker/run
-    image: ${REGISTRY_HOST}/${REPOSITORY}:${TARGET}
-
-  export-target:
-    type: docker/export
-    files: ${TARGET}
+    files: build-${TARGET}:${TARGET}
 
 plans:
   pidgin3-appimage-x86_64:
@@ -43,50 +64,54 @@ plans:
       - RECIPE=Pidgin3
       - CONFIGURE_ARGS=-Dconsoleui=False
     stages:
-      - tasks: [import, build-target, export-target]
+      - tasks: [import, build, export]
 
   clang:
     environment: [TARGET=clang]
     stages:
-      - tasks: [import, build-target]
+      - tasks: [import, build]
+      - tasks: [export]
+        run: always
 
   clean:
     stages:
-      - tasks: [clean]
+      - tasks: [clean, docs-clean]
 
-  debian:
+  debian-bullseye-amd64:
     environment: [TARGET=debian-bullseye-amd64]
     stages:
-      - tasks: [import, build-target]
+      - tasks: [import, build]
+      - tasks: [export]
+        run: always
 
-  fedora:
-    environment: [TARGET=fedora-34-amd64]
-    stages:
-      - tasks: [import, build-target]
-
-  mingw-w64-x86_64:
-    environment: [DISTRO=mingw, VERSION=w64, ARCH=x86_64]
+  debian-bookworm-amd64:
+    environment: [TARGET=debian-bookworm-amd64]
     stages:
       - tasks: [import, build]
+      - tasks: [export]
+        run: always
 
-  pvs-studio:
-    environment:
-      - TARGET=pvs-studio
-      - PVS_STUDIO_USERNAME
-      - PVS_STUDIO_KEY
+  docs:
     stages:
-      - tasks: [import, build-target]
-      - tasks: [export-target]
+      - tasks: [docs-clean, import, docs-build, docs-export]
+
+  fedora-34-amd64:
+    environment: [TARGET=fedora-34-amd64]
+    stages:
+      - tasks: [import, build]
+      - tasks: [export]
         run: always
 
   scanbuild:
     environment: [TARGET=scanbuild]
     stages:
-      - tasks: [import, build-target]
-      - tasks: [export-target]
+      - tasks: [import, build]
+      - tasks: [export]
         run: always
 
-  ubuntu:
+  ubuntu-hirsute-amd64:
     environment: [TARGET=ubuntu-hirsute-amd64]
     stages:
-      - tasks: [import, build-target]
+      - tasks: [import, build]
+      - tasks: [export]
+        run: always
