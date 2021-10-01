@@ -50,6 +50,12 @@ GG_SOURCES = [
 ]
 
 if DYNAMIC_GG
+	gg_resources = gnome.compile_resources('ggresource',
+		'resources/gg.gresource.xml',
+		source_dir : 'resources',
+		c_name : 'gg')
+	GG_SOURCES += gg_resources
+
 	gg_prpl = shared_library('gg', GG_SOURCES,
 	    dependencies : [libgadu, json, libpurple_dep, libsoup, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
