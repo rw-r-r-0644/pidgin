@@ -5396,6 +5396,8 @@ mw_protocol_new(void) {
     "id", PROTOCOL_ID,
     "name", PROTOCOL_NAME,
     "description", PROTOCOL_DESCRIPTION,
+    "icon-name", "im-meanwhile",
+    "icon-resource-path", "/im/pidgin/libpurple/sametime/icons",
     NULL));
 }
 
