@@ -49,7 +49,7 @@
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidgingdkpixbuf.h"
-#include "pidginstock.h"
+#include "pidginiconname.h"
 
 /* Timeout for typing notifications in seconds */
 #define TYPING_TIMEOUT 4
@@ -145,8 +145,8 @@ enum {
 	/* A PidginStatusBoxItemType */
 	TYPE_COLUMN,
 
-	/* This is the stock-id for the icon. */
-	ICON_STOCK_COLUMN,
+	/* This is the icon-name for the icon. */
+	ICON_NAME_COLUMN,
 
 	/*
 	 * This is a GdkPixbuf (the other columns are strings).
@@ -398,7 +398,7 @@ pidgin_status_box_refresh(PidginStatusBox *status_box)
 	const char *aa_color;
 	PurpleSavedStatus *saved_status;
 	char *primary, *secondary, *text;
-	const char *stock = NULL;
+	const char *icon_name = NULL;
 	GdkPixbuf *emblem = NULL;
 	GtkTreePath *path;
 	gboolean account_status = FALSE;
@@ -452,7 +452,7 @@ pidgin_status_box_refresh(PidginStatusBox *status_box)
 			prim = purple_savedstatus_get_primitive_type(saved_status);
 	    }
 
-		stock = pidgin_stock_id_from_status_primitive(prim);
+		icon_name = pidgin_icon_name_from_status_primitive(prim, "user-offline");
 	}
 
 	aa_color = pidgin_get_dim_grey_string(GTK_WIDGET(status_box));
@@ -475,7 +475,7 @@ pidgin_status_box_refresh(PidginStatusBox *status_box)
 	 * really need to be a list store?)
 	 */
 	gtk_list_store_set(status_box->store, &(status_box->iter),
-			   ICON_STOCK_COLUMN, (gpointer)stock,
+			   ICON_NAME_COLUMN, icon_name,
 			   TEXT_COLUMN, text,
 			   EMBLEM_COLUMN, emblem,
 			   EMBLEM_VISIBLE_COLUMN, (emblem != NULL),
@@ -1318,7 +1318,7 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 	gtk_tree_view_column_pack_start(status_box->column, icon_rend, FALSE);
 	gtk_tree_view_column_pack_start(status_box->column, text_rend, TRUE);
 	gtk_tree_view_column_pack_start(status_box->column, emblem_rend, FALSE);
-	gtk_tree_view_column_set_attributes(status_box->column, icon_rend, "stock-id", ICON_STOCK_COLUMN, NULL);
+	gtk_tree_view_column_set_attributes(status_box->column, icon_rend, "icon-name", ICON_NAME_COLUMN, NULL);
 	gtk_tree_view_column_set_attributes(status_box->column, text_rend, "markup", TEXT_COLUMN, NULL);
 	gtk_tree_view_column_set_attributes(status_box->column, emblem_rend, "icon-name", EMBLEM_COLUMN, "visible", EMBLEM_VISIBLE_COLUMN, NULL);
 
@@ -1339,7 +1339,7 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(status_box->cell_view), status_box->icon_rend, FALSE);
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(status_box->cell_view), status_box->text_rend, TRUE);
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(status_box->cell_view), emblem_rend, FALSE);
-	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(status_box->cell_view), status_box->icon_rend, "stock-id", ICON_STOCK_COLUMN, NULL);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(status_box->cell_view), status_box->icon_rend, "icon-name", ICON_NAME_COLUMN, NULL);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(status_box->cell_view), status_box->text_rend, "markup", TEXT_COLUMN, NULL);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(status_box->cell_view), emblem_rend, "pixbuf", EMBLEM_COLUMN, "visible", EMBLEM_VISIBLE_COLUMN, NULL);
 	g_object_set(status_box->text_rend, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
@@ -1538,7 +1538,7 @@ pidgin_status_box_add(PidginStatusBox *status_box, PidginStatusBoxItemType type,
 {
 	GtkTreeIter iter;
 	char *text;
-	const char *stock = NULL;
+	const char *icon_name = NULL;
 
 	if (desc == NULL)
 	{
@@ -1572,13 +1572,13 @@ pidgin_status_box_add(PidginStatusBox *status_box, PidginStatusBoxItemType type,
 			}
 		}
 
-		stock = pidgin_stock_id_from_status_primitive(prim);
+		icon_name = pidgin_icon_name_from_status_primitive(prim, "user-offline");
 	}
 
 	gtk_list_store_append(status_box->dropdown_store, &iter);
 	gtk_list_store_set(status_box->dropdown_store, &iter,
 			TYPE_COLUMN, type,
-			ICON_STOCK_COLUMN, stock,
+			ICON_NAME_COLUMN, icon_name,
 			TEXT_COLUMN, text,
 			TITLE_COLUMN, title,
 			DESC_COLUMN, desc,
