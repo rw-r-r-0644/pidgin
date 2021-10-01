@@ -3521,12 +3521,12 @@ pidgin_blist_get_status_icon(PurpleBlistNode *node, PidginStatusIconSize size)
 {
 	GdkPixbuf *ret;
 	const char *icon = NULL;
+	gboolean trans = FALSE;
 	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(node), UI_DATA);
 	PidginBlistNode *gtkbuddynode = NULL;
 	PurpleBuddy *buddy = NULL;
 	PurpleChat *chat = NULL;
-	GtkIconSize icon_size = gtk_icon_size_from_name((size == PIDGIN_STATUS_ICON_LARGE) ? PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL :
-											 PIDGIN_ICON_SIZE_TANGO_MICROSCOPIC);
+	gint icon_size = (size == PIDGIN_STATUS_ICON_LARGE) ? 16 : 11;
 
 	if(PURPLE_IS_CONTACT(node)) {
 		if(!gtknode->contact_expanded) {
@@ -3559,58 +3559,54 @@ pidgin_blist_get_status_icon(PurpleBlistNode *node, PidginStatusIconSize size)
 	}
 
 	if(buddy) {
-	  	PurpleConversation *conv = find_conversation_with_buddy(buddy);
-		PurplePresence *p;
-		gboolean trans;
+		PurpleConversation *conv = find_conversation_with_buddy(buddy);
 
 		if(conv != NULL) {
 			PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
 			if (gtkconv == NULL && size == PIDGIN_STATUS_ICON_SMALL) {
 				PidginBlistNode *ui = g_object_get_data(G_OBJECT(buddy), UI_DATA);
-				if (ui == NULL || (ui->conv.flags & PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE))
-					return gtk_widget_render_icon (GTK_WIDGET(gtkblist->treeview),
-							PIDGIN_STOCK_STATUS_MESSAGE, icon_size, "GtkTreeView");
+				if (ui == NULL || (ui->conv.flags & PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE)) {
+					icon = "message-new";
+				}
 			}
 		}
 
-		p = purple_buddy_get_presence(buddy);
-		trans = purple_presence_is_idle(p);
+		if (icon == NULL) { /* The conversation didn't have a new message. */
+			PurplePresence *p = purple_buddy_get_presence(buddy);
+			trans = purple_presence_is_idle(p);
 
-		if (PURPLE_BUDDY_IS_ONLINE(buddy) && gtkbuddynode && gtkbuddynode->recent_signonoff)
-			icon = PIDGIN_STOCK_STATUS_LOGIN;
-		else if (gtkbuddynode && gtkbuddynode->recent_signonoff)
-			icon = PIDGIN_STOCK_STATUS_LOGOUT;
-		else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_UNAVAILABLE))
-			if (trans)
-				icon = PIDGIN_STOCK_STATUS_BUSY_I;
-			else
-				icon = PIDGIN_STOCK_STATUS_BUSY;
-		else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_AWAY))
-			if (trans)
-				icon = PIDGIN_STOCK_STATUS_AWAY_I;
-		 	else
-				icon = PIDGIN_STOCK_STATUS_AWAY;
-		else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_EXTENDED_AWAY))
-			if (trans)
-				icon = PIDGIN_STOCK_STATUS_XA_I;
-			else
-				icon = PIDGIN_STOCK_STATUS_XA;
-		else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_OFFLINE))
-			icon = PIDGIN_STOCK_STATUS_OFFLINE;
-		else if (trans)
-			icon = PIDGIN_STOCK_STATUS_AVAILABLE_I;
-		else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_INVISIBLE))
-			icon = PIDGIN_STOCK_STATUS_INVISIBLE;
-		else
-			icon = PIDGIN_STOCK_STATUS_AVAILABLE;
+			if (PURPLE_BUDDY_IS_ONLINE(buddy) && gtkbuddynode && gtkbuddynode->recent_signonoff) {
+				icon = "log-in";
+			} else if (gtkbuddynode && gtkbuddynode->recent_signonoff) {
+				icon = "log-out";
+			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_UNAVAILABLE)) {
+				icon = "pidgin-user-busy";
+			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_AWAY)) {
+				icon = "pidgin-user-away";
+			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_EXTENDED_AWAY)) {
+				icon = "pidgin-user-extended-away";
+			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_OFFLINE)) {
+				icon = "pidgin-user-offline";
+			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_INVISIBLE)) {
+				icon = "pidgin-user-invisible";
+			} else {
+				icon = "pidgin-user-available";
+			}
+		}
 	} else if (chat) {
-		icon = PIDGIN_STOCK_STATUS_CHAT;
+		icon = "chat";
 	} else {
-		icon = PIDGIN_STOCK_STATUS_PERSON;
+		icon = "person";
 	}
 
-	ret = gtk_widget_render_icon (GTK_WIDGET(gtkblist->treeview), icon,
-			icon_size, "GtkTreeView");
+	ret = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(), icon, icon_size, 0, NULL);
+	if (trans) {
+		GdkPixbuf *copy = gdk_pixbuf_copy(ret);
+		g_object_unref(ret);
+		do_alphashift(copy, 77);
+		ret = copy;
+	}
+
 	return ret;
 }
 
