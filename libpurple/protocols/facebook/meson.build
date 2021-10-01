@@ -19,6 +19,12 @@ FACEBOOK_SOURCES = [
 ]
 
 if DYNAMIC_FACEBOOK
+	facebook_resources = gnome.compile_resources('facebookresource',
+		'resources/facebook.gresource.xml',
+		source_dir : 'resources',
+		c_name : 'facebook')
+	FACEBOOK_SOURCES += facebook_resources
+
 	facebook_prpl = shared_library('facebook', FACEBOOK_SOURCES,
 	    dependencies : [json, libpurple_dep, libsoup, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
