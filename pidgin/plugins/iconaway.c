@@ -88,7 +88,7 @@ icon_away_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-icon_away_unload(GPluginPlugin *plugin, GError **error)
+icon_away_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	return TRUE;
 }

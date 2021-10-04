@@ -515,7 +515,7 @@ tiny_url_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-tiny_url_unload(GPluginPlugin *plugin, GError **error) {
+tiny_url_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error) {
 	PurpleNotifyUiOps *ops = purple_notify_get_ui_ops();
 	if (ops->notify_uri == tinyurl_notify_uri)
 		ops->notify_uri = g_object_get_data(G_OBJECT(plugin), "notify-uri");

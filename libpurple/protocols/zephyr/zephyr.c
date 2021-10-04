@@ -1772,7 +1772,7 @@ zephyr_load(GPluginPlugin *plugin, GError **error)
 
 
 static gboolean
-zephyr_unload(GPluginPlugin *plugin, GError **error)
+zephyr_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 

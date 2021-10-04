@@ -662,7 +662,7 @@ xmpp_disco_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-xmpp_disco_unload(GPluginPlugin *plugin, GError **error)
+xmpp_disco_unload(GPluginPlugin *plugin, gboolean unload, GError **error)
 {
 	g_hash_table_destroy(iq_callbacks);
 	iq_callbacks = NULL;

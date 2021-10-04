@@ -5458,7 +5458,7 @@ sametime_load(GPluginPlugin *plugin, GError **error)
 
 
 static gboolean
-sametime_unload(GPluginPlugin *plugin, GError **error)
+sametime_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
   PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 

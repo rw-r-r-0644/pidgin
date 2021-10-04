@@ -159,7 +159,7 @@ psychic_load(GPluginPlugin *plugin, GError **error) {
 
 
 static gboolean
-psychic_unload(GPluginPlugin *plugin, GError **error) {
+psychic_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error) {
 
   return TRUE;
 }

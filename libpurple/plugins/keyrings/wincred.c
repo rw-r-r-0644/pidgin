@@ -411,7 +411,10 @@ wincred_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-wincred_unload(G_GNUC_UNUSED GPluginPlugin *plugin, GError **error) {
+wincred_unload(G_GNUC_UNUSED GPluginPlugin *plugin,
+               G_GNUC_UNUSED gboolean shutdown,
+               GError **error)
+{
 	PurpleCredentialManager *manager = NULL;
 	gboolean ret = FALSE;
 

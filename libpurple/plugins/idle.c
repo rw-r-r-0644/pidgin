@@ -301,7 +301,7 @@ idle_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-idle_unload(GPluginPlugin *plugin, GError **error)
+idle_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	unidle_all_action(NULL);
 

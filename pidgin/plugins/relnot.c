@@ -166,7 +166,7 @@ relnot_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-relnot_unload(GPluginPlugin *plugin, GError **error)
+relnot_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	soup_session_abort(session);
 	g_clear_object(&session);

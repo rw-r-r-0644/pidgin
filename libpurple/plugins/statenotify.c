@@ -177,7 +177,7 @@ state_notify_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-state_notify_unload(GPluginPlugin *plugin, GError **error)
+state_notify_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	return TRUE;
 }

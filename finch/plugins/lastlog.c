@@ -117,7 +117,7 @@ gnt_last_log_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-gnt_last_log_unload(GPluginPlugin *plugin, GError **error) {
+gnt_last_log_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error) {
 	purple_cmd_unregister(cmd);
 	return TRUE;
 }

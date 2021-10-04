@@ -78,7 +78,7 @@ gtk_buddy_note_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-gtk_buddy_note_unload(GPluginPlugin *plugin, GError **error)
+gtk_buddy_note_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	return TRUE;
 }

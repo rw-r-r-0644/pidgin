@@ -318,7 +318,10 @@ secret_service_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-secret_service_unload(G_GNUC_UNUSED GPluginPlugin *plugin, GError **error) {
+secret_service_unload(G_GNUC_UNUSED GPluginPlugin *plugin,
+                      G_GNUC_UNUSED gboolean shutdown,
+                      GError **error)
+{
 	PurpleCredentialManager *manager = NULL;
 	gboolean ret = FALSE;
 
