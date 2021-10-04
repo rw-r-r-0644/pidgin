@@ -97,7 +97,7 @@ buddy_note_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-buddy_note_unload(GPluginPlugin *plugin, GError **error)
+buddy_note_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	return TRUE;
 }

@@ -376,7 +376,7 @@ gnt_gf_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-gnt_gf_unload(GPluginPlugin *plugin, GError **error) {
+gnt_gf_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error) {
 	while (toasters)
 	{
 		GntToast *toast = toasters->data;

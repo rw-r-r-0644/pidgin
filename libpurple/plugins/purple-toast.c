@@ -230,6 +230,7 @@ purple_toast_load(GPluginPlugin *plugin, G_GNUC_UNUSED GError **error) {
 
 static gboolean
 purple_toast_unload(G_GNUC_UNUSED GPluginPlugin *plugin,
+                    G_GNUC_UNUSED gboolean shutdown,
                     G_GNUC_UNUSED GError **error)
 {
 	return TRUE;

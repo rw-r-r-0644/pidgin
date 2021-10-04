@@ -266,7 +266,7 @@ join_part_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-join_part_unload(GPluginPlugin *plugin, GError **error)
+join_part_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	/* Destroy the hash table. The core plugin code will
 	 * disconnect the signals, and since Purple is single-threaded,

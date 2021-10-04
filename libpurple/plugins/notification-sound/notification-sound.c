@@ -287,7 +287,10 @@ notification_sound_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-notification_sound_unload(GPluginPlugin *plugin, G_GNUC_UNUSED GError **error) {
+notification_sound_unload(GPluginPlugin *plugin,
+                          G_GNUC_UNUSED gboolean shutdown,
+                          G_GNUC_UNUSED GError **error)
+{
 	purple_signals_disconnect_by_handle(plugin);
 
 	purple_notification_sound_save_prefs();

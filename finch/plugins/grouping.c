@@ -379,7 +379,7 @@ grouping_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-grouping_unload(GPluginPlugin *plugin, GError **error) {
+grouping_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error) {
 	finch_blist_uninstall_manager(&on_offline);
 	finch_blist_uninstall_manager(&meebo_group);
 	finch_blist_uninstall_manager(&no_group);

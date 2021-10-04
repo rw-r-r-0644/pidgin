@@ -148,7 +148,7 @@ gnt_clipboard_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-gnt_clipboard_unload(GPluginPlugin *plugin, GError **error) {
+gnt_clipboard_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error) {
 #ifdef HAVE_X11
 	if (child) {
 		kill(child, SIGTERM);

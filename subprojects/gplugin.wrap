@@ -1,4 +1,4 @@
 [wrap-hg]
 directory = gplugin
 url = https://keep.imfreedom.org/gplugin/gplugin
-revision = v0.34.1
+revision = v0.35.0

@@ -769,7 +769,7 @@ xmpp_console_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-xmpp_console_unload(GPluginPlugin *plugin, GError **error)
+xmpp_console_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	if (console)
 		gtk_widget_destroy(console->window);

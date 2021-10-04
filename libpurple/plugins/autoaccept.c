@@ -332,7 +332,7 @@ auto_accept_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-auto_accept_unload(GPluginPlugin *plugin, GError **error)
+auto_accept_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	return TRUE;
 }

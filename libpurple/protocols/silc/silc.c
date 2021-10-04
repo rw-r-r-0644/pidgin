@@ -2408,7 +2408,7 @@ silc_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-silc_unload(GPluginPlugin *plugin, GError **error)
+silc_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	PurpleProtocolManager *manager = purple_protocol_manager_get_default();
 

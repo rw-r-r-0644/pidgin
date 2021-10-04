@@ -280,7 +280,7 @@ gestures_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-gestures_unload(GPluginPlugin *plugin, GError **error)
+gestures_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	PurpleConversation *conv;
 	PurpleConversationManager *manager;

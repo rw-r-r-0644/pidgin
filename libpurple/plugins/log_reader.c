@@ -2706,7 +2706,7 @@ log_reader_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-log_reader_unload(GPluginPlugin *plugin, GError **error)
+log_reader_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	g_return_val_if_fail(plugin != NULL, FALSE);
 

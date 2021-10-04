@@ -315,7 +315,7 @@ if ENABLE_GTK
 		introspection_sources = libpidgin_headers + libpidgin_prefs_headers
 
 		Pidgin_gir_includes = [
-			'GObject-2.0', 'Gtk-3.0', 'GPlugin-1.0', 'GPluginGtk-1.0',
+			'GObject-2.0', 'Gtk-3.0', 'GPlugin-1.0', 'GPluginGtk3-1.0',
 			'Talkatu-0.0',
 			# subproject needs to be before libpurple in the repo so that
 			# meson will use our variables and not try to discover them from
