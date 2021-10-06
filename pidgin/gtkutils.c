@@ -165,7 +165,7 @@ GtkWidget *pidgin_new_menu_item(GtkWidget *menu, const char *mnemonic,
 
         if (icon) {
                 GtkWidget *image;
-                image = gtk_image_new_from_stock(icon, GTK_ICON_SIZE_MENU);
+                image = gtk_image_new_from_icon_name(icon, GTK_ICON_SIZE_MENU);
                 gtk_container_add(GTK_CONTAINER(box), image);
         }
 
