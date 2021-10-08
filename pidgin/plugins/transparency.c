@@ -632,7 +632,7 @@ transparency_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-transparency_unload(GPluginPlugin *plugin, GError **error) {
+transparency_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error) {
 	GtkWidget *window = NULL;
 
 	purple_debug_info(WINTRANS_PLUGIN_ID, "Unloading transparency plugin\n");

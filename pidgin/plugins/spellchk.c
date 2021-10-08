@@ -2317,7 +2317,7 @@ spell_check_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-spell_check_unload(GPluginPlugin *plugin, GError **error)
+spell_check_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	GList *convs;
 

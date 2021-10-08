@@ -959,7 +959,7 @@ notify_load(GPluginPlugin *plugin, GError **error)
 }
 
 static gboolean
-notify_unload(GPluginPlugin *plugin, GError **error)
+notify_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	GList *convs = purple_conversations_get_all();
 
