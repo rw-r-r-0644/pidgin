@@ -654,7 +654,11 @@ INSTALL_PIXMAPS = get_option('pixmaps-install')
 # check for gtk-doc
 ENABLE_DOC = get_option('doc')
 
-enable_debug = get_option('console-logging')
+if ['debug', 'debugoptimize'].contains(get_option('buildtype'))
+	enable_debug = true
+else
+	enable_debug = get_option('console-logging')
+endif
 conf.set('DEBUG', enable_debug)
 
 # So that config.h may be found.
