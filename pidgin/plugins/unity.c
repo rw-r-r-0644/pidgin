@@ -614,7 +614,7 @@ unity_load(GPluginPlugin *plugin, GError **error) {
 }
 
 static gboolean
-unity_unload(GPluginPlugin *plugin, GError **error) {
+unity_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error) {
 	GList *convs = NULL;
 	PurpleConversationManager *manager = NULL;
 
