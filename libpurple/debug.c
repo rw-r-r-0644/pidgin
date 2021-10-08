@@ -66,10 +66,6 @@ purple_debug_vargs(PurpleDebugLevel level, const gchar *category,
 		return;
 	}
 
-	if(!purple_debug_ui_is_enabled(ui, level, category)) {
-		return;
-	}
-
 	arg_s = g_strdup_vprintf(format, args);
 	g_strchomp(arg_s); /* strip trailing linefeeds */
 
@@ -113,7 +109,9 @@ purple_debug_vargs(PurpleDebugLevel level, const gchar *category,
 		g_free(ts_s);
 	}
 
-	purple_debug_ui_print(ui, level, category, arg_s);
+	if(purple_debug_ui_is_enabled(ui, level, category)) {
+		purple_debug_ui_print(ui, level, category, arg_s);
+	}
 
 	g_free(arg_s);
 }
