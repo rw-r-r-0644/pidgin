@@ -5971,7 +5971,7 @@ pidgin_conv_tab_pack(PidginConvWindow *win, PidginConversation *gtkconv)
 		gtkconv->tabby = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_widget_set_name(gtkconv->tabby, "tab-container");
 
-	/* select the correct ordering for verticle tabs */
+	/* select the correct ordering for vertical tabs */
 	if (angle == 90) {
 		first = gtkconv->close;
 		third = gtkconv->icon;

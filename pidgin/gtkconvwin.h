@@ -222,7 +222,7 @@ gboolean pidgin_conv_window_has_focus(PidginConvWindow *win);
  * pidgin_conv_window_get_at_event:
  * @event: The event
  *
- * Returns: The #PidginConvWindow on which @event occured.
+ * Returns: The #PidginConvWindow on which @event occurred.
  */
 PidginConvWindow *pidgin_conv_window_get_at_event(GdkEvent *event);
 

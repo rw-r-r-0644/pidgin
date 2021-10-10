@@ -109,7 +109,7 @@ GtkWidget *pidgin_prefs_labeled_entry(GtkWidget *page, const gchar *title,
  * @sg:    If not NULL, the size group to which the entry will be added
  *
  * Add a new entry representing a password (string) preference
- * The entry will use a password-style text entry (the text is substituded)
+ * The entry will use a password-style text entry (the text is substituted)
  *
  * Returns: (transfer full): An hbox containing both the label and the entry.  Can be used to set
  *          the widgets to sensitive or insensitive based on the value of a

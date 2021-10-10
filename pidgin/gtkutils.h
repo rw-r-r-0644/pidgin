@@ -563,7 +563,7 @@ GdkPixbuf *pidgin_pixbuf_new_from_file_at_scale(const char *filename, int width,
  * Scales the image to the desired dimensions. If image is smaller, it will be
  * returned without modifications.
  *
- * If new image is created, @src reference cound will be decreased and new image
+ * If new image is created, @src reference count will be decreased and new image
  * with a ref count of 1 will be returned.
  *
  * Returns: (transfer full): The image with proper sizing. %NULL in case of error.

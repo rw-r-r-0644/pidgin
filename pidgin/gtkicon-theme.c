@@ -29,7 +29,7 @@
  *****************************************************************************/
 
 typedef struct {
-	/* used to store filenames of diffrent icons */
+	/* used to store filenames of different icons */
 	GHashTable *icon_files;
 } PidginIconThemePrivate;
 

@@ -43,7 +43,7 @@ G_BEGIN_DECLS
 /**
  * pidgin_color_calculate_for_text:
  * @text: The text to calculate a color for.
- * @color: (out): The return address for a #GdkRGBA that will recieve the
+ * @color: (out): The return address for a #GdkRGBA that will receive the
  *         color.
  *
  * This function is based heavily on the implementation that gajim uses from

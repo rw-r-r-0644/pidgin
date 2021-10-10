@@ -2,7 +2,7 @@
  *  winpidgin.c
  *
  *  Date: June, 2002
- *  Description: Entry point for win32 pidgin, and various win32 dependant
+ *  Description: Entry point for win32 pidgin, and various win32 dependent
  *  routines.
  *
  * Pidgin is the legal property of its developers, whose names are too numerous

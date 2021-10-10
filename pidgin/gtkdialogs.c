@@ -174,7 +174,7 @@ pidgin_dialogs_ee(const char *ee)
 				     "<span weight=\"bold\" size=\"large\" foreground=\"brown\">Ahh, and excellent choice!</span>");
 	else if (purple_strequal(norm, "seanegn"))
 		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"#009900\">Everytime you click my name, an angel gets its wings.</span>");
+				     "<span weight=\"bold\" size=\"large\" foreground=\"#009900\">Every time you click my name, an angel gets its wings.</span>");
 	else if (purple_strequal(norm, "chipx86"))
 		gtk_label_set_markup(GTK_LABEL(label),
 				     "<span weight=\"bold\" size=\"large\" foreground=\"red\">This sunflower seed taste like pizza.</span>");

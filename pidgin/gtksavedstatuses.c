@@ -1454,7 +1454,7 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 
 	gtk_box_pack_start(GTK_BOX(hbox), combo, FALSE, FALSE, 0);
 
-	/* Status mesage */
+	/* Status message */
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 0);
 

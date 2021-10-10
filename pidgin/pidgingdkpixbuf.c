@@ -71,7 +71,7 @@ void pidgin_gdk_pixbuf_make_round(GdkPixbuf *pixbuf) {
 		return;
 	}
 
-	/* The following code will conver the alpha of the pixel data in all
+	/* The following code will convert the alpha of the pixel data in all
 	 * corners to look something like the following diagram.
 	 *
 	 * 00 80 c0 FF FF c0 80 00
