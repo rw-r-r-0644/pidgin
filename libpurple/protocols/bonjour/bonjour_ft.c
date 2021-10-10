@@ -494,7 +494,7 @@ xep_si_parse(PurpleConnection *pc, PurpleXmlNode *packet, PurpleBuddy *pb)
  * distinct buddies with the same ipv6 link local address on two distinct
  * interfaces. Unfortunately XEP-0065 does not seem to specify how to deal with
  * link local ip addresses properly...
- * However, in practice the possiblity for such a conflict is relatively low
+ * However, in practice the possibility for such a conflict is relatively low
  * (2011 - might be different in the future though?).
  *
  * @param host		ipv4 or ipv6 address string

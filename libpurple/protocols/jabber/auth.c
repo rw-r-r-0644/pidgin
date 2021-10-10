@@ -219,7 +219,7 @@ static void auth_old_result_cb(JabberStream *js, const char *from,
 					(err_code = purple_xmlnode_get_attrib(error, "code")) &&
 					purple_strequal(err_code, "401")) {
 			reason = PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED;
-			/* Clear the pasword if it isn't being saved */
+			/* Clear the password if it isn't being saved */
 			if(!purple_account_get_remember_password(account)) {
 				PurpleCredentialManager *manager = NULL;
 

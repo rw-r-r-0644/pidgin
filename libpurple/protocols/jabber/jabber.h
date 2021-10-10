@@ -139,8 +139,8 @@ struct _JabberStream
 	 *    roster push.
 	 * 3. We receive this roster push and modify our local blist.  This
 	 *    triggers us to send a roster add for group B.
-	 * 4. The server recieves our earlier roster add for group A and sends
-	 *    us a roster push.
+	 * 4. The server receives our earlier roster add for group A and sends us a
+	 *    roster push.
 	 * 5. We receive this roster push and modify our local blist.  This
 	 *    triggers us to send a roster add for group A.
 	 * 6. The server receives our earlier roster add for group B and sends

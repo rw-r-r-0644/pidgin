@@ -1363,9 +1363,9 @@ _add_purple_buddies(NMUser * user)
 	if (root_folder) {
 
 		/* Add sub-folders and contacts to sub-folders...
-		 * iterate throught the sub-folders in reverse order
-		 * because Purple adds the folders to the front -- so we
-		 * want to add the first folder last
+		 * iterate through the sub-folders in reverse order because
+		 * Purple adds the folders to the front -- so we want to add
+		 * the first folder last
 		 */
 		cnt = nm_folder_get_subfolder_count(root_folder);
 		for (i = cnt-1; i >= 0; i--) {
@@ -1558,23 +1558,24 @@ _show_info(PurpleConnection * gc, NMUserRecord * user_record, char * name)
 	g_free(name);
 }
 
-/* Send a join conference, the first item in the parms list is the
+/* Send a join conference, the first item in the params list is the
  * NMUser object and the second item is the conference to join.
  * This callback is passed to purple_request_action when we ask the
  * user if they want to join the conference.
  */
 static void
-_join_conference_cb(GSList * parms)
+_join_conference_cb(GSList *params)
 {
 	NMUser *user;
 	NMConference *conference;
 	NMERR_T rc = NM_OK;
 
-	if (parms == NULL || g_slist_length(parms) != 2)
+	if (params == NULL || g_slist_length(params) != 2) {
 		return;
+	}
 
-	user = g_slist_nth_data(parms, 0);
-	conference = g_slist_nth_data(parms, 1);
+	user = g_slist_nth_data(params, 0);
+	conference = g_slist_nth_data(params, 1);
 
 	if (user && conference) {
 		rc = nm_send_join_conference(user, conference,
@@ -1582,33 +1583,34 @@ _join_conference_cb(GSList * parms)
 		_check_for_disconnect(user, rc);
 	}
 
-	g_slist_free(parms);
+	g_slist_free(params);
 }
 
-/* Send a reject conference, the first item in the parms list is the
+/* Send a reject conference, the first item in the params list is the
  * NMUser object and the second item is the conference to reject.
  * This callback is passed to purple_request_action when we ask the
  * user if they want to joing the conference.
  */
 static void
-_reject_conference_cb(GSList * parms)
+_reject_conference_cb(GSList *params)
 {
 	NMUser *user;
 	NMConference *conference;
 	NMERR_T rc = NM_OK;
 
-	if (parms == NULL || g_slist_length(parms) != 2)
+	if (params == NULL || g_slist_length(params) != 2) {
 		return;
+	}
 
-	user = g_slist_nth_data(parms, 0);
-	conference = g_slist_nth_data(parms, 1);
+	user = g_slist_nth_data(params, 0);
+	conference = g_slist_nth_data(params, 1);
 
 	if (user && conference) {
 		rc = nm_send_reject_conference(user, conference, NULL, NULL);
 		_check_for_disconnect(user, rc);
 	}
 
-	g_slist_free(parms);
+	g_slist_free(params);
 }
 
 static void
@@ -1913,7 +1915,7 @@ _evt_conference_invite(NMUser * user, NMEvent * event)
 {
 	NMUserRecord *ur;
 	PurpleConnection *gc;
-	GSList *parms = NULL;
+	GSList *params = NULL;
 	const char *title = NULL;
 	const char *secondary = NULL;
 	const char *name = NULL;
@@ -1933,13 +1935,13 @@ _evt_conference_invite(NMUser * user, NMEvent * event)
 							  name, purple_date_format_full(localtime(&gmt)));
 	secondary = _("Would you like to join the conversation?");
 
-	/* Set up parms list for the callbacks
+	/* Set up params list for the callbacks
 	 * We need to send the NMUser object and
 	 * the NMConference object to the callbacks
 	 */
-	parms = NULL;
-	parms = g_slist_append(parms, user);
-	parms = g_slist_append(parms, nm_event_get_conference(event));
+	params = NULL;
+	params = g_slist_append(params, user);
+	params = g_slist_append(params, nm_event_get_conference(event));
 
 	/* Prompt the user */
 	/* TODO: Would it be better to use purple_serv_got_chat_invite() here? */
@@ -1947,7 +1949,7 @@ _evt_conference_invite(NMUser * user, NMEvent * event)
 	purple_request_action(gc, title, primary, secondary,
 						PURPLE_DEFAULT_ACTION_NONE,
 						purple_request_cpar_from_connection(gc),
-						parms, 2,
+						params, 2,
 						_("Yes"), G_CALLBACK(_join_conference_cb),
 						_("No"), G_CALLBACK(_reject_conference_cb));
 

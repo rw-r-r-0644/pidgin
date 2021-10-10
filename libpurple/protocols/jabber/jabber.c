@@ -1592,7 +1592,7 @@ jabber_unregister_account(PurpleProtocolServer *protocol_server,
 
 /* TODO: As Will pointed out in IRC, after being notified by the core to
  * shutdown, we should async. wait for the server to send us the stream
- * termination before destorying everything. That seems like it would require
+ * termination before destroying everything. That seems like it would require
  * changing the semantics of protocol's close(), so it's a good idea for 3.0.0.
  */
 void jabber_close(PurpleConnection *gc)
@@ -2736,7 +2736,7 @@ char *jabber_parse_error(JabberStream *js,
 			text = _("Authorization mechanism too weak");
 		} else if(purple_xmlnode_get_child(packet, "not-authorized")) {
 			SET_REASON(PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED);
-			/* Clear the pasword if it isn't being saved */
+			/* Clear the password if it isn't being saved */
 			if (!purple_account_get_remember_password(purple_connection_get_account(js->gc))) {
 				PurpleAccount *account = purple_connection_get_account(js->gc);
 				PurpleCredentialManager *manager = NULL;

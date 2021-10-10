@@ -176,7 +176,7 @@ fb_json_bldr_obj_end(JsonBuilder *bldr);
  * @name: The member name or #NULL.
  * @value: The value.
  *
- * Adds a boolean memeber to the #JsonBuilder.
+ * Adds a boolean member to the #JsonBuilder.
  */
 void
 fb_json_bldr_add_bool(JsonBuilder *bldr, const gchar *name, gboolean value);
@@ -187,7 +187,7 @@ fb_json_bldr_add_bool(JsonBuilder *bldr, const gchar *name, gboolean value);
  * @name: The member name or #NULL.
  * @value: The value.
  *
- * Adds a floating point memeber to the #JsonBuilder.
+ * Adds a floating point member to the #JsonBuilder.
  */
 void
 fb_json_bldr_add_dbl(JsonBuilder *bldr, const gchar *name, gdouble value);
@@ -198,7 +198,7 @@ fb_json_bldr_add_dbl(JsonBuilder *bldr, const gchar *name, gdouble value);
  * @name: The member name or #NULL.
  * @value: The value.
  *
- * Adds a integer memeber to the #JsonBuilder.
+ * Adds an integer member to the #JsonBuilder.
  */
 void
 fb_json_bldr_add_int(JsonBuilder *bldr, const gchar *name, gint64 value);
@@ -209,7 +209,7 @@ fb_json_bldr_add_int(JsonBuilder *bldr, const gchar *name, gint64 value);
  * @name: The member name or #NULL.
  * @value: The value.
  *
- * Adds a string memeber to the #JsonBuilder.
+ * Adds a string member to the #JsonBuilder.
  */
 void
 fb_json_bldr_add_str(JsonBuilder *bldr, const gchar *name, const gchar *value);
@@ -221,7 +221,7 @@ fb_json_bldr_add_str(JsonBuilder *bldr, const gchar *name, const gchar *value);
  * @format: The format string literal.
  * @...: The arguments for @format.
  *
- * Adds a formatted string memeber to the #JsonBuilder.
+ * Adds a formatted string member to the #JsonBuilder.
  */
 void
 fb_json_bldr_add_strf(JsonBuilder *bldr, const gchar *name,

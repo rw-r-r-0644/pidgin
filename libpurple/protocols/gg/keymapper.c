@@ -35,7 +35,7 @@
  * can be also an unique key. We also need a map, to quickly figure out the
  * address for any previously stored value.
  *
- * The naming problem: values becames the keys and vice-versa.
+ * The naming problem: values becomes the keys and vice-versa.
  */
 
 /* TODO

@@ -384,8 +384,10 @@ ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 		g_match_info_next(match, NULL);
 
 		if (tag == GGP_HTML_TAG_UNKNOWN) {
-			purple_debug_warning("gg", "ggp_message_format_to_gg: "
-				"uknown tag %s\n", tag_str);
+			purple_debug_warning(
+				"gg",
+				"ggp_message_format_to_gg: unknown tag %s",
+				tag_str);
 		}
 
 		/* closing *all* formatting-related tags (GG11 weirdness)
@@ -610,8 +612,10 @@ ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 		} else if (tag == GGP_HTML_TAG_A || tag == GGP_HTML_TAG_EOM) {
 			/* do nothing */
 		} else if (tag == GGP_HTML_TAG_UNKNOWN) {
-			purple_debug_warning("gg", "ggp_message_format_to_gg: "
-				"uknown tag %s\n", tag_str);
+			purple_debug_warning(
+				"gg",
+				"ggp_message_format_to_gg: unknown tag %s",
+				tag_str);
 		} else {
 			purple_debug_error("gg", "ggp_message_format_to_gg: "
 				"not handled tag %s\n", tag_str);
@@ -628,7 +632,7 @@ ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 			"end of message not reached\n");
 	}
 
-	/* releasing fonts recources */
+	/* releasing fonts resources */
 	ggp_font_free(font_new);
 	ggp_font_free(font_current);
 	ggp_font_free(font_base);

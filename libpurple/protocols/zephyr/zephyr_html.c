@@ -242,7 +242,7 @@ html_to_zephyr(const char *message)
 					}
 				}
 			} else {
-				/* Catch all for all unrecognized/misparsed <foo> tage */
+				/* Catch all for all unrecognized/misparsed <foo> tags */
 				g_string_append_c(frame->text, *message++);
 			}
 		} else if (*message == '@') {

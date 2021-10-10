@@ -804,7 +804,7 @@ jabber_si_connect_proxy_cb(JabberStream *js, const char *from,
 			"jabber_si_xfer_connect_proxy_cb: got error, method: %d\n",
 			jsx->stream_method);
 		if (jsx->stream_method & STREAM_METHOD_IBB) {
-			/* if we previously tried bytestreams, we need to disble it. */
+			/* if we previously tried bytestreams, we need to disable it. */
 			if(jsx->stream_method & STREAM_METHOD_BYTESTREAMS) {
 				jsx->stream_method &= ~STREAM_METHOD_BYTESTREAMS;
 			}
@@ -1637,7 +1637,7 @@ static void jabber_si_xfer_xfer_init(PurpleXfer *xfer)
 
 		/* we should maybe "remember" if bytestreams has failed before (in the
 			same session) with this JID, and only present IBB as an option to
-			avoid unnessesary timeout */
+			avoid unnecessary timeout */
 		/* maybe we should have an account option to always just try IBB
 			for people who know their firewalls are very restrictive */
 		if (jsx->stream_method & STREAM_METHOD_BYTESTREAMS) {

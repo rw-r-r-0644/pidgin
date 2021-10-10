@@ -124,7 +124,7 @@ static GSList *generate_presence_txt_records(BonjourDnsSd *data) {
 	ret = _add_txt_record(ret, "status", data->status);
 	ret = _add_txt_record(ret, "node", "libpurple");
 	ret = _add_txt_record(ret, "ver", VERSION);
-	/* Currently always set to "!" since we don't support AV and wont ever be in a conference */
+	/* Currently always set to "!" since we don't support AV and won't ever be in a conference */
 	ret = _add_txt_record(ret, "vc", data->vc);
 	if (email != NULL && *email != '\0') {
 		ret = _add_txt_record(ret, "email", email);

@@ -75,7 +75,7 @@ jabber_ibb_session_create_from_xmlnode(JabberStream *js, const char *from,
 	sess->id = g_strdup(id);
 	sess->block_size = atoi(block_size);
 	/* if we create a session from an incoming <open/> request, it means the
-	  session is immediatly open... */
+	  session is immediately open... */
 	sess->state = JABBER_IBB_SESSION_OPENED;
 
 	return sess;
