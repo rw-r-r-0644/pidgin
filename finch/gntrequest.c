@@ -289,7 +289,7 @@ request_fields_cb(GntWidget *button, PurpleRequestFields *fields)
 	 * updating the fields at the end like here, it updates the appropriate field
 	 * instantly whenever a change is made. That allows it to make sure the
 	 * 'required' fields are entered before the user can hit OK. It's not the case
-	 * here, althought it can be done. */
+	 * here, although it can be done. */
 	for (list = purple_request_fields_get_groups(fields); list; list = list->next)
 	{
 		PurpleRequestFieldGroup *group = list->data;

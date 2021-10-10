@@ -360,7 +360,7 @@ finch_new_media(PurpleMediaManager *manager, PurpleMedia *media,
 
 static PurpleCmdRet
 call_cmd_cb(PurpleConversation *conv, const char *cmd, char **args,
-		char **eror, gpointer data)
+		char **error, gpointer data)
 {
 	PurpleAccount *account = purple_conversation_get_account(conv);
 
