@@ -164,26 +164,28 @@ static gboolean default_can_add_node(PurpleBlistNode *node)
 		if (purple_blist_node_get_bool(node, "show_offline"))
 			return TRUE;
 	} else if (PURPLE_IS_CONTACT(node)) {
-		PurpleBlistNode *nd;
-		for (nd = purple_blist_node_get_first_child(node);
-				nd; nd = purple_blist_node_get_sibling_next(nd)) {
-			if (default_can_add_node(nd))
+		PurpleBlistNode *child;
+		for (child = purple_blist_node_get_first_child(node);
+				child; child = purple_blist_node_get_sibling_next(child)) {
+			if (default_can_add_node(child)) {
 				return TRUE;
+			}
 		}
 	} else if (PURPLE_IS_CHAT(node)) {
 		PurpleChat *chat = (PurpleChat*)node;
 		if (purple_account_is_connected(purple_chat_get_account(chat)))
 			return TRUE;  /* Show whenever the account is online */
 	} else if (PURPLE_IS_GROUP(node)) {
-		PurpleBlistNode *nd;
+		PurpleBlistNode *child;
 		gboolean empty = purple_prefs_get_bool(PREF_ROOT "/emptygroups");
 		if (empty)
 			return TRUE;  /* If we want to see empty groups, we can show any group */
 
-		for (nd = purple_blist_node_get_first_child(node);
-				nd; nd = purple_blist_node_get_sibling_next(nd)) {
-			if (default_can_add_node(nd))
+		for (child = purple_blist_node_get_first_child(node);
+				child; child = purple_blist_node_get_sibling_next(child)) {
+			if (default_can_add_node(child)) {
 				return TRUE;
+			}
 		}
 
 		if (ggblist && ggblist->new_group && g_list_find(ggblist->new_group, node))
@@ -1735,7 +1737,7 @@ draw_tooltip(FinchBuddyList *ggblist)
 	/* When an account has signed off, it removes one buddy at a time.
 	 * Drawing the tooltip after removing each buddy is expensive. On
 	 * top of that, if the selected buddy belongs to the disconnected
-	 * account, then retreiving the tooltip for that causes crash. So
+	 * account, then retrieving the tooltip for that causes crash. So
 	 * let's make sure we wait for all the buddies to be removed first.*/
 	int id = g_timeout_add(0, (GSourceFunc)draw_tooltip_real, ggblist);
 	g_object_set_data_full(G_OBJECT(ggblist->window), "draw_tooltip_calback",
