@@ -414,7 +414,7 @@ check_range(spellchk *spell, GtkTextBuffer *buffer,
 
 	if (!sending)
 	{
-		/* We need to go backwords to find out if we are inside a word or not. */
+		/* We need to go backwards to find out if we are inside a word or not. */
 		gtk_text_iter_backward_char(&end);
 
 		if (spellchk_inside_word(&end))

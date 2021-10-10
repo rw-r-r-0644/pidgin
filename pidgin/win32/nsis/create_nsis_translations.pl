@@ -24,7 +24,7 @@ sub usage {
     print 'create_nsis_translations.pl translations installer tmp_dir
   translations
      This is an input file that contains all the
-     translated strings. If must be formated as a GNU/Linux
+     translated strings. If must be formatted as a GNU/Linux
      desktop file and contains multiple strings entry.
      For example you must have:
      toBe=To be or not to be
@@ -39,7 +39,7 @@ sub usage {
   tmp_dir
      This is a directory in which temporary files needed for
      the translation system.
-     It will be created if non existant.
+     It will be created if non existent.
      You can remove it once you have created your installer.
 ';
 }

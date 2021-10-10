@@ -140,7 +140,7 @@ pidgin_contact_completion_match_func(GtkEntryCompletion *completion,
 }
 
 /******************************************************************************
- * GObject Implemention
+ * GObject Implementation
  *****************************************************************************/
 static void
 pidgin_contact_completion_init(PidginContactCompletion *comp) {

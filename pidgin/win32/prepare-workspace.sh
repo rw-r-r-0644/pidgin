@@ -291,7 +291,7 @@ function extract_archive() {
 		( ${WIN32DEV_BASE}/bsdcpio/bsdcpio.exe --quiet -di < "../${file}" 2>&1 ) | grep -v -P "${filter_output}" 1>&2
 		cd ..
 	else
-		echo "Uknown extension: $ext"
+		echo "Unknown extension: $ext"
 		rm -rf "tmp"
 		exit 1
 	fi

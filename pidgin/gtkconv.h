@@ -211,7 +211,7 @@ void pidgin_conv_present_conversation(PurpleConversation *conv);
  *
  * Reattach Pidgin UI to a conversation.
  *
- * Returns:  Wheter Pidgin UI was successfully attached.
+ * Returns: Whether Pidgin UI was successfully attached.
  */
 gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv);
 

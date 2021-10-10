@@ -227,7 +227,7 @@ unnotify(PurpleConversation *conv, gboolean reset)
 
 	if (reset) {
 		/* Only need to actually remove the urgent hinting here, since
-		 * removing it just to have it readded in re-notify is an
+		 * removing it just to have it re-added in re-notify is an
 		 * unnecessary couple extra RTs to the server */
 		handle_urgent(purplewin, FALSE);
 		g_object_set_data(G_OBJECT(conv), "notify-message-count", GINT_TO_POINTER(0));

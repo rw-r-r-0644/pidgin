@@ -247,7 +247,7 @@ static gboolean gtk_blist_delete_cb(GtkWidget *w, GdkEventAny *event, gpointer d
 	else
 		purple_core_quit();
 
-	/* we handle everything, event should not propogate further */
+	/* we handle everything, event should not propagate further */
 	return TRUE;
 }
 
@@ -3739,7 +3739,7 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 
 	/* Put it all together */
 	if ((!aliased || biglist) && (statustext || idletime)) {
-		/* using <span size='smaller'> breaks the status, so it must be seperated into <small><span>*/
+		/* using <span size='smaller'> breaks the status, so it must be separated into <small><span>*/
 		if (name_color) {
 			text = g_strdup_printf("<span foreground='%s'>%s</span>\n"
 			                       "<small><span foreground='%s'>%s%s%s</span></small>",

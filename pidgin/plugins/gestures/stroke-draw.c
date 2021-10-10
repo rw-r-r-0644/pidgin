@@ -128,7 +128,7 @@ process_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 			break;
 		}
 
-      original_widget = widget; /* remeber the widget where
+      original_widget = widget; /* remember the widget where
                                    the stroke started */
 
       record_stroke_segment (widget);

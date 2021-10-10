@@ -1253,7 +1253,7 @@ theme_dnd_recv(GtkWidget *widget, GdkDragContext *dc, guint x, guint y,
 	gtk_drag_finish(dc, FALSE, FALSE, t);
 }
 
-/* builds a theme combo box from a list store with colums: icon preview, markup, theme name */
+/* builds a theme combo box from a list store with columns: icon preview, markup, theme name */
 static void
 prefs_build_theme_combo_box(GtkWidget *combo_box, GtkListStore *store,
                             const char *current_theme, const char *type)

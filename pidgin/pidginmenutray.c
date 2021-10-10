@@ -51,7 +51,7 @@ pidgin_menu_tray_select(GtkMenuItem *widget) {
 static void
 pidgin_menu_tray_deselect(GtkMenuItem *widget) {
 	/* Probably not necessary, but I'd rather be safe than sorry.  We're
-	 * overridding the select, so it makes sense to override deselect as well.
+	 * overriding the select, so it makes sense to override deselect as well.
 	 */
 }
 
