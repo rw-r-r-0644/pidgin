@@ -345,7 +345,7 @@ PurpleMood *purple_protocol_client_get_moods(PurpleProtocolClient *client, Purpl
  * @client: The #PurpleProtocolClient instance.
  * @conv: A #PurpleConversation instance.
  *
- * Gets the maximum number of charcters per message for @conv.
+ * Gets the maximum number of characters per message for @conv.
  *
  * Returns: The maximum number of characters per message for @conv or -1 for no
  *          limit.

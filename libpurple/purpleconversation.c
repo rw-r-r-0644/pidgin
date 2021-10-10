@@ -99,8 +99,8 @@ common_send(PurpleConversation *conv, const gchar *message,
 
 	me = purple_account_get_name_for_display(account);
 
-	/* Always linkfy the text for display, unless we're
-	 * explicitly asked to do otheriwse*/
+	/* Always linkify the text for display, unless we're explicitly asked to do
+	 * otherwise. */
 	if(!(msgflags & PURPLE_MESSAGE_INVISIBLE)) {
 		if(msgflags & PURPLE_MESSAGE_NO_LINKIFY) {
 			displayed = g_strdup(message);

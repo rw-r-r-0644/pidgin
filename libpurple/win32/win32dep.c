@@ -3,7 +3,7 @@
  *
  * File: win32dep.c
  * Date: June, 2002
- * Description: Windows dependant code for Purple
+ * Description: Windows dependent code for Purple
  *
  * Copyright (C) 2002-2003, Herman Bloggs <hermanator12002@yahoo.com>
  *

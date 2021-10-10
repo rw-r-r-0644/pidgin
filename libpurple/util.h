@@ -890,7 +890,7 @@ int purple_utf8_strcasecmp(const char *a, const char *b);
  *
  * Case insensitive search for a word in a string. The needle string
  * must be contained in the haystack string and not be immediately
- * preceded or immediately followed by another alpha-numeric character.
+ * preceded or immediately followed by another alphanumeric character.
  *
  * Returns: TRUE if haystack has the word, otherwise FALSE
  */

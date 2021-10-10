@@ -110,7 +110,7 @@ void purple_presence_set_status_active(PurplePresence *presence, const gchar *st
 
 /**
  * purple_presence_switch_status:
- * @presence: The #PurplePresence instace.
+ * @presence: The #PurplePresence instance.
  * @status_id: The status ID to switch to.
  *
  * Switches the active status in a presence.

@@ -266,7 +266,7 @@ status_to_xmlnode(PurpleSavedStatus *status)
 	{
 		/*
 		 * Purple 1.5.0 and earlier require a name to be set, so we
-		 * do this little hack to maintain backward compatability
+		 * do this little hack to maintain backward compatibility
 		 * in the status.xml file.  Eventually this should be removed
 		 * and we should determine if a status is transient by
 		 * whether the "name" attribute is set to something or if

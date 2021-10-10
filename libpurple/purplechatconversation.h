@@ -319,7 +319,7 @@ void purple_chat_conversation_clear_users(PurpleChatConversation *chat);
  * @chat: The chat.
  * @nick: The nick.
  *
- * Sets your nickname (used for hilighting) for a chat.
+ * Sets your nickname (used for highlighting) for a chat.
  */
 void purple_chat_conversation_set_nick(PurpleChatConversation *chat, const gchar *nick);
 
@@ -327,7 +327,7 @@ void purple_chat_conversation_set_nick(PurpleChatConversation *chat, const gchar
  * purple_chat_conversation_get_nick:
  * @chat: The chat.
  *
- * Gets your nickname (used for hilighting) for a chat.
+ * Gets your nickname (used for highlighting) for a chat.
  *
  * Returns: The nick.
  */

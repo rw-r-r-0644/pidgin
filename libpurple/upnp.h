@@ -71,7 +71,7 @@ void purple_upnp_uninit(void);
  * @cb_data: (closure): Extra data to be passed to the callback.
  *
  * Sends a discovery request to search for a UPnP enabled IGD that
- * contains the WANIPConnection service that will allow us to recieve the
+ * contains the WANIPConnection service that will allow us to receive the
  * public IP address of the IGD, and control it for forwarding ports.
  * The result will be cached for further use.
  */

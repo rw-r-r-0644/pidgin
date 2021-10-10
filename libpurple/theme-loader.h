@@ -31,7 +31,7 @@
  * SECTION:theme-loader
  * @section_id: libpurple-theme-loader
  * @short_description: <filename>theme-loader.h</filename>
- * @title: Theme Loader Abstact Class
+ * @title: Theme Loader Abstract Class
  *
  * The base class for all theme loaders.
  */

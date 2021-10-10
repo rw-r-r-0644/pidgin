@@ -343,8 +343,8 @@ purple_request_datasheet_record_add(PurpleRequestDatasheet *sheet,
 	rec->sheet = sheet;
 	rec->key = key;
 
-	/* we don't allow modifying collumn count when datasheet contains
-	 * any records */
+	/* We don't allow modifying column count when datasheet contains any
+	 * records. */
 	rec->data = g_new0(gchar*,
 		purple_request_datasheet_get_column_count(sheet) + 1);
 

@@ -83,10 +83,10 @@ typedef struct
 
 	gboolean is_finalizing;    /* The object is being destroyed. */
 
-	/* The connection error and its description if an error occured */
+	/* The connection error and its description if an error occurred. */
 	PurpleConnectionErrorInfo *error_info;
 
-	guint disconnect_timeout;  /* Timer used for nasty stack tricks         */
+	guint disconnect_timeout;  /* Timer used for nasty stack tricks. */
 } PurpleConnectionPrivate;
 
 /* GObject property enums */
@@ -977,7 +977,7 @@ static void purple_connection_class_init(PurpleConnectionClass *klass)
 }
 
 void
-_purple_connection_new(PurpleAccount *account, gboolean regist, const char *password)
+_purple_connection_new(PurpleAccount *account, gboolean is_registration, const gchar *password)
 {
 	PurpleConnection *gc;
 	PurpleProtocol *protocol;
@@ -994,20 +994,18 @@ _purple_connection_new(PurpleAccount *account, gboolean regist, const char *pass
 
 		message = g_strdup_printf(_("Missing protocol for %s"),
 			purple_account_get_username(account));
-		purple_notify_error(NULL, regist ? _("Registration Error") :
+		purple_notify_error(NULL, is_registration ? _("Registration Error") :
 			_("Connection Error"), message, NULL,
 			purple_request_cpar_from_account(account));
 		g_free(message);
 		return;
 	}
 
-	if (regist)
-	{
-		if (!PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, register_user))
+	if (is_registration) {
+		if (!PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, register_user)) {
 			return;
-	}
-	else
-	{
+		}
+	} else {
 		if (((password == NULL) || (*password == '\0')) &&
 			!(purple_protocol_get_options(protocol) & OPT_PROTO_NO_PASSWORD) &&
 			!(purple_protocol_get_options(protocol) & OPT_PROTO_PASSWORD_OPTIONAL))
@@ -1031,8 +1029,7 @@ _purple_connection_new(PurpleAccount *account, gboolean regist, const char *pass
 
 	g_return_if_fail(gc != NULL);
 
-	if (regist)
-	{
+	if (is_registration) {
 		PurpleConnectionPrivate *priv;
 		purple_debug_info("connection", "Registering.  gc = %p\n", gc);
 
@@ -1042,9 +1039,7 @@ _purple_connection_new(PurpleAccount *account, gboolean regist, const char *pass
 
 		purple_protocol_server_register_user(PURPLE_PROTOCOL_SERVER(protocol),
 		                                     account);
-	}
-	else
-	{
+	} else {
 		purple_debug_info("connection", "Connecting. gc = %p\n", gc);
 
 		purple_signal_emit(purple_accounts_get_handle(), "account-connecting", account);
@@ -1056,7 +1051,7 @@ void
 _purple_connection_new_unregister(PurpleAccount *account, const char *password,
 		PurpleAccountUnregistrationCb cb, gpointer user_data)
 {
-	/* Lots of copy/pasted code to avoid API changes. You might want to integrate that into the previous function when posssible. */
+	/* Lots of copy/pasted code to avoid API changes. You might want to integrate that into the previous function when possible. */
 	PurpleConnection *gc;
 	PurpleProtocol *protocol;
 

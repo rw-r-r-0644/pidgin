@@ -118,7 +118,7 @@ gchar *purple_media_candidate_get_foundation(PurpleMediaCandidate *candidate);
 
 /**
  * purple_media_candidate_get_component_id:
- * @candidate: The candidate to get the compnent id from.
+ * @candidate: The candidate to get the component id from.
  *
  * Gets the component id (rtp or rtcp)
  *

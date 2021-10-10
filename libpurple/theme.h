@@ -30,7 +30,7 @@
  * SECTION:theme
  * @section_id: libpurple-theme
  * @short_description: <filename>theme.h</filename>
- * @title: Theme Abstact Class
+ * @title: Theme Abstract Class
  *
  * The theme API represents the common abilities for all of our supported
  * themes.

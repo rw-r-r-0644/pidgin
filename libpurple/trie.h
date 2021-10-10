@@ -70,7 +70,7 @@
  *             #purple_trie_add.
  * @user_data: the user supplied data passed when calling #purple_trie_replace.
  *
- * A funtion called on every matching substring to be replaced.
+ * A function called on every matching substring to be replaced.
  *
  * If you decide to replace the word, append your text to @out and return %TRUE.
  * Otherwise, you must not touch @out. In both cases, you must not do any

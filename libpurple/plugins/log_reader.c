@@ -1327,7 +1327,7 @@ static char * trillian_logger_read (PurpleLog *log, PurpleLogReadFlags *flags)
 		/* Convert links.
 		 *
 		 * The format is (Link: URL)URL
-		 * So, I want to find each occurance of "(Link: " and replace that chunk with:
+		 * So, I want to find each occurrence of "(Link: " and replace that chunk with:
 		 * <a href="
 		 * Then, replace the next ")" with:
 		 * ">

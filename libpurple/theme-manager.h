@@ -69,14 +69,14 @@ G_DECLARE_FINAL_TYPE(PurpleThemeManager, purple_theme_manager, PURPLE,
 /**
  * purple_theme_manager_init:
  *
- * Initalizes the theme manager.
+ * Initializes the theme manager.
  */
 void purple_theme_manager_init(void);
 
 /**
  * purple_theme_manager_uninit:
  *
- * Uninitalizes the manager then frees all the themes and loaders it is
+ * Uninitializes the manager then frees all the themes and loaders it is
  * responsible for.
  */
 void purple_theme_manager_uninit(void);

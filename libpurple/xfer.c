@@ -266,7 +266,7 @@ purple_xfer_conversation_write(PurpleXfer *xfer, const gchar *message,
 	purple_xfer_conversation_write_internal(xfer, message, is_error, FALSE);
 }
 
-/* maybe this one should be exported publically? */
+/* maybe this one should be exported publicly? */
 static void
 purple_xfer_conversation_write_with_thumbnail(PurpleXfer *xfer,
 	const gchar *message)

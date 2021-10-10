@@ -159,7 +159,7 @@ void purple_savedstatus_set_substatus(PurpleSavedStatus *status,
  * @account:      The account.
  *
  * Unset a substatus for an account in a saved status.  This clears
- * the previosly set substatus for the PurpleSavedStatus.  If this
+ * the previously set substatus for the PurpleSavedStatus.  If this
  * saved status is activated then this account will use the default
  * status type and message.
  */

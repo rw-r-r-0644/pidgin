@@ -553,7 +553,7 @@ void purple_serv_got_im(PurpleConnection *gc, const char *who, const char *msg,
 
 	/*
 	 * Make copies of the message and the sender in case plugins want
-	 * to free these strings and replace them with a modifed version.
+	 * to free these strings and replace them with a modified version.
 	 */
 	buffy = g_strdup(msg);
 	angel = g_strdup(who);
@@ -919,7 +919,7 @@ void purple_serv_got_chat_in(PurpleConnection *g, int id, const char *who,
 
 	/*
 	 * Make copies of the message and the sender in case plugins want
-	 * to free these strings and replace them with a modifed version.
+	 * to free these strings and replace them with a modified version.
 	 */
 	buffy = g_strdup(message);
 	angel = g_strdup(who);

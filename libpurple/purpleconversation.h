@@ -34,7 +34,7 @@
  *
  * This is the base class for the conversation abstraction on Libpurple.
  *
- * The present API manages the common functionallity for both kinds of conversations
+ * The present API manages the common functionality for both kinds of conversations
  * @PurpleIMConversation and @PurpleChatConversation.
  */
 
