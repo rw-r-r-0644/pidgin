@@ -239,7 +239,7 @@ SectionEnd
 
 
 ;--------------------------------
-;GTK+ Runtime Install Section
+;GTK Runtime Install Section
 
 Section $(GTKSECTIONTITLE) SecGtk
 
@@ -252,10 +252,10 @@ Section $(GTKSECTIONTITLE) SecGtk
 
 !else
 
-  ; We need to download the GTK+ runtime
+  ; We need to download the GTK runtime
   retry:
   StrCpy $R2 "${DOWNLOADER_URL}&gtk_version=${GTK_INSTALL_VERSION}&dl_pkg=gtk"
-  DetailPrint "Downloading GTK+ Runtime ... ($R2)"
+  DetailPrint "Downloading GTK Runtime ... ($R2)"
   inetc::get /TIMEOUT=10000 "$R2" "$R1"
   Pop $R0
   StrCmp $R0 "OK" 0 prompt_retry
@@ -284,7 +284,7 @@ Section $(GTKSECTIONTITLE) SecGtk
 !ifndef OFFLINE_INSTALLER
   done:
 !endif
-SectionEnd ; end of GTK+ section
+SectionEnd ; end of GTK section
 
 ;--------------------------------
 ;Pidgin Install Section
@@ -621,7 +621,7 @@ Section Uninstall
     ; Remove the debug symbols
     RMDir /r "$INSTDIR\pidgin-${PIDGIN_VERSION}-dbgsym"
 
-    ; Remove the local GTK+ copy (if we're not just upgrading)
+    ; Remove the local GTK copy (if we're not just upgrading)
     ${GetParameters} $R0
     ClearErrors
     ${GetOptions} "$R0" "/UPGRADE=" $R1
@@ -910,7 +910,7 @@ FunctionEnd
 ;   0 - We have the correct version
 ;   1 - We have an old version that should work, prompt user for optional upgrade
 ;   2 - We have an old version that needs to be upgraded
-;   3 - We don't have Gtk+ at all
+;   3 - We don't have GTK at all
 ;
 Function DoWeNeedGtk
   Push $0
@@ -1153,12 +1153,12 @@ Function preWelcomePage
   Pop $CURRENT_GTK_STATE
   StrCpy $WARNED_GTK_STATE "0"
   IntCmp $CURRENT_GTK_STATE 1 done gtk_not_mandatory
-    ; Make the GTK+ Section RO if it is required. (it is required only if you have an existing version that is too old)
+    ; Make the GTK Section RO if it is required. (it is required only if you have an existing version that is too old)
     StrCmp $CURRENT_GTK_STATE "2" 0 done
     !insertmacro SetSectionFlag ${SecGtk} ${SF_RO}
     Goto done
   gtk_not_mandatory:
-    ; Don't select the GTK+ section if we already have this version or newer installed
+    ; Don't select the GTK section if we already have this version or newer installed
     !insertmacro UnselectSection ${SecGtk}
 
   done:
@@ -1166,7 +1166,7 @@ Function preWelcomePage
   Pop $R0
 FunctionEnd
 
-; If the GTK+ Section has been unselected and there isn't a compatible GTK+ already, confirm
+; If the GTK Section has been unselected and there isn't a compatible GTK already, confirm
 Function .onSelChange
   Push $R0
 

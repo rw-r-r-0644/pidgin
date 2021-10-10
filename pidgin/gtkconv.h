@@ -86,7 +86,7 @@ enum {
 /**
  * PidginConversation:
  *
- * A GTK+ conversation pane.
+ * A GTK conversation pane.
  */
 struct _PidginConversation
 {
@@ -135,15 +135,15 @@ struct _PidginConversation
 G_BEGIN_DECLS
 
 /**************************************************************************
- * GTK+ Conversation API
+ * GTK Conversation API
  **************************************************************************/
 
 /**
  * pidgin_conversations_get_conv_ui_ops:
  *
- * Returns the UI operations structure for GTK+ conversations.
+ * Returns the UI operations structure for GTK conversations.
  *
- * Returns: The GTK+ conversation operations structure.
+ * Returns: The GTK conversation operations structure.
  */
 PurpleConversationUiOps *pidgin_conversations_get_conv_ui_ops(void);
 
@@ -217,7 +217,7 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv);
 
 /**
  * pidgin_conv_get_window:
- * @gtkconv: The GTK+ conversation.
+ * @gtkconv: The GTK conversation.
  *
  * Returns: The window the conversation belongs to.
  */
@@ -227,7 +227,7 @@ PidginConvWindow *pidgin_conv_get_window(PidginConversation *gtkconv);
  * pidgin_conv_new:
  * @conv: The conversation.
  *
- * Creates a new GTK+ conversation for a given #PurpleConversation.
+ * Creates a new GTK conversation for a given #PurpleConversation.
  */
 void pidgin_conv_new(PurpleConversation *conv);
 
@@ -246,14 +246,14 @@ int pidgin_conv_get_tab_at_xy(PidginConvWindow *win, int x, int y, gboolean *to_
 
 /**
  * pidgin_conv_is_hidden:
- * @gtkconv: The GTK+ conversation.
+ * @gtkconv: The GTK conversation.
  *
  * Returns: %TRUE if the conversation is hidden, %FALSE otherwise.
  */
 gboolean pidgin_conv_is_hidden(PidginConversation *gtkconv);
 
 /**************************************************************************/
-/* GTK+ Conversations Subsystem                                           */
+/* GTK Conversations Subsystem                                            */
 /**************************************************************************/
 
 /**
@@ -268,14 +268,14 @@ void *pidgin_conversations_get_handle(void);
 /**
  * pidgin_conversations_init:
  *
- * Initializes the GTK+ conversations subsystem.
+ * Initializes the GTK conversations subsystem.
  */
 void pidgin_conversations_init(void);
 
 /**
  * pidgin_conversations_uninit:
  *
- * Uninitialized the GTK+ conversation subsystem.
+ * Uninitialized the GTK conversation subsystem.
  */
 void pidgin_conversations_uninit(void);
 

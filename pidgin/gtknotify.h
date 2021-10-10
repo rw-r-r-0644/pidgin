@@ -39,23 +39,23 @@ G_BEGIN_DECLS
 /**
  * pidgin_notify_get_ui_ops:
  *
- * Returns the UI operations structure for GTK+ notification functions.
+ * Returns the UI operations structure for GTK notification functions.
  *
- * Returns: The GTK+ UI notify operations structure.
+ * Returns: The GTK UI notify operations structure.
  */
 PurpleNotifyUiOps *pidgin_notify_get_ui_ops(void);
 
 /**
  * pidgin_notify_init:
  *
- * Initializes the GTK+ notifications subsystem.
+ * Initializes the GTK notifications subsystem.
  */
 void pidgin_notify_init(void);
 
 /**
  * pidgin_notify_uninit:
  *
- * Uninitialized the GTK+ notifications subsystem.
+ * Uninitialized the GTK notifications subsystem.
  */
 void pidgin_notify_uninit(void);
 

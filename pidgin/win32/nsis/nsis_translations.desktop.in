@@ -12,7 +12,7 @@ _PIDGINLICENSEBOTTOMTEXT=$(^Name) is released under the GNU General Public Licen
 #Installer Subsection Text
 _PIDGINSECTIONTITLE=Pidgin Instant Messaging Client (required)
 #Installer Subsection Text
-_GTKSECTIONTITLE=GTK+ Runtime (required if not present)
+_GTKSECTIONTITLE=GTK Runtime (required if not present)
 #Installer Subsection Text
 _PIDGINSHORTCUTSSECTIONTITLE=Shortcuts
 #Installer Subsection Text
@@ -39,7 +39,7 @@ _PIDGINFINISHVISITWEBSITE=Visit the Pidgin Web Page
 
 _PIDGINPROMPTCONTINUEWITHOUTUNINSTALL=Unable to uninstall the currently installed version of Pidgin. The new version will be installed without removing the currently installed version.
 
-_PIDGINPROMPTFORCENOGTK=Pidgin requires a compatible GTK+ Runtime (which does not appear to be installed).$\rAre you sure you want to skip installing the GTK+ Runtime?
+_PIDGINPROMPTFORCENOGTK=Pidgin requires a compatible GTK Runtime (which does not appear to be installed).$\rAre you sure you want to skip installing the GTK Runtime?
 
 #Installer Subsection Text
 _URIHANDLERSSECTIONTITLE=URI Handlers
@@ -54,8 +54,8 @@ _PIDGINSPELLCHECKSECTIONDESCRIPTION=Support for Spellchecking.  (Internet connec
 # $R2 will display the URL that the Debug Symbols failed to download from
 _PIDGINDEBUGSYMBOLSERROR=Error Installing Debug Symbols ($R2).$\rIf retrying fails, you may need to use the 'Offline Installer' from https://pidgin.im/download/windows/ .
 
-# $R2 will display the URL that the GTK+ Runtime failed to download from
-_PIDGINGTKDOWNLOADERROR=Error Downloading the GTK+ Runtime ($R2).$\rThis is required for Pidgin to function; if retrying fails, you may need to use the 'Offline Installer' from https://pidgin.im/download/windows/ .
+# $R2 will display the URL that the GTK Runtime failed to download from
+_PIDGINGTKDOWNLOADERROR=Error Downloading the GTK Runtime ($R2).$\rThis is required for Pidgin to function; if retrying fails, you may need to use the 'Offline Installer' from https://pidgin.im/download/windows/ .
 
 _PIDGINUNINSTALLERROR1=The uninstaller could not find registry entries for Pidgin.$\rIt is likely that another user installed this application.
 _PIDGINUNINSTALLERROR2=You do not have permission to uninstall this application.

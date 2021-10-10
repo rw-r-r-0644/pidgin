@@ -37,13 +37,13 @@
 G_BEGIN_DECLS
 
 /**************************************************************************/
-/* GTK+ Idle API                                                          */
+/* GTK Idle API                                                           */
 /**************************************************************************/
 
 /**
  * pidgin_idle_get_ui_ops:
  *
- * Returns the GTK+ idle UI ops.
+ * Returns the GTK idle UI ops.
  *
  * Returns: The UI operations structure.
  */

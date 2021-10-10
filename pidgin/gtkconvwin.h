@@ -86,7 +86,7 @@ struct _PidginConvWindowMenu
  * @notebook_menu: The menu on the notebook.
  * @clicked_tab:   The menu currently clicked.
  *
- * A GTK+ representation of a graphical window containing one or more
+ * A GTK representation of a graphical window containing one or more
  * conversations.
  */
 struct _PidginConvWindow
@@ -114,7 +114,7 @@ struct _PidginConvWindow
 G_BEGIN_DECLS
 
 /**************************************************************************
- * GTK+ Conversation Window API
+ * GTK Conversation Window API
  **************************************************************************/
 
 /**

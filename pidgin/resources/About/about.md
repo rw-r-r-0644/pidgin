@@ -1,6 +1,6 @@
 ## Pidgin
 
-Pidgin is a messaging client based on libpurple which is capable of connecting to multiple messaging services at once.  Pidgin is written in C using GTK+.  Pidgin is released, and may be modified and redistributed,  under the terms of the GPL version 2 (or later).  A copy of the GPL is distributed with Pidgin.  Pidgin is copyrighted by its contributors, a list of whom is also distributed with Pidgin.  There is no warranty for Pidgin.
+Pidgin is a messaging client based on libpurple which is capable of connecting to multiple messaging services at once.  Pidgin is written in C using GTK.  Pidgin is released, and may be modified and redistributed,  under the terms of the GPL version 2 (or later).  A copy of the GPL is distributed with Pidgin.  Pidgin is copyrighted by its contributors, a list of whom is also distributed with Pidgin.  There is no warranty for Pidgin.
 
 ### Helpful Resources
 

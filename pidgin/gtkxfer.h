@@ -49,7 +49,7 @@ G_DECLARE_FINAL_TYPE(PidginXferDialog, pidgin_xfer_dialog, PIDGIN, XFER_DIALOG,
                      GtkDialog)
 
 /**************************************************************************/
-/* GTK+ File Transfer Dialog API                                          */
+/* GTK File Transfer Dialog API                                           */
 /**************************************************************************/
 
 /**
@@ -126,20 +126,20 @@ void pidgin_xfer_dialog_update_xfer(PidginXferDialog *dialog,
 									 PurpleXfer *xfer);
 
 /**************************************************************************/
-/* GTK+ File Transfer API                                                 */
+/* GTK File Transfer API                                                  */
 /**************************************************************************/
 
 /**
  * pidgin_xfers_init:
  *
- * Initializes the GTK+ file transfer system.
+ * Initializes the GTK file transfer system.
  */
 void pidgin_xfers_init(void);
 
 /**
  * pidgin_xfers_uninit:
  *
- * Uninitializes the GTK+ file transfer system.
+ * Uninitializes the GTK file transfer system.
  */
 void pidgin_xfers_uninit(void);
 
@@ -163,9 +163,9 @@ PidginXferDialog *pidgin_get_xfer_dialog(void);
 /**
  * pidgin_xfers_get_ui_ops:
  *
- * Returns the UI operations structure for the GTK+ file transfer UI.
+ * Returns the UI operations structure for the GTK file transfer UI.
  *
- * Returns: The GTK+ file transfer UI operations structure.
+ * Returns: The GTK file transfer UI operations structure.
  */
 PurpleXferUiOps *pidgin_xfers_get_ui_ops(void);
 

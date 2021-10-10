@@ -318,7 +318,7 @@ void winpidgin_init(void) {
 		g_free(locale_debug_dir);
 	}
 
-	purple_debug_info("winpidgin", "GTK+: %u.%u.%u\n",
+	purple_debug_info("winpidgin", "GTK: %u.%u.%u\n",
 		gtk_major_version, gtk_minor_version, gtk_micro_version);
 
 	messagewin_hwnd = winpidgin_message_window_init();

@@ -85,23 +85,23 @@ GtkWidget *pidgin_status_menu(PurpleSavedStatus *status, GCallback callback);
 /**
  * pidgin_status_get_handle:
  *
- * Returns the GTK+ status handle.
+ * Returns the GTK status handle.
  *
- * Returns: The handle to the GTK+ status system.
+ * Returns: The handle to the GTK status system.
  */
 void *pidgin_status_get_handle(void);
 
 /**
  * pidgin_status_init:
  *
- * Initializes the GTK+ status system.
+ * Initializes the GTK status system.
  */
 void pidgin_status_init(void);
 
 /**
  * pidgin_status_uninit:
  *
- * Uninitializes the GTK+ status system.
+ * Uninitializes the GTK status system.
  */
 void pidgin_status_uninit(void);
 

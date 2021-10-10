@@ -72,7 +72,7 @@ void pidgin_account_dialog_show(PidginAccountDialogType type,
 /**
  * pidgin_accounts_get_ui_ops:
  *
- * Returns the GTK+ account UI ops
+ * Returns the GTK account UI ops
  *
  * Returns: The UI operations structure.
  */
@@ -83,21 +83,21 @@ PurpleAccountUiOps *pidgin_accounts_get_ui_ops(void);
  *
  * Returns the gtkaccounts handle
  *
- * Returns: The handle to the GTK+ account system
+ * Returns: The handle to the GTK account system
  */
 void *pidgin_accounts_get_handle(void);
 
 /**
  * pidgin_accounts_init:
  *
- * Initializes the GTK+ account system
+ * Initializes the GTK account system
  */
 void pidgin_accounts_init(void);
 
 /**
  * pidgin_accounts_uninit:
  *
- * Uninitializes the GTK+ account system
+ * Uninitializes the GTK account system
  */
 void pidgin_accounts_uninit(void);
 

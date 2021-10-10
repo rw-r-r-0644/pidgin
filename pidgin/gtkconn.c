@@ -216,7 +216,7 @@ account_removed_cb(PurpleAccount *account, gpointer user_data)
 
 
 /**************************************************************************
-* GTK+ connection glue
+* GTK connection glue
 **************************************************************************/
 
 void *

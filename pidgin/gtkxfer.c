@@ -1008,7 +1008,7 @@ static PurpleXferUiOps ops =
 };
 
 /**************************************************************************
- * GTK+ File Transfer API
+ * GTK File Transfer API
  **************************************************************************/
 void
 pidgin_xfers_init(void)
