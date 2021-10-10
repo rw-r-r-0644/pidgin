@@ -39,9 +39,9 @@ G_BEGIN_DECLS
 /**
  * pidgin_request_get_ui_ops:
  *
- * Returns the UI operations structure for GTK+ request functions.
+ * Returns the UI operations structure for GTK request functions.
  *
- * Returns: The GTK+ UI request operations structure.
+ * Returns: The GTK UI request operations structure.
  */
 PurpleRequestUiOps *pidgin_request_get_ui_ops(void);
 
@@ -57,7 +57,7 @@ GtkWindow *
 pidgin_request_get_dialog_window(void *ui_handle);
 
 /**************************************************************************/
-/* GTK+ Requests Subsystem                                                */
+/* GTK Requests Subsystem                                                 */
 /**************************************************************************/
 
 /**
@@ -72,14 +72,14 @@ void *pidgin_request_get_handle(void);
 /**
  * pidgin_request_init:
  *
- * Initializes the GTK+ requests subsystem.
+ * Initializes the GTK requests subsystem.
  */
 void pidgin_request_init(void);
 
 /**
  * pidgin_request_uninit:
  *
- * Uninitializes the GTK+ requests subsystem.
+ * Uninitializes the GTK requests subsystem.
  */
 void pidgin_request_uninit(void);
 

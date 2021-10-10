@@ -68,7 +68,7 @@
 #define ADD_MESSAGE_HISTORY_AT_ONCE 100
 
 /*
- * A GTK+ Instant Message pane.
+ * A GTK Instant Message pane.
  */
 struct _PidginImPane
 {
@@ -84,7 +84,7 @@ struct _PidginImPane
 };
 
 /*
- * GTK+ Chat panes.
+ * GTK Chat panes.
  */
 struct _PidginChatPane
 {
@@ -3528,7 +3528,7 @@ pidgin_conv_chat_add_users(PurpleChatConversation *chat, GList *cbuddies, gboole
 		l = l->next;
 	}
 
-	/* Currently GTK+ maintains our sorted list after it's in the tree.
+	/* Currently GTK maintains our sorted list after it's in the tree.
 	 * This may change if it turns out we can manage it faster ourselves.
 	 */
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(ls),  CHAT_USERS_ALIAS_KEY_COLUMN,
@@ -5548,7 +5548,7 @@ switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 }
 
 /**************************************************************************
- * GTK+ window ops
+ * GTK window ops
  **************************************************************************/
 
 GList *
@@ -5605,7 +5605,7 @@ static gboolean gtk_conv_configure_cb(GtkWidget *w, GdkEventConfigure *event, gp
 	window_geo.width = event->width;
 	window_geo.height = event->height;
 
-	/* Workaround for GTK+ bug # 169811 - "configure_event" is fired
+	/* Workaround for GTK bug # 169811 - "configure_event" is fired
 	* when the window is being maximized */
 	if (gdk_window_get_state(gtk_widget_get_window(w)) & GDK_WINDOW_STATE_MAXIMIZED)
 		return FALSE;

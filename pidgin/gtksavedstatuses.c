@@ -1822,7 +1822,7 @@ GtkWidget *pidgin_status_menu(PurpleSavedStatus *current_status, GCallback callb
 
 
 /**************************************************************************
-* GTK+ saved status glue
+* GTK saved status glue
 **************************************************************************/
 
 void *

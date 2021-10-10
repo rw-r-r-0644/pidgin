@@ -39,7 +39,7 @@ G_BEGIN_DECLS
 /**
  * pidgin_privacy_init:
  *
- * Initializes the GTK+ privacy subsystem.
+ * Initializes the GTK privacy subsystem.
  */
 void pidgin_privacy_init(void);
 

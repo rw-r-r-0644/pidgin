@@ -1979,7 +1979,7 @@ gtk_blist_button_press_cb(GtkWidget *tv, GdkEventButton *event, gpointer user_da
 
 #if (1)
 	/*
-	 * This code only exists because GTK+ doesn't work.  If we return
+	 * This code only exists because GTK doesn't work.  If we return
 	 * FALSE here, as would be normal the event propoagates down and
 	 * somehow gets interpreted as the start of a drag event.
 	 *
@@ -5135,7 +5135,7 @@ static void redo_buddy_list(PurpleBuddyList *list, gboolean remove, gboolean rer
 
 	while (node)
 	{
-		/* This is only needed when we're reverting to a non-GTK+ sorted
+		/* This is only needed when we're reverting to a non-GTK sorted
 		 * status.  We shouldn't need to remove otherwise.
 		 */
 		if (remove && !PURPLE_IS_GROUP(node))

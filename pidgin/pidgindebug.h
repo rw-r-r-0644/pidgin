@@ -44,14 +44,14 @@ G_DECLARE_FINAL_TYPE(PidginDebugWindow, pidgin_debug_window, PIDGIN, DEBUG_WINDO
 /**
  * pidgin_debug_ui_new:
  *
- * Initializes the GTK+ debug system.
+ * Initializes the GTK debug system.
  */
 PidginDebugUi *pidgin_debug_ui_new(void);
 
 /**
  * pidgin_debug_get_handle:
  *
- * Get the handle for the GTK+ debug system.
+ * Get the handle for the GTK debug system.
  *
  * Returns: the handle to the debug system
  */

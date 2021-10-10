@@ -502,7 +502,7 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		gchar *filename;
 
 		if (stock_icons[i].dir == NULL) {
-			/* GTK+ Stock icon */
+			/* GTK Stock icon */
 			iconset = gtk_style_context_lookup_icon_set(gtk_widget_get_style_context(win),
 			                                            stock_icons[i].filename);
 		} else {

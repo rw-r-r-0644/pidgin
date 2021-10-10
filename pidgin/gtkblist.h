@@ -118,7 +118,7 @@ struct _PidginBuddyList {
 G_BEGIN_DECLS
 
 /**************************************************************************
- * GTK+ Buddy List API
+ * GTK Buddy List API
  **************************************************************************/
 
 /**
@@ -132,7 +132,7 @@ G_DECLARE_FINAL_TYPE(PidginBuddyList, pidgin_buddy_list, PIDGIN, BUDDY_LIST,
 /**
  * pidgin_blist_get_handle:
  *
- * Get the handle for the GTK+ blist system.
+ * Get the handle for the GTK blist system.
  *
  * Returns: the handle to the blist system
  */
@@ -141,14 +141,14 @@ void *pidgin_blist_get_handle(void);
 /**
  * pidgin_blist_init:
  *
- * Initializes the GTK+ blist system.
+ * Initializes the GTK blist system.
  */
 void pidgin_blist_init(void);
 
 /**
  * pidgin_blist_uninit:
  *
- * Uninitializes the GTK+ blist system.
+ * Uninitializes the GTK blist system.
  */
 void pidgin_blist_uninit(void);
 
@@ -161,7 +161,7 @@ void pidgin_blist_uninit(void);
  * returns the PidginBuddyList we're most likely wanting to work with. This is slightly
  * cleaner than an externed global.
  *
- * Returns: (transfer none): The default GTK+ buddy list.
+ * Returns: (transfer none): The default GTK buddy list.
  */
 PidginBuddyList *pidgin_blist_get_default_gtk_blist(void);
 
@@ -262,7 +262,7 @@ void pidgin_blist_visibility_manager_remove(void);
 void pidgin_blist_add_alert(GtkWidget *widget);
 
 /**************************************************************************
- * GTK+ Buddy List sorting functions
+ * GTK Buddy List sorting functions
  **************************************************************************/
 
 typedef void (*pidgin_blist_sort_function)(PurpleBlistNode *new, PurpleBuddyList *blist, GtkTreeIter group, GtkTreeIter *cur, GtkTreeIter *iter);
@@ -320,21 +320,21 @@ void pidgin_blist_setup_sort_methods(void);
 /**
  * pidgin_blist_update_accounts_menu:
  *
- * Updates the accounts menu on the GTK+ buddy list window.
+ * Updates the accounts menu on the GTK buddy list window.
  */
 void pidgin_blist_update_accounts_menu(void);
 
 /**
  * pidgin_blist_update_plugin_actions:
  *
- * Updates the plugin actions menu on the GTK+ buddy list window.
+ * Updates the plugin actions menu on the GTK buddy list window.
  */
 void pidgin_blist_update_plugin_actions(void);
 
 /**
  * pidgin_blist_update_sort_methods:
  *
- * Updates the Sorting menu on the GTK+ buddy list window.
+ * Updates the Sorting menu on the GTK buddy list window.
  */
 void pidgin_blist_update_sort_methods(void);
 
