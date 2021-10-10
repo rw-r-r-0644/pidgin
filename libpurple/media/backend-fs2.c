@@ -1972,7 +1972,7 @@ create_stream(PurpleMediaBackendFs2 *self,
 				NULL));
 		}
 
-		/* TURN over SSL is only supported by libnice for Google's "psuedo" SSL mode
+		/* TURN over SSL is only supported by libnice for Google's "pseudo" SSL mode
 			at this time */
 
 		purple_debug_info("backend-fs2",

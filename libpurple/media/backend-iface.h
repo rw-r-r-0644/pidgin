@@ -132,7 +132,7 @@ GType purple_media_backend_get_type(void);
  *
  * Creates and adds a stream to the media backend.
  *
- * Returns: True if the stream was successfully created, othewise False.
+ * Returns: True if the stream was successfully created, otherwise False.
  */
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 gboolean purple_media_backend_add_stream(PurpleMediaBackend *self,

@@ -138,7 +138,7 @@ typedef enum {
  *
  * Flags used to set various properties of commands.  Every command should
  * have at least one of #PURPLE_CMD_FLAG_IM and #PURPLE_CMD_FLAG_CHAT set in
- * order to be even slighly useful.
+ * order to be even slightly useful.
  *
  * See purple_cmd_register().
  */

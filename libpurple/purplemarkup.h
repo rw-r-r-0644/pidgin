@@ -148,10 +148,9 @@ char *purple_unescape_html(const char *html);
 /**
  * purple_markup_slice:
  * @str: The input NUL terminated, HTML, UTF-8 (or ASCII) string.
- * @x: The character offset into an unformatted version of str to
- *          begin at.
- * @y: The character offset (into an unformatted vesion of str) of
- *          one past the last character to include in the slice.
+ * @x: The character offset into an unformatted version of str to begin at.
+ * @y: The character offset (into an unformatted version of str) of one past
+ *     the last character to include in the slice.
  *
  * Returns a newly allocated substring of the HTML UTF-8 string "str".
  * The markup is preserved such that the substring will have the same

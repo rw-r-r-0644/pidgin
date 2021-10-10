@@ -180,7 +180,7 @@ default_gw()
 	mib[0] = CTL_NET;
 	mib[1] = PF_ROUTE; /* entire routing table or a subset of it */
 	mib[2] = 0; /* protocol number - always 0 */
-	mib[3] = 0; /* address family - 0 for all addres families */
+	mib[3] = 0; /* address family - 0 for all address families */
 	mib[4] = NET_RT_DUMP;
 	mib[5] = 0;
 
@@ -513,7 +513,7 @@ purple_pmp_destroy_map(PurplePmpType type, unsigned short privateport)
 }
 
 static void
-purple_pmp_network_config_changed_cb(GNetworkMonitor *monitor, gboolean avialable, gpointer data)
+purple_pmp_network_config_changed_cb(GNetworkMonitor *monitor, gboolean available, gpointer data)
 {
 	pmp_info.status = PURPLE_PMP_STATUS_UNDISCOVERED;
 	g_free(pmp_info.publicip);

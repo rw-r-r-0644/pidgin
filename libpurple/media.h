@@ -250,7 +250,7 @@ G_GNUC_END_IGNORE_DEPRECATIONS
  *
  * Gets the session type from a session
  *
- * Returns: The retreived session type.
+ * Returns: The retrieved session type.
  */
 PurpleMediaSessionType purple_media_get_session_type(PurpleMedia *media, const gchar *sess_id);
 

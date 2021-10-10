@@ -292,7 +292,7 @@ purple_network_get_handle(void)
 }
 
 static void
-purple_network_upnp_mapping_remove_cb(gboolean sucess, gpointer data)
+purple_network_upnp_mapping_remove_cb(gboolean success, gpointer data)
 {
 	purple_debug_info("network", "done removing UPnP port mapping\n");
 }

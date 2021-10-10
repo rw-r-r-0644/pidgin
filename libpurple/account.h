@@ -230,9 +230,8 @@ void purple_account_notify_added(PurpleAccount *account, const char *remote_user
  * @alias:       The optional alias of the user.
  * @message:     The optional message sent from the user adding you.
  *
- * Notifies the user that the account was addded to a remote user's buddy
- * list and asks ther user if they want to add the remote user to their buddy
- * list.
+ * Notifies the user that the account was added to a remote user's buddy list
+ * and asks the user if they want to add the remote user to their buddy list.
  *
  * This will present a dialog informing the local user that the remote user
  * added them to the remote user's buddy list and will ask if they want to add

@@ -74,7 +74,7 @@ purple_memory_pool_block_new(gulong block_size)
 	PurpleMemoryPoolBlock *block;
 	gsize total_size;
 
-	/* ceil block struct size to the multipy of align */
+	/* ceil block struct size to the multiply of align */
 	total_size = ((sizeof(PurpleMemoryPoolBlock) - 1) /
 		PURPLE_MEMORY_POOL_BLOCK_PADDING + 1) *
 		sizeof(PurpleMemoryPoolBlock);

@@ -115,7 +115,7 @@ gboolean purple_protocol_media_initiate_session(PurpleProtocolMedia *media, Purp
  * purple_protocol_media_get_caps:
  * @media: The #PurpleProtocolMedia instance.
  * @account: The #PurpleAccount instance.
- * @who: The user to get the media capabilites for.
+ * @who: The user to get the media capabilities for.
  *
  * Gets the #PurpleMediaCaps for @who which determine what types of media are
  * available.

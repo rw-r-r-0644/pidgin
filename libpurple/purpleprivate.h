@@ -84,8 +84,8 @@ _purple_buddy_icons_blist_loaded_cb(void);
 /**
  * _purple_connection_new:
  * @account:  The account the connection should be connecting to.
- * @regist:   Whether we are registering a new account or just
- *                 trying to do a normal signon.
+ * @is_registration: Whether we are registering a new account or just trying to
+ *                   do a normal signon.
  * @password: The password to use.
  *
  * Creates a connection to the specified account and either connects
@@ -99,8 +99,8 @@ _purple_buddy_icons_blist_loaded_cb(void);
  *       in account.c.  If you're trying to sign on an account, use that
  *       function instead.
  */
-void _purple_connection_new(PurpleAccount *account, gboolean regist,
-                            const char *password);
+void _purple_connection_new(PurpleAccount *account, gboolean is_registration,
+                            const gchar *password);
 /**
  * _purple_connection_new_unregister:
  * @account:  The account to unregister

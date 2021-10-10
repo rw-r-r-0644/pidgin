@@ -190,8 +190,8 @@ void purple_protocol_server_set_info(PurpleProtocolServer *protocol_server, Purp
  * @connection: The #PurpleConnection instance.
  * @who: The name of the user whose information you're asking for.
  *
- * Gets the user info or profile for @who and displays it in a protocol specifc
- * way.
+ * Gets the user info or profile for @who and displays it in a protocol
+ * specific way.
  *
  * Since: 3.0.0
  */
@@ -291,7 +291,7 @@ void purple_protocol_server_remove_buddy(PurpleProtocolServer *protocol_server, 
  * @groups: (element-type PurpleGroup): A #GList of #PurpleGroup's
  *          corresponding to @buddies.
  *
- * Similiar to purple_protocol_server_remove_buddy() but allows you to remove
+ * Similar to purple_protocol_server_remove_buddy() but allows you to remove
  * multiple at a time.
  *
  * If @protocol_server doesn't implement this function directly,

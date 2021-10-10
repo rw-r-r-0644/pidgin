@@ -272,7 +272,7 @@ void purple_xmlnode_set_namespace(PurpleXmlNode *node, const char *xmlns);
 
 /**
  * purple_xmlnode_get_namespace:
- * @node: The node to get the namepsace from
+ * @node: The node to get the namespace from
  *
  * Returns the namespace of a node
  *

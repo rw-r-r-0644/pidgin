@@ -101,7 +101,7 @@ typedef enum /*< flags >*/
  * PurpleMessageContentType:
  * @PURPLE_MESSAGE_CONTENT_TYPE_PLAIN: The message has no formatting.
  * @PURPLE_MESSAGE_CONTENT_TYPE_HTML: The message is formatted in HTML.
- * @PURPLE_MESSAGE_CONTENT_TYPE_XHTML: The mesage is formatted in XHTML.
+ * @PURPLE_MESSAGE_CONTENT_TYPE_XHTML: The message is formatted in XHTML.
  * @PURPLE_MESSAGE_CONTENT_TYPE_MARKDOWN: The message is formatted in Markdown.
  *
  * The message formatting for the message.

@@ -245,7 +245,7 @@ gulong purple_media_manager_set_output_window(PurpleMediaManager *manager,
  * @manager: The manager the output window was registered with.
  * @output_window_id: The ID of the output window.
  *
- * Remove a previously registerd output window.
+ * Remove a previously registered output window.
  *
  * Returns: TRUE if it found the output window and was successful, else FALSE.
  */
@@ -334,11 +334,11 @@ void purple_media_manager_set_application_data_callbacks(
  * @blocking: Whether to block until the data was send or not.
  *
  * Sends a buffer of data to a #PURPLE_MEDIA_APPLICATION session.
- * If @blocking is set, unless an error occured, the function will not return
+ * If @blocking is set, unless an error occurred, the function will not return
  * until the data has been flushed into the network.
  * If the stream is not writable, the data will be queued. It is the
- * responsability of the user to stop sending data when the stream isn't
- * writable anymore. It is also the responsability of the user to only start
+ * responsibility of the user to stop sending data when the stream isn't
+ * writable anymore. It is also the responsibility of the user to only start
  * sending data after the stream has been configured correctly (encryption
  * parameters for example).
  *
@@ -360,7 +360,7 @@ gint purple_media_manager_send_application_data (
  * with currently available data.
  *
  * Receive a buffer of data from a #PURPLE_MEDIA_APPLICATION session.
- * If @blocking is set, unless an error occured, the function will not return
+ * If @blocking is set, unless an error occurred, the function will not return
  * until @max_size bytes are read.
  *
  * Returns: Number of bytes received or -1 in case of error.

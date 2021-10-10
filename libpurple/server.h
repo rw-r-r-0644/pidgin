@@ -103,7 +103,7 @@ PurpleAttentionType *purple_get_attention_type_from_code(PurpleAccount *account,
  * @gc:     The connection over which to send the typing notification.
  * @name:   The name of the buddy we were asking information from.
  *
- * Request user infromation from the server.
+ * Request user information from the server.
  */
 void purple_serv_get_info(PurpleConnection *gc, const char *name);
 
@@ -270,7 +270,7 @@ void purple_serv_got_typing(PurpleConnection *gc, const char *name, int timeout,
  * @gc: The #PurpleConnection
  * @name: The name of the person that stopped typing.
  *
- * Called from a protocol when it has recieved a type stopped.
+ * Called from a protocol when it has received a type stopped.
  *
  * @todo Could probably move this into the conversation API.
  */
