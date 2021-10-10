@@ -600,10 +600,9 @@ fb_cb_api_messages(FbApi *api, GSList *msgs, gpointer data)
 }
 
 static void
-fb_cb_api_presences(FbApi *api, GSList *press, gpointer data)
+fb_cb_api_presences(FbApi *api, GSList *presences, gpointer data)
 {
 	const gchar *statid;
-	FbApiPresence *pres;
 	FbData *fata = data;
 	gchar uid[FB_ID_STRMAX];
 	GSList *l;
@@ -614,16 +613,16 @@ fb_cb_api_presences(FbApi *api, GSList *press, gpointer data)
 	gc = fb_data_get_connection(fata);
 	acct = purple_connection_get_account(gc);
 
-	for (l = press; l != NULL; l = l->next) {
-		pres = l->data;
+	for (l = presences; l != NULL; l = l->next) {
+		FbApiPresence *api_presence = l->data;
 
-		if (pres->active) {
+		if (api_presence->active) {
 			pstat = PURPLE_STATUS_AVAILABLE;
 		} else {
 			pstat = PURPLE_STATUS_OFFLINE;
 		}
 
-		FB_ID_TO_STR(pres->uid, uid);
+		FB_ID_TO_STR(api_presence->uid, uid);
 		statid = purple_primitive_get_id_from_type(pstat);
 		purple_protocol_got_user_status(acct, uid, statid, NULL);
 	}
@@ -1174,11 +1173,11 @@ fb_client_tooltip_text(PurpleProtocolClient *client, PurpleBuddy *buddy,
                        PurpleNotifyUserInfo *info, gboolean full)
 {
 	const gchar *name;
-	PurplePresence *pres;
+	PurplePresence *presence;
 	PurpleStatus *status;
 
-	pres = purple_buddy_get_presence(buddy);
-	status = purple_presence_get_active_status(pres);
+	presence = purple_buddy_get_presence(buddy);
+	status = purple_presence_get_active_status(presence);
 
 	if (!PURPLE_BUDDY_IS_ONLINE(buddy)) {
 		/* Prevent doubles statues for Offline buddies */

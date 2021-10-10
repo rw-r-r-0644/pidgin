@@ -654,7 +654,7 @@ bonjour_xmpp_stream_started(BonjourXMPPConversation *bconv)
 			}
 		}
 
-		/* We don't want to recieve anything else */
+		/* We don't want to receive anything else */
 		purple_gio_graceful_close(G_IO_STREAM(bconv->socket),
 		                          G_INPUT_STREAM(bconv->input),
 		                          G_OUTPUT_STREAM(bconv->output));
@@ -826,7 +826,7 @@ _connected_to_buddy(GObject *source, GAsyncResult *res, gpointer user_data)
 		g_clear_error(&error);
 
 		/* There may be multiple entries for the same IP - one per
-		 * presence recieved (e.g. multiple interfaces).
+		 * presence received (e.g. multiple interfaces).
 		 * We need to make sure that we find the previously used entry.
 		 */
 		tmp = g_slist_find(bb->ips, bb->conversation->ip_link);
@@ -1149,7 +1149,7 @@ bonjour_xmpp_close_conversation(BonjourXMPPConversation *bconv)
 	}
 
 	/* Cancel any file transfers that are waiting to begin */
-	/* There wont be any transfers if it hasn't been attached to a buddy */
+	/* There won't be any transfers if it hasn't been attached to a buddy */
 	if (bconv->pb != NULL && bd != NULL) {
 		GSList *xfers, *tmp_next;
 		xfers = bd->xfer_lists;

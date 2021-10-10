@@ -1743,9 +1743,9 @@ fb_api_cb_publish_ms_event(FbApi *api, JsonNode *root, GSList *events, FbApiEven
 }
 
 static void
-fb_api_cb_publish_pt(FbThrift *thft, GSList **press, GError **error)
+fb_api_cb_publish_pt(FbThrift *thft, GSList **presences, GError **error)
 {
-	FbApiPresence *pres;
+	FbApiPresence *api_presence;
 	FbThriftType type;
 	gint16 id;
 	gint32 i32;
@@ -1784,10 +1784,10 @@ fb_api_cb_publish_pt(FbThrift *thft, GSList **press, GError **error)
 		FB_API_TCHK(id == 2);
 		FB_API_TCHK(fb_thrift_read_i32(thft, &i32));
 
-		pres = fb_api_presence_dup(NULL);
-		pres->uid = i64;
-		pres->active = i32 != 0;
-		*press = g_slist_prepend(*press, pres);
+		api_presence = fb_api_presence_dup(NULL);
+		api_presence->uid = i64;
+		api_presence->active = i32 != 0;
+		*presences = g_slist_prepend(*presences, api_presence);
 
 		fb_util_debug_info("Presence: %" FB_ID_FORMAT " (%d) id: %d",
 		                   i64, i32 != 0, id);
@@ -1849,19 +1849,19 @@ fb_api_cb_publish_p(FbApi *api, GByteArray *pload)
 {
 	FbThrift *thft;
 	GError *err = NULL;
-	GSList *press = NULL;
+	GSList *presences = NULL;
 
 	thft = fb_thrift_new(pload, 0);
-	fb_api_cb_publish_pt(thft, &press, &err);
+	fb_api_cb_publish_pt(thft, &presences, &err);
 	g_object_unref(thft);
 
 	if (G_LIKELY(err == NULL)) {
-		g_signal_emit_by_name(api, "presences", press);
+		g_signal_emit_by_name(api, "presences", presences);
 	} else {
 		fb_api_error_emit(api, err);
 	}
 
-	g_slist_free_full(press, (GDestroyNotify) fb_api_presence_free);
+	g_slist_free_full(presences, (GDestroyNotify)fb_api_presence_free);
 }
 
 static void
@@ -3338,27 +3338,27 @@ fb_api_message_free(FbApiMessage *msg)
 }
 
 FbApiPresence *
-fb_api_presence_dup(const FbApiPresence *pres)
+fb_api_presence_dup(const FbApiPresence *presence)
 {
-	if (pres == NULL) {
+	if (presence == NULL) {
 		return g_new0(FbApiPresence, 1);
 	}
 
-	return g_memdup2(pres, sizeof *pres);
+	return g_memdup2(presence, sizeof *presence);
 }
 
 void
-fb_api_presence_reset(FbApiPresence *pres)
+fb_api_presence_reset(FbApiPresence *presence)
 {
-	g_return_if_fail(pres != NULL);
-	memset(pres, 0, sizeof *pres);
+	g_return_if_fail(presence != NULL);
+	memset(presence, 0, sizeof *presence);
 }
 
 void
-fb_api_presence_free(FbApiPresence *pres)
+fb_api_presence_free(FbApiPresence *presence)
 {
-	if (G_LIKELY(pres != NULL)) {
-		g_free(pres);
+	if (G_LIKELY(presence != NULL)) {
+		g_free(presence);
 	}
 }
 

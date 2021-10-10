@@ -51,7 +51,7 @@ main(gint argc, gchar **argv) {
 	g_test_add_func("/jabber/caps/parse invalid nodes",
 	                test_jabber_caps_parse_invalid_nodes);
 
-	g_test_add_func("/jabber/caps/calulate from xmlnode",
+	g_test_add_func("/jabber/caps/calculate from xmlnode",
 	                test_jabber_caps_calculate_from_xmlnode);
 
 	return g_test_run();

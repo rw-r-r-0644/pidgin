@@ -220,7 +220,7 @@ jingle_rtp_stream_info_cb(PurpleMedia *media, PurpleMediaInfoType type,
 				session);
 
 		g_object_unref(session);
-	/* The same signal is emited *four* times in case of acceptance
+	/* The same signal is emitted *four* times in case of acceptance
 	 * by purple_media_stream_info() (stream acceptance, session
 	 * acceptance, participant acceptance, and conference acceptance).
 	 * We only react to the first one, where sid and name are given

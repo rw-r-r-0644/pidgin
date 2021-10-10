@@ -295,18 +295,18 @@ fb_util_rand_alnum(guint len)
 }
 
 static void
-fb_util_request_buddy_ok(gpointer *mata, PurpleRequestFields *fields)
+fb_util_request_buddy_ok(gpointer *request_data, PurpleRequestFields *fields)
 {
-	FbUtilRequestBuddyFunc func = mata[0];
+	FbUtilRequestBuddyFunc func = request_data[0];
 	GList *l;
 	GList *select;
-	gpointer data = mata[2];
+	gpointer data = request_data[2];
 	GSList *ret = NULL;
 	PurpleBuddy *bdy;
 	PurpleRequestField *field;
 
 	if (func == NULL) {
-		g_free(mata);
+		g_free(request_data);
 		return;
 	}
 
@@ -322,20 +322,20 @@ fb_util_request_buddy_ok(gpointer *mata, PurpleRequestFields *fields)
 	func(ret, data);
 
 	g_slist_free(ret);
-	g_free(mata);
+	g_free(request_data);
 }
 
 static void
-fb_util_request_buddy_cancel(gpointer *mata, PurpleRequestFields *fields)
+fb_util_request_buddy_cancel(gpointer *request_data, PurpleRequestFields *fields)
 {
-	FbUtilRequestBuddyFunc func = mata[1];
-	gpointer data = mata[2];
+	FbUtilRequestBuddyFunc func = request_data[1];
+	gpointer data = request_data[2];
 
 	if (func != NULL) {
 		func(NULL, data);
 	}
 
-	g_free(mata);
+	g_free(request_data);
 }
 
 static gint
@@ -374,7 +374,7 @@ fb_util_request_buddy(PurpleConnection *gc, const gchar *title,
 	const gchar *name;
 	gchar *str;
 	GList *items = NULL;
-	gpointer *mata;
+	gpointer *request_data;
 	GSList *buddies;
 	GSList *l;
 	PurpleAccount *acct;
@@ -383,10 +383,10 @@ fb_util_request_buddy(PurpleConnection *gc, const gchar *title,
 	PurpleRequestFieldGroup *group;
 	PurpleRequestFields *fields;
 
-	mata = g_new0(gpointer, 3);
-	mata[0] = ok_cb;
-	mata[1] = cancel_cb;
-	mata[2] = data;
+	request_data = g_new0(gpointer, 3);
+	request_data[0] = ok_cb;
+	request_data[1] = cancel_cb;
+	request_data[2] = data;
 
 	acct = purple_connection_get_account(gc);
 	buddies = purple_blist_find_buddies(acct, NULL);
@@ -426,7 +426,7 @@ fb_util_request_buddy(PurpleConnection *gc, const gchar *title,
 	                             G_CALLBACK(fb_util_request_buddy_ok),
 				     _("Cancel"),
 	                             G_CALLBACK(fb_util_request_buddy_cancel),
-				     cpar, mata);
+				     cpar, request_data);
 }
 
 void

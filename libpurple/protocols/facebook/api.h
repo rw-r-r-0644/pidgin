@@ -843,34 +843,34 @@ fb_api_message_free(FbApiMessage *msg);
 
 /**
  * fb_api_presence_dup:
- * @pres: The #FbApiPresence or #NULL.
+ * @presence: The #FbApiPresence or %NULL.
  *
- * Duplicates an #FbApiPresence. If @pres is #NULL, a new zero filled
- * #FbApiPresence is returned. The returned #FbApiPresence should be
- * freed with #fb_api_presence_free() when no longer needed.
+ * Duplicates an #FbApiPresence. If @presence is %NULL, a new zero filled
+ * #FbApiPresence is returned. The returned #FbApiPresence should be freed with
+ * #fb_api_presence_free() when no longer needed.
  *
  * Returns: The new #FbApiPresence.
  */
 FbApiPresence *
-fb_api_presence_dup(const FbApiPresence *pres);
+fb_api_presence_dup(const FbApiPresence *presence);
 
 /**
  * fb_api_presence_reset:
- * @pres: The #FbApiPresence.
+ * @presence: The #FbApiPresence.
  *
  * Resets an #FbApiPresence.
  */
 void
-fb_api_presence_reset(FbApiPresence *pres);
+fb_api_presence_reset(FbApiPresence *presence);
 
 /**
  * fb_api_presence_free:
- * @pres: The #FbApiPresence.
+ * @presence: The #FbApiPresence.
  *
  * Frees all memory used by the #FbApiPresence.
  */
 void
-fb_api_presence_free(FbApiPresence *pres);
+fb_api_presence_free(FbApiPresence *presence);
 
 /**
  * fb_api_thread_dup:
