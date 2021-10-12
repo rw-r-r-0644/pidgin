@@ -609,7 +609,6 @@ version 3.0.0 (??/??/????):
 		* purple_status_type_add_attrs_vargs
 		* purple_status_type_get_primary_attr
 		* purple_status_type_set_primary_attr
-		* pidgin_stock_id_from_status_primitive
 		* purple_strlcat
 		* purple_strlcpy
 		* purple_str_binary_to_ascii
@@ -842,8 +841,9 @@ version 3.0.0 (??/??/????):
 		* pidgin_status_box_pulse_connecting
 		* pidgin_status_box_set_buddy_icon
 		* pidgin_status_box_set_network_available
+		* All PIDGIN_STOCK_* macros
 		* pidgin_stock_id_from_presence
-		* PIDGIN_STOCK_TOOLBAR_SMILEY
+		* pidgin_stock_id_from_status_primitive
 		* pidgin_text_combo_box_entry_set_text
 		* pidgin_theme_font_free
 		* pidgin_theme_font_get_color

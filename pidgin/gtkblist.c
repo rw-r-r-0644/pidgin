@@ -52,7 +52,6 @@
 #include "pidgin/pidginplugininfo.h"
 #include "pidginscrollbook.h"
 #include "pidgin/pidginstylecontext.h"
-#include "pidginstock.h"
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
