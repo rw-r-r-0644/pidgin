@@ -134,14 +134,6 @@ static GtkWidget *warn_close_dialog = NULL;
 
 static GList *window_list = NULL;
 
-/* Lists of status icons at all available sizes for use as window icons */
-static GList *available_list = NULL;
-static GList *away_list = NULL;
-static GList *busy_list = NULL;
-static GList *xa_list = NULL;
-static GList *offline_list = NULL;
-static GHashTable *protocol_lists = NULL;
-
 static gboolean update_send_to_selection(PidginConvWindow *win);
 static void generate_send_to_items(PidginConvWindow *win);
 
@@ -5014,36 +5006,6 @@ pidgin_conv_windows_get_list()
 	return window_list;
 }
 
-static GList*
-make_status_icon_list(const char *stock, GtkWidget *w)
-{
-	GList *l = NULL;
-	l = g_list_append(l,
-		gtk_widget_render_icon(w, stock,
-			gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL), "GtkWindow"));
-	l = g_list_append(l,
-		gtk_widget_render_icon(w, stock,
-			gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_SMALL), "GtkWindow"));
-	l = g_list_append(l,
-		gtk_widget_render_icon(w, stock,
-			gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_MEDIUM), "GtkWindow"));
-	l = g_list_append(l,
-		gtk_widget_render_icon(w, stock,
-			gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_LARGE), "GtkWindow"));
-	return l;
-}
-
-static void
-create_icon_lists(GtkWidget *w)
-{
-	available_list = make_status_icon_list(PIDGIN_STOCK_STATUS_AVAILABLE, w);
-	busy_list = make_status_icon_list(PIDGIN_STOCK_STATUS_BUSY, w);
-	xa_list = make_status_icon_list(PIDGIN_STOCK_STATUS_XA, w);
-	offline_list = make_status_icon_list(PIDGIN_STOCK_STATUS_OFFLINE, w);
-	away_list = make_status_icon_list(PIDGIN_STOCK_STATUS_AWAY, w);
-	protocol_lists = g_hash_table_new(g_str_hash, g_str_equal);
-}
-
 static void
 plugin_changed_cb(GObject *manager, GPluginPlugin *p, gpointer data)
 {
@@ -5158,10 +5120,6 @@ pidgin_conv_window_new()
 #if TRUE || defined(_WIN32)
 	pidgin_conv_restore_position(win);
 #endif
-
-	if (available_list == NULL) {
-		create_icon_lists(win->window);
-	}
 
 	g_signal_connect(G_OBJECT(win->window), "delete_event",
 	                 G_CALLBACK(close_win_cb), win);
