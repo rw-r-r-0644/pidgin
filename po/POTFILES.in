@@ -248,6 +248,8 @@ libpurple/purplecredentialmanager.c
 libpurple/purplecredentialprovider.c
 libpurple/purpledebugui.c
 libpurple/purple-gio.c
+libpurple/purplehistoryadapter.c
+libpurple/purplehistorymanager.c
 libpurple/purpleimconversation.c
 libpurple/purplekeyvaluepair.c
 libpurple/purplemarkup.c
@@ -266,6 +268,7 @@ libpurple/purpleprotocolmanager.c
 libpurple/purpleprotocolprivacy.c
 libpurple/purpleprotocolroomlist.c
 libpurple/purpleprotocolserver.c
+libpurple/purplesqlitehistoryadapter.c
 libpurple/purpleuiinfo.c
 libpurple/purplewhiteboard.c
 libpurple/purplewhiteboardmanager.c

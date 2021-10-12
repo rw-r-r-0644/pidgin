@@ -4,6 +4,8 @@ PROGS = [
     'circular_buffer',
     'credential_manager',
     'credential_provider',
+    'history_adapter',
+    'history_manager',
     'image',
     'keyvaluepair',
     'markup',

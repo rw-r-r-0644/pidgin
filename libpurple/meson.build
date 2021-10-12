@@ -53,6 +53,8 @@ purple_coresources = [
 	'purplecredentialmanager.c',
 	'purplecredentialprovider.c',
 	'purpledebugui.c',
+	'purplehistoryadapter.c',
+	'purplehistorymanager.c',
 	'purpleimconversation.c',
 	'purplekeyvaluepair.c',
 	'purplemarkup.c',
@@ -71,6 +73,7 @@ purple_coresources = [
 	'purpleprotocolprivacy.c',
 	'purpleprotocolroomlist.c',
 	'purpleprotocolserver.c',
+	'purplesqlitehistoryadapter.c',
 	'purpleuiinfo.c',
 	'purplewhiteboard.c',
 	'purplewhiteboardmanager.c',
@@ -144,6 +147,8 @@ purple_coreheaders = [
 	'purplecredentialmanager.h',
 	'purplecredentialprovider.h',
 	'purpledebugui.h',
+	'purplehistoryadapter.h',
+	'purplehistorymanager.h',
 	'purpleimconversation.h',
 	'purpleattachment.h',
 	'purplekeyvaluepair.h',
@@ -163,6 +168,7 @@ purple_coreheaders = [
 	'purpleprotocolprivacy.h',
 	'purpleprotocolroomlist.h',
 	'purpleprotocolserver.h',
+	'purplesqlitehistoryadapter.h',
 	'purpleuiinfo.h',
 	'purplewhiteboard.h',
 	'purplewhiteboardmanager.h',
@@ -189,6 +195,12 @@ purple_coreheaders = [
 ]
 
 purple_generated_sources = []
+
+purple_resource = gnome.compile_resources('purpleresources',
+	'resources/libpurple.gresource.xml',
+	source_dir : 'resources',
+	c_name : 'purple')
+purple_coresources += purple_resource
 
 purple_filebase = 'purple-@0@'.format(purple_major_version)
 purple_include_base = purple_filebase / 'libpurple'
@@ -289,7 +301,7 @@ libpurple = library('purple',
                     dependencies : # static_link_libs
                         [dnsapi, ws2_32, glib, gio, gplugin_dep, libsoup,
                          libxml, farstream, gstreamer, gstreamer_video,
-                         gstreamer_app, json, math])
+                         gstreamer_app, json, sqlite3, math])
 
 install_headers(purple_coreheaders,
                 subdir : purple_include_base)

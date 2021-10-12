@@ -173,6 +173,7 @@ purple_core_init(const char *ui)
 	purple_whiteboard_manager_startup();
 	purple_blist_init();
 	purple_log_init();
+	purple_history_manager_startup();
 	purple_network_init();
 	purple_proxy_init();
 	purple_stun_init();
@@ -248,6 +249,8 @@ purple_core_quit(void)
 	purple_credential_manager_shutdown();
 	purple_protocol_manager_shutdown();
 	purple_cmds_uninit();
+
+	purple_history_manager_shutdown();
 
 	purple_log_uninit();
 	/* Everything after util_uninit cannot try to write things to the

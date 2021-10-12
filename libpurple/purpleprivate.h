@@ -32,6 +32,7 @@
 #include "accounts.h"
 #include "connection.h"
 #include "purplecredentialprovider.h"
+#include "purplehistoryadapter.h"
 
 #define PURPLE_STATIC_ASSERT(condition, message) \
 	{ typedef char static_assertion_failed_ ## message \
@@ -256,6 +257,52 @@ void purple_credential_provider_activate(PurpleCredentialProvider *provider);
 void purple_credential_provider_deactivate(PurpleCredentialProvider *provider);
 
 /**
+ * purple_history_adapter_activate:
+ * @adapter: The #PurpleHistoryAdapter instance.
+ * @error: A return address for a #GError.
+ *
+ * Asks @adapter to become the active adapter. If @adapter can not become active
+ * it should return %FALSE and set @error.
+ *
+ * Returns: %TRUE on success otherwise %FALSE with @error set.
+ *
+ * Since: 3.0.0
+ */
+gboolean purple_history_adapter_activate(PurpleHistoryAdapter *adapter, GError **error);
+
+/**
+ * purple_history_adapter_deactivate:
+ * @adapter: The #PurpleHistoryAdapter instance.
+ * @error: A return address for a #GError.
+ *
+ * Asks @adapter to stop being the active adapter. If @adapter can not
+ * deactivate it should return %FALSE and set @error.
+ *
+ * Returns: %TRUE on success otherwise %FALSE with @error set.
+ *
+ * Since: 3.0.0
+ */
+gboolean purple_history_adapter_deactivate(PurpleHistoryAdapter *adapter, GError **error);
+
+/**
+ * purple_history_manager_startup:
+ *
+ * Starts up the history manager by creating the default instance.
+ *
+ * Since: 3.0.0
+ */
+void purple_history_manager_startup(void);
+
+/**
+ * purple_history_manager_shutdown:
+ *
+ * Shuts down the history manager by destroying the default instance.
+ *
+ * Since: 3.0.0
+ */
+void purple_history_manager_shutdown(void);
+
+/**
  * purple_whiteboard_manager_startup:
  *
  * Starts up the whiteboard manager by creating the default instance.
@@ -272,7 +319,6 @@ void purple_whiteboard_manager_startup(void);
  * Since: 3.0.0
  */
 void purple_whiteboard_manager_shutdown(void);
-
 
 G_END_DECLS
 

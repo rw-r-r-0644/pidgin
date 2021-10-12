@@ -33,6 +33,7 @@
 #include "purpleconversation.h"
 #include "purpleconversationmanager.h"
 #include "purpleenums.h"
+#include "purplehistorymanager.h"
 #include "purplemarkup.h"
 #include "purpleprivate.h"
 #include "purpleprotocolclient.h"
@@ -291,8 +292,13 @@ purple_conversation_constructed(GObject *object) {
 	g_object_get(object, "account", &account, NULL);
 	gc = purple_account_get_connection(account);
 
-	/* copy features from the connection. */
-	purple_conversation_set_features(conv, purple_connection_get_flags(gc));
+	/* Check if we have a connection before we use it. The unit tests are one
+	 * case where we will not have a connection.
+	 */
+	if(PURPLE_IS_CONNECTION(gc)) {
+		purple_conversation_set_features(conv,
+		                                 purple_connection_get_flags(gc));
+	}
 
 	/* add the conversation to the appropriate lists */
 	manager = purple_conversation_manager_get_default();
@@ -745,7 +751,21 @@ _purple_conversation_write_common(PurpleConversation *conv,
 	{
 		GList *log;
 		GDateTime *dt;
+		GError *error = NULL;
+		PurpleHistoryManager *manager = NULL;
 
+		manager = purple_history_manager_get_default();
+		/* We should probably handle this error somehow, but I don't think that
+		 * spamming purple_debug_warning is necessarily the right call.
+		 */
+		if(!purple_history_manager_write(manager, conv, pmsg, &error)){
+			purple_debug_info("conversation", "history manager write returned error: %s", error->message);
+
+			g_clear_error(&error);
+		}
+
+
+		/* The following should be deleted when the history api is stable. */
 		dt = g_date_time_ref(purple_message_get_timestamp(pmsg));
 		log = priv->logs;
 		while(log != NULL) {
