@@ -906,35 +906,6 @@ void pidgin_buddy_icon_get_scale_size(GdkPixbuf *buf, PurpleBuddyIconSpec *spec,
 		*height = 100;
 }
 
-const gchar *
-pidgin_stock_id_from_status_primitive(PurpleStatusPrimitive prim) {
-	const gchar *stock = NULL;
-	switch (prim) {
-		case PURPLE_STATUS_UNSET:
-			stock = NULL;
-			break;
-		case PURPLE_STATUS_UNAVAILABLE:
-			stock = PIDGIN_STOCK_STATUS_BUSY;
-			break;
-		case PURPLE_STATUS_AWAY:
-			stock = PIDGIN_STOCK_STATUS_AWAY;
-			break;
-		case PURPLE_STATUS_EXTENDED_AWAY:
-			stock = PIDGIN_STOCK_STATUS_XA;
-			break;
-		case PURPLE_STATUS_INVISIBLE:
-			stock = PIDGIN_STOCK_STATUS_INVISIBLE;
-			break;
-		case PURPLE_STATUS_OFFLINE:
-			stock = PIDGIN_STOCK_STATUS_OFFLINE;
-			break;
-		default:
-			stock = PIDGIN_STOCK_STATUS_AVAILABLE;
-			break;
-	}
-	return stock;
-}
-
 GdkPixbuf *
 pidgin_create_protocol_icon(PurpleAccount *account, PidginProtocolIconSize size)
 {

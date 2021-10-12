@@ -294,16 +294,6 @@ GdkPixbuf *pidgin_create_protocol_icon(PurpleAccount *account, PidginProtocolIco
 GdkPixbuf *pidgin_create_icon_from_protocol(PurpleProtocol *protocol, PidginProtocolIconSize size, PurpleAccount *account);
 
 /**
- * pidgin_stock_id_from_status_primitive:
- * @prim:   The status primitive
- *
- * Returns an appropriate stock-id for a status primitive.
- *
- * Returns: The stock-id
- */
-const char *pidgin_stock_id_from_status_primitive(PurpleStatusPrimitive prim);
-
-/**
  * pidgin_append_menu_action:
  * @menu:    The menu to append to.
  * @act:     The PurpleActionMenu to append.
