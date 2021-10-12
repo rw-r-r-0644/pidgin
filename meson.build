@@ -301,6 +301,11 @@ json = dependency('json-glib-1.0', version : '>= 0.14.0')
 libsoup = dependency('libsoup-2.4', version : '>= 2.42')
 
 #######################################################################
+# Check for sqlite3 (required)
+#######################################################################
+sqlite3 = dependency('sqlite3', version : '>= 3.27.0')
+
+#######################################################################
 # Check for GStreamer
 #######################################################################
 
@@ -665,6 +670,7 @@ conf.set('DEBUG', enable_debug)
 toplevel_inc = include_directories('.')
 
 subdir('libpurple')
+subdir('purple-history')
 subdir('finch')
 subdir('pidgin')
 subdir('doc')
