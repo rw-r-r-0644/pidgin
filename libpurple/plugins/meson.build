@@ -21,11 +21,6 @@ joinpart = library('joinpart', 'joinpart.c',
     name_prefix : '',
     install : true, install_dir : PURPLE_PLUGINDIR)
 
-log_reader = library('log_reader', 'log_reader.c',
-    dependencies : [libpurple_dep],
-    name_prefix : '',
-    install : true, install_dir : PURPLE_PLUGINDIR)
-
 psychic = library('psychic', 'psychic.c',
     dependencies : [libpurple_dep],
     name_prefix : '',
