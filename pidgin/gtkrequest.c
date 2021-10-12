@@ -33,7 +33,6 @@
 #include "pidginaccountstore.h"
 #include "pidgincore.h"
 #include "pidgindialog.h"
-#include "pidginstock.h"
 
 #include <gdk/gdkkeysyms.h>
 

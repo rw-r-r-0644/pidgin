@@ -30,7 +30,6 @@
 #include "gtknotify.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
-#include "pidginstock.h"
 
 typedef struct
 {

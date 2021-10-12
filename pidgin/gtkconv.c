@@ -4771,7 +4771,6 @@ pidgin_conversations_uninit(void)
 #include "gtkprivacy.h"
 #include "gtkutils.h"
 #include "pidginmenutray.h"
-#include "pidginstock.h"
 
 static void
 do_close(GtkWidget *w, int resp, PidginConvWindow *win)

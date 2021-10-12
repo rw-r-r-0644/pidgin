@@ -47,7 +47,6 @@
 #include "gtkutils.h"
 #include "minidialog.h"
 #include "pidgincore.h"
-#include "pidginstock.h"
 
 /******************************************************************************
  * Enums
