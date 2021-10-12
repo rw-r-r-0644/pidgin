@@ -97,9 +97,6 @@ struct _PidginPrefsWindow {
 	/* Interface page */
 	struct {
 		struct {
-			PidginPrefCombo hide_new;
-		} im;
-		struct {
 			GtkWidget *minimize_new_convs;
 		} win32;
 		struct {
@@ -115,7 +112,6 @@ struct _PidginPrefsWindow {
 		PidginPrefCombo notification_chat;
 		GtkWidget *show_incoming_formatting;
 		struct {
-			GtkWidget *close_immediately;
 			GtkWidget *send_typing;
 		} im;
 		GtkWidget *use_smooth_scrolling;
@@ -1329,11 +1325,6 @@ formatting_toggle_cb(TalkatuActionGroup *ag, GAction *action, const gchar *name,
 static void
 bind_interface_page(PidginPrefsWindow *win)
 {
-	/* System Tray */
-	win->iface.im.hide_new.type = PURPLE_PREF_STRING;
-	win->iface.im.hide_new.key = PIDGIN_PREFS_ROOT "/conversations/im/hide_new";
-	pidgin_prefs_bind_dropdown(&win->iface.im.hide_new);
-
 #ifdef _WIN32
 	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/win32/minimize_new_convs",
 			win->iface.win32.minimize_new_convs);
@@ -1399,8 +1390,6 @@ bind_conv_page(PidginPrefsWindow *win)
 
 	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/show_incoming_formatting",
 			win->conversations.show_incoming_formatting);
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/im/close_immediately",
-			win->conversations.im.close_immediately);
 
 	pidgin_prefs_bind_checkbox("/purple/conversations/im/send_typing",
 			win->conversations.im.send_typing);
@@ -2336,9 +2325,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	/* Interface page */
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
-			iface.im.hide_new.combo);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
 			iface.win32.minimize_new_convs);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
@@ -2360,9 +2346,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.show_incoming_formatting);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.im.close_immediately);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.im.send_typing);
@@ -2670,17 +2653,6 @@ pidgin_prefs_update_old(void)
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/theme");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound");
 
-	/* Convert old queuing prefs to hide_new 3-way pref. */
-	if (purple_prefs_exists("/plugins/gtk/docklet/queue_messages") &&
-	    purple_prefs_get_bool("/plugins/gtk/docklet/queue_messages"))
-	{
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new", "always");
-	}
-	else if (purple_prefs_exists(PIDGIN_PREFS_ROOT "/away/queue_messages") &&
-	         purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/away/queue_messages"))
-	{
-		purple_prefs_set_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new", "away");
-	}
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/away/queue_messages");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/away");
 	purple_prefs_remove("/plugins/gtk/docklet/queue_messages");

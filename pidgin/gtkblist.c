@@ -178,20 +178,12 @@ static char *pidgin_get_group_title(PurpleBlistNode *gnode, gboolean expanded);
 static void pidgin_blist_expand_contact_cb(GtkWidget *w, PurpleBlistNode *node);
 static void set_urgent(void);
 
-typedef enum {
-	PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE            =  1 << 0,  /* Whether there's pending message in a conversation */
-	PIDGIN_BLIST_CHAT_HAS_PENDING_MESSAGE_WITH_NICK	 =  1 << 1,  /* Whether there's a pending message in a chat that mentions our nick */
-} PidginBlistNodeFlags;
-
 typedef struct {
 	GtkTreeRowReference *row;
 	gboolean contact_expanded;
 	gboolean recent_signonoff;
 	gint recent_signonoff_timer;
-	struct {
-		PurpleConversation *conv;
-		PidginBlistNodeFlags flags;
-	} conv;
+	PurpleConversation *conv;
 } PidginBlistNode;
 
 /***************************************************
@@ -347,22 +339,6 @@ static void gtk_blist_menu_persistent_cb(GtkWidget *w, PurpleChat *chat)
 {
 	purple_blist_node_set_bool(PURPLE_BLIST_NODE(chat), "gtk-persistent",
 			gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)));
-}
-
-static PurpleConversation *
-find_conversation_with_buddy(PurpleBuddy *buddy)
-{
-	PurpleConversationManager *manager;
-	PidginBlistNode *ui = g_object_get_data(G_OBJECT(buddy), UI_DATA);
-
-	if(ui) {
-		return ui->conv.conv;
-	}
-
-	manager = purple_conversation_manager_get_default();
-	return purple_conversation_manager_find_im(manager,
-	                                           purple_buddy_get_account(buddy),
-	                                           purple_buddy_get_name(buddy));
 }
 
 static void gtk_blist_join_chat(PurpleChat *chat)
@@ -3111,8 +3087,8 @@ static char *pidgin_get_tooltip_text(PurpleBlistNode *node, gboolean full)
 			g_free(tmp);
 		}
 
-		if (bnode && bnode->conv.conv) {
-			conv = PURPLE_CHAT_CONVERSATION(bnode->conv.conv);
+		if (bnode && bnode->conv) {
+			conv = PURPLE_CHAT_CONVERSATION(bnode->conv);
 		} else {
 			PurpleConversation *chat_conv;
 			PurpleConversationManager *manager;
@@ -3559,39 +3535,25 @@ pidgin_blist_get_status_icon(PurpleBlistNode *node, PidginStatusIconSize size)
 	}
 
 	if(buddy) {
-		PurpleConversation *conv = find_conversation_with_buddy(buddy);
+		PurplePresence *p = purple_buddy_get_presence(buddy);
+		trans = purple_presence_is_idle(p);
 
-		if(conv != NULL) {
-			PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
-			if (gtkconv == NULL && size == PIDGIN_STATUS_ICON_SMALL) {
-				PidginBlistNode *ui = g_object_get_data(G_OBJECT(buddy), UI_DATA);
-				if (ui == NULL || (ui->conv.flags & PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE)) {
-					icon = "message-new";
-				}
-			}
-		}
-
-		if (icon == NULL) { /* The conversation didn't have a new message. */
-			PurplePresence *p = purple_buddy_get_presence(buddy);
-			trans = purple_presence_is_idle(p);
-
-			if (PURPLE_BUDDY_IS_ONLINE(buddy) && gtkbuddynode && gtkbuddynode->recent_signonoff) {
-				icon = "log-in";
-			} else if (gtkbuddynode && gtkbuddynode->recent_signonoff) {
-				icon = "log-out";
-			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_UNAVAILABLE)) {
-				icon = "pidgin-user-busy";
-			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_AWAY)) {
-				icon = "pidgin-user-away";
-			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_EXTENDED_AWAY)) {
-				icon = "pidgin-user-extended-away";
-			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_OFFLINE)) {
-				icon = "pidgin-user-offline";
-			} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_INVISIBLE)) {
-				icon = "pidgin-user-invisible";
-			} else {
-				icon = "pidgin-user-available";
-			}
+		if (PURPLE_BUDDY_IS_ONLINE(buddy) && gtkbuddynode && gtkbuddynode->recent_signonoff) {
+			icon = "log-in";
+		} else if (gtkbuddynode && gtkbuddynode->recent_signonoff) {
+			icon = "log-out";
+		} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_UNAVAILABLE)) {
+			icon = "pidgin-user-busy";
+		} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_AWAY)) {
+			icon = "pidgin-user-away";
+		} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_EXTENDED_AWAY)) {
+			icon = "pidgin-user-extended-away";
+		} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_OFFLINE)) {
+			icon = "pidgin-user-offline";
+		} else if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_INVISIBLE)) {
+			icon = "pidgin-user-invisible";
+		} else {
+			icon = "pidgin-user-available";
 		}
 	} else if (chat) {
 		icon = "chat";
@@ -3620,21 +3582,8 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 	PurplePresence *presence;
 	PidginBlistNode *gtkcontactnode = NULL;
 	char *idletime = NULL, *statustext = NULL, *nametext = NULL;
-	PurpleConversation *conv = find_conversation_with_buddy(b);
-	gboolean hidden_conv = FALSE;
 	gboolean biglist = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons");
 	gchar *contact_alias;
-
-	if (conv != NULL) {
-		PidginBlistNode *ui = g_object_get_data(G_OBJECT(b), UI_DATA);
-		if (ui) {
-			if (ui->conv.flags & PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE)
-				hidden_conv = TRUE;
-		} else {
-			if (PIDGIN_CONVERSATION(conv) == NULL)
-				hidden_conv = TRUE;
-		}
-	}
 
 	/* XXX Good luck cleaning up this crap */
 	contact = PURPLE_CONTACT(PURPLE_BLIST_NODE(b)->parent);
@@ -3731,12 +3680,6 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 		status_color = NULL;
 	}
 
-	if (hidden_conv) {
-		char *tmp = nametext;
-		nametext = g_strdup_printf("<b>%s</b>", tmp);
-		g_free(tmp);
-	}
-
 	/* Put it all together */
 	if ((!aliased || biglist) && (statustext || idletime)) {
 		/* using <span size='smaller'> breaks the status, so it must be separated into <small><span>*/
@@ -3772,12 +3715,6 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 	g_free(statustext);
 	g_free(idletime);
 	g_free(contact_alias);
-
-	if (hidden_conv) {
-		char *tmp = text;
-		text = g_strdup_printf("<b>%s</b>", tmp);
-		g_free(tmp);
-	}
 
 	return text;
 }
@@ -3876,42 +3813,9 @@ conversation_deleting_cb(PurpleConversation *conv, PidginBuddyList *gtkblist)
 static void
 conversation_deleted_update_ui_cb(PurpleConversation *conv, PidginBlistNode *ui)
 {
-	if (ui->conv.conv != conv)
+	if (ui->conv != conv)
 		return;
-	ui->conv.conv = NULL;
-	ui->conv.flags = 0;
-}
-
-static void
-written_msg_update_ui_cb(PurpleConversation *conv, PurpleMessage *msg, PurpleBlistNode *node)
-{
-	PidginBlistNode *ui = g_object_get_data(G_OBJECT(node), UI_DATA);
-
-	if (ui->conv.conv != conv)
-		return;
-
-	if (!pidgin_conv_is_hidden(PIDGIN_CONVERSATION(conv)))
-		return;
-
-	if (!(purple_message_get_flags(msg) & (PURPLE_MESSAGE_SEND | PURPLE_MESSAGE_RECV)))
-		return;
-
-	ui->conv.flags |= PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE;
-	if (PURPLE_IS_CHAT_CONVERSATION(conv) && (purple_message_get_flags(msg) & PURPLE_MESSAGE_NICK))
-		ui->conv.flags |= PIDGIN_BLIST_CHAT_HAS_PENDING_MESSAGE_WITH_NICK;
-
-	pidgin_blist_update(purple_blist_get_default(), node);
-}
-
-static void
-displayed_msg_update_ui_cb(PidginConversation *gtkconv, PurpleBlistNode *node)
-{
-	PidginBlistNode *ui = g_object_get_data(G_OBJECT(node), UI_DATA);
-	if (ui->conv.conv != gtkconv->active_conv)
-		return;
-	ui->conv.flags &= ~(PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE |
-	                    PIDGIN_BLIST_CHAT_HAS_PENDING_MESSAGE_WITH_NICK);
-	pidgin_blist_update(purple_blist_get_default(), node);
+	ui->conv = NULL;
 }
 
 static void
@@ -3927,14 +3831,10 @@ conversation_created_cb(PurpleConversation *conv, PidginBuddyList *gtkblist)
 			buddies = g_slist_delete_link(buddies, buddies);
 			if (!ui)
 				continue;
-			ui->conv.conv = conv;
-			ui->conv.flags = 0;
+			ui->conv = conv;
+
 			purple_signal_connect(purple_conversations_get_handle(), "deleting-conversation",
 					ui, PURPLE_CALLBACK(conversation_deleted_update_ui_cb), ui);
-			purple_signal_connect(purple_conversations_get_handle(), "wrote-im-msg",
-					ui, PURPLE_CALLBACK(written_msg_update_ui_cb), buddy);
-			purple_signal_connect(pidgin_conversations_get_handle(), "conversation-displayed",
-					ui, PURPLE_CALLBACK(displayed_msg_update_ui_cb), buddy);
 		}
 	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
 		PurpleChat *chat = purple_blist_find_chat(account, purple_conversation_get_name(conv));
@@ -3944,14 +3844,10 @@ conversation_created_cb(PurpleConversation *conv, PidginBuddyList *gtkblist)
 		ui = g_object_get_data(G_OBJECT(chat), UI_DATA);
 		if (!ui)
 			return;
-		ui->conv.conv = conv;
-		ui->conv.flags = 0;
+		ui->conv = conv;
+
 		purple_signal_connect(purple_conversations_get_handle(), "deleting-conversation",
 				ui, PURPLE_CALLBACK(conversation_deleted_update_ui_cb), ui);
-		purple_signal_connect(purple_conversations_get_handle(), "wrote-chat-msg",
-				ui, PURPLE_CALLBACK(written_msg_update_ui_cb), chat);
-		purple_signal_connect(pidgin_conversations_get_handle(), "conversation-displayed",
-				ui, PURPLE_CALLBACK(displayed_msg_update_ui_cb), chat);
 	}
 }
 
@@ -5662,21 +5558,11 @@ static void pidgin_blist_update_chat(PurpleBuddyList *list, PurpleBlistNode *nod
 		gchar *mark, *tmp;
 		gboolean showicons = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons");
 		gboolean biglist = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons");
-		PidginBlistNode *ui;
-		PurpleConversation *conv;
-		gboolean hidden = FALSE;
 		gboolean selected = (gtkblist->selected_node == node);
 		gboolean nick_said = FALSE;
 
 		if (!insert_node(list, node, &iter))
 			return;
-
-		ui = g_object_get_data(G_OBJECT(node), UI_DATA);
-		conv = ui->conv.conv;
-		if (conv && pidgin_conv_is_hidden(PIDGIN_CONVERSATION(conv))) {
-			hidden = (ui->conv.flags & PIDGIN_BLIST_NODE_HAS_PENDING_MESSAGE);
-			nick_said = (ui->conv.flags & PIDGIN_BLIST_CHAT_HAS_PENDING_MESSAGE_WITH_NICK);
-		}
 
 		status = pidgin_blist_get_status_icon(node,
 				 biglist ? PIDGIN_STATUS_ICON_LARGE : PIDGIN_STATUS_ICON_SMALL);
@@ -5696,14 +5582,10 @@ static void pidgin_blist_update_chat(PurpleBuddyList *list, PurpleBlistNode *nod
 		}
 
 		if(color) {
-			tmp = g_strdup_printf("<span color='%s' weight='%s'>%s</span>",
-			                      color, hidden ? "bold" : "normal", mark);
-		} else {
-			tmp = g_strdup_printf("<span weight='%s'>%s</span>",
-			                      hidden ? "bold" : "normal", mark);
+			tmp = g_strdup_printf("<span color='%s'>%s</span>", color, mark);
+			g_free(mark);
+			mark = tmp;
 		}
-		g_free(mark);
-		mark = tmp;
 
 		protocol_icon = pidgin_create_protocol_icon(purple_chat_get_account(chat), PIDGIN_PROTOCOL_ICON_SMALL);
 

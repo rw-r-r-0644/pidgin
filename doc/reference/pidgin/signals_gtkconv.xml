@@ -14,7 +14,6 @@
   &quot;<link linkend="gtkconvs-displaying-chat-msg">displaying-chat-msg</link>&quot;
   &quot;<link linkend="gtkconvs-displayed-chat-msg">displayed-chat-msg</link>&quot;
   &quot;<link linkend="gtkconvs-conversation-switched">conversation-switched</link>&quot;
-  &quot;<link linkend="gtkconvs-conversation-hiding">conversation-hiding</link>&quot;
   &quot;<link linkend="gtkconvs-conversation-displayed">conversation-displayed</link>&quot;
 </synopsis>
 </refsect1>
@@ -248,27 +247,6 @@ Emitted when a window switched from one conversation to another.
   </variablelist>
 </refsect2>
 
-<refsect2 id="gtkconvs-conversation-hiding" role="signal">
- <title>The <literal>&quot;conversation-hiding&quot;</literal> signal</title>
-<programlisting>
-void                user_function                      (PidginConversation *gtkconv,
-                                                        gpointer user_data)
-</programlisting>
-  <para>
-Emitted immediately before an existing conversation is hidden.
-  </para>
-  <variablelist role="params">
-  <varlistentry>
-    <term><parameter>gtkconv</parameter>&#160;:</term>
-    <listitem><simpara>The PidginConversation.</simpara></listitem>
-  </varlistentry>
-  <varlistentry>
-    <term><parameter>user_data</parameter>&#160;:</term>
-    <listitem><simpara>user data set when the signal handler was connected.</simpara></listitem>
-  </varlistentry>
-  </variablelist>
-</refsect2>
-
 <refsect2 id="gtkconvs-conversation-displayed" role="signal">
  <title>The <literal>&quot;conversation-displayed&quot;</literal> signal</title>
 <programlisting>
@@ -276,7 +254,7 @@ void                user_function                      (PidginConversation *gtkc
                                                         gpointer user_data)
 </programlisting>
   <para>
-Emitted right after the Pidgin UI is attached to a new or a hidden conversation.
+Emitted right after the Pidgin UI is attached to a new conversation.
   </para>
   <variablelist role="params">
   <varlistentry>
