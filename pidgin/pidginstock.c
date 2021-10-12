@@ -114,12 +114,6 @@ typedef struct {
 
 const SizedStockIcon sized_stock_icons [] = {
 
-	{ PIDGIN_STOCK_STATUS_IGNORED,  "emblems", "emblem-blocked.png",       FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
-	{ PIDGIN_STOCK_STATUS_FOUNDER,  "emblems", "emblem-founder.png",       FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
-	{ PIDGIN_STOCK_STATUS_OPERATOR, "emblems", "emblem-operator.png",      FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
-	{ PIDGIN_STOCK_STATUS_HALFOP,   "emblems", "emblem-half-operator.png",	FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
-	{ PIDGIN_STOCK_STATUS_VOICE,    "emblems", "emblem-voice.png",         FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
-
 	{ PIDGIN_STOCK_TOOLBAR_BGCOLOR,         "actions", "change-bgcolor.png", FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
 	{ PIDGIN_STOCK_TOOLBAR_BLOCK,           "emblems", "emblem-blocked.png", FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
 	{ PIDGIN_STOCK_TOOLBAR_FGCOLOR,         "actions", "change-fgcolor.png", FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, NULL },
