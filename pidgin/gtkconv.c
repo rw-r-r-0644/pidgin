@@ -132,7 +132,6 @@ enum {
 static GtkWidget *invite_dialog = NULL;
 static GtkWidget *warn_close_dialog = NULL;
 
-static PidginConvWindow *hidden_convwin = NULL;
 static GList *window_list = NULL;
 
 /* Lists of status icons at all available sizes for use as window icons */
@@ -158,7 +157,6 @@ gboolean pidgin_conv_has_focus(PurpleConversation *conv);
 static void pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields);
 static void focus_out_from_menubar(GtkWidget *wid, PidginConvWindow *win);
 static void pidgin_conv_tab_pack(PidginConvWindow *win, PidginConversation *gtkconv);
-static void hide_conv(PidginConversation *gtkconv, gboolean closetimer);
 
 static void pidgin_conv_set_position_size(PidginConvWindow *win, int x, int y,
 		int width, int height);
@@ -202,21 +200,9 @@ close_conv_cb(GtkButton *button, PidginConversation *gtkconv)
 	 * For chats, close immediately if the chat is not in the buddylist, or if the chat is
 	 * not marked 'Persistent' */
 	PurpleConversation *conv = gtkconv->active_conv;
-	PurpleAccount *account = purple_conversation_get_account(conv);
-	const char *name = purple_conversation_get_name(conv);
 
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/im/close_immediately"))
-			close_this_sucker(gtkconv);
-		else
-			hide_conv(gtkconv, TRUE);
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		PurpleChat *chat = purple_blist_find_chat(account, name);
-		if (!chat ||
-				!purple_blist_node_get_bool(&chat->node, "gtk-persistent"))
-			close_this_sucker(gtkconv);
-		else
-			hide_conv(gtkconv, FALSE);
+	if(PURPLE_IS_IM_CONVERSATION(conv) || PURPLE_IS_CHAT_CONVERSATION(conv)) {
+		close_this_sucker(gtkconv);
 	}
 
 	return TRUE;
@@ -795,35 +781,6 @@ menu_add_remove_cb(GtkAction *action, gpointer data)
 	conv = pidgin_conv_window_get_active_conversation(win);
 
 	add_remove_cb(NULL, PIDGIN_CONVERSATION(conv));
-}
-
-static gboolean
-close_already(gpointer data)
-{
-	g_object_unref(data);
-	return FALSE;
-}
-
-static void
-hide_conv(PidginConversation *gtkconv, gboolean closetimer)
-{
-	GList *list;
-
-	purple_signal_emit(pidgin_conversations_get_handle(),
-			"conversation-hiding", gtkconv);
-
-	for (list = g_list_copy(gtkconv->convs); list; list = g_list_delete_link(list, list)) {
-		PurpleConversation *conv = list->data;
-		if (closetimer) {
-			guint timer = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv), "close-timer"));
-			if (timer)
-				g_source_remove(timer);
-			timer = g_timeout_add_seconds(CLOSE_CONV_TIMEOUT_SECS, close_already, conv);
-			g_object_set_data(G_OBJECT(conv), "close-timer", GINT_TO_POINTER(timer));
-		}
-		pidgin_conv_window_remove_gtkconv(gtkconv->win, gtkconv);
-		pidgin_conv_window_add_gtkconv(hidden_convwin, gtkconv);
-	}
 }
 
 static void
@@ -1582,7 +1539,6 @@ pidgin_conv_present_conversation(PurpleConversation *conv)
 static GList *
 pidgin_conversations_get_unseen(GList *l,
 									PidginUnseenState min_state,
-									gboolean hidden_only,
 									guint max_count)
 {
 	GList *r = NULL;
@@ -1592,12 +1548,11 @@ pidgin_conversations_get_unseen(GList *l,
 		PurpleConversation *conv = (PurpleConversation*)l->data;
 		PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
 
-		if(gtkconv == NULL || gtkconv->active_conv != conv)
+		if(gtkconv == NULL || gtkconv->active_conv != conv) {
 			continue;
+		}
 
-		if (gtkconv->unseen_state >= min_state &&
-		    (!hidden_only || gtkconv->win == hidden_convwin)) {
-
+		if (gtkconv->unseen_state >= min_state) {
 			r = g_list_prepend(r, conv);
 			c++;
 		}
@@ -1608,8 +1563,7 @@ pidgin_conversations_get_unseen(GList *l,
 
 GList *
 pidgin_conversations_get_unseen_all(PidginUnseenState min_state,
-										gboolean hidden_only,
-										guint max_count)
+                                    guint max_count)
 {
 	PurpleConversationManager *manager;
 	GList *list, *ret = NULL;
@@ -1617,8 +1571,7 @@ pidgin_conversations_get_unseen_all(PidginUnseenState min_state,
 	manager = purple_conversation_manager_get_default();
 	list = purple_conversation_manager_get_all(manager);
 
-	ret = pidgin_conversations_get_unseen(list, min_state, hidden_only,
-	                                      max_count);
+	ret = pidgin_conversations_get_unseen(list, min_state, max_count);
 	g_list_free(list);
 
 	return ret;
@@ -2003,8 +1956,9 @@ regenerate_plugins_items(PidginConvWindow *win)
 	PurpleConversation *conv;
 	GtkWidget *item;
 
-	if (win->window == NULL || win == hidden_convwin)
+	if (win->window == NULL) {
 		return;
+	}
 
 	gtkconv = pidgin_conv_window_get_active_gtkconv(win);
 	if (gtkconv == NULL)
@@ -3239,16 +3193,7 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	                         G_CALLBACK(gtk_widget_grab_focus),
 	                         gtkconv->editor);
 
-	if (hidden)
-		pidgin_conv_window_add_gtkconv(hidden_convwin, gtkconv);
-	else
-		pidgin_conv_placement_place(gtkconv);
-}
-
-static void
-pidgin_conv_new_hidden(PurpleConversation *conv)
-{
-	private_gtkconv_new(conv, TRUE);
+	pidgin_conv_placement_place(gtkconv);
 }
 
 void
@@ -3264,32 +3209,7 @@ static void
 received_im_msg_cb(PurpleAccount *account, char *sender, char *message,
 				   PurpleConversation *conv, PurpleMessageFlags flags)
 {
-	PurpleConversationUiOps *ui_ops = pidgin_conversations_get_conv_ui_ops();
-	gboolean hide = FALSE;
 	guint timer;
-
-	/* create hidden conv if hide_new pref is always */
-	if (purple_strequal(purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new"), "always"))
-		hide = TRUE;
-
-	/* create hidden conv if hide_new pref is away and account is away */
-	if (purple_strequal(purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new"), "away") &&
-	    !purple_status_is_available(purple_account_get_active_status(account)))
-		hide = TRUE;
-
-	if (conv && PIDGIN_IS_PIDGIN_CONVERSATION(conv) && !hide) {
-		PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
-		if (gtkconv->win == hidden_convwin) {
-			pidgin_conv_attach_to_conversation(gtkconv->active_conv);
-		}
-		return;
-	}
-
-	if (hide) {
-		ui_ops->create_conversation = pidgin_conv_new_hidden;
-		purple_im_conversation_new(account, sender);
-		ui_ops->create_conversation = pidgin_conv_new;
-	}
 
 	/* Somebody wants to keep this conversation around, so don't time it out */
 	if (conv) {
@@ -4034,7 +3954,7 @@ wrote_msg_update_unseen_cb(PurpleConversation *conv, PurpleMessage *msg,
 {
 	PidginConversation *gtkconv = conv ? PIDGIN_CONVERSATION(conv) : NULL;
 	PurpleMessageFlags flags;
-	if (conv == NULL || (gtkconv && gtkconv->win != hidden_convwin))
+	if (conv == NULL)
 		return;
 	flags = purple_message_get_flags(msg);
 	if (flags & (PURPLE_MESSAGE_SEND | PURPLE_MESSAGE_RECV)) {
@@ -4264,74 +4184,6 @@ show_formatting_toolbar_pref_cb(const char *name, PurplePrefType type,
 		list = g_list_delete_link(list, list);
 	}
 }
-
-static void
-account_status_changed_cb(PurpleAccount *account, PurpleStatus *oldstatus,
-                          PurpleStatus *newstatus)
-{
-	GList *l;
-	PurpleConversation *conv = NULL;
-	PidginConversation *gtkconv;
-
-	if(!purple_strequal(purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new"), "away"))
-		return;
-
-	if(purple_status_is_available(oldstatus) || !purple_status_is_available(newstatus))
-		return;
-
-	for (l = hidden_convwin->gtkconvs; l; ) {
-		gtkconv = l->data;
-		l = l->next;
-
-		conv = gtkconv->active_conv;
-		if (PURPLE_IS_CHAT_CONVERSATION(conv) ||
-				account != purple_conversation_get_account(conv))
-			continue;
-
-		pidgin_conv_attach_to_conversation(conv);
-
-		/* TODO: do we need to do anything for any other conversations that are in the same gtkconv here?
-		 * I'm a little concerned that not doing so will cause the "pending" indicator in the gtkblist not to be cleared. -DAA*/
-		purple_conversation_update(conv, PURPLE_CONVERSATION_UPDATE_UNSEEN);
-	}
-}
-
-static void
-hide_new_pref_cb(const char *name, PurplePrefType type,
-				 gconstpointer value, gpointer data)
-{
-	GList *l;
-	PurpleConversation *conv = NULL;
-	PidginConversation *gtkconv;
-	gboolean when_away = FALSE;
-
-	if(!hidden_convwin)
-		return;
-
-	if(purple_strequal(purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new"), "always"))
-		return;
-
-	if(purple_strequal(purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new"), "away"))
-		when_away = TRUE;
-
-	for (l = hidden_convwin->gtkconvs; l; )
-	{
-		gtkconv = l->data;
-		l = l->next;
-
-		conv = gtkconv->active_conv;
-
-		if (PURPLE_IS_CHAT_CONVERSATION(conv) ||
-				gtkconv->unseen_count == 0 ||
-				(when_away && !purple_status_is_available(
-							purple_account_get_active_status(
-							purple_conversation_get_account(conv)))))
-			continue;
-
-		pidgin_conv_attach_to_conversation(conv);
-	}
-}
-
 
 static PidginConversation *
 get_gtkconv_with_contact(PurpleContact *contact)
@@ -4652,23 +4504,6 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 	GList *list;
 	PidginConversation *gtkconv;
 
-	if (PIDGIN_IS_PIDGIN_CONVERSATION(conv)) {
-		/* This is pretty much always the case now. */
-		gtkconv = PIDGIN_CONVERSATION(conv);
-		if (gtkconv->win != hidden_convwin)
-			return FALSE;
-		pidgin_conv_window_remove_gtkconv(hidden_convwin, gtkconv);
-		pidgin_conv_placement_place(gtkconv);
-		purple_signal_emit(pidgin_conversations_get_handle(),
-				"conversation-displayed", gtkconv);
-		list = gtkconv->convs;
-		while (list) {
-			pidgin_conv_attach(list->data);
-			list = list->next;
-		}
-		return TRUE;
-	}
-
 	pidgin_conv_attach(conv);
 	gtkconv = PIDGIN_CONVERSATION(conv);
 
@@ -4784,9 +4619,6 @@ pidgin_conversations_init(void)
 
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/entry_height", 54);
 
-	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new", "never");
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/im/close_immediately", TRUE);
-
 #ifdef _WIN32
 	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/win32");
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/win32/minimize_new_convs", FALSE);
@@ -4799,10 +4631,6 @@ pidgin_conversations_init(void)
 								show_formatting_toolbar_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/tab_side",
 								tab_side_pref_cb, NULL);
-
-	/* IM callbacks */
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/im/hide_new",
-								hide_new_pref_cb, NULL);
 
 	/**********************************************************************
 	 * Register signals
@@ -4831,10 +4659,6 @@ pidgin_conversations_init(void)
 	purple_signal_register(handle, "conversation-switched",
 						 purple_marshal_VOID__POINTER, G_TYPE_NONE, 1,
 						 PURPLE_TYPE_CONVERSATION);
-
-	purple_signal_register(handle, "conversation-hiding",
-						 purple_marshal_VOID__POINTER, G_TYPE_NONE, 1,
-						 G_TYPE_POINTER); /* (PidginConversation *) */
 
 	purple_signal_register(handle, "conversation-displayed",
 						 purple_marshal_VOID__POINTER, G_TYPE_NONE, 1,
@@ -4877,12 +4701,6 @@ pidgin_conversations_init(void)
 	                      handle, G_CALLBACK(clear_conversation_scrollback_cb), NULL);
 
 	purple_conversations_set_ui_ops(&conversation_ui_ops);
-
-	hidden_convwin = pidgin_conv_window_new();
-	window_list = g_list_remove(window_list, hidden_convwin);
-
-	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed",
-						handle, PURPLE_CALLBACK(account_status_changed_cb), NULL);
 
 	/* Callbacks to update a conversation */
 	purple_signal_connect(blist_handle, "blist-node-added", handle,
@@ -5531,10 +5349,7 @@ switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 
 	g_return_if_fail(conv != NULL);
 
-	/* clear unseen flag if conversation is not hidden */
-	if(!pidgin_conv_is_hidden(gtkconv)) {
-		gtkconv_set_unseen(gtkconv, PIDGIN_UNSEEN_NONE);
-	}
+	gtkconv_set_unseen(gtkconv, PIDGIN_UNSEEN_NONE);
 
 	/* Update the menubar */
 
@@ -6058,11 +5873,13 @@ pidgin_conv_window_remove_gtkconv(PidginConvWindow *win, PidginConversation *gtk
 	g_signal_handlers_disconnect_matched(win->window, G_SIGNAL_MATCH_DATA,
 			0, 0, NULL, NULL, gtkconv);
 
-	if (win->gtkconvs && win->gtkconvs->next == NULL)
+	if (win->gtkconvs && win->gtkconvs->next == NULL) {
 		pidgin_conv_tab_pack(win, win->gtkconvs->data);
+	}
 
-	if (!win->gtkconvs && win != hidden_convwin)
+	if (!win->gtkconvs) {
 		pidgin_conv_window_destroy(win);
+	}
 }
 
 PidginConversation *
@@ -6151,14 +5968,6 @@ guint
 pidgin_conv_window_get_gtkconv_count(PidginConvWindow *win)
 {
 	return g_list_length(win->gtkconvs);
-}
-
-gboolean
-pidgin_conv_is_hidden(PidginConversation *gtkconv)
-{
-	g_return_val_if_fail(gtkconv != NULL, FALSE);
-
-	return (gtkconv->win == hidden_convwin);
 }
 
 void

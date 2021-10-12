@@ -166,7 +166,6 @@ void pidgin_conv_update_buttons_by_protocol(PurpleConversation *conv);
 /**
  * pidgin_conversations_get_unseen_all:
  * @min_state:    The minimum unseen state.
- * @hidden_only:  If %TRUE, only consider hidden conversations.
  * @max_count:    Maximum number of conversations to return, or 0 for
  *                no maximum.
  *
@@ -180,9 +179,7 @@ void pidgin_conv_update_buttons_by_protocol(PurpleConversation *conv);
  * Returns: (transfer container) (element-type PurpleConversation): List of PurpleConversation matching criteria, or %NULL.
  */
 GList *
-pidgin_conversations_get_unseen_all(PidginUnseenState min_state,
-										gboolean hidden_only,
-										guint max_count);
+pidgin_conversations_get_unseen_all(PidginUnseenState min_state, guint max_count);
 
 /**
  * pidgin_conversations_fill_menu:
@@ -243,14 +240,6 @@ void pidgin_conv_new(PurpleConversation *conv);
  * Returns: The tab index of a conversation in @win at (@x, @y).
  */
 int pidgin_conv_get_tab_at_xy(PidginConvWindow *win, int x, int y, gboolean *to_right);
-
-/**
- * pidgin_conv_is_hidden:
- * @gtkconv: The GTK conversation.
- *
- * Returns: %TRUE if the conversation is hidden, %FALSE otherwise.
- */
-gboolean pidgin_conv_is_hidden(PidginConversation *gtkconv);
 
 /**************************************************************************/
 /* GTK Conversations Subsystem                                            */
