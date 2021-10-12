@@ -389,9 +389,10 @@ void ggp_status_got_others(PurpleConnection *gc, struct gg_event *ev)
 		struct gg_event_status60 *notify = &ev->event.status60;
 		ggp_status_got_others_buddy(gc, notify->uin,
 			GG_S(notify->status), notify->descr);
-	} else
-		purple_debug_fatal("gg", "ggp_status_got_others: "
-			"unexpected event %d\n", ev->type);
+	} else {
+		purple_debug_error("gg", "ggp_status_got_others: unexpected event %d",
+		                   ev->type);
+	}
 }
 
 void ggp_status_got_others_buddy(PurpleConnection *gc, uin_t uin, int status,

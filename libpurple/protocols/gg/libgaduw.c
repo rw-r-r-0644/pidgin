@@ -91,9 +91,9 @@ static void ggp_libgaduw_debug_handler(int level, const char * format,
 	ret = vsnprintf(msgbuff, sizeof(msgbuff) / sizeof(char), format, args);
 
 	if (ret <= 0) {
-		purple_debug_fatal("gg",
+		purple_debug_error("gg",
 			"failed to printf the following message: %s",
-			format ? format : "(null)\n");
+			format ? format : "(null)");
 
 		return;
 	}

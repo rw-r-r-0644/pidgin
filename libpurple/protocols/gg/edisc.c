@@ -388,7 +388,7 @@ ggp_edisc_xfer_send_ticket_changed(PurpleConnection *gc, PurpleXfer *xfer,
 {
 	GGPXfer *edisc_xfer = GGP_XFER(xfer);
 	if (!edisc_xfer) {
-		purple_debug_fatal(
+		purple_debug_error(
 		        "gg",
 		        "ggp_edisc_event_ticket_changed: transfer %p already free'd",
 		        xfer);
