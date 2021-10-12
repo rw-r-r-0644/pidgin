@@ -117,7 +117,7 @@ PurpleHistoryManager *purple_history_manager_get_default(void);
  *
  * Gets the active #PurpleHistoryAdapter instance.
  *
- * Returns: The active @adapter
+ * Returns: (transfer none): The active @adapter
  *
  * Since: 3.0.0
  */
