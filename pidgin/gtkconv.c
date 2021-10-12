@@ -2442,22 +2442,20 @@ generate_send_to_items(PidginConvWindow *win)
 static const char *
 get_chat_user_status_icon(PurpleChatConversation *chat, const char *name, PurpleChatUserFlags flags)
 {
-	const char *image = NULL;
+	const gchar *icon_name = NULL;
 
 	if (flags & PURPLE_CHAT_USER_FOUNDER) {
-		image = PIDGIN_STOCK_STATUS_FOUNDER;
+		icon_name = "pidgin-status-founder";
 	} else if (flags & PURPLE_CHAT_USER_OP) {
-		image = PIDGIN_STOCK_STATUS_OPERATOR;
+		icon_name = "pidgin-status-operator";
 	} else if (flags & PURPLE_CHAT_USER_HALFOP) {
-		image = PIDGIN_STOCK_STATUS_HALFOP;
+		icon_name = "pidgin-status-halfop";
 	} else if (flags & PURPLE_CHAT_USER_VOICE) {
-		image = PIDGIN_STOCK_STATUS_VOICE;
+		icon_name = "pidgin-status-voice";
 	} else if ((!flags) && purple_chat_conversation_is_ignored_user(chat, name)) {
-		image = PIDGIN_STOCK_STATUS_IGNORED;
-	} else {
-		return NULL;
+		icon_name = "pidgin-status-ignored";
 	}
-	return image;
+	return icon_name;
 }
 
 static void
@@ -2470,7 +2468,7 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	GtkTreeModel *tm;
 	GtkListStore *ls;
 	GtkTreePath *newpath;
-	const char *stock;
+	const gchar *icon_name;
 	GtkTreeIter iter;
 	gboolean is_buddy;
 	const gchar *name, *alias;
@@ -2493,7 +2491,7 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	tm = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));
 	ls = GTK_LIST_STORE(tm);
 
-	stock = get_chat_user_status_icon(chat, name, flags);
+	icon_name = get_chat_user_status_icon(chat, name, flags);
 
 	is_buddy = purple_chat_user_is_buddy(cb);
 
@@ -2512,7 +2510,7 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 * Inserting in the "wrong" location has no visible ill effects. - F.P.
 */
 			-1, /* "row" */
-			CHAT_USERS_ICON_STOCK_COLUMN,  stock,
+			CHAT_USERS_ICON_NAME_COLUMN, icon_name,
 			CHAT_USERS_ALIAS_COLUMN, alias,
 			CHAT_USERS_ALIAS_KEY_COLUMN, alias_key,
 			CHAT_USERS_NAME_COLUMN,  name,
@@ -2920,7 +2918,7 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 				 "stock-size", gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL),
 				 NULL);
 	col = gtk_tree_view_column_new_with_attributes(NULL, rend,
-			"stock-id", CHAT_USERS_ICON_STOCK_COLUMN, NULL);
+			"icon-name", CHAT_USERS_ICON_NAME_COLUMN, NULL);
 	gtk_tree_view_column_set_sizing(col, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(list), col);
 	ul_width = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/chat/userlist_width");

@@ -41,5 +41,10 @@
     <file>icons/16x16/status/pidgin-user-invisible.png</file>
     <file>icons/16x16/status/pidgin-user-offline.png</file>
     <file>icons/16x16/status/pidgin-user-unavailable.png</file>
+    <file>icons/16x16/emblems/pidgin-status-founder.png</file>
+    <file>icons/16x16/emblems/pidgin-status-halfop.png</file>
+    <file>icons/16x16/emblems/pidgin-status-ignored.png</file>
+    <file>icons/16x16/emblems/pidgin-status-operator.png</file>
+    <file>icons/16x16/emblems/pidgin-status-voice.png</file>
   </gresource>
 </gresources>
