@@ -72,7 +72,7 @@ wincred_get_target_name(PurpleAccount *account, GError **error)
 	        g_utf8_to_utf16(target_name_utf8, -1, NULL, NULL, error);
 
 	if (target_name_utf16 == NULL) {
-		purple_debug_fatal("keyring-wincred", "Couldn't convert target name");
+		purple_debug_error("keyring-wincred", "Couldn't convert target name");
 		return NULL;
 	}
 
@@ -197,7 +197,7 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 	                                 NULL, NULL, &error);
 	if (username_utf16 == NULL) {
 		g_free(target_name);
-		purple_debug_fatal("keyring-wincred", "Couldn't convert username");
+		purple_debug_error("keyring-wincred", "Couldn't convert username");
 		g_task_return_error(task, error);
 		g_object_unref(G_OBJECT(task));
 		return;
@@ -207,7 +207,7 @@ purple_wincred_write_password_async(PurpleCredentialProvider *provider,
 	if (password_utf16 == NULL) {
 		g_free(username_utf16);
 		g_free(target_name);
-		purple_debug_fatal("keyring-wincred", "Couldn't convert password");
+		purple_debug_error("keyring-wincred", "Couldn't convert password");
 		g_task_return_error(task, error);
 		g_object_unref(G_OBJECT(task));
 		return;

@@ -996,17 +996,15 @@ static void ggp_roster_send_update(PurpleConnection *gc)
 		gboolean succ = FALSE;
 		updates_it = g_list_next(updates_it);
 
-		if (change->type == GGP_ROSTER_CHANGE_CONTACT_UPDATE)
-			succ = ggp_roster_send_update_contact_update(gc,
-				change);
-		else if (change->type == GGP_ROSTER_CHANGE_CONTACT_REMOVE)
-			succ = ggp_roster_send_update_contact_remove(gc,
-				change);
-		else if (change->type == GGP_ROSTER_CHANGE_GROUP_RENAME)
+		if (change->type == GGP_ROSTER_CHANGE_CONTACT_UPDATE) {
+			succ = ggp_roster_send_update_contact_update(gc, change);
+		} else if (change->type == GGP_ROSTER_CHANGE_CONTACT_REMOVE) {
+			succ = ggp_roster_send_update_contact_remove(gc, change);
+		} else if (change->type == GGP_ROSTER_CHANGE_GROUP_RENAME) {
 			succ = ggp_roster_send_update_group_rename(gc, change);
-		else
-			purple_debug_fatal("gg", "ggp_roster_send_update: "
-				"not handled\n");
+		} else {
+			purple_debug_error("gg", "ggp_roster_send_update: not handled");
+		}
 		g_return_if_fail(succ);
 	}
 

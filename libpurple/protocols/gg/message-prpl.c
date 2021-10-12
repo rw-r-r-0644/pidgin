@@ -628,8 +628,9 @@ ggp_message_format_to_gg(PurpleConversation *conv, const gchar *text)
 	g_match_info_free(match);
 
 	if (pos < strlen(text_new) || in_any_tag) {
-		purple_debug_fatal("gg", "ggp_message_format_to_gg: "
-			"end of message not reached\n");
+		purple_debug_error(
+		        "gg",
+		        "ggp_message_format_to_gg: end of message not reached");
 	}
 
 	/* releasing fonts resources */

@@ -227,8 +227,8 @@ void ggp_chat_got_event(PurpleConnection *gc, const struct gg_event *ev)
 	} else if (ev->type == GG_EVENT_CHAT_INVITE_ACK) {
 		/* ignore */
 	} else {
-		purple_debug_fatal("gg", "ggp_chat_got_event: unexpected event "
-			"- %d\n", ev->type);
+		purple_debug_error("gg", "ggp_chat_got_event: unexpected event - %d",
+		                   ev->type);
 	}
 }
 
