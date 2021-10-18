@@ -13,7 +13,7 @@ if DYNAMIC_SAMETIME
 	SAMETIME_SOURCES += sametime_resources
 
 	sametime_prpl = shared_library('sametime', SAMETIME_SOURCES,
-	    c_args : ['-DG_LOG_DOMAIN="sametime"'],
+	    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-Sametime"'],
 	    dependencies : [meanwhile, gmime, libpurple_dep, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 

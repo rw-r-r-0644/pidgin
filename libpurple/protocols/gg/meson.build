@@ -57,6 +57,7 @@ if DYNAMIC_GG
 	GG_SOURCES += gg_resources
 
 	gg_prpl = shared_library('gg', GG_SOURCES,
+	    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-GaduGadu"'],
 	    dependencies : [libgadu, json, libpurple_dep, libsoup, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 

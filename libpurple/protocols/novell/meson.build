@@ -31,6 +31,7 @@ if DYNAMIC_NOVELL
 	NOVELL_SOURCES += novell_resources
 
 	novell_prpl = shared_library('novell', NOVELL_SOURCES,
+	    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-Novell"'],
 	    dependencies : [libpurple_dep, glib, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 

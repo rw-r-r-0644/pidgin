@@ -77,7 +77,7 @@ if DYNAMIC_ZEPHYR
 	ZEPHYR_SOURCES += zephyr_resources
 
 	zephyr_prpl = shared_library('zephyr', ZEPHYR_SOURCES,
-	    c_args : '-Dlint',
+	    c_args : ['-Dlint', '-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-Zephyr"'],
 	    dependencies : [extdep, libpurple_dep, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 

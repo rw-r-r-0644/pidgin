@@ -294,7 +294,7 @@ libpurple = library('purple',
                     purple_coresources + purple_builtsources +
                     purple_builtheaders,
                     'purpleprivate.h',
-                    c_args : ['-DPURPLE_COMPILATION', '-DG_LOG_DOMAIN="Purple"'],
+                    c_args : ['-DPURPLE_COMPILATION', '-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple"'],
                     include_directories : [toplevel_inc, libpurple_inc],
                     install : true,
                     version : PURPLE_LIB_VERSION,
