@@ -30,7 +30,6 @@
       <xi:include href="xml/gntdebug.xml" />
       <xi:include href="xml/gntxfer.xml" />
       <xi:include href="xml/gntidle.xml" />
-      <xi:include href="xml/gntlog.xml" />
       <xi:include href="xml/gntmedia.xml" />
       <xi:include href="xml/gntmenuutil.xml" />
       <xi:include href="xml/gntnotify.xml" />
