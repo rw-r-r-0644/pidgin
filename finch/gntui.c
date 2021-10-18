@@ -42,8 +42,41 @@
 #include "gntroomlist.h"
 #include "gntstatus.h"
 
+static gboolean
+finch_history_init(GError **error) {
+	PurpleHistoryManager *manager = NULL;
+	PurpleHistoryAdapter *adapter = NULL;
+	gchar *filename = NULL;
+	const gchar *id = NULL;
+
+	manager = purple_history_manager_get_default();
+
+	/* Attempt to create the config directory. */
+	g_mkdir_with_parents(purple_config_dir(), 0700);
+
+	filename = g_build_filename(purple_config_dir(), "history.db", NULL);
+	adapter = purple_sqlite_history_adapter_new(filename);
+	g_free(filename);
+
+	id = purple_history_adapter_get_id(adapter);
+	if(!purple_history_manager_register(manager, adapter, error)) {
+		g_clear_object(&adapter);
+
+		return FALSE;
+	}
+
+	/* The manager adds a ref to the adapter on registration, so we can remove
+	 * our reference.
+	 */
+	g_clear_object(&adapter);
+
+	return purple_history_manager_set_active(manager, id, error);
+}
+
 void finch_ui_init()
 {
+	GError *error = NULL;
+
 #ifdef STANDALONE
 #ifdef _WIN32 /* TODO: don't change it when using FHS under win32 */
 	gnt_set_config_dir(purple_user_dir());
@@ -51,6 +84,12 @@ void finch_ui_init()
 
 	gnt_init();
 #endif /* STANDALONE */
+
+	if(!finch_history_init(&error)) {
+		g_critical("failed to initialize the history api: %s",
+		           error != NULL ? error->message : "unknown");
+		g_clear_error(&error);
+	}
 
 	purple_prefs_add_none("/purple/gnt");
 

@@ -148,40 +148,7 @@ purple_history_manager_class_init(PurpleHistoryManagerClass *klass) {
 void
 purple_history_manager_startup(void) {
 	if(default_manager == NULL) {
-		PurpleHistoryAdapter *adapter = NULL;
-		GError *error = NULL;
-		gchar *filename = NULL;
-
-		filename = g_build_filename(purple_config_dir(), "history.db", NULL);
-		adapter = purple_sqlite_history_adapter_new(filename);
-		g_free(filename);
-
 		default_manager = g_object_new(PURPLE_TYPE_HISTORY_MANAGER, NULL);
-		if(!purple_history_manager_register(default_manager, adapter, &error)) {
-			if(error != NULL) {
-				g_warning("Failed to register sqlite history adapter: %s", error->message);
-				g_clear_error(&error);
-			} else {
-				g_warning("Failed to register sqlite history adapter: Unknown reason");
-			}
-
-			g_clear_object(&adapter);
-
-			return;
-		}
-
-		purple_history_manager_set_active(default_manager,
-		                                  purple_history_adapter_get_id(adapter),
-		                                  &error);
-
-		if(error != NULL) {
-			g_warning("Failed to activate %s: %s",
-			          purple_history_adapter_get_id(adapter), error->message);
-
-			g_clear_error(&error);
-		}
-
-		g_clear_object(&adapter);
 	}
 }
 
