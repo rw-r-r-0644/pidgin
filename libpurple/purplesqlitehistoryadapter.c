@@ -349,7 +349,6 @@ purple_sqlite_history_adapter_query(PurpleHistoryAdapter *adapter,
 	PurpleSqliteHistoryAdapterPrivate *priv = NULL;
 	sqlite3_stmt *prepared_statement = NULL;
 	GList *results = NULL;
-	gint result = 0;
 
 	sqlite_adapter = PURPLE_SQLITE_HISTORY_ADAPTER(adapter);
 	priv = purple_sqlite_history_adapter_get_instance_private(sqlite_adapter);
@@ -370,7 +369,7 @@ purple_sqlite_history_adapter_query(PurpleHistoryAdapter *adapter,
 		return NULL;
 	}
 
-	while((result = sqlite3_step(prepared_statement)) == SQLITE_ROW) {
+	while(sqlite3_step(prepared_statement) == SQLITE_ROW) {
 		PurpleMessage *message = NULL;
 		PurpleMessageContentType ct;
 		GDateTime *g_date_time = NULL;
