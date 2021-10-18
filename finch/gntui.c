@@ -34,7 +34,6 @@
 #include "gntconv.h"
 #include "gntdebug.h"
 #include "gntxfer.h"
-#include "gntlog.h"
 #include "gntmedia.h"
 #include "gntnotify.h"
 #include "gntplugin.h"
@@ -79,9 +78,6 @@ void finch_ui_init()
 	finch_request_init();
 	purple_request_set_ui_ops(finch_request_get_ui_ops());
 
-	/* Log */
-	finch_log_init();
-
 	/* File transfer */
 	finch_xfers_init();
 	purple_xfers_set_ui_ops(finch_xfers_get_ui_ops());
@@ -124,8 +120,6 @@ void finch_ui_uninit()
 
 	purple_request_set_ui_ops(NULL);
 	finch_request_uninit();
-
-	finch_log_uninit();
 
 	finch_xfers_uninit();
 	purple_xfers_set_ui_ops(NULL);

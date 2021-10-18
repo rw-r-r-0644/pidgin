@@ -5,7 +5,6 @@ finch/gntconn.c
 finch/gntconv.c
 finch/gntdebug.c
 finch/gntidle.c
-finch/gntlog.c
 finch/gntmedia.c
 finch/gntmenuutil.c
 finch/gntnotify.c

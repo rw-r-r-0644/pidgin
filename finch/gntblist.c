@@ -34,7 +34,6 @@
 
 #include "gntblist.h"
 #include "gntconv.h"
-#include "gntlog.h"
 #include "gntmenuutil.h"
 #include "gntstatus.h"
 
@@ -1281,43 +1280,6 @@ finch_blist_rename_node_cb(PurpleBlistNode *selected, PurpleBlistNode *node)
 	g_free(prompt);
 }
 
-
-static void showlog_cb(PurpleBlistNode *sel, PurpleBlistNode *node)
-{
-	PurpleLogType type;
-	PurpleAccount *account;
-	char *name = NULL;
-
-	if (PURPLE_IS_BUDDY(node)) {
-		PurpleBuddy *b = (PurpleBuddy*) node;
-		type = PURPLE_LOG_IM;
-		name = g_strdup(purple_buddy_get_name(b));
-		account = purple_buddy_get_account(b);
-	} else if (PURPLE_IS_CHAT(node)) {
-		PurpleChat *c = (PurpleChat*) node;
-		PurpleProtocol *protocol = NULL;
-		type = PURPLE_LOG_CHAT;
-		account = purple_chat_get_account(c);
-		protocol = purple_account_get_protocol(account);
-		if (protocol) {
-			name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol), purple_chat_get_components(c));
-		}
-	} else if (PURPLE_IS_CONTACT(node)) {
-		finch_log_show_contact((PurpleContact *)node);
-		return;
-	} else {
-		/* This callback should not have been registered for a node
-		 * that doesn't match the type of one of the blocks above. */
-		g_return_if_reached();
-	}
-
-	if (name && account) {
-		finch_log_show(type, name, account);
-		g_free(name);
-	}
-}
-
-
 /* Xeroxed from gtkdialogs.c:purple_gtkdialogs_remove_group_cb*/
 static void
 remove_group(PurpleGroup *group)
@@ -1574,10 +1536,6 @@ draw_context_menu(FinchBuddyList *ggblist)
 		if (PURPLE_IS_BUDDY(node) || PURPLE_IS_CONTACT(node)) {
 			add_custom_action(GNT_MENU(context), _("Toggle Tag"),
 					PURPLE_CALLBACK(finch_blist_toggle_tag_buddy), node);
-		}
-		if (!PURPLE_IS_GROUP(node)) {
-			add_custom_action(GNT_MENU(context), _("View Log"),
-					PURPLE_CALLBACK(showlog_cb), node);
 		}
 	}
 
@@ -2737,71 +2695,6 @@ join_chat_select(GntMenuItem *item, gpointer n)
 }
 
 static void
-view_log_select_cb(gpointer data, PurpleRequestFields *fields)
-{
-	PurpleAccount *account;
-	const char *name;
-	PurpleBuddy *buddy;
-	PurpleContact *contact;
-
-	account = purple_request_fields_get_account(fields, "account");
-	name = purple_request_fields_get_string(fields,  "screenname");
-
-	buddy = purple_blist_find_buddy(account, name);
-	if (buddy) {
-		contact = purple_buddy_get_contact(buddy);
-	} else {
-		contact = NULL;
-	}
-
-	if (contact) {
-		finch_log_show_contact(contact);
-	} else {
-		finch_log_show(PURPLE_LOG_IM, name, account);
-	}
-}
-
-static void
-view_log_cb(GntMenuItem *item, gpointer n)
-{
-	PurpleRequestFields *fields;
-	PurpleRequestFieldGroup *group;
-	PurpleRequestField *field;
-
-	fields = purple_request_fields_new();
-
-	group = purple_request_field_group_new(NULL);
-	purple_request_fields_add_group(fields, group);
-
-	field = purple_request_field_string_new("screenname", _("Name"), NULL, FALSE);
-	purple_request_field_set_type_hint(field, "screenname-all");
-	purple_request_field_set_required(field, TRUE);
-	purple_request_field_group_add_field(group, field);
-
-	field = purple_request_field_account_new("account", _("Account"), NULL);
-	purple_request_field_set_type_hint(field, "account");
-	purple_request_field_set_visible(field,
-		(purple_accounts_get_all() != NULL &&
-		 purple_accounts_get_all()->next != NULL));
-	purple_request_field_set_required(field, TRUE);
-	purple_request_field_group_add_field(group, field);
-	purple_request_field_account_set_show_all(field, TRUE);
-
-	purple_request_fields(
-	        purple_blist_get_default(), _("View Log"), NULL,
-	        _("Please enter the username or alias of the person "
-	          "whose log you would like to view."),
-	        fields, _("OK"), G_CALLBACK(view_log_select_cb), _("Cancel"),
-	        NULL, NULL, NULL);
-}
-
-static void
-view_all_logs_cb(GntMenuItem *item, gpointer n)
-{
-	finch_log_show(PURPLE_LOG_IM, NULL, NULL);
-}
-
-static void
 menu_add_buddy_cb(GntMenuItem *item, gpointer null)
 {
 	purple_blist_request_add_buddy(NULL, NULL, NULL, NULL);
@@ -2860,16 +2753,6 @@ create_menu(void)
 	gnt_menuitem_set_id(GNT_MENU_ITEM(item), "join-chat");
 	gnt_menu_add_item(GNT_MENU(sub), item);
 	gnt_menuitem_set_callback(GNT_MENU_ITEM(item), join_chat_select, NULL);
-
-	item = gnt_menuitem_new(_("View Log..."));
-	gnt_menuitem_set_id(GNT_MENU_ITEM(item), "view-log");
-	gnt_menu_add_item(GNT_MENU(sub), item);
-	gnt_menuitem_set_callback(GNT_MENU_ITEM(item), view_log_cb, NULL);
-
-	item = gnt_menuitem_new(_("View All Logs"));
-	gnt_menuitem_set_id(GNT_MENU_ITEM(item), "view-all-logs");
-	gnt_menu_add_item(GNT_MENU(sub), item);
-	gnt_menuitem_set_callback(GNT_MENU_ITEM(item), view_all_logs_cb, NULL);
 
 	item = gnt_menuitem_new(_("Show"));
 	gnt_menu_add_item(GNT_MENU(sub), item);
