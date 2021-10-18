@@ -50,7 +50,6 @@
 #include "pidginapplication.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
-#include "pidginlog.h"
 #include "pidginplugininfo.h"
 #include "pidginprefs.h"
 #include "pidginprivate.h"
@@ -239,7 +238,6 @@ pidgin_ui_init(void)
 	pidgin_privacy_init();
 	pidgin_xfers_init();
 	pidgin_roomlist_init();
-	pidgin_log_init();
 	pidgin_medias_init();
 	pidgin_notify_init();
 }

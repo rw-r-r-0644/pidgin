@@ -44,7 +44,6 @@
 #include "pidginabout.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
-#include "pidginlog.h"
 #include "pidginmooddialog.h"
 #include "pidgin/pidginpluginsdialog.h"
 #include "pidginprefs.h"
@@ -280,20 +279,6 @@ pidgin_application_set_mood(GSimpleAction *simple, GVariant *parameter,
 	pidgin_mood_dialog_show(NULL);
 }
 
-static void
-pidgin_application_system_log(GSimpleAction *simple, GVariant *parameter,
-                              gpointer data)
-{
-	pidgin_syslog_show();
-}
-
-static void
-pidgin_application_view_user_log(GSimpleAction *simple, GVariant *parameter,
-                                 gpointer data)
-{
-	pidgin_dialogs_log();
-}
-
 static GActionEntry app_entries[] = {
 	{
 		.name = "about",
@@ -346,12 +331,6 @@ static GActionEntry app_entries[] = {
 	}, {
 		.name = "set-mood",
 		.activate = pidgin_application_set_mood,
-	}, {
-		.name = "system-log",
-		.activate = pidgin_application_system_log,
-	}, {
-		.name = "view-user-log",
-		.activate = pidgin_application_view_user_log,
 	}
 };
 

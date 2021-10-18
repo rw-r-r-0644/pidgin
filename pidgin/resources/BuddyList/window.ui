@@ -80,16 +80,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="view_user_log">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.view-user-log</property>
-                        <property name="label" translatable="yes">View User _Log...</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="l" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkSeparatorMenuItem">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
@@ -285,15 +275,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <property name="can-focus">False</property>
                         <property name="action-name">app.room-list</property>
                         <property name="label" translatable="yes">R_oom List</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="system_log">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.system-log</property>
-                        <property name="label" translatable="yes">System _Log</property>
                         <property name="use-underline">True</property>
                       </object>
                     </child>
