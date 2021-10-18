@@ -1,6 +1,4 @@
-if ENABLE_DOC
-	subdir('reference')
-endif
+subdir('reference')
 
 if ENABLE_GTK
 	pidgin_man = configure_file(
