@@ -47,7 +47,6 @@
 #include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
 #include "pidgin/pidgingdkpixbuf.h"
-#include "pidgin/pidginlog.h"
 #include "pidgin/pidginmooddialog.h"
 #include "pidgin/pidginplugininfo.h"
 #include "pidginscrollbook.h"
@@ -689,49 +688,6 @@ static void gtk_blist_menu_alias_cb(GtkWidget *w, PurpleBlistNode *node)
 	gtk_tree_view_set_cursor_on_cell(GTK_TREE_VIEW(gtkblist->treeview), path,
 			gtkblist->text_column, gtkblist->text_rend, TRUE);
 	gtk_tree_path_free(path);
-}
-
-static void gtk_blist_menu_showlog_cb(GtkWidget *w, PurpleBlistNode *node)
-{
-	PurpleLogType type;
-	PurpleAccount *account;
-	char *name = NULL;
-
-	pidgin_set_cursor(gtkblist->window, GDK_WATCH);
-
-	if (PURPLE_IS_BUDDY(node)) {
-		PurpleBuddy *b = (PurpleBuddy*) node;
-		type = PURPLE_LOG_IM;
-		name = g_strdup(purple_buddy_get_name(b));
-		account = purple_buddy_get_account(b);
-	} else if (PURPLE_IS_CHAT(node)) {
-		PurpleChat *c = PURPLE_CHAT(node);
-		PurpleProtocol *protocol = NULL;
-		type = PURPLE_LOG_CHAT;
-		account = purple_chat_get_account(c);
-		protocol = purple_account_get_protocol(account);
-		if (protocol) {
-			name = purple_protocol_chat_get_name(PURPLE_PROTOCOL_CHAT(protocol),
-			                                     purple_chat_get_components(c));
-		}
-	} else if (PURPLE_IS_CONTACT(node)) {
-		pidgin_log_show_contact(PURPLE_CONTACT(node));
-		pidgin_clear_cursor(gtkblist->window);
-		return;
-	} else {
-		pidgin_clear_cursor(gtkblist->window);
-
-		/* This callback should not have been registered for a node
-		 * that doesn't match the type of one of the blocks above. */
-		g_return_if_reached();
-	}
-
-	if (name && account) {
-		pidgin_log_show(type, name, account);
-		pidgin_clear_cursor(gtkblist->window);
-	}
-
-	g_free(name);
 }
 
 static void gtk_blist_menu_showoffline_cb(GtkWidget *w, PurpleBlistNode *node)
@@ -1529,15 +1485,6 @@ pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean sub) 
 		}
 	}
 
-	if (node->parent && node->parent->child->next &&
-	      !sub && !contact_expanded) {
-		pidgin_new_menu_item(menu, _("View _Log"), NULL,
-				G_CALLBACK(gtk_blist_menu_showlog_cb), contact);
-	} else if (!sub) {
-		pidgin_new_menu_item(menu, _("View _Log"), NULL,
-				G_CALLBACK(gtk_blist_menu_showlog_cb), buddy);
-	}
-
 	if (!purple_blist_node_is_transient(node)) {
 		gboolean show_offline = purple_blist_node_get_bool(node, "show_offline");
 		pidgin_new_menu_item(menu,
@@ -1752,8 +1699,6 @@ create_chat_menu(PurpleBlistNode *node, PurpleChat *c)
 	pidgin_new_check_item(menu, _("Persistent"),
 	                      G_CALLBACK(gtk_blist_menu_persistent_cb), node,
 	                      persistent);
-	pidgin_new_menu_item(menu, _("View _Log"), NULL,
-	                     G_CALLBACK(gtk_blist_menu_showlog_cb), node);
 
 	pidgin_append_blist_node_proto_menu(menu, purple_account_get_connection(purple_chat_get_account(c)), node);
 	pidgin_append_blist_node_extended_menu(menu, node);
@@ -1778,12 +1723,6 @@ create_contact_menu (PurpleBlistNode *node)
 	GtkWidget *menu;
 
 	menu = gtk_menu_new();
-
-	pidgin_new_menu_item(menu, _("View _Log"), NULL,
-				 G_CALLBACK(gtk_blist_menu_showlog_cb),
-				 node);
-
-	pidgin_separator(menu);
 
 	pidgin_new_menu_item(menu, _("_Alias..."), NULL,
 	                     G_CALLBACK(gtk_blist_menu_alias_cb), node);

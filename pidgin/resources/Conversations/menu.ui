@@ -46,10 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <attribute name="accel">&lt;Primary&gt;F</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">View _Log</attribute>
-          <attribute name="action">win.view-log</attribute>
-        </item>
-        <item>
           <attribute name="label" translatable="yes">_Save As...</attribute>
           <attribute name="action">win.save-as</attribute>
         </item>

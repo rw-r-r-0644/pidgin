@@ -801,6 +801,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_dialog_get_vbox
 		* pidgin_dialog_get_vbox_with_properties
 		* pidgin_dialogs_alias_contact
+		* pidgin_dialogs_log
 		* pidgin_make_mini_dialog_with_custom_icon; use
 		  pidgin_mini_dialog_new_with_custom_icon instead.
 		* pidgin_make_pretty_arrows

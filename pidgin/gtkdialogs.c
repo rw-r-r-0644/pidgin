@@ -41,7 +41,6 @@
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidgindialog.h"
-#include "pidginlog.h"
 
 static GList *dialogwindows = NULL;
 
@@ -268,95 +267,6 @@ pidgin_dialogs_info(void)
 	          "whose info you would like to view."),
 	        fields, _("OK"), G_CALLBACK(pidgin_dialogs_info_cb),
 	        _("Cancel"), NULL, NULL, NULL);
-}
-
-static void
-pidgin_dialogs_log_cb(gpointer data, PurpleRequestFields *fields)
-{
-	char *username;
-	PurpleAccount *account;
-	GSList *cur;
-
-	account  = purple_request_fields_get_account(fields, "account");
-
-	username = g_strdup(purple_normalize(account,
-		purple_request_fields_get_string(fields,  "screenname")));
-
-	if (username != NULL && *username != '\0' && account != NULL)
-	{
-		PidginBuddyList *gtkblist = pidgin_blist_get_default_gtk_blist();
-		GSList *buddies;
-
-		pidgin_set_cursor(gtkblist->window, GDK_WATCH);
-
-		buddies = purple_blist_find_buddies(account, username);
-		for (cur = buddies; cur != NULL; cur = cur->next)
-		{
-			PurpleBlistNode *node = cur->data;
-			if ((node != NULL) && ((node->prev != NULL) || (node->next != NULL)))
-			{
-				pidgin_log_show_contact((PurpleContact *)node->parent);
-				g_slist_free(buddies);
-				pidgin_clear_cursor(gtkblist->window);
-				g_free(username);
-				return;
-			}
-		}
-		g_slist_free(buddies);
-
-		pidgin_log_show(PURPLE_LOG_IM, username, account);
-
-		pidgin_clear_cursor(gtkblist->window);
-	}
-
-	g_free(username);
-}
-
-/*
- * TODO - This needs to deal with logs of all types, not just IM logs.
- */
-void
-pidgin_dialogs_log(void)
-{
-	PurpleRequestFields *fields;
-	PurpleRequestFieldGroup *group;
-	PurpleRequestField *field;
-
-	fields = purple_request_fields_new();
-
-	group = purple_request_field_group_new(NULL);
-	purple_request_fields_add_group(fields, group);
-
-	field = purple_request_field_string_new("screenname", _("_Name"), NULL, FALSE);
-	purple_request_field_set_type_hint(field, "screenname-all");
-	purple_request_field_set_required(field, TRUE);
-	purple_request_field_group_add_field(group, field);
-
-	field = purple_request_field_account_new("account", _("_Account"), NULL);
-
-	/* purple_request_field_account_new() only sets a default value if you're
-	 * connected, and it sets it from the list of connected accounts.  Since
-	 * we're going to set show_all here, it makes sense to use the first
-	 * account, not the first connected account. */
-	if (purple_accounts_get_all() != NULL) {
-		purple_request_field_account_set_default_value(field, purple_accounts_get_all()->data);
-		purple_request_field_account_set_value(field, purple_accounts_get_all()->data);
-	}
-
-	purple_request_field_set_type_hint(field, "account");
-	purple_request_field_account_set_show_all(field, TRUE);
-	purple_request_field_set_visible(field,
-		(purple_accounts_get_all() != NULL &&
-		 purple_accounts_get_all()->next != NULL));
-	purple_request_field_set_required(field, TRUE);
-	purple_request_field_group_add_field(group, field);
-
-	purple_request_fields(
-	        purple_blist_get_default(), _("View User Log"), NULL,
-	        _("Please enter the username or alias of the person "
-	          "whose log you would like to view."),
-	        fields, _("OK"), G_CALLBACK(pidgin_dialogs_log_cb), _("Cancel"),
-	        NULL, NULL, NULL);
 }
 
 static void

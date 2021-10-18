@@ -58,7 +58,6 @@
 #include "pidgingdkpixbuf.h"
 #include "pidgininfopane.h"
 #include "pidgininvitedialog.h"
-#include "pidginlog.h"
 #include "pidginmenutray.h"
 #include "pidginmessage.h"
 #include "pidginpresenceicon.h"
@@ -594,56 +593,6 @@ menu_save_as_cb(GtkAction *action, gpointer data)
 		purple_request_cpar_from_conversation(conv), conv);
 
 	g_free(buf);
-}
-
-static void
-menu_view_log_cb(GtkAction *action, gpointer data)
-{
-	PidginConvWindow *win = data;
-	PurpleConversation *conv;
-	PurpleLogType type;
-	PidginBuddyList *gtkblist;
-	const char *name;
-	PurpleAccount *account;
-	GSList *buddies;
-	GSList *cur;
-
-	conv = pidgin_conv_window_get_active_conversation(win);
-
-	if (PURPLE_IS_IM_CONVERSATION(conv))
-		type = PURPLE_LOG_IM;
-	else if (PURPLE_IS_CHAT_CONVERSATION(conv))
-		type = PURPLE_LOG_CHAT;
-	else
-		return;
-
-	gtkblist = pidgin_blist_get_default_gtk_blist();
-
-	pidgin_set_cursor(gtkblist->window, GDK_WATCH);
-	pidgin_set_cursor(win->window, GDK_WATCH);
-
-	name = purple_conversation_get_name(conv);
-	account = purple_conversation_get_account(conv);
-
-	buddies = purple_blist_find_buddies(account, name);
-	for (cur = buddies; cur != NULL; cur = cur->next)
-	{
-		PurpleBlistNode *node = cur->data;
-		if ((node != NULL) && ((node->prev != NULL) || (node->next != NULL)))
-		{
-			pidgin_log_show_contact((PurpleContact *)node->parent);
-			g_slist_free(buddies);
-			pidgin_clear_cursor(gtkblist->window);
-			pidgin_clear_cursor(win->window);
-			return;
-		}
-	}
-	g_slist_free(buddies);
-
-	pidgin_log_show(type, name, account);
-
-	pidgin_clear_cursor(gtkblist->window);
-	pidgin_clear_cursor(win->window);
 }
 
 #ifdef USE_VV
@@ -1644,7 +1593,6 @@ static GtkActionEntry menu_entries[] =
 {
 	/* Conversation menu */
 	{ "ConversationMenu", NULL, N_("_Conversation"), NULL, NULL, NULL },
-	{ "ViewLog", NULL, N_("View _Log"), NULL, NULL, G_CALLBACK(menu_view_log_cb) },
 	{ "SaveAs", NULL, N_("_Save As..."), NULL, NULL, G_CALLBACK(menu_save_as_cb) },
 
 #ifdef USE_VV
@@ -1676,7 +1624,6 @@ static const char *conversation_menu =
 "<ui>"
 	"<menubar name='Conversation'>"
 		"<menu action='ConversationMenu'>"
-			"<menuitem action='ViewLog'/>"
 			"<menuitem action='SaveAs'/>"
 			"<separator/>"
 #ifdef USE_VV
@@ -2049,10 +1996,6 @@ setup_menubar(PidginConvWindow *win)
 	 * conversation is created. */
 	menuitem = gtk_ui_manager_get_widget(win->menu->ui, "/Conversation/ConversationMenu");
 	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(menubar_activated), win);
-
-	win->menu->view_log =
-		gtk_ui_manager_get_action(win->menu->ui,
-		                          "/Conversation/ConversationMenu/ViewLog");
 
 #ifdef USE_VV
 	win->menu->audio_call =
