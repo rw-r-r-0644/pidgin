@@ -194,49 +194,81 @@ toggle_pause(GntWidget *w, gpointer n)
 	debug.paused = !debug.paused;
 }
 
-/* Xerox */
-static void
-purple_glib_log_handler(const gchar *domain, GLogLevelFlags flags,
-					  const gchar *msg, gpointer user_data)
+static GLogWriterOutput
+finch_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
+                          gsize n_fields, G_GNUC_UNUSED gpointer user_data)
 {
-	PurpleDebugLevel level;
-	char *new_msg = NULL;
-	char *new_domain = NULL;
+	const gchar *domain = NULL;
+	const gchar *msg = NULL;
+	const gchar *search_str = NULL;
+	gint pos = 0;
+	GntTextFormatFlags flag = 0;
+	const char *mdate = NULL;
+	time_t mtime;
+	gsize i;
 
-	if ((flags & G_LOG_LEVEL_ERROR) == G_LOG_LEVEL_ERROR)
-		level = PURPLE_DEBUG_ERROR;
-	else if ((flags & G_LOG_LEVEL_CRITICAL) == G_LOG_LEVEL_CRITICAL)
-		level = PURPLE_DEBUG_FATAL;
-	else if ((flags & G_LOG_LEVEL_WARNING) == G_LOG_LEVEL_WARNING)
-		level = PURPLE_DEBUG_WARNING;
-	else if ((flags & G_LOG_LEVEL_MESSAGE) == G_LOG_LEVEL_MESSAGE)
-		level = PURPLE_DEBUG_INFO;
-	else if ((flags & G_LOG_LEVEL_INFO) == G_LOG_LEVEL_INFO)
-		level = PURPLE_DEBUG_INFO;
-	else if ((flags & G_LOG_LEVEL_DEBUG) == G_LOG_LEVEL_DEBUG)
-		level = PURPLE_DEBUG_MISC;
-	else
-	{
-		purple_debug_warning("gntdebug",
-				   "Unknown glib logging level in %d\n", flags);
-
-		level = PURPLE_DEBUG_MISC; /* This will never happen. */
+	if (debug.window == NULL || debug.paused) {
+		return G_LOG_WRITER_UNHANDLED;
 	}
 
-	if (msg != NULL)
-		new_msg = purple_utf8_try_convert(msg);
-
-	if (domain != NULL)
-		new_domain = purple_utf8_try_convert(domain);
-
-	if (new_msg != NULL)
-	{
-		purple_debug(level, (new_domain != NULL) ? new_domain : "g_log", "%s", new_msg);
-
-		g_free(new_msg);
+	for (i = 0; i < n_fields; i++) {
+		if (purple_strequal(fields[i].key, "GLIB_DOMAIN")) {
+			domain = fields[i].value;
+		} else if (purple_strequal(fields[i].key, "MESSAGE")) {
+			msg = fields[i].value;
+		}
 	}
 
-	g_free(new_domain);
+	if (msg == NULL) {
+		return G_LOG_WRITER_UNHANDLED;
+	}
+	if (domain == NULL) {
+		domain = "g_log";
+	}
+
+	/* Filter out log line if we have a search term, and it doesn't match
+	 * the domain or message. */
+	search_str = gnt_entry_get_text(GNT_ENTRY(debug.search));
+	if (search_str != NULL && *search_str != '\0') {
+		if (g_strrstr(domain, search_str) == NULL &&
+		    g_strrstr(msg, search_str) == NULL)
+		{
+			return G_LOG_WRITER_UNHANDLED;
+		}
+	}
+
+	pos = gnt_text_view_get_lines_below(GNT_TEXT_VIEW(debug.tview));
+	mtime = time(NULL);
+	mdate = purple_utf8_strftime("%H:%M:%S ", localtime(&mtime));
+	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), mdate,
+	                                     GNT_TEXT_FLAG_NORMAL);
+
+	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), domain,
+	                                     GNT_TEXT_FLAG_BOLD);
+	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), ": ",
+	                                     GNT_TEXT_FLAG_BOLD);
+
+	flag = GNT_TEXT_FLAG_NORMAL;
+	switch (log_level & G_LOG_LEVEL_MASK) {
+		case G_LOG_LEVEL_WARNING:
+			flag |= GNT_TEXT_FLAG_UNDERLINE;
+			/* fallthrough */
+		case G_LOG_LEVEL_ERROR:
+			flag |= GNT_TEXT_FLAG_BOLD;
+			break;
+		default:
+			break;
+	}
+
+	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), msg,
+	                                     flag);
+	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), "\n",
+	                                     GNT_TEXT_FLAG_NORMAL);
+	if (pos <= 1) {
+		gnt_text_view_scroll(GNT_TEXT_VIEW(debug.tview), 0);
+	}
+
+	return G_LOG_WRITER_HANDLED;
 }
 
 static void
@@ -376,21 +408,7 @@ finch_debug_ui_class_init(FinchDebugUiClass *klass)
 static void
 finch_debug_ui_init(FinchDebugUi *self)
 {
-/* Xerox */
-#define REGISTER_G_LOG_HANDLER(name) \
-	g_log_set_handler((name), G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL \
-					  | G_LOG_FLAG_RECURSION, \
-					  purple_glib_log_handler, NULL)
-
-	/* Register the glib log handlers. */
-	REGISTER_G_LOG_HANDLER(NULL);
-	REGISTER_G_LOG_HANDLER("GLib");
-	REGISTER_G_LOG_HANDLER("GModule");
-	REGISTER_G_LOG_HANDLER("GLib-GObject");
-	REGISTER_G_LOG_HANDLER("GThread");
-	REGISTER_G_LOG_HANDLER("Gnt");
-	REGISTER_G_LOG_HANDLER("GStreamer");
-	REGISTER_G_LOG_HANDLER("stderr");
+	g_log_set_writer_func(finch_debug_g_log_handler, NULL, NULL);
 
 	g_set_print_handler(print_stderr);   /* Redirect the debug messages to stderr */
 	if (!purple_debug_is_enabled())
