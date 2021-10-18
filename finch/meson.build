@@ -236,18 +236,17 @@ if enable_consoleui
 	    dependencies : [libpurple_dep, libgnt_dep, libfinch_dep],
 	    install : true)
 
-	if meson.version().version_compare('>=0.54.0')
-		meson.override_dependency('finch-3', libfinch_dep)
-	endif
+	meson.override_dependency('finch-3', libfinch_dep)
 
 	pkgconfig.generate(
+	    libfinch,
 	    name : 'Finch',
 	    description : 'Finch is an instant messenger application that uses libpurple for protocol support and ncurses (libgnt) for the UI.',
 	    version : meson.project_version(),
 	    filebase : 'finch-3',
 	    subdirs : 'finch-3',
-	    libraries : [libfinch],
-	    requires : ['gnt', 'purple-3'],
+	    # NOTE: Don't use gnt from pkgconfig, as it might be a subproject.
+	    requires : ['gnt', libpurple],
 	    variables : ['plugindir=${libdir}/finch-@0@'.format(purple_major_version)])
 
 	subdir('plugins')

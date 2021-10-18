@@ -258,18 +258,17 @@ if ENABLE_GTK
 	    win_subsystem : 'windows',
 	    install : true)
 
-	if meson.version().version_compare('>=0.54.0')
-		meson.override_dependency(pidgin_filebase, libpidgin_dep)
-	endif
+	meson.override_dependency(pidgin_filebase, libpidgin_dep)
 
 	pkgconfig.generate(
+	    libpidgin,
 	    name : 'Pidgin',
 	    description : 'Pidgin is a GTK3-based instant messenger application.',
 	    version : meson.project_version(),
 	    filebase : pidgin_filebase,
 	    subdirs : pidgin_filebase,
-	    libraries : [libpidgin],
-	    requires : ['gtk+-3.0', 'libhandy-1', 'purple-3', 'talkatu', 'gplugin-gtk'],
+	    # NOTE: Don't use dependencies from subprojects.
+	    requires : [gtk, libhandy, libpurple, 'talkatu', 'gplugin-gtk3'],
 	    variables : ['plugindir=${libdir}/pidgin-@0@'.format(purple_major_version)])
 
 	PIDGIN_DESKTOP_FILE = 'im.pidgin.Pidgin3.desktop'
