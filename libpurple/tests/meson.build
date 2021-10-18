@@ -24,7 +24,9 @@ test_ui = static_library(
     'test_ui.c',
     'test_ui.h',
     c_args: [
-        '-DTEST_DATA_DIR="@0@/data"'.format(meson.current_source_dir())
+        '-DTEST_DATA_DIR="@0@/data"'.format(meson.current_source_dir()),
+        '-DG_LOG_USE_STRUCTURED',
+        '-DG_LOG_DOMAIN="Purple-TestUI"',
     ],
     dependencies: [libpurple_dep, glib]
 )

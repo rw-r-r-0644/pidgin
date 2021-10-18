@@ -98,6 +98,7 @@ if DYNAMIC_JABBER
 	JABBER_SOURCES += xmpp_resources
 
 	jabber_prpl = shared_library('jabber', JABBER_SOURCES,
+	    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-XMPP"'],
 	    link_args : jabber_link_args,
 	    dependencies : [gstreamer, idn, libxml, sasl, libpurple_dep, libsoup, glib, gio, math, nice, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)

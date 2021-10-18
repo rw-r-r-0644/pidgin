@@ -20,6 +20,7 @@ if DYNAMIC_SILC
 	SILC_SOURCES += silc_resources
 
 	silc_prpl = shared_library('silcpurple', SILC_SOURCES,
+	    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-SILC"'],
 	    dependencies : [silc, libpurple_dep, glib],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 

@@ -15,6 +15,7 @@ if DYNAMIC_IRC
 	IRC_SOURCES += irc_resources
 
 	irc_prpl = shared_library('irc', IRC_SOURCES,
+	    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-IRC"'],
 	    dependencies : [sasl, libpurple_dep, glib, gio, ws2_32],
 	    install : true, install_dir : PURPLE_PLUGINDIR)
 
