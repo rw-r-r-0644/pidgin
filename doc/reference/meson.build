@@ -1,3 +1,5 @@
+if get_option('doc')
+
 subdir('libpurple')
 subdir('protocols')
 
@@ -14,3 +16,6 @@ else
 endif
 
 alias_target('doc', libpurple_doc, protocols_doc, pidgin_doc, finch_doc)
+
+endif
+

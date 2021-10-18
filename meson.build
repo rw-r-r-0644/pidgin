@@ -656,9 +656,26 @@ endif
 #######################################################################
 INSTALL_PIXMAPS = get_option('pixmaps-install')
 
-# check for gtk-doc
-ENABLE_DOC = get_option('doc')
+#######################################################################
+# Documentation
+#######################################################################
 
+if get_option('doc') and not get_option('introspection')
+    error('Documentation requires GObject Introspection.')
+endif
+
+gidocgen_dep = dependency(
+    'gi-docgen', version: '>= 2021.1',
+    fallback: ['gi-docgen', 'dummy_dep'],
+    required: get_option('doc')
+)
+
+gidocgen = find_program('gi-docgen', required : get_option('doc'))
+docs_dir = get_option('prefix') / get_option('datadir') / 'doc'
+
+#######################################################################
+# Random Stuff
+#######################################################################
 if ['debug', 'debugoptimize'].contains(get_option('buildtype'))
 	enable_debug = true
 else
@@ -719,7 +736,7 @@ summary({
 
 summary({
     'Enable Introspection': enable_introspection,
-    'Generate documentation': ENABLE_DOC,
+    'Generate documentation': get_option('doc'),
     'Has you': true,
     'Install pixmaps': INSTALL_PIXMAPS,
     'Install translations': get_option('nls'),

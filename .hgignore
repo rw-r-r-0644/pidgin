@@ -5,9 +5,9 @@ syntax: glob
 *.pyc
 *~
 \#*\#
-subprojects/*/
 
 syntax: regexp
 ^build(.+)?\/
 win32-install-dir(\.release)?
 po\/pidgin\.pot$
+^subprojects\/.+\/
