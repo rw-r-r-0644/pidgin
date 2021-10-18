@@ -699,7 +699,7 @@ configure_file(output : 'config.h',
 if meson.version().version_compare('>=0.58.0')
 	config_home = get_option('devenv-config-dir')
 	if config_home == ''
-		config_home = meson.build_root() / 'config'
+		config_home = meson.global_build_root() / 'config'
 	endif
 	devenv.set('XDG_CONFIG_HOME', config_home)
 

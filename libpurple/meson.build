@@ -310,14 +310,15 @@ install_headers(purple_mediaheaders,
                 subdir : purple_include_base / 'media')
 
 pkgconfig.generate(
+    libpurple,
     name : 'libpurple',
     description : 'libpurple is a GLib-based instant messenger library.',
     version : meson.project_version(),
     filebase : purple_filebase,
 # TODO: Only use purple_filebase once everything is ported to only use purple.h
     subdirs : [purple_filebase, purple_include_base],
-    libraries : [libpurple],
-    requires : ['glib-2.0', 'gplugin'],
+    # NOTE: Don't use gplugin from pkgconfig, as it might be a subproject.
+    requires : [glib, 'gplugin'],
     variables : ['plugindir=${libdir}/@0@'.format(purple_filebase)])
 
 if enable_introspection
@@ -349,9 +350,7 @@ libpurple_dep = declare_dependency(
     link_with : libpurple,
     dependencies : [gstreamer, gplugin_dep, glib, gio])
 
-if meson.version().version_compare('>=0.54.0')
-	meson.override_dependency(purple_filebase, libpurple_dep)
-endif
+meson.override_dependency(purple_filebase, libpurple_dep)
 
 PURPLE3_URL_HANDLER_DESKTOP = 'purple3-url-handler.desktop'
 if get_option('nls')
