@@ -289,6 +289,9 @@ pidgin_quit(void)
 	/* Uninit */
 	PurpleDebugUi *ui;
 
+	/* Be sure to close all windows that are not attached to anything
+	 * (e.g., the debug window), or they may access things after they are
+	 * shut down. */
 	pidgin_notify_uninit();
 	pidgin_commands_uninit();
 	pidgin_conversations_uninit();
@@ -298,6 +301,7 @@ pidgin_quit(void)
 	pidgin_connection_uninit();
 	pidgin_accounts_uninit();
 	pidgin_xfers_uninit();
+	pidgin_debug_window_hide();
 	ui = purple_debug_get_ui();
 	purple_debug_set_ui(NULL);
 	g_object_unref(ui);
