@@ -65,8 +65,35 @@ static PurpleCoreUiOps test_core_uiops = {
 	.ui_init = test_ui_init
 };
 
+static gboolean
+test_ui_init_history(GError **error) {
+	PurpleHistoryManager *manager = NULL;
+	PurpleHistoryAdapter *adapter = NULL;
+	const gchar *id = NULL;
+
+	manager = purple_history_manager_get_default();
+
+	adapter = purple_sqlite_history_adapter_new(":memory:");
+	id = purple_history_adapter_get_id(adapter);
+
+	if(!purple_history_manager_register(manager, adapter, error)) {
+		g_clear_object(&adapter);
+
+		return FALSE;
+	}
+
+	/* The manager adds a ref to the adapter on registration, so we can remove
+	 * our reference.
+	 */
+	g_clear_object(&adapter);
+
+	return purple_history_manager_set_active(manager, id, error);
+}
+
 void
 test_ui_purple_init(void) {
+	GError *error = NULL;
+
 #ifndef _WIN32
 	/* libpurple's built-in DNS resolution forks processes to perform
 	 * blocking lookups without blocking the main process.  It does not
@@ -78,9 +105,6 @@ test_ui_purple_init(void) {
 
 	/* set the magic PURPLE_PLUGINS_SKIP environment variable */
 	g_setenv("PURPLE_PLUGINS_SKIP", "1", TRUE);
-
-	/* Set a custom user directory (optional) */
-	purple_util_set_user_dir(TEST_DATA_DIR);
 
 	/* We do not want any debugging for now to keep the noise to a minimum. */
 	purple_debug_set_enabled(FALSE);
@@ -104,11 +128,11 @@ test_ui_purple_init(void) {
 		abort();
 	}
 
-	/* Set path to search for plugins. The core (libpurple) takes care of loading the
-	 * core-plugins, which includes the in-tree protocols. So it is not essential to add
-	 * any path here, but it might be desired, especially for ui-specific plugins. */
-	purple_plugins_add_search_path(TEST_DATA_DIR);
-	purple_plugins_refresh();
+	if(!test_ui_init_history(&error)) {
+		g_critical("failed to initialize the history api: %s",
+		           error ? error->message : "unknown");
+		g_clear_error(&error);
+	}
 
 	/* Load the preferences. */
 	purple_prefs_load();

@@ -190,11 +190,46 @@ debug_init(void)
 	purple_debug_set_ui(PURPLE_DEBUG_UI(ui));
 }
 
+static gboolean
+pidgin_history_init(GError **error) {
+	PurpleHistoryManager *manager = NULL;
+	PurpleHistoryAdapter *adapter = NULL;
+	gchar *filename = NULL;
+	const gchar *id = NULL;
+
+	manager = purple_history_manager_get_default();
+
+	/* Attempt to create the config_dir. We don't care about the result as the
+	 * logging adapter will fail with a better error than us failing to create
+	 * the directory.
+	 */
+	g_mkdir_with_parents(purple_config_dir(), 0700);
+
+	filename = g_build_filename(purple_config_dir(), "history.db", NULL);
+	adapter = purple_sqlite_history_adapter_new(filename);
+	g_free(filename);
+
+	id = purple_history_adapter_get_id(adapter);
+	if(!purple_history_manager_register(manager, adapter, error)) {
+		g_clear_object(&adapter);
+
+		return FALSE;
+	}
+
+	/* The manager adds a ref to the adapter on registration, so we can remove
+	 * our reference.
+	 */
+	g_clear_object(&adapter);
+
+	return purple_history_manager_set_active(manager, id, error);
+}
+
 static void
 pidgin_ui_init(void)
 {
 	PurpleProtocolManager *protocol_manager = NULL;
 	GtkIconTheme *theme = NULL;
+	GError *error = NULL;
 	gchar *path;
 
 	theme = gtk_icon_theme_get_default();
@@ -215,6 +250,12 @@ pidgin_ui_init(void)
 	 */
 	purple_protocol_manager_foreach(protocol_manager,
 	                                purple_ui_protocol_foreach_theme_cb, NULL);
+
+	if(!pidgin_history_init(&error)) {
+		g_critical("failed to initialize the history api: %s",
+		           error != NULL ? error->message : "unknown");
+		g_clear_error(&error);
+	}
 
 	pidgin_stock_init();
 
