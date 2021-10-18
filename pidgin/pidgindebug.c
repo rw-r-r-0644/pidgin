@@ -704,42 +704,121 @@ debug_enabled_cb(const char *name, PurplePrefType type,
 		ui->debug_enabled_timer = g_timeout_add(0, debug_disabled_timeout_cb, data);
 }
 
-static void
-pidgin_debug_g_log_handler(const gchar *domain, GLogLevelFlags flags,
-                           const gchar *msg, gpointer user_data)
+static GLogWriterOutput
+pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
+                           gsize n_fields, G_GNUC_UNUSED gpointer user_data)
 {
-	PurpleDebugLevel level;
-	GString *category = g_string_new("GLog-");
+	const gchar *domain = NULL;
+	const gchar *arg_s = NULL;
+	GtkTextTag *level_tag = NULL;
+	const char *mdate = NULL;
+	time_t mtime;
+	GtkTextIter end;
+	gboolean scroll;
+	gsize i;
 
-	if(domain != NULL) {
-		g_string_append_printf(category, "%s-", domain);
+	if (debug_win == NULL ||
+			!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled")) {
+		return G_LOG_WRITER_UNHANDLED;
 	}
 
-	if((flags & G_LOG_LEVEL_ERROR) != 0) {
-		g_string_append(category, "Error");
-		level = PURPLE_DEBUG_ERROR;
-	} else if((flags & G_LOG_LEVEL_CRITICAL) != 0) {
-		g_string_append(category, "Fatal");
-		level = PURPLE_DEBUG_FATAL;
-	} else if((flags & G_LOG_LEVEL_WARNING) != 0) {
-		g_string_append(category, "Warning");
-		level = PURPLE_DEBUG_WARNING;
-	} else if((flags & G_LOG_LEVEL_MESSAGE) != 0) {
-		g_string_append(category, "Message");
-		level = PURPLE_DEBUG_INFO;
-	} else if((flags & G_LOG_LEVEL_INFO) != 0) {
-		g_string_append(category, "Info");
-		level = PURPLE_DEBUG_INFO;
-	} else if((flags & G_LOG_LEVEL_DEBUG) != 0) {
-		g_string_append(category, "Debug");
-		level = PURPLE_DEBUG_MISC;
+	for (i = 0; i < n_fields; i++) {
+		if (purple_strequal(fields[i].key, "GLIB_DOMAIN")) {
+			domain = fields[i].value;
+		} else if (purple_strequal(fields[i].key, "MESSAGE")) {
+			arg_s = fields[i].value;
+		}
+	}
+
+	if((log_level & G_LOG_LEVEL_ERROR) != 0) {
+		level_tag = debug_win->tags.level[PURPLE_DEBUG_ERROR];
+	} else if((log_level & G_LOG_LEVEL_CRITICAL) != 0) {
+		level_tag = debug_win->tags.level[PURPLE_DEBUG_FATAL];
+	} else if((log_level & G_LOG_LEVEL_WARNING) != 0) {
+		level_tag = debug_win->tags.level[PURPLE_DEBUG_WARNING];
+	} else if((log_level & G_LOG_LEVEL_MESSAGE) != 0) {
+		level_tag = debug_win->tags.level[PURPLE_DEBUG_INFO];
+	} else if((log_level & G_LOG_LEVEL_INFO) != 0) {
+		level_tag = debug_win->tags.level[PURPLE_DEBUG_INFO];
+	} else if((log_level & G_LOG_LEVEL_DEBUG) != 0) {
+		level_tag = debug_win->tags.level[PURPLE_DEBUG_MISC];
 	} else {
-		g_string_append(category, "Unknown");
-		level = PURPLE_DEBUG_MISC;
+		level_tag = debug_win->tags.level[PURPLE_DEBUG_MISC];
 	}
 
-	purple_debug(level, category->str, "%s", msg);
-	g_string_free(category, TRUE);
+	scroll = view_near_bottom(debug_win);
+	gtk_text_buffer_get_end_iter(debug_win->buffer, &end);
+	gtk_text_buffer_move_mark(debug_win->buffer, debug_win->start_mark, &end);
+
+	mtime = time(NULL);
+	mdate = purple_utf8_strftime("(%H:%M:%S) ", localtime(&mtime));
+	gtk_text_buffer_insert_with_tags(
+			debug_win->buffer,
+			&end,
+			mdate,
+			-1,
+			level_tag,
+			debug_win->paused ? debug_win->tags.paused : NULL,
+			NULL);
+
+	if (domain != NULL && *domain != '\0') {
+		gtk_text_buffer_insert_with_tags(
+				debug_win->buffer,
+				&end,
+				domain,
+				-1,
+				level_tag,
+				debug_win->tags.category,
+				debug_win->paused ? debug_win->tags.paused : NULL,
+				NULL);
+		gtk_text_buffer_insert_with_tags(
+				debug_win->buffer,
+				&end,
+				": ",
+				2,
+				level_tag,
+				debug_win->tags.category,
+				debug_win->paused ? debug_win->tags.paused : NULL,
+				NULL);
+	}
+
+	gtk_text_buffer_insert_with_tags(
+			debug_win->buffer,
+			&end,
+			arg_s,
+			-1,
+			level_tag,
+			debug_win->paused ? debug_win->tags.paused : NULL,
+			NULL);
+	gtk_text_buffer_insert_with_tags(
+			debug_win->buffer,
+			&end,
+			"\n",
+			1,
+			level_tag,
+			debug_win->paused ? debug_win->tags.paused : NULL,
+			NULL);
+
+	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/filter") &&
+			debug_win->regex) {
+		/* Filter out any new messages. */
+		GtkTextIter start;
+
+		gtk_text_buffer_get_iter_at_mark(debug_win->buffer, &start,
+		                                 debug_win->start_mark);
+		gtk_text_buffer_get_iter_at_mark(debug_win->buffer, &end,
+		                                 debug_win->end_mark);
+
+		do_regex(debug_win, &start, &end);
+	}
+
+	if (scroll) {
+		gtk_text_view_scroll_to_mark(
+				GTK_TEXT_VIEW(debug_win->textview),
+				debug_win->end_mark, 0, TRUE, 0, 1);
+	}
+
+	return G_LOG_WRITER_HANDLED;
 }
 
 static void
@@ -773,7 +852,7 @@ pidgin_debug_ui_init(PidginDebugUi *self)
 	purple_prefs_connect_callback(NULL, PIDGIN_PREFS_ROOT "/debug/enabled",
 	                              debug_enabled_cb, self);
 
-	g_log_set_default_handler(pidgin_debug_g_log_handler, NULL);
+	g_log_set_writer_func(pidgin_debug_g_log_handler, NULL, NULL);
 }
 
 static void
