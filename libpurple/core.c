@@ -134,13 +134,10 @@ purple_core_init(const char *ui)
 
 	purple_debug_init();
 
-	if (ops != NULL)
-	{
-		if (ops->ui_prefs_init != NULL)
+	if (ops != NULL) {
+		if (ops->ui_prefs_init != NULL) {
 			ops->ui_prefs_init();
-
-		if (ops->debug_ui_init != NULL)
-			ops->debug_ui_init();
+		}
 	}
 
 	purple_cmds_init();

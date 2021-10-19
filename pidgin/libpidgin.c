@@ -183,13 +183,6 @@ purple_ui_protocol_registered_cb(PurpleProtocolManager *manager,
 	purple_ui_add_protocol_theme_paths(protocol);
 }
 
-static void
-debug_init(void)
-{
-	PidginDebugUi *ui = pidgin_debug_ui_new();
-	purple_debug_set_ui(PURPLE_DEBUG_UI(ui));
-}
-
 static gboolean
 pidgin_history_init(GError **error) {
 	PurpleHistoryManager *manager = NULL;
@@ -289,7 +282,6 @@ static void
 pidgin_quit(void)
 {
 	/* Uninit */
-	PurpleDebugUi *ui;
 
 	/* Be sure to close all windows that are not attached to anything
 	 * (e.g., the debug window), or they may access things after they are
@@ -304,9 +296,6 @@ pidgin_quit(void)
 	pidgin_accounts_uninit();
 	pidgin_xfers_uninit();
 	pidgin_debug_window_hide();
-	ui = purple_debug_get_ui();
-	purple_debug_set_ui(NULL);
-	g_object_unref(ui);
 	pidgin_debug_uninit();
 
 	/* and end it all... */
@@ -322,7 +311,6 @@ pidgin_ui_get_info(void) {
 static PurpleCoreUiOps core_ops =
 {
 	pidgin_prefs_init,
-	debug_init,
 	pidgin_ui_init,
 	pidgin_quit,
 	pidgin_ui_get_info,

@@ -48,11 +48,6 @@ typedef struct _PurpleCoreUiOps PurpleCoreUiOps;
  * @ui_prefs_init: Called just after the preferences subsystem is initialized;
  *                 the UI could use this callback to add some preferences it
  *                 needs to be in place when other subsystems are initialized.
- * @debug_ui_init: Called just after the debug subsystem is initialized, but
- *                 before just about every other component's initialization. The
- *                 UI should use this hook to call purple_debug_set_ui() so
- *                 that debugging information for other components can be logged
- *                 during their initialization.
  * @ui_init:       Called after all of libpurple has been initialized. The UI
  *                 should use this hook to set all other necessary
  *                 <link linkend="chapter-ui-ops"><literal>UiOps structures</literal></link>.
@@ -67,7 +62,6 @@ typedef struct _PurpleCoreUiOps PurpleCoreUiOps;
 struct _PurpleCoreUiOps
 {
 	void (*ui_prefs_init)(void);
-	void (*debug_ui_init)(void);
 	void (*ui_init)(void);
 
 	void (*quit)(void);

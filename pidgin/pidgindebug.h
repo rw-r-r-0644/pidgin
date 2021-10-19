@@ -36,9 +36,7 @@
 
 G_BEGIN_DECLS
 
-#define PIDGIN_TYPE_DEBUG_UI (pidgin_debug_ui_get_type())
 #define PIDGIN_TYPE_DEBUG_WINDOW (pidgin_debug_window_get_type())
-G_DECLARE_FINAL_TYPE(PidginDebugUi, pidgin_debug_ui, PIDGIN, DEBUG_UI, GObject)
 G_DECLARE_FINAL_TYPE(PidginDebugWindow, pidgin_debug_window, PIDGIN, DEBUG_WINDOW, GtkWindow)
 
 /**
@@ -70,13 +68,6 @@ void pidgin_debug_init(void);
  * Since: 3.0.0
  */
 void pidgin_debug_uninit(void);
-
-/**
- * pidgin_debug_ui_new:
- *
- * Initializes the GTK debug system.
- */
-PidginDebugUi *pidgin_debug_ui_new(void);
 
 /**
  * pidgin_debug_get_handle:

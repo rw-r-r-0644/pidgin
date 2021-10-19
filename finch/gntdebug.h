@@ -42,16 +42,6 @@ G_BEGIN_DECLS
  * GNT Debug API
  **********************************************************************/
 
-#define FINCH_TYPE_DEBUG_UI (finch_debug_ui_get_type())
-G_DECLARE_FINAL_TYPE(FinchDebugUi, finch_debug_ui, FINCH, DEBUG_UI, GObject)
-
-/**
- * finch_debug_ui_new:
- *
- * Perform necessary initializations.
- */
-FinchDebugUi *finch_debug_ui_new(void);
-
 /**
  * finch_debug_init_handler:
  *

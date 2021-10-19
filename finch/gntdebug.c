@@ -44,12 +44,6 @@ struct _FinchDebugUi
 	/* Other members, including private data. */
 };
 
-static void finch_debug_ui_interface_init(PurpleDebugUiInterface *iface);
-
-G_DEFINE_TYPE_WITH_CODE(FinchDebugUi, finch_debug_ui, G_TYPE_OBJECT,
-                        G_IMPLEMENT_INTERFACE(PURPLE_TYPE_DEBUG_UI,
-                                              finch_debug_ui_interface_init));
-
 static gboolean
 handle_fprintf_stderr_cb(GIOChannel *source, GIOCondition cond, gpointer null)
 {
@@ -102,72 +96,6 @@ static struct
 	GntWidget *search;
 	gboolean paused;
 } debug;
-
-static gboolean
-match_string(const char *category, const char *args)
-{
-	const char *str = gnt_entry_get_text(GNT_ENTRY(debug.search));
-	if (!str || !*str)
-		return TRUE;
-	if (g_strrstr(category, str) != NULL)
-		return TRUE;
-	if (g_strrstr(args, str) != NULL)
-		return TRUE;
-	return FALSE;
-}
-
-static void
-finch_debug_print(PurpleDebugUi *self,
-                  PurpleDebugLevel level, const char *category,
-                  const char *args)
-{
-	if (debug.window && !debug.paused && match_string(category, args))
-	{
-		int pos = gnt_text_view_get_lines_below(GNT_TEXT_VIEW(debug.tview));
-		GntTextFormatFlags flag = GNT_TEXT_FLAG_NORMAL;
-		const char *mdate;
-		time_t mtime = time(NULL);
-		mdate = purple_utf8_strftime("%H:%M:%S ", localtime(&mtime));
-		gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview),
-				mdate, flag);
-
-		gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview),
-				category, GNT_TEXT_FLAG_BOLD);
-		gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview),
-				": ", GNT_TEXT_FLAG_BOLD);
-
-		switch (level)
-		{
-			case PURPLE_DEBUG_WARNING:
-				flag |= GNT_TEXT_FLAG_UNDERLINE;
-				/* fall through */
-			case PURPLE_DEBUG_ERROR:
-			case PURPLE_DEBUG_FATAL:
-				flag |= GNT_TEXT_FLAG_BOLD;
-				break;
-			default:
-				break;
-		}
-
-		gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), args, flag);
-		gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), "\n", GNT_TEXT_FLAG_NORMAL);
-		if (pos <= 1)
-			gnt_text_view_scroll(GNT_TEXT_VIEW(debug.tview), 0);
-	}
-}
-
-static gboolean
-finch_debug_is_enabled(PurpleDebugUi *self, PurpleDebugLevel level, const char *category)
-{
-	return debug.window && !debug.paused;
-}
-
-static void
-finch_debug_ui_interface_init(PurpleDebugUiInterface *iface)
-{
-	iface->print = finch_debug_print;
-	iface->is_enabled = finch_debug_is_enabled;
-}
 
 static void
 reset_debug_win(GntWidget *w, gpointer null)
@@ -394,22 +322,6 @@ start_with_debugwin(gpointer null)
 {
 	finch_debug_window_show();
 	return FALSE;
-}
-
-static void
-finch_debug_ui_class_init(FinchDebugUiClass *klass)
-{
-}
-
-static void
-finch_debug_ui_init(FinchDebugUi *self)
-{
-}
-
-FinchDebugUi *
-finch_debug_ui_new(void)
-{
-	return g_object_new(FINCH_TYPE_DEBUG_UI, NULL);
 }
 
 void

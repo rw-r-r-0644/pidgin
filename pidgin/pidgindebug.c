@@ -72,19 +72,6 @@ struct _PidginDebugWindow {
 static PidginDebugWindow *debug_win = NULL;
 static guint debug_enabled_timer = 0;
 
-struct _PidginDebugUi
-{
-	GObject parent;
-
-	/* Other members, including private data. */
-	guint debug_enabled_timer;
-};
-
-static void pidgin_debug_ui_interface_init(PurpleDebugUiInterface *iface);
-
-G_DEFINE_TYPE_WITH_CODE(PidginDebugUi, pidgin_debug_ui, G_TYPE_OBJECT,
-                        G_IMPLEMENT_INTERFACE(PURPLE_TYPE_DEBUG_UI,
-                                              pidgin_debug_ui_interface_init));
 G_DEFINE_TYPE(PidginDebugWindow, pidgin_debug_window, GTK_TYPE_WINDOW);
 
 static gint
@@ -811,11 +798,6 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 	return G_LOG_WRITER_HANDLED;
 }
 
-static void
-pidgin_debug_ui_init(PidginDebugUi *self)
-{
-}
-
 void
 pidgin_debug_window_show(void)
 {
@@ -836,121 +818,6 @@ pidgin_debug_window_hide(void)
 		gtk_widget_destroy(GTK_WIDGET(debug_win));
 		debug_window_destroy(NULL, NULL, NULL);
 	}
-}
-
-static void
-pidgin_debug_print(PurpleDebugUi *self,
-                   PurpleDebugLevel level, const char *category,
-                   const char *arg_s)
-{
-	GtkTextTag *level_tag;
-	const char *mdate;
-	time_t mtime;
-	GtkTextIter end;
-	gboolean scroll;
-
-	if (debug_win == NULL)
-		return;
-	if (!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled"))
-		return;
-
-	scroll = view_near_bottom(debug_win);
-	gtk_text_buffer_get_end_iter(debug_win->buffer, &end);
-	gtk_text_buffer_move_mark(debug_win->buffer, debug_win->start_mark,
-			&end);
-
-	level_tag = debug_win->tags.level[level];
-
-	mtime = time(NULL);
-	mdate = purple_utf8_strftime("(%H:%M:%S) ", localtime(&mtime));
-	gtk_text_buffer_insert_with_tags(
-			debug_win->buffer,
-			&end,
-			mdate,
-			-1,
-			level_tag,
-			debug_win->paused ? debug_win->tags.paused : NULL,
-			NULL);
-
-	if (category && *category) {
-		gtk_text_buffer_insert_with_tags(
-				debug_win->buffer,
-				&end,
-				category,
-				-1,
-				level_tag,
-				debug_win->tags.category,
-				debug_win->paused ? debug_win->tags.paused : NULL,
-				NULL);
-		gtk_text_buffer_insert_with_tags(
-				debug_win->buffer,
-				&end,
-				": ",
-				2,
-				level_tag,
-				debug_win->tags.category,
-				debug_win->paused ? debug_win->tags.paused : NULL,
-				NULL);
-	}
-
-	gtk_text_buffer_insert_with_tags(
-			debug_win->buffer,
-			&end,
-			arg_s,
-			-1,
-			level_tag,
-			debug_win->paused ? debug_win->tags.paused : NULL,
-			NULL);
-	gtk_text_buffer_insert_with_tags(
-			debug_win->buffer,
-			&end,
-			"\n",
-			1,
-			level_tag,
-			debug_win->paused ? debug_win->tags.paused : NULL,
-			NULL);
-
-	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/filter") && debug_win->regex) {
-		/* Filter out any new messages. */
-		GtkTextIter start;
-
-		gtk_text_buffer_get_iter_at_mark(debug_win->buffer, &start,
-				debug_win->start_mark);
-		gtk_text_buffer_get_iter_at_mark(debug_win->buffer, &end,
-				debug_win->end_mark);
-
-		do_regex(debug_win, &start, &end);
-	}
-
-	if (scroll) {
-		gtk_text_view_scroll_to_mark(GTK_TEXT_VIEW(debug_win->textview),
-				debug_win->end_mark, 0, TRUE, 0, 1);
-	}
-}
-
-static gboolean
-pidgin_debug_is_enabled(PurpleDebugUi *self, PurpleDebugLevel level, const char *category)
-{
-	return (debug_win != NULL &&
-			purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled"));
-}
-
-static void
-pidgin_debug_ui_interface_init(PurpleDebugUiInterface *iface)
-{
-	iface->print = pidgin_debug_print;
-	iface->is_enabled = pidgin_debug_is_enabled;
-}
-
-static void
-pidgin_debug_ui_class_init(PidginDebugUiClass *klass)
-{
-}
-
-PidginDebugUi *
-pidgin_debug_ui_new(void)
-{
-	return g_object_new(PIDGIN_TYPE_DEBUG_UI, NULL);
 }
 
 void

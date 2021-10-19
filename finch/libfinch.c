@@ -39,13 +39,6 @@
 #include "config.h"
 #include "package_revision.h"
 
-static void
-debug_init(void)
-{
-	FinchDebugUi *ui = finch_debug_ui_new();
-	purple_debug_set_ui(PURPLE_DEBUG_UI(ui));
-}
-
 static PurpleUiInfo *
 finch_ui_get_info(void) {
 	return purple_ui_info_new(_("Finch"), VERSION, "https://pidgin.im",
@@ -61,7 +54,6 @@ finch_quit(void)
 static PurpleCoreUiOps core_ops =
 {
 	finch_prefs_init,
-	debug_init,
 	finch_ui_init,
 	finch_quit,
 	finch_ui_get_info,
