@@ -128,11 +128,24 @@ purple_credential_manager_core_init_cb(gpointer data) {
 
 	priv = purple_credential_manager_get_instance_private(manager);
 	if(!PURPLE_IS_CREDENTIAL_PROVIDER(priv->active)) {
-		purple_notify_error(NULL, _("Credential Manager"),
-		                    _("Failed to load the selected credential "
-		                      "provider."),
-		                    _("Check your system configuration or select "
-		                      "another one in the preferences dialog."), NULL);
+		GError *error = NULL;
+		const gchar *id = NULL;
+
+		id = purple_prefs_get_string("/purple/credentials/active-provider");
+
+		if(!purple_credential_manager_set_active(manager, id, &error)) {
+			g_warning("Failed to make %s the active credential provider : %s",
+			          id, error != NULL ? error->message : "unknown error");
+
+			purple_notify_error(NULL, _("Credential Manager"),
+			                    _("Failed to load the selected credential "
+			                      "provider."),
+			                    _("Check your system configuration or select "
+			                      "another one in the preferences dialog."),
+			                    NULL);
+		}
+
+		g_clear_error(&error);
 	}
 }
 
@@ -245,6 +258,11 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 		2,
 		PURPLE_TYPE_CREDENTIAL_PROVIDER,
 		PURPLE_TYPE_CREDENTIAL_PROVIDER);
+
+	/* Add our purple preferences. */
+	purple_prefs_add_none("/purple/credentials");
+	purple_prefs_add_string("/purple/credentials/active-provider",
+	                        "noop-provider");
 }
 
 /******************************************************************************
@@ -406,6 +424,11 @@ purple_credential_manager_set_active(PurpleCredentialManager *manager,
 	}
 
 	g_clear_object(&previous);
+
+	/* Finally update the preference. */
+	if(id != NULL) {
+		purple_prefs_set_string("/purple/credentials/active-provider", id);
+	}
 
 	purple_debug_info("credential-manager", "set active provider to '%s'", id);
 

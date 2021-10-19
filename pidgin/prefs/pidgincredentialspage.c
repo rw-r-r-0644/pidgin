@@ -100,8 +100,6 @@ pidgin_credential_page_list_row_activated_cb(GtkListBox *box,
 
 	manager = purple_credential_manager_get_default();
 	if(purple_credential_manager_set_active(manager, id, &error)) {
-		purple_prefs_set_string("/purple/credentials/active-provider", id);
-
 		return;
 	}
 
@@ -160,9 +158,6 @@ pidgin_credentials_page_init(PidginCredentialsPage *page) {
 	const gchar *active = NULL;
 
 	gtk_widget_init_template(GTK_WIDGET(page));
-
-	purple_prefs_add_none("/purple/credentials");
-	purple_prefs_add_string("/purple/credentials/active-provider", NULL);
 
 	manager = purple_credential_manager_get_default();
 	purple_credential_manager_foreach(
