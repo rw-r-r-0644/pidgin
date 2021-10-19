@@ -106,9 +106,6 @@ test_ui_purple_init(void) {
 	/* set the magic PURPLE_PLUGINS_SKIP environment variable */
 	g_setenv("PURPLE_PLUGINS_SKIP", "1", TRUE);
 
-	/* We do not want any debugging for now to keep the noise to a minimum. */
-	purple_debug_set_enabled(FALSE);
-
 	/* Set the core-uiops, which is used to
 	 * 	- initialize the ui specific preferences.
 	 * 	- initialize the debug ui.
