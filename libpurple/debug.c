@@ -23,8 +23,6 @@
 #include "debug.h"
 #include "prefs.h"
 
-static PurpleDebugUi *debug_ui = NULL;
-
 /*
  * This determines whether debug info should be written to the
  * console or not.
@@ -165,11 +163,6 @@ purple_debug_is_enabled() {
 	return debug_enabled;
 }
 
-void
-purple_debug_set_ui(PurpleDebugUi *ui) {
-	g_set_object(&debug_ui, ui);
-}
-
 gboolean
 purple_debug_is_verbose() {
 	return debug_verbose;
@@ -193,11 +186,6 @@ purple_debug_set_unsafe(gboolean unsafe) {
 void
 purple_debug_set_colored(gboolean colored) {
 	debug_colored = colored;
-}
-
-PurpleDebugUi *
-purple_debug_get_ui(void) {
-	return debug_ui;
 }
 
 void

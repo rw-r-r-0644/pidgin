@@ -218,32 +218,6 @@ gboolean purple_debug_is_unsafe(void);
 void purple_debug_set_colored(gboolean colored);
 
 /******************************************************************************
- * UI Registration Functions
- *****************************************************************************/
-
-/**
- * purple_debug_set_ui:
- * @ui: The UI operations structure.
- *
- * Sets the UI operations structure to be used when outputting debug
- * information.
- *
- * Since: 3.0.0
- */
-void purple_debug_set_ui(PurpleDebugUi *ui);
-
-/**
- * purple_debug_get_ui:
- *
- * Get the #PurpleDebugUi instance used for outputting debug information.
- *
- * Returns: (transfer none): The #PurpleDebugUi instance in use.
- *
- * Since: 3.0.0
- */
-PurpleDebugUi *purple_debug_get_ui(void);
-
-/******************************************************************************
  * Debug Subsystem
  *****************************************************************************/
 
