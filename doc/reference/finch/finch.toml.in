@@ -21,6 +21,11 @@ search_index = true
   description = "The base type system library"
   docs_url = "https://docs.gtk.org/gobject/"
 
+  [dependencies."GModule-2.0"]
+  name = "GModule"
+  description = "Portable API for dynamically loading modules"
+  docs_url = "https://docs.gtk.org/gmodule/"
+
   [dependencies."Gnt-3.0"]
   name = "Gnt"
   description = "GLib NCurses Toolkit"

@@ -7,7 +7,7 @@ authors = "Pidgin Developers"
 logo_url = ""
 license = "GPL-2.0-or-later"
 description = "Purple Facebook Protocol Plugin"
-dependencies = [ "GLib-2.0", "GObject-2.0", "GModule-2.0", "Purple-3.0" ]
+dependencies = [ "GLib-2.0", "GObject-2.0", "Purple-3.0" ]
 devhelp = true
 search_index = true
 
@@ -20,11 +20,6 @@ search_index = true
   name = "GObject"
   description = "The base type system library"
   docs_url = "https://docs.gtk.org/gobject/"
-
-  [dependencies."GModule-2.0"]
-  name = "GModule"
-  description = "Portable API for dynamically loading modules"
-  docs_url = "https://docs.gtk.org/gmodule/"
 
   [dependencies."Purple-3.0"]
   name = "Purple"
