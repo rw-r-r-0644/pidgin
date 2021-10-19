@@ -27,13 +27,6 @@
 #ifndef FINCH_MENUUTIL_H
 #define FINCH_MENUUTIL_H
 
-/**
- * SECTION:gntmenuutil
- * @section_id: finch-gntmenuutil
- * @short_description: <filename>gntmenuutil.h</filename>
- * @title: Menu Utility functions
- */
-
 #include <purple.h>
 
 #include <gnt.h>

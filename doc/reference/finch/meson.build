@@ -1,39 +1,32 @@
-DOC_MODULE = 'finch'
+finch_doc_content_files = []
 
-# Header files or dirs to ignore when scanning. Use base file/dir names
-ignore_hfiles = [
-    'plugins',
-]
+if get_option('doc')
+	finch_toml = configure_file(
+		input : 'finch.toml.in',
+		output : 'finch.toml',
+		configuration : version_conf,
+		install : true,
+		install_dir : docs_dir / 'finch',
+	)
 
-# Extra options to supply to gtkdoc-scan.
-scan_args = [
-    '--deprecated-guards=PURPLE_DISABLE_DEPRECATED|GNT_DISABLE_DEPRECATED|FINCH_DISABLE_DEPRECATED',
-    '--rebuild-types',
-    '--rebuild-sections',
-    '--ignore-headers=' + ' '.join(ignore_hfiles),
-]
+	finch_doc = custom_target('finch-doc',
+		input : [ finch_toml, libfinch_gir ],
+		output : 'finch',
+		command : [
+			gidocgen,
+			'generate',
+			'--quiet',
+			'--fatal-warnings',
+			'--config=@INPUT0@',
+			'--output-dir=@OUTPUT@',
+			'--no-namespace-dir',
+			'--content-dir=@0@'.format(meson.current_source_dir()),
+			'@INPUT1@'
+		],
+		depend_files : [ finch_doc_content_files ],
+		build_by_default : true,
+		install : true,
+		install_dir : docs_dir,
+	)
+endif
 
-# Extra options to supply to gtkdoc-mkdb.
-mkdb_args = [
-    '--ignore-files=' + ' '.join(ignore_hfiles),
-]
-
-# Extra options to supply to fixxrefs
-fixxref_args = [
-    '--extra-dir=../libpurple',
-]
-
-configure_file(
-    input : 'version.xml.in',
-    output : 'version.xml',
-    configuration : version_conf)
-
-finch_doc = gnome.gtkdoc(DOC_MODULE,
-    main_xml : DOC_MODULE + '-docs.xml',
-    src_dir : libfinch_inc,
-    dependencies : libfinch_dep,
-    install : true,
-    scan_args : scan_args,
-    mkdb_args : mkdb_args,
-    fixxref_args : fixxref_args,
-    gobject_typesfile : DOC_MODULE + '.types')

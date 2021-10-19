@@ -27,13 +27,6 @@
 #ifndef FINCH_PLUGIN_H
 #define FINCH_PLUGIN_H
 
-/**
- * SECTION:gntplugin
- * @section_id: finch-gntplugin
- * @short_description: <filename>gntplugin.h</filename>
- * @title: Plugin API
- */
-
 #include <gnt.h>
 
 #include <purple.h>
@@ -80,11 +73,6 @@ struct _FinchPluginInfoClass {
  * Plugin Info API
  **********************************************************************/
 
-/**
- * finch_plugin_info_get_type:
- *
- * Returns: The #GType for the #FinchPluginInfo object.
- */
 GType finch_plugin_info_get_type(void);
 
 /**

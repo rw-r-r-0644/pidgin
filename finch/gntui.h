@@ -27,13 +27,6 @@
 #ifndef FINCH_UI_H
 #define FINCH_UI_H
 
-/**
- * SECTION:gntui
- * @section_id: finch-gntui
- * @short_description: <filename>gntui.h</filename>
- * @title: Startup and Shutdown UI
- */
-
 #include "gnt.h"
 
 void finch_ui_init(void);

@@ -27,13 +27,6 @@
 #ifndef FINCH_DEBUG_H
 #define FINCH_DEBUG_H
 
-/**
- * SECTION:gntdebug
- * @section_id: finch-gntdebug
- * @short_description: <filename>gntdebug.h</filename>
- * @title: Debug API
- */
-
 #include <purple.h>
 
 G_BEGIN_DECLS

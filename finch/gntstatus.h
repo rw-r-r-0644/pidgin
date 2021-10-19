@@ -27,13 +27,6 @@
 #ifndef FINCH_STATUS_H
 #define FINCH_STATUS_H
 
-/**
- * SECTION:gntstatus
- * @section_id: finch-gntstatus
- * @short_description: <filename>gntstatus.h</filename>
- * @title: Status API
- */
-
 #include <purple.h>
 
 /**********************************************************************

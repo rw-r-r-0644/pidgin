@@ -27,13 +27,6 @@
 #ifndef FINCH_ACCOUNT_H
 #define FINCH_ACCOUNT_H
 
-/**
- * SECTION:gntaccount
- * @section_id: finch-gntaccount
- * @short_description: <filename>gntaccount.h</filename>
- * @title: Account API
- */
-
 #include <purple.h>
 
 /**********************************************************************

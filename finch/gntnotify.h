@@ -27,13 +27,6 @@
 #ifndef FINCH_NOTIFY_H
 #define FINCH_NOTIFY_H
 
-/**
- * SECTION:gntnotify
- * @section_id: finch-gntnotify
- * @short_description: <filename>gntnotify.h</filename>
- * @title: Notify API
- */
-
 #include <purple.h>
 
 /**********************************************************************

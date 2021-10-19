@@ -27,13 +27,6 @@
 #ifndef FINCH_XFER_H
 #define FINCH_XFER_H
 
-/**
- * SECTION:gntxfer
- * @section_id: finch-gntxfer
- * @short_description: <filename>gntxfer.h</filename>
- * @title: File Transfer UI
- */
-
 #include <purple.h>
 
 /**************************************************************************/

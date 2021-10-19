@@ -32,13 +32,6 @@
 
 #define FINCH_PREFS_ROOT "/finch"
 
-/**
- * SECTION:finch
- * @section_id: finch-finch
- * @short_description: <filename>libfinch.h</filename>
- * @title: UI Definitions and Includes
- */
-
 G_BEGIN_DECLS
 
 /**

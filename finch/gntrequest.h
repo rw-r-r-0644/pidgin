@@ -27,13 +27,6 @@
 #ifndef FINCH_REQUEST_H
 #define FINCH_REQUEST_H
 
-/**
- * SECTION:gntrequest
- * @section_id: finch-gntrequest
- * @short_description: <filename>gntrequest.h</filename>
- * @title: Request API
- */
-
 #include <purple.h>
 
 #include "gnt.h"

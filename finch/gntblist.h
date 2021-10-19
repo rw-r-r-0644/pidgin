@@ -27,13 +27,6 @@
 #ifndef FINCH_BLIST_H
 #define FINCH_BLIST_H
 
-/**
- * SECTION:gntblist
- * @section_id: finch-gntblist
- * @short_description: <filename>gntblist.h</filename>
- * @title: Buddy List API
- */
-
 #include <purple.h>
 
 #include <gnt.h>
@@ -74,11 +67,6 @@ struct _FinchBlistManager
 	gpointer reserved[4];
 };
 
-/**
- * finch_blist_manager_get_type:
- *
- * Returns: The #GType for the #FinchBlistManager boxed structure.
- */
 GType finch_blist_manager_get_type(void);
 
 G_DECLARE_FINAL_TYPE(FinchBuddyList, finch_buddy_list, FINCH, BUDDY_LIST,
