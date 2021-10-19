@@ -51,69 +51,39 @@ static void
 purple_debug_vargs(PurpleDebugLevel level, const gchar *category,
                    const gchar *format, va_list args)
 {
-	PurpleDebugUi *ui;
-	gchar *arg_s = NULL;
+	GLogLevelFlags log_level = G_LOG_LEVEL_DEBUG;
+	gchar *msg = NULL;
 
-	if(!debug_enabled) {
-		return;
-	}
-
-	g_return_if_fail(level != PURPLE_DEBUG_ALL);
 	g_return_if_fail(format != NULL);
 
-	ui = purple_debug_get_ui();
-	if(!ui) {
-		return;
+	/* GLib's debug levels are not quite the same as ours, so we need to
+	 * re-assign them. */
+	switch(level) {
+		case PURPLE_DEBUG_MISC:
+			log_level = G_LOG_LEVEL_INFO;
+			break;
+		case PURPLE_DEBUG_INFO:
+			log_level = G_LOG_LEVEL_MESSAGE;
+			break;
+		case PURPLE_DEBUG_WARNING:
+			log_level = G_LOG_LEVEL_WARNING;
+			break;
+		case PURPLE_DEBUG_ERROR:
+			log_level = G_LOG_LEVEL_CRITICAL;
+			break;
+		case PURPLE_DEBUG_FATAL:
+			log_level = G_LOG_LEVEL_ERROR;
+			break;
+		default:
+			g_return_if_reached();
 	}
 
-	arg_s = g_strdup_vprintf(format, args);
-	g_strchomp(arg_s); /* strip trailing linefeeds */
+	/* strip trailing linefeeds */
+	msg = g_strdup(format);
+	g_strchomp(msg);
 
-	if(debug_enabled) {
-		GDateTime *now = NULL;
-		gchar *ts_s;
-		const gchar *format_pre, *format_post;
-
-		format_pre = "";
-		format_post = "";
-
-		if(!debug_colored) {
-			format_pre = "";
-		} else if(level == PURPLE_DEBUG_MISC) {
-			format_pre = "\033[0;37m";
-		} else if(level == PURPLE_DEBUG_INFO) {
-			format_pre = "";
-		} else if(level == PURPLE_DEBUG_WARNING) {
-			format_pre = "\033[0;33m";
-		} else if(level == PURPLE_DEBUG_ERROR) {
-			format_pre = "\033[1;31m";
-		} else if(level == PURPLE_DEBUG_FATAL) {
-			format_pre = "\033[1;33;41m";
-		}
-
-		if(format_pre[0] != '\0') {
-			format_post = "\033[0m";
-		}
-
-		now = g_date_time_new_now_local();
-		ts_s = g_date_time_format(now, "(%H:%M:%S)");
-		g_date_time_unref(now);
-
-		if(category == NULL) {
-			g_print("%s%s %s%s\n", format_pre, ts_s, arg_s, format_post);
-		} else {
-			g_print("%s%s %s: %s%s\n", format_pre, ts_s, category, arg_s,
-			        format_post);
-		}
-
-		g_free(ts_s);
-	}
-
-	if(purple_debug_ui_is_enabled(ui, level, category)) {
-		purple_debug_ui_print(ui, level, category, arg_s);
-	}
-
-	g_free(arg_s);
+	g_logv(category, log_level, msg, args);
+	g_free(msg);
 }
 
 void
