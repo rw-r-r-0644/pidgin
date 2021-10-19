@@ -481,6 +481,8 @@ pidgin_application_startup(GApplication *application) {
 		}
 	}
 
+	pidgin_debug_init_handler();
+
 	provider = gtk_css_provider_new();
 
 	search_path = g_build_filename(purple_config_dir(), "gtk-3.0.css", NULL);

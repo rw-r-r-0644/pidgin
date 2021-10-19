@@ -42,6 +42,36 @@ G_DECLARE_FINAL_TYPE(PidginDebugUi, pidgin_debug_ui, PIDGIN, DEBUG_UI, GObject)
 G_DECLARE_FINAL_TYPE(PidginDebugWindow, pidgin_debug_window, PIDGIN, DEBUG_WINDOW, GtkWindow)
 
 /**
+ * pidgin_debug_init_handler:
+ *
+ * Initialize handler for GLib logging system.
+ *
+ * This must be called early if you want to capture logs at startup, and avoid
+ * printing them out.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_debug_init_handler(void);
+
+/**
+ * pidgin_debug_init:
+ *
+ * Perform necessary initializations.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_debug_init(void);
+
+/**
+ * pidgin_debug_uninit:
+ *
+ * Perform necessary uninitializations.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_debug_uninit(void);
+
+/**
  * pidgin_debug_ui_new:
  *
  * Initializes the GTK debug system.

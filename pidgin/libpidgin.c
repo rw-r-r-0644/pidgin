@@ -232,6 +232,8 @@ pidgin_ui_init(void)
 	GError *error = NULL;
 	gchar *path;
 
+	pidgin_debug_init();
+
 	theme = gtk_icon_theme_get_default();
 
 	path = g_build_filename(PURPLE_DATADIR, "pidgin", "icons", NULL);
@@ -305,6 +307,7 @@ pidgin_quit(void)
 	ui = purple_debug_get_ui();
 	purple_debug_set_ui(NULL);
 	g_object_unref(ui);
+	pidgin_debug_uninit();
 
 	/* and end it all... */
 	g_application_quit(g_application_get_default());
