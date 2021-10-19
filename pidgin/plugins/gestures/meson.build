@@ -7,6 +7,7 @@ gestures_SOURCES = [
 ]
 
 gestures = library('gestures', gestures_SOURCES,
+    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="PidginPlugin-Gestures"'],
     dependencies : [libpurple_dep, libpidgin_dep, glib],
     name_prefix : '',
     install : true, install_dir : PIDGIN_PLUGINDIR)

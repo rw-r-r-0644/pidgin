@@ -239,7 +239,7 @@ if ENABLE_GTK
 	libpidgin = shared_library('pidgin3',
 	    libpidgin_SOURCES + libpidgin_built_sources + libpidgin_built_headers + ['pidginprivate.h'],
 	    package_revision,
-	    c_args : ['-DPIDGIN_COMPILATION', '-DG_LOG_DOMAIN="Pidgin"'],
+	    c_args : ['-DPIDGIN_COMPILATION', '-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Pidgin"'],
 	    include_directories : [toplevel_inc, include_directories('prefs')],
 	    version : PURPLE_LIB_VERSION,
 	    dependencies : _libpidgin_dependencies,
@@ -252,7 +252,7 @@ if ENABLE_GTK
 
 	pidgin = executable('pidgin3',
 	    pidgin_SOURCES,
-	    c_args : ['-DPIDGIN_COMPILATION', '-DG_LOG_DOMAIN="Pidgin"'],
+	    c_args : ['-DPIDGIN_COMPILATION', '-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Pidgin"'],
 	    include_directories : toplevel_inc,
 	    dependencies : IS_WIN32 ? [] : [libpurple_dep, libpidgin_dep],
 	    win_subsystem : 'windows',
