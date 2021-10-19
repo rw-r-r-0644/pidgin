@@ -77,6 +77,8 @@ void finch_ui_init()
 {
 	GError *error = NULL;
 
+	finch_debug_init();
+
 #ifdef STANDALONE
 #ifdef _WIN32 /* TODO: don't change it when using FHS under win32 */
 	gnt_set_config_dir(purple_user_dir());
@@ -171,6 +173,8 @@ void finch_ui_uninit()
 #endif
 
 	gnt_quit();
+
+	finch_debug_uninit();
 
 #ifdef _WIN32
 	gnt_set_config_dir(NULL);

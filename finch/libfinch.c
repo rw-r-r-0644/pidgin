@@ -159,6 +159,7 @@ init_libpurple(int argc, char **argv)
 	 */
 
 	/* We don't want debug-messages to show up and corrupt the display */
+	finch_debug_init_handler();
 	purple_debug_set_enabled(debug_enabled);
 
 	purple_core_set_ui_ops(gnt_core_get_ui_ops());

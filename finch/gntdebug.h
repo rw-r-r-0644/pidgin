@@ -53,6 +53,34 @@ G_DECLARE_FINAL_TYPE(FinchDebugUi, finch_debug_ui, FINCH, DEBUG_UI, GObject)
 FinchDebugUi *finch_debug_ui_new(void);
 
 /**
+ * finch_debug_init_handler:
+ *
+ * Initialize handler for GLib logging system.
+ *
+ * This must be called early if you want to capture logs at startup, and avoid
+ * printing them out.
+ *
+ * Since: 3.0.0
+ */
+void finch_debug_init_handler(void);
+
+/**
+ * finch_debug_init:
+ *
+ * Perform necessary initializations.
+ *
+ * Since: 3.0.0
+ */
+void finch_debug_init(void);
+
+/**
+ * finch_debug_uninit:
+ *
+ * Perform necessary uninitialization.
+ */
+void finch_debug_uninit(void);
+
+/**
  * finch_debug_window_show:
  *
  * Show the debug window.
