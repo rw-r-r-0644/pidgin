@@ -4,6 +4,7 @@ xmppconsole_resource = gnome.compile_resources('xmppconsoleresources',
 
 library('xmppconsole',
     'xmppconsole.c', xmppconsole_resource,
+    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="PidginPlugin-XMPPConsole"'],
     dependencies : [libpurple_dep, libpidgin_dep, glib],
     name_prefix : '',
     install : true, install_dir : PIDGIN_PLUGINDIR)
