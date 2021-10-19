@@ -36,6 +36,16 @@
 
 #include "defines.h"
 
+static GLogWriterOutput
+nullclient_g_log_handler(G_GNUC_UNUSED GLogLevelFlags log_level,
+                         G_GNUC_UNUSED const GLogField *fields,
+                         G_GNUC_UNUSED gsize n_fields,
+                         G_GNUC_UNUSED gpointer user_data)
+{
+	/* We do not want any debugging for now to keep the noise to a minimum. */
+	return G_LOG_WRITER_HANDLED;
+}
+
 /*** Conversation uiops ***/
 static void
 null_write_conv(PurpleConversation *conv, PurpleMessage *msg)
@@ -78,7 +88,7 @@ init_libpurple(void)
 	purple_util_set_user_dir(CUSTOM_USER_DIRECTORY);
 
 	/* We do not want any debugging for now to keep the noise to a minimum. */
-	purple_debug_set_enabled(FALSE);
+	g_log_set_writer_func(nullclient_g_log_handler, NULL, NULL);
 
 	/* Set the core-uiops, which is used to
 	 * 	- initialize the ui specific preferences.
