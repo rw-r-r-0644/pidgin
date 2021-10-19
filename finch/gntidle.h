@@ -27,13 +27,6 @@
 #ifndef FINCH_IDLE_H
 #define FINCH_IDLE_H
 
-/**
- * SECTION:gntidle
- * @section_id: finch-gntidle
- * @short_description: <filename>gntidle.h</filename>
- * @title: Idle API
- */
-
 #include <purple.h>
 
 /**************************************************************************/

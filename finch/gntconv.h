@@ -27,13 +27,6 @@
 #ifndef FINCH_CONV_H
 #define FINCH_CONV_H
 
-/**
- * SECTION:gntconv
- * @section_id: finch-gntconv
- * @short_description: <filename>gntconv.h</filename>
- * @title: Conversation API
- */
-
 #include <gnt.h>
 
 #include <purple.h>

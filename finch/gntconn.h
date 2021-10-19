@@ -27,13 +27,6 @@
 #ifndef FINCH_CONN_H
 #define FINCH_CONN_H
 
-/**
- * SECTION:gntconn
- * @section_id: finch-gntconn
- * @short_description: <filename>gntconn.h</filename>
- * @title: Connection API
- */
-
 #include <purple.h>
 
 /**********************************************************************

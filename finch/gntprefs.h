@@ -27,13 +27,6 @@
 #ifndef FINCH_PREFS_H
 #define FINCH_PREFS_H
 
-/**
- * SECTION:gntprefs
- * @section_id: finch-gntprefs
- * @short_description: <filename>gntprefs.h</filename>
- * @title: Preferences API
- */
-
 /**********************************************************************
  * GNT Preferences API
  **********************************************************************/

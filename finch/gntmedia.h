@@ -27,13 +27,6 @@
 #ifndef FINCH_MEDIA_H
 #define FINCH_MEDIA_H
 
-/**
- * SECTION:gntmedia
- * @section_id: finch-gntmedia
- * @short_description: <filename>gntmedia.h</filename>
- * @title: Media API
- */
-
 G_BEGIN_DECLS
 
 void finch_media_manager_init(void);
