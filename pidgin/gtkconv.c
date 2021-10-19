@@ -133,9 +133,6 @@ static GtkWidget *warn_close_dialog = NULL;
 
 static GList *window_list = NULL;
 
-static gboolean update_send_to_selection(PidginConvWindow *win);
-static void generate_send_to_items(PidginConvWindow *win);
-
 /* Prototypes. <-- because Paco-Paco hates this comment. */
 static void got_typing_keypress(PidginConversation *gtkconv, gboolean first);
 static void gray_stuff_out(PidginConversation *gtkconv);
@@ -1411,9 +1408,6 @@ refocus_entry_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
 	return TRUE;
 }
 
-static void
-regenerate_options_items(PidginConvWindow *win);
-
 void
 pidgin_conv_switch_active_conversation(PurpleConversation *conv)
 {
@@ -1439,24 +1433,9 @@ pidgin_conv_switch_active_conversation(PurpleConversation *conv)
 	gray_stuff_out(gtkconv);
 	update_typing_icon(gtkconv);
 	g_object_set_data(G_OBJECT(gtkconv->entry), "transient_buddy", NULL);
-	regenerate_options_items(gtkconv->win);
 
 	gtk_window_set_title(GTK_WINDOW(gtkconv->win->window),
 	                     gtk_label_get_text(GTK_LABEL(gtkconv->tab_label)));
-}
-
-static void
-menu_conv_sel_send_cb(GObject *m, gpointer data)
-{
-	PurpleAccount *account = g_object_get_data(m, "purple_account");
-	gchar *name = g_object_get_data(m, "purple_buddy_name");
-	PurpleConversation *im;
-
-	if (gtk_check_menu_item_get_active((GtkCheckMenuItem*) m) == FALSE)
-		return;
-
-	im = purple_im_conversation_new(account, name);
-	pidgin_conv_switch_active_conversation(im);
 }
 
 void
@@ -1615,9 +1594,6 @@ static GtkActionEntry menu_entries[] =
 	{ "InsertLink", NULL, N_("Insert Lin_k..."), NULL, NULL, NULL },
 	{ "InsertImage", NULL, N_("Insert Imag_e..."), NULL, NULL, NULL },
 	{ "Close", NULL, N_("_Close"), "<control>W", NULL, G_CALLBACK(menu_close_conv_cb) },
-
-	/* Options */
-	{ "OptionsMenu", NULL, N_("_Options"), NULL, NULL, NULL },
 };
 
 static const char *conversation_menu =
@@ -1637,7 +1613,6 @@ static const char *conversation_menu =
 			"<menuitem action='GetAttention'/>"
 			"<menuitem action='GetInfo'/>"
 			"<menuitem action='Invite'/>"
-			"<menu action='MoreMenu'/>"
 			"<separator/>"
 			"<menuitem action='Alias'/>"
 			"<menuitem action='Block'/>"
@@ -1650,295 +1625,12 @@ static const char *conversation_menu =
 			"<separator/>"
 			"<menuitem action='Close'/>"
 		"</menu>"
-		"<menu action='OptionsMenu'/>"
 	"</menubar>"
 "</ui>";
-
-/* Returns TRUE if some items were added to the menu, FALSE otherwise */
-static gboolean
-populate_menu_with_options(GtkWidget *menu, PidginConversation *gtkconv, gboolean all)
-{
-	GList *list;
-	PurpleConversation *conv;
-	PurpleAccount *account;
-	PurpleBlistNode *node = NULL;
-	PurpleChat *chat = NULL;
-	PurpleBuddy *buddy = NULL;
-	gboolean ret;
-
-	conv = gtkconv->active_conv;
-	account = purple_conversation_get_account(conv);
-
-	if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		chat = purple_blist_find_chat(account, purple_conversation_get_name(conv));
-
-		if ((chat == NULL) && (gtkconv->history != NULL)) {
-			chat = g_object_get_data(G_OBJECT(gtkconv->history), "transient_chat");
-		}
-
-		if ((chat == NULL) && (gtkconv->history != NULL)) {
-			GHashTable *components;
-			PurpleAccount *account = purple_conversation_get_account(conv);
-			PurpleProtocol *protocol = purple_account_get_protocol(account);
-			if (purple_account_get_connection(account) != NULL &&
-					PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, info_defaults)) {
-				components = purple_protocol_chat_info_defaults(PURPLE_PROTOCOL_CHAT(protocol), purple_account_get_connection(account),
-						purple_conversation_get_name(conv));
-			} else {
-				components = g_hash_table_new_full(g_str_hash, g_str_equal,
-						g_free, g_free);
-				g_hash_table_replace(components, g_strdup("channel"),
-						g_strdup(purple_conversation_get_name(conv)));
-			}
-			chat = purple_chat_new(account, NULL, components);
-			purple_blist_node_set_transient((PurpleBlistNode *)chat, TRUE);
-			g_object_set_data_full(G_OBJECT(gtkconv->history), "transient_chat",
-					chat, (GDestroyNotify)purple_blist_remove_chat);
-		}
-	} else {
-		if (!purple_account_is_connected(account))
-			return FALSE;
-
-		buddy = purple_blist_find_buddy(account, purple_conversation_get_name(conv));
-		if (!buddy && gtkconv->history) {
-			buddy = g_object_get_data(G_OBJECT(gtkconv->history), "transient_buddy");
-
-			if (!buddy) {
-				buddy = purple_buddy_new(account, purple_conversation_get_name(conv), NULL);
-				purple_blist_node_set_transient((PurpleBlistNode *)buddy, TRUE);
-				g_object_set_data_full(G_OBJECT(gtkconv->history), "transient_buddy",
-						buddy, g_object_unref);
-			}
-		}
-	}
-
-	if (chat)
-		node = (PurpleBlistNode *)chat;
-	else if (buddy)
-		node = (PurpleBlistNode *)buddy;
-
-	/* Now add the stuff */
-	if (all) {
-		if (buddy)
-			pidgin_blist_make_buddy_menu(menu, buddy, TRUE);
-		else if (chat) {
-			/* XXX: */
-		}
-	} else if (node) {
-		if (purple_account_is_connected(account))
-			pidgin_append_blist_node_proto_menu(menu, purple_account_get_connection(account), node);
-		pidgin_append_blist_node_extended_menu(menu, node);
-	}
-
-	if ((list = gtk_container_get_children(GTK_CONTAINER(menu))) == NULL) {
-		ret = FALSE;
-	} else {
-		g_list_free(list);
-		ret = TRUE;
-	}
-	return ret;
-}
-
-static void
-regenerate_media_items(PidginConvWindow *win)
-{
-#ifdef USE_VV
-	PurpleAccount *account;
-	PurpleConversation *conv;
-
-	conv = pidgin_conv_window_get_active_conversation(win);
-
-	if (conv == NULL) {
-		purple_debug_error("gtkconv", "couldn't get active conversation"
-				" when regenerating media items\n");
-		return;
-	}
-
-	account = purple_conversation_get_account(conv);
-
-	if (account == NULL) {
-		purple_debug_error("gtkconv", "couldn't get account when"
-				" regenerating media items\n");
-		return;
-	}
-
-	/*
-	 * Check if account support voice and/or calls, and
-	 * if the current buddy	supports it.
-	 */
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		PurpleMediaCaps caps =
-				purple_protocol_get_media_caps(account,
-				purple_conversation_get_name(conv));
-
-		gtk_action_set_sensitive(win->menu->audio_call,
-				caps & PURPLE_MEDIA_CAPS_AUDIO
-				? TRUE : FALSE);
-		gtk_action_set_sensitive(win->menu->video_call,
-				caps & PURPLE_MEDIA_CAPS_VIDEO
-				? TRUE : FALSE);
-		gtk_action_set_sensitive(win->menu->audio_video_call,
-				caps & PURPLE_MEDIA_CAPS_AUDIO_VIDEO
-				? TRUE : FALSE);
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		/* for now, don't care about chats... */
-		gtk_action_set_sensitive(win->menu->audio_call, FALSE);
-		gtk_action_set_sensitive(win->menu->video_call, FALSE);
-		gtk_action_set_sensitive(win->menu->audio_video_call, FALSE);
-	} else {
-		gtk_action_set_sensitive(win->menu->audio_call, FALSE);
-		gtk_action_set_sensitive(win->menu->video_call, FALSE);
-		gtk_action_set_sensitive(win->menu->audio_video_call, FALSE);
-	}
-#endif
-}
-
-static void
-regenerate_attention_items(PidginConvWindow *win)
-{
-	GtkWidget *attention;
-	GtkWidget *menu;
-	PurpleConversation *conv;
-	PurpleConnection *pc;
-	PurpleProtocol *protocol = NULL;
-	GList *list;
-
-	conv = pidgin_conv_window_get_active_conversation(win);
-	if (!conv)
-		return;
-
-	attention = gtk_ui_manager_get_widget(win->menu->ui,
-	                                      "/Conversation/ConversationMenu/GetAttention");
-
-	/* Remove the previous entries */
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(attention), NULL);
-
-	pc = purple_conversation_get_connection(conv);
-	if (pc != NULL)
-		protocol = purple_connection_get_protocol(pc);
-
-	if (protocol && PURPLE_IS_PROTOCOL_ATTENTION(protocol)) {
-		list = purple_protocol_attention_get_types(PURPLE_PROTOCOL_ATTENTION(protocol), purple_connection_get_account(pc));
-
-		/* Multiple attention types */
-		if (list && list->next) {
-			int index = 0;
-
-			menu = gtk_menu_new();
-			while (list) {
-				PurpleAttentionType *type;
-				GtkWidget *menuitem;
-
-				type = list->data;
-
-				menuitem = gtk_menu_item_new_with_label(purple_attention_type_get_name(type));
-				g_object_set_data(G_OBJECT(menuitem), "index", GINT_TO_POINTER(index));
-				g_signal_connect(G_OBJECT(menuitem), "activate",
-				                 G_CALLBACK(menu_get_attention_cb),
-				                 win);
-				gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-
-				index++;
-				list = g_list_delete_link(list, list);
-			}
-
-			gtk_menu_item_set_submenu(GTK_MENU_ITEM(attention), menu);
-			gtk_widget_show_all(menu);
-		}
-	}
-}
-
-static void
-regenerate_options_items(PidginConvWindow *win)
-{
-	GtkWidget *menu;
-	PidginConversation *gtkconv;
-	GList *list;
-	GtkWidget *more_menu;
-
-	gtkconv = pidgin_conv_window_get_active_gtkconv(win);
-	more_menu = gtk_ui_manager_get_widget(win->menu->ui,
-	                                      "/Conversation/ConversationMenu/MoreMenu");
-	gtk_widget_show(more_menu);
-	menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(more_menu));
-
-	/* Remove the previous entries */
-	list = gtk_container_get_children(GTK_CONTAINER(menu));
-	g_list_free_full(list, (GDestroyNotify)gtk_widget_destroy);
-
-	if (!populate_menu_with_options(menu, gtkconv, FALSE))
-	{
-		GtkWidget *item = gtk_menu_item_new_with_label(_("No actions available"));
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-		gtk_widget_set_sensitive(item, FALSE);
-	}
-
-	gtk_widget_show_all(menu);
-}
-
-static void
-remove_from_list(GtkWidget *widget, PidginConvWindow *win)
-{
-	GList *list = g_object_get_data(G_OBJECT(win->window), "plugin-actions");
-	list = g_list_remove(list, widget);
-	g_object_set_data(G_OBJECT(win->window), "plugin-actions", list);
-}
-
-static void
-regenerate_plugins_items(PidginConvWindow *win)
-{
-	GList *action_items;
-	GtkWidget *menu;
-	GList *list;
-	PidginConversation *gtkconv;
-	PurpleConversation *conv;
-	GtkWidget *item;
-
-	if (win->window == NULL) {
-		return;
-	}
-
-	gtkconv = pidgin_conv_window_get_active_gtkconv(win);
-	if (gtkconv == NULL)
-		return;
-
-	conv = gtkconv->active_conv;
-	action_items = g_object_get_data(G_OBJECT(win->window), "plugin-actions");
-
-	/* Remove the old menuitems */
-	while (action_items) {
-		g_signal_handlers_disconnect_by_func(G_OBJECT(action_items->data),
-					G_CALLBACK(remove_from_list), win);
-		gtk_widget_destroy(action_items->data);
-		action_items = g_list_delete_link(action_items, action_items);
-	}
-
-	item = gtk_ui_manager_get_widget(win->menu->ui, "/Conversation/OptionsMenu");
-	menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(item));
-
-	list = purple_conversation_get_extended_menu(conv);
-	if (list) {
-		action_items = g_list_prepend(NULL, (item = pidgin_separator(menu)));
-		g_signal_connect(G_OBJECT(item), "destroy", G_CALLBACK(remove_from_list), win);
-	}
-
-	for(; list; list = g_list_delete_link(list, list)) {
-		PurpleActionMenu *act = (PurpleActionMenu *) list->data;
-		item = pidgin_append_menu_action(menu, act, conv);
-		action_items = g_list_prepend(action_items, item);
-		gtk_widget_show_all(item);
-		g_signal_connect(G_OBJECT(item), "destroy", G_CALLBACK(remove_from_list), win);
-	}
-	g_object_set_data(G_OBJECT(win->window), "plugin-actions", action_items);
-}
 
 static void menubar_activated(GtkWidget *item, gpointer data)
 {
 	PidginConvWindow *win = data;
-	regenerate_media_items(win);
-	regenerate_options_items(win);
-	regenerate_plugins_items(win);
-	regenerate_attention_items(win);
 
 	/* The following are to make sure the 'More' submenu is not regenerated every time
 	 * the focus shifts from 'Conversations' to some other menu and back. */
@@ -2128,250 +1820,6 @@ update_typing_icon(PidginConversation *gtkconv)
 	}
 
 	g_free(message);
-}
-
-static gboolean
-update_send_to_selection(PidginConvWindow *win)
-{
-	PurpleAccount *account;
-	PurpleConversation *conv;
-	GtkWidget *menu;
-	GList *child;
-	PurpleBuddy *b;
-
-	conv = pidgin_conv_window_get_active_conversation(win);
-
-	if (conv == NULL)
-		return FALSE;
-
-	account = purple_conversation_get_account(conv);
-
-	if (account == NULL)
-		return FALSE;
-
-	if (win->menu->send_to == NULL)
-		return FALSE;
-
-	if (!(b = purple_blist_find_buddy(account, purple_conversation_get_name(conv))))
-		return FALSE;
-
-	gtk_widget_show(win->menu->send_to);
-
-	menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(win->menu->send_to));
-
-	for (child = gtk_container_get_children(GTK_CONTAINER(menu));
-		 child != NULL;
-		 child = g_list_delete_link(child, child)) {
-
-		GtkWidget *item = child->data;
-		PurpleBuddy *item_buddy;
-		PurpleAccount *item_account = g_object_get_data(G_OBJECT(item), "purple_account");
-		gchar *buddy_name = g_object_get_data(G_OBJECT(item),
-		                                      "purple_buddy_name");
-		item_buddy = purple_blist_find_buddy(item_account, buddy_name);
-
-		if (b == item_buddy) {
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
-			g_list_free(child);
-			break;
-		}
-	}
-
-	return FALSE;
-}
-
-static gboolean
-send_to_item_enter_notify_cb(GtkWidget *menuitem, GdkEventCrossing *event, GtkWidget *label)
-{
-	gtk_widget_set_sensitive(GTK_WIDGET(label), TRUE);
-	return FALSE;
-}
-
-static gboolean
-send_to_item_leave_notify_cb(GtkWidget *menuitem, GdkEventCrossing *event, GtkWidget *label)
-{
-	gtk_widget_set_sensitive(GTK_WIDGET(label), FALSE);
-	return FALSE;
-}
-
-static void
-create_sendto_item(GtkWidget *menu, GtkSizeGroup *sg, GSList **group,
-	PurpleBuddy *buddy, PurpleAccount *account, const char *name)
-{
-	GtkWidget *box;
-	GtkWidget *label;
-	GtkWidget *image;
-	GtkWidget *menuitem;
-	GdkPixbuf *pixbuf;
-	gchar *text;
-
-	/* Create a pixmap for the protocol icon. */
-	pixbuf = pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_SMALL);
-
-	/* Now convert it to GtkImage */
-	if (pixbuf == NULL)
-		image = gtk_image_new();
-	else
-	{
-		image = gtk_image_new_from_pixbuf(pixbuf);
-		g_object_unref(G_OBJECT(pixbuf));
-	}
-
-	gtk_size_group_add_widget(sg, image);
-
-	/* Make our menu item */
-	text = g_strdup_printf("%s (%s)", name, purple_account_get_name_for_display(account));
-	menuitem = gtk_radio_menu_item_new_with_label(*group, text);
-	g_free(text);
-	*group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-
-	/* Do some evil, see some evil, speak some evil. */
-	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-
-	label = gtk_bin_get_child(GTK_BIN(menuitem));
-	g_object_ref(label);
-	gtk_container_remove(GTK_CONTAINER(menuitem), label);
-
-	gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(box), label, TRUE, TRUE, 4);
-
-	if (buddy != NULL &&
-	    !purple_presence_is_online(purple_buddy_get_presence(buddy)))
-	{
-		gtk_widget_set_sensitive(label, FALSE);
-
-		/* Set the label sensitive when the menuitem is highlighted and
-		 * insensitive again when the mouse leaves it. This way, it
-		 * doesn't appear weird from the highlighting of the embossed
-		 * (insensitive style) text.*/
-		g_signal_connect(menuitem, "enter-notify-event",
-				 G_CALLBACK(send_to_item_enter_notify_cb), label);
-		g_signal_connect(menuitem, "leave-notify-event",
-				 G_CALLBACK(send_to_item_leave_notify_cb), label);
-	}
-
-	g_object_unref(label);
-
-	gtk_container_add(GTK_CONTAINER(menuitem), box);
-
-	gtk_widget_show(label);
-	gtk_widget_show(image);
-	gtk_widget_show(box);
-
-	/* Set our data and callbacks. */
-	g_object_set_data(G_OBJECT(menuitem), "purple_account", account);
-	g_object_set_data_full(G_OBJECT(menuitem), "purple_buddy_name", g_strdup(name), g_free);
-
-	g_signal_connect(G_OBJECT(menuitem), "activate",
-	                 G_CALLBACK(menu_conv_sel_send_cb), NULL);
-
-	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-}
-
-static gboolean
-compare_buddy_presence(PurplePresence *p1, PurplePresence *p2)
-{
-	/* This is necessary because multiple PurpleBuddy's don't share the same
-	 * PurplePresence anymore.
-	 */
-	PurpleBuddy *b1 = purple_buddy_presence_get_buddy(PURPLE_BUDDY_PRESENCE(p1));
-	PurpleBuddy *b2 = purple_buddy_presence_get_buddy(PURPLE_BUDDY_PRESENCE(p2));
-	if (purple_buddy_get_account(b1) == purple_buddy_get_account(b2) &&
-			purple_strequal(purple_buddy_get_name(b1), purple_buddy_get_name(b2)))
-		return FALSE;
-	return TRUE;
-}
-
-static void
-generate_send_to_items(PidginConvWindow *win)
-{
-	GtkWidget *menu;
-	GSList *group = NULL;
-	GtkSizeGroup *sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	PidginConversation *gtkconv;
-	GSList *l, *buds;
-
-	g_return_if_fail(win != NULL);
-
-	gtkconv = pidgin_conv_window_get_active_gtkconv(win);
-
-	g_return_if_fail(gtkconv != NULL);
-
-	if (win->menu->send_to != NULL)
-		gtk_widget_destroy(win->menu->send_to);
-
-	/* Build the Send To menu */
-	win->menu->send_to = gtk_menu_item_new_with_mnemonic(_("S_end To"));
-	gtk_widget_show(win->menu->send_to);
-
-	menu = gtk_menu_new();
-	gtk_menu_shell_insert(GTK_MENU_SHELL(win->menu->menubar),
-	                      win->menu->send_to, 2);
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(win->menu->send_to), menu);
-
-	gtk_widget_show(menu);
-
-	if (PURPLE_IS_IM_CONVERSATION(gtkconv->active_conv)) {
-		buds = purple_blist_find_buddies(purple_conversation_get_account(gtkconv->active_conv), purple_conversation_get_name(gtkconv->active_conv));
-
-		if (buds == NULL)
-		{
-			/* The user isn't on the buddy list. So we don't create any sendto menu. */
-		}
-		else
-		{
-			GList *list = NULL, *iter;
-			for (l = buds; l != NULL; l = l->next)
-			{
-				PurpleBlistNode *node;
-
-				node = PURPLE_BLIST_NODE(purple_buddy_get_contact(PURPLE_BUDDY(l->data)));
-
-				for (node = node->child; node != NULL; node = node->next)
-				{
-					PurpleBuddy *buddy = (PurpleBuddy *)node;
-					PurpleAccount *account;
-
-					if (!PURPLE_IS_BUDDY(node))
-						continue;
-
-					account = purple_buddy_get_account(buddy);
-					/* TODO WEBKIT: (I'm not actually sure if this is webkit-related --Mark Doliner) */
-					if (purple_account_is_connected(account) /*|| account == purple_conversation_get_account(gtkconv->active_conv)*/)
-					{
-						/* Use the PurplePresence to get unique buddies. */
-						PurplePresence *presence = purple_buddy_get_presence(buddy);
-						if (!g_list_find_custom(list, presence, (GCompareFunc)compare_buddy_presence))
-							list = g_list_prepend(list, presence);
-					}
-				}
-			}
-
-			/* Create the sendto menu only if it has more than one item to show */
-			if (list && list->next) {
-				/* Loop over the list backwards so we get the items in the right order,
-				 * since we did a g_list_prepend() earlier. */
-				for (iter = g_list_last(list); iter != NULL; iter = iter->prev) {
-					PurplePresence *pre = iter->data;
-					PurpleBuddy *buddy = purple_buddy_presence_get_buddy(PURPLE_BUDDY_PRESENCE(pre));
-					create_sendto_item(menu, sg, &group, buddy,
-							purple_buddy_get_account(buddy), purple_buddy_get_name(buddy));
-				}
-			}
-			g_list_free(list);
-			g_slist_free(buds);
-		}
-	}
-
-	g_object_unref(sg);
-
-	gtk_widget_show(win->menu->send_to);
-	/* TODO: This should never be insensitive.  Possibly hidden or not. */
-	if (!group)
-		gtk_widget_set_sensitive(win->menu->send_to, FALSE);
-	update_send_to_selection(win);
 }
 
 static const char *
@@ -3535,9 +2983,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 	if (gc != NULL)
 		protocol = purple_connection_get_protocol(gc);
 
-	if (win->menu->send_to != NULL)
-		update_send_to_selection(win);
-
 	/*
 	 * Handle hiding and showing stuff based on what type of conv this is.
 	 * Stuff that Purple IMs support in general should be shown for IM
@@ -3686,13 +3131,6 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 	if (fields & PIDGIN_CONV_MENU)
 	{
 		gray_stuff_out(PIDGIN_CONVERSATION(conv));
-		generate_send_to_items(win);
-		regenerate_plugins_items(win);
-	}
-
-	if (fields & PIDGIN_CONV_TAB_ICON)
-	{
-		generate_send_to_items(win);		/* To update the icons in SendTo menu */
 	}
 
 	if ((fields & PIDGIN_CONV_TOPIC) &&
@@ -3884,7 +3322,6 @@ static void
 wrote_msg_update_unseen_cb(PurpleConversation *conv, PurpleMessage *msg,
 	gpointer _unused)
 {
-	PidginConversation *gtkconv = conv ? PIDGIN_CONVERSATION(conv) : NULL;
 	PurpleMessageFlags flags;
 	if (conv == NULL)
 		return;
@@ -4927,12 +4364,6 @@ switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 
 	gtkconv_set_unseen(gtkconv, PIDGIN_UNSEEN_NONE);
 
-	/* Update the menubar */
-
-	generate_send_to_items(win);
-	regenerate_options_items(win);
-	regenerate_plugins_items(win);
-
 	pidgin_conv_switch_active_conversation(conv);
 
 	purple_signal_emit(pidgin_conversations_get_handle(), "conversation-switched", conv);
@@ -4946,12 +4377,6 @@ GList *
 pidgin_conv_windows_get_list()
 {
 	return window_list;
-}
-
-static void
-plugin_changed_cb(GObject *manager, GPluginPlugin *p, gpointer data)
-{
-	regenerate_plugins_items(data);
 }
 
 static gboolean gtk_conv_configure_cb(GtkWidget *w, GdkEventConfigure *event, gpointer data) {
@@ -5041,7 +4466,6 @@ pidgin_conv_window_new()
 	GtkWidget *testidea;
 	GtkWidget *menubar;
 	GdkModifierType state;
-	GPluginManager *manager;
 
 	win = g_malloc0(sizeof(PidginConvWindow));
 	win->menu = g_malloc0(sizeof(PidginConvWindowMenu));
@@ -5095,13 +4519,6 @@ pidgin_conv_window_new()
 	gtk_box_pack_start(GTK_BOX(testidea), menubar, FALSE, TRUE, 0);
 
 	gtk_box_pack_start(GTK_BOX(testidea), win->notebook, TRUE, TRUE, 0);
-
-	/* Update the plugin actions when plugins are (un)loaded */
-	manager = gplugin_manager_get_default();
-	g_signal_connect(manager, "loaded-plugin",
-	                 G_CALLBACK(plugin_changed_cb), win);
-	g_signal_connect(manager, "unloaded-plugin",
-	                 G_CALLBACK(plugin_changed_cb), win);
 
 #ifdef _WIN32
 	g_signal_connect(G_OBJECT(win->window), "show",
@@ -5277,9 +4694,6 @@ pidgin_conv_window_add_gtkconv(PidginConvWindow *win, PidginConversation *gtkcon
 	focus_gtkconv = g_list_nth_data(pidgin_conv_window_get_gtkconvs(win),
 	                             gtk_notebook_get_current_page(GTK_NOTEBOOK(win->notebook)));
 	gtk_widget_grab_focus(focus_gtkconv->editor);
-
-	if (pidgin_conv_window_get_gtkconv_count(win) == 1)
-		update_send_to_selection(win);
 }
 
 static void
