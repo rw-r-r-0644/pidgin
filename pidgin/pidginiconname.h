@@ -27,16 +27,6 @@
 #ifndef PIDGIN_ICON_NAME_H
 #define PIDGIN_ICON_NAME_H
 
-/**
- * SECTION:pidginiconname
- * @section_id: pidgin-pidginiconname
- * @title: Icon Name Utilities
- * @short_description: Get icon names for objects.
- *
- * This API makes it easy to determine which icon should be used for different
- * objects.
- */
-
 #include <glib.h>
 
 #include <purple.h>

@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINXFER_H_
 #define _PIDGINXFER_H_
-/**
- * SECTION:gtkxfer
- * @section_id: pidgin-gtkxfer
- * @short_description: <filename>gtkxfer.h</filename>
- * @title: File Transfer UI
- */
 
 #include <purple.h>
 

@@ -24,15 +24,6 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-/**
- * SECTION:pidginstylecontext
- * @section_id: pidgin-pidginstylecontext
- * @short_description: Dark theme helpers.
- * @title: GtkStyleContext Helpers
- *
- * A collection of API to help with handling dark themes.
- */
-
 #ifndef PIDGIN_STYLE_CONTEXT_H
 #define PIDGIN_STYLE_CONTEXT_H
 

@@ -1,54 +1,36 @@
-DOC_MODULE = 'pidgin'
-
-# Header files or dirs to ignore when scanning. Use base file/dir names
-ignore_hfiles = [
-    'pixmaps',
-    'plugins',
-    'themes',
-    'win32',
-    'gtkinternal.h',
-    'pidgin.gresource.h',
-    'pidginprivate.h',
+pidgin_doc_content_files = [
+	'signals_gtkaccount.md',
+	'signals_gtkblist.md',
+	'signals_gtkconv.md',
 ]
 
-# Extra options to supply to gtkdoc-scan.
-scan_args = [
-    '--deprecated-guards=PURPLE_DISABLE_DEPRECATED|PIDGIN_DISABLE_DEPRECATED',
-    '--rebuild-types',
-    '--rebuild-sections',
-    '--ignore-headers=' + ' '.join(ignore_hfiles),
-]
+if get_option('doc')
+	pidgin_toml = configure_file(
+		input : 'pidgin.toml.in',
+		output : 'pidgin.toml',
+		configuration : version_conf,
+		install : true,
+		install_dir : docs_dir / 'pidgin',
+	)
 
-# Extra options to supply to gtkdoc-mkdb.
-mkdb_args = [
-    '--ignore-files=' + ' '.join(ignore_hfiles),
-]
+	pidgin_doc = custom_target('pidgin-doc',
+		input : [ pidgin_toml, pidgin_gir[0] ],
+		output : 'pidgin',
+		command : [
+			gidocgen,
+			'generate',
+			'--quiet',
+			'--fatal-warnings',
+			'--config=@INPUT0@',
+			'--output-dir=@OUTPUT@',
+			'--no-namespace-dir',
+			'--content-dir=@0@'.format(meson.current_source_dir()),
+			'@INPUT1@'
+		],
+		depend_files : [ pidgin_doc_content_files ],
+		build_by_default : true,
+		install : true,
+		install_dir : docs_dir,
+	)
+endif
 
-# Extra options to supply to fixxref
-fixxref_args = [
-    '--extra-dir=../libpurple',
-]
-
-configure_file(
-    input : 'version.xml.in',
-    output : 'version.xml',
-    configuration : version_conf)
-
-# Extra SGML files that are included by $(DOC_MAIN_XML_FILE).
-content_files = [
-    'signals_gtkaccount.xml',
-    'signals_gtkblist.xml',
-    'signals_gtkconv.xml',
-    'signals_gtklog.xml',
-]
-
-pidgin_doc = gnome.gtkdoc(DOC_MODULE,
-    main_xml : DOC_MODULE + '-docs.xml',
-    src_dir : libpidgin_inc,
-    dependencies : libpidgin_dep,
-    install : true,
-    scan_args : scan_args,
-    mkdb_args : mkdb_args,
-    fixxref_args : fixxref_args,
-    gobject_typesfile : DOC_MODULE + '.types',
-    content_files : content_files)

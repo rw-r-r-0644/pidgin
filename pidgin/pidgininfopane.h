@@ -27,16 +27,6 @@
 #ifndef PIDGIN_INFO_PANE_H
 #define PIDGIN_INFO_PANE_H
 
-/**
- * SECTION:pidgininfopane
- * @section_id: pidgin-pidgininfopane
- * @short_description: The information pane
- * @title: Information Pane Widget
- *
- * #PidginInfoPane is a widget that displays information above
- * #PidginConversations.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>
@@ -44,6 +34,15 @@
 #include <purple.h>
 
 G_BEGIN_DECLS
+
+/**
+ * PidginInfoPane:
+ *
+ * #PidginInfoPane is a widget that displays information above
+ * #PidginConversations.
+ *
+ * Since: 3.0.0
+ */
 
 #define PIDGIN_TYPE_INFO_PANE (pidgin_info_pane_get_type())
 G_DECLARE_FINAL_TYPE(PidginInfoPane, pidgin_info_pane, PIDGIN, INFO_PANE,

@@ -25,13 +25,6 @@
 
 #ifndef _PIDGIN_CONVERSATION_H_
 #define _PIDGIN_CONVERSATION_H_
-/**
- * SECTION:gtkconv
- * @section_id: pidgin-gtkconv
- * @short_description: <filename>gtkconv.h</filename>
- * @title: Conversation API
- * @see_also: <link linkend="chapter-signals-gtkconv">Conversation signals</link>
- */
 
 typedef struct _PidginImPane       PidginImPane;
 typedef struct _PidginChatPane     PidginChatPane;

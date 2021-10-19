@@ -23,20 +23,19 @@
 #ifndef PIDGIN_ACCOUNT_FILTER_PROTOCOL_H
 #define PIDGIN_ACCOUNT_FILTER_PROTOCOL_H
 
+#include <gtk/gtk.h>
+
+G_BEGIN_DECLS
+
 /**
- * SECTION:pidginaccountfilterprotocol
- * @section_id: pidgin-account-filter-protocol
- * @short_description: A GtkTreeModelFilter that displays the given protocol.
- * @title: Account Protocol Filter
+ * PidginAccountFilterProtocol:
  *
  * #PidginAccountFilterProtocol is a #GtkTreeModelFilter that will only show
  * accounts for the given protocol.  It's intended to be used with
  * #PidginAccountStore.
+ *
+ * Since: 3.0.0
  */
-
-#include <gtk/gtk.h>
-
-G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_ACCOUNT_FILTER_PROTOCOL pidgin_account_filter_protocol_get_type()
 G_DECLARE_FINAL_TYPE(PidginAccountFilterProtocol,
@@ -67,6 +66,8 @@ GtkTreeModel *pidgin_account_filter_protocol_new(const gchar *protocol_id, GtkTr
  * Gets the ID of the protocol that @filter is filtering for.
  *
  * Returns: The Protocol ID that @filter is filtering for.
+ *
+ * Since: 3.0.0
  */
 const gchar *pidgin_account_filter_protocol_get_protocol_id(PidginAccountFilterProtocol *filter);
 

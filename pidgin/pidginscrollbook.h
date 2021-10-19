@@ -27,9 +27,7 @@
 #ifndef PIDGIN_SCROLL_BOOK_H
 #define PIDGIN_SCROLL_BOOK_H
 /**
- * SECTION:pidginscrollbook
- * @section_id: pidgin-pidginscrollbook
- * @title: Scrolling Notebook Widget
+ * PidginScrollBook:
  *
  * This widget is used to show error messages in the buddy list window.
  */

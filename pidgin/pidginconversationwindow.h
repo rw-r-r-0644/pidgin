@@ -27,20 +27,19 @@
 #ifndef PIDGIN_CONVERSATION_WINDOW_H
 #define PIDGIN_CONVERSATION_WINDOW_H
 
-/**
- * SECTION:pidginconversationwindow
- * @section_id: pidgin-pidginconversationwindow
- * @short_description: The main conversation window widget.
- * @title: Conversation window widget
- *
- * #PidginConversationWindow is a widget that contains #PidginConversations.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
+
+/**
+ * PidginConversationWindow:
+ *
+ * #PidginConversationWindow is a widget that contains #PidginConversations.
+ *
+ * Since: 3.0.0
+ */
 
 #define PIDGIN_TYPE_CONVERSATION_WINDOW (pidgin_conversation_window_get_type())
 G_DECLARE_FINAL_TYPE(PidginConversationWindow, pidgin_conversation_window,

@@ -28,13 +28,6 @@
 #ifndef PIDGIN_PROTOCOL_CHOOSER_H
 #define PIDGIN_PROTOCOL_CHOOSER_H
 
-/**
- * SECTION:pidginprotocolchooser
- * @section_id: pidgin-protocol-chooser
- * @short_description: A #GtkComboBox for choosing protocols
- * @title: Pidgin Protocol Chooser Combo Box Widget
- */
-
 #include <gtk/gtk.h>
 
 #include <purple.h>

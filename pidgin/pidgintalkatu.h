@@ -26,13 +26,6 @@
 #ifndef PIDGIN_TALKATU_H
 #define PIDGIN_TALKATU_H
 
-/**
- * SECTION:pidgintalkatu
- * @section_id: pidgin-talkatu
- * @short_description: <filename>pidgintalkatu.h</filename>
- * @title: Talkatu Helpers
- */
-
 #include <gtk/gtk.h>
 
 #include <talkatu.h>

@@ -27,14 +27,13 @@
 #define PIDGIN_PROTOCOL_STORE_H
 
 /**
- * SECTION:pidginprotocolstore
- * @section_id: pidgin-protocol-store
- * @short_description: A GtkListStore that keeps track of protocols
- * @title: Protocol Store
+ * PidginProtocolStore:
  *
  * #PidginProtocolStore is a #GtkListStore that automatically keeps track of
  * what protocols are currently available in libpurple.  It's intended to be
  * used any time that you need to present a protocol selection to the user.
+ *
+ * Since: 3.0.0
  */
 
 #include <gtk/gtk.h>

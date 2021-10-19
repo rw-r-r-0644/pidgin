@@ -27,20 +27,19 @@
 #ifndef PIDGIN_APPLICATION_H
 #define PIDGIN_APPLICATION_H
 
-/**
- * SECTION:pidginapplication
- * @section_id: pidgin-application
- * @short_description: A #GtkApplication subclass for Pidgin.
- * @title: Pidgin Application
- *
- * #PidginApplication is a subclass of #GtkApplication that holds all of the
- * application wide actions.
- */
-
 #include <glib.h>
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
+
+/**
+ * PidginApplication:
+ *
+ * #PidginApplication is a subclass of #GtkApplication that holds all of the
+ * application wide actions.
+ *
+ * Since: 3.0.0
+ */
 
 #define PIDGIN_TYPE_APPLICATION (pidgin_application_get_type())
 G_DECLARE_FINAL_TYPE(PidginApplication, pidgin_application, PIDGIN,

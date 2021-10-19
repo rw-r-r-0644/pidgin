@@ -25,12 +25,6 @@
 
 #ifndef PIDGIN_DEBUG_H
 #define PIDGIN_DEBUG_H
-/**
- * SECTION:pidgindebug
- * @section_id: pidgin-pidgindebug
- * @short_description: <filename>pidgindebug.h</filename>
- * @title: Debug API
- */
 
 #include <purple.h>
 

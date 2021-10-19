@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINUTILS_H_
 #define _PIDGINUTILS_H_
-/**
- * SECTION:gtkutils
- * @section_id: pidgin-gtkutils
- * @short_description: <filename>gtkutils.h</filename>
- * @title: Utility functions
- */
 
 #include "gtkconv.h"
 

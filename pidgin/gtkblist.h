@@ -21,13 +21,6 @@
 
 #ifndef _PIDGINBLIST_H_
 #define _PIDGINBLIST_H_
-/**
- * SECTION:gtkblist
- * @section_id: pidgin-gtkblist
- * @short_description: <filename>gtkblist.h</filename>
- * @title: Buddy List API
- * @see_also: <link linkend="chapter-signals-gtkblist">Buddy List signals</link>
- */
 
 #include <gtk/gtk.h>
 
@@ -121,11 +114,6 @@ G_BEGIN_DECLS
  * GTK Buddy List API
  **************************************************************************/
 
-/**
- * pidgin_buddy_list_get_type:
- *
- * Returns: The #GType for the #PidginBuddyList boxed structure.
- */
 G_DECLARE_FINAL_TYPE(PidginBuddyList, pidgin_buddy_list, PIDGIN, BUDDY_LIST,
                      PurpleBuddyList)
 

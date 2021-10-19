@@ -27,20 +27,19 @@
 #ifndef PIDGIN_MESSAGE_H
 #define PIDGIN_MESSAGE_H
 
-/**
- * SECTION:pidginmessage
- * @section_id: pidgin-pidginmessage
- * @short_description: <filename>pidginmessage.h</filename>
- * @title: Pidgin Message API
- *
- * #PidginMessage maps a #PurpleMessage to a #TalkatuMessage.
- */
-
 #include <purple.h>
 
 #include <talkatu.h>
 
 G_BEGIN_DECLS
+
+/**
+ * PidginMessage:
+ *
+ * #PidginMessage maps a #PurpleMessage to a #TalkatuMessage.
+ *
+ * Since: 3.0.0
+ */
 
 #define PIDGIN_TYPE_MESSAGE (pidgin_message_get_type())
 G_DECLARE_FINAL_TYPE(PidginMessage, pidgin_message, PIDGIN, MESSAGE, GObject)

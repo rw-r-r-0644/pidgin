@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINNOTIFY_H_
 #define _PIDGINNOTIFY_H_
-/**
- * SECTION:gtknotify
- * @section_id: pidgin-gtknotify
- * @short_description: <filename>gtknotify.h</filename>
- * @title: Notification API
- */
 
 #include <purple.h>
 

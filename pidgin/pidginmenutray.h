@@ -24,13 +24,6 @@
 #ifndef PIDGIN_MENU_TRAY_H
 #define PIDGIN_MENU_TRAY_H
 
-/**
- * SECTION:pidginmenutray
- * @section_id: pidgin-menu-tray
- * @short_description: <filename>pidginmenutray.h</filename>
- * @title: Tray Menu Item
- */
-
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS

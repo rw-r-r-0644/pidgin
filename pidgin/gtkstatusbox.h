@@ -27,13 +27,6 @@
 #ifndef PIDGIN_STATUS_BOX_H
 #define PIDGIN_STATUS_BOX_H
 
-/**
- * SECTION:gtkstatusbox
- * @section_id: pidgin-gtkstatusbox
- * @short_description: <filename>gtkstatusbox.h</filename>
- * @title: Status Selection Widget
- */
-
 #include <gtk/gtk.h>
 
 #include <talkatu.h>

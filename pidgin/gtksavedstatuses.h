@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINSAVEDSTATUSES_H_
 #define _PIDGINSAVEDSTATUSES_H_
-/**
- * SECTION:gtksavedstatuses
- * @section_id: pidgin-gtksavedstatuses
- * @short_description: <filename>gtksavedstatuses.h</filename>
- * @title: Saved Status Editor UI
- */
 
 #include <purple.h>
 

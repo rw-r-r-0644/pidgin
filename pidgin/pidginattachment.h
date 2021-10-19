@@ -26,13 +26,6 @@
 #ifndef PIDGIN_ATTACHMENT_H
 #define PIDGIN_ATTACHMENT_H
 
-/**
- * SECTION:pidginattachment
- * @section_id: pidgin-pidginattachment
- * @short_description: <filename>pidginattachment.h</filename>
- * @title: Pidgin Attachment API
- */
-
 #include <purple.h>
 
 #include <talkatu.h>

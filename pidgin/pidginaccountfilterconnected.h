@@ -23,20 +23,19 @@
 #ifndef PIDGIN_ACCOUNT_FILTER_CONNECTED_H
 #define PIDGIN_ACCOUNT_FILTER_CONNECTED_H
 
+#include <gtk/gtk.h>
+
+G_BEGIN_DECLS
+
 /**
- * SECTION: pidginaccountfilterconnected
- * @section_id: pidgin-account-filter-connected
- * @short_description: A GtkTreeModelFilter that displays connected accounts.
- * @title: Account Connected Filter
+ * PidginAccountFilterConnected:
  *
  * #PidginAccountFilterConnected is a #GtkTreeModelFilter that will only show
  * accounts that are connected.  It's intended to be used with
  * #PidginAccountStore.
+ *
+ * Since: 3.0.0
  */
-
-#include <gtk/gtk.h>
-
-G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_ACCOUNT_FILTER_CONNECTED pidgin_account_filter_connected_get_type()
 G_DECLARE_FINAL_TYPE(PidginAccountFilterConnected,

@@ -24,15 +24,6 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-/**
- * SECTION:pidgincolor
- * @section_id: pidgin-color
- * @short_description: Color related API
- * @title: Color API
- *
- * A collection of API to help with color.
- */
-
 #ifndef PIDGIN_COLOR_H
 #define PIDGIN_COLOR_H
 

@@ -25,12 +25,6 @@
 
 #ifndef PIDGIN_STATUS_ICON_THEME_H
 #define PIDGIN_STATUS_ICON_THEME_H
-/**
- * SECTION:gtkstatus-icon-theme
- * @section_id: pidgin-gtkstatus-icon-theme
- * @short_description: <filename>gtkstatus-icon-theme.h</filename>
- * @title: Pidgin Icon Theme Class
- */
 
 #include <glib-object.h>
 #include "gtkicon-theme.h"
@@ -42,11 +36,6 @@
 /**************************************************************************/
 G_BEGIN_DECLS
 
-/**
- * pidgin_status_icon_theme_get_type:
- *
- * Returns: The #GType for a status icon theme.
- */
 G_DECLARE_FINAL_TYPE(PidginStatusIconTheme, pidgin_status_icon_theme, PIDGIN,
 		STATUS_ICON_THEME, PidginIconTheme)
 

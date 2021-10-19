@@ -27,22 +27,21 @@
 #ifndef PIDGIN_ACCOUNTS_MENU_H
 #define PIDGIN_ACCOUNTS_MENU_H
 
+#include <gtk/gtk.h>
+
+G_BEGIN_DECLS
+
 /**
- * SECTION:pidginaccountsmenu
- * @section_id: pidgin-accounts-menu
- * @short_description: A menu for managing accounts and their actions
- * @title: Accounts Menu
+ * PidginAccountsMenu:
  *
  * #PidginAccountsMenu is a #GtkMenu that provides an interface to users to open
  * the account manager as well as activate account actions.
  *
  * It manages itself as accounts are created/deleted and enabled/disabled and
  * can be added as a submenu to any #GtkMenuItem.
+ *
+ * Since: 3.0.0
  */
-
-#include <gtk/gtk.h>
-
-G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_ACCOUNTS_MENU (pidgin_accounts_menu_get_type())
 G_DECLARE_FINAL_TYPE(PidginAccountsMenu, pidgin_accounts_menu, PIDGIN,
