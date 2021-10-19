@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_THRIFT_H
 #define PURPLE_FACEBOOK_THRIFT_H
 
-/**
- * SECTION:thrift
- * @section_id: facebook-thrift
- * @short_description: <filename>thrift.h</filename>
- * @title: Thrift Reader/Writer
- *
- * The Thrift reader/writer.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -76,11 +67,6 @@ typedef enum
 	FB_THRIFT_TYPE_UNKNOWN
 } FbThriftType;
 
-/**
- * fb_thrift_get_type:
- *
- * Returns: The #GType for an #FbThrift.
- */
 G_DECLARE_FINAL_TYPE(FbThrift, fb_thrift, FB, THRIFT, GObject)
 
 /**
