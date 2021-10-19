@@ -70,6 +70,7 @@ struct _PidginDebugWindow {
 };
 
 static PidginDebugWindow *debug_win = NULL;
+static guint debug_enabled_timer = 0;
 
 struct _PidginDebugUi
 {
@@ -79,7 +80,6 @@ struct _PidginDebugUi
 	guint debug_enabled_timer;
 };
 
-static void pidgin_debug_ui_finalize(GObject *gobject);
 static void pidgin_debug_ui_interface_init(PurpleDebugUiInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE(PidginDebugUi, pidgin_debug_ui, G_TYPE_OBJECT,
@@ -671,37 +671,27 @@ pidgin_debug_window_init(PidginDebugWindow *win)
 static gboolean
 debug_enabled_timeout_cb(gpointer data)
 {
-	PidginDebugUi *ui = PIDGIN_DEBUG_UI(data);
+	gboolean enabled = GPOINTER_TO_INT(data);
 
-	ui->debug_enabled_timer = 0;
+	debug_enabled_timer = 0;
 
-	pidgin_debug_window_show();
-
-	return FALSE;
-}
-
-static gboolean
-debug_disabled_timeout_cb(gpointer data)
-{
-	PidginDebugUi *ui = PIDGIN_DEBUG_UI(data);
-
-	ui->debug_enabled_timer = 0;
-
-	pidgin_debug_window_hide();
+	if (enabled) {
+		pidgin_debug_window_show();
+	} else {
+		pidgin_debug_window_hide();
+	}
 
 	return FALSE;
 }
 
 static void
-debug_enabled_cb(const char *name, PurplePrefType type,
-				 gconstpointer value, gpointer data)
+debug_enabled_cb(G_GNUC_UNUSED const gchar *name,
+                 G_GNUC_UNUSED PurplePrefType type,
+                 gconstpointer value,
+                 gpointer data)
 {
-	PidginDebugUi *ui = PIDGIN_DEBUG_UI(data);
-
-	if (GPOINTER_TO_INT(value))
-		ui->debug_enabled_timer = g_timeout_add(0, debug_enabled_timeout_cb, data);
-	else
-		ui->debug_enabled_timer = g_timeout_add(0, debug_disabled_timeout_cb, data);
+	debug_enabled_timer = g_timeout_add(0, debug_enabled_timeout_cb,
+	                                    (gpointer)value);
 }
 
 static GLogWriterOutput
@@ -824,47 +814,6 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 static void
 pidgin_debug_ui_init(PidginDebugUi *self)
 {
-	/* Debug window preferences. */
-	/*
-	 * NOTE: This must be set before prefs are loaded, and the callbacks
-	 *       set after they are loaded, since prefs sets the enabled
-	 *       preference here and that loads the window, which calls the
-	 *       configure event, which overrides the width and height! :P
-	 */
-
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/debug");
-
-	/* Controls printing to the debug window */
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/enabled", FALSE);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/filterlevel", PURPLE_DEBUG_ALL);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/style", GTK_TOOLBAR_BOTH_HORIZ);
-
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/toolbar", TRUE);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/width",  450);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/height", 250);
-
-	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/debug/regex", "");
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/filter", FALSE);
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/invert", FALSE);
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/case_insensitive", FALSE);
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/highlight", FALSE);
-
-	purple_prefs_connect_callback(NULL, PIDGIN_PREFS_ROOT "/debug/enabled",
-	                              debug_enabled_cb, self);
-
-	g_log_set_writer_func(pidgin_debug_g_log_handler, NULL, NULL);
-}
-
-static void
-pidgin_debug_ui_finalize(GObject *gobject)
-{
-	PidginDebugUi *self = PIDGIN_DEBUG_UI(gobject);
-
-	if (self->debug_enabled_timer != 0)
-		g_source_remove(self->debug_enabled_timer);
-	self->debug_enabled_timer = 0;
-
-	G_OBJECT_CLASS(pidgin_debug_ui_parent_class)->finalize(gobject);
 }
 
 void
@@ -996,15 +945,61 @@ pidgin_debug_ui_interface_init(PurpleDebugUiInterface *iface)
 static void
 pidgin_debug_ui_class_init(PidginDebugUiClass *klass)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS(klass);
-
-	object_class->finalize = pidgin_debug_ui_finalize;
 }
 
 PidginDebugUi *
 pidgin_debug_ui_new(void)
 {
 	return g_object_new(PIDGIN_TYPE_DEBUG_UI, NULL);
+}
+
+void
+pidgin_debug_init_handler(void)
+{
+	g_log_set_writer_func(pidgin_debug_g_log_handler, NULL, NULL);
+}
+
+void
+pidgin_debug_init(void)
+{
+	/* Debug window preferences. */
+	/*
+	 * NOTE: This must be set before prefs are loaded, and the callbacks
+	 *       set after they are loaded, since prefs sets the enabled
+	 *       preference here and that loads the window, which calls the
+	 *       configure event, which overrides the width and height! :P
+	 */
+
+	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/debug");
+
+	/* Controls printing to the debug window */
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/enabled", FALSE);
+	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/filterlevel",
+	                     PURPLE_DEBUG_ALL);
+	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/style",
+	                     GTK_TOOLBAR_BOTH_HORIZ);
+
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/toolbar", TRUE);
+	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/width",  450);
+	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/height", 250);
+
+	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/debug/regex", "");
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/filter", FALSE);
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/invert", FALSE);
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/case_insensitive", FALSE);
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/highlight", FALSE);
+
+	purple_prefs_connect_callback(NULL, PIDGIN_PREFS_ROOT "/debug/enabled",
+	                              debug_enabled_cb, NULL);
+}
+
+void
+pidgin_debug_uninit(void)
+{
+	if (debug_enabled_timer != 0) {
+		g_source_remove(debug_enabled_timer);
+	}
+	debug_enabled_timer = 0;
 }
 
 void *
