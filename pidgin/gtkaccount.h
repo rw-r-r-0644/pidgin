@@ -25,13 +25,6 @@
 
 #ifndef _PIDGINACCOUNT_H_
 #define _PIDGINACCOUNT_H_
-/**
- * SECTION:gtkaccount
- * @section_id: pidgin-gtkaccount
- * @short_description: <filename>gtkaccount.h</filename>
- * @title: Account Editor UI
- * @see_also: <link linkend="chapter-signals-gtkaccount">Account signals</link>
- */
 
 #include <purple.h>
 

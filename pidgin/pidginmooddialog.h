@@ -27,15 +27,6 @@
 #ifndef PIDGIN_MOOD_DIALOG_H
 #define PIDGIN_MOOD_DIALOG_H
 
-/**
- * SECTION:pidginmooddialog
- * @section_id: pidgin-mood-dialog
- * @short_description: A dialog for selecting moods
- * @title: Mood Dialog
- *
- * A simple dialog for selecting a global mood as well as a per account mood.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>

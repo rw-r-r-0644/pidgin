@@ -26,12 +26,6 @@
 
 #ifndef _PIDGINPLUGINPREF_H_
 #define _PIDGINPLUGINPREF_H_
-/**
- * SECTION:gtkpluginpref
- * @section_id: pidgin-gtkpluginpref
- * @short_description: <filename>gtkpluginpref.h</filename>
- * @title: Plugin Preferences
- */
 
 #include <purple.h>
 

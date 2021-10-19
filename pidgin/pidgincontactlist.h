@@ -27,34 +27,18 @@
 #ifndef PIDGIN_CONTACT_LIST_H
 #define PIDGIN_CONTACT_LIST_H
 
-/**
- * SECTION:pidgincontactlist
- * @section_id: pidgin-contactlist
- * @short_description: The contact list widget.
- * @title: Contact list widget
- *
- * #PidginContactList is a transitional widget as we slowly migrate it into the
- * conversation window to make a single window application.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-/**
- * PIDGIN_TYPE_CONTACT_LIST:
- *
- * The standard _get_type method for #PidginContactList.
- *
- * Since: 3.0.0
- */
 
 /**
  * PidginContactList:
  *
- * A #GtkWindow that contains the main contact list.
+ * #PidginContactList is a transitional widget as we slowly migrate it into the
+ * conversation window to make a single window application.
  *
  * Since: 3.0.0
  */

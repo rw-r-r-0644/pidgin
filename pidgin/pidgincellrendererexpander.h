@@ -27,16 +27,13 @@
 #ifndef PIDGIN_CELL_RENDERER_EXPANDER_H
 #define PIDGIN_CELL_RENDERER_EXPANDER_H
 
+#include <gtk/gtk.h>
+
 /**
- * SECTION:pidgincellrendererexpander
- * @section_id: pidgin-cellrendererexpander
- * @short_description: <filename>pidgincellrendererexpander.h</filename>
- * @title: Cell Renderer Expander
+ * PidginCellRendererExpander:
  *
  * A #GtkCellRenderer that can hide its children.
  */
-
-#include <gtk/gtk.h>
 
 #define PIDGIN_TYPE_CELL_RENDERER_EXPANDER (pidgin_cell_renderer_expander_get_type())
 G_DECLARE_FINAL_TYPE(PidginCellRendererExpander, pidgin_cell_renderer_expander,

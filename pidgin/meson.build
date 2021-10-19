@@ -311,25 +311,17 @@ if ENABLE_GTK
 	if enable_introspection
 		introspection_sources = libpidgin_headers + libpidgin_prefs_headers
 
-		Pidgin_gir_includes = [
-			'GObject-2.0', 'Gtk-3.0', 'GPlugin-1.0', 'GPluginGtk3-1.0',
-			'Talkatu-0.0',
-			# subproject needs to be before libpurple in the repo so that
-			# meson will use our variables and not try to discover them from
-			# libpurple.
-			libpurple_gir[0],
-		]
-
-		gnome.generate_gir(libpidgin,
+		pidgin_gir = gnome.generate_gir(libpidgin,
 			sources : introspection_sources,
-			includes : Pidgin_gir_includes,
+			header : 'pidgin.h',
+			includes : ['GLib-2.0', 'GObject-2.0', 'Gtk-3.0'],
 			namespace : 'Pidgin',
 			symbol_prefix : 'pidgin',
 			identifier_prefix : 'Pidgin',
 			export_packages : 'pidgin-@0@'.format(purple_major_version),
 			nsversion : '@0@.@1@'.format(purple_major_version,
 			                             purple_minor_version),
-			dependencies : [gplugin_dep, gplugin_gtk_dep, talkatu_dep],
+			dependencies : [gplugin_dep, gplugin_gtk_dep, talkatu_dep, libpurple_dep],
 			install : true,
 			extra_args : ['-DPIDGIN_COMPILATION', '--quiet'])
 	endif

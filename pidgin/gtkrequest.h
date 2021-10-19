@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINREQUEST_H_
 #define _PIDGINREQUEST_H_
-/**
- * SECTION:gtkrequest
- * @section_id: pidgin-gtkrequest
- * @short_description: <filename>gtkrequest.h</filename>
- * @title: Request API
- */
 
 #include <purple.h>
 

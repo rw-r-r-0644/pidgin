@@ -25,14 +25,6 @@
 
 #ifndef PIDGIN_CORE_H
 #define PIDGIN_CORE_H
-/**
- * SECTION: pidgincore
- * @section_id: pidgin-pidgincore
- * @short_description: <filename>pidgincore.h</filename>
- * @title: UI Definitions and Includes
- *
- * The very core of Pidgin.
- */
 
 #include <glib.h>
 

@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINROOMLIST_H_
 #define _PIDGINROOMLIST_H_
-/**
- * SECTION:gtkroomlist
- * @section_id: pidgin-gtkroomlist
- * @short_description: <filename>gtkroomlist.h</filename>
- * @title: Room List UI
- */
 
 #include <purple.h>
 

@@ -27,22 +27,21 @@
 #ifndef PIDGIN_PLUGINS_MENU_H
 #define PIDGIN_PLUGINS_MENU_H
 
+#include <gtk/gtk.h>
+
+G_BEGIN_DECLS
+
 /**
- * SECTION:pidginpluginsmenu
- * @section_id: pidgin-plugins-menu
- * @short_description: A menu for managing plugins and their actions
- * @title: Plugins Menu
+ * PidginPluginsMenu:
  *
  * #PidginPluginsMenu is a #GtkMenu that provides an interface to users to open
  * the plugin manager as well as activate plugin actions.
  *
  * It manages itself as plugins are loaded and unloaded and can be added as a
  * submenu to any #GtkMenuItem.
+ *
+ * Since: 3.0.0
  */
-
-#include <gtk/gtk.h>
-
-G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_PLUGINS_MENU (pidgin_plugins_menu_get_type())
 G_DECLARE_FINAL_TYPE(PidginPluginsMenu, pidgin_plugins_menu, PIDGIN,

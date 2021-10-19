@@ -31,13 +31,6 @@
 
 #include <purple.h>
 
-/**
- * SECTION:pidgingdkpixbuf
- * @section_id: pidgin-gdk-pixbuf
- * @short_description: <filename>pidgingdkpixbuf.h</filename>
- * @title: GDK Pixbuf Helpers
- */
-
 G_BEGIN_DECLS
 
 /**

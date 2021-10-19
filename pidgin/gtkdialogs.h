@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINDIALOGS_H_
 #define _PIDGINDIALOGS_H_
-/**
- * SECTION:gtkdialogs
- * @section_id: pidgin-gtkdialogs
- * @short_description: <filename>gtkdialogs.h</filename>
- * @title: Pidgin Dialogs
- */
 
 #include <purple.h>
 

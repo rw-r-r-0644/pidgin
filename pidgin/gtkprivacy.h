@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINPRIVACY_H_
 #define _PIDGINPRIVACY_H_
-/**
- * SECTION:gtkprivacy
- * @section_id: pidgin-gtkprivacy
- * @short_description: <filename>gtkprivacy.h</filename>
- * @title: Privacy UI
- */
 
 #include <purple.h>
 

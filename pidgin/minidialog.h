@@ -25,12 +25,6 @@
 
 #ifndef PIDGIN_MINI_DIALOG_H
 #define PIDGIN_MINI_DIALOG_H
-/**
- * SECTION:minidialog
- * @section_id: pidgin-minidialog
- * @short_description: <filename>minidialog.h</filename>
- * @title: Mini Dialog Widget
- */
 
 #include <glib-object.h>
 #include <gtk/gtk.h>
@@ -93,12 +87,6 @@ struct _PidginMiniDialog {
  */
 typedef void (*PidginMiniDialogCallback)(PidginMiniDialog *mini_dialog,
 	GtkButton *button, gpointer user_data);
-
-/**
- * pidgin_mini_dialog_get_type:
- *
- * Get the GType of #PidginMiniDialog.
- */
 
 /**
  * pidgin_mini_dialog_new:

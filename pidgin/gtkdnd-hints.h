@@ -23,12 +23,6 @@
 
 #ifndef _PIDGIN_DND_HINTS_H_
 #define _PIDGIN_DND_HINTS_H_
-/**
- * SECTION:gtkdnd-hints
- * @section_id: pidgin-gtkdnd-hints
- * @short_description: <filename>gtkdnd-hints.h</filename>
- * @title: Drag-and-Drop Arrow Hints
- */
 
 #include <glib.h>
 #include <gtk/gtk.h>

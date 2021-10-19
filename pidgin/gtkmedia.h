@@ -25,12 +25,6 @@
 
 #ifndef __GTKMEDIA_H_
 #define __GTKMEDIA_H_
-/**
- * SECTION:gtkmedia
- * @section_id: pidgin-gtkmedia
- * @short_description: <filename>gtkmedia.h</filename>
- * @title: Media API
- */
 
 G_BEGIN_DECLS
 

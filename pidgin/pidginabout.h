@@ -27,13 +27,6 @@
 #ifndef PIDGIN_ABOUT_H
 #define PIDGIN_ABOUT_H
 
-/**
- * SECTION:pidginabout
- * @section_id: pidgin-about
- * @short_description: <filename>pidginabout.h</filename>
- * @title: About Dialog
- */
-
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS

@@ -23,20 +23,19 @@
 #ifndef PIDGIN_ACCOUNT_STORE_H
 #define PIDGIN_ACCOUNT_STORE_H
 
+#include <gtk/gtk.h>
+
+#include <purple.h>
+
 /**
- * SECTION:pidginaccountstore
- * @section_id: pidgin-account-store
- * @short_description: A GtkListStore that keeps track of accounts
- * @title: Account Store
+ * PidginAccountStore:
  *
  * #PidginAccountStore is a #GtkListStore that automatically keeps track of
  * what accounts are currently available in libpurple.  It's intended to be
  * used any time that you need to present an account selection to the user.
+ *
+ * Since: 3.0.0
  */
-
-#include <gtk/gtk.h>
-
-#include <purple.h>
 
 /**
  * PidginAccountStoreColumn:

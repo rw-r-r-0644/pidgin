@@ -25,12 +25,6 @@
 
 #ifndef _PIDGIN_IDLE_H_
 #define _PIDGIN_IDLE_H_
-/**
- * SECTION:gtkidle
- * @section_id: pidgin-gtkidle
- * @short_description: <filename>gtkidle.h</filename>
- * @title: Idle API
- */
 
 #include <purple.h>
 

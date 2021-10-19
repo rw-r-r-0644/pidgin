@@ -25,12 +25,6 @@
 
 #ifndef _PIDGIN_CONVERSATION_WINDOW_H_
 #define _PIDGIN_CONVERSATION_WINDOW_H_
-/**
- * SECTION:gtkconvwin
- * @section_id: pidgin-gtkconvwin
- * @short_description: <filename>gtkconvwin.h</filename>
- * @title: Conversation Window API
- */
 
 #include <gtk/gtk.h>
 

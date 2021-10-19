@@ -27,20 +27,19 @@
 #ifndef PIDGIN_ACTION_GROUP_H
 #define PIDGIN_ACTION_GROUP_H
 
+#include <glib.h>
+
+#include <gio/gio.h>
+
 /**
- * SECTION:pidginactiongroup
- * @section_id: pidgin-action-group
- * @short_description: An action group for Pidgin
- * @title: Action Group
+ * PidginActionGroup:
  *
  * A #GSimpleActionGroup containing most of our actions.  A lot of this will
  * need to be added to the #GtkApplication, but I didn't want to do that part
  * quite yet, so I created this instead.
+ *
+ * Since: 3.0.0
  */
-
-#include <glib.h>
-
-#include <gio/gio.h>
 
 /**
  * PIDGIN_ACTION_SHOW_BUDDY_ICONS:

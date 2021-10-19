@@ -27,21 +27,18 @@
 #ifndef PIDGIN_ACCOUNT_ACTIONS_MENU_H
 #define PIDGIN_ACCOUNT_ACTIONS_MENU_H
 
-/**
- * SECTION:pidginaccountactionsmenu
- * @section_id: pidgin-account-actions-menu
- * @short_description: A menu for managing account actions
- * @title: Accounts Actions Menu
- *
- * #PidginAccountActionsMenu is a #GtkMenu that provides an interface for users
- * to edit accounts and activate the account's actions.
- */
-
 #include <gtk/gtk.h>
 
 #include <purple.h>
 
 G_BEGIN_DECLS
+
+/**
+ * PidginAccountActionsMenu:
+ *
+ * A #GtkMenu that provides an interface for users to edit accounts and
+ * activate the account's actions.
+ */
 
 #define PIDGIN_TYPE_ACCOUNT_ACTIONS_MENU (pidgin_account_actions_menu_get_type())
 G_DECLARE_FINAL_TYPE(PidginAccountActionsMenu, pidgin_account_actions_menu,

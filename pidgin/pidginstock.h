@@ -25,12 +25,6 @@
 
 #ifndef _PIDGIN_STOCK_H_
 #define _PIDGIN_STOCK_H_
-/**
- * SECTION:pidginstock
- * @section_id: pidgin-pidginstock
- * @short_description: <filename>pidginstock.h</filename>
- * @title: Stock Resources
- */
 
 #include <gtk/gtk.h>
 #include "gtkstatus-icon-theme.h"

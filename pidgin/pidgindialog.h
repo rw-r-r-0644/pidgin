@@ -26,21 +26,18 @@
 #ifndef PIDGIN_DIALOG_H
 #define PIDGIN_DIALOG_H
 
-/**
- * SECTION:pidgindialog
- * @section_id: pidgin-dialog
- * @short_description: A base dialog widget.
- * @title: Dialog
- *
- * #PidginDialog is a transitional widget as we slowly migrate everything to
- * glade.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
+
+/**
+ * PidginDialog:
+ *
+ * #PidginDialog is a transitional widget as we slowly migrate everything to
+ * glade.
+ */
 
 #define PIDGIN_TYPE_DIALOG (pidgin_dialog_get_type())
 G_DECLARE_FINAL_TYPE(PidginDialog, pidgin_dialog, PIDGIN,

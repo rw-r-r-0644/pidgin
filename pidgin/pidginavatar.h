@@ -27,16 +27,6 @@
 #ifndef PIDGIN_AVATAR_H
 #define PIDGIN_AVATAR_H
 
-/**
- * SECTION:pidginavatar
- * @section_id: pidgin-pidginavatar
- * @short_description: Avatars
- * @title: Avatar Widget
- *
- * #PidginAvatar is a widget that displays avatars for contacts or
- * conversations.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>
@@ -46,21 +36,17 @@
 G_BEGIN_DECLS
 
 /**
- * PIDGIN_TYPE_AVATAR:
+ * PidginAvatar:
  *
- * The standard _get_type macro for #PidginAvatar.
+ * #PidginAvatar is a widget that displays avatars for contacts or
+ * conversations.
+ *
+ * Since: 3.0.0
  */
 
 #define PIDGIN_TYPE_AVATAR (pidgin_avatar_get_type())
 G_DECLARE_FINAL_TYPE(PidginAvatar, pidgin_avatar,
                      PIDGIN, AVATAR, GtkEventBox)
-
-/**
- * PidginAvatar:
- *
- * #PidginAvatar is an opaque data structure and should only be accessed via
- * its API.
- */
 
 /**
  * pidgin_avatar_new:

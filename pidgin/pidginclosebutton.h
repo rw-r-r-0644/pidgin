@@ -26,21 +26,20 @@
 #ifndef PIDGIN_CLOSE_BUTTON_H
 #define PIDGIN_CLOSE_BUTTON_H
 
-/**
- * SECTION:pidginclosebutton
- * @section_id: pidgin-close-button
- * @short_description: A widget to close things.
- * @title: Close Button
- *
- * #PidginCloseButton is a transitional widget as we slowly migrate the
- * conversation window to glade.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
+
+/**
+ * PidginCloseButton:
+ *
+ * #PidginCloseButton is a transitional widget as we slowly migrate the
+ * conversation window to glade.
+ *
+ * Since: 3.0.0
+ */
 
 #define PIDGIN_TYPE_CLOSE_BUTTON (pidgin_close_button_get_type())
 G_DECLARE_FINAL_TYPE(PidginCloseButton, pidgin_close_button, PIDGIN,

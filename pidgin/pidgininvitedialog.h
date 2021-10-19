@@ -26,11 +26,14 @@
 #ifndef PIDGIN_INVITE_DIALOG_H
 #define PIDGIN_INVITE_DIALOG_H
 
+#include <gtk/gtk.h>
+
+#include <purple.h>
+
+G_BEGIN_DECLS
+
 /**
- * SECTION:pidgininvitedialog
- * @section_id: pidgin-invite-dialog
- * @short_description: A dialog widget to invite others to chat
- * @title: Invite Dialog
+ * PidginInviteDialog:
  *
  * #PidginInviteDialog is a simple #GtkDialog that presents the user with an
  * interface to invite another user to a conversation.  Name completion is
@@ -60,14 +63,7 @@
  * ]|
  */
 
-#include <gtk/gtk.h>
-
-#include <purple.h>
-
-G_BEGIN_DECLS
-
 #define PIDGIN_TYPE_INVITE_DIALOG  pidgin_invite_dialog_get_type()
-
 G_DECLARE_FINAL_TYPE(PidginInviteDialog, pidgin_invite_dialog, PIDGIN,
 		INVITE_DIALOG, GtkDialog)
 

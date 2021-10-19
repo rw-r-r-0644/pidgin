@@ -25,12 +25,6 @@
 
 #ifndef PIDGIN_ICON_THEME_H
 #define PIDGIN_ICON_THEME_H
-/**
- * SECTION:gtkicon-theme
- * @section_id: pidgin-gtkicon-theme
- * @short_description: <filename>gtkicon-theme.h</filename>
- * @title: Icon Theme Class
- */
 
 #include <glib.h>
 #include <glib-object.h>
@@ -49,11 +43,6 @@ struct _PidginIconThemeClass
 /**************************************************************************/
 G_BEGIN_DECLS
 
-/**
- * pidgin_icon_theme_get_type:
- *
- * Returns: The #GType for an icon theme.
- */
 G_DECLARE_DERIVABLE_TYPE(PidginIconTheme, pidgin_icon_theme, PIDGIN,
 		ICON_THEME, PurpleTheme)
 

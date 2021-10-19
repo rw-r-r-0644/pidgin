@@ -27,19 +27,18 @@
 #ifndef PIDGIN_PRESENCE_ICON_H
 #define PIDGIN_PRESENCE_ICON_H
 
-/**
- * SECTION:pidginpresenceicon
- * @section_id: pidgin-pidginpresenceicon
- * @short_description: Icons for presences
- * @title: Presence Icons
- *
- * A #GtkImage subclass that will automatically update when the given presence
- * changes.
- */
-
 #include <gtk/gtk.h>
 
 #include <purple.h>
+
+/**
+ * PidginPresenceIcon:
+ *
+ * A #GtkImage subclass that will automatically update when the given presence
+ * changes.
+ *
+ * Since: 3.0.0
+ */
 
 #define PIDGIN_TYPE_PRESENCE_ICON (pidgin_presence_icon_get_type())
 G_DECLARE_FINAL_TYPE(PidginPresenceIcon, pidgin_presence_icon,

@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINCONN_H_
 #define _PIDGINCONN_H_
-/**
- * SECTION:gtkconn
- * @section_id: pidgin-gtkconn
- * @short_description: <filename>gtkconn.h</filename>
- * @title: Connection API
- */
 
 G_BEGIN_DECLS
 

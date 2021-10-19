@@ -34,6 +34,14 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PidginPluginInfo:
+ *
+ * A #GPluginPluginInfo subclass that adds some Pidgin specific properties.
+ *
+ * Since: 3.0.0
+ */
+
 #define PIDGIN_TYPE_PLUGIN_INFO (pidgin_plugin_info_get_type())
 G_DECLARE_FINAL_TYPE(PidginPluginInfo, pidgin_plugin_info, PIDGIN, PLUGIN_INFO, PurplePluginInfo)
 

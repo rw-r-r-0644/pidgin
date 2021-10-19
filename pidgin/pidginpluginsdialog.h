@@ -27,16 +27,15 @@
 #ifndef PIDGIN_PLUGINS_DIALOG_H
 #define PIDGIN_PLUGINS_DIALOG_H
 
-/**
- * SECTION:pidginpluginsdialog
- * @section_id: pidgin-plugins-dialog
- * @short_description: A widget to display available plugins
- * @title: Plugins Dialog
- */
-
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
+
+/**
+ * PidginPluginsDialog:
+ *
+ * A dialog that allows the user to configure their plugins.
+ */
 
 #define PIDGIN_TYPE_PLUGINS_DIALOG (pidgin_plugins_dialog_get_type())
 G_DECLARE_FINAL_TYPE(PidginPluginsDialog, pidgin_plugins_dialog, PIDGIN,

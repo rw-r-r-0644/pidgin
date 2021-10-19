@@ -25,12 +25,6 @@
 
 #ifndef PIDGIN_ICON_THEME_LOADER_H
 #define PIDGIN_ICON_THEME_LOADER_H
-/**
- * SECTION:gtkicon-theme-loader
- * @section_id: pidgin-gtkicon-theme-loader
- * @short_description: <filename>gtkicon-theme-loader.h</filename>
- * @title: Pidgin Icon Theme Loader Class
- */
 
 #include <glib.h>
 #include <glib-object.h>
@@ -44,11 +38,6 @@
 /**************************************************************************/
 G_BEGIN_DECLS
 
-/**
- * pidgin_icon_theme_loader_get_type:
- *
- * Returns: The #GType for an icon theme loader.
- */
 G_DECLARE_FINAL_TYPE(PidginIconThemeLoader, pidgin_icon_theme_loader, PIDGIN,
 		ICON_THEME_LOADER, PurpleThemeLoader)
 

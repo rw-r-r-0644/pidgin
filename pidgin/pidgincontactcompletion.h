@@ -26,11 +26,14 @@
 #ifndef PIDGIN_CONTACT_COMPLETION_H
 #define PIDGIN_CONTACT_COMPLETION_H
 
+#include <gtk/gtk.h>
+
+#include <purple.h>
+
+G_BEGIN_DECLS
+
 /**
- * SECTION:pidgincontactcompletion
- * @section_id: pidgin-contact-completion
- * @short_description: A GtkEntryCompletion for contacts
- * @title: Contact Name Completion
+ * PidginContactCompletion:
  *
  * #PidginContactCompletion should be treated like a normal
  * #GtkEntryCompletion, except it already does all of the setup for the
@@ -45,12 +48,6 @@
  * g_object_unref(completion);
  * ]|
  */
-
-#include <gtk/gtk.h>
-
-#include <purple.h>
-
-G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_CONTACT_COMPLETION  pidgin_contact_completion_get_type()
 

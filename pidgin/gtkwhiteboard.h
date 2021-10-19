@@ -25,12 +25,6 @@
 
 #ifndef _PIDGINWHITEBOARD_H_
 #define _PIDGINWHITEBOARD_H_
-/**
- * SECTION:gtkwhiteboard
- * @section_id: pidgin-gtkwhiteboard
- * @short_description: <filename>gtkwhiteboard.h</filename>
- * @title: Whiteboard Frontend
- */
 
 G_BEGIN_DECLS
 
