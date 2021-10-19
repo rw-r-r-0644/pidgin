@@ -44,7 +44,6 @@ struct _FinchDebugUi
 	/* Other members, including private data. */
 };
 
-static void finch_debug_ui_finalize(GObject *gobject);
 static void finch_debug_ui_interface_init(PurpleDebugUiInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE(FinchDebugUi, finch_debug_ui, G_TYPE_OBJECT,
@@ -400,19 +399,32 @@ start_with_debugwin(gpointer null)
 static void
 finch_debug_ui_class_init(FinchDebugUiClass *klass)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS(klass);
-
-	object_class->finalize = finch_debug_ui_finalize;
 }
 
 static void
 finch_debug_ui_init(FinchDebugUi *self)
 {
-	g_log_set_writer_func(finch_debug_g_log_handler, NULL, NULL);
+}
 
+FinchDebugUi *
+finch_debug_ui_new(void)
+{
+	return g_object_new(FINCH_TYPE_DEBUG_UI, NULL);
+}
+
+void
+finch_debug_init_handler(void)
+{
+	g_log_set_writer_func(finch_debug_g_log_handler, NULL, NULL);
+}
+
+void
+finch_debug_init(void)
+{
 	g_set_print_handler(print_stderr);   /* Redirect the debug messages to stderr */
-	if (!purple_debug_is_enabled())
+	if (!purple_debug_is_enabled()) {
 		handle_fprintf_stderr(FALSE);
+	}
 
 	purple_prefs_add_none(PREF_ROOT);
 	purple_prefs_add_string(PREF_ROOT "/filter", "");
@@ -420,19 +432,13 @@ finch_debug_ui_init(FinchDebugUi *self)
 	purple_prefs_add_int(PREF_ROOT "/size/width", 60);
 	purple_prefs_add_int(PREF_ROOT "/size/height", 15);
 
-	if (purple_debug_is_enabled())
+	if (purple_debug_is_enabled()) {
 		g_timeout_add(0, start_with_debugwin, NULL);
+	}
 }
 
-static void
-finch_debug_ui_finalize(GObject *gobject)
+void
+finch_debug_uninit(void)
 {
 	handle_fprintf_stderr(TRUE);
-	G_OBJECT_CLASS(finch_debug_ui_parent_class)->finalize(gobject);
-}
-
-FinchDebugUi *
-finch_debug_ui_new(void)
-{
-	return g_object_new(FINCH_TYPE_DEBUG_UI, NULL);
 }
