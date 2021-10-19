@@ -151,23 +151,6 @@ void purple_debug_error(const gchar *category, const gchar *format, ...) G_GNUC_
 void purple_debug_fatal(const gchar *category, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
 
 /**
- * purple_debug_set_enabled:
- * @enabled: %TRUE to enable debug output or %FALSE to disable it.
- *
- * Enable or disable printing debug output to the console.
- */
-void purple_debug_set_enabled(gboolean enabled);
-
-/**
- * purple_debug_is_enabled:
- *
- * Check if console debug output is enabled.
- *
- * Returns: %TRUE if debugging is enabled, %FALSE if it is not.
- */
-gboolean purple_debug_is_enabled(void);
-
-/**
  * purple_debug_set_verbose:
  * @verbose: %TRUE to enable verbose debugging or %FALSE to disable it.
  *
@@ -208,14 +191,6 @@ void purple_debug_set_unsafe(gboolean unsafe);
  *          sensitive information are not logged.
  */
 gboolean purple_debug_is_unsafe(void);
-
-/**
- * purple_debug_set_colored:
- * @colored: %TRUE to enable colored output, %FALSE to disable it.
- *
- * Enable or disable colored output for bash console.
- */
-void purple_debug_set_colored(gboolean colored);
 
 /******************************************************************************
  * Debug Subsystem

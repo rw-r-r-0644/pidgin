@@ -65,14 +65,21 @@ gnt_core_get_ui_ops(void)
 	return &core_ops;
 }
 
+static gboolean
+start_with_debugwin(gpointer null)
+{
+	finch_debug_window_show();
+	return FALSE;
+}
+
 static int
 init_libpurple(int argc, char **argv)
 {
 	char *path;
 	gboolean opt_nologin = FALSE;
 	gboolean opt_version = FALSE;
+	gboolean opt_debug = FALSE;
 	char *opt_config_dir_arg = NULL;
-	gboolean debug_enabled = FALSE;
 	GOptionContext *context;
 	gchar **args;
 	const gchar *plugin_path = NULL;
@@ -82,6 +89,9 @@ init_libpurple(int argc, char **argv)
 		{"config", 'c', 0,
 			G_OPTION_ARG_FILENAME, &opt_config_dir_arg,
 			_("use DIR for config files"), _("DIR")},
+		{"debug", 'd', 0,
+			G_OPTION_ARG_NONE, &opt_debug,
+			_("open debug window on startup"), NULL},
 		{"nologin", 'n', 0,
 			G_OPTION_ARG_NONE, &opt_nologin,
 			_("don't automatically login"), NULL},
@@ -152,7 +162,9 @@ init_libpurple(int argc, char **argv)
 
 	/* We don't want debug-messages to show up and corrupt the display */
 	finch_debug_init_handler();
-	purple_debug_set_enabled(debug_enabled);
+	if (opt_debug) {
+		g_timeout_add(0, start_with_debugwin, NULL);
+	}
 
 	purple_core_set_ui_ops(gnt_core_get_ui_ops());
 	purple_idle_set_ui_ops(finch_idle_get_ui_ops());

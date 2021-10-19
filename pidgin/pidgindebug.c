@@ -69,6 +69,7 @@ struct _PidginDebugWindow {
 	GRegex *regex;
 };
 
+static gboolean debug_print_enabled = FALSE;
 static PidginDebugWindow *debug_win = NULL;
 static guint debug_enabled_timer = 0;
 
@@ -696,7 +697,11 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 
 	if (debug_win == NULL ||
 			!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled")) {
-		return G_LOG_WRITER_UNHANDLED;
+		if (debug_print_enabled) {
+			return g_log_writer_default(log_level, fields, n_fields, user_data);
+		} else {
+			return G_LOG_WRITER_UNHANDLED;
+		}
 	}
 
 	for (i = 0; i < n_fields; i++) {
@@ -795,7 +800,11 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 				debug_win->end_mark, 0, TRUE, 0, 1);
 	}
 
-	return G_LOG_WRITER_HANDLED;
+	if (debug_print_enabled) {
+		return g_log_writer_default(log_level, fields, n_fields, user_data);
+	} else {
+		return G_LOG_WRITER_HANDLED;
+	}
 }
 
 void
@@ -824,6 +833,12 @@ void
 pidgin_debug_init_handler(void)
 {
 	g_log_set_writer_func(pidgin_debug_g_log_handler, NULL, NULL);
+}
+
+void
+pidgin_debug_set_print_enabled(gboolean enable)
+{
+	debug_print_enabled = enable;
 }
 
 void

@@ -317,13 +317,6 @@ void finch_debug_window_show()
 	gnt_widget_show(debug.window);
 }
 
-static gboolean
-start_with_debugwin(gpointer null)
-{
-	finch_debug_window_show();
-	return FALSE;
-}
-
 void
 finch_debug_init_handler(void)
 {
@@ -334,19 +327,13 @@ void
 finch_debug_init(void)
 {
 	g_set_print_handler(print_stderr);   /* Redirect the debug messages to stderr */
-	if (!purple_debug_is_enabled()) {
-		handle_fprintf_stderr(FALSE);
-	}
+	handle_fprintf_stderr(FALSE);
 
 	purple_prefs_add_none(PREF_ROOT);
 	purple_prefs_add_string(PREF_ROOT "/filter", "");
 	purple_prefs_add_none(PREF_ROOT "/size");
 	purple_prefs_add_int(PREF_ROOT "/size/width", 60);
 	purple_prefs_add_int(PREF_ROOT "/size/height", 15);
-
-	if (purple_debug_is_enabled()) {
-		g_timeout_add(0, start_with_debugwin, NULL);
-	}
 }
 
 void

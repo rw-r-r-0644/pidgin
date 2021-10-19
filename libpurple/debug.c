@@ -24,26 +24,12 @@
 #include "prefs.h"
 
 /*
- * This determines whether debug info should be written to the
- * console or not.
- *
- * It doesn't make sense to make this a normal Purple preference
- * because it's a command line option.  This will always be FALSE,
- * unless the user explicitly started the UI with the -d flag.
- * It doesn't matter what this value was the last time Purple was
- * started, so it doesn't make sense to save it in prefs.
- */
-static gboolean debug_enabled = FALSE;
-
-/*
  * These determine whether verbose or unsafe debugging are desired.  I
  * don't want to make these purple preferences because their values should
  * not be remembered across instances of the UI.
  */
 static gboolean debug_verbose = FALSE;
 static gboolean debug_unsafe = FALSE;
-
-static gboolean debug_colored = FALSE;
 
 static void
 purple_debug_vargs(PurpleDebugLevel level, const gchar *category,
@@ -153,16 +139,6 @@ purple_debug_fatal(const gchar *category, const gchar *format, ...) {
 	va_end(args);
 }
 
-void
-purple_debug_set_enabled(gboolean enabled) {
-	debug_enabled = enabled;
-}
-
-gboolean
-purple_debug_is_enabled() {
-	return debug_enabled;
-}
-
 gboolean
 purple_debug_is_verbose() {
 	return debug_verbose;
@@ -181,11 +157,6 @@ purple_debug_is_unsafe() {
 void
 purple_debug_set_unsafe(gboolean unsafe) {
 	debug_unsafe = unsafe;
-}
-
-void
-purple_debug_set_colored(gboolean colored) {
-	debug_colored = colored;
 }
 
 void

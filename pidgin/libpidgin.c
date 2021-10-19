@@ -432,10 +432,6 @@ int pidgin_start(int argc, char *argv[])
 	GApplication *app;
 	int ret;
 
-#ifdef DEBUG
-	purple_debug_set_enabled(TRUE);
-#endif
-
 	bindtextdomain(PACKAGE, PURPLE_LOCALEDIR);
 	bind_textdomain_codeset(PACKAGE, "UTF-8");
 	textdomain(PACKAGE);

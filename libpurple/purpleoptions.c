@@ -32,19 +32,6 @@
  * Callbacks
  *****************************************************************************/
 static gboolean
-purple_options_debug_cb(const gchar *option_name, const gchar *value,
-                        gpointer data, GError **error)
-{
-	purple_debug_set_enabled(TRUE);
-
-	if (purple_strequal(value, "colored")) {
-		purple_debug_set_colored(TRUE);
-	}
-
-	return TRUE;
-}
-
-static gboolean
 purple_options_force_online_cb(const gchar *option_name, const gchar *value,
                                gpointer data, GError **error)
 {
@@ -61,11 +48,6 @@ purple_get_option_group(void) {
 	GOptionGroup *group = NULL;
 	GOptionEntry entries[] = {
 		{
-			"debug", 'd', G_OPTION_FLAG_OPTIONAL_ARG,
-			G_OPTION_ARG_CALLBACK, &purple_options_debug_cb,
-			_("print debugging messages to stdout"),
-			_("[colored]")
-		}, {
 			"force-online", 'f', G_OPTION_FLAG_NO_ARG,
 			G_OPTION_ARG_CALLBACK, &purple_options_force_online_cb,
 			_("force online, regardless of network status"),

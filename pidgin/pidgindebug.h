@@ -46,6 +46,17 @@ G_DECLARE_FINAL_TYPE(PidginDebugWindow, pidgin_debug_window, PIDGIN, DEBUG_WINDO
 void pidgin_debug_init_handler(void);
 
 /**
+ * pidgin_debug_set_print_enabled:
+ *
+ * Set whether the debug logging messages are sent the default GLib logging handler.
+ *
+ * This will print to the console, if Pidgin is run from there.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_debug_set_print_enabled(gboolean enable);
+
+/**
  * pidgin_debug_init:
  *
  * Perform necessary initializations.

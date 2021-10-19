@@ -390,6 +390,9 @@ version 3.0.0 (??/??/????):
 		* purple_date_format_long, use g_date_time_format instead.
 		* purple_date_format_short, use g_date_time_format instead.
 		* PurpleDebugUiOps
+		* purple_debug_is_enabled
+		* purple_debug_set_colored
+		* purple_debug_set_enabled
 		* purple_dnsquery_a_account
 		* purple_event_loop_{get|set}_ui_ops. Manually drive the GLib
 		  event loop yourself. See GLib Main Event Loop docs.
