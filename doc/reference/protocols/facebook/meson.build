@@ -1,33 +1,32 @@
-DOC_MODULE = 'facebook'
+facebook_doc_content_files = []
 
-# Header files or dirs to ignore when scanning. Use base file/dir names
-ignore_hfiles = [
-]
+if get_option('doc')
+	facebook_toml = configure_file(
+		input : 'facebook.toml.in',
+		output : 'facebook.toml',
+		configuration : version_conf,
+		install : true,
+		install_dir : docs_dir / 'facebook',
+	)
 
-# Extra options to supply to gtkdoc-scan.
-scan_args = [
-    '--deprecated-guards=PURPLE_DISABLE_DEPRECATED',
-    '--rebuild-types',
-    '--rebuild-sections',
-    '--ignore-headers=' + ' '.join(ignore_hfiles),
-]
+	facebook_doc = custom_target('facebook-doc',
+		input : [ facebook_toml, facebook_gir[0] ],
+		output : 'facebook',
+		command : [
+			gidocgen,
+			'generate',
+			'--quiet',
+			'--fatal-warnings',
+			'--config=@INPUT0@',
+			'--output-dir=@OUTPUT@',
+			'--no-namespace-dir',
+			'--content-dir=@0@'.format(meson.current_source_dir()),
+			'@INPUT1@'
+		],
+		depend_files : [ facebook_doc_content_files ],
+		build_by_default : true,
+		install : true,
+		install_dir : docs_dir,
+	)
+endif
 
-# Extra options to supply to fixxref
-fixxref_args = [
-    '--extra-dir=../../libpurple',
-]
-
-# Extra SGML files that are included by $(DOC_MAIN_XML_FILE).
-content_files = [
-    libpurple_version_xml,
-]
-
-facebook_doc = gnome.gtkdoc(DOC_MODULE,
-    main_xml : DOC_MODULE + '-docs.xml',
-    src_dir : facebook_inc,
-    dependencies : facebook_dep,
-    install : true,
-    scan_args : scan_args,
-    fixxref_args : fixxref_args,
-    gobject_typesfile : DOC_MODULE + '.types',
-    content_files : content_files)

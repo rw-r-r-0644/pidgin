@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_API_H
 #define PURPLE_FACEBOOK_API_H
 
-/**
- * SECTION:api
- * @section_id: facebook-api
- * @short_description: <filename>api.h</filename>
- * @title: Facebook API
- *
- * The API for interacting with the Facebook Messenger protocol.
- */
-
 #include <glib.h>
 
 #include <purple.h>
@@ -529,11 +520,6 @@ struct _FbApiUser
 	gchar *csum;
 };
 
-/**
- * fb_api_get_type:
- *
- * Returns: The #GType for an #FbApi.
- */
 G_DECLARE_FINAL_TYPE(FbApi, fb_api, FB, API, GObject)
 
 /**

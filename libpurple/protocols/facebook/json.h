@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_JSON_H
 #define PURPLE_FACEBOOK_JSON_H
 
-/**
- * SECTION:json
- * @section_id: facebook-json
- * @short_description: <filename>json.h</filename>
- * @title: JSON Utilities
- *
- * The JSON utilities.
- */
-
 #include <glib.h>
 #include <json-glib/json-glib.h>
 
@@ -83,11 +74,6 @@ typedef enum
 	FB_JSON_TYPE_STR = G_TYPE_STRING
 } FbJsonType;
 
-/**
- * fb_json_values_get_type:
- *
- * Returns: The #GType for an #FbJsonValues.
- */
 G_DECLARE_FINAL_TYPE(FbJsonValues, fb_json_values, FB, JSON_VALUES,
 		GObject)
 

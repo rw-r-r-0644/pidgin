@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_MQTT_H
 #define PURPLE_FACEBOOK_MQTT_H
 
-/**
- * SECTION:mqtt
- * @section_id: facebook-mqtt
- * @short_description: <filename>mqtt.h</filename>
- * @title: MQTT Connection
- *
- * The MQTT connection.
- */
-
 #include <glib.h>
 #include <string.h>
 
@@ -199,18 +190,8 @@ typedef enum
 	FB_MQTT_MESSAGE_TYPE_DISCONNECT = 14
 } FbMqttMessageType;
 
-/**
- * fb_mqtt_get_type:
- *
- * Returns: The #GType for an #FbMqtt.
- */
 G_DECLARE_FINAL_TYPE(FbMqtt, fb_mqtt, FB, MQTT, GObject)
 
-/**
- * fb_mqtt_message_get_type:
- *
- * Returns: The #GType for an #FbMqttMessage.
- */
 G_DECLARE_FINAL_TYPE(FbMqttMessage, fb_mqtt_message, FB, MQTT_MESSAGE,
 		GObject)
 

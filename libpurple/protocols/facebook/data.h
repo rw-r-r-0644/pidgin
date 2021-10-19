@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_DATA_H
 #define PURPLE_FACEBOOK_DATA_H
 
-/**
- * SECTION:data
- * @section_id: facebook-data
- * @short_description: <filename>data.h</filename>
- * @title: Connection Data
- *
- * The Connection Data.
- */
-
 #include <glib.h>
 
 #include <purple.h>
@@ -56,18 +47,8 @@
  */
 #define FB_DATA_ICON_SIZE_MAX  0xa00000 /* 10MiB */
 
-/**
- * fb_data_get_type:
- *
- * Returns: The #GType for an #FbData.
- */
 G_DECLARE_FINAL_TYPE(FbData, fb_data, FB, DATA, GObject)
 
-/**
- * fb_data_image_get_type:
- *
- * Returns: The #GType for an #FbDataImage.
- */
 G_DECLARE_FINAL_TYPE(FbDataImage, fb_data_image, FB, DATA_IMAGE, GObject)
 
 /**

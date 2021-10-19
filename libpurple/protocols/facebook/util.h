@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_UTIL_H
 #define PURPLE_FACEBOOK_UTIL_H
 
-/**
- * SECTION:util
- * @section_id: facebook-util
- * @short_description: <filename>util.h</filename>
- * @title: General Utilities
- *
- * The general utilities.
- */
-
 #include <glib.h>
 
 #include <purple.h>

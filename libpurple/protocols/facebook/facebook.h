@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_FACEBOOK_H
 #define PURPLE_FACEBOOK_FACEBOOK_H
 
-/**
- * SECTION:facebook
- * @section_id: facebook-plugin
- * @short_description: <filename>facebook.h</filename>
- * @title: Facebook Plugin
- *
- * The Facebook Messenger #PurpleProtocol.
- */
-
 #include <glib.h>
 #include <gmodule.h>
 
@@ -55,12 +46,6 @@ G_DECLARE_FINAL_TYPE(FacebookProtocol, facebook_protocol, FACEBOOK, PROTOCOL,
  * FacebookProtocolClass:
  *
  * The base class for all #FacebookProtocol's.
- */
-
-/**
- * facebook_protocol_get_type:
- *
- * Returns: The #GType for a #FacebookProtocol.
  */
 
 #endif /* PURPLE_FACEBOOK_FACEBOOK_H */

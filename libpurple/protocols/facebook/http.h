@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_HTTP_H
 #define PURPLE_FACEBOOK_HTTP_H
 
-/**
- * SECTION:http
- * @section_id: facebook-http
- * @short_description: <filename>http.h</filename>
- * @title: HTTP Utilities
- *
- * The HTTP utilities.
- */
-
 #include <glib.h>
 #include <libsoup/soup.h>
 

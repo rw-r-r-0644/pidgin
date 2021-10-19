@@ -22,15 +22,6 @@
 #ifndef PURPLE_FACEBOOK_ID_H
 #define PURPLE_FACEBOOK_ID_H
 
-/**
- * SECTION:id
- * @section_id: facebook-id
- * @short_description: <filename>id.h</filename>
- * @title: Facebook Identifier
- *
- * The Facebook identifier utilities.
- */
-
 #include <glib.h>
 #include <glib/gprintf.h>
 
