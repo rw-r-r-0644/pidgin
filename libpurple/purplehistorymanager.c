@@ -34,13 +34,14 @@ enum {
 };
 static guint signals[N_SIGNALS] = {0, };
 
-typedef struct {
+struct _PurpleHistoryManager {
+	GObject parent;
+
 	GHashTable *adapters;
 	PurpleHistoryAdapter *active_adapter;
-} PurpleHistoryManagerPrivate;
+};
 
-G_DEFINE_TYPE_WITH_PRIVATE(PurpleHistoryManager, purple_history_manager,
-                           G_TYPE_OBJECT);
+G_DEFINE_TYPE(PurpleHistoryManager, purple_history_manager, G_TYPE_OBJECT);
 
 static PurpleHistoryManager *default_manager = NULL;
 
@@ -50,24 +51,18 @@ static PurpleHistoryManager *default_manager = NULL;
 static void
 purple_history_manager_finalize(GObject *obj) {
 	PurpleHistoryManager *manager = NULL;
-	PurpleHistoryManagerPrivate *priv = NULL;
 
 	manager = PURPLE_HISTORY_MANAGER(obj);
-	priv = purple_history_manager_get_instance_private(manager);
 
-	g_clear_pointer(&priv->adapters, g_hash_table_destroy);
+	g_clear_pointer(&manager->adapters, g_hash_table_destroy);
 
 	G_OBJECT_CLASS(purple_history_manager_parent_class)->finalize(obj);
 }
 
 static void
 purple_history_manager_init(PurpleHistoryManager *manager) {
-	PurpleHistoryManagerPrivate *priv = NULL;
-
-	priv = purple_history_manager_get_instance_private(manager);
-
-	priv->adapters = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
-	                                       g_object_unref);
+	manager->adapters = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
+	                                          g_object_unref);
 }
 
 static void
@@ -86,11 +81,11 @@ purple_history_manager_class_init(PurpleHistoryManagerClass *klass) {
 	*
 	* Since: 3.0.0
 	*/
-	signals[SIG_ACTIVE_CHANGED] = g_signal_new(
+	signals[SIG_ACTIVE_CHANGED] = g_signal_new_class_handler(
 		"active-changed",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleHistoryManagerClass, active_changed),
+		NULL,
 		NULL,
 		NULL,
 		NULL,
@@ -108,11 +103,11 @@ purple_history_manager_class_init(PurpleHistoryManagerClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_REGISTERED] = g_signal_new(
+	signals[SIG_REGISTERED] = g_signal_new_class_handler(
 		"registered",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleHistoryManagerClass, registered),
+		NULL,
 		NULL,
 		NULL,
 		NULL,
@@ -129,11 +124,11 @@ purple_history_manager_class_init(PurpleHistoryManagerClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_UNREGISTERED] = g_signal_new(
+	signals[SIG_UNREGISTERED] = g_signal_new_class_handler(
 		"unregistered",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleHistoryManagerClass, unregistered),
+		NULL,
 		NULL,
 		NULL,
 		NULL,
@@ -154,18 +149,16 @@ purple_history_manager_startup(void) {
 
 void
 purple_history_manager_shutdown(void) {
-	PurpleHistoryManagerPrivate *priv = NULL;
 	GError **error = NULL;
 
 	if(default_manager == NULL) {
 		return;
 	}
 
-	priv = purple_history_manager_get_instance_private(default_manager);
-	if(PURPLE_IS_HISTORY_ADAPTER(priv->active_adapter)) {
+	if(PURPLE_IS_HISTORY_ADAPTER(default_manager->active_adapter)) {
 		PurpleHistoryAdapter *adapter = NULL;
 
-		adapter = g_object_ref(priv->active_adapter);
+		adapter = g_object_ref(default_manager->active_adapter);
 		purple_history_manager_set_active(default_manager, NULL, NULL);
 		purple_history_manager_unregister(default_manager,
 		                                  adapter, error);
@@ -189,23 +182,21 @@ purple_history_manager_register(PurpleHistoryManager *manager,
                                 PurpleHistoryAdapter *adapter,
                                 GError **error)
 {
-	PurpleHistoryManagerPrivate *priv = NULL;
 	const gchar *id = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_HISTORY_ADAPTER(adapter), FALSE);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
 	id = purple_history_adapter_get_id(adapter);
-	if(g_hash_table_lookup(priv->adapters, id) != NULL) {
+	if(g_hash_table_lookup(manager->adapters, id) != NULL) {
 		g_set_error(error, PURPLE_HISTORY_MANAGER_DOMAIN, 0,
 		            _("adapter %s is already registered"), id);
 
 		return FALSE;
 	}
 
-	g_hash_table_insert(priv->adapters, g_strdup(id), g_object_ref(adapter));
+	g_hash_table_insert(manager->adapters, g_strdup(id),
+	                    g_object_ref(adapter));
 
 	g_signal_emit(G_OBJECT(manager), signals[SIG_REGISTERED], 0, adapter);
 
@@ -217,16 +208,13 @@ purple_history_manager_unregister(PurpleHistoryManager *manager,
                                   PurpleHistoryAdapter *adapter,
                                   GError **error)
 {
-	PurpleHistoryManagerPrivate *priv = NULL;
 	const gchar *id = NULL;
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_HISTORY_ADAPTER(adapter), FALSE);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
-	if(adapter == priv->active_adapter) {
+	if(adapter == manager->active_adapter) {
 		g_set_error(error, PURPLE_HISTORY_MANAGER_DOMAIN, 0,
 		            _("adapter %s is currently in use"), id);
 
@@ -237,7 +225,7 @@ purple_history_manager_unregister(PurpleHistoryManager *manager,
 
 	id = purple_history_adapter_get_id(adapter);
 
-	if(g_hash_table_remove(priv->adapters, id)) {
+	if(g_hash_table_remove(manager->adapters, id)) {
 		g_signal_emit(G_OBJECT(manager), signals[SIG_UNREGISTERED], 0,
 		              adapter);
 
@@ -256,15 +244,12 @@ purple_history_manager_unregister(PurpleHistoryManager *manager,
 
 PurpleHistoryAdapter *
 purple_history_manager_find(PurpleHistoryManager *manager, const gchar *id) {
-	PurpleHistoryManagerPrivate *priv = NULL;
 	gpointer value = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), NULL);
 	g_return_val_if_fail(id != NULL, NULL);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
-	value = g_hash_table_lookup(priv->adapters, id);
+	value = g_hash_table_lookup(manager->adapters, id);
 	if(value == NULL) {
 		return NULL;
 	}
@@ -274,24 +259,16 @@ purple_history_manager_find(PurpleHistoryManager *manager, const gchar *id) {
 
 GList *
 purple_history_manager_get_all(PurpleHistoryManager *manager) {
-	PurpleHistoryManagerPrivate *priv = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), NULL);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
-	return g_hash_table_get_values(priv->adapters);
+	return g_hash_table_get_values(manager->adapters);
 }
 
 PurpleHistoryAdapter *
 purple_history_manager_get_active(PurpleHistoryManager *manager) {
-	PurpleHistoryManagerPrivate *priv = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), NULL);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
-	return priv->active_adapter;
+	return manager->active_adapter;
 }
 
 gboolean
@@ -299,16 +276,13 @@ purple_history_manager_set_active(PurpleHistoryManager *manager,
                                   const gchar *id,
                                   GError **error)
 {
-	PurpleHistoryManagerPrivate *priv = NULL;
 	PurpleHistoryAdapter *old = NULL, *adapter = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), FALSE);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
 	/* First look up the new adapter if we're given one. */
 	if(id != NULL) {
-		adapter = g_hash_table_lookup(priv->adapters, id);
+		adapter = g_hash_table_lookup(manager->adapters, id);
 		if(!PURPLE_IS_HISTORY_ADAPTER(adapter)) {
 			g_set_error(error, PURPLE_HISTORY_MANAGER_DOMAIN, 0,
 			            "no history adapter found with id %s", id);
@@ -317,14 +291,14 @@ purple_history_manager_set_active(PurpleHistoryManager *manager,
 		}
 	}
 
-	if(PURPLE_IS_HISTORY_ADAPTER(priv->active_adapter)) {
-		old = g_object_ref(priv->active_adapter);
+	if(PURPLE_IS_HISTORY_ADAPTER(manager->active_adapter)) {
+		old = g_object_ref(manager->active_adapter);
 	}
 
-	if(g_set_object(&priv->active_adapter, adapter)) {
+	if(g_set_object(&manager->active_adapter, adapter)) {
 		if(PURPLE_IS_HISTORY_ADAPTER(old)) {
 			if(!purple_history_adapter_deactivate(old, error)) {
-				g_set_object(&priv->active_adapter, old);
+				g_set_object(&manager->active_adapter, old);
 				g_clear_object(&old);
 				return FALSE;
 			}
@@ -336,7 +310,7 @@ purple_history_manager_set_active(PurpleHistoryManager *manager,
 					purple_history_adapter_activate(old, error);
 				}
 
-				g_set_object(&priv->active_adapter, old);
+				g_set_object(&manager->active_adapter, old);
 				g_clear_object(&old);
 
 				return FALSE;
@@ -344,7 +318,7 @@ purple_history_manager_set_active(PurpleHistoryManager *manager,
 		}
 
 		g_signal_emit(G_OBJECT(manager), signals[SIG_ACTIVE_CHANGED], 0, old,
-		              priv->active_adapter);
+		              manager->active_adapter);
 	}
 
 	g_clear_object(&old);
@@ -359,19 +333,15 @@ purple_history_manager_query(PurpleHistoryManager *manager,
                              const gchar *query,
                              GError **error)
 {
-	PurpleHistoryManagerPrivate *priv = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), FALSE);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
-	if(priv->active_adapter == NULL) {
+	if(manager->active_adapter == NULL) {
 		g_set_error_literal(error, PURPLE_HISTORY_MANAGER_DOMAIN, 0,
 		                    _("no active history adapter"));
 		return FALSE;
 	}
 
-	return purple_history_adapter_query(priv->active_adapter, query, error);
+	return purple_history_adapter_query(manager->active_adapter, query, error);
 }
 
 gboolean
@@ -379,19 +349,16 @@ purple_history_manager_remove(PurpleHistoryManager *manager,
                               const gchar *query,
                               GError **error)
 {
-	PurpleHistoryManagerPrivate *priv = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), FALSE);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
-	if(priv->active_adapter == NULL) {
+	if(manager->active_adapter == NULL) {
 		g_set_error_literal(error, PURPLE_HISTORY_MANAGER_DOMAIN, 0,
 		                    _("no active history adapter"));
 		return FALSE;
 	}
 
-	return purple_history_adapter_remove(priv->active_adapter, query, error);
+	return purple_history_adapter_remove(manager->active_adapter, query,
+	                                     error);
 }
 
 gboolean
@@ -400,21 +367,17 @@ purple_history_manager_write(PurpleHistoryManager *manager,
                              PurpleMessage *message,
                              GError **error)
 {
-	PurpleHistoryManagerPrivate *priv = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_CONVERSATION(conversation), FALSE);
 	g_return_val_if_fail(PURPLE_IS_MESSAGE(message), FALSE);
 	g_return_val_if_fail(PURPLE_IS_HISTORY_MANAGER(manager), FALSE);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
-	if(priv->active_adapter == NULL) {
+	if(manager->active_adapter == NULL) {
 		g_set_error_literal(error, PURPLE_HISTORY_MANAGER_DOMAIN, 0,
 		                    _("no active history adapter"));
 		return FALSE;
 	}
 
-	return purple_history_adapter_write(priv->active_adapter, conversation,
+	return purple_history_adapter_write(manager->active_adapter, conversation,
 	                                    message, error);
 }
 
@@ -424,15 +387,12 @@ purple_history_manager_foreach(PurpleHistoryManager *manager,
                                gpointer data)
 {
 	GHashTableIter iter;
-	PurpleHistoryManagerPrivate *priv = NULL;
 	gpointer value;
 
 	g_return_if_fail(PURPLE_IS_HISTORY_MANAGER(manager));
 	g_return_if_fail(func != NULL);
 
-	priv = purple_history_manager_get_instance_private(manager);
-
-	g_hash_table_iter_init(&iter, priv->adapters);
+	g_hash_table_iter_init(&iter, manager->adapters);
 	while (g_hash_table_iter_next(&iter, NULL, &value)) {
 		func(PURPLE_HISTORY_ADAPTER(value), data);
 	}

@@ -54,8 +54,8 @@ G_BEGIN_DECLS
  * The standard _get_type macro for #PurpleHistoryManager.
  */
 #define PURPLE_TYPE_HISTORY_MANAGER (purple_history_manager_get_type())
-G_DECLARE_DERIVABLE_TYPE(PurpleHistoryManager, purple_history_manager,
-                         PURPLE, HISTORY_MANAGER, GObject)
+G_DECLARE_FINAL_TYPE(PurpleHistoryManager, purple_history_manager, PURPLE,
+                     HISTORY_MANAGER, GObject)
 
 /**
  * PurpleHistoryManager:
@@ -64,29 +64,6 @@ G_DECLARE_DERIVABLE_TYPE(PurpleHistoryManager, purple_history_manager,
  *
  * Since: 3.0.0
  */
-
-/**
- * PurpleHistoryManagerClass:
- * @active_changed: The default signal handler for when an adapter is changed.
- * @registered: The default signal handler for when an adapter is registered.
- * @unregistered: The default signal handler for when an adapter is unregistered.
- *
- * The class structure for #PurpleHistoryManager.
- *
- * Since: 3.0.0
- */
-struct _PurpleHistoryManagerClass {
-	/*< private >*/
-	GObjectClass parent;
-
-	/*< public >*/
-	void (*active_changed)(PurpleHistoryManager *manager, PurpleHistoryAdapter *previous, PurpleHistoryAdapter *current);
-	gboolean (*registered)(PurpleHistoryManager *manager, PurpleHistoryAdapter *adapter, GError **error);
-	gboolean (*unregistered)(PurpleHistoryManager *manager, PurpleHistoryAdapter *adapter, GError **error);
-
-	/*< private >*/
-	gpointer reserved[4];
-};
 
 /**
  * PurpleHistoryManagerForeachFunc:
