@@ -62,8 +62,8 @@ G_BEGIN_DECLS
  * Since: 3.0.0
  */
 #define PURPLE_TYPE_CREDENTIAL_MANAGER (purple_credential_manager_get_type())
-G_DECLARE_DERIVABLE_TYPE(PurpleCredentialManager, purple_credential_manager,
-                         PURPLE, CREDENTIAL_MANAGER, GObject)
+G_DECLARE_FINAL_TYPE(PurpleCredentialManager, purple_credential_manager,
+                     PURPLE, CREDENTIAL_MANAGER, GObject)
 
 /**
  * PurpleCredentialManager:
@@ -72,31 +72,6 @@ G_DECLARE_DERIVABLE_TYPE(PurpleCredentialManager, purple_credential_manager,
  *
  * Since: 3.0.0
  */
-
-/**
- * PurpleCredentialManagerClass:
- * @registered: The default signal handler for when a provider is registered.
- * @unregistered: The default signal handler for when a provider is
- *                unregistered.
- * @active_changed: The default signal handler for when the active provider is
- *                  changed.
- *
- * The class structure for #PurpleCredentialProvider.
- *
- * Since: 3.0.0
- */
-struct _PurpleCredentialManagerClass {
-	/*< private >*/
-	GObjectClass parent;
-
-	/*< public >*/
-	void (*registered)(PurpleCredentialManager *manager, PurpleCredentialProvider *provider);
-	void (*unregistered)(PurpleCredentialManager *manager, PurpleCredentialProvider *provider);
-	void (*active_changed)(PurpleCredentialManager *manager, PurpleCredentialProvider *previous, PurpleCredentialProvider *current);
-
-	/*< private >*/
-	gpointer reserved[8];
-};
 
 /**
  * PurpleCredentialManagerForeachFunc:
