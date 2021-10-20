@@ -73,30 +73,8 @@ G_BEGIN_DECLS
  *
  * Since: 3.0.0
  */
-G_DECLARE_DERIVABLE_TYPE(PurpleWhiteboardManager, purple_whiteboard_manager,
-                         PURPLE, WHITEBOARD_MANAGER, GObject)
-
-/**
- * PurpleWhiteboardManagerClass:
- * @registered: The default signal handler for when a whiteboard is registered.
- * @unregistered: The default signal handler for when a whiteboard is
- *                unregistered.
- *
- * The class structure for #PurpleWhiteboardManager.
- *
- * Since: 3.0.0
- */
-struct _PurpleWhiteboardManagerClass {
-	/*< private >*/
-	GObjectClass parent;
-
-	/*< public >*/
-	void (*registered)(PurpleWhiteboardManager *manager, PurpleWhiteboard *whiteboard);
-	void (*unregistered)(PurpleWhiteboardManager *manager, PurpleWhiteboard *whiteboard);
-
-	/*< private >*/
-	gpointer reserved[4];
-};
+G_DECLARE_FINAL_TYPE(PurpleWhiteboardManager, purple_whiteboard_manager,
+                     PURPLE, WHITEBOARD_MANAGER, GObject)
 
 /**
  * PurpleWhiteboardManagerForeachFunc:

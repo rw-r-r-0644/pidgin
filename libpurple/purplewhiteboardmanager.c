@@ -28,12 +28,14 @@ enum {
 };
 static guint signals[N_SIGNALS] = {0, };
 
-typedef struct {
-	GListStore *store;
-} PurpleWhiteboardManagerPrivate;
+struct _PurpleWhiteboardManager {
+	GObject parent;
 
-G_DEFINE_TYPE_WITH_PRIVATE(PurpleWhiteboardManager, purple_whiteboard_manager,
-                           G_TYPE_OBJECT);
+	GListStore *store;
+};
+
+G_DEFINE_TYPE(PurpleWhiteboardManager, purple_whiteboard_manager,
+              G_TYPE_OBJECT);
 
 static PurpleWhiteboardManager *default_manager = NULL;
 
@@ -43,23 +45,17 @@ static PurpleWhiteboardManager *default_manager = NULL;
 static void
 purple_whiteboard_manager_finalize(GObject *obj) {
 	PurpleWhiteboardManager *manager = NULL;
-	PurpleWhiteboardManagerPrivate *priv = NULL;
 
 	manager = PURPLE_WHITEBOARD_MANAGER(obj);
-	priv = purple_whiteboard_manager_get_instance_private(manager);
 
-	g_clear_object(&priv->store);
+	g_clear_object(&manager->store);
 
 	G_OBJECT_CLASS(purple_whiteboard_manager_parent_class)->finalize(obj);
 }
 
 static void
 purple_whiteboard_manager_init(PurpleWhiteboardManager *manager) {
-	PurpleWhiteboardManagerPrivate *priv = NULL;
-
-	priv = purple_whiteboard_manager_get_instance_private(manager);
-
-	priv->store = g_list_store_new(PURPLE_TYPE_WHITEBOARD);
+	manager->store = g_list_store_new(PURPLE_TYPE_WHITEBOARD);
 }
 
 static void
@@ -77,11 +73,11 @@ purple_whiteboard_manager_class_init(PurpleWhiteboardManagerClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_REGISTERED] = g_signal_new(
+	signals[SIG_REGISTERED] = g_signal_new_class_handler(
 		"registered",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleWhiteboardManagerClass, registered),
+		NULL,
 		NULL,
 		NULL,
 		NULL,
@@ -98,11 +94,11 @@ purple_whiteboard_manager_class_init(PurpleWhiteboardManagerClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_UNREGISTERED] = g_signal_new(
+	signals[SIG_UNREGISTERED] = g_signal_new_class_handler(
 		"unregistered",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleWhiteboardManagerClass, unregistered),
+		NULL,
 		NULL,
 		NULL,
 		NULL,
@@ -139,15 +135,12 @@ purple_whiteboard_manager_register(PurpleWhiteboardManager *manager,
                                    PurpleWhiteboard *whiteboard,
                                    GError **error)
 {
-	PurpleWhiteboardManagerPrivate *priv = NULL;
 	gboolean found = FALSE;
 
 	g_return_val_if_fail(PURPLE_IS_WHITEBOARD_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_WHITEBOARD(whiteboard), FALSE);
 
-	priv = purple_whiteboard_manager_get_instance_private(manager);
-
-	found = g_list_store_find_with_equal_func(priv->store, whiteboard,
+	found = g_list_store_find_with_equal_func(manager->store, whiteboard,
 	                                          (GEqualFunc)purple_whiteboard_equal,
 	                                          NULL);
 
@@ -159,7 +152,7 @@ purple_whiteboard_manager_register(PurpleWhiteboardManager *manager,
 		return FALSE;
 	}
 
-	g_list_store_insert(priv->store, 0, whiteboard);
+	g_list_store_insert(manager->store, 0, whiteboard);
 
 	g_signal_emit(G_OBJECT(manager), signals[SIG_REGISTERED], 0, whiteboard);
 
@@ -171,16 +164,13 @@ purple_whiteboard_manager_unregister(PurpleWhiteboardManager *manager,
                                      PurpleWhiteboard *whiteboard,
                                      GError **error)
 {
-	PurpleWhiteboardManagerPrivate *priv = NULL;
 	guint position = 0;
 	gboolean found = FALSE;
 
 	g_return_val_if_fail(PURPLE_IS_WHITEBOARD_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_WHITEBOARD(whiteboard), FALSE);
 
-	priv = purple_whiteboard_manager_get_instance_private(manager);
-
-	found = g_list_store_find_with_equal_func(priv->store, whiteboard,
+	found = g_list_store_find_with_equal_func(manager->store, whiteboard,
 	                                          (GEqualFunc)purple_whiteboard_equal,
 	                                          &position);
 
@@ -197,7 +187,7 @@ purple_whiteboard_manager_unregister(PurpleWhiteboardManager *manager,
 	 */
 	g_object_ref(G_OBJECT(whiteboard));
 
-	g_list_store_remove(priv->store, position);
+	g_list_store_remove(manager->store, position);
 
 	g_signal_emit(G_OBJECT(manager), signals[SIG_UNREGISTERED], 0, whiteboard);
 
@@ -210,19 +200,16 @@ PurpleWhiteboard *
 purple_whiteboard_manager_find(PurpleWhiteboardManager *manager,
                                const gchar *id)
 {
-	PurpleWhiteboardManagerPrivate *priv = NULL;
 	guint idx, n;
 
 	g_return_val_if_fail(PURPLE_IS_WHITEBOARD_MANAGER(manager), NULL);
 	g_return_val_if_fail(id != NULL, NULL);
 
-	priv = purple_whiteboard_manager_get_instance_private(manager);
-
-	n = g_list_model_get_n_items(G_LIST_MODEL(priv->store));
+	n = g_list_model_get_n_items(G_LIST_MODEL(manager->store));
 	for(idx = 0; idx < n; idx++) {
 		GObject *obj = NULL;
 
-		obj = g_list_model_get_object(G_LIST_MODEL(priv->store), idx);
+		obj = g_list_model_get_object(G_LIST_MODEL(manager->store), idx);
 		if(PURPLE_IS_WHITEBOARD(obj)) {
 			PurpleWhiteboard *whiteboard = PURPLE_WHITEBOARD(obj);
 
@@ -241,17 +228,14 @@ purple_whiteboard_manager_foreach(PurpleWhiteboardManager *manager,
                                   PurpleWhiteboardManagerForeachFunc func,
                                   gpointer data)
 {
-	PurpleWhiteboardManagerPrivate *priv = NULL;
 	guint idx, n;
 
 	g_return_if_fail(PURPLE_IS_WHITEBOARD_MANAGER(manager));
 	g_return_if_fail(func != NULL);
 
-	priv = purple_whiteboard_manager_get_instance_private(manager);
-
-	n = g_list_model_get_n_items(G_LIST_MODEL(priv->store));
+	n = g_list_model_get_n_items(G_LIST_MODEL(manager->store));
 	for(idx = 0; idx < n; idx++) {
-		gpointer item = g_list_model_get_item(G_LIST_MODEL(priv->store), idx);
+		gpointer item = g_list_model_get_item(G_LIST_MODEL(manager->store), idx);
 		func(item, data);
 		g_object_unref(item);
 	}
@@ -259,11 +243,7 @@ purple_whiteboard_manager_foreach(PurpleWhiteboardManager *manager,
 
 GListModel *
 purple_whiteboard_manager_get_model(PurpleWhiteboardManager *manager) {
-	PurpleWhiteboardManagerPrivate *priv = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_WHITEBOARD_MANAGER(manager), NULL);
 
-	priv = purple_whiteboard_manager_get_instance_private(manager);
-
-	return G_LIST_MODEL(priv->store);
+	return G_LIST_MODEL(manager->store);
 }
