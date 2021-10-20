@@ -55,8 +55,8 @@ G_BEGIN_DECLS
  * The standard _get_type macro for #PurpleProtocolManager.
  */
 #define PURPLE_TYPE_PROTOCOL_MANAGER (purple_protocol_manager_get_type())
-G_DECLARE_DERIVABLE_TYPE(PurpleProtocolManager, purple_protocol_manager,
-                         PURPLE, PROTOCOL_MANAGER, GObject)
+G_DECLARE_FINAL_TYPE(PurpleProtocolManager, purple_protocol_manager, PURPLE,
+                     PROTOCOL_MANAGER, GObject)
 
 /**
  * PurpleProtocolManager:
@@ -65,28 +65,6 @@ G_DECLARE_DERIVABLE_TYPE(PurpleProtocolManager, purple_protocol_manager,
  *
  * Since: 3.0.0
  */
-
-/**
- * PurpleProtocolManagerClass:
- * @registered: The default signal handler for when a protocol is registered.
- * @unregistered: The default signal handler for when a protocol is
- *                unregistered.
- *
- * The class structure for #PurpleProtocolManager.
- *
- * Since: 3.0.0
- */
-struct _PurpleProtocolManagerClass {
-	/*< private >*/
-	GObjectClass parent;
-
-	/*< public >*/
-	void (*registered)(PurpleProtocolManager *manager, PurpleProtocol *protocol);
-	void (*unregistered)(PurpleProtocolManager *manager, PurpleProtocol *protocol);
-
-	/*< private >*/
-	gpointer reserved[4];
-};
 
 /**
  * PurpleProtocolManagerForeachFunc:

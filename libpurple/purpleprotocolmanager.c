@@ -28,12 +28,13 @@ enum {
 };
 static guint signals[N_SIGNALS] = {0, };
 
-typedef struct {
-	GHashTable *protocols;
-} PurpleProtocolManagerPrivate;
+struct _PurpleProtocolManager {
+	GObject parent;
 
-G_DEFINE_TYPE_WITH_PRIVATE(PurpleProtocolManager, purple_protocol_manager,
-                           G_TYPE_OBJECT);
+	GHashTable *protocols;
+};
+
+G_DEFINE_TYPE(PurpleProtocolManager, purple_protocol_manager, G_TYPE_OBJECT);
 
 static PurpleProtocolManager *default_manager = NULL;
 
@@ -43,24 +44,18 @@ static PurpleProtocolManager *default_manager = NULL;
 static void
 purple_protocol_manager_finalize(GObject *obj) {
 	PurpleProtocolManager *manager = NULL;
-	PurpleProtocolManagerPrivate *priv = NULL;
 
 	manager = PURPLE_PROTOCOL_MANAGER(obj);
-	priv = purple_protocol_manager_get_instance_private(manager);
 
-	g_clear_pointer(&priv->protocols, g_hash_table_destroy);
+	g_clear_pointer(&manager->protocols, g_hash_table_destroy);
 
 	G_OBJECT_CLASS(purple_protocol_manager_parent_class)->finalize(obj);
 }
 
 static void
 purple_protocol_manager_init(PurpleProtocolManager *manager) {
-	PurpleProtocolManagerPrivate *priv = NULL;
-
-	priv = purple_protocol_manager_get_instance_private(manager);
-
-	priv->protocols = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
-	                                        g_object_unref);
+	manager->protocols = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
+	                                           g_object_unref);
 }
 
 static void
@@ -78,11 +73,11 @@ purple_protocol_manager_class_init(PurpleProtocolManagerClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_REGISTERED] = g_signal_new(
+	signals[SIG_REGISTERED] = g_signal_new_class_handler(
 		"registered",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleProtocolManagerClass, registered),
+		NULL,
 		NULL,
 		NULL,
 		NULL,
@@ -99,11 +94,11 @@ purple_protocol_manager_class_init(PurpleProtocolManagerClass *klass) {
 	 *
 	 * Since: 3.0.0
 	 */
-	signals[SIG_UNREGISTERED] = g_signal_new(
+	signals[SIG_UNREGISTERED] = g_signal_new_class_handler(
 		"unregistered",
 		G_OBJECT_CLASS_TYPE(klass),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(PurpleProtocolManagerClass, unregistered),
+		NULL,
 		NULL,
 		NULL,
 		NULL,
@@ -139,23 +134,21 @@ gboolean
 purple_protocol_manager_register(PurpleProtocolManager *manager,
                                  PurpleProtocol *protocol, GError **error)
 {
-	PurpleProtocolManagerPrivate *priv = NULL;
 	const gchar *id = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), FALSE);
 
-	priv = purple_protocol_manager_get_instance_private(manager);
-
 	id = purple_protocol_get_id(protocol);
-	if(g_hash_table_lookup(priv->protocols, id) != NULL) {
+	if(g_hash_table_lookup(manager->protocols, id) != NULL) {
 		g_set_error(error, PURPLE_PROTOCOL_MANAGER_DOMAIN, 0,
 		            _("protocol %s is already registered"), id);
 
 		return FALSE;
 	}
 
-	g_hash_table_insert(priv->protocols, g_strdup(id), g_object_ref(protocol));
+	g_hash_table_insert(manager->protocols, g_strdup(id),
+	                    g_object_ref(protocol));
 
 	g_signal_emit(G_OBJECT(manager), signals[SIG_REGISTERED], 0, protocol);
 
@@ -166,7 +159,6 @@ gboolean
 purple_protocol_manager_unregister(PurpleProtocolManager *manager,
                                    PurpleProtocol *protocol, GError **error)
 {
-	PurpleProtocolManagerPrivate *priv = NULL;
 	const gchar *id = NULL;
 	gboolean ret = FALSE;
 
@@ -180,10 +172,9 @@ purple_protocol_manager_unregister(PurpleProtocolManager *manager,
 	 */
 	g_object_ref(G_OBJECT(protocol));
 
-	priv = purple_protocol_manager_get_instance_private(manager);
 	id = purple_protocol_get_id(protocol);
 
-	if(g_hash_table_remove(priv->protocols, id)) {
+	if(g_hash_table_remove(manager->protocols, id)) {
 		g_signal_emit(G_OBJECT(manager), signals[SIG_UNREGISTERED], 0,
 		              protocol);
 
@@ -202,15 +193,12 @@ purple_protocol_manager_unregister(PurpleProtocolManager *manager,
 
 PurpleProtocol *
 purple_protocol_manager_find(PurpleProtocolManager *manager, const gchar *id) {
-	PurpleProtocolManagerPrivate *priv = NULL;
 	gpointer value = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL_MANAGER(manager), NULL);
 	g_return_val_if_fail(id != NULL, NULL);
 
-	priv = purple_protocol_manager_get_instance_private(manager);
-
-	value = g_hash_table_lookup(priv->protocols, id);
+	value = g_hash_table_lookup(manager->protocols, id);
 	if(value == NULL) {
 		return NULL;
 	}
@@ -224,15 +212,12 @@ purple_protocol_manager_foreach(PurpleProtocolManager *manager,
                                 gpointer data)
 {
 	GHashTableIter iter;
-	PurpleProtocolManagerPrivate *priv = NULL;
 	gpointer value;
 
 	g_return_if_fail(PURPLE_IS_PROTOCOL_MANAGER(manager));
 	g_return_if_fail(func != NULL);
 
-	priv = purple_protocol_manager_get_instance_private(manager);
-
-	g_hash_table_iter_init(&iter, priv->protocols);
+	g_hash_table_iter_init(&iter, manager->protocols);
 	while(g_hash_table_iter_next(&iter, NULL, &value)) {
 		func(PURPLE_PROTOCOL(value), data);
 	}
@@ -240,11 +225,7 @@ purple_protocol_manager_foreach(PurpleProtocolManager *manager,
 
 GList *
 purple_protocol_manager_get_all(PurpleProtocolManager *manager) {
-	PurpleProtocolManagerPrivate *priv = NULL;
-
 	g_return_val_if_fail(PURPLE_IS_PROTOCOL_MANAGER(manager), NULL);
 
-	priv = purple_protocol_manager_get_instance_private(manager);
-
-	return g_hash_table_get_values(priv->protocols);
+	return g_hash_table_get_values(manager->protocols);
 }
