@@ -31,13 +31,14 @@
  */
 static void
 test_xmlnode_billion_laughs_attack(void) {
-	const char *malicious_xml_doc = "<!DOCTYPE root [ <!ENTITY ha \"Ha !\"><!ENTITY ha2 \"&ha; &ha;\"><!ENTITY ha3 \"&ha2; &ha2;\"> ]><root>&ha3;</root>";
+	if(g_test_subprocess()) {
+		const char *malicious_xml_doc = "<!DOCTYPE root [ <!ENTITY ha \"Ha !\"><!ENTITY ha2 \"&ha; &ha;\"><!ENTITY ha3 \"&ha2; &ha2;\"> ]><root>&ha3;</root>";
 
-	/* Uncomment this line if you want to see the error message given by
-	   the parser for the above XML document */
-	/* purple_debug_set_enabled(TRUE); */
+		g_assert_null(purple_xmlnode_from_str(malicious_xml_doc, -1));
+	}
 
-	g_assert_null(purple_xmlnode_from_str(malicious_xml_doc, -1));
+	g_test_trap_subprocess(NULL, 0, 0);
+	g_test_trap_assert_stderr("*CRITICAL*Entity 'ha3' not defined*");
 }
 
 #define check_doc_structure(x) { \

@@ -134,6 +134,11 @@ test_ui_purple_init(void) {
 	/* Load the preferences. */
 	purple_prefs_load();
 
+	purple_prefs_add_none("/purple");
+	purple_prefs_add_none("/purple/test_ui");
+	purple_prefs_add_none("/purple/test_ui/plugins");
+	purple_prefs_add_path_list("/purple/test_ui/plugins/saved", NULL);
+
 	/* Load the desired plugins. The client should save the list of loaded plugins in
 	 * the preferences using purple_plugins_save_loaded() */
 	purple_plugins_load_saved("/purple/test_ui/plugins/saved");
