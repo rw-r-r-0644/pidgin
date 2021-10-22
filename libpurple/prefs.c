@@ -446,7 +446,7 @@ purple_prefs_load()
 		purple_debug_info("prefs", "Reading %s\n", filename);
 
 		if (!g_file_get_contents(filename, &contents, &length, &error)) {
-			purple_debug_error("prefs", "Error reading prefs: %s\n",
+			purple_debug_info("prefs", "Error reading prefs: %s\n",
 					error->message);
 			g_error_free(error);
 			g_free(filename);
