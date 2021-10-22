@@ -176,7 +176,7 @@ pidgin_get_time_idle(void)
 	}
 
 	if (reply == NULL) {
-		purple_debug_warning("gtkidle",
+		purple_debug_info("gtkidle",
 				"Failed to query ScreenSaver active time: "
 				"No working ScreenSaver interfaces");
 		return 0;
