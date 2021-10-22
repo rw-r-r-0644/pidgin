@@ -248,6 +248,7 @@ libpurple/purpledebugui.c
 libpurple/purple-gio.c
 libpurple/purplehistoryadapter.c
 libpurple/purplehistorymanager.c
+libpurple/purpleidleui.c
 libpurple/purpleimconversation.c
 libpurple/purplekeyvaluepair.c
 libpurple/purplemarkup.c

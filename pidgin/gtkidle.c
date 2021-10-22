@@ -1,9 +1,6 @@
 /*
- * pidgin
- *
- * Pidgin is the legal property of its developers, whose names are too numerous
- * to list here.  Please refer to the COPYRIGHT file distributed with this
- * source distribution.
+ * Pidgin - Universal Chat Client
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -46,6 +41,10 @@
 
 #include <purple.h>
 
+struct _PidginIdle {
+	GObject parent;
+};
+
 #if !defined(HAVE_IOKIT) && !defined(_WIN32)
 typedef struct {
 	gchar *bus_name;
@@ -70,6 +69,10 @@ static const PidginDBusScreenSaverInfo screensavers[] = {
 };
 #endif /* !HAVE_IOKIT && !_WIN32 */
 
+/******************************************************************************
+ * PurpleIdleUI Implementation
+ *****************************************************************************/
+
 /*
  * pidgin_get_time_idle:
  *
@@ -83,8 +86,7 @@ static const PidginDBusScreenSaverInfo screensavers[] = {
  * Returns: The number of seconds the user has been idle.
  */
 static time_t
-pidgin_get_time_idle(void)
-{
+pidgin_idle_get_idle_time(PurpleIdleUi *ui) {
 # ifdef HAVE_IOKIT
 	/* Query the IOKit API */
 	double idleSeconds = -1;
@@ -190,17 +192,37 @@ pidgin_get_time_idle(void)
 # endif /* !HAVE_IOKIT */
 }
 
-static PurpleIdleUiOps ui_ops =
-{
-	pidgin_get_time_idle,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
+static void
+pidgin_idle_purple_ui_init(PurpleIdleUiInterface *iface) {
+	iface->get_idle_time = pidgin_idle_get_idle_time;
+}
 
-PurpleIdleUiOps *
-pidgin_idle_get_ui_ops()
-{
-	return &ui_ops;
+/******************************************************************************
+ * GObject Implementation
+ *****************************************************************************/
+G_DEFINE_TYPE_EXTENDED(
+	PidginIdle,
+	pidgin_idle,
+	G_TYPE_OBJECT,
+	0,
+	G_IMPLEMENT_INTERFACE(
+		PURPLE_TYPE_IDLE_UI,
+		pidgin_idle_purple_ui_init
+	)
+);
+
+static void
+pidgin_idle_init(PidginIdle *idle) {
+}
+
+static void
+pidgin_idle_class_init(PidginIdleClass *klass) {
+}
+
+/******************************************************************************
+ * Public API
+ *****************************************************************************/
+PurpleIdleUi *
+pidgin_idle_new(void) {
+	return g_object_new(PIDGIN_TYPE_IDLE, NULL);
 }

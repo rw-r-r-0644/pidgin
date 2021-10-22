@@ -262,7 +262,7 @@ pidgin_ui_init(void)
 	purple_request_set_ui_ops(pidgin_request_get_ui_ops());
 	purple_connections_set_ui_ops(pidgin_connections_get_ui_ops());
 	purple_whiteboard_set_ui_ops(pidgin_whiteboard_get_ui_ops());
-	purple_idle_set_ui_ops(pidgin_idle_get_ui_ops());
+	purple_idle_set_ui(pidgin_idle_new());
 
 	pidgin_accounts_init();
 	pidgin_connection_init();

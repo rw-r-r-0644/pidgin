@@ -1,5 +1,5 @@
 /*
- * Finch - Universal Text Chat Client
+ * Purple - Internet Messaging Library
  * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,55 +16,30 @@
  * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <purple.h>
-
-#include <gnt.h>
-
-#include "gntidle.h"
-
-struct _FinchIdle {
-    GObject parent;
-};
+#include "purpleidleui.h"
 
 /******************************************************************************
- * PurpleIdleUi implementation
+ * GInterface Implementation
  *****************************************************************************/
-static time_t
-finch_idle_get_idle_time(PurpleIdleUi *ui) {
-	return gnt_wm_get_idle_time();
-}
+G_DEFINE_INTERFACE(PurpleIdleUi, purple_idle_ui, G_TYPE_INVALID)
 
 static void
-finch_idle_purple_idle_ui_init(PurpleIdleUiInterface *iface) {
-    iface->get_idle_time = finch_idle_get_idle_time;
-}
-
-/******************************************************************************
- * GObject Implementation
- *****************************************************************************/
-G_DEFINE_TYPE_EXTENDED(
-    FinchIdle,
-    finch_idle,
-    G_TYPE_OBJECT,
-    0,
-    G_IMPLEMENT_INTERFACE(
-        PURPLE_TYPE_IDLE_UI,
-        finch_idle_purple_idle_ui_init
-    )
-);
-
-static void
-finch_idle_init(FinchIdle *idle) {
-}
-
-static void
-finch_idle_class_init(FinchIdleClass *klass) {
+purple_idle_ui_default_init(PurpleIdleUiInterface *iface) {
 }
 
 /******************************************************************************
  * Public API
  *****************************************************************************/
-PurpleIdleUi *
-finch_idle_new(void) {
-    return g_object_new(FINCH_TYPE_IDLE, NULL);
+time_t
+purple_idle_ui_get_idle_time(PurpleIdleUi *ui) {
+    PurpleIdleUiInterface *iface = NULL;
+
+    g_return_val_if_fail(PURPLE_IS_IDLE_UI(ui), 0);
+
+    iface = PURPLE_IDLE_UI_GET_IFACE(ui);
+    if(iface != NULL && iface->get_idle_time != NULL) {
+        return iface->get_idle_time(ui);
+    }
+
+    return 0;
 }

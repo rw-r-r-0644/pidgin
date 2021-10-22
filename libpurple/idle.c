@@ -38,7 +38,7 @@ typedef enum
 
 } PurpleAutoAwayState;
 
-static PurpleIdleUiOps *idle_ui_ops = NULL;
+static PurpleIdleUi *idle_ui = NULL;
 
 /*
  * This is needed for the I'dle Mak'er plugin to work correctly.  We
@@ -120,48 +120,54 @@ check_idleness(void)
 	gint away_seconds = 0;
 	gint idle_recheck_interval = 0;
 	gint idle_poll_seconds = purple_prefs_get_int("/purple/away/mins_before_away") * 60;
+	gboolean set = FALSE;
+
 	purple_signal_emit(purple_blist_get_handle(), "update-idle");
 
 	idle_reporting = purple_prefs_get_string("/purple/away/idle_reporting");
 	auto_away = purple_prefs_get_bool("/purple/away/away_when_idle");
 
 	if (purple_strequal(idle_reporting, "system") &&
-		(idle_ui_ops != NULL) && (idle_ui_ops->get_time_idle != NULL))
+		PURPLE_IS_IDLE_UI(idle_ui))
 	{
-		/* Use system idle time (mouse or keyboard movement, etc.) */
-		time_idle = idle_ui_ops->get_time_idle();
-		idle_recheck_interval = 1;
+		time_t new_idle = purple_idle_ui_get_idle_time(idle_ui);
+
+		if(new_idle > 0) {
+			/* Use system idle time (mouse or keyboard movement, etc.) */
+			time_idle = new_idle;
+			idle_recheck_interval = 1;
+			set = TRUE;
+		}
 	}
-	else if (purple_strequal(idle_reporting, "purple"))
-	{
+
+	if(!set && purple_strequal(idle_reporting, "purple")) {
 		/* Use 'Purple idle' */
 		time_idle = time(NULL) - last_active_time;
 		idle_recheck_interval = 0;
-	}
-	else
-	{
+	} else {
 		/* Don't report idle time */
 		report_idle = FALSE;
 
 		/* If we're not reporting idle, we can still do auto-away.
 		 * First try "system" and if that isn't possible, use "purple" */
-		if (auto_away)
-		{
-			if ((idle_ui_ops != NULL) && (idle_ui_ops->get_time_idle != NULL))
-			{
-				time_idle = idle_ui_ops->get_time_idle();
-				idle_recheck_interval = 1;
+		if(auto_away) {
+			if(PURPLE_IS_IDLE_UI(idle_ui)) {
+				time_t new_idle = purple_idle_ui_get_idle_time(idle_ui);
+
+				if(new_idle > 0) {
+					time_idle = new_idle;
+					idle_recheck_interval = 1;
+
+					set = TRUE;
+				}
 			}
-			else
-			{
+
+			if(!set) {
 				time_idle = time(NULL) - last_active_time;
 				idle_recheck_interval = 0;
 			}
-		}
-		else
-		{
-			if (!no_away)
-			{
+		} else {
+			if(!no_away) {
 				no_away = TRUE;
 				purple_savedstatus_set_idleaway(FALSE);
 			}
@@ -208,7 +214,6 @@ check_idleness(void)
 			set_account_unidle(idled_accts->data);
 	}
 }
-
 
 /*
  * Check idle and set the timer to fire at the next idle-worth event
@@ -279,43 +284,15 @@ purple_idle_set(time_t time)
 	last_active_time = time;
 }
 
-static PurpleIdleUiOps *
-purple_idle_ui_ops_copy(PurpleIdleUiOps *ops)
-{
-	PurpleIdleUiOps *ops_new;
-
-	g_return_val_if_fail(ops != NULL, NULL);
-
-	ops_new = g_new(PurpleIdleUiOps, 1);
-	*ops_new = *ops;
-
-	return ops_new;
-}
-
-GType
-purple_idle_ui_ops_get_type(void)
-{
-	static GType type = 0;
-
-	if (type == 0) {
-		type = g_boxed_type_register_static("PurpleIdleUiOps",
-				(GBoxedCopyFunc)purple_idle_ui_ops_copy,
-				(GBoxedFreeFunc)g_free);
-	}
-
-	return type;
-}
-
 void
-purple_idle_set_ui_ops(PurpleIdleUiOps *ops)
-{
-	idle_ui_ops = ops;
+purple_idle_set_ui(PurpleIdleUi *ui) {
+	g_clear_object(&idle_ui);
+	idle_ui = ui;
 }
 
-PurpleIdleUiOps *
-purple_idle_get_ui_ops(void)
-{
-	return idle_ui_ops;
+PurpleIdleUi *
+purple_idle_get_ui(void) {
+	return idle_ui;
 }
 
 static void *
@@ -371,4 +348,6 @@ purple_idle_uninit()
 	if (idle_timer > 0)
 		g_source_remove(idle_timer);
 	idle_timer = 0;
+
+	g_clear_object(&idle_ui);
 }

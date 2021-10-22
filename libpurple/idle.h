@@ -35,25 +35,7 @@
 #include <time.h>
 #include <glib-object.h>
 
-#define PURPLE_TYPE_IDLE_UI_OPS (purple_idle_ui_ops_get_type())
-
-typedef struct _PurpleIdleUiOps PurpleIdleUiOps;
-
-/**
- * PurpleIdleUiOps:
- *
- * Idle UI operations.
- */
-struct _PurpleIdleUiOps
-{
-	time_t (*get_time_idle)(void);
-
-	/*< private >*/
-	void (*_purple_reserved1)(void);
-	void (*_purple_reserved2)(void);
-	void (*_purple_reserved3)(void);
-	void (*_purple_reserved4)(void);
-};
+#include <purpleidleui.h>
 
 G_BEGIN_DECLS
 
@@ -84,28 +66,27 @@ void purple_idle_set(time_t time);
 /**************************************************************************/
 
 /**
- * purple_idle_ui_ops_get_type:
+ * purple_idle_set_ui:
+ * @ui: An instance of [iface@IdleUi].
  *
- * Returns: The #GType for the #PurpleIdleUiOps boxed structure.
+ * Sets the user interface idle reporter. This function assumes ownership of
+ * @ui.
+ *
+ * Since: 3.0.0
  */
-GType purple_idle_ui_ops_get_type(void);
+void purple_idle_set_ui(PurpleIdleUi *ui);
 
 /**
- * purple_idle_set_ui_ops:
- * @ops: The UI operations structure.
+ * purple_idle_get_ui:
  *
- * Sets the UI operations structure to be used for idle reporting.
+ * Gets the current idle reporter.
+ *
+ * Returns: (transfer none): The [iface@IdleUi] that is currently in use or
+ *          %NULL if no idle reporter is available.
+ *
+ * Since: 3.0.0
  */
-void purple_idle_set_ui_ops(PurpleIdleUiOps *ops);
-
-/**
- * purple_idle_get_ui_ops:
- *
- * Returns the UI operations structure used for idle reporting.
- *
- * Returns: The UI operations structure in use.
- */
-PurpleIdleUiOps *purple_idle_get_ui_ops(void);
+PurpleIdleUi *purple_idle_get_ui(void);
 
 /**
  * purple_idle_init:
