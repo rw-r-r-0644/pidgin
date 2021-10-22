@@ -1,8 +1,6 @@
-/* pidgin
- *
- * Pidgin is the legal property of its developers, whose names are too numerous
- * to list here.  Please refer to the COPYRIGHT file distributed with this
- * source distribution.
+/*
+ * Pidgin - Universal Chat Client
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,34 +13,42 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef _PIDGIN_IDLE_H_
-#define _PIDGIN_IDLE_H_
+#ifndef PIDGIN_IDLE_H
+#define PIDGIN_IDLE_H
 
 #include <purple.h>
 
 G_BEGIN_DECLS
 
-/**************************************************************************/
-/* GTK Idle API                                                           */
-/**************************************************************************/
+/**
+ * PidginIdle:
+ *
+ * An implementation of [iface@Purple.IdleUi] for Pidgin.
+ *
+ * Since: 3.0.0
+ */
+
+#define PIDGIN_TYPE_IDLE (pidgin_idle_get_type())
+G_DECLARE_FINAL_TYPE(PidginIdle, pidgin_idle, PIDGIN, IDLE, GObject)
 
 /**
- * pidgin_idle_get_ui_ops:
+ * pidgin_idle_new:
  *
- * Returns the GTK idle UI ops.
+ * Creates a new [class@Idle].
  *
- * Returns: The UI operations structure.
+ * Returns: (transfer full): The new instance.
+ *
+ * Since: 3.0.0
  */
-PurpleIdleUiOps *pidgin_idle_get_ui_ops(void);
+PurpleIdleUi *pidgin_idle_new(void);
 
 G_END_DECLS
 
-#endif /* _PIDGIN_IDLE_H_ */
+#endif /* PIDGIN_IDLE_H */
