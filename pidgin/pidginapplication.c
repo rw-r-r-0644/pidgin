@@ -509,8 +509,8 @@ pidgin_application_startup(GApplication *application) {
 	search_path = g_build_filename(purple_config_dir(), "gtk-3.0.css", NULL);
 	gtk_css_provider_load_from_path(provider, search_path, &error);
 	if(error != NULL) {
-		purple_debug_error("gtk", "Unable to load custom gtk-3.0.css: %s\n",
-		                   error->message);
+		purple_debug_info("gtk", "Unable to load custom gtk-3.0.css: %s\n",
+		                  error->message);
 		g_clear_error(&error);
 	} else {
 		GdkScreen *screen = gdk_screen_get_default();
