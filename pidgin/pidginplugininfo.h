@@ -46,6 +46,18 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(PidginPluginInfo, pidgin_plugin_info, PIDGIN, PLUGIN_INFO, PurplePluginInfo)
 
 /**
+ * PidginPluginInfoGetConfigFrameFunc:
+ * @plugin: The instance of the plugin.
+ *
+ * Gets the [class@Gtk.Widget] for configruing @plugin.
+ *
+ * Returns: (transfer full): The widget used to configure @plugin.
+ *
+ * Since: 3.0.0
+ */
+typedef GtkWidget *(*PidginPluginInfoGetConfigFrameFunc)(PurplePlugin *plugin);
+
+/**
  * pidgin_plugin_info_new:
  * @first_property:  The first property name
  * @...:  The value of the first property, followed optionally by more
