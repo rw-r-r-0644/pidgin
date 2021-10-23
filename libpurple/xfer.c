@@ -38,6 +38,7 @@
 #include "purpleconversationmanager.h"
 #include "purpleenums.h"
 #include "request.h"
+#include "server.h"
 #include "util.h"
 #include "xfer.h"
 

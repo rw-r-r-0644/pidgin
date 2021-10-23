@@ -16,12 +16,6 @@ if x11.found()
 	    install : true, install_dir : FINCH_PLUGINDIR)
 endif
 
-gnthistory = library('gnthistory', 'gnthistory.c',
-    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Gnt-History"'],
-    dependencies : [libpurple_dep, libfinch_dep, glib],
-    name_prefix : '',
-    install : true, install_dir : FINCH_PLUGINDIR)
-
 gntlastlog = library('gntlastlog', 'lastlog.c',
     c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Gnt-LastLog"'],
     dependencies : [libpurple_dep, libfinch_dep, ncurses, glib],

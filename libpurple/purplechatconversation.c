@@ -28,6 +28,7 @@
 #include "purplechatconversation.h"
 #include "purpleenums.h"
 #include "purpleprivate.h"
+#include "server.h"
 
 typedef struct {
 	GList *ignored;     /* Ignored users.                            */
@@ -201,10 +202,6 @@ purple_chat_conversation_constructed(GObject *obj) {
 		const gchar *username = purple_account_get_username(account);
 
 		purple_chat_conversation_set_nick(chat, username);
-	}
-
-	if(purple_prefs_get_bool("/purple/logging/log_chats")) {
-		purple_conversation_set_logging(PURPLE_CONVERSATION(chat), TRUE);
 	}
 
 	g_object_unref(account);

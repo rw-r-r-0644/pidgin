@@ -22,6 +22,7 @@
 
 #include "protocol.h"
 
+#include "accounts.h"
 #include "purpleenums.h"
 
 enum {

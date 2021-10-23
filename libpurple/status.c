@@ -503,58 +503,6 @@ purple_status_attribute_get_value(const PurpleStatusAttribute *attr)
 * PurpleStatus API
 **************************************************************************/
 static void
-notify_buddy_status_update(PurpleBuddy *buddy, PurplePresence *presence,
-		PurpleStatus *old_status, PurpleStatus *new_status)
-{
-	if (purple_prefs_get_bool("/purple/logging/log_system"))
-	{
-		GDateTime *current_time = g_date_time_new_now_utc();
-		const char *buddy_alias = purple_buddy_get_alias(buddy);
-		char *tmp, *logtmp;
-		PurpleLog *log;
-
-		if (old_status != NULL)
-		{
-			tmp = g_strdup_printf(_("%s (%s) changed status from %s to %s"), buddy_alias,
-			                      purple_buddy_get_name(buddy),
-			                      purple_status_get_name(old_status),
-			                      purple_status_get_name(new_status));
-			logtmp = g_markup_escape_text(tmp, -1);
-		}
-		else
-		{
-			/* old_status == NULL when an independent status is toggled. */
-
-			if (purple_status_is_active(new_status))
-			{
-				tmp = g_strdup_printf(_("%s (%s) is now %s"), buddy_alias,
-				                      purple_buddy_get_name(buddy),
-				                      purple_status_get_name(new_status));
-				logtmp = g_markup_escape_text(tmp, -1);
-			}
-			else
-			{
-				tmp = g_strdup_printf(_("%s (%s) is no longer %s"), buddy_alias,
-				                      purple_buddy_get_name(buddy),
-				                      purple_status_get_name(new_status));
-				logtmp = g_markup_escape_text(tmp, -1);
-			}
-		}
-
-		log = purple_account_get_log(purple_buddy_get_account(buddy), FALSE);
-		if (log != NULL)
-		{
-			purple_log_write(log, PURPLE_MESSAGE_SYSTEM, buddy_alias,
-			               current_time, logtmp);
-		}
-
-		g_date_time_unref(current_time);
-		g_free(tmp);
-		g_free(logtmp);
-	}
-}
-
-static void
 notify_status_update(PurplePresence *presence, PurpleStatus *old_status,
 					 PurpleStatus *new_status)
 {
@@ -571,12 +519,6 @@ notify_status_update(PurplePresence *presence, PurpleStatus *old_status,
 		{
 			ops->status_changed(account, new_status);
 		}
-	}
-	else if (PURPLE_IS_BUDDY_PRESENCE(presence))
-	{
-		notify_buddy_status_update(purple_buddy_presence_get_buddy(
-				PURPLE_BUDDY_PRESENCE(presence)), presence, old_status,
-				new_status);
 	}
 }
 

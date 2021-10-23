@@ -37,6 +37,7 @@
 #include "purpleprotocolmedia.h"
 #include "purpleprotocolserver.h"
 #include "request.h"
+#include "server.h"
 #include "util.h"
 
 /**************************************************************************

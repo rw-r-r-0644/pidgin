@@ -64,32 +64,6 @@ purple_account_presence_update_idle(PurplePresence *presence, gboolean old_idle)
 	time_t idle_time = purple_presence_get_idle_time(presence);
 	time_t current_time = time(NULL);
 
-	if(purple_prefs_get_bool("/purple/logging/log_system")) {
-		PurpleLog *log = purple_account_get_log(account_presence->account,
-		                                        FALSE);
-
-		if(log != NULL) {
-			gchar *msg, *tmp;
-			GDateTime *dt;
-
-			if(idle) {
-				tmp = g_strdup_printf(_("+++ %s became idle"), purple_account_get_username(account_presence->account));
-				dt = g_date_time_new_from_unix_local(idle_time);
-			} else {
-				tmp = g_strdup_printf(_("+++ %s became unidle"), purple_account_get_username(account_presence->account));
-				dt = g_date_time_new_now_utc();
-			}
-
-			msg = g_markup_escape_text(tmp, -1);
-			g_free(tmp);
-			purple_log_write(log, PURPLE_MESSAGE_SYSTEM,
-			                 purple_account_get_username(account_presence->account),
-			                 dt, msg);
-			g_date_time_unref(dt);
-			g_free(msg);
-		}
-	}
-
 	gc = purple_account_get_connection(account_presence->account);
 
 	if(PURPLE_CONNECTION_IS_CONNECTED(gc)) {

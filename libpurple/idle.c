@@ -22,10 +22,10 @@
  */
 
 #include "connection.h"
+#include "conversations.h"
 #include "debug.h"
 #include "eventloop.h"
 #include "idle.h"
-#include "log.h"
 #include "prefs.h"
 #include "savedstatuses.h"
 #include "signals.h"

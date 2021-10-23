@@ -27,7 +27,6 @@
 #include "buddylist.h"
 #include "connection.h"
 #include "debug.h"
-#include "log.h"
 #include "notify.h"
 #include "prefs.h"
 #include "proxy.h"
@@ -201,23 +200,6 @@ purple_connection_set_state(PurpleConnection *gc, PurpleConnectionState state)
 		/* Set the time the account came online */
 		purple_presence_set_login_time(presence, time(NULL));
 
-		if (purple_prefs_get_bool("/purple/logging/log_system"))
-		{
-			PurpleLog *log = purple_account_get_log(account, TRUE);
-
-			if (log != NULL)
-			{
-				char *msg = g_strdup_printf(_("+++ %s signed on"),
-											purple_account_get_username(account));
-				GDateTime *dt = g_date_time_new_from_unix_local(purple_presence_get_login_time(presence));
-				purple_log_write(log, PURPLE_MESSAGE_SYSTEM,
-				                 purple_account_get_username(account),
-				                 dt, msg);
-				g_date_time_unref(dt);
-				g_free(msg);
-			}
-		}
-
 		if (ops != NULL && ops->connected != NULL)
 			ops->connected(gc);
 
@@ -244,27 +226,6 @@ purple_connection_set_state(PurpleConnection *gc, PurpleConnectionState state)
 		}
 	}
 	else if (priv->state == PURPLE_CONNECTION_DISCONNECTED) {
-		PurpleAccount *account = purple_connection_get_account(gc);
-
-		if (purple_prefs_get_bool("/purple/logging/log_system"))
-		{
-			PurpleLog *log = purple_account_get_log(account, FALSE);
-
-			if (log != NULL)
-			{
-				char *msg = g_strdup_printf(_("+++ %s signed off"),
-											purple_account_get_username(account));
-				GDateTime *dt = g_date_time_new_now_utc();
-				purple_log_write(log, PURPLE_MESSAGE_SYSTEM,
-				                 purple_account_get_username(account),
-				                 dt, msg);
-				g_date_time_unref(dt);
-				g_free(msg);
-			}
-		}
-
-		purple_account_destroy_log(account);
-
 		if (ops != NULL && ops->disconnected != NULL)
 			ops->disconnected(gc);
 	}

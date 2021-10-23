@@ -131,7 +131,6 @@ static void menu_group_set_cb(GntMenuItem *item, gpointer null);
 static int blist_node_compare_position(PurpleBlistNode *n1, PurpleBlistNode *n2);
 static int blist_node_compare_text(PurpleBlistNode *n1, PurpleBlistNode *n2);
 static int blist_node_compare_status(PurpleBlistNode *n1, PurpleBlistNode *n2);
-static int blist_node_compare_log(PurpleBlistNode *n1, PurpleBlistNode *n2);
 
 static int color_available;
 static int color_away;
@@ -1843,9 +1842,6 @@ populate_buddylist(void)
 	} else if (purple_strequal(purple_prefs_get_string(PREF_ROOT "/sort_type"), "status")) {
 		gnt_tree_set_compare_func(GNT_TREE(ggblist->tree),
 			(GCompareFunc)blist_node_compare_status);
-	} else if (purple_strequal(purple_prefs_get_string(PREF_ROOT "/sort_type"), "log")) {
-		gnt_tree_set_compare_func(GNT_TREE(ggblist->tree),
-			(GCompareFunc)blist_node_compare_log);
 	}
 
 	list = purple_blist_get_default();
@@ -2225,49 +2221,6 @@ blist_node_compare_status(PurpleBlistNode *n1, PurpleBlistNode *n2)
 	/* Sort alphabetically if presence is not comparable */
 	ret = blist_node_compare_text(n1, n2);
 
-	return ret;
-}
-
-static int
-get_contact_log_size(PurpleBlistNode *c)
-{
-	int log = 0;
-	PurpleBlistNode *node;
-
-	for (node = purple_blist_node_get_first_child(c); node; node = purple_blist_node_get_sibling_next(node)) {
-		PurpleBuddy *b = (PurpleBuddy*)node;
-		log += purple_log_get_total_size(PURPLE_LOG_IM, purple_buddy_get_name(b),
-				purple_buddy_get_account(b));
-	}
-
-	return log;
-}
-
-static int
-blist_node_compare_log(PurpleBlistNode *n1, PurpleBlistNode *n2)
-{
-	int ret;
-	PurpleBuddy *b1, *b2;
-
-	if (G_OBJECT_TYPE(n1) != G_OBJECT_TYPE(n2))
-		return blist_node_compare_position(n1, n2);
-
-	if (PURPLE_IS_BUDDY(n1)) {
-		b1 = (PurpleBuddy*)n1;
-		b2 = (PurpleBuddy*)n2;
-		ret = purple_log_get_total_size(PURPLE_LOG_IM, purple_buddy_get_name(b2), purple_buddy_get_account(b2)) -
-				purple_log_get_total_size(PURPLE_LOG_IM, purple_buddy_get_name(b1), purple_buddy_get_account(b1));
-		if (ret != 0)
-			return ret;
-	} else if (PURPLE_IS_CONTACT(n1)) {
-		ret = get_contact_log_size(n2) - get_contact_log_size(n1);
-		if (ret != 0)
-			return ret;
-	} else {
-		return blist_node_compare_position(n1, n2);
-	}
-
-	ret = blist_node_compare_text(n1, n2);
 	return ret;
 }
 

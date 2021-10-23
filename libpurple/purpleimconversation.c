@@ -22,6 +22,7 @@
 #include <libpurple/purpleimconversation.h>
 
 #include <libpurple/debug.h>
+#include <libpurple/conversations.h>
 #include <libpurple/purpleconversationmanager.h>
 #include <libpurple/purpleenums.h>
 #include <libpurple/purpleprivate.h>
@@ -176,10 +177,6 @@ purple_im_conversation_constructed(GObject *object) {
 		purple_im_conversation_set_icon(im, icon);
 		/* purple_im_conversation_set_icon refs the icon. */
 		purple_buddy_icon_unref(icon);
-	}
-
-	if(purple_prefs_get_bool("/purple/logging/log_ims")) {
-		purple_conversation_set_logging(PURPLE_CONVERSATION(im), TRUE);
 	}
 
 	g_object_unref(account);

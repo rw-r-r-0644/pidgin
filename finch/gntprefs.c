@@ -68,12 +68,6 @@ typedef struct
 } Prefs;
 
 static GList *
-get_log_options(void)
-{
-	return purple_log_logger_get_options();
-}
-
-static GList *
 get_idle_options(void)
 {
 	GList *list = NULL;
@@ -185,7 +179,6 @@ static Prefs convs[] =
 
 static Prefs logging[] =
 {
-	{PURPLE_PREF_STRING, "/purple/logging/format", N_("Log format"), get_log_options},
 	{PURPLE_PREF_BOOLEAN, "/purple/logging/log_ims", N_("Log IMs"), NULL},
 	{PURPLE_PREF_BOOLEAN, "/purple/logging/log_chats", N_("Log chats"), NULL},
 	{PURPLE_PREF_BOOLEAN, "/purple/logging/log_system", N_("Log status change events"), NULL},

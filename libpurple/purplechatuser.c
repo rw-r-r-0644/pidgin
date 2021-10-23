@@ -21,6 +21,8 @@
  */
 
 #include "purplechatuser.h"
+
+#include "conversations.h"
 #include "purpleenums.h"
 
 struct _PurpleChatUser {

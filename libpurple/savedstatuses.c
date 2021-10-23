@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "accounts.h"
 #include "debug.h"
 #include "idle.h"
 #include "notify.h"
