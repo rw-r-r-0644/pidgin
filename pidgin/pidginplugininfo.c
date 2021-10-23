@@ -22,14 +22,55 @@
 
 #include "pidgincore.h"
 
+enum {
+	PROP_0,
+	PROP_GTK_CONFIG_FRAME,
+	N_PROPERTIES,
+};
+static GParamSpec *properties[N_PROPERTIES] = {NULL, };
+
 struct _PidginPluginInfo {
 	PurplePluginInfo parent;
+
+	PidginPluginInfoGetConfigFrameFunc get_config_frame;
 };
 
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
-G_DEFINE_TYPE(PidginPluginInfo, pidgin_plugin_info, PURPLE_TYPE_PLUGIN_INFO);
+G_DEFINE_TYPE(PidginPluginInfo, pidgin_plugin_info, PURPLE_TYPE_PLUGIN_INFO)
+
+static void
+pidgin_plugin_info_get_property(GObject *obj, guint param_id, GValue *value,
+                                GParamSpec *pspec)
+{
+	PidginPluginInfo *info = PIDGIN_PLUGIN_INFO(obj);
+
+	switch(param_id) {
+		case PROP_GTK_CONFIG_FRAME:
+			g_value_set_pointer(value, info->get_config_frame);
+			break;
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
+			break;
+	}
+}
+
+static void
+pidgin_plugin_info_set_property(GObject *obj, guint param_id,
+                                const GValue *value, GParamSpec *pspec)
+{
+	PidginPluginInfo *info = PIDGIN_PLUGIN_INFO(obj);
+
+	switch(param_id) {
+		case PROP_GTK_CONFIG_FRAME:
+			info->get_config_frame = g_value_get_pointer(value);
+			break;
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
+			break;
+	}
+}
 
 static void
 pidgin_plugin_info_init(PidginPluginInfo *info) {
@@ -37,14 +78,29 @@ pidgin_plugin_info_init(PidginPluginInfo *info) {
 
 static void
 pidgin_plugin_info_class_init(PidginPluginInfoClass *klass) {
+	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+
+	obj_class->get_property = pidgin_plugin_info_get_property;
+	obj_class->set_property = pidgin_plugin_info_set_property;
+
+	/**
+	 * PidginPluginInfo::gtk-config-frame-cb:
+	 *
+	 * A function to call to create the configuration widget for the plugin.
+	 */
+	properties[PROP_GTK_CONFIG_FRAME] = g_param_spec_pointer(
+		"gtk-config-frame-cb", "gtk-config-frame-cb",
+		"The callback function to create a configuration widget.",
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	g_object_class_install_properties(obj_class, N_PROPERTIES, properties);
 }
 
 /******************************************************************************
  * API
  *****************************************************************************/
 GPluginPluginInfo *
-pidgin_plugin_info_new(const char *first_property, ...)
-{
+pidgin_plugin_info_new(const char *first_property, ...) {
 	GObject *info;
 	va_list var_args;
 
