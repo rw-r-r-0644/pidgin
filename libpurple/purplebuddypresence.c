@@ -135,51 +135,7 @@ purple_buddy_presence_update_idle(PurplePresence *presence, gboolean old_idle)
 {
 	PurpleBuddy *buddy = purple_buddy_presence_get_buddy(PURPLE_BUDDY_PRESENCE(presence));
 	GDateTime *current_time = g_date_time_new_now_utc();
-	PurpleAccount *account = purple_buddy_get_account(buddy);
 	gboolean idle = purple_presence_is_idle(presence);
-
-	if (!old_idle && idle)
-	{
-		if (purple_prefs_get_bool("/purple/logging/log_system"))
-		{
-			PurpleLog *log = purple_account_get_log(account, FALSE);
-
-			if (log != NULL)
-			{
-				char *tmp, *tmp2;
-				tmp = g_strdup_printf(_("%s became idle"),
-				purple_buddy_get_alias(buddy));
-				tmp2 = g_markup_escape_text(tmp, -1);
-				g_free(tmp);
-
-				purple_log_write(log, PURPLE_MESSAGE_SYSTEM,
-				                 purple_buddy_get_alias(buddy),
-				                 current_time, tmp2);
-				g_free(tmp2);
-			}
-		}
-	}
-	else if (old_idle && !idle)
-	{
-		if (purple_prefs_get_bool("/purple/logging/log_system"))
-		{
-			PurpleLog *log = purple_account_get_log(account, FALSE);
-
-			if (log != NULL)
-			{
-				char *tmp, *tmp2;
-				tmp = g_strdup_printf(_("%s became unidle"),
-				purple_buddy_get_alias(buddy));
-				tmp2 = g_markup_escape_text(tmp, -1);
-				g_free(tmp);
-
-				purple_log_write(log, PURPLE_MESSAGE_SYSTEM,
-				                 purple_buddy_get_alias(buddy),
-				                 current_time, tmp2);
-				g_free(tmp2);
-			}
-		}
-	}
 
 	if (old_idle != idle)
 		purple_signal_emit(purple_blist_get_handle(), "buddy-idle-changed", buddy,

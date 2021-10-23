@@ -156,7 +156,6 @@ static void sort_method_none(PurpleBlistNode *node, PurpleBuddyList *blist, GtkT
 
 static void sort_method_alphabetical(PurpleBlistNode *node, PurpleBuddyList *blist, GtkTreeIter groupiter, GtkTreeIter *cur, GtkTreeIter *iter);
 static void sort_method_status(PurpleBlistNode *node, PurpleBuddyList *blist, GtkTreeIter groupiter, GtkTreeIter *cur, GtkTreeIter *iter);
-static void sort_method_log_activity(PurpleBlistNode *node, PurpleBuddyList *blist, GtkTreeIter groupiter, GtkTreeIter *cur, GtkTreeIter *iter);
 
 static PidginBuddyList *gtkblist = NULL;
 
@@ -3846,7 +3845,6 @@ void pidgin_blist_setup_sort_methods()
 	pidgin_blist_sort_method_reg("none", _("Manually"), sort_method_none);
 	pidgin_blist_sort_method_reg("alphabetical", _("Alphabetically"), sort_method_alphabetical);
 	pidgin_blist_sort_method_reg("status", _("By status"), sort_method_status);
-	pidgin_blist_sort_method_reg("log_size", _("By recent log activity"), sort_method_log_activity);
 
 	id = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/blist/sort_type");
 	if (id == NULL) {
@@ -6497,93 +6495,6 @@ static void sort_method_status(PurpleBlistNode *node, PurpleBuddyList *blist, Gt
 									&more_z));
 
 	if (cur) {
-		gtk_tree_store_move_before(gtkblist->treemodel, cur, NULL);
-		*iter = *cur;
-		return;
-	} else {
-		gtk_tree_store_append(gtkblist->treemodel, iter, &groupiter);
-		return;
-	}
-}
-
-static void sort_method_log_activity(PurpleBlistNode *node, PurpleBuddyList *blist, GtkTreeIter groupiter, GtkTreeIter *cur, GtkTreeIter *iter)
-{
-	GtkTreeIter more_z;
-
-	int activity_score = 0, this_log_activity_score = 0;
-	const char *buddy_name, *this_buddy_name;
-
-	if(cur && (gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtkblist->treemodel), &groupiter) == 1)) {
-		*iter = *cur;
-		return;
-	}
-
-	if(PURPLE_IS_CONTACT(node)) {
-		PurpleBlistNode *n;
-		PurpleBuddy *buddy;
-		for (n = node->child; n; n = n->next) {
-			buddy = (PurpleBuddy*)n;
-			activity_score += purple_log_get_activity_score(PURPLE_LOG_IM, purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
-		}
-		buddy_name = purple_contact_get_alias((PurpleContact*)node);
-	} else if(PURPLE_IS_CHAT(node)) {
-		/* we don't have a reliable way of getting the log filename
-		 * from the chat info in the blist, yet */
-		if (cur != NULL) {
-			*iter = *cur;
-			return;
-		}
-
-		gtk_tree_store_append(gtkblist->treemodel, iter, &groupiter);
-		return;
-	} else {
-		sort_method_none(node, blist, groupiter, cur, iter);
-		return;
-	}
-
-
-	if (!gtk_tree_model_iter_children(GTK_TREE_MODEL(gtkblist->treemodel), &more_z, &groupiter)) {
-		gtk_tree_store_insert(gtkblist->treemodel, iter, &groupiter, 0);
-		return;
-	}
-
-	do {
-		PurpleBlistNode *n;
-		PurpleBlistNode *n2;
-		PurpleBuddy *buddy;
-		int cmp;
-
-		gtk_tree_model_get(GTK_TREE_MODEL(gtkblist->treemodel), &more_z, NODE_COLUMN, &n, -1);
-		this_log_activity_score = 0;
-
-		if(PURPLE_IS_CONTACT(n)) {
-			for (n2 = n->child; n2; n2 = n2->next) {
-				buddy = (PurpleBuddy*)n2;
-				this_log_activity_score += purple_log_get_activity_score(PURPLE_LOG_IM, purple_buddy_get_name(buddy), purple_buddy_get_account(buddy));
-			}
-			this_buddy_name = purple_contact_get_alias((PurpleContact*)n);
-		} else {
-			this_buddy_name = NULL;
-		}
-
-		cmp = purple_utf8_strcasecmp(buddy_name, this_buddy_name);
-
-		if (!PURPLE_IS_CONTACT(n) || activity_score > this_log_activity_score ||
-				((activity_score == this_log_activity_score) &&
-				 (cmp < 0 || (cmp == 0 && node < n)))) {
-			if (cur != NULL) {
-				gtk_tree_store_move_before(gtkblist->treemodel, cur, &more_z);
-				*iter = *cur;
-				return;
-			} else {
-				gtk_tree_store_insert_before(gtkblist->treemodel, iter,
-						&groupiter, &more_z);
-				return;
-			}
-		}
-	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL(gtkblist->treemodel), &more_z));
-
-	if (cur != NULL) {
 		gtk_tree_store_move_before(gtkblist->treemodel, cur, NULL);
 		*iter = *cur;
 		return;

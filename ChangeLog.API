@@ -320,7 +320,9 @@ version 3.0.0 (??/??/????):
 		* PurpleAccountPrefsUiOps
 		* purple_account_add_buddies_with_invite
 		* purple_account_add_buddy_with_invite
+		* purple_account_destroy_log
 		* purple_account_get_check_mail
+		* purple_account_get_log
 		* purple_account_get_password.  Use
 		  purple_credential_manager_read_password_async instead.
 		* purple_account_get_public_alias
@@ -367,8 +369,10 @@ version 3.0.0 (??/??/????):
 		* purple_conv_custom_smiley_write
 		* PurpleConversationType
 		* purple_conversation_add_smiley
+		* purple_conversation_close_logs
 		* purple_conversation_get_remote_smileys
 		* purple_conversation_get_smiley
+		* purple_conversation_is_logging
 		* purple_conversations_add. Use purple_conversation_manager_register
 		  instead.
 		* purple_conversations_remove. Use
@@ -383,6 +387,7 @@ version 3.0.0 (??/??/????):
 		  purple_conversation_manager_find_chat instead.
 		* purple_conversations_find_chat. Use
 		  purple_conversation_manager_find_chat_by_id instead.
+		* purple_conversation_set_logging
 		* purple_core_ensure_single_instance. Check via GApplication
 		  or whatever is appropriate for your UI.
 		* purple_core_migrate

@@ -128,14 +128,6 @@ struct _PidginPrefsWindow {
 		GtkWidget *custom_font;
 	} conversations;
 
-	/* Logging page */
-	struct {
-		PidginPrefCombo format;
-		GtkWidget *log_ims;
-		GtkWidget *log_chats;
-		GtkWidget *log_system;
-	} logging;
-
 	/* Network page */
 	struct {
 		GtkWidget *stun_server;
@@ -1701,25 +1693,6 @@ bind_proxy_page(PidginPrefsWindow *win)
 }
 
 static void
-bind_logging_page(PidginPrefsWindow *win)
-{
-	GList *names;
-
-	win->logging.format.type = PURPLE_PREF_STRING;
-	win->logging.format.key = "/purple/logging/format";
-	names = purple_log_logger_get_options();
-	pidgin_prefs_bind_dropdown_from_list(&win->logging.format, names);
-	g_list_free(names);
-
-	pidgin_prefs_bind_checkbox("/purple/logging/log_ims",
-			win->logging.log_ims);
-	pidgin_prefs_bind_checkbox("/purple/logging/log_chats",
-			win->logging.log_chats);
-	pidgin_prefs_bind_checkbox("/purple/logging/log_system",
-			win->logging.log_system);
-}
-
-static void
 set_idle_away(PurpleSavedStatus *status)
 {
 	purple_prefs_set_int("/purple/savedstatus/idleaway", purple_savedstatus_get_creation_time(status));
@@ -2293,7 +2266,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 
 	bind_interface_page(win);
 	bind_conv_page(win);
-	bind_logging_page(win);
 	bind_network_page(win);
 	bind_proxy_page(win);
 	bind_away_page(win);
@@ -2383,16 +2355,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 			apply_custom_font);
 	gtk_widget_class_bind_template_callback(widget_class,
 			pidgin_custom_font_set);
-
-	/* Logging page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, logging.format.combo);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, logging.log_ims);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, logging.log_chats);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, logging.log_system);
 
 	/* Network page */
 	gtk_widget_class_bind_template_child(
@@ -2570,9 +2532,6 @@ pidgin_prefs_update_old(void)
 	const gchar *video_sink = NULL;
 
 	/* Rename some old prefs */
-	purple_prefs_rename(PIDGIN_PREFS_ROOT "/logging/log_ims", "/purple/logging/log_ims");
-	purple_prefs_rename(PIDGIN_PREFS_ROOT "/logging/log_chats", "/purple/logging/log_chats");
-
 	purple_prefs_rename(PIDGIN_PREFS_ROOT "/conversations/im/raise_on_events", "/plugins/gtk/X11/notify/method_raise");
 
 	purple_prefs_rename_boolean_toggle(PIDGIN_PREFS_ROOT "/conversations/ignore_colors",
@@ -2615,7 +2574,6 @@ pidgin_prefs_update_old(void)
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/passthrough_unknown_commands");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/debug/timestamps");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/idle");
-	purple_prefs_remove(PIDGIN_PREFS_ROOT "/logging/individual_logs");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/signon");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/silent_signon");
 	purple_prefs_remove(PIDGIN_PREFS_ROOT "/sound/command");

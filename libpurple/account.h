@@ -56,7 +56,7 @@ typedef void (*PurpleAccountUnregistrationCb)(PurpleAccount *account, gboolean s
 
 #include "buddy.h"
 #include "connection.h"
-#include "log.h"
+#include "group.h"
 #include "proxy.h"
 #include "protocol.h"
 #include "status.h"
@@ -1040,31 +1040,6 @@ const char *purple_account_get_ui_string(PurpleAccount *account,
  */
 gboolean purple_account_get_ui_bool(PurpleAccount *account, const char *ui,
 								  const char *name, gboolean default_value);
-
-
-/**
- * purple_account_get_log:
- * @account: The account.
- * @create:  Should it be created if it doesn't exist?
- *
- * Returns the system log for an account.
- *
- * Note: Callers should almost always pass %FALSE for @a create.
- *       Passing %TRUE could result in an existing log being reopened,
- *       if the log has already been closed, which not all loggers deal
- *       with appropriately.
- *
- * Returns: The log.
- */
-PurpleLog *purple_account_get_log(PurpleAccount *account, gboolean create);
-
-/**
- * purple_account_destroy_log:
- * @account: The account.
- *
- * Frees the system log of an account
- */
-void purple_account_destroy_log(PurpleAccount *account);
 
 /**
  * purple_account_add_buddy:

@@ -46,10 +46,7 @@ typedef enum
 
 typedef struct {
 	gboolean is_buddy;
-	union {
-		PurpleBuddy *buddy;
-		PurpleLogSet *logged_buddy;
-	} entry;
+	PurpleBuddy *buddy;
 } PidginBuddyCompletionEntry;
 
 typedef gboolean (*PidginFilterBuddyCompletionEntryFunc) (const PidginBuddyCompletionEntry *completion_entry, gpointer user_data);

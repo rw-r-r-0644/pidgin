@@ -44,7 +44,6 @@ libpurple/group.c
 libpurple/idle.c
 libpurple/image.c
 libpurple/image-store.c
-libpurple/log.c
 libpurple/media/backend-fs2.c
 libpurple/media/backend-iface.c
 libpurple/media.c

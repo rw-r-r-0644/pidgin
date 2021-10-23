@@ -92,7 +92,6 @@ typedef struct
 	GList *status_types;        /* Status types.                          */
 
 	PurplePresence *presence;     /* Presence.                            */
-	PurpleLog *system_log;        /* The system log                       */
 
 	PurpleAccountRegistrationCb registration_cb;
 	void *registration_cb_user_data;
@@ -976,7 +975,6 @@ purple_account_init(PurpleAccount *account)
 			g_free, delete_setting);
 	priv->ui_settings = g_hash_table_new_full(g_str_hash, g_str_equal,
 			g_free, (GDestroyNotify)g_hash_table_destroy);
-	priv->system_log = NULL;
 
 	priv->privacy_type = PURPLE_ACCOUNT_PRIVACY_ALLOW_ALL;
 }
@@ -1074,9 +1072,6 @@ purple_account_finalize(GObject *object)
 
 	if (priv->proxy_info)
 		purple_proxy_info_destroy(priv->proxy_info);
-
-	if(priv->system_log)
-		purple_log_free(priv->system_log);
 
 	if (priv->current_error) {
 		g_free(priv->current_error->description);
@@ -2728,52 +2723,6 @@ purple_account_get_ui_bool(PurpleAccount *account, const char *ui,
 	g_return_val_if_fail(G_VALUE_HOLDS_BOOLEAN(&setting->value), default_value);
 
 	return g_value_get_boolean(&setting->value);
-}
-
-PurpleLog *
-purple_account_get_log(PurpleAccount *account, gboolean create)
-{
-	PurpleAccountPrivate *priv;
-
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
-
-	priv = purple_account_get_instance_private(account);
-
-	if(!priv->system_log && create){
-		PurplePresence *presence;
-		int login_time;
-		GDateTime *dt;
-
-		presence = purple_account_get_presence(account);
-		login_time = purple_presence_get_login_time(presence);
-		if (login_time != 0) {
-			dt = g_date_time_new_from_unix_local(login_time);
-		} else {
-			dt = g_date_time_new_now_local();
-		}
-
-		priv->system_log = purple_log_new(PURPLE_LOG_SYSTEM,
-		                                  purple_account_get_username(account),
-		                                  account, NULL, dt);
-		g_date_time_unref(dt);
-	}
-
-	return priv->system_log;
-}
-
-void
-purple_account_destroy_log(PurpleAccount *account)
-{
-	PurpleAccountPrivate *priv;
-
-	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
-
-	priv = purple_account_get_instance_private(account);
-
-	if(priv->system_log){
-		purple_log_free(priv->system_log);
-		priv->system_log = NULL;
-	}
 }
 
 void

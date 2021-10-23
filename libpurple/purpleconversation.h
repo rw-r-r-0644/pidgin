@@ -139,7 +139,6 @@ struct _PurpleConversationClass {
 #include <purpleconversationuiops.h>
 #include "account.h"
 #include "buddyicon.h"
-#include "log.h"
 
 G_BEGIN_DECLS
 
@@ -261,37 +260,6 @@ void purple_conversation_set_name(PurpleConversation *conv, const gchar *name);
  *          PurpleBuddy, then it's the name of the PurpleBuddy.
  */
 const char *purple_conversation_get_name(PurpleConversation *conv);
-
-/**
- * purple_conversation_set_logging:
- * @conv: The conversation.
- * @log:  %TRUE if logging should be enabled, or %FALSE otherwise.
- *
- * Enables or disables logging for this conversation.
- */
-void purple_conversation_set_logging(PurpleConversation *conv, gboolean log);
-
-/**
- * purple_conversation_is_logging:
- * @conv: The conversation.
- *
- * Returns whether or not logging is enabled for this conversation.
- *
- * Returns: %TRUE if logging is enabled, or %FALSE otherwise.
- */
-gboolean purple_conversation_is_logging(PurpleConversation *conv);
-
-/**
- * purple_conversation_close_logs:
- * @conv: The conversation.
- *
- * Closes any open logs for this conversation.
- *
- * Note that new logs will be opened as necessary (e.g. upon receipt of a
- * message, if the conversation has logging enabled. To disable logging for
- * the remainder of the conversation, use purple_conversation_set_logging().
- */
-void purple_conversation_close_logs(PurpleConversation *conv);
 
 /**
  * purple_conversation_write_message:

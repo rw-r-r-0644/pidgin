@@ -1137,32 +1137,12 @@ add_buddyname_autocomplete_entry(GtkListStore *store, const char *buddy_alias, c
 	g_free(normalized_buddyname);
 }
 
-static void get_log_set_name(PurpleLogSet *set, gpointer value, PidginCompletionData *data)
-{
-	PidginFilterBuddyCompletionEntryFunc filter_func = data->filter_func;
-	gpointer user_data = data->filter_func_user_data;
-
-	/* 1. Don't show buddies because we will have gotten them already.
-	 * 2. The boxes that use this autocomplete code handle only IMs. */
-	if (!set->buddy && set->type == PURPLE_LOG_IM) {
-		PidginBuddyCompletionEntry entry;
-		entry.is_buddy = FALSE;
-		entry.entry.logged_buddy = set;
-
-		if (filter_func(&entry, user_data)) {
-			add_buddyname_autocomplete_entry(data->store,
-												NULL, NULL, set->account, set->name);
-		}
-	}
-}
-
 static void
 add_completion_list(PidginCompletionData *data)
 {
 	PurpleBlistNode *gnode, *cnode, *bnode;
 	PidginFilterBuddyCompletionEntryFunc filter_func = data->filter_func;
 	gpointer user_data = data->filter_func_user_data;
-	GHashTable *sets;
 	gchar *alias;
 
 	gtk_list_store_clear(data->store);
@@ -1183,14 +1163,14 @@ add_completion_list(PidginCompletionData *data)
 			{
 				PidginBuddyCompletionEntry entry;
 				entry.is_buddy = TRUE;
-				entry.entry.buddy = (PurpleBuddy *) bnode;
+				entry.buddy = (PurpleBuddy *) bnode;
 
 				if (filter_func(&entry, user_data)) {
 					add_buddyname_autocomplete_entry(data->store,
 														alias,
-														purple_buddy_get_contact_alias(entry.entry.buddy),
-														purple_buddy_get_account(entry.entry.buddy),
-														purple_buddy_get_name(entry.entry.buddy)
+														purple_buddy_get_contact_alias(entry.buddy),
+														purple_buddy_get_account(entry.buddy),
+														purple_buddy_get_name(entry.buddy)
 													 );
 				}
 			}
@@ -1198,11 +1178,6 @@ add_completion_list(PidginCompletionData *data)
 			g_free(alias);
 		}
 	}
-
-	sets = purple_log_get_log_sets();
-	g_hash_table_foreach(sets, (GHFunc)get_log_set_name, data);
-	g_hash_table_destroy(sets);
-
 }
 
 static void
@@ -1288,11 +1263,7 @@ gboolean
 pidgin_screenname_autocomplete_default_filter(const PidginBuddyCompletionEntry *completion_entry, gpointer all_accounts) {
 	gboolean all = GPOINTER_TO_INT(all_accounts);
 
-	if (completion_entry->is_buddy) {
-		return all || purple_account_is_connected(purple_buddy_get_account(completion_entry->entry.buddy));
-	} else {
-		return all || (completion_entry->entry.logged_buddy->account != NULL && purple_account_is_connected(completion_entry->entry.logged_buddy->account));
-	}
+	return all || purple_account_is_connected(purple_buddy_get_account(completion_entry->buddy));
 }
 
 void pidgin_set_cursor(GtkWidget *widget, GdkCursorType cursor_type)

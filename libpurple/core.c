@@ -24,6 +24,7 @@
 #include "internal.h"
 #include "cmds.h"
 #include "connection.h"
+#include "conversations.h"
 #include "core.h"
 #include "debug.h"
 #include "xfer.h"
@@ -169,7 +170,6 @@ purple_core_init(const char *ui)
 	purple_conversation_manager_startup();
 	purple_whiteboard_manager_startup();
 	purple_blist_init();
-	purple_log_init();
 	purple_history_manager_startup();
 	purple_network_init();
 	purple_proxy_init();
@@ -249,7 +249,6 @@ purple_core_quit(void)
 
 	purple_history_manager_shutdown();
 
-	purple_log_uninit();
 	/* Everything after util_uninit cannot try to write things to the
 	 * confdir.
 	 */
@@ -365,7 +364,6 @@ purple_core_migrate_to_xdg_base_dirs(void)
 	xdg_dir_exists = g_file_test(purple_data_dir(), G_FILE_TEST_EXISTS);
 	if (!xdg_dir_exists) {
 		MIGRATE_TO_XDG_DIR(purple_data_dir(), "certificates");
-		MIGRATE_TO_XDG_DIR(purple_data_dir(), "logs");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "accounts.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "blist.xml");
 		MIGRATE_TO_XDG_DIR(purple_config_dir(), "fs-codec.conf");

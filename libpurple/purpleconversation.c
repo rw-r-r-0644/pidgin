@@ -26,6 +26,7 @@
 
 #include "buddylist.h"
 #include "cmds.h"
+#include "conversations.h"
 #include "debug.h"
 #include "notify.h"
 #include "prefs.h"
@@ -46,10 +47,6 @@ typedef struct {
 	char *name;                       /* The name of the conversation.     */
 	char *title;                      /* The window title.                 */
 
-	gboolean logging;                 /* The status of logging.            */
-
-	GList *logs;                      /* This conversation's logs          */
-
 	PurpleConversationUiOps *ui_ops;  /* UI-specific operations.           */
 
 	PurpleConnectionFlags features;   /* The supported features            */
@@ -61,7 +58,6 @@ enum {
 	PROP_ACCOUNT,
 	PROP_NAME,
 	PROP_TITLE,
-	PROP_LOGGING,
 	PROP_FEATURES,
 	N_PROPERTIES
 };
@@ -235,9 +231,6 @@ purple_conversation_set_property(GObject *obj, guint param_id,
 			g_free(priv->title);
 			priv->title = g_value_dup_string(value);
 			break;
-		case PROP_LOGGING:
-			purple_conversation_set_logging(conv, g_value_get_boolean(value));
-			break;
 		case PROP_FEATURES:
 			purple_conversation_set_features(conv, g_value_get_flags(value));
 			break;
@@ -262,9 +255,6 @@ purple_conversation_get_property(GObject *obj, guint param_id, GValue *value,
 			break;
 		case PROP_TITLE:
 			g_value_set_string(value, purple_conversation_get_title(conv));
-			break;
-		case PROP_LOGGING:
-			g_value_set_boolean(value, purple_conversation_is_logging(conv));
 			break;
 		case PROP_FEATURES:
 			g_value_set_flags(value, purple_conversation_get_features(conv));
@@ -345,7 +335,6 @@ purple_conversation_finalize(GObject *object) {
 	purple_signal_emit(purple_conversations_get_handle(),
 	                   "deleting-conversation", conv);
 
-	purple_conversation_close_logs(conv);
 	purple_conversation_clear_message_history(conv);
 
 	if(ops != NULL && ops->destroy_conversation != NULL) {
@@ -387,12 +376,6 @@ purple_conversation_class_init(PurpleConversationClass *klass) {
 		"The title of the conversation.",
 		NULL,
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
-
-	properties[PROP_LOGGING] = g_param_spec_boolean(
-		"logging", "Logging status",
-		"Whether logging is enabled or not.",
-		FALSE,
-		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_FEATURES] = g_param_spec_flags(
 		"features", "Connection features",
@@ -606,58 +589,6 @@ purple_conversation_get_name(PurpleConversation *conv) {
 }
 
 void
-purple_conversation_set_logging(PurpleConversation *conv, gboolean log) {
-	PurpleConversationPrivate *priv = NULL;
-
-	g_return_if_fail(PURPLE_IS_CONVERSATION(conv));
-	priv = purple_conversation_get_instance_private(conv);
-
-	if(priv->logging != log) {
-		priv->logging = log;
-		if(log && priv->logs == NULL) {
-			GDateTime *dt;
-			PurpleLog *log;
-
-			dt = g_date_time_new_now_local();
-			log = purple_log_new(PURPLE_IS_CHAT_CONVERSATION(conv)
-			                     ? PURPLE_LOG_CHAT
-			                     : PURPLE_LOG_IM,
-			                     priv->name, priv->account, conv,
-			                     dt);
-			g_date_time_unref(dt);
-
-			priv->logs = g_list_append(NULL, log);
-		}
-
-		g_object_notify_by_pspec(G_OBJECT(conv), properties[PROP_LOGGING]);
-
-		purple_conversation_update(conv, PURPLE_CONVERSATION_UPDATE_LOGGING);
-	}
-}
-
-gboolean
-purple_conversation_is_logging(PurpleConversation *conv) {
-	PurpleConversationPrivate *priv = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_CONVERSATION(conv), FALSE);
-
-	priv = purple_conversation_get_instance_private(conv);
-
-	return priv->logging;
-}
-
-void
-purple_conversation_close_logs(PurpleConversation *conv) {
-	PurpleConversationPrivate *priv = NULL;
-
-	g_return_if_fail(PURPLE_IS_CONVERSATION(conv));
-
-	priv = purple_conversation_get_instance_private(conv);
-	g_list_free_full(priv->logs, (GDestroyNotify)purple_log_free);
-	priv->logs = NULL;
-}
-
-void
 _purple_conversation_write_common(PurpleConversation *conv,
                                   PurpleMessage *pmsg)
 {
@@ -746,11 +677,8 @@ _purple_conversation_write_common(PurpleConversation *conv,
 		}
 	}
 
-	if(!(purple_message_get_flags(pmsg) & PURPLE_MESSAGE_NO_LOG) &&
-	   purple_conversation_is_logging(conv))
+	if(!(purple_message_get_flags(pmsg) & PURPLE_MESSAGE_NO_LOG))
 	{
-		GList *log;
-		GDateTime *dt;
 		GError *error = NULL;
 		PurpleHistoryManager *manager = NULL;
 
@@ -763,20 +691,6 @@ _purple_conversation_write_common(PurpleConversation *conv,
 
 			g_clear_error(&error);
 		}
-
-
-		/* The following should be deleted when the history api is stable. */
-		dt = g_date_time_ref(purple_message_get_timestamp(pmsg));
-		log = priv->logs;
-		while(log != NULL) {
-			purple_log_write((PurpleLog *)log->data,
-			                 purple_message_get_flags(pmsg),
-			                 purple_message_get_author_alias(pmsg),
-			                 dt,
-			                 purple_message_get_contents(pmsg));
-			log = log->next;
-		}
-		g_date_time_unref(dt);
 	}
 
 	if(ops) {

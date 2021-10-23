@@ -149,22 +149,6 @@ static void pidgin_conv_tab_pack(PidginConvWindow *win, PidginConversation *gtkc
 static void pidgin_conv_set_position_size(PidginConvWindow *win, int x, int y,
 		int width, int height);
 
-static PurpleBlistNode *
-get_conversation_blist_node(PurpleConversation *conv)
-{
-	PurpleAccount *account = purple_conversation_get_account(conv);
-	PurpleBlistNode *node = NULL;
-
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		node = PURPLE_BLIST_NODE(purple_blist_find_buddy(account, purple_conversation_get_name(conv)));
-		node = node ? node->parent : NULL;
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		node = PURPLE_BLIST_NODE(purple_blist_find_chat(account, purple_conversation_get_name(conv)));
-	}
-
-	return node;
-}
-
 /**************************************************************************
  * Callbacks
  **************************************************************************/
@@ -1425,7 +1409,6 @@ pidgin_conv_switch_active_conversation(PurpleConversation *conv)
 	if (old_conv == conv)
 		return;
 
-	purple_conversation_close_logs(old_conv);
 	gtkconv->active_conv = conv;
 
 	purple_signal_emit(pidgin_conversations_get_handle(), "conversation-switched", conv);
@@ -2509,7 +2492,6 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	PidginConversation *gtkconv;
 	GtkWidget *pane = NULL;
 	GtkWidget *tab_cont;
-	PurpleBlistNode *convnode;
 
 	if (PURPLE_IS_IM_CONVERSATION(conv) && (gtkconv = pidgin_conv_find_gtkconv(conv))) {
 		g_object_set_data(G_OBJECT(conv), "pidgin", gtkconv);
@@ -2557,12 +2539,6 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	gtk_container_set_border_width(GTK_CONTAINER(tab_cont), 6);
 	gtk_box_pack_start(GTK_BOX(tab_cont), pane, TRUE, TRUE, 0);
 	gtk_widget_show(pane);
-
-	convnode = get_conversation_blist_node(conv);
-	if (convnode != NULL && purple_blist_node_has_setting(convnode, "enable-logging")) {
-		gboolean logging = purple_blist_node_get_bool(convnode, "enable-logging");
-		purple_conversation_set_logging(conv, logging);
-	}
 
 	talkatu_editor_set_toolbar_visible(
 		TALKATU_EDITOR(gtkconv->editor),
