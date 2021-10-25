@@ -43,7 +43,6 @@
 
 #include <math.h>
 
-#include "gtkdnd-hints.h"
 #include "gtkblist.h"
 #include "gtkconv.h"
 #include "gtkconvwin.h"
@@ -4120,7 +4119,6 @@ pidgin_conversations_uninit(void)
 
 #include <purple.h>
 
-#include "gtkdnd-hints.h"
 #include "gtkblist.h"
 #include "gtkconv.h"
 #include "gtkdialogs.h"
