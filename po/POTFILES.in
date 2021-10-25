@@ -18,7 +18,6 @@ finch/gntxfer.c
 finch/libfinch.c
 finch/plugins/gntclipboard.c
 finch/plugins/gntgf.c
-finch/plugins/gnthistory.c
 finch/plugins/gnttinyurl.c
 finch/plugins/grouping.c
 finch/plugins/lastlog.c
@@ -312,7 +311,6 @@ pidgin/gtkblist.c
 pidgin/gtkconn.c
 pidgin/gtkconv.c
 pidgin/gtkdialogs.c
-pidgin/gtkdnd-hints.c
 pidgin/gtkicon-theme.c
 pidgin/gtkicon-theme-loader.c
 pidgin/gtkidle.c
