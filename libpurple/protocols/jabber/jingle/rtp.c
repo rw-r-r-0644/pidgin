@@ -315,8 +315,7 @@ jingle_rtp_init_media(JingleContent *content)
 	gboolean is_creator;
 	PurpleMediaSessionType type;
 	JingleTransport *transport;
-	GParameter *params = NULL;
-	guint num_params;
+	GHashTable *params = NULL;
 
 	/* maybe this create ought to just be in initiate and handle initiate */
 	if (media == NULL) {
@@ -360,7 +359,7 @@ jingle_rtp_init_media(JingleContent *content)
 
 	params =
 		jingle_get_params(jingle_session_get_js(session), NULL, 0, 0, 0,
-			NULL, NULL, &num_params);
+			NULL, NULL);
 
 	creator = jingle_content_get_creator(content);
 	if (creator == NULL) {
@@ -368,7 +367,7 @@ jingle_rtp_init_media(JingleContent *content)
 		g_free(media_type);
 		g_free(remote_jid);
 		g_free(senders);
-		g_free(params);
+		g_hash_table_destroy(params);
 		g_object_unref(session);
 		return FALSE;
 	}
@@ -380,7 +379,7 @@ jingle_rtp_init_media(JingleContent *content)
 	g_free(creator);
 
 	if(!purple_media_add_stream(media, name, remote_jid,
-			type, is_creator, transmitter, num_params, params)) {
+			type, is_creator, transmitter, params)) {
 		purple_media_end(media, NULL, NULL);
 		/* TODO: How much clean-up is necessary here? (does calling
 		         purple_media_end lead to cleaning up Jingle structs?) */
@@ -391,7 +390,7 @@ jingle_rtp_init_media(JingleContent *content)
 	g_free(media_type);
 	g_free(remote_jid);
 	g_free(senders);
-	g_free(params);
+	g_hash_table_destroy(params);
 	g_object_unref(session);
 
 	return TRUE;

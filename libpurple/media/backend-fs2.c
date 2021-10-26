@@ -32,7 +32,10 @@
 #include "media-gst.h"
 #include <purplekeyvaluepair.h>
 
+/* Ignore deprecations of GParameter in FarStream's headers. */
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 #include <farstream/fs-conference.h>
+G_GNUC_END_IGNORE_DEPRECATIONS
 #include <farstream/fs-element-added-notifier.h>
 #include <farstream/fs-utils.h>
 #include <gst/gststructure.h>
@@ -57,8 +60,7 @@ stream_info_cb(PurpleMedia *media, PurpleMediaInfoType type,
 static gboolean purple_media_backend_fs2_add_stream(PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *who,
 		PurpleMediaSessionType type, gboolean initiator,
-		const gchar *transmitter,
-		guint num_params, GParameter *params);
+		const gchar *transmitter, GHashTable *params);
 static void purple_media_backend_fs2_add_remote_candidates(
 		PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *participant,
@@ -88,7 +90,7 @@ static gboolean purple_media_backend_fs2_set_send_codec(
 		PurpleMediaBackend *self, const gchar *sess_id,
 		PurpleMediaCodec *codec);
 static void purple_media_backend_fs2_set_params(PurpleMediaBackend *self,
-		guint num_params, GParameter *params);
+		GHashTable *params);
 static const gchar **purple_media_backend_fs2_get_available_params(void);
 static gboolean purple_media_backend_fs2_send_dtmf(
 		PurpleMediaBackend *self, const gchar *sess_id,
@@ -1867,7 +1869,7 @@ create_stream(PurpleMediaBackendFs2 *self,
 		const gchar *sess_id, const gchar *who,
 		PurpleMediaSessionType type, gboolean initiator,
 		const gchar *transmitter,
-		guint num_params, GParameter *params)
+		GHashTable *params)
 {
 	PurpleMediaBackendFs2Private *priv =
 			purple_media_backend_fs2_get_instance_private(self);
@@ -1875,8 +1877,11 @@ create_stream(PurpleMediaBackendFs2 *self,
 	FsStream *fsstream = NULL;
 	const gchar *stun_ip = purple_network_get_stun_ip();
 	const gchar *turn_ip = purple_network_get_turn_ip();
-	guint _num_params = num_params;
-	GParameter *_params;
+	GHashTableIter iter;
+	GHashTable *our_params = NULL;
+	gchar *key = NULL;
+	GValue *value = NULL;
+	GList *our_values = NULL;
 	FsStreamDirection type_direction =
 			session_type_to_fs_stream_direction(type);
 	PurpleMediaBackendFs2Session *session;
@@ -1886,7 +1891,6 @@ create_stream(PurpleMediaBackendFs2 *self,
 	  we need to do this to allow them to override when using non-standard
 	  TURN modes, like Google f.ex. */
 	gboolean got_turn_from_protocol = FALSE;
-	guint i;
 	GPtrArray *relay_info = g_ptr_array_new_full (1, (GDestroyNotify) gst_structure_free);
 	gboolean ret;
 
@@ -1921,30 +1925,33 @@ create_stream(PurpleMediaBackendFs2 *self,
 		return FALSE;
 	}
 
-	for (i = 0 ; i < num_params ; i++) {
-		if (purple_strequal(params[i].name, "relay-info")) {
-			got_turn_from_protocol = TRUE;
-			break;
+	our_params = g_hash_table_new(g_str_hash, g_str_equal);
+	if (params != NULL) {
+		g_hash_table_iter_init(&iter, params);
+		while (g_hash_table_iter_next(&iter, (gpointer)&key, (gpointer)&value)) {
+			if (purple_strequal(key, "relay-info")) {
+				got_turn_from_protocol = TRUE;
+			}
+			g_hash_table_insert(our_params, key, value);
 		}
 	}
 
-	_params = g_new0(GParameter, num_params + 3);
-	memcpy(_params, params, sizeof(GParameter) * num_params);
-
 	/* set the controlling mode parameter */
-	_params[_num_params].name = "controlling-mode";
-	g_value_init(&_params[_num_params].value, G_TYPE_BOOLEAN);
-	g_value_set_boolean(&_params[_num_params].value, initiator);
-	++_num_params;
+	value = g_new(GValue, 1);
+	g_value_init(value, G_TYPE_BOOLEAN);
+	g_value_set_boolean(value, initiator);
+	our_values = g_list_prepend(our_values, value);
+	g_hash_table_insert(our_params, "controlling-mode", value);
 
 	if (stun_ip) {
 		purple_debug_info("backend-fs2",
 			"Setting stun-ip on new stream: %s\n", stun_ip);
 
-		_params[_num_params].name = "stun-ip";
-		g_value_init(&_params[_num_params].value, G_TYPE_STRING);
-		g_value_set_string(&_params[_num_params].value, stun_ip);
-		++_num_params;
+		value = g_new(GValue, 1);
+		g_value_init(value, G_TYPE_STRING);
+		g_value_set_string(value, stun_ip);
+		our_values = g_list_prepend(our_values, value);
+		g_hash_table_insert(our_params, "stun-ip", value);
 	}
 
 	if (turn_ip && purple_strequal("nice", transmitter) && !got_turn_from_protocol) {
@@ -1985,17 +1992,22 @@ create_stream(PurpleMediaBackendFs2 *self,
 
 		purple_debug_info("backend-fs2",
 			"Setting relay-info on new stream\n");
-		_params[_num_params].name = "relay-info";
-		g_value_init(&_params[_num_params].value, G_TYPE_PTR_ARRAY);
-		g_value_set_boxed(&_params[_num_params].value, relay_info);
-		_num_params++;
+		value = g_new(GValue, 1);
+		g_value_init(value, G_TYPE_PTR_ARRAY);
+		g_value_set_boxed(value, relay_info);
+		our_values = g_list_prepend(our_values, value);
+		g_hash_table_insert(our_params, "relay-info", value);
 	}
 
-	ret = fs_stream_set_transmitter(fsstream, transmitter,
-			_params, _num_params, &err);
-	for (i = 0 ; i < _num_params ; i++)
-		g_value_unset (&_params[i].value);
-	g_free(_params);
+	ret = fs_stream_set_transmitter_ht(fsstream, transmitter, our_params, &err);
+
+	while (our_values != NULL) {
+		value = (GValue *)our_values->data;
+		g_value_unset(value);
+		g_free(value);
+		our_values = g_list_delete_link(our_values, our_values);
+	}
+	g_hash_table_destroy(our_params);
 	if (relay_info)
 		g_ptr_array_unref (relay_info);
 	if (ret == FALSE) {
@@ -2042,8 +2054,7 @@ static gboolean
 purple_media_backend_fs2_add_stream(PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *who,
 		PurpleMediaSessionType type, gboolean initiator,
-		const gchar *transmitter,
-		guint num_params, GParameter *params)
+		const gchar *transmitter, GHashTable *params)
 {
 	PurpleMediaBackendFs2 *backend = PURPLE_MEDIA_BACKEND_FS2(self);
 	PurpleMediaBackendFs2Private *priv =
@@ -2084,7 +2095,7 @@ purple_media_backend_fs2_add_stream(PurpleMediaBackend *self,
 					type_direction, NULL);
 		}
 	} else if (!create_stream(backend, sess_id, who, type,
-			initiator, transmitter, num_params, params)) {
+			initiator, transmitter, params)) {
 		purple_debug_error("backend-fs2",
 				"Error creating the stream.\n");
 		return FALSE;
@@ -2448,10 +2459,12 @@ param_to_sdes_type(const gchar *param)
 
 static void
 purple_media_backend_fs2_set_params(PurpleMediaBackend *self,
-		guint num_params, GParameter *params)
+		GHashTable *params)
 {
 	PurpleMediaBackendFs2Private *priv;
-	guint i;
+	GHashTableIter iter;
+	gchar *name = NULL;
+	GValue *value = NULL;
 	GstStructure *sdes;
 
 	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(self));
@@ -2468,13 +2481,15 @@ purple_media_backend_fs2_set_params(PurpleMediaBackend *self,
 
 	g_object_get(G_OBJECT(priv->conference), "sdes", &sdes, NULL);
 
-	for (i = 0; i != num_params; ++i) {
-		const gchar *sdes_type = param_to_sdes_type(params[i].name);
-		if (!sdes_type)
+	g_hash_table_iter_init(&iter, params);
+	while (g_hash_table_iter_next(&iter, (gpointer)&name, (gpointer)&value)) {
+		const gchar *sdes_type = param_to_sdes_type(name);
+		if (!sdes_type) {
 			continue;
+		}
 
 		gst_structure_set(sdes, sdes_type,
-		                  G_TYPE_STRING, g_value_get_string(&params[i].value),
+		                  G_TYPE_STRING, g_value_get_string(value),
 		                  NULL);
 	}
 

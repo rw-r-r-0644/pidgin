@@ -75,12 +75,10 @@ void jingle_parse(JabberStream *js, const char *from, JabberIqType type,
 void jingle_terminate_sessions(JabberStream *js);
 
 #ifdef USE_VV
-/* create a GParam array given autoconfigured STUN (and later perhaps TURN). */
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-GParameter *jingle_get_params(JabberStream *js, const gchar *relay_ip,
+/* create a parameter array given autoconfigured STUN (and later perhaps TURN). */
+GHashTable *jingle_get_params(JabberStream *js, const gchar *relay_ip,
 	guint relay_udp, guint relay_tcp, guint relay_ssltcp,
-    const gchar *relay_username, const gchar *relay_password, guint *num_params);
-G_GNUC_END_IGNORE_DEPRECATIONS
+	const gchar *relay_username, const gchar *relay_password);
 #endif
 
 G_END_DECLS
