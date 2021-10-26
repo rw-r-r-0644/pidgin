@@ -1561,7 +1561,11 @@ create_src(PurpleMediaBackendFs2 *self, const gchar *sess_id,
 		srcpad = gst_element_get_static_pad(session->srcvalve, "src");
 		g_object_set(volume, "volume", input_volume, NULL);
 	} else {
+#if GST_CHECK_VERSION(1, 19, 1)
+		srcpad = gst_element_request_pad_simple(session->tee, "src_%u");
+#else
 		srcpad = gst_element_get_request_pad(session->tee, "src_%u");
+#endif
 	}
 
 	purple_debug_info("backend-fs2", "connecting pad: %s\n",
@@ -1846,7 +1850,11 @@ src_pad_added_cb(FsStream *fsstream, GstPad *srcpad,
 		}
 	}
 
+#if GST_CHECK_VERSION(1, 19, 1)
+	sinkpad = gst_element_request_pad_simple(stream->src, "sink_%u");
+#else
 	sinkpad = gst_element_get_request_pad(stream->src, "sink_%u");
+#endif
 	gst_pad_link(srcpad, sinkpad);
 	gst_object_unref(sinkpad);
 
