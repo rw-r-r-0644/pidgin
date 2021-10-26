@@ -42,6 +42,7 @@
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
+#include "pidgingdkpixbuf.h"
 #include "pidginprefs.h"
 #include "pidginstock.h"
 #ifdef USE_VV

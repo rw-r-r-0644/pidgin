@@ -28,6 +28,7 @@
 #include "gtkxfer.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
+#include "pidgingdkpixbuf.h"
 
 #ifdef _WIN32
 #  include <shellapi.h>

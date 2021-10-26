@@ -36,6 +36,7 @@
 #include "pidgincore.h"
 #include "pidgindialog.h"
 #include "minidialog.h"
+#include "pidgingdkpixbuf.h"
 #include "pidginprotocolchooser.h"
 
 enum
