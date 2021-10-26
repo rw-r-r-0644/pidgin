@@ -1164,7 +1164,11 @@ purple_media_manager_get_element(PurpleMediaManager *manager,
 		g_free(id);
 
 		tee = gst_bin_get_by_name(GST_BIN(ret), "tee");
+#if GST_CHECK_VERSION(1, 19, 1)
+		pad = gst_element_request_pad_simple(tee, "src_%u");
+#else
 		pad = gst_element_get_request_pad(tee, "src_%u");
+#endif
 		gst_object_unref(tee);
 		ghost = gst_ghost_pad_new(NULL, pad);
 		gst_object_unref(pad);
