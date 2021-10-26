@@ -1891,7 +1891,6 @@ create_stream(PurpleMediaBackendFs2 *self,
 	  we need to do this to allow them to override when using non-standard
 	  TURN modes, like Google f.ex. */
 	gboolean got_turn_from_protocol = FALSE;
-	GPtrArray *relay_info = g_ptr_array_new_full (1, (GDestroyNotify) gst_structure_free);
 	gboolean ret;
 
 	session = get_session(self, sess_id);
@@ -1955,6 +1954,7 @@ create_stream(PurpleMediaBackendFs2 *self,
 	}
 
 	if (turn_ip && purple_strequal("nice", transmitter) && !got_turn_from_protocol) {
+		GPtrArray *relay_info = g_ptr_array_new_full(1, (GDestroyNotify)gst_structure_free);
 		gint port;
 		const gchar *username =	purple_prefs_get_string(
 				"/purple/network/turn_username");
@@ -1994,7 +1994,7 @@ create_stream(PurpleMediaBackendFs2 *self,
 			"Setting relay-info on new stream\n");
 		value = g_new(GValue, 1);
 		g_value_init(value, G_TYPE_PTR_ARRAY);
-		g_value_set_boxed(value, relay_info);
+		g_value_take_boxed(value, relay_info);
 		our_values = g_list_prepend(our_values, value);
 		g_hash_table_insert(our_params, "relay-info", value);
 	}
@@ -2008,8 +2008,6 @@ create_stream(PurpleMediaBackendFs2 *self,
 		our_values = g_list_delete_link(our_values, our_values);
 	}
 	g_hash_table_destroy(our_params);
-	if (relay_info)
-		g_ptr_array_unref (relay_info);
 	if (ret == FALSE) {
 		purple_debug_error("backend-fs2",
 			"Could not set transmitter %s: %s.\n",
