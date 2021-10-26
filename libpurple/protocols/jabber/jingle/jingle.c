@@ -433,9 +433,9 @@ jingle_terminate_sessions(JabberStream *js)
 }
 
 #ifdef USE_VV
-static GValueArray *
+static void
 jingle_create_relay_info(const gchar *ip, guint port, const gchar *username,
-	const gchar *password, const gchar *relay_type, GValueArray *relay_info)
+	const gchar *password, const gchar *relay_type, GPtrArray *relay_info)
 {
 	GValue value;
 	GstStructure *turn_setup = gst_structure_new("relay-info",
@@ -450,12 +450,9 @@ jingle_create_relay_info(const gchar *ip, guint port, const gchar *username,
 		memset(&value, 0, sizeof(GValue));
 		g_value_init(&value, GST_TYPE_STRUCTURE);
 		gst_value_set_structure(&value, turn_setup);
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-		relay_info = g_value_array_append(relay_info, &value);
-G_GNUC_END_IGNORE_DEPRECATIONS
+		g_ptr_array_add(relay_info, &value);
 		gst_structure_free(turn_setup);
 	}
-	return relay_info;
 }
 
 static void
@@ -498,31 +495,23 @@ jingle_get_params(JabberStream *js, const gchar *relay_ip, guint relay_udp,
 		}
 
 		if (relay_ip) {
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-			GValueArray *relay_info = g_value_array_new(0);
-G_GNUC_END_IGNORE_DEPRECATIONS
+			GPtrArray *relay_info = g_ptr_array_new_full(1, (GDestroyNotify)gst_structure_free);
 
 			if (relay_udp) {
-				relay_info =
-					jingle_create_relay_info(relay_ip, relay_udp, relay_username,
-						relay_password, "udp", relay_info);
+				jingle_create_relay_info(relay_ip, relay_udp, relay_username,
+					relay_password, "udp", relay_info);
 			}
 			if (relay_tcp) {
-				relay_info =
-					jingle_create_relay_info(relay_ip, relay_tcp, relay_username,
-						relay_password, "tcp", relay_info);
+				jingle_create_relay_info(relay_ip, relay_tcp, relay_username,
+					relay_password, "tcp", relay_info);
 			}
 			if (relay_ssltcp) {
-				relay_info =
-					jingle_create_relay_info(relay_ip, relay_ssltcp, relay_username,
-						relay_password, "tls", relay_info);
+				jingle_create_relay_info(relay_ip, relay_ssltcp, relay_username,
+					relay_password, "tls", relay_info);
 			}
 			value = g_new(GValue, 1);
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-			g_value_init(value, G_TYPE_VALUE_ARRAY);
-			g_value_set_boxed(value, relay_info);
-			g_value_array_free(relay_info);
-G_GNUC_END_IGNORE_DEPRECATIONS
+			g_value_init(value, G_TYPE_PTR_ARRAY);
+			g_value_take_boxed(value, relay_info);
 			g_hash_table_insert(params, "relay-info", value);
 		}
 	}
