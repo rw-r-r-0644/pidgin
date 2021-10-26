@@ -181,6 +181,12 @@ version 3.0.0 (??/??/????):
 		* PurpleLog, purple_log_new, purple_log_write and
 		  PurpleLogLogger->write take a GDateTime instead of a time_t
 		  and struct tm
+		* purple_media_add_stream and purple_media_backend_add_stream
+		  (and its interface vfunc) and take a hash table of
+		  string->GValue parameters instead of an array of GParameter
+		* purple_media_set_params and purple_media_backend_set_params
+		  (and its interface vfunc) take a hash table of
+		  string->GValue parameters instead of an array of GParameter
 		* PurpleNotifyMsgType renamed to PurpleNotifyMessageType
 		* purple_notify_user_info_add_pair renamed to
 		  purple_notify_user_info_add_pair_html

@@ -66,13 +66,10 @@ struct _PurpleMediaBackendInterface
 
 	/*< public >*/
 	/* Implementable functions called with purple_media_backend_* */
-	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	gboolean (*add_stream) (PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *who,
 		PurpleMediaSessionType type, gboolean initiator,
-		const gchar *transmitter,
-		guint num_params, GParameter *params);
-	G_GNUC_END_IGNORE_DEPRECATIONS
+		const gchar *transmitter, GHashTable *params);
 
 	void (*add_remote_candidates) (PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *participant,
@@ -98,10 +95,7 @@ struct _PurpleMediaBackendInterface
 	gboolean (*set_require_encryption) (PurpleMediaBackend *self,
 		const gchar *sess_id, const gchar *participant,
 		gboolean require_encryption);
-	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-	void (*set_params) (PurpleMediaBackend *self,
-		guint num_params, GParameter *params);
-	G_GNUC_END_IGNORE_DEPRECATIONS
+	void (*set_params) (PurpleMediaBackend *self, GHashTable *params);
 	const gchar **(*get_available_params) (void);
 	gboolean (*send_dtmf) (PurpleMediaBackend *self,
 		const gchar *sess_id, gchar dtmf, guint8 volume,
@@ -127,20 +121,16 @@ GType purple_media_backend_get_type(void);
  * @type: The media type and direction of the stream to add.
  * @initiator: True if the local user initiated the stream.
  * @transmitter: The string id of the tranmsitter to use.
- * @num_params: The number of parameters in the param parameter.
- * @params: The additional parameters to pass when creating the stream.
+ * @params: (element-type utf8 GValue) (transfer none): The additional
+ *          parameters to pass when creating the stream.
  *
  * Creates and adds a stream to the media backend.
  *
  * Returns: True if the stream was successfully created, otherwise False.
  */
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 gboolean purple_media_backend_add_stream(PurpleMediaBackend *self,
-		const gchar *sess_id, const gchar *who,
-		PurpleMediaSessionType type, gboolean initiator,
-		const gchar *transmitter,
-		guint num_params, GParameter *params);
-G_GNUC_END_IGNORE_DEPRECATIONS
+		const gchar *sess_id, const gchar *who, PurpleMediaSessionType type,
+		gboolean initiator, const gchar *transmitter, GHashTable *params);
 
 /**
  * purple_media_backend_add_remote_candidates:
@@ -277,15 +267,13 @@ gboolean purple_media_backend_set_require_encryption(PurpleMediaBackend *self,
 /**
  * purple_media_backend_set_params:
  * @self: The media backend to set the parameters on.
- * @num_params: The number of parameters to pass to backend
- * @params: Array of @c GParameter to pass to backend
+ * @params: (element-type utf8 GObject.Value) (transfer none): Hash table of
+ *          parameters to pass to the backend.
  *
  * Sets various optional parameters of the media backend.
  */
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 void purple_media_backend_set_params(PurpleMediaBackend *self,
-		guint num_params, GParameter *params);
-G_GNUC_END_IGNORE_DEPRECATIONS
+		GHashTable *params);
 
 /**
  * purple_media_backend_get_available_params:

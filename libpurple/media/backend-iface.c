@@ -122,15 +122,12 @@ purple_media_backend_get_type(void)
 
 gboolean
 purple_media_backend_add_stream(PurpleMediaBackend *self,
-		const gchar *sess_id, const gchar *who,
-		PurpleMediaSessionType type, gboolean initiator,
-		const gchar *transmitter,
-		guint num_params, GParameter *params)
+		const gchar *sess_id, const gchar *who, PurpleMediaSessionType type,
+		gboolean initiator, const gchar *transmitter, GHashTable *params)
 {
 	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND(self), FALSE);
 	return PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->add_stream(self,
-			sess_id, who, type, initiator, transmitter,
-			num_params, params);
+			sess_id, who, type, initiator, transmitter, params);
 }
 
 void
@@ -238,11 +235,10 @@ purple_media_backend_set_require_encryption(PurpleMediaBackend *self,
 }
 
 void
-purple_media_backend_set_params(PurpleMediaBackend *self,
-		guint num_params, GParameter *params)
+purple_media_backend_set_params(PurpleMediaBackend *self, GHashTable *params)
 {
 	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND(self));
-	PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->set_params(self, num_params, params);
+	PURPLE_MEDIA_BACKEND_GET_INTERFACE(self)->set_params(self, params);
 }
 
 const gchar **

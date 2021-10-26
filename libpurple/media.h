@@ -175,8 +175,8 @@ void purple_media_stream_info(PurpleMedia *media, PurpleMediaInfoType type,
 /**
  * purple_media_set_params:
  * @media: The media object to set the parameters on.
- * @num_params: The number of parameters to pass
- * @params: Array of @c GParameter to pass
+ * @params: (element-type utf8 GObject.Value) (transfer none): Hash table of
+ *          parameters to pass.
  *
  * Sets various optional parameters of the media call.
  *
@@ -189,10 +189,7 @@ void purple_media_stream_info(PurpleMedia *media, PurpleMediaInfoType type,
  *   - "sdes-note"     : The NOTE to put in SDES messages
  *   - "sdes-phone"    : The PHONE to put in SDES messages
  */
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-void purple_media_set_params(PurpleMedia *media,
-		guint num_params, GParameter *params);
-G_GNUC_END_IGNORE_DEPRECATIONS
+void purple_media_set_params(PurpleMedia *media, GHashTable *params);
 
 /**
  * purple_media_get_available_params:
@@ -226,8 +223,8 @@ gboolean purple_media_param_is_supported(PurpleMedia *media, const gchar *param)
  * @type: The type of stream to create.
  * @initiator: Whether or not the local user initiated the stream.
  * @transmitter: The transmitter to use for the stream.
- * @num_params: The number of parameters to pass to Farstream.
- * @params: The parameters to pass to Farstream.
+ * @params: (element-type utf8 GObject.Value) (transfer none): The stream
+ *          parameters to pass to Farstream.
  *
  * Adds a stream to a session.
  *
@@ -236,12 +233,9 @@ gboolean purple_media_param_is_supported(PurpleMedia *media, const gchar *param)
  *
  * Returns: %TRUE The stream was added successfully, %FALSE otherwise.
  */
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 gboolean purple_media_add_stream(PurpleMedia *media, const gchar *sess_id,
-		const gchar *who, PurpleMediaSessionType type,
-		gboolean initiator, const gchar *transmitter,
-		guint num_params, GParameter *params);
-G_GNUC_END_IGNORE_DEPRECATIONS
+		const gchar *who, PurpleMediaSessionType type, gboolean initiator,
+		const gchar *transmitter, GHashTable *params);
 
 /**
  * purple_media_get_session_type:

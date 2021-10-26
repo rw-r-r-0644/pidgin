@@ -458,37 +458,43 @@ G_GNUC_END_IGNORE_DEPRECATIONS
 	return relay_info;
 }
 
-GParameter *
+static void
+jingle_param_free(GValue *value)
+{
+	g_value_unset(value);
+	g_free(value);
+}
+
+GHashTable *
 jingle_get_params(JabberStream *js, const gchar *relay_ip, guint relay_udp,
 	guint relay_tcp, guint relay_ssltcp, const gchar *relay_username,
-    const gchar *relay_password, guint *num)
+	const gchar *relay_password)
 {
 	/* don't set a STUN server if one is set globally in prefs, in that case
 	 this will be handled in media.c */
 	gboolean has_account_stun = js->stun_ip && !purple_network_get_stun_ip();
-	guint num_params = has_account_stun ?
-		(relay_ip ? 3 : 2) : (relay_ip ? 1 : 0);
-	GParameter *params = NULL;
-	int next_index = 0;
+	GHashTable *params = NULL;
+	GValue *value = NULL;
 
-	if (num_params > 0) {
-		params = g_new0(GParameter, num_params);
+	if (has_account_stun || relay_ip) {
+		params = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, (GDestroyNotify)jingle_param_free);
 
 		if (has_account_stun) {
 			purple_debug_info("jabber",
 				"setting param stun-ip for stream using auto-config: %s\n",
 				js->stun_ip);
-			params[next_index].name = "stun-ip";
-			g_value_init(&params[next_index].value, G_TYPE_STRING);
-			g_value_set_string(&params[next_index].value, js->stun_ip);
+			value = g_new(GValue, 1);
+			g_value_init(value, G_TYPE_STRING);
+			g_value_set_string(value, js->stun_ip);
+			g_hash_table_insert(params, "stun-ip", value);
+
 			purple_debug_info("jabber",
 				"setting param stun-port for stream using auto-config: %d\n",
 				js->stun_port);
-			next_index++;
-			params[next_index].name = "stun-port";
-			g_value_init(&params[next_index].value, G_TYPE_UINT);
-			g_value_set_uint(&params[next_index].value, js->stun_port);
-			next_index++;
+			value = g_new(GValue, 1);
+			g_value_init(value, G_TYPE_UINT);
+			g_value_set_uint(value, js->stun_port);
+			g_hash_table_insert(params, "stun-port", value);
 		}
 
 		if (relay_ip) {
@@ -511,16 +517,16 @@ G_GNUC_END_IGNORE_DEPRECATIONS
 					jingle_create_relay_info(relay_ip, relay_ssltcp, relay_username,
 						relay_password, "tls", relay_info);
 			}
-			params[next_index].name = "relay-info";
+			value = g_new(GValue, 1);
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-			g_value_init(&params[next_index].value, G_TYPE_VALUE_ARRAY);
-			g_value_set_boxed(&params[next_index].value, relay_info);
+			g_value_init(value, G_TYPE_VALUE_ARRAY);
+			g_value_set_boxed(value, relay_info);
 			g_value_array_free(relay_info);
 G_GNUC_END_IGNORE_DEPRECATIONS
+			g_hash_table_insert(params, "relay-info", value);
 		}
 	}
 
-	*num = num_params;
 	return params;
 }
 #endif

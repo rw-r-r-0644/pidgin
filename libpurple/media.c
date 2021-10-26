@@ -852,13 +852,12 @@ purple_media_stream_info(PurpleMedia *media, PurpleMediaInfoType type,
 }
 
 void
-purple_media_set_params(PurpleMedia *media,
-		guint num_params, GParameter *params)
+purple_media_set_params(PurpleMedia *media, GHashTable *params)
 {
 #ifdef USE_VV
 	g_return_if_fail(PURPLE_IS_MEDIA(media));
 
-	purple_media_backend_set_params(media->priv->backend, num_params, params);
+	purple_media_backend_set_params(media->priv->backend, params);
 #endif
 }
 
@@ -990,9 +989,8 @@ purple_media_codecs_changed_cb(PurpleMediaBackend *backend,
 
 gboolean
 purple_media_add_stream(PurpleMedia *media, const gchar *sess_id,
-		const gchar *who, PurpleMediaSessionType type,
-		gboolean initiator, const gchar *transmitter,
-		guint num_params, GParameter *params)
+		const gchar *who, PurpleMediaSessionType type, gboolean initiator,
+		const gchar *transmitter, GHashTable *params)
 {
 #ifdef USE_VV
 	PurpleMediaSession *session;
@@ -1000,8 +998,8 @@ purple_media_add_stream(PurpleMedia *media, const gchar *sess_id,
 	g_return_val_if_fail(PURPLE_IS_MEDIA(media), FALSE);
 
 	if (!purple_media_backend_add_stream(media->priv->backend,
-			sess_id, who, type, initiator, transmitter,
-			num_params, params)) {
+			sess_id, who, type, initiator, transmitter, params))
+	{
 		purple_debug_error("media", "Error adding stream.\n");
 		return FALSE;
 	}
