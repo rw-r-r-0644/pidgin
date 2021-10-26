@@ -325,11 +325,9 @@ if enable_introspection
 	introspection_sources = (purple_coreheaders + purple_builtheaders +
 	                         purple_mediaheaders)
 
-	Purple_gir_includes = ['GObject-2.0', 'Gio-2.0', 'Gst-1.0', 'GPlugin-1.0']
-
 	libpurple_gir = gnome.generate_gir(libpurple,
 	    sources : introspection_sources,
-	    includes : Purple_gir_includes,
+	    includes : ['GLib-2.0', 'Gio-2.0', 'GObject-2.0', 'Gst-1.0', 'GPlugin-1.0'],
 	    namespace : 'Purple',
 	    symbol_prefix : 'purple',
 	    identifier_prefix : 'Purple',

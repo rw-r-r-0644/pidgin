@@ -197,6 +197,7 @@ if enable_consoleui
 
 		libfinch_gir = gnome.generate_gir(libfinch,
 		    sources : introspection_sources,
+		    includes : ['GLib-2.0', 'GModule-2.0', 'GObject-2.0', libpurple_gir[0]],
 		    namespace : 'Finch',
 		    symbol_prefix : 'finch',
 		    header : 'finch.h',
@@ -205,7 +206,7 @@ if enable_consoleui
 		    nsversion : '@0@.@1@'.format(purple_major_version,
 		                                 purple_minor_version),
 		    install : true,
-		    dependencies: [libgnt_dep, gplugin_dep, libpurple],
+		    dependencies: [libgnt_dep, gplugin_dep, libpurple_dep],
 		    extra_args : ['-DFINCH_COMPILATION', '--quiet'])
 		libfinch_generated_sources += libfinch_gir
 	endif
