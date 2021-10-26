@@ -311,7 +311,7 @@ if ENABLE_GTK
 		pidgin_gir = gnome.generate_gir(libpidgin,
 			sources : introspection_sources,
 			header : 'pidgin.h',
-			includes : ['GLib-2.0', 'GObject-2.0', 'Gtk-3.0'],
+			includes : ['GLib-2.0', 'GObject-2.0', 'Gtk-3.0', libpurple_gir[0], 'Talkatu-0.0'],
 			namespace : 'Pidgin',
 			symbol_prefix : 'pidgin',
 			identifier_prefix : 'Pidgin',
