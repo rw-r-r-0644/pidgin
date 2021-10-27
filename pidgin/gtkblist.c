@@ -6507,11 +6507,13 @@ static void sort_method_status(PurpleBlistNode *node, PurpleBuddyList *blist, Gt
 void
 pidgin_blist_update_sort_methods(void)
 {
+	GtkWidget *sort_item = NULL;
 	GMenu *menu = NULL;
 	GList *l;
 
-	if(gtkblist == NULL)
+	if(gtkblist == NULL || !PIDGIN_IS_CONTACT_LIST(gtkblist->window)) {
 		return;
+	}
 
 	/* create the gmenu */
 	menu = g_menu_new();
@@ -6520,25 +6522,25 @@ pidgin_blist_update_sort_methods(void)
 	for (l = pidgin_blist_sort_methods; l; l = l->next) {
 		PidginBlistSortMethod *method = NULL;
 		GMenuItem *item = NULL;
+		GVariant *value = NULL;
 		gchar *action = NULL;
 
 		method = (PidginBlistSortMethod *)l->data;
+		value = g_variant_new_string(method->id);
 
-		action = g_action_print_detailed_name("blist.sort-method",
-		                                      g_variant_new_string(method->id));
+		action = g_action_print_detailed_name("blist.sort-method", value);
 		item = g_menu_item_new(method->name, action);
+
 		g_free(action);
+		g_variant_unref(value);
 
 		g_menu_append_item(menu, item);
+		g_object_unref(item);
 	}
 
 	/* replace the old submenu with a new one */
-	if(PIDGIN_IS_CONTACT_LIST(gtkblist->window)) {
-		GtkWidget *item = NULL;
-
-		item = pidgin_contact_list_get_menu_sort_item(PIDGIN_CONTACT_LIST(gtkblist->window));
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),
-		                          gtk_menu_new_from_model(G_MENU_MODEL(menu)));
-		g_object_unref(G_OBJECT(menu));
-	}
+	sort_item = pidgin_contact_list_get_menu_sort_item(PIDGIN_CONTACT_LIST(gtkblist->window));
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(sort_item),
+	                          gtk_menu_new_from_model(G_MENU_MODEL(menu)));
+	g_object_unref(menu);
 }

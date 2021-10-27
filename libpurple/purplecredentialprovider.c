@@ -146,6 +146,7 @@ purple_credential_provider_finalize(GObject *obj) {
 
 	g_clear_pointer(&priv->id, g_free);
 	g_clear_pointer(&priv->name, g_free);
+	g_clear_pointer(&priv->description, g_free);
 
 	G_OBJECT_CLASS(purple_credential_provider_parent_class)->finalize(obj);
 }

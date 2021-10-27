@@ -237,6 +237,10 @@ purple_protocol_finalize(GObject *object) {
 	g_clear_pointer(&priv->id, g_free);
 	g_clear_pointer(&priv->name, g_free);
 	g_clear_pointer(&priv->description, g_free);
+	g_clear_pointer(&priv->icon_name, g_free);
+	g_clear_pointer(&priv->icon_search_path, g_free);
+	g_clear_pointer(&priv->icon_resource_path, g_free);
+
 	/* I'm not sure that we can finalize a protocol plugin if an account is
 	 * still using it..  Right now accounts don't ref protocols, but maybe
 	 * they should?
