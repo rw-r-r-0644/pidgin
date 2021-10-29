@@ -58,7 +58,7 @@ typedef void (*PurpleAccountUnregistrationCb)(PurpleAccount *account, gboolean s
 #include "connection.h"
 #include "group.h"
 #include "proxy.h"
-#include "protocol.h"
+#include "purpleprotocol.h"
 #include "status.h"
 #include "xmlnode.h"
 

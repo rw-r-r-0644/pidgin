@@ -40,7 +40,7 @@
 #include <glib-object.h>
 
 #include <libpurple/connection.h>
-#include <libpurple/protocol.h>
+#include <libpurple/purpleprotocol.h>
 
 /**
  * PURPLE_TYPE_PROTOCOL_PRIVACY:

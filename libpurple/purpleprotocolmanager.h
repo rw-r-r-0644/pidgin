@@ -26,7 +26,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include "protocol.h"
+#include "purpleprotocol.h"
 
 G_BEGIN_DECLS
 

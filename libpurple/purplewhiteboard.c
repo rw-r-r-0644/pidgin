@@ -24,9 +24,9 @@
 #include "internal.h"
 #include "purplewhiteboard.h"
 
+#include "purpleprotocol.h"
 #include "purpleprotocolfactory.h"
 #include "purplewhiteboarduiops.h"
-#include "protocol.h"
 #include "util.h"
 
 typedef struct {

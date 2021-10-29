@@ -26,9 +26,9 @@
 #include "core.h"
 #include "debug.h"
 #include "notify.h"
-#include "protocol.h"
 #include "prefs.h"
 #include "purpleconversation.h"
+#include "purpleprotocol.h"
 #include "purpleprotocolclient.h"
 #include "util.h"
 

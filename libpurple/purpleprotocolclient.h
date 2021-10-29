@@ -42,7 +42,7 @@
 
 #include <libpurple/account.h>
 #include <libpurple/connection.h>
-#include <libpurple/protocol.h>
+#include <libpurple/purpleprotocol.h>
 
 #define PURPLE_TYPE_PROTOCOL_CLIENT (purple_protocol_client_get_type())
 G_DECLARE_INTERFACE(PurpleProtocolClient, purple_protocol_client, PURPLE,

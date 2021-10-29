@@ -42,7 +42,7 @@
 
 #include <libpurple/connection.h>
 #include <libpurple/purplemessage.h>
-#include <libpurple/protocol.h>
+#include <libpurple/purpleprotocol.h>
 
 /**
  * PURPLE_TYPE_PROTOCOL_CHAT:
