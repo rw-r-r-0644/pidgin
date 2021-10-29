@@ -36,7 +36,6 @@ void pidgin_dialogs_destroy_all(void);
 void pidgin_dialogs_im(void);
 void pidgin_dialogs_im_with_user(PurpleAccount *account, const char *username);
 void pidgin_dialogs_info(void);
-void pidgin_dialogs_log(void);
 
 void pidgin_dialogs_alias_buddy(PurpleBuddy *buddy);
 void pidgin_dialogs_alias_chat(PurpleChat *chat);
