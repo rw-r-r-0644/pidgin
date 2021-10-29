@@ -45,49 +45,19 @@ struct _PidginIdle {
 	GObject parent;
 };
 
-#if !defined(HAVE_IOKIT) && !defined(_WIN32)
-typedef struct {
-	gchar *bus_name;
-	gchar *object_path;
-	gchar *iface_name;
-} PidginDBusScreenSaverInfo;
-
-static const PidginDBusScreenSaverInfo screensavers[] = {
-	{
-		"org.freedesktop.ScreenSaver",
-		"/org/freedesktop/ScreenSaver",
-		"org.freedesktop.ScreenSaver"
-	}, {
-		"org.gnome.ScreenSaver",
-		"/org/gnome/ScreenSaver",
-		"org.gnome.ScreenSaver"
-	}, {
-		"org.kde.ScreenSaver",
-		"/org/kde/ScreenSaver",
-		"org.kde.ScreenSaver"
-	},
-};
-#endif /* !HAVE_IOKIT && !_WIN32 */
-
 /******************************************************************************
- * PurpleIdleUI Implementation
+ * PurpleIdleUi Implementation
  *****************************************************************************/
-
-/*
- * pidgin_get_time_idle:
- *
- * Get the number of seconds the user has been idle.  In Unix-world
- * this is based on the DBus ScreenSaver interfaces.  In MS Windows this
- * is based on keyboard/mouse usage information obtained from the OS.
- * In MacOS X, this is based on keyboard/mouse usage information
- * obtained from the OS, if configure detected IOKit.  Otherwise,
- * MacOS X is handled as a case of Unix.
- *
- * Returns: The number of seconds the user has been idle.
- */
+#ifdef _WIN32
 static time_t
 pidgin_idle_get_idle_time(PurpleIdleUi *ui) {
-# ifdef HAVE_IOKIT
+	return (GetTickCount() - winpidgin_get_lastactive()) / 1000;
+}
+#endif /* _WIN32 */
+
+#ifdef HAVE_IOKIT
+static time_t
+pidgin_idle_get_idle_time(PurpleIdleUi *ui) {
 	/* Query the IOKit API */
 	double idleSeconds = -1;
 	io_iterator_t iter = 0;
@@ -112,11 +82,34 @@ pidgin_idle_get_idle_time(PurpleIdleUi *ui) {
 		IOObjectRelease(iter);
 	}
 	return idleSeconds;
-# else
-#  ifdef _WIN32
-	/* Query Windows */
-	return (GetTickCount() - winpidgin_get_lastactive()) / 1000;
-#  else
+}
+#endif /* HAVE_IOKIT */
+
+#if !defined(_WIN32) && !defined(HAVE_IOKIT)
+typedef struct {
+	gchar *bus_name;
+	gchar *object_path;
+	gchar *iface_name;
+} PidginDBusScreenSaverInfo;
+
+static const PidginDBusScreenSaverInfo screensavers[] = {
+	{
+		"org.freedesktop.ScreenSaver",
+		"/org/freedesktop/ScreenSaver",
+		"org.freedesktop.ScreenSaver"
+	}, {
+		"org.gnome.ScreenSaver",
+		"/org/gnome/ScreenSaver",
+		"org.gnome.ScreenSaver"
+	}, {
+		"org.kde.ScreenSaver",
+		"/org/kde/ScreenSaver",
+		"org.kde.ScreenSaver"
+	},
+};
+
+static time_t
+pidgin_idle_get_idle_time(PurpleIdleUi *ui) {
 	static guint idx = 0;
 	GApplication *app;
 	GDBusConnection *conn;
@@ -188,9 +181,8 @@ pidgin_idle_get_idle_time(PurpleIdleUi *ui) {
 	g_variant_unref(reply);
 
 	return active_time;
-#  endif /* !_WIN32 */
-# endif /* !HAVE_IOKIT */
 }
+#endif /* !defined(_WIN32) && !defined(HAVE_IOKIT) */
 
 static void
 pidgin_idle_purple_ui_init(PurpleIdleUiInterface *iface) {
