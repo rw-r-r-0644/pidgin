@@ -60,7 +60,6 @@
 #include "pidginmenutray.h"
 #include "pidginmessage.h"
 #include "pidginpresenceicon.h"
-#include "pidginstock.h"
 #include "pidginstylecontext.h"
 
 #define ADD_MESSAGE_HISTORY_AT_ONCE 100
@@ -2279,9 +2278,6 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 	gtk_widget_set_name(list, "pidgin_conv_userlist");
 
 	rend = gtk_cell_renderer_pixbuf_new();
-	g_object_set(G_OBJECT(rend),
-				 "stock-size", gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL),
-				 NULL);
 	col = gtk_tree_view_column_new_with_attributes(NULL, rend,
 			"icon-name", CHAT_USERS_ICON_NAME_COLUMN, NULL);
 	gtk_tree_view_column_set_sizing(col, GTK_TREE_VIEW_COLUMN_AUTOSIZE);

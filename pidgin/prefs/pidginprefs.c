@@ -38,13 +38,11 @@
 #include "gtkconv.h"
 #include "gtkdialogs.h"
 #include "gtksavedstatuses.h"
-#include "gtkstatus-icon-theme.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
 #include "pidgingdkpixbuf.h"
 #include "pidginprefs.h"
-#include "pidginstock.h"
 #ifdef USE_VV
 #include <gst/video/videooverlay.h>
 #ifdef GDK_WINDOWING_WIN32
@@ -63,12 +61,6 @@
 
 /* 25MB */
 #define PREFS_MAX_DOWNLOADED_THEME_SIZE 26214400
-
-struct theme_info {
-	gchar *type;
-	gchar *extension;
-	gchar *original_name;
-};
 
 typedef struct _PidginPrefCombo PidginPrefCombo;
 
@@ -176,12 +168,6 @@ struct _PidginPrefsWindow {
 		GtkWidget *startup_label;
 	} away;
 
-	/* Themes page */
-	struct {
-		SoupSession *session;
-		GtkWidget *status;
-	} theme;
-
 #ifdef USE_VV
 	/* Voice/Video page */
 	struct {
@@ -209,12 +195,6 @@ struct _PidginPrefsWindow {
 
 /* Main dialog */
 static PidginPrefsWindow *prefs = NULL;
-
-/* Themes page */
-static GtkWidget *prefs_status_themes_combo_box;
-
-/* These exist outside the lifetime of the prefs dialog */
-static GtkListStore *prefs_status_icon_themes;
 
 /*
  * PROTOTYPES
@@ -797,503 +777,11 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 
 	purple_notify_close_with_handle(prefs);
 
-	g_clear_object(&prefs->theme.session);
-
 	/* Unregister callbacks. */
 	purple_prefs_disconnect_by_handle(prefs);
 
-	/* NULL-ify globals */
-	prefs_status_themes_combo_box = NULL;
-
 	g_free(prefs->proxy.gnome_program_path);
 	prefs = NULL;
-}
-
-static gchar *
-get_theme_markup(const char *name, gboolean custom, const char *author,
-				 const char *description)
-{
-
-	return g_strdup_printf("<b>%s</b>%s%s%s%s\n<span foreground='dim grey'>%s</span>",
-						   name, custom ? " " : "", custom ? _("(Custom)") : "",
-						   author != NULL ? " - " : "", author != NULL ? author : "",
-						   description != NULL ? description : "");
-}
-
-/* adds the themes to the theme list from the manager so they can be displayed in prefs */
-static void
-prefs_themes_sort(PurpleTheme *theme)
-{
-	GdkPixbuf *pixbuf = NULL;
-	GtkTreeIter iter;
-	gchar *image_full = NULL, *markup;
-	const gchar *name, *author, *description;
-
-	if (PIDGIN_IS_STATUS_ICON_THEME(theme)){
-		GtkListStore *store;
-
-		store = prefs_status_icon_themes;
-
-		image_full = purple_theme_get_image_full(theme);
-		if (image_full != NULL){
-			pixbuf = pidgin_pixbuf_new_from_file_at_scale(image_full, PREFS_OPTIMAL_ICON_SIZE, PREFS_OPTIMAL_ICON_SIZE, TRUE);
-			g_free(image_full);
-		} else
-			pixbuf = NULL;
-
-		name = purple_theme_get_name(theme);
-		author = purple_theme_get_author(theme);
-		description = purple_theme_get_description(theme);
-
-		markup = get_theme_markup(name, FALSE, author, description);
-
-		gtk_list_store_append(store, &iter);
-		gtk_list_store_set(store, &iter, 0, pixbuf, 1, markup, 2, name, -1);
-
-		g_free(markup);
-		if (pixbuf != NULL)
-			g_object_unref(G_OBJECT(pixbuf));
-
-	}
-}
-
-static void
-prefs_set_active_theme_combo(GtkWidget *combo_box, GtkListStore *store, const gchar *current_theme)
-{
-	GtkTreeIter iter;
-	gchar *theme = NULL;
-	gboolean unset = TRUE;
-
-	if (current_theme && *current_theme && gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter)) {
-		do {
-			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 2, &theme, -1);
-
-			if (purple_strequal(current_theme, theme)) {
-				gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combo_box), &iter);
-				unset = FALSE;
-			}
-
-			g_free(theme);
-		} while (gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter));
-	}
-
-	if (unset)
-		gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
-}
-
-static void
-prefs_themes_refresh(void)
-{
-	GdkPixbuf *pixbuf = NULL;
-	gchar *tmp;
-	GtkTreeIter iter;
-
-	/* refresh the list of themes in the manager */
-	purple_theme_manager_refresh();
-
-	tmp = g_build_filename(PURPLE_DATADIR, "icons", "hicolor", "32x32",
-		"apps", "im.pidgin.Pidgin3.png", NULL);
-	pixbuf = pidgin_pixbuf_new_from_file_at_scale(tmp, PREFS_OPTIMAL_ICON_SIZE, PREFS_OPTIMAL_ICON_SIZE, TRUE);
-	g_free(tmp);
-
-	/* status icon themes */
-	gtk_list_store_clear(prefs_status_icon_themes);
-	gtk_list_store_append(prefs_status_icon_themes, &iter);
-	tmp = get_theme_markup(_("Default"), FALSE, _("Penguin Pimps"),
-		_("The default Pidgin status icon theme"));
-	gtk_list_store_set(prefs_status_icon_themes, &iter, 0, pixbuf, 1, tmp, 2, "", -1);
-	g_free(tmp);
-	if (pixbuf)
-		g_object_unref(G_OBJECT(pixbuf));
-
-	purple_theme_manager_for_each_theme(prefs_themes_sort);
-
-	/* set active */
-	prefs_set_active_theme_combo(prefs_status_themes_combo_box, prefs_status_icon_themes, purple_prefs_get_string(PIDGIN_PREFS_ROOT "/status/icon-theme"));
-}
-
-/* init all the theme variables so that the themes can be sorted later and used by pref pages */
-static void
-prefs_themes_init(void)
-{
-	prefs_status_icon_themes = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
-}
-
-/*
- * prefs_theme_find_theme:
- * @path: A directory containing a theme.  The theme could be at the
- *        top level of this directory or in any subdirectory thereof.
- * @type: The type of theme to load.  The loader for this theme type
- *        will be used and this loader will determine what constitutes a
- *        "theme."
- *
- * Attempt to load the given directory as a theme.  If we are unable to
- * open the path as a theme then we recurse into path and attempt to
- * load each subdirectory that we encounter.
- *
- * Returns: A new reference to a #PurpleTheme.
- */
-static PurpleTheme *
-prefs_theme_find_theme(const gchar *path, const gchar *type)
-{
-	PurpleTheme *theme = purple_theme_manager_load_theme(path, type);
-	GDir *dir = g_dir_open(path, 0, NULL);
-	const gchar *next;
-
-	while (!PURPLE_IS_THEME(theme) && (next = g_dir_read_name(dir))) {
-		gchar *next_path = g_build_filename(path, next, NULL);
-
-		if (g_file_test(next_path, G_FILE_TEST_IS_DIR))
-			theme = prefs_theme_find_theme(next_path, type);
-
-		g_free(next_path);
-	}
-
-	g_dir_close(dir);
-
-	return theme;
-}
-
-/* Eww. Seriously ewww. But thanks, grim! This is taken from guifications2 */
-static gboolean
-purple_theme_file_copy(const gchar *source, const gchar *destination)
-{
-	FILE *src, *dest;
-	gint chr = EOF;
-
-	if(!(src = g_fopen(source, "rb")))
-		return FALSE;
-	if(!(dest = g_fopen(destination, "wb"))) {
-		fclose(src);
-		return FALSE;
-	}
-
-	while((chr = fgetc(src)) != EOF) {
-		fputc(chr, dest);
-	}
-
-	fclose(dest);
-	fclose(src);
-
-	return TRUE;
-}
-
-static void
-free_theme_info(struct theme_info *info)
-{
-	if (info != NULL) {
-		g_free(info->type);
-		g_free(info->extension);
-		g_free(info->original_name);
-		g_free(info);
-	}
-}
-
-/* installs a theme, info is freed by function */
-static void
-theme_install_theme(char *path, struct theme_info *info)
-{
-	gchar *destdir;
-	const char *tail;
-	gboolean is_archive;
-	PurpleTheme *theme = NULL;
-
-	if (info == NULL)
-		return;
-
-	/* check the extension */
-	tail = info->extension ? info->extension : strrchr(path, '.');
-
-	if (!tail) {
-		free_theme_info(info);
-		return;
-	}
-
-	is_archive = !g_ascii_strcasecmp(tail, ".gz") || !g_ascii_strcasecmp(tail, ".tgz");
-
-	/* Just to be safe */
-	g_strchomp(path);
-
-	destdir = g_build_filename(purple_data_dir(), "themes", "temp", NULL);
-
-	/* We'll check this just to make sure. This also lets us do something different on
-	 * other platforms, if need be */
-	if (is_archive) {
-#ifndef _WIN32
-		gchar *path_escaped = g_shell_quote(path);
-		gchar *destdir_escaped = g_shell_quote(destdir);
-		gchar *command;
-
-		if (!g_file_test(destdir, G_FILE_TEST_IS_DIR)) {
-			g_mkdir_with_parents(destdir, S_IRUSR | S_IWUSR | S_IXUSR);
-		}
-
-		command = g_strdup_printf("tar > /dev/null xzf %s -C %s", path_escaped, destdir_escaped);
-		g_free(path_escaped);
-		g_free(destdir_escaped);
-
-		/* Fire! */
-		if (system(command)) {
-			purple_notify_error(NULL, NULL, _("Theme failed to unpack."), NULL, NULL);
-			g_free(command);
-			g_free(destdir);
-			free_theme_info(info);
-			return;
-		}
-		g_free(command);
-#else
-		if (!winpidgin_gz_untar(path, destdir)) {
-			purple_notify_error(NULL, NULL, _("Theme failed to unpack."), NULL, NULL);
-			g_free(destdir);
-			free_theme_info(info);
-			return;
-		}
-#endif
-	}
-
-	if (is_archive) {
-		theme = prefs_theme_find_theme(destdir, info->type);
-
-		if (PURPLE_IS_THEME(theme)) {
-			/* create the location for the theme */
-			gchar *theme_dest = g_build_filename(purple_data_dir(), "themes",
-			                                     purple_theme_get_name(theme),
-			                                     "purple", info->type, NULL);
-
-			if (!g_file_test(theme_dest, G_FILE_TEST_IS_DIR)) {
-				g_mkdir_with_parents(theme_dest, S_IRUSR | S_IWUSR | S_IXUSR);
-			}
-
-			g_free(theme_dest);
-			theme_dest = g_build_filename(purple_data_dir(), "themes",
-			                              purple_theme_get_name(theme),
-			                              "purple", info->type, NULL);
-
-			/* move the entire directory to new location */
-			if (g_rename(purple_theme_get_dir(theme), theme_dest)) {
-				purple_debug_error("gtkprefs", "Error renaming %s to %s: "
-						"%s\n", purple_theme_get_dir(theme), theme_dest,
-						g_strerror(errno));
-			}
-
-			g_free(theme_dest);
-			if (g_remove(destdir) != 0) {
-				purple_debug_error("gtkprefs",
-					"couldn't remove temp (dest) path\n");
-			}
-			g_object_unref(theme);
-
-			prefs_themes_refresh();
-
-		} else {
-			/* something was wrong with the theme archive */
-			g_unlink(destdir);
-			purple_notify_error(NULL, NULL, _("Theme failed to load."), NULL, NULL);
-		}
-
-	} else { /* just a single file so copy it to a new temp directory and attempt to load it*/
-		gchar *temp_path, *temp_file;
-
-		temp_path = g_build_filename(purple_data_dir(), "themes", "temp",
-		                             "sub_folder", NULL);
-
-		if (info->original_name != NULL) {
-			/* name was changed from the original (probably a dnd) change it back before loading */
-			temp_file = g_build_filename(temp_path, info->original_name, NULL);
-
-		} else {
-			gchar *source_name = g_path_get_basename(path);
-			temp_file = g_build_filename(temp_path, source_name, NULL);
-			g_free(source_name);
-		}
-
-		if (!g_file_test(temp_path, G_FILE_TEST_IS_DIR)) {
-			g_mkdir_with_parents(temp_path, S_IRUSR | S_IWUSR | S_IXUSR);
-		}
-
-		if (purple_theme_file_copy(path, temp_file)) {
-			/* find the theme, could be in subfolder */
-			theme = prefs_theme_find_theme(temp_path, info->type);
-
-			if (PURPLE_IS_THEME(theme)) {
-				gchar *theme_dest =
-				        g_build_filename(purple_data_dir(), "themes",
-				                         purple_theme_get_name(theme), "purple",
-				                         info->type, NULL);
-
-				if(!g_file_test(theme_dest, G_FILE_TEST_IS_DIR)) {
-					g_mkdir_with_parents(theme_dest, S_IRUSR | S_IWUSR | S_IXUSR);
-				}
-
-				if (g_rename(purple_theme_get_dir(theme), theme_dest)) {
-					purple_debug_error("gtkprefs", "Error renaming %s to %s: "
-							"%s\n", purple_theme_get_dir(theme), theme_dest,
-							g_strerror(errno));
-				}
-
-				g_free(theme_dest);
-				g_object_unref(theme);
-
-				prefs_themes_refresh();
-			} else {
-				if (g_remove(temp_path) != 0) {
-					purple_debug_error("gtkprefs",
-						"couldn't remove temp path");
-				}
-				purple_notify_error(NULL, NULL, _("Theme failed to load."), NULL, NULL);
-			}
-		} else {
-			purple_notify_error(NULL, NULL, _("Theme failed to copy."), NULL, NULL);
-		}
-
-		g_free(temp_file);
-		g_free(temp_path);
-	}
-
-	g_free(destdir);
-	free_theme_info(info);
-}
-
-static void
-theme_got_url(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
-              gpointer _info)
-{
-	struct theme_info *info = _info;
-	FILE *f;
-	gchar *path;
-	size_t wc;
-
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
-		free_theme_info(info);
-		return;
-	}
-
-	f = purple_mkstemp(&path, TRUE);
-	wc = fwrite(msg->response_body->data, msg->response_body->length, 1, f);
-	if (wc != 1) {
-		purple_debug_warning("theme_got_url", "Unable to write theme data.\n");
-		fclose(f);
-		g_unlink(path);
-		g_free(path);
-		free_theme_info(info);
-		return;
-	}
-	fclose(f);
-
-	theme_install_theme(path, info);
-
-	g_unlink(path);
-	g_free(path);
-}
-
-static void
-theme_dnd_recv(GtkWidget *widget, GdkDragContext *dc, guint x, guint y,
-		GtkSelectionData *sd, guint info, guint t, gpointer user_data)
-{
-	gchar *name = g_strchomp((gchar *)gtk_selection_data_get_data(sd));
-
-	if ((gtk_selection_data_get_length(sd) >= 0)
-	 && (gtk_selection_data_get_format(sd) == 8)) {
-		/* Well, it looks like the drag event was cool.
-		 * Let's do something with it */
-		gchar *temp;
-		struct theme_info *info =  g_new0(struct theme_info, 1);
-		info->type = g_strdup((gchar *)user_data);
-		info->extension = g_strdup(g_strrstr(name,"."));
-		temp = g_strrstr(name, "/");
-		info->original_name = temp ? g_strdup(++temp) : NULL;
-
-		if (!g_ascii_strncasecmp(name, "file://", 7)) {
-			GError *converr = NULL;
-			gchar *tmp;
-			/* It looks like we're dealing with a local file. Let's
-			 * just untar it in the right place */
-			if(!(tmp = g_filename_from_uri(name, NULL, &converr))) {
-				purple_debug_error("theme dnd", "%s",
-				                   converr ? converr->message :
-				                   "g_filename_from_uri error");
-				free_theme_info(info);
-				return;
-			}
-			theme_install_theme(tmp, info);
-			g_free(tmp);
-		} else if (!g_ascii_strncasecmp(name, "http://", 7) ||
-			!g_ascii_strncasecmp(name, "https://", 8)) {
-			/* Oo, a web drag and drop. This is where things
-			 * will start to get interesting */
-			SoupMessage *msg;
-
-			if (prefs->theme.session == NULL) {
-				prefs->theme.session = soup_session_new();
-			}
-
-			soup_session_abort(prefs->theme.session);
-
-			msg = soup_message_new("GET", name);
-			// purple_http_request_set_max_len(msg, PREFS_MAX_DOWNLOADED_THEME_SIZE);
-			soup_session_queue_message(prefs->theme.session, msg, theme_got_url,
-			                           info);
-		} else
-			free_theme_info(info);
-
-		gtk_drag_finish(dc, TRUE, FALSE, t);
-	}
-
-	gtk_drag_finish(dc, FALSE, FALSE, t);
-}
-
-/* builds a theme combo box from a list store with columns: icon preview, markup, theme name */
-static void
-prefs_build_theme_combo_box(GtkWidget *combo_box, GtkListStore *store,
-                            const char *current_theme, const char *type)
-{
-	GtkTargetEntry te[3] = {
-		{"text/plain", 0, 0},
-		{"text/uri-list", 0, 1},
-		{"STRING", 0, 2}
-	};
-
-	g_return_if_fail(store != NULL && current_theme != NULL);
-
-	gtk_combo_box_set_model(GTK_COMBO_BOX(combo_box),
-	                        GTK_TREE_MODEL(store));
-
-	gtk_drag_dest_set(combo_box, GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP, te,
-					sizeof(te) / sizeof(GtkTargetEntry) , GDK_ACTION_COPY | GDK_ACTION_MOVE);
-
-	g_signal_connect(G_OBJECT(combo_box), "drag_data_received", G_CALLBACK(theme_dnd_recv), (gpointer) type);
-}
-
-/* sets the current icon theme */
-static void
-prefs_set_status_icon_theme_cb(GtkComboBox *combo_box, gpointer user_data)
-{
-	PidginStatusIconTheme *theme = NULL;
-	GtkTreeIter iter;
-	gchar *name = NULL;
-
-	if(gtk_combo_box_get_active_iter(combo_box, &iter)) {
-
-		gtk_tree_model_get(GTK_TREE_MODEL(prefs_status_icon_themes), &iter, 2, &name, -1);
-
-		if(!name || *name)
-			theme = PIDGIN_STATUS_ICON_THEME(purple_theme_manager_find_theme(name, "status-icon"));
-
-		g_free(name);
-
-		pidgin_stock_load_status_icon_theme(theme);
-		pidgin_blist_refresh(purple_blist_get_default());
-	}
-}
-
-static void
-bind_theme_page(PidginPrefsWindow *win)
-{
-	/* Status Icon Themes */
-	prefs_build_theme_combo_box(win->theme.status, prefs_status_icon_themes,
-	                            PIDGIN_PREFS_ROOT "/status/icon-theme",
-	                            "icon");
-	prefs_status_themes_combo_box = win->theme.status;
 }
 
 static void
@@ -2270,7 +1758,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 	bind_network_page(win);
 	bind_proxy_page(win);
 	bind_away_page(win);
-	bind_theme_page(win);
 #ifdef USE_VV
 	vv = vv_page(win);
 	gtk_container_add_with_properties(GTK_CONTAINER(stack), vv, "name",
@@ -2452,12 +1939,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 			widget_class, PidginPrefsWindow, away.startup_hbox);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow, away.startup_label);
-
-	/* Themes page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, theme.status);
-	gtk_widget_class_bind_template_callback(widget_class,
-			prefs_set_status_icon_theme_cb);
 }
 
 static void
@@ -2473,9 +1954,6 @@ pidgin_prefs_window_init(PidginPrefsWindow *win)
 	gtk_widget_init_template(GTK_WIDGET(win));
 
 	prefs_stack_init(win);
-
-	/* Refresh the list of themes before showing the preferences window */
-	prefs_themes_refresh();
 }
 
 void
@@ -2504,9 +1982,6 @@ pidgin_prefs_init(void)
 	purple_prefs_add_path(PIDGIN_PREFS_ROOT "/filelocations/last_save_folder", "");
 	purple_prefs_add_path(PIDGIN_PREFS_ROOT "/filelocations/last_open_folder", "");
 	purple_prefs_add_path(PIDGIN_PREFS_ROOT "/filelocations/last_icon_folder", "");
-
-	/* Themes */
-	prefs_themes_init();
 
 #ifdef USE_VV
 	/* Voice/Video */
