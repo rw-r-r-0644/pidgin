@@ -231,13 +231,18 @@ if host_machine.system() == 'darwin'
 endif
 
 # #######################################################################
-# # Check for GLib 2.44 (required)
+# # Check for GLib 2.64 (required)
 # #######################################################################
 glib = dependency('glib-2.0', version : '>= 2.64.0')
 gio = dependency('gio-2.0')
 gobject = dependency('gobject-2.0')
 gthread = dependency('gthread-2.0')
 gnome = import('gnome')
+
+add_project_arguments(
+	'-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_64',
+	'-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_64',
+	language : 'c',)
 
 #######################################################################
 # Check for GObject Introspection
