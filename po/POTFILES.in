@@ -311,8 +311,6 @@ pidgin/gtkblist.c
 pidgin/gtkconn.c
 pidgin/gtkconv.c
 pidgin/gtkdialogs.c
-pidgin/gtkicon-theme.c
-pidgin/gtkicon-theme-loader.c
 pidgin/gtkidle.c
 pidgin/gtkmedia.c
 pidgin/gtknotify.c
@@ -322,7 +320,6 @@ pidgin/gtkrequest.c
 pidgin/gtkroomlist.c
 pidgin/gtksavedstatuses.c
 pidgin/gtkstatusbox.c
-pidgin/gtkstatus-icon-theme.c
 pidgin/gtkutils.c
 pidgin/gtkwhiteboard.c
 pidgin/gtkxfer.c
@@ -363,7 +360,6 @@ pidgin/pidginpresenceicon.c
 pidgin/pidginprotocolchooser.c
 pidgin/pidginprotocolstore.c
 pidgin/pidginscrollbook.c
-pidgin/pidginstock.c
 pidgin/pidginstylecontext.c
 pidgin/pidgintalkatu.c
 pidgin/plugins/disco/gtkdisco.c

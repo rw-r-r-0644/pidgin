@@ -53,7 +53,6 @@
 #include "pidginplugininfo.h"
 #include "pidginprefs.h"
 #include "pidginprivate.h"
-#include "pidginstock.h"
 
 #ifndef _WIN32
 #include <signal.h>
@@ -251,8 +250,6 @@ pidgin_ui_init(void)
 		           error != NULL ? error->message : "unknown");
 		g_clear_error(&error);
 	}
-
-	pidgin_stock_init();
 
 	/* Set the UI operation structures. */
 	purple_accounts_set_ui_ops(pidgin_accounts_get_ui_ops());

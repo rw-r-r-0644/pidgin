@@ -822,6 +822,27 @@ version 3.0.0 (??/??/????):
 		* pidgin_dialog_get_vbox_with_properties
 		* pidgin_dialogs_alias_contact
 		* pidgin_dialogs_log
+		* PIDGIN_ICON_SIZE_*
+		* PIDGIN_ICON_THEME
+		* PIDGIN_ICON_THEME_CLASS
+		* PIDGIN_ICON_THEME_LOADER
+		* PIDGIN_ICON_THEME_LOADER_CLASS
+		* PIDGIN_ICON_THEME_GET_CLASS
+		* PIDGIN_ICON_THEME_LOADER_GET_CLASS
+		* pidgin_icon_theme_get_icon
+		* pidgin_icon_theme_set_icon
+		* pidgin_icon_theme_get_type
+		* pidgin_icon_theme_loader_get_type
+		* PIDGIN_IS_ICON_THEME
+		* PIDGIN_IS_ICON_THEME_CLASS
+		* PIDGIN_IS_ICON_THEME_LOADER
+		* PIDGIN_IS_ICON_THEME_LOADER_CLASS
+		* PIDGIN_TYPE_ICON_THEME
+		* PIDGIN_TYPE_ICON_THEME_LOADER
+		* PidginIconTheme
+		* PidginIconThemeClass
+		* PidginIconThemeLoader
+		* PidginIconThemeLoaderClass
 		* pidgin_idle_get_ui_ops
 		* pidgin_make_mini_dialog_with_custom_icon; use
 		  pidgin_mini_dialog_new_with_custom_icon instead.
@@ -857,6 +878,15 @@ version 3.0.0 (??/??/????):
 		* pidgin_sound_get_handle
 		* pidgin_sound_get_ui_ops
 		* pidgin_sound_is_customized
+		* PIDGIN_IS_STATUS_ICON_THEME
+		* PIDGIN_IS_STATUS_ICON_THEME_CLASS
+		* PIDGIN_STATUS_ICON_THEME
+		* PIDGIN_STATUS_ICON_THEME_CLASS
+		* PIDGIN_STATUS_ICON_THEME_GET_CLASS
+		* pidgin_status_icon_theme_get_type
+		* PIDGIN_TYPE_STATUS_ICON_THEME
+		* PidginStatusIconTheme
+		* PidginStatusIconThemeClass
 		* PidginStatusBoxItemType
 		* pidgin_status_box_add
 		* pidgin_status_box_add_separator
@@ -864,8 +894,20 @@ version 3.0.0 (??/??/????):
 		* pidgin_status_box_set_buddy_icon
 		* pidgin_status_box_set_network_available
 		* All PIDGIN_STOCK_* macros
+		* PIDGIN_IS_STOCK_ICON_THEME
+		* PIDGIN_IS_STOCK_ICON_THEME_CLASS
+		* PIDGIN_STOCK_ICON_THEME
+		* PIDGIN_STOCK_ICON_THEME_CLASS
+		* PIDGIN_STOCK_ICON_THEME_GET_CLASS
+		* pidgin_stock_icon_theme_get_type
 		* pidgin_stock_id_from_presence
 		* pidgin_stock_id_from_status_primitive
+		* pidgin_stock_init
+		* pidgin_stock_load_status_icon_theme
+		* pidgin_stock_load_stock_icon_theme
+		* PIDGIN_TYPE_STOCK_ICON_THEME
+		* PidginStockIconTheme
+		* PidginStockIconThemeClass
 		* pidgin_text_combo_box_entry_set_text
 		* pidgin_theme_font_free
 		* pidgin_theme_font_get_color
