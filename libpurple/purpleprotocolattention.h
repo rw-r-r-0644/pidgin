@@ -42,7 +42,7 @@
 
 #include <libpurple/account.h>
 #include <libpurple/connection.h>
-#include <libpurple/protocol.h>
+#include <libpurple/purpleprotocol.h>
 
 G_BEGIN_DECLS
 

@@ -232,7 +232,7 @@ typedef enum
 #include <time.h>
 
 #include "account.h"
-#include "protocol.h"
+#include "purpleprotocol.h"
 #include "status.h"
 
 /**

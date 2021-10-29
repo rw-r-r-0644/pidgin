@@ -41,7 +41,7 @@
 
 #include <libpurple/account.h>
 #include <libpurple/connection.h>
-#include <libpurple/protocol.h>
+#include <libpurple/purpleprotocol.h>
 #include <libpurple/roomlist.h>
 
 G_BEGIN_DECLS

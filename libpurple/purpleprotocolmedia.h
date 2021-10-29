@@ -42,7 +42,7 @@
 
 #include <libpurple/account.h>
 #include <libpurple/media.h>
-#include <libpurple/protocol.h>
+#include <libpurple/purpleprotocol.h>
 
 #define PURPLE_TYPE_PROTOCOL_MEDIA (purple_protocol_media_get_type())
 G_DECLARE_INTERFACE(PurpleProtocolMedia, purple_protocol_media, PURPLE,

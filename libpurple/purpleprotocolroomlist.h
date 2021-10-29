@@ -31,7 +31,7 @@
 
 #include "connection.h"
 #include "roomlist.h"
-#include "protocol.h"
+#include "purpleprotocol.h"
 
 /**
  * SECTION:protocolroomlist

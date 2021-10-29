@@ -39,7 +39,7 @@
 typedef struct _PurpleProtocolChatEntry PurpleProtocolChatEntry;
 
 #include "media.h"
-#include "protocol.h"
+#include "purpleprotocol.h"
 #include "status.h"
 
 #define PURPLE_TYPE_PROTOCOL_CHAT_ENTRY  (purple_protocol_chat_entry_get_type())

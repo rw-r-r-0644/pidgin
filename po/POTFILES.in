@@ -69,7 +69,6 @@ libpurple/plugins/psychic.c
 libpurple/plugins/purple-toast.c
 libpurple/plugins/statenotify.c
 libpurple/prefs.c
-libpurple/protocol.c
 libpurple/protocols/bonjour/bonjour.c
 libpurple/protocols/bonjour/bonjour_ft.c
 libpurple/protocols/bonjour/buddy.c
@@ -255,6 +254,7 @@ libpurple/purplenoopcredentialprovider.c
 libpurple/purpleoptions.c
 libpurple/purplepresence.c
 libpurple/purpleplugininfo.c
+libpurple/purpleprotocol.c
 libpurple/purpleprotocolattention.c
 libpurple/purpleprotocolchat.c
 libpurple/purpleprotocolclient.c

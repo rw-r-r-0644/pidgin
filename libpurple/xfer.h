@@ -53,7 +53,7 @@ typedef struct _PurpleXferUiOps PurpleXferUiOps;
 
 #include <libpurple/account.h>
 #include <libpurple/connection.h>
-#include <libpurple/protocol.h>
+#include <libpurple/purpleprotocol.h>
 
 /**
  * PurpleXferType:
