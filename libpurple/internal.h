@@ -32,10 +32,6 @@
 # error "only <purple.h> may be included directly"
 #endif
 
-#ifndef GLIB_VERSION_MIN_REQUIRED
-#define GLIB_VERSION_MIN_REQUIRED (GLIB_VERSION_2_52)
-#endif
-
 #ifdef HAVE_CONFIG_H
 # ifdef GETTEXT_PACKAGE
 #  undef GETTEXT_PACKAGE
