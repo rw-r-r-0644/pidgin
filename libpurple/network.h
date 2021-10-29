@@ -118,15 +118,6 @@ gboolean purple_network_is_available(void);
 void purple_network_force_online(void);
 
 /**
- * purple_network_get_handle:
- *
- * Get the handle for the network system
- *
- * Returns: the handle to the network system
- */
-void *purple_network_get_handle(void);
-
-/**
  * purple_network_set_stun_server:
  * @stun_server: The host name of the STUN server to set
  *

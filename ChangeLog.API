@@ -439,6 +439,7 @@ version 3.0.0 (??/??/????):
 		* purple_network_convert_idn_to_ascii. Use g_hostname_to_ascii,
 		  instead.
 		* purple_network_get_all_local_system_ips.  Use libnice instead.
+		* purple_network_get_handle
 		* purple_network_get_my_ip
 		* purple_network_get_local_system_ip.  Use libnice instead.
 		* purple_network_get_port_from_fd
