@@ -283,14 +283,6 @@ purple_network_get_turn_ip(void)
 	return turn_ip;
 }
 
-void *
-purple_network_get_handle(void)
-{
-	static int handle;
-
-	return &handle;
-}
-
 static void
 purple_network_upnp_mapping_remove_cb(gboolean success, gpointer data)
 {
@@ -414,8 +406,6 @@ purple_network_init(void)
 	upnp_port_mappings = g_hash_table_new(g_direct_hash, g_direct_equal);
 	nat_pmp_port_mappings = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
-
-
 
 void
 purple_network_uninit(void)
