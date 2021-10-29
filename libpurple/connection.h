@@ -114,15 +114,15 @@ typedef enum
 	PURPLE_CONNECTION_CONNECTING
 } PurpleConnectionState;
 
-#define PURPLE_CONNECTION_ERROR purple_connection_error_quark()
-
 /**
- * purple_connection_error_quark:
+ * PURPLE_CONNECTION_ERROR:
  *
  * Error domain for Purple connection errors. Errors in this domain will be
  * from the #PurpleConnectionError enum.
+ *
+ * Since: 3.0.0
  */
-GQuark purple_connection_error_quark(void);
+#define PURPLE_CONNECTION_ERROR (g_quark_from_static_string("purple-connection-error"))
 
 /**
  * PurpleConnectionError:
