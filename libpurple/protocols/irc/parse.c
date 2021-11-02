@@ -701,7 +701,7 @@ void irc_parse_msg(struct irc_conn *irc, char *input)
 		g_free(msg);
 		return;
 	} else if (!strncmp(input, "ERROR ", 6)) {
-		GError *error;
+		GError *error = NULL;
 		if (g_utf8_validate(input, -1, NULL)) {
 			error = g_error_new(
 				PURPLE_CONNECTION_ERROR,

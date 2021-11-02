@@ -283,15 +283,13 @@ static const gchar *media_menu =
 static GtkWidget *
 setup_menubar(PidginMedia *window)
 {
-	GError *error;
+	GError *error = NULL;
 	GtkWidget *menu;
 
 	window->priv->ui = gtk_builder_new();
 	gtk_builder_set_translation_domain(window->priv->ui, PACKAGE);
 
-	error = NULL;
-	if (!gtk_builder_add_from_string(window->priv->ui, media_menu, -1,
-			&error))
+	if (!gtk_builder_add_from_string(window->priv->ui, media_menu, -1, &error))
 	{
 		g_message("building menus failed: %s", error->message);
 		g_error_free(error);

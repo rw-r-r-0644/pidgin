@@ -647,7 +647,7 @@ intkeyring_read(PurpleAccount *account, PurpleKeyringReadCallback cb,
 	gpointer data)
 {
 	const char *password;
-	GError *error;
+	GError *error = NULL;
 
 	intkeyring_open();
 

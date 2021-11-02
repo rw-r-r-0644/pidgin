@@ -1635,7 +1635,7 @@ setup_menubar(PidginConvWindow *win)
 {
 	GtkAccelGroup *accel_group;
 	GtkActionGroup *action_group;
-	GError *error;
+	GError *error = NULL;
 	GtkWidget *menuitem;
 
 	action_group = gtk_action_group_new("ConversationActions");
