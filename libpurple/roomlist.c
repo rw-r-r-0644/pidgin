@@ -349,29 +349,10 @@ purple_roomlist_class_init(PurpleRoomlistClass *klass)
 
 PurpleRoomlist *purple_roomlist_new(PurpleAccount *account)
 {
-	PurpleRoomlist *list;
-	PurpleProtocol *protocol;
-
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
-
-	protocol = purple_account_get_protocol(account);
-
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL(protocol), NULL);
-
-	if(PURPLE_IS_PROTOCOL_FACTORY(protocol)) {
-		list = purple_protocol_factory_roomlist_new(
-			PURPLE_PROTOCOL_FACTORY(protocol), account);
-	}
-	else {
-		list = g_object_new(PURPLE_TYPE_ROOMLIST,
-			"account", account,
-			NULL
-		);
-	}
-
-	g_return_val_if_fail(list != NULL, NULL);
-
-	return list;
+	return g_object_new(PURPLE_TYPE_ROOMLIST,
+		"account", account,
+		NULL
+	);
 }
 
 /**************************************************************************/

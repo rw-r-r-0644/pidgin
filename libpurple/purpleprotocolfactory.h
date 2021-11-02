@@ -85,9 +85,6 @@ struct _PurpleProtocolFactoryInterface {
 	                                    PurpleAccount *account,
 	                                    const gchar *password);
 
-	PurpleRoomlist *(*roomlist_new)(PurpleProtocolFactory *factory,
-	                                PurpleAccount *account);
-
 	PurpleWhiteboard *(*whiteboard_new)(PurpleProtocolFactory *factory,
 	                                    PurpleAccount *account,
 	                                    const gchar *who,
@@ -118,20 +115,6 @@ struct _PurpleProtocolFactoryInterface {
  */
 PurpleConnection *purple_protocol_factory_connection_new(PurpleProtocolFactory *factory,
 		PurpleAccount *account, const gchar *password);
-
-/**
- * purple_protocol_factory_roomlist_new:
- * @factory: The #PurpleProtocolFactory instance.
- * @account: The #PurpleAccount to create a roomlist for.
- *
- * Creates a new protocol-specific #PurpleRoomlist subclass.
- *
- * Returns: (transfer full): The new #PurpleRoomlist subclass for @account.
- *
- * Since: 3.0.0
- */
-PurpleRoomlist *purple_protocol_factory_roomlist_new(PurpleProtocolFactory *factory,
-		PurpleAccount *account);
 
 /**
  * purple_protocol_factory_whiteboard_new:
