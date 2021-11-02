@@ -286,6 +286,8 @@ purple_idle_set(time_t time)
 
 void
 purple_idle_set_ui(PurpleIdleUi *ui) {
+	g_return_if_fail(ui == NULL || PURPLE_IS_IDLE_UI(ui));
+
 	g_clear_object(&idle_ui);
 	idle_ui = ui;
 }
