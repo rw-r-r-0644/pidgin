@@ -117,8 +117,8 @@
   <part id="Protocols">
     <title>Protocols</title>
 
-    <xi:include href="xml/protocol.xml" />
     <xi:include href="xml/protocols.xml" />
+    <xi:include href="xml/purpleprotocol.xml" />
     <xi:include href="xml/purpleprotocolattention.xml" />
     <xi:include href="xml/purpleprotocolchat.xml" />
     <xi:include href="xml/purpleprotocolclient.xml" />
