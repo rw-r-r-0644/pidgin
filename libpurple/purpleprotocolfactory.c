@@ -53,23 +53,6 @@ purple_protocol_factory_connection_new(PurpleProtocolFactory *factory,
 	return NULL;
 }
 
-PurpleRoomlist *
-purple_protocol_factory_roomlist_new(PurpleProtocolFactory *factory,
-                                     PurpleAccount *account)
-{
-	PurpleProtocolFactoryInterface *iface = NULL;
-
-	g_return_val_if_fail(PURPLE_IS_PROTOCOL_FACTORY(factory), NULL);
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
-
-	iface = PURPLE_PROTOCOL_FACTORY_GET_IFACE(factory);
-	if(iface && iface->roomlist_new) {
-		return iface->roomlist_new(factory, account);
-	}
-
-	return NULL;
-}
-
 PurpleWhiteboard *
 purple_protocol_factory_whiteboard_new(PurpleProtocolFactory *factory,
                                        PurpleAccount *account,
