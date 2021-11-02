@@ -661,10 +661,12 @@ purple_proxy_get_proxy_resolver(PurpleAccount *account, GError **error)
 	password = purple_proxy_info_get_password(info);
 
 	/* Username and password are optional */
-	if (username != NULL && password != NULL) {
-		auth = g_strdup_printf("%s:%s@", username, password);
-	} else if (username != NULL) {
-		auth = g_strdup_printf("%s@", username);
+	if(username != NULL && *username != '\0') {
+		if(password != NULL && *password != '\0') {
+			auth = g_strdup_printf("%s:%s@", username, password);
+		} else {
+			auth = g_strdup_printf("%s@", username);
+		}
 	} else {
 		auth = NULL;
 	}
