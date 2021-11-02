@@ -769,7 +769,7 @@ static void ggp_login(PurpleAccount *account)
 	const char *address;
 	const gchar *encryption_type, *protocol_version;
 	GProxyResolver *resolver;
-	GError *error;
+	GError *error = NULL;
 
 	purple_connection_set_flags(gc,
 		PURPLE_CONNECTION_FLAG_HTML |

@@ -187,7 +187,7 @@ purple_media_manager_class_init (PurpleMediaManagerClass *klass)
 static void
 purple_media_manager_init (PurpleMediaManager *media)
 {
-	GError *error;
+	GError *error = NULL;
 
 	media->priv = purple_media_manager_get_instance_private(media);
 	media->priv->medias = NULL;
