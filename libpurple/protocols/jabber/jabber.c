@@ -905,7 +905,7 @@ jabber_stream_new(PurpleAccount *account)
 {
 	PurpleConnection *gc = purple_account_get_connection(account);
 	GProxyResolver *resolver;
-	GError *error;
+	GError *error = NULL;
 	JabberStream *js;
 	PurplePresence *presence;
 	gchar *user;
