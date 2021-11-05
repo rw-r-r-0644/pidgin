@@ -46,7 +46,7 @@ tasks:
     type: docker/export
     files:
       - build-docs/doc/reference/finch/finch/:finch3-docs
-      - build-docs/doc/reference/libpurple/html/:purple3-docs
+      - build-docs/doc/reference/libpurple/libpurple/:purple3-docs
       - build-docs/doc/reference/pidgin/pidgin/:pidgin3-docs
       - build-docs/doc/reference/protocols/facebook/facebook/:facebook3-docs
 
