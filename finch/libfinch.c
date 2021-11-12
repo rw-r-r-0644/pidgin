@@ -72,17 +72,37 @@ start_with_debugwin(gpointer null)
 	return FALSE;
 }
 
+static void
+finch_plugins_init(void) {
+	GPluginManager *manager = NULL;
+	gchar *path = NULL;
+
+	manager = gplugin_manager_get_default();
+
+	gplugin_manager_append_paths_from_environment(manager,
+	                                              "FINCH_PLUGIN_PATH");
+
+	path = g_build_filename(purple_data_dir(), "plugins", NULL);
+	if(g_mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR) != 0 && errno != EEXIST) {
+		fprintf(stderr, "Couldn't create plugins dir\n");
+	}
+	gplugin_manager_append_path(manager, path);
+	g_free(path);
+
+	gplugin_manager_append_path(manager, FINCH_LIBDIR);
+
+	purple_plugins_refresh();
+}
+
 static int
 init_libpurple(int argc, char **argv)
 {
-	char *path;
 	gboolean opt_nologin = FALSE;
 	gboolean opt_version = FALSE;
 	gboolean opt_debug = FALSE;
 	char *opt_config_dir_arg = NULL;
 	GOptionContext *context;
 	gchar **args;
-	const gchar *plugin_path = NULL;
 	GError *error = NULL;
 
 	GOptionEntry option_entries[] = {
@@ -177,27 +197,7 @@ init_libpurple(int argc, char **argv)
 		abort();
 	}
 
-	plugin_path = g_getenv("FINCH_PLUGIN_PATH");
-	if (plugin_path) {
-		gchar **paths;
-		gint i;
-
-		paths = g_strsplit(plugin_path, G_SEARCHPATH_SEPARATOR_S, 0);
-		for (i = 0; paths[i]; ++i) {
-			purple_plugins_add_search_path(paths[i]);
-		}
-
-		g_strfreev(paths);
-	}
-
-	path = g_build_filename(purple_data_dir(), "plugins", NULL);
-	if (g_mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR) != 0 && errno != EEXIST)
-		fprintf(stderr, "Couldn't create plugins dir\n");
-	purple_plugins_add_search_path(path);
-	g_free(path);
-
-	purple_plugins_add_search_path(FINCH_LIBDIR);
-	purple_plugins_refresh();
+	finch_plugins_init();
 
 	/* TODO: should this be moved into finch_prefs_init() ? */
 	finch_prefs_update_old();
