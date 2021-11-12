@@ -345,7 +345,7 @@ void user_function(PurpleAccount *account,
 
 Emitted when the authorization request for a buddy is granted.
 
-**Paramaters:**
+**Parameters:**
 
 **account**
 : The account.

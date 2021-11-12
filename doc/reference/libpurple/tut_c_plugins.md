@@ -89,7 +89,7 @@ You can initialize any variables, register dynamic types, and so on in this
 function.  Plugins may also want to add their preferences to the pref
 tree--more about that later. In this plugin we'll just use it to display a
 message. Just like `hello_world_query` if there are any errors that arise, you
-can call `g_set_error()` on the `error` agument and return `FALSE`.
+can call `g_set_error()` on the `error` argument and return `FALSE`.
 
 `hello_world_unload` is called when the plugin is unloaded. That is, when the
 user has manually unloaded the plugin or the program is shutting down. We can
