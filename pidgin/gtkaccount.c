@@ -2183,18 +2183,19 @@ add_account_to_liststore(PurpleAccount *account, gpointer user_data)
 }
 
 static gboolean
-populate_accounts_list(AccountsWindow *dialog)
-{
+populate_accounts_list(AccountsWindow *dialog) {
 	GList *l;
 	GdkPixbuf *global_buddyicon = NULL;
-	const char *path;
+	const gchar *path;
 
 	gtk_list_store_clear(dialog->model);
 
-	if ((path = purple_prefs_get_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon")) != NULL) {
+	path = purple_prefs_get_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon");
+	if(path != NULL && *path != '\0') {
 		GdkPixbuf *pixbuf = pidgin_pixbuf_new_from_file(path);
-		if (pixbuf != NULL) {
-			global_buddyicon = gdk_pixbuf_scale_simple(pixbuf, 22, 22, GDK_INTERP_HYPER);
+		if(pixbuf != NULL) {
+			global_buddyicon = gdk_pixbuf_scale_simple(pixbuf, 22, 22,
+			                                           GDK_INTERP_HYPER);
 			g_object_unref(G_OBJECT(pixbuf));
 		}
 	}
@@ -2202,8 +2203,9 @@ populate_accounts_list(AccountsWindow *dialog)
 	l = purple_accounts_get_all();
 	g_list_foreach(l, (GFunc)add_account_to_liststore, global_buddyicon);
 
-	if (global_buddyicon != NULL)
+	if(global_buddyicon != NULL) {
 		g_object_unref(G_OBJECT(global_buddyicon));
+	}
 
 	return l != NULL;
 }
