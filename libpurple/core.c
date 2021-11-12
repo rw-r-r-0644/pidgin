@@ -37,6 +37,7 @@
 #include "proxy.h"
 #include "purpleconversation.h"
 #include "purplecredentialmanager.h"
+#include "purplehistorymanager.h"
 #include "purplemessage.h"
 #include "purpleprivate.h"
 #include "savedstatuses.h"
@@ -202,19 +203,24 @@ purple_core_quit(void)
 {
 	PurpleCoreUiOps *ops;
 	PurpleCore *core = purple_get_core();
-	PurpleCredentialManager *manager = NULL;
+	PurpleCredentialManager *credential_manager = NULL;
+	PurpleHistoryManager *history_manager = NULL;
 
 	g_return_if_fail(core != NULL);
 
 	/* The self destruct sequence has been initiated */
 	purple_signal_emit(purple_get_core(), "quitting");
 
-	/* Remove the active provider in the credential manager. */
-	manager = purple_credential_manager_get_default();
-	purple_credential_manager_set_active(manager, NULL, NULL);
-
 	/* Transmission ends */
 	purple_connections_disconnect_all();
+
+	/* Remove the active provider in the credential manager. */
+	credential_manager = purple_credential_manager_get_default();
+	purple_credential_manager_set_active(credential_manager, NULL, NULL);
+
+	/* Remove the active history adapter */
+	history_manager = purple_history_manager_get_default();
+	purple_history_manager_set_active(history_manager, NULL, NULL);
 
 	/* Save .xml files, remove signals, etc. */
 	purple_idle_uninit();
