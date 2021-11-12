@@ -123,7 +123,7 @@ the first parameter to `GPLUGIN_NATIVE_PLUGIN_DECLARE()` plus `_load`.
 * Go through the rest of your code and mark all the other strings for
 translation with `_()`.
 
-* When thats done, feel free to commit your work, create your po template
+* When that's done, feel free to commit your work, create your po template
 (pot file) or whatever.
 
 * To create you po template, `cd` to `po` and execute:
