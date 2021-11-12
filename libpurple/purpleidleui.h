@@ -67,4 +67,4 @@ time_t purple_idle_ui_get_idle_time(PurpleIdleUi *ui);
 
 G_END_DECLS
 
-#endif /* PURPLE_ID_UI_H */
+#endif /* PURPLE_IDLE_UI_H */
