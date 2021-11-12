@@ -95,6 +95,35 @@ static GOptionEntry option_entries[] = {
 G_DEFINE_TYPE(PidginApplication, pidgin_application, GTK_TYPE_APPLICATION)
 
 /******************************************************************************
+ * Helpers
+ *****************************************************************************/
+static void
+pidgin_application_init_plugins(void) {
+	GPluginManager *manager = gplugin_manager_get_default();
+
+	gplugin_manager_append_paths_from_environment(manager,
+	                                              "PIDGIN_PLUGIN_PATH");
+
+	if(g_getenv("PURPLE_PLUGINS_SKIP")) {
+		g_message("PURPLE_PLUGINS_SKIP environment variable set, skipping "
+		          "normal Pidgin plugin paths");
+	} else {
+		gchar *path = g_build_filename(purple_data_dir(), "plugins", NULL);
+
+		if(!g_file_test(path, G_FILE_TEST_IS_DIR)) {
+			g_mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);
+		}
+
+		gplugin_manager_append_path(manager, path);
+		g_free(path);
+
+		gplugin_manager_append_path(manager, PIDGIN_LIBDIR);
+	}
+
+	purple_plugins_refresh();
+}
+
+/******************************************************************************
  * Actions
  *****************************************************************************/
 /**< private >
@@ -477,7 +506,6 @@ pidgin_application_startup(GApplication *application) {
 	GError *error = NULL;
 	GList *active_accounts = NULL;
 	gchar *search_path = NULL;
-	const gchar *plugin_path = NULL;
 	gpointer handle = NULL;
 
 	G_APPLICATION_CLASS(pidgin_application_parent_class)->startup(application);
@@ -534,37 +562,7 @@ pidgin_application_startup(GApplication *application) {
 		g_abort();
 	}
 
-	plugin_path = g_getenv("PIDGIN_PLUGIN_PATH");
-	if (plugin_path) {
-		gchar **paths;
-		gint i;
-
-		paths = g_strsplit(plugin_path, G_SEARCHPATH_SEPARATOR_S, 0);
-		for (i = 0; paths[i]; ++i) {
-			purple_plugins_add_search_path(paths[i]);
-		}
-
-		g_strfreev(paths);
-	}
-
-	if(g_getenv("PURPLE_PLUGINS_SKIP")) {
-		purple_debug_info("gtk",
-				"PURPLE_PLUGINS_SKIP environment variable "
-				"set, skipping normal Pidgin plugin paths");
-	} else {
-		search_path = g_build_filename(purple_data_dir(), "plugins", NULL);
-
-		if(!g_file_test(search_path, G_FILE_TEST_IS_DIR)) {
-			g_mkdir(search_path, S_IRUSR | S_IWUSR | S_IXUSR);
-		}
-
-		purple_plugins_add_search_path(search_path);
-		g_free(search_path);
-
-		purple_plugins_add_search_path(PIDGIN_LIBDIR);
-	}
-
-	purple_plugins_refresh();
+	pidgin_application_init_plugins();
 
 	/* load plugins we had when we quit */
 	purple_plugins_load_saved(PIDGIN_PREFS_ROOT "/plugins/loaded");

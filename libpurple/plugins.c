@@ -486,24 +486,13 @@ void
 purple_plugins_init(void)
 {
 	GPluginManager *manager = NULL;
-	const gchar *search_path;
 
 	gplugin_init(GPLUGIN_CORE_FLAGS_NONE);
 
 	manager = gplugin_manager_get_default();
 
-	search_path = g_getenv("PURPLE_PLUGIN_PATH");
-	if (search_path) {
-		gchar **paths;
-		gint i;
-
-		paths = g_strsplit(search_path, G_SEARCHPATH_SEPARATOR_S, 0);
-		for (i = 0; paths[i]; ++i) {
-			gplugin_manager_append_path(manager, paths[i]);
-		}
-
-		g_strfreev(paths);
-	}
+	gplugin_manager_append_paths_from_environment(manager,
+	                                              "PURPLE_PLUGIN_PATH");
 
 	gplugin_manager_add_default_paths(manager);
 
