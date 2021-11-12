@@ -166,14 +166,8 @@ purple_credential_manager_finalize(GObject *obj) {
 
 static void
 purple_credential_manager_init(PurpleCredentialManager *manager) {
-	PurpleCredentialProvider *noop = NULL;
-
 	manager->providers = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
 	                                           g_object_unref);
-
-	noop = purple_noop_credential_provider_new();
-	purple_credential_manager_register(manager, noop, NULL);
-	g_object_unref(G_OBJECT(noop));
 
 	/* Connect to the core-initialized signal so we can alert the user if we
 	 * were unable to find their credential provider.
@@ -263,10 +257,27 @@ purple_credential_manager_class_init(PurpleCredentialManagerClass *klass) {
 /******************************************************************************
  * Private API
  *****************************************************************************/
+
+/* Currently we're auto-registering the noop provider on the default manager,
+ * this may get moved to purple core later, so we just want to keep it all in
+ * one place for now.
+ */
+static PurpleCredentialProvider *noop = NULL;
+
 void
 purple_credential_manager_startup(void) {
 	if(default_manager == NULL) {
+		GError *error = NULL;
+
 		default_manager = g_object_new(PURPLE_TYPE_CREDENTIAL_MANAGER, NULL);
+
+		noop = purple_noop_credential_provider_new();
+		if(!purple_credential_manager_register(default_manager, noop, &error)) {
+			g_warning("failed to register the noop credential manager: %s",
+			          error ? error->message : "unknown");
+			g_clear_error(&error);
+			g_clear_object(&noop);
+		}
 	}
 }
 
@@ -274,6 +285,21 @@ void
 purple_credential_manager_shutdown(void) {
 	if(PURPLE_IS_CREDENTIAL_MANAGER(default_manager)) {
 		guint size = 0;
+
+		/* If we have an instance of the noop provider we need to unregister
+		 * it before continuing.
+		 */
+		if(PURPLE_IS_CREDENTIAL_PROVIDER(noop)) {
+			GError *error = NULL;
+			if(!purple_credential_manager_unregister(default_manager,
+			                                         noop, &error))
+			{
+				g_warning("failed to unregister the noop provider: %s",
+				          error ? error->message : "unknown");
+				g_clear_error(&error);
+			}
+			g_clear_object(&noop);
+		}
 
 		size = g_hash_table_size(default_manager->providers);
 		if(size > 0) {
