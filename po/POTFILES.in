@@ -295,9 +295,6 @@ libpurple/tests/test_trie.c
 libpurple/tests/test_ui.c
 libpurple/tests/test_util.c
 libpurple/tests/test_xmlnode.c
-libpurple/theme.c
-libpurple/theme-loader.c
-libpurple/theme-manager.c
 libpurple/trie.c
 libpurple/upnp.c
 libpurple/util.c

@@ -44,7 +44,6 @@
 #include "signals.h"
 #include "status.h"
 #include "stun.h"
-#include "theme-manager.h"
 #include "util.h"
 
 struct PurpleCore
@@ -152,8 +151,6 @@ purple_core_init(const char *ui)
 	 */
 	purple_plugins_init();
 
-	purple_theme_manager_init();
-
 	/* The buddy icon code uses the image store, so init it early. */
 	_purple_image_store_init();
 
@@ -186,9 +183,6 @@ purple_core_init(const char *ui)
 
 	if (ops != NULL && ops->ui_init != NULL)
 		ops->ui_init();
-
-	/* The UI may have registered some theme types, so refresh them */
-	purple_theme_manager_refresh();
 
 	/* Load the buddy list after UI init */
 	purple_blist_boot();
@@ -234,7 +228,6 @@ purple_core_quit(void)
 	purple_savedstatuses_uninit();
 	purple_statuses_uninit();
 	purple_accounts_uninit();
-	purple_theme_manager_uninit();
 	purple_xfers_uninit();
 	purple_proxy_uninit();
 	_purple_image_store_uninit();
