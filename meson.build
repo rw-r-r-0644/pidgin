@@ -213,21 +213,13 @@ conf.set('HAVE_STRUCT_SOCKADDR_SA_LEN',
 math = compiler.find_library('m', required: false)
 
 # before gettexting, in case iconv matters
+
 IOKIT = []
 if host_machine.system() == 'darwin'
-	if compiler.has_header('CoreFoundation/CoreFoundation.h')
-		if compiler.has_header('IOKit/IOKitLib.h')
-			conf.set('HAVE_IOKIT', true)
-			IOKIT = dependency('appleframeworks',
-			                   modules : ['IOKit', 'CoreFoundation'])
-		endif
-	endif
+	IOKIT = dependency('appleframeworks',
+	                   modules : ['IOKit', 'CoreFoundation'])
 
-	if run_command('test', '-d', '/sw').returncode() == 0
-		# FIXME: Not done...
-		#CPPFLAGS="$CPPFLAGS -I/sw/include"
-		#LDFLAGS="$LDFLAGS -L/sw/lib"
-	endif
+	conf.set('HAVE_IOKIT', true)
 endif
 
 # #######################################################################
