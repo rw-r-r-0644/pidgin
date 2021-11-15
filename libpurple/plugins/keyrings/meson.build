@@ -1,5 +1,3 @@
-subdir('kwallet')
-
 if nettle.found()
 	internalkeyring_plugin = library('internalkeyring', 'internalkeyring.c',
 	    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-InternalKeyring"'],

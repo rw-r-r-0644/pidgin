@@ -1,4 +1,5 @@
 subdir('keyrings')
+subdir('kwallet')
 subdir('notification-sound')
 
 autoaccept = library('autoaccept', 'autoaccept.c',
