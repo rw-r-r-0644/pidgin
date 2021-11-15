@@ -240,6 +240,7 @@ libpurple/purplechatconversation.c
 libpurple/purplechatuser.c
 libpurple/purpleconversation.c
 libpurple/purpleconversationmanager.c
+libpurple/purplecoreuiops.c
 libpurple/purplecredentialmanager.c
 libpurple/purplecredentialprovider.c
 libpurple/purpledebugui.c
