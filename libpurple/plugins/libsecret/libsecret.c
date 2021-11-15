@@ -41,17 +41,17 @@
    project name. It may not be appropriate to translate this string, but
    transliterating to your alphabet is reasonable. More info about the
    project can be found at https://wiki.gnome.org/Projects/Libsecret */
-#define SECRETSERVICE_ID "secret-service"
-#define SECRETSERVICE_NAME N_("Secret Service")
-#define SECRETSERVICE_DESCRIPTION N_("D-Bus Secret Service. Common in GNOME " \
-                                     "and other desktop environments.")
+#define LIBSECRET_ID "libsecret"
+#define LIBSECRET_NAME N_("libsecret")
+#define LIBSECRET_DESCRIPTION N_("Credential provider for libsecret. Common " \
+                                 "in GNOME and other desktop environments.")
 
 /******************************************************************************
  * Globals
  *****************************************************************************/
 static PurpleCredentialProvider *instance = NULL;
 
-static const SecretSchema purple_secret_service_schema = {
+static const SecretSchema purple_libsecret_schema = {
 	"im.pidgin.Purple3", SECRET_SCHEMA_NONE,
 	{
 		{"user", SECRET_SCHEMA_ATTRIBUTE_STRING},
@@ -62,24 +62,23 @@ static const SecretSchema purple_secret_service_schema = {
 	0, 0, 0, 0, 0, 0, 0, 0
 };
 
-#define PURPLE_TYPE_SECRET_SERVICE (purple_secret_service_get_type())
-G_DECLARE_FINAL_TYPE(PurpleSecretService, purple_secret_service,
-                     PURPLE, SECRET_SERVICE, PurpleCredentialProvider)
+#define PURPLE_TYPE_LIBSECRET (purple_libsecret_get_type())
+G_DECLARE_FINAL_TYPE(PurpleLibSecret, purple_libsecret,
+                     PURPLE, LIBSECRET, PurpleCredentialProvider)
 
-struct _PurpleSecretService {
+struct _PurpleLibSecret {
 	PurpleCredentialProvider parent;
 };
 
-G_DEFINE_DYNAMIC_TYPE(PurpleSecretService, purple_secret_service,
+G_DEFINE_DYNAMIC_TYPE(PurpleLibSecret, purple_libsecret,
                       PURPLE_TYPE_CREDENTIAL_PROVIDER)
 
 /******************************************************************************
  * Callbacks
  *****************************************************************************/
 static void
-purple_secret_service_read_password_callback(GObject *obj,
-                                             GAsyncResult *result,
-                                             gpointer data)
+purple_libsecret_read_password_callback(GObject *obj, GAsyncResult *result,
+                                        gpointer data)
 {
 	GTask *task = G_TASK(data);
 	GError *error = NULL;
@@ -97,9 +96,8 @@ purple_secret_service_read_password_callback(GObject *obj,
 }
 
 static void
-purple_secret_service_write_password_callback(GObject *obj,
-                                              GAsyncResult *result,
-                                              gpointer data)
+purple_libsecret_write_password_callback(GObject *obj, GAsyncResult *result,
+                                         gpointer data)
 {
 	GTask *task = G_TASK(data);
 	GError *error = NULL;
@@ -117,9 +115,8 @@ purple_secret_service_write_password_callback(GObject *obj,
 }
 
 static void
-purple_secret_service_clear_password_callback(GObject *obj,
-                                              GAsyncResult *result,
-                                              gpointer data)
+purple_libsecret_clear_password_callback(GObject *obj, GAsyncResult *result,
+                                         gpointer data)
 {
 	GTask *task = G_TASK(data);
 	GError *error = NULL;
@@ -144,25 +141,25 @@ purple_secret_service_clear_password_callback(GObject *obj,
  * PurpleCredentialProvider Implementation
  *****************************************************************************/
 static void
-purple_secret_service_read_password_async(PurpleCredentialProvider *provider,
-                                          PurpleAccount *account,
-                                          GCancellable *cancellable,
-                                          GAsyncReadyCallback callback,
-                                          gpointer data)
+purple_libsecret_read_password_async(PurpleCredentialProvider *provider,
+                                     PurpleAccount *account,
+                                     GCancellable *cancellable,
+                                     GAsyncReadyCallback callback,
+                                     gpointer data)
 {
 	GTask *task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
 
-	secret_password_lookup(&purple_secret_service_schema, cancellable,
-                           purple_secret_service_read_password_callback, task,
+	secret_password_lookup(&purple_libsecret_schema, cancellable,
+                           purple_libsecret_read_password_callback, task,
                            "user", purple_account_get_username(account),
                            "protocol", purple_account_get_protocol_id(account),
                            NULL);
 }
 
 static gchar *
-purple_secret_service_read_password_finish(PurpleCredentialProvider *provider,
-                                           GAsyncResult *result,
-                                           GError **error)
+purple_libsecret_read_password_finish(PurpleCredentialProvider *provider,
+                                      GAsyncResult *result,
+                                      GError **error)
 {
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
 	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
@@ -171,12 +168,12 @@ purple_secret_service_read_password_finish(PurpleCredentialProvider *provider,
 }
 
 static void
-purple_secret_service_write_password_async(PurpleCredentialProvider *provider,
-                                           PurpleAccount *account,
-                                           const gchar *password,
-                                           GCancellable *cancellable,
-                                           GAsyncReadyCallback callback,
-                                           gpointer data)
+purple_libsecret_write_password_async(PurpleCredentialProvider *provider,
+                                      PurpleAccount *account,
+                                      const gchar *password,
+                                      GCancellable *cancellable,
+                                      GAsyncReadyCallback callback,
+                                      gpointer data)
 {
 	GTask *task = NULL;
 	gchar *label = NULL;
@@ -186,10 +183,10 @@ purple_secret_service_write_password_async(PurpleCredentialProvider *provider,
 	username = purple_account_get_username(account);
 
 	label = g_strdup_printf(_("libpurple password for account %s"), username);
-	secret_password_store(&purple_secret_service_schema,
+	secret_password_store(&purple_libsecret_schema,
 	                      SECRET_COLLECTION_DEFAULT, label, password,
 	                      cancellable,
-	                      purple_secret_service_write_password_callback, task,
+	                      purple_libsecret_write_password_callback, task,
 	                      "user", username,
 	                      "protocol", purple_account_get_protocol_id(account),
 	                      NULL);
@@ -197,9 +194,9 @@ purple_secret_service_write_password_async(PurpleCredentialProvider *provider,
 }
 
 static gboolean
-purple_secret_service_write_password_finish(PurpleCredentialProvider *provider,
-                                            GAsyncResult *result,
-                                            GError **error)
+purple_libsecret_write_password_finish(PurpleCredentialProvider *provider,
+                                       GAsyncResult *result,
+                                       GError **error)
 {
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
 	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
@@ -208,25 +205,25 @@ purple_secret_service_write_password_finish(PurpleCredentialProvider *provider,
 }
 
 static void
-purple_secret_service_clear_password_async(PurpleCredentialProvider *provider,
-                                           PurpleAccount *account,
-                                           GCancellable *cancellable,
-                                           GAsyncReadyCallback callback,
-                                           gpointer data)
+purple_libsecret_clear_password_async(PurpleCredentialProvider *provider,
+                                      PurpleAccount *account,
+                                      GCancellable *cancellable,
+                                      GAsyncReadyCallback callback,
+                                      gpointer data)
 {
 	GTask *task = g_task_new(G_OBJECT(provider), cancellable, callback, data);
 
-	secret_password_clear(&purple_secret_service_schema, cancellable,
-	                      purple_secret_service_clear_password_callback, task,
+	secret_password_clear(&purple_libsecret_schema, cancellable,
+	                      purple_libsecret_clear_password_callback, task,
 	                      "user", purple_account_get_username(account),
 	                      "protocol", purple_account_get_protocol_id(account),
 	                      NULL);
 }
 
 static gboolean
-purple_secret_service_clear_password_finish(PurpleCredentialProvider *provider,
-                                            GAsyncResult *result,
-                                            GError **error)
+purple_libsecret_clear_password_finish(PurpleCredentialProvider *provider,
+                                       GAsyncResult *result,
+                                       GError **error)
 {
 	g_return_val_if_fail(PURPLE_IS_CREDENTIAL_PROVIDER(provider), FALSE);
 	g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
@@ -238,63 +235,64 @@ purple_secret_service_clear_password_finish(PurpleCredentialProvider *provider,
  * GObject Implementation
  *****************************************************************************/
 static void
-purple_secret_service_init(PurpleSecretService *ss) {
+purple_libsecret_init(PurpleLibSecret *libsecret) {
 }
 
 static void
-purple_secret_service_class_init(PurpleSecretServiceClass *klass) {
+purple_libsecret_class_init(PurpleLibSecretClass *klass) {
 	PurpleCredentialProviderClass *provider_class = NULL;
 
 	provider_class = PURPLE_CREDENTIAL_PROVIDER_CLASS(klass);
 	provider_class->read_password_async =
-		purple_secret_service_read_password_async;
+		purple_libsecret_read_password_async;
 	provider_class->read_password_finish =
-		purple_secret_service_read_password_finish;
+		purple_libsecret_read_password_finish;
 	provider_class->write_password_async =
-		purple_secret_service_write_password_async;
+		purple_libsecret_write_password_async;
 	provider_class->write_password_finish =
-		purple_secret_service_write_password_finish;
+		purple_libsecret_write_password_finish;
 	provider_class->clear_password_async =
-		purple_secret_service_clear_password_async;
+		purple_libsecret_clear_password_async;
 	provider_class->clear_password_finish =
-		purple_secret_service_clear_password_finish;
+		purple_libsecret_clear_password_finish;
 }
 
 static void
-purple_secret_service_class_finalize(PurpleSecretServiceClass *klass) {
+purple_libsecret_class_finalize(PurpleLibSecretClass *klass) {
 }
 
 /******************************************************************************
  * API
  *****************************************************************************/
 static PurpleCredentialProvider *
-purple_secret_service_new(void) {
-	return PURPLE_CREDENTIAL_PROVIDER(g_object_new(
-		PURPLE_TYPE_SECRET_SERVICE,
-		"id", SECRETSERVICE_ID,
-		"name", _(SECRETSERVICE_NAME),
-		"description", _(SECRETSERVICE_DESCRIPTION),
+purple_libsecret_new(void) {
+	return g_object_new(
+		PURPLE_TYPE_LIBSECRET,
+		"id", LIBSECRET_ID,
+		"name", _(LIBSECRET_NAME),
+		"description", _(LIBSECRET_DESCRIPTION),
 		NULL
-	));
+	);
 }
 
 /******************************************************************************
  * Plugin Exports
  *****************************************************************************/
 static GPluginPluginInfo *
-secret_service_query(G_GNUC_UNUSED GError **error) {
+libsecret_query(G_GNUC_UNUSED GError **error) {
 	const gchar * const authors[] = {
 		"Pidgin Developers <devel@pidgin.im>",
 		NULL
 	};
 
 	return GPLUGIN_PLUGIN_INFO(purple_plugin_info_new(
-		"id",           SECRETSERVICE_ID,
-		"name",         SECRETSERVICE_NAME,
+		"id",           "credential-provider-" LIBSECRET_ID,
+		"name",         LIBSECRET_NAME,
 		"version",      DISPLAY_VERSION,
-		"category",     N_("Keyring"),
-		"summary",      "Secret Service Plugin",
-		"description",  N_("This plugin will store passwords in Secret Service."),
+		"category",     N_("Credentials"),
+		"summary",      "libsecret credential provider",
+		"description",  N_("Adds support for using libsecret as a credential "
+		                   "provider."),
 		"authors",      authors,
 		"website",      PURPLE_WEBSITE,
 		"abi-version",  PURPLE_ABI_VERSION,
@@ -305,22 +303,22 @@ secret_service_query(G_GNUC_UNUSED GError **error) {
 }
 
 static gboolean
-secret_service_load(GPluginPlugin *plugin, GError **error) {
+libsecret_load(GPluginPlugin *plugin, GError **error) {
 	PurpleCredentialManager *manager = NULL;
 
-	purple_secret_service_register_type(G_TYPE_MODULE(plugin));
+	purple_libsecret_register_type(G_TYPE_MODULE(plugin));
 
 	manager = purple_credential_manager_get_default();
 
-	instance = purple_secret_service_new();
+	instance = purple_libsecret_new();
 
 	return purple_credential_manager_register(manager, instance, error);
 }
 
 static gboolean
-secret_service_unload(G_GNUC_UNUSED GPluginPlugin *plugin,
-                      G_GNUC_UNUSED gboolean shutdown,
-                      GError **error)
+libsecret_unload(G_GNUC_UNUSED GPluginPlugin *plugin,
+                 G_GNUC_UNUSED gboolean shutdown,
+                 GError **error)
 {
 	PurpleCredentialManager *manager = NULL;
 	gboolean ret = FALSE;
@@ -336,4 +334,4 @@ secret_service_unload(G_GNUC_UNUSED GPluginPlugin *plugin,
 	return TRUE;
 }
 
-GPLUGIN_NATIVE_PLUGIN_DECLARE(secret_service)
+GPLUGIN_NATIVE_PLUGIN_DECLARE(libsecret)

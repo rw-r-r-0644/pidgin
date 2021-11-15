@@ -34,8 +34,8 @@ option('gstreamer-video', type : 'feature',
 option('kwallet', type : 'feature',
        description : 'enable KWallet support')
 
-option('secret-service', type : 'feature',
-       description : 'enable Secret Service support')
+option('libsecret', type : 'feature',
+       description : 'enable libsecret support')
 
 option('vv', type : 'feature',
        description : 'compile with voice and video support')

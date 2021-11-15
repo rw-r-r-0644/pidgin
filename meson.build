@@ -528,9 +528,9 @@ endif
 #######################################################################
 
 if IS_WIN32
-	secretservice = disabler()
+	libsecret = disabler()
 else
-	secretservice = dependency('libsecret-1', required : get_option('secret-service'))
+	libsecret = dependency('libsecret-1', required : get_option('libsecret'))
 endif
 
 #######################################################################
@@ -735,7 +735,7 @@ summary({
 summary({
     'Internal credential provider (via Nettle)': nettle.found(),
     'KWallet credential provider': kwallet.found(),
-    'Secret Service credential provider': secretservice.found(),
+    'libsecret credential provider': libsecret.found(),
     'Unity integration': enable_unity,
 }, section: 'Plugin support', bool_yn: true)
 

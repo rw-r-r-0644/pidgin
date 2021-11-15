@@ -61,9 +61,9 @@ libpurple/plugins.c
 libpurple/plugins/idle.c
 libpurple/plugins/joinpart.c
 libpurple/plugins/keyrings/internalkeyring.c
-libpurple/plugins/keyrings/secretservice.c
 libpurple/plugins/keyrings/wincred.c
 libpurple/plugins/kwallet/purplekwallet.cpp
+libpurple/plugins/libsecret/libsecret.c
 libpurple/plugins/notification-sound/notification-sound.c
 libpurple/plugins/psychic.c
 libpurple/plugins/purple-toast.c
