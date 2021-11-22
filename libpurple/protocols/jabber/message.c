@@ -314,26 +314,6 @@ static void handle_error(JabberMessage *jm)
 	g_free(buf);
 }
 
-static void handle_buzz(JabberMessage *jm) {
-	PurpleAccount *account;
-
-	/* Delayed buzz MUST NOT be accepted */
-	if(jm->delayed)
-		return;
-
-	/* Reject buzz when it's not enabled */
-	if(!jm->js->allowBuzz)
-		return;
-
-	account = purple_connection_get_account(jm->js->gc);
-
-	if (purple_blist_find_buddy(account, jm->from) == NULL)
-		return; /* Do not accept buzzes from unknown people */
-
-	/* xmpp only has 1 attention type, so index is 0 */
-	purple_protocol_got_attention(jm->js->gc, jm->from, 0);
-}
-
 static gchar *
 jabber_message_xml_to_string_strip_img_smileys(PurpleXmlNode *xhtml)
 {
@@ -603,8 +583,6 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 			jm->type = JABBER_MESSAGE_EVENT;
 			for(items = purple_xmlnode_get_child(child,"items"); items; items = items->next)
 				jm->eventitems = g_list_append(jm->eventitems, items);
-		} else if(purple_strequal(child->name, "attention") && purple_strequal(xmlns, NS_ATTENTION)) {
-			jm->hasBuzz = TRUE;
 		} else if(purple_strequal(child->name, "delay") && purple_strequal(xmlns, NS_DELAYED_DELIVERY)) {
 			const char *timestamp = purple_xmlnode_get_attrib(child, "stamp");
 			jm->delayed = TRUE;
@@ -669,9 +647,6 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 			}
 		}
 	}
-
-	if(jm->hasBuzz)
-		handle_buzz(jm);
 
 	switch(jm->type) {
 		case JABBER_MESSAGE_OTHER:
@@ -982,8 +957,4 @@ unsigned int jabber_send_typing(PurpleProtocolIM *pim, PurpleConnection *gc,
 	jabber_message_free(jm);
 
 	return 0;
-}
-
-gboolean jabber_buzz_isenabled(JabberStream *js, const gchar *namespace) {
-	return js->allowBuzz;
 }

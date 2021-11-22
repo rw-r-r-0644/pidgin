@@ -34,7 +34,6 @@
 #include "purpleconversationmanager.h"
 #include "purpleprivate.h"
 #include "purpleprotocol.h"
-#include "purpleprotocolattention.h"
 #include "purpleprotocolchat.h"
 #include "purpleprotocolim.h"
 #include "purpleprotocolprivacy.h"
@@ -308,31 +307,6 @@ purple_serv_got_private_alias(PurpleConnection *gc, const char *who, const char 
 		purple_buddy_set_local_alias(b, alias);
 	}
 }
-
-
-PurpleAttentionType *purple_get_attention_type_from_code(PurpleAccount *account, guint type_code)
-{
-	PurpleProtocol *protocol;
-	PurpleAttentionType* attn;
-
-	g_return_val_if_fail(account != NULL, NULL);
-
-	protocol = purple_account_get_protocol(account);
-
-	/* Lookup the attention type in the protocol's attention_types list, if any. */
-	if (PURPLE_IS_PROTOCOL_ATTENTION(protocol)) {
-		GList *attention_types;
-
-		attention_types = purple_protocol_attention_get_types(
-				PURPLE_PROTOCOL_ATTENTION(protocol), account);
-		attn = (PurpleAttentionType *)g_list_nth_data(attention_types, type_code);
-	} else {
-		attn = NULL;
-	}
-
-	return attn;
-}
-
 
 /*
  * Move a buddy from one group to another on server.

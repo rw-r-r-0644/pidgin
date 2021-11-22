@@ -41,7 +41,6 @@
 #include "conversations.h"
 #include "group.h"
 #include "protocols.h"
-#include "purpleattentiontype.h"
 #include "purpleimconversation.h"
 #include "purplemessage.h"
 
@@ -86,17 +85,6 @@ void purple_serv_move_buddy(PurpleBuddy *buddy, PurpleGroup *orig, PurpleGroup *
  * Returns: The error value returned from the protocol interface function.
  */
 int  purple_serv_send_im(PurpleConnection *gc, PurpleMessage *msg);
-
-/**
- * purple_get_attention_type_from_code:
- * @account: The #PurpleAccount
- * @type_code: The protocol specific attention type code to convert
- *
- * Get information about an account's attention commands, from the protocol.
- *
- * Returns: The attention command numbered 'code' from the protocol's attention_types, or NULL.
- */
-PurpleAttentionType *purple_get_attention_type_from_code(PurpleAccount *account, guint type_code);
 
 /**
  * purple_serv_get_info:

@@ -79,9 +79,6 @@
 /* XEP-0206 XMPP over BOSH */
 #define NS_XMPP_BOSH "urn:xmpp:xbosh"
 
-/* XEP-0224 Attention */
-#define NS_ATTENTION "urn:xmpp:attention:0"
-
 /* XEP-0231 BoB (Bits of Binary) */
 #define NS_BOB "urn:xmpp:bob"
 

@@ -234,7 +234,6 @@ libpurple/purpleaccountoption.c
 libpurple/purpleaccountpresence.c
 libpurple/purpleaccountusersplit.c
 libpurple/purpleattachment.c
-libpurple/purpleattentiontype.c
 libpurple/purplebuddypresence.c
 libpurple/purplechatconversation.c
 libpurple/purplechatuser.c
@@ -257,7 +256,6 @@ libpurple/purpleoptions.c
 libpurple/purplepresence.c
 libpurple/purpleplugininfo.c
 libpurple/purpleprotocol.c
-libpurple/purpleprotocolattention.c
 libpurple/purpleprotocolchat.c
 libpurple/purpleprotocolclient.c
 libpurple/purpleprotocolfactory.c
@@ -282,7 +280,6 @@ libpurple/signals.c
 libpurple/status.c
 libpurple/stun.c
 libpurple/tests/test_account_option.c
-libpurple/tests/test_attention_type.c
 libpurple/tests/test_circular_buffer.c
 libpurple/tests/test_credential_manager.c
 libpurple/tests/test_credential_provider.c
@@ -290,7 +287,6 @@ libpurple/tests/test_image.c
 libpurple/tests/test_keyvaluepair.c
 libpurple/tests/test_markup.c
 libpurple/tests/test_protocol_action.c
-libpurple/tests/test_protocol_attention.c
 libpurple/tests/test_protocol_xfer.c
 libpurple/tests/test_queued_output_stream.c
 libpurple/tests/test_trie.c

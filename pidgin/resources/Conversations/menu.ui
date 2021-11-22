@@ -80,10 +80,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <attribute name="action">win.send-file</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">Get _Attention</attribute>
-          <attribute name="action">win.get-attention</attribute>
-        </item>
-        <item>
           <attribute name="label" translatable="yes">_Get Info</attribute>
           <attribute name="action">win.clear-history</attribute>
           <attribute name="accel">&lt;Primary&gt;O</attribute>

@@ -44,7 +44,6 @@ typedef struct {
 	time_t sent;
 	gboolean delayed;
 	gboolean forwarded;
-	gboolean hasBuzz;
 	gboolean outgoing;
 	char *id;
 	char *from;
@@ -76,7 +75,5 @@ int jabber_message_send_im(PurpleProtocolIM *pim, PurpleConnection *gc, PurpleMe
 int jabber_message_send_chat(PurpleProtocolChat *protocol_chat, PurpleConnection *gc, int id, PurpleMessage *msg);
 
 unsigned int jabber_send_typing(PurpleProtocolIM *pim, PurpleConnection *gc, const char *who, PurpleIMTypingState state);
-
-gboolean jabber_buzz_isenabled(JabberStream *js, const gchar *namespace);
 
 #endif /* PURPLE_JABBER_MESSAGE_H */
