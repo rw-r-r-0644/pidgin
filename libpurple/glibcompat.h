@@ -49,62 +49,6 @@ purple_g_stat(const gchar *filename, GStatBufW32 *buf)
 #  define g_stat purple_g_stat
 #endif
 
-#if !GLIB_CHECK_VERSION(2, 58, 0)
-#define G_SOURCE_FUNC(f) ((GSourceFunc) (void (*)(void)) (f))
-
-static inline GTimeZone *
-g_time_zone_new_offset(gint32 seconds) {
-	GTimeZone *tz = NULL;
-	gchar *identifier = NULL;
-
-	/* Seemingly, we should be using @seconds directly to set the
-	 * #TransitionInfo.gmt_offset to avoid all this string building and
-	 * parsing. However, we always need to set the #GTimeZone.name to a
-	 * constructed string anyway, so we might as well reuse its code.
-	 */
-	identifier = g_strdup_printf("%c%02u:%02u:%02u",
-	                             (seconds >= 0) ? '+' : '-',
-	                             (ABS (seconds) / 60) / 60,
-	                             (ABS (seconds) / 60) % 60,
-	                             ABS (seconds) % 60);
-	tz = g_time_zone_new(identifier);
-	g_free(identifier);
-
-	g_assert(g_time_zone_get_offset(tz, 0) == seconds);
-
-	return tz;
-}
-
-#endif /* !GLIB_CHECK_VERSION(2, 58, 0) */
-
-#if !GLIB_CHECK_VERSION(2, 62, 0)
-static inline gchar *
-g_date_time_format_iso8601(GDateTime *datetime) {
-    GString *outstr = NULL;
-    gchar *main_date = NULL;
-    gint64 offset;
-
-    /* Main date and time. */
-    main_date = g_date_time_format(datetime, "%Y-%m-%dT%H:%M:%S");
-    outstr = g_string_new(main_date);
-    g_free(main_date);
-
-    /* Timezone. Format it as `%:::z` unless the offset is zero, in which case
-    * we can simply use `Z`. */
-    offset = g_date_time_get_utc_offset(datetime);
-
-    if (offset == 0) {
-        g_string_append_c(outstr, 'Z');
-    } else {
-        gchar *time_zone = g_date_time_format(datetime, "%:::z");
-        g_string_append(outstr, time_zone);
-        g_free(time_zone);
-    }
-
-    return g_string_free(outstr, FALSE);
-}
-#endif /* GLIB_CHECK_VERSION(2, 62, 0) */
-
 /* Backport the static inline version of g_memdup2 if we don't have g_memdup2.
  * see https://mail.gnome.org/archives/desktop-devel-list/2021-February/msg00000.html
  * for more information.
