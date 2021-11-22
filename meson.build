@@ -223,17 +223,17 @@ if host_machine.system() == 'darwin'
 endif
 
 # #######################################################################
-# # Check for GLib 2.64 (required)
+# # Check for GLib (required)
 # #######################################################################
-glib = dependency('glib-2.0', version : '>= 2.64.0')
+glib = dependency('glib-2.0', version : '>= 2.66.0')
 gio = dependency('gio-2.0')
 gobject = dependency('gobject-2.0')
 gthread = dependency('gthread-2.0')
 gnome = import('gnome')
 
 add_project_arguments(
-	'-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_64',
-	'-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_64',
+	'-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_66',
+	'-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_66',
 	language : 'c',)
 
 #######################################################################
@@ -241,7 +241,7 @@ add_project_arguments(
 #######################################################################
 
 if get_option('introspection')
-	enable_introspection = dependency('gobject-introspection-1.0', version : '>= 1.30.0').found()
+	enable_introspection = dependency('gobject-introspection-1.0', version : '>= 1.39.0').found()
 else
 	enable_introspection = false
 endif
