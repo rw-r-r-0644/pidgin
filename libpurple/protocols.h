@@ -228,49 +228,6 @@ GList *purple_protocol_get_statuses(PurpleAccount *account,
                                     PurplePresence *presence);
 
 /**
- * purple_protocol_send_attention:
- * @gc: The connection to send the message on.
- * @who: Whose attention to request.
- * @type_code: An index into the protocol's attention_types list determining the type
- *        of the attention request command to send. 0 if protocol only defines one
- *        (for example, Yahoo and MSN), but protocols are allowed to define more.
- *
- * Send an attention request message.
- *
- * Note that you can't send arbitrary PurpleAttentionType's, because there is
- * only a fixed set of attention commands.
- */
-void purple_protocol_send_attention(PurpleConnection *gc, const char *who,
-                                    guint type_code);
-
-/**
- * purple_protocol_got_attention:
- * @gc: The connection that received the attention message.
- * @who: Who requested your attention.
- * @type_code: An index into the protocol's attention_types list
- *                  determining the type of the attention request command to
- *                  send.
- *
- * Process an incoming attention message.
- */
-void purple_protocol_got_attention(PurpleConnection *gc, const char *who,
-                                   guint type_code);
-
-/**
- * purple_protocol_got_attention_in_chat:
- * @gc: The connection that received the attention message.
- * @id: The chat id.
- * @who: Who requested your attention.
- * @type_code: An index into the protocol's attention_types list
- *                  determining the type of the attention request command to
- *                  send.
- *
- * Process an incoming attention message in a chat.
- */
-void purple_protocol_got_attention_in_chat(PurpleConnection *gc, int id,
-                                           const char *who, guint type_code);
-
-/**
  * purple_protocol_get_media_caps:
  * @account: The account the user is on.
  * @who: The name of the contact to check capabilities for.

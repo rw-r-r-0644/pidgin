@@ -3120,135 +3120,6 @@ static PurpleCmdRet jabber_cmd_ping(PurpleConversation *conv,
 	return PURPLE_CMD_RET_OK;
 }
 
-static gboolean _jabber_send_buzz(JabberStream *js, const char *username, char **error) {
-
-	JabberBuddy *jb;
-	JabberBuddyResource *jbr;
-	PurpleConnection *gc = js->gc;
-	PurpleBuddy *buddy =
-		purple_blist_find_buddy(purple_connection_get_account(gc), username);
-	const gchar *alias =
-		buddy ? purple_buddy_get_contact_alias(buddy) : username;
-
-	if(!username)
-		return FALSE;
-
-	jb = jabber_buddy_find(js, username, FALSE);
-	if(!jb) {
-		*error = g_strdup_printf(_("Unable to buzz, because there is nothing "
-			"known about %s."), alias);
-		return FALSE;
-	}
-
-	jbr = jabber_buddy_find_resource(jb, NULL);
-	if (!jbr) {
-		*error = g_strdup_printf(_("Unable to buzz, because %s might be offline."),
-			alias);
-		return FALSE;
-	}
-
-	if (jabber_resource_has_capability(jbr, NS_ATTENTION)) {
-		PurpleXmlNode *buzz, *msg = purple_xmlnode_new("message");
-		gchar *to;
-
-		to = g_strdup_printf("%s/%s", username, jbr->name);
-		purple_xmlnode_set_attrib(msg, "to", to);
-		g_free(to);
-
-		/* avoid offline storage */
-		purple_xmlnode_set_attrib(msg, "type", "headline");
-
-		buzz = purple_xmlnode_new_child(msg, "attention");
-		purple_xmlnode_set_namespace(buzz, NS_ATTENTION);
-
-		jabber_send(js, msg);
-		purple_xmlnode_free(msg);
-
-		return TRUE;
-	} else {
-		*error = g_strdup_printf(_("Unable to buzz, because %s does "
-			"not support it or does not wish to receive buzzes now."), alias);
-		return FALSE;
-	}
-}
-
-static PurpleCmdRet jabber_cmd_buzz(PurpleConversation *conv,
-		const char *cmd, char **args, char **error, void *data)
-{
-	PurpleAccount *account = purple_conversation_get_account(conv);
-	JabberStream *js = purple_connection_get_protocol_data(purple_account_get_connection(account));
-	const gchar *who;
-	gchar *description;
-	PurpleBuddy *buddy;
-	const char *alias;
-	PurpleAttentionType *attn =
-		purple_get_attention_type_from_code(account, 0);
-
-	if (!args || !args[0]) {
-		/* use the buddy from conversation, if it's a one-to-one conversation */
-		if (PURPLE_IS_IM_CONVERSATION(conv)) {
-			who = purple_conversation_get_name(conv);
-		} else {
-			return PURPLE_CMD_RET_FAILED;
-		}
-	} else {
-		who = args[0];
-	}
-
-	buddy = purple_blist_find_buddy(account, who);
-	if (buddy != NULL)
-		alias = purple_buddy_get_contact_alias(buddy);
-	else
-		alias = who;
-
-	description =
-		g_strdup_printf(purple_attention_type_get_outgoing_desc(attn), alias);
-	purple_conversation_write_system_message(conv, description,
-		PURPLE_MESSAGE_NOTIFY);
-	g_free(description);
-	return _jabber_send_buzz(js, who, error)  ? PURPLE_CMD_RET_OK : PURPLE_CMD_RET_FAILED;
-}
-
-GList *jabber_attention_types(PurpleProtocolAttention *attn, PurpleAccount *account)
-{
-	static GList *types = NULL;
-
-	if (!types) {
-		types = g_list_append(types, purple_attention_type_new("Buzz", _("Buzz"),
-				_("%s has buzzed you!"), _("Buzzing %s...")));
-	}
-
-	return types;
-}
-
-gboolean jabber_send_attention(PurpleProtocolAttention *attn, PurpleConnection *gc, const char *username, guint code)
-{
-	JabberStream *js = purple_connection_get_protocol_data(gc);
-	gchar *error = NULL;
-
-	if (!_jabber_send_buzz(js, username, &error)) {
-		PurpleAccount *account = purple_connection_get_account(gc);
-		PurpleConversation *conv;
-		PurpleConversationManager *manager;
-
-		manager = purple_conversation_manager_get_default();
-		conv = purple_conversation_manager_find(manager, account, username);
-
-		purple_debug_error("jabber", "jabber_send_attention: jabber_cmd_buzz failed with error: %s\n", error ? error : "(NULL)");
-
-		if (conv) {
-			purple_conversation_write_system_message(conv,
-				error, PURPLE_MESSAGE_ERROR);
-		}
-
-		g_free(error);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-
 gboolean
 jabber_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy) {
 	return TRUE;
@@ -3725,12 +3596,6 @@ jabber_register_commands(PurpleProtocol *protocol)
 		_("ping &lt;jid&gt;:  Ping a user/component/server."), NULL);
 	commands = g_slist_prepend(commands, GUINT_TO_POINTER(id));
 
-	id = purple_cmd_register("buzz", "w", PURPLE_CMD_P_PROTOCOL,
-		PURPLE_CMD_FLAG_IM | PURPLE_CMD_FLAG_PROTOCOL_ONLY |
-		PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS, proto_id, jabber_cmd_buzz,
-		_("buzz: Buzz a user to get their attention."), NULL);
-	commands = g_slist_prepend(commands, GUINT_TO_POINTER(id));
-
 	id = purple_cmd_register("mood", "ws", PURPLE_CMD_P_PROTOCOL,
 		PURPLE_CMD_FLAG_CHAT | PURPLE_CMD_FLAG_IM |
 		PURPLE_CMD_FLAG_PROTOCOL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
@@ -3911,9 +3776,6 @@ jabber_do_init(void)
 	jabber_add_feature(NS_SI_FILE_TRANSFER, NULL);
 	jabber_add_feature(NS_XHTML_IM, NULL);
 	jabber_add_feature(NS_PING, NULL);
-
-	/* Buzz/Attention */
-	jabber_add_feature(NS_ATTENTION, jabber_buzz_isenabled);
 
 	/* Bits Of Binary */
 	jabber_add_feature(NS_BOB, NULL);
@@ -4204,13 +4066,6 @@ jabber_protocol_roomlist_iface_init(PurpleProtocolRoomlistInterface *roomlist_if
 }
 
 static void
-jabber_protocol_attention_iface_init(PurpleProtocolAttentionInterface *iface)
-{
-	iface->send_attention = jabber_send_attention;
-	iface->get_types = jabber_attention_types;
-}
-
-static void
 jabber_protocol_media_iface_init(PurpleProtocolMediaInterface *media_iface)
 {
 	media_iface->initiate_session = jabber_initiate_media;
@@ -4246,9 +4101,6 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
 
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_ROOMLIST,
                                       jabber_protocol_roomlist_iface_init)
-
-        G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_ATTENTION,
-                                      jabber_protocol_attention_iface_init)
 
         G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_MEDIA,
                                       jabber_protocol_media_iface_init)

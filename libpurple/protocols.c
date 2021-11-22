@@ -32,7 +32,6 @@
 #include "purpleconversationmanager.h"
 #include "purplecredentialmanager.h"
 #include "purpleprotocol.h"
-#include "purpleprotocolattention.h"
 #include "purpleprotocolmanager.h"
 #include "purpleprotocolmedia.h"
 #include "purpleprotocolserver.h"
@@ -347,130 +346,6 @@ purple_protocol_get_statuses(PurpleAccount *account, PurplePresence *presence)
 
 	return g_list_copy_deep(purple_account_get_status_types(account),
 	                        (GCopyFunc)purple_status_new, presence);
-}
-
-static void
-purple_protocol_attention(PurpleConversation *conv, const char *who,
-	guint type, PurpleMessageFlags flags, time_t mtime)
-{
-	PurpleAccount *account = purple_conversation_get_account(conv);
-	purple_signal_emit(purple_conversations_get_handle(),
-		flags == PURPLE_MESSAGE_SEND ? "sent-attention" : "got-attention",
-		account, who, conv, type);
-}
-
-void
-purple_protocol_send_attention(PurpleConnection *gc, const char *who, guint type_code)
-{
-	PurpleAttentionType *attn;
-	PurpleProtocol *protocol;
-	PurpleProtocolManager *manager;
-	PurpleConversation *im;
-	PurpleBuddy *buddy;
-	const char *alias;
-	gchar *description;
-
-	g_return_if_fail(gc != NULL);
-	g_return_if_fail(who != NULL);
-
-	manager = purple_protocol_manager_get_default();
-	protocol = purple_protocol_manager_find(manager,
-	                                        purple_account_get_protocol_id(purple_connection_get_account(gc)));
-	g_return_if_fail(PURPLE_IS_PROTOCOL_ATTENTION(protocol));
-
-	attn = purple_get_attention_type_from_code(purple_connection_get_account(gc), type_code);
-
-	if ((buddy = purple_blist_find_buddy(purple_connection_get_account(gc), who)) != NULL) {
-		alias = purple_buddy_get_contact_alias(buddy);
-	} else {
-		alias = who;
-	}
-
-	if (attn && purple_attention_type_get_outgoing_desc(attn)) {
-		description = g_strdup_printf(purple_attention_type_get_outgoing_desc(attn), alias);
-	} else {
-		description = g_strdup_printf(_("Requesting %s's attention..."), alias);
-	}
-
-	purple_debug_info("server", "serv_send_attention: sending '%s' to %s\n",
-			description, who);
-
-	if (!purple_protocol_attention_send_attention(PURPLE_PROTOCOL_ATTENTION(protocol), gc, who, type_code)) {
-		return;
-	}
-
-	im = purple_im_conversation_new(purple_connection_get_account(gc), who);
-	purple_conversation_write_system_message(PURPLE_CONVERSATION(im), description, 0);
-	purple_protocol_attention(PURPLE_CONVERSATION(im), who, type_code, PURPLE_MESSAGE_SEND, time(NULL));
-
-	g_free(description);
-}
-
-static void
-got_attention(PurpleConnection *gc, int id, const char *who, guint type_code)
-{
-	PurpleMessageFlags flags;
-	PurpleAttentionType *attn;
-	PurpleBuddy *buddy;
-	const char *alias;
-	gchar *description;
-	time_t mtime;
-
-	mtime = time(NULL);
-
-	attn = purple_get_attention_type_from_code(purple_connection_get_account(gc), type_code);
-
-	/* PURPLE_MESSAGE_NOTIFY is for attention messages. */
-	flags = PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NOTIFY | PURPLE_MESSAGE_RECV;
-
-	/* TODO: if (attn->icon_name) is non-null, use it to lookup an emoticon and display
-	 * it next to the attention command. And if it is null, display a generic icon. */
-
-	if ((buddy = purple_blist_find_buddy(purple_connection_get_account(gc), who)) != NULL)
-		alias = purple_buddy_get_contact_alias(buddy);
-	else
-		alias = who;
-
-	if (attn && purple_attention_type_get_incoming_desc(attn)) {
-		description = g_strdup_printf(purple_attention_type_get_incoming_desc(attn), alias);
-	} else {
-		description = g_strdup_printf(_("%s has requested your attention!"), alias);
-	}
-
-	purple_debug_info("server", "got_attention: got '%s' from %s\n",
-			description, who);
-
-	if (id == -1)
-		purple_serv_got_im(gc, who, description, flags, mtime);
-	else
-		purple_serv_got_chat_in(gc, id, who, flags, description, mtime);
-
-	/* TODO: sounds (depending on PurpleAttentionType), shaking, etc. */
-
-	g_free(description);
-}
-
-void
-purple_protocol_got_attention(PurpleConnection *gc, const char *who, guint type_code)
-{
-	PurpleConversation *conv = NULL;
-	PurpleConversationManager *manager = NULL;
-	PurpleAccount *account = purple_connection_get_account(gc);
-
-	got_attention(gc, -1, who, type_code);
-
-	manager = purple_conversation_manager_get_default();
-	conv = purple_conversation_manager_find(manager, account, who);
-	if(PURPLE_IS_CONVERSATION(conv)) {
-		purple_protocol_attention(conv, who, type_code, PURPLE_MESSAGE_RECV,
-		                          time(NULL));
-	}
-}
-
-void
-purple_protocol_got_attention_in_chat(PurpleConnection *gc, int id, const char *who, guint type_code)
-{
-	got_attention(gc, id, who, type_code);
 }
 
 gboolean

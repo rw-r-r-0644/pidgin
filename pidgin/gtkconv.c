@@ -604,23 +604,6 @@ menu_send_file_cb(GtkAction *action, gpointer data)
 }
 
 static void
-menu_get_attention_cb(GObject *obj, gpointer data)
-{
-	PidginConvWindow *win = data;
-	PurpleConversation *conv = pidgin_conv_window_get_active_conversation(win);
-
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		int index;
-		if ((GtkAction *)obj == win->menu->get_attention)
-			index = 0;
-		else
-			index = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(obj), "index"));
-		purple_protocol_send_attention(purple_conversation_get_connection(conv),
-			purple_conversation_get_name(conv), index);
-	}
-}
-
-static void
 menu_alias_cb(GtkAction *action, gpointer data)
 {
 	PidginConvWindow *win = data;
@@ -1563,7 +1546,6 @@ static GtkActionEntry menu_entries[] =
 #endif
 
 	{ "SendFile", NULL, N_("Se_nd File..."), NULL, NULL, G_CALLBACK(menu_send_file_cb) },
-	{ "GetAttention", NULL, N_("Get _Attention"), NULL, NULL, G_CALLBACK(menu_get_attention_cb) },
 	{ "GetInfo", NULL, N_("_Get Info"), "<control>O", NULL, G_CALLBACK(menu_get_info_cb) },
 	{ "Invite", NULL, N_("In_vite..."), NULL, NULL, G_CALLBACK(menu_invite_cb) },
 	{ "MoreMenu", NULL, N_("M_ore"), NULL, NULL, NULL },
@@ -1591,7 +1573,6 @@ static const char *conversation_menu =
 			"</menu>"
 #endif
 			"<menuitem action='SendFile'/>"
-			"<menuitem action='GetAttention'/>"
 			"<menuitem action='GetInfo'/>"
 			"<menuitem action='Invite'/>"
 			"<separator/>"
@@ -1687,10 +1668,6 @@ setup_menubar(PidginConvWindow *win)
 	win->menu->send_file =
 		gtk_ui_manager_get_action(win->menu->ui,
 		                          "/Conversation/ConversationMenu/SendFile");
-
-	win->menu->get_attention =
-		gtk_ui_manager_get_action(win->menu->ui,
-		                          "/Conversation/ConversationMenu/GetAttention");
 
 	/* --- */
 
@@ -2968,7 +2945,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 		/* Deal with menu items */
 		gtk_action_set_visible(win->menu->view_log, TRUE);
 		gtk_action_set_visible(win->menu->send_file, TRUE);
-		gtk_action_set_visible(win->menu->get_attention, TRUE);
 		gtk_action_set_visible(win->menu->get_info, TRUE);
 		gtk_action_set_visible(win->menu->invite, FALSE);
 		gtk_action_set_visible(win->menu->alias, TRUE);
@@ -2996,7 +2972,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 		/* Deal with menu items */
 		gtk_action_set_visible(win->menu->view_log, TRUE);
 		gtk_action_set_visible(win->menu->send_file, FALSE);
-		gtk_action_set_visible(win->menu->get_attention, FALSE);
 		gtk_action_set_visible(win->menu->get_info, FALSE);
 		gtk_action_set_visible(win->menu->invite, TRUE);
 		gtk_action_set_visible(win->menu->alias, TRUE);
@@ -3049,7 +3024,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 			gtk_action_set_sensitive(win->menu->add, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, add_buddy)));
 			gtk_action_set_sensitive(win->menu->remove, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, remove_buddy)));
 			gtk_action_set_sensitive(win->menu->send_file, can_send_file);
-			gtk_action_set_sensitive(win->menu->get_attention, (PURPLE_IS_PROTOCOL_ATTENTION(protocol)));
 			gtk_action_set_sensitive(win->menu->alias,
 									 (account != NULL) &&
 									 (purple_blist_find_buddy(account, purple_conversation_get_name(conv)) != NULL));
@@ -3070,7 +3044,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 		/* Then deal with menu items */
 		gtk_action_set_sensitive(win->menu->view_log, TRUE);
 		gtk_action_set_sensitive(win->menu->send_file, FALSE);
-		gtk_action_set_sensitive(win->menu->get_attention, FALSE);
 		gtk_action_set_sensitive(win->menu->get_info, FALSE);
 		gtk_action_set_sensitive(win->menu->invite, FALSE);
 		gtk_action_set_sensitive(win->menu->alias, FALSE);

@@ -389,8 +389,6 @@ void jabber_keepalive(PurpleProtocolServer *protocol_server, PurpleConnection *g
 void jabber_register_gateway(JabberStream *js, const char *gateway);
 void jabber_register_account(PurpleProtocolServer *protocol_server, PurpleAccount *account);
 void jabber_unregister_account(PurpleProtocolServer *protocol_server, PurpleAccount *account, PurpleAccountUnregistrationCb cb, void *user_data);
-gboolean jabber_send_attention(PurpleProtocolAttention *attn, PurpleConnection *gc, const char *username, guint code);
-GList *jabber_attention_types(PurpleProtocolAttention *attn, PurpleAccount *account);
 void jabber_convo_closed(PurpleProtocolClient *client, PurpleConnection *gc, const char *who);
 PurpleChat *jabber_find_blist_chat(PurpleProtocolClient *client, PurpleAccount *account, const char *name);
 gboolean jabber_offline_message(PurpleProtocolClient *client, PurpleBuddy *buddy);

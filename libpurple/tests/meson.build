@@ -1,6 +1,5 @@
 PROGS = [
     'account_option',
-    'attention_type',
     'circular_buffer',
     'credential_manager',
     'credential_provider',
@@ -10,7 +9,6 @@ PROGS = [
     'keyvaluepair',
     'markup',
     'protocol_action',
-    'protocol_attention',
     'protocol_xfer',
     'queued_output_stream',
     'trie',
