@@ -353,7 +353,7 @@ conv_updated_cb(PurpleConversation *conv, PurpleConversationUpdateType type) {
 	PidginConversation *pconv = PIDGIN_CONVERSATION(conv);
 	PidginConvWindow *win = pidgin_conv_get_window(pconv);
 
-	if (type == PURPLE_CONVERSATION_UPDATE_UNSEEN && !pidgin_conv_is_hidden(pconv)
+	if(type == PURPLE_CONVERSATION_UPDATE_UNSEEN
 			&& pconv->unseen_state == PIDGIN_UNSEEN_NONE
 			&& pidgin_conv_window_get_gtkconv_count(win) == 1) {
 		GtkWidget *window = win->window;
@@ -361,10 +361,11 @@ conv_updated_cb(PurpleConversation *conv, PurpleConversationUpdateType type) {
 
 		g_object_get(G_OBJECT(window), "has-toplevel-focus", &has_focus, NULL);
 
-		if (!has_focus || !purple_prefs_get_bool(OPT_WINTRANS_IM_ONFOCUS))
+		if(!has_focus || !purple_prefs_get_bool(OPT_WINTRANS_IM_ONFOCUS)) {
 			set_conv_window_trans(NULL, win);
+		}
 
-		if (g_signal_handler_find(G_OBJECT(window), G_SIGNAL_MATCH_FUNC,
+		if(g_signal_handler_find(G_OBJECT(window), G_SIGNAL_MATCH_FUNC,
 				0, 0, NULL, G_CALLBACK(focus_conv_win_cb), NULL) == 0) {
 			g_signal_connect(G_OBJECT(window), "focus_in_event",
 				G_CALLBACK(focus_conv_win_cb), window);
@@ -380,7 +381,7 @@ new_conversation_cb(PurpleConversation *conv) {
 
 	/* If it is the first conversation in the window,
 	 * add the sliders, and set transparency */
-	if (!pidgin_conv_is_hidden(PIDGIN_CONVERSATION(conv)) && pidgin_conv_window_get_gtkconv_count(win) == 1) {
+	if(pidgin_conv_window_get_gtkconv_count(win) == 1) {
 		GtkWidget *window = win->window;
 
 		set_conv_window_trans(NULL, win);
