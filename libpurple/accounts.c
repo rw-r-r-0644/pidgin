@@ -26,6 +26,7 @@
 #include "core.h"
 #include "debug.h"
 #include "network.h"
+#include "purpleaccountmanager.h"
 #include "purpleconversationmanager.h"
 #include "purplecredentialmanager.h"
 #include "purpleenums.h"
@@ -33,7 +34,6 @@
 
 static PurpleAccountUiOps *account_ui_ops = NULL;
 
-static GList   *accounts = NULL;
 static guint    save_timer = 0;
 static gboolean accounts_loaded = FALSE;
 
@@ -49,20 +49,24 @@ purple_accounts_network_changed_cb(GNetworkMonitor *m, gboolean available,
 /*********************************************************************
  * Writing to disk                                                   *
  *********************************************************************/
+static void
+accounts_to_xmlnode_helper(PurpleAccount *account, gpointer data) {
+	PurpleXmlNode *node = data, *child = NULL;
+
+	child = _purple_account_to_xmlnode(account);
+	purple_xmlnode_insert_child(node, child);
+}
+
 static PurpleXmlNode *
 accounts_to_xmlnode(void)
 {
-	PurpleXmlNode *node, *child;
-	GList *cur;
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+	PurpleXmlNode *node = NULL;
 
 	node = purple_xmlnode_new("account");
 	purple_xmlnode_set_attrib(node, "version", "1.0");
 
-	for (cur = purple_accounts_get_all(); cur != NULL; cur = cur->next)
-	{
-		child = _purple_account_to_xmlnode(cur->data);
-		purple_xmlnode_insert_child(node, child);
-	}
+	purple_account_manager_foreach(manager, accounts_to_xmlnode_helper, node);
 
 	return node;
 }
@@ -505,60 +509,32 @@ parse_account(PurpleXmlNode *node)
 }
 
 static void
-load_accounts(void)
-{
+load_accounts(void) {
+	PurpleAccountManager *manager = NULL;
 	PurpleXmlNode *node, *child;
 
 	accounts_loaded = TRUE;
 
 	node = purple_util_read_xml_from_config_file("accounts.xml", _("accounts"));
 
-	if (node == NULL)
+	if(node == NULL) {
 		return;
+	}
 
-	for (child = purple_xmlnode_get_child(node, "account"); child != NULL;
-			child = purple_xmlnode_get_next_twin(child))
+	manager = purple_account_manager_get_default();
+
+	for(child = purple_xmlnode_get_child(node, "account"); child != NULL;
+	    child = purple_xmlnode_get_next_twin(child))
 	{
 		PurpleAccount *new_acct;
 		new_acct = parse_account(child);
-		purple_accounts_add(new_acct);
+
+		purple_account_manager_add(manager, new_acct);
 	}
 
 	purple_xmlnode_free(node);
 
 	_purple_buddy_icons_account_loaded_cb();
-}
-
-void
-purple_accounts_add(PurpleAccount *account)
-{
-	g_return_if_fail(account != NULL);
-
-	if (g_list_find(accounts, account) != NULL)
-		return;
-
-	accounts = g_list_append(accounts, account);
-
-	purple_accounts_schedule_save();
-
-	purple_signal_emit(purple_accounts_get_handle(), "account-added", account);
-}
-
-void
-purple_accounts_remove(PurpleAccount *account)
-{
-	g_return_if_fail(account != NULL);
-
-	accounts = g_list_remove(accounts, account);
-
-	purple_accounts_schedule_save();
-
-	/* Clearing the error ensures that account-error-changed is emitted,
-	 * which is the end of the guarantee that the the error's pointer is
-	 * valid.
-	 */
-	purple_account_clear_current_error(account);
-	purple_signal_emit(purple_accounts_get_handle(), "account-removed", account);
 }
 
 static void
@@ -584,10 +560,11 @@ purple_accounts_delete_set(GObject *obj, GAsyncResult *res, gpointer d) {
 void
 purple_accounts_delete(PurpleAccount *account)
 {
-	PurpleBlistNode *gnode, *cnode, *bnode;
+	PurpleAccountManager *manager = NULL;
+	PurpleBlistNode *gnode = NULL, *cnode = NULL, *bnode = NULL;
 	PurpleConversationManager *conv_manager = NULL;
 	PurpleCredentialManager *cred_manager = NULL;
-	GList *iter;
+	GList *iter = NULL;
 
 	g_return_if_fail(account != NULL);
 
@@ -602,36 +579,41 @@ purple_accounts_delete(PurpleAccount *account)
 	purple_notify_close_with_handle(account);
 	purple_request_close_with_handle(account);
 
-	purple_accounts_remove(account);
+	manager = purple_account_manager_get_default();
+	purple_account_manager_remove(manager, account);
 
 	/* Remove this account's buddies */
-	for (gnode = purple_blist_get_default_root(); gnode != NULL;
-	     gnode = purple_blist_node_get_sibling_next(gnode)) {
-		if (!PURPLE_IS_GROUP(gnode))
+	for(gnode = purple_blist_get_default_root(); gnode != NULL;
+	    gnode = purple_blist_node_get_sibling_next(gnode))
+	{
+		if(!PURPLE_IS_GROUP(gnode)) {
 			continue;
+		}
 
 		cnode = purple_blist_node_get_first_child(gnode);
-		while (cnode) {
+		while(cnode) {
 			PurpleBlistNode *cnode_next = purple_blist_node_get_sibling_next(cnode);
 
 			if(PURPLE_IS_CONTACT(cnode)) {
 				bnode = purple_blist_node_get_first_child(cnode);
-				while (bnode) {
+				while(bnode) {
 					PurpleBlistNode *bnode_next = purple_blist_node_get_sibling_next(bnode);
 
 					if (PURPLE_IS_BUDDY(bnode)) {
 						PurpleBuddy *b = (PurpleBuddy *)bnode;
 
-						if (purple_buddy_get_account(b) == account)
+						if(purple_buddy_get_account(b) == account) {
 							purple_blist_remove_buddy(b);
+						}
 					}
 					bnode = bnode_next;
 				}
-			} else if (PURPLE_IS_CHAT(cnode)) {
+			} else if(PURPLE_IS_CHAT(cnode)) {
 				PurpleChat *c = (PurpleChat *)cnode;
 
-				if (purple_chat_get_account(c) == account)
+				if(purple_chat_get_account(c) == account) {
 					purple_blist_remove_chat(c);
+				}
 			}
 			cnode = cnode_next;
 		}
@@ -662,112 +644,34 @@ purple_accounts_delete(PurpleAccount *account)
 	                                               NULL);
 }
 
-void
-purple_accounts_reorder(PurpleAccount *account, guint new_index)
-{
-	gint index;
-	GList *l;
+static void
+purple_accounts_restore_current_status(PurpleAccount *account,
+                                       G_GNUC_UNUSED gpointer data) {
+	gboolean enabled = FALSE, online = FALSE;
 
-	g_return_if_fail(account != NULL);
-	g_return_if_fail(new_index <= g_list_length(accounts));
+	enabled = purple_account_get_enabled(account, purple_core_get_ui());
+	online = purple_presence_is_online(purple_account_get_presence(account));
 
-	index = g_list_index(accounts, account);
-
-	if (index < 0) {
-		purple_debug_error("accounts",
-				   "Unregistered account (%s) discovered during reorder!\n",
-				   purple_account_get_username(account));
-		return;
+	if(enabled && online) {
+		purple_account_connect(account);
 	}
-
-	l = g_list_nth(accounts, index);
-
-	if (new_index > (guint)index)
-		new_index--;
-
-	/* Remove the old one. */
-	accounts = g_list_delete_link(accounts, l);
-
-	/* Insert it where it should go. */
-	accounts = g_list_insert(accounts, account, new_index);
-
-	purple_accounts_schedule_save();
-}
-
-GList *
-purple_accounts_get_all(void)
-{
-	return accounts;
-}
-
-GList *
-purple_accounts_get_all_active(void)
-{
-	GList *list = NULL;
-	GList *all = purple_accounts_get_all();
-
-	while (all != NULL) {
-		PurpleAccount *account = all->data;
-
-		if (purple_account_get_enabled(account, purple_core_get_ui()))
-			list = g_list_append(list, account);
-
-		all = all->next;
-	}
-
-	return list;
-}
-
-PurpleAccount *
-purple_accounts_find(const char *name, const char *protocol_id)
-{
-	PurpleAccount *account = NULL;
-	GList *l;
-	char *who;
-
-	g_return_val_if_fail(name != NULL, NULL);
-	g_return_val_if_fail(protocol_id != NULL, NULL);
-
-	for (l = purple_accounts_get_all(); l != NULL; l = l->next) {
-		account = (PurpleAccount *)l->data;
-
-		if (!purple_strequal(purple_account_get_protocol_id(account), protocol_id))
-			continue;
-
-		who = g_strdup(purple_normalize(account, name));
-		if (purple_strequal(purple_normalize(account, purple_account_get_username(account)), who)) {
-			g_free(who);
-			return account;
-		}
-		g_free(who);
-	}
-
-	return NULL;
 }
 
 void
-purple_accounts_restore_current_statuses()
-{
-	GList *l;
-	PurpleAccount *account;
+purple_accounts_restore_current_statuses() {
+	PurpleAccountManager *manager = NULL;
 
 	/* If we're not connected to the Internet right now, we bail on this */
-	if (!purple_network_is_available())
-	{
-		purple_debug_warning("accounts", "Network not connected; skipping reconnect\n");
+	if (!purple_network_is_available()) {
+		g_warning("Network not connected; skipping reconnect");
+
 		return;
 	}
 
-	for (l = purple_accounts_get_all(); l != NULL; l = l->next)
-	{
-		account = (PurpleAccount *)l->data;
-
-		if (purple_account_get_enabled(account, purple_core_get_ui()) &&
-			(purple_presence_is_online(purple_account_get_presence(account))))
-		{
-			purple_account_connect(account);
-		}
-	}
+	manager = purple_account_manager_get_default();
+	purple_account_manager_foreach(manager,
+	                               purple_accounts_restore_current_status,
+	                               NULL);
 }
 
 static PurpleAccountUiOps *
@@ -979,9 +883,52 @@ purple_accounts_uninit(void)
 		sync_accounts();
 	}
 
-	for (; accounts; accounts = g_list_delete_link(accounts, accounts))
-		g_object_unref(G_OBJECT(accounts->data));
-
 	purple_signals_disconnect_by_handle(handle);
 	purple_signals_unregister_by_instance(handle);
 }
+
+/******************************************************************************
+ * Deprecated API
+ *****************************************************************************/
+void
+purple_accounts_add(PurpleAccount *account) {
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+
+	purple_account_manager_add(manager, account);
+}
+
+void
+purple_accounts_remove(PurpleAccount *account) {
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+
+	purple_account_manager_remove(manager, account);
+}
+
+GList *
+purple_accounts_get_all(void) {
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+
+	return purple_account_manager_get_all(manager);
+}
+
+GList *
+purple_accounts_get_all_active(void) {
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+
+	return purple_account_manager_get_active(manager);
+}
+
+void
+purple_accounts_reorder(PurpleAccount *account, guint new_index) {
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+
+	purple_account_manager_reorder(manager, account, new_index);
+}
+
+PurpleAccount *
+purple_accounts_find(const char *name, const char *protocol_id) {
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+
+	return purple_account_manager_find(manager, name, protocol_id);
+}
+

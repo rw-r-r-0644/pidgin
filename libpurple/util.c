@@ -27,6 +27,7 @@
 #include "debug.h"
 #include "notify.h"
 #include "prefs.h"
+#include "purpleaccountmanager.h"
 #include "purpleconversation.h"
 #include "purpleprotocol.h"
 #include "purpleprotocolclient.h"
@@ -1895,7 +1896,8 @@ set_status_with_attrs(PurpleStatus *status, ...)
 
 void purple_util_set_current_song(const char *title, const char *artist, const char *album)
 {
-	GList *list = purple_accounts_get_all();
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+	GList *list = purple_account_manager_get_all(manager);
 	for (; list; list = list->next) {
 		PurplePresence *presence;
 		PurpleStatus *tune;

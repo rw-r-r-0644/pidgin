@@ -29,6 +29,7 @@
 #include "debug.h"
 #include "notify.h"
 #include "prefs.h"
+#include "purpleaccountmanager.h"
 #include "purpleprivate.h"
 #include "purpleprotocol.h"
 #include "purpleprotocolchat.h"
@@ -360,8 +361,8 @@ accountprivacy_to_xmlnode(PurpleAccount *account)
 }
 
 static PurpleXmlNode *
-blist_to_xmlnode(void)
-{
+blist_to_xmlnode(void) {
+	PurpleAccountManager *manager = purple_account_manager_get_default();
 	PurpleXmlNode *node, *child, *grandchild;
 	PurpleBlistNode *gnode;
 	GList *cur;
@@ -394,7 +395,8 @@ blist_to_xmlnode(void)
 
 	/* Write privacy settings */
 	child = purple_xmlnode_new_child(node, "privacy");
-	for (cur = purple_accounts_get_all(); cur != NULL; cur = cur->next)
+	for(cur = purple_account_manager_get_all(manager); cur != NULL;
+	    cur = cur->next)
 	{
 		grandchild = accountprivacy_to_xmlnode(cur->data);
 		purple_xmlnode_insert_child(child, grandchild);
@@ -497,9 +499,9 @@ parse_setting(PurpleBlistNode *node, PurpleXmlNode *setting)
 }
 
 static void
-parse_buddy(PurpleGroup *group, PurpleContact *contact, PurpleXmlNode *bnode)
-{
+parse_buddy(PurpleGroup *group, PurpleContact *contact, PurpleXmlNode *bnode) {
 	PurpleAccount *account;
+	PurpleAccountManager *manager = purple_account_manager_get_default();
 	PurpleBuddy *buddy;
 	char *name = NULL, *alias = NULL;
 	const char *acct_name, *proto;
@@ -508,28 +510,33 @@ parse_buddy(PurpleGroup *group, PurpleContact *contact, PurpleXmlNode *bnode)
 	acct_name = purple_xmlnode_get_attrib(bnode, "account");
 	proto = purple_xmlnode_get_attrib(bnode, "proto");
 
-	if (!acct_name || !proto)
+	if(!acct_name || !proto) {
 		return;
+	}
 
-	account = purple_accounts_find(acct_name, proto);
+	account = purple_account_manager_find(manager, acct_name, proto);
 
-	if (!account)
+	if(!account) {
 		return;
+	}
 
-	if ((x = purple_xmlnode_get_child(bnode, "name")))
+	if((x = purple_xmlnode_get_child(bnode, "name"))) {
 		name = purple_xmlnode_get_data(x);
+	}
 
-	if (!name)
+	if(!name) {
 		return;
+	}
 
-	if ((x = purple_xmlnode_get_child(bnode, "alias")))
+	if((x = purple_xmlnode_get_child(bnode, "alias"))) {
 		alias = purple_xmlnode_get_data(x);
+	}
 
 	buddy = purple_buddy_new(account, name, alias);
 	purple_blist_add_buddy(buddy, contact, group,
 			_purple_blist_get_last_child((PurpleBlistNode*)contact));
 
-	for (x = purple_xmlnode_get_child(bnode, "setting"); x; x = purple_xmlnode_get_next_twin(x)) {
+	for(x = purple_xmlnode_get_child(bnode, "setting"); x; x = purple_xmlnode_get_next_twin(x)) {
 		parse_setting((PurpleBlistNode*)buddy, x);
 	}
 
@@ -568,8 +575,9 @@ parse_contact(PurpleGroup *group, PurpleXmlNode *cnode)
 static void
 parse_chat(PurpleGroup *group, PurpleXmlNode *cnode)
 {
-	PurpleChat *chat;
 	PurpleAccount *account;
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+	PurpleChat *chat;
 	const char *acct_name, *proto;
 	PurpleXmlNode *x;
 	char *alias = NULL;
@@ -578,20 +586,23 @@ parse_chat(PurpleGroup *group, PurpleXmlNode *cnode)
 	acct_name = purple_xmlnode_get_attrib(cnode, "account");
 	proto = purple_xmlnode_get_attrib(cnode, "proto");
 
-	if (!acct_name || !proto)
+	if(!acct_name || !proto) {
 		return;
+	}
 
-	account = purple_accounts_find(acct_name, proto);
+	account = purple_account_manager_find(manager, acct_name, proto);
 
-	if (!account)
+	if(!account) {
 		return;
+	}
 
-	if ((x = purple_xmlnode_get_child(cnode, "alias")))
+	if((x = purple_xmlnode_get_child(cnode, "alias"))) {
 		alias = purple_xmlnode_get_data(x);
+	}
 
 	components = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 
-	for (x = purple_xmlnode_get_child(cnode, "component"); x; x = purple_xmlnode_get_next_twin(x)) {
+	for(x = purple_xmlnode_get_child(cnode, "component"); x; x = purple_xmlnode_get_next_twin(x)) {
 		const char *name;
 		char *value;
 
@@ -604,7 +615,7 @@ parse_chat(PurpleGroup *group, PurpleXmlNode *cnode)
 	purple_blist_add_chat(chat, group,
 			_purple_blist_get_last_child((PurpleBlistNode*)group));
 
-	for (x = purple_xmlnode_get_child(cnode, "setting"); x; x = purple_xmlnode_get_next_twin(x)) {
+	for(x = purple_xmlnode_get_child(cnode, "setting"); x; x = purple_xmlnode_get_next_twin(x)) {
 		parse_setting((PurpleBlistNode*)chat, x);
 	}
 
@@ -638,24 +649,28 @@ parse_group(PurpleXmlNode *groupnode)
 static void
 load_blist(void)
 {
+	PurpleAccountManager *manager = NULL;
 	PurpleXmlNode *purple, *blist, *privacy;
 
 	blist_loaded = TRUE;
 
 	purple = purple_util_read_xml_from_config_file("blist.xml", _("buddy list"));
 
-	if (purple == NULL)
+	if(purple == NULL) {
 		return;
+	}
+
+	manager = purple_account_manager_get_default();
 
 	blist = purple_xmlnode_get_child(purple, "blist");
-	if (blist) {
+	if(blist) {
 		PurpleXmlNode *groupnode;
 
 		localized_default_group_name = g_strdup(
 			purple_xmlnode_get_attrib(blist,
 				"localized-default-group"));
 
-		for (groupnode = purple_xmlnode_get_child(blist, "group"); groupnode != NULL;
+		for(groupnode = purple_xmlnode_get_child(blist, "group"); groupnode != NULL;
 				groupnode = purple_xmlnode_get_next_twin(groupnode)) {
 			parse_group(groupnode);
 		}
@@ -665,11 +680,11 @@ load_blist(void)
 	}
 
 	privacy = purple_xmlnode_get_child(purple, "privacy");
-	if (privacy) {
+	if(privacy) {
 		PurpleXmlNode *anode;
-		for (anode = privacy->child; anode; anode = anode->next) {
-			PurpleXmlNode *x;
+		for(anode = privacy->child; anode; anode = anode->next) {
 			PurpleAccount *account;
+			PurpleXmlNode *x;
 			int imode;
 			const char *acct_name, *proto, *mode;
 
@@ -677,27 +692,30 @@ load_blist(void)
 			proto = purple_xmlnode_get_attrib(anode, "proto");
 			mode = purple_xmlnode_get_attrib(anode, "mode");
 
-			if (!acct_name || !proto || !mode)
+			if(!acct_name || !proto || !mode) {
 				continue;
+			}
 
-			account = purple_accounts_find(acct_name, proto);
+			account = purple_account_manager_find(manager, acct_name, proto);
 
-			if (!account)
+			if(!account) {
 				continue;
+			}
 
 			imode = atoi(mode);
 			purple_account_set_privacy_type(account, (imode != 0 ? imode : PURPLE_ACCOUNT_PRIVACY_ALLOW_ALL));
 
-			for (x = anode->child; x; x = x->next) {
+			for(x = anode->child; x; x = x->next) {
 				char *name;
-				if (x->type != PURPLE_XMLNODE_TYPE_TAG)
+				if(x->type != PURPLE_XMLNODE_TYPE_TAG) {
 					continue;
+				}
 
-				if (purple_strequal(x->name, "permit")) {
+				if(purple_strequal(x->name, "permit")) {
 					name = purple_xmlnode_get_data(x);
 					purple_account_privacy_permit_add(account, name, TRUE);
 					g_free(name);
-				} else if (purple_strequal(x->name, "block")) {
+				} else if(purple_strequal(x->name, "block")) {
 					name = purple_xmlnode_get_data(x);
 					purple_account_privacy_deny_add(account, name, TRUE);
 					g_free(name);
@@ -727,17 +745,18 @@ purple_blist_set_ui(GType type)
 void
 purple_blist_boot(void)
 {
-	GList *account;
+	PurpleAccountManager *manager = NULL;
 	PurpleBuddyList *gbl = g_object_new(buddy_list_type, NULL);
+	GList *l;
 
 	buddies_cache = g_hash_table_new_full(g_direct_hash, g_direct_equal,
 					 NULL, (GDestroyNotify)g_hash_table_destroy);
 
 	groups_cache = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
-	for (account = purple_accounts_get_all(); account != NULL; account = account->next)
-	{
-		purple_blist_buddies_cache_add_account(account->data);
+	manager = purple_account_manager_get_default();
+	for(l = purple_account_manager_get_all(manager); l != NULL; l = l->next) {
+		purple_blist_buddies_cache_add_account(PURPLE_ACCOUNT(l->data));
 	}
 
 	purplebuddylist = gbl;
