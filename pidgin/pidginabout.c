@@ -543,15 +543,13 @@ pidgin_about_dialog_class_init(PidginAboutDialogClass *klass) {
 	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, build_info_page);
 	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, build_info_store);
 	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, build_info_treeview);
+
+	gtk_widget_class_bind_template_callback(widget_class, pidgin_about_dialog_close);
 }
 
 static void
 pidgin_about_dialog_init(PidginAboutDialog *about) {
 	gtk_widget_init_template(GTK_WIDGET(about));
-
-	/* wire up the close button */
-	g_signal_connect(about->close_button, "clicked",
-	                 G_CALLBACK(pidgin_about_dialog_close), about);
 
 	/* setup the application name label */
 	pidgin_about_dialog_load_application_name(about);

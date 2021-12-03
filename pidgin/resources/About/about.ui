@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <interface>
-  <requires lib="Talkatu" version="0.0"/>
   <requires lib="gtk+" version="3.22"/>
+  <requires lib="Talkatu" version="0.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
@@ -87,6 +87,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <signal name="clicked" handler="pidgin_about_dialog_close" object="PidginAboutDialog" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
