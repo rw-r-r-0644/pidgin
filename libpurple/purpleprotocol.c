@@ -22,7 +22,7 @@
 
 #include "purpleprotocol.h"
 
-#include "accounts.h"
+#include "purpleaccountmanager.h"
 #include "purpleenums.h"
 
 enum {
@@ -145,6 +145,25 @@ purple_protocol_set_options(PurpleProtocol *protocol,
 	g_object_notify_by_pspec(G_OBJECT(protocol), properties[PROP_OPTIONS]);
 }
 
+static void
+purple_protocol_foreach_account_disconnect(PurpleAccount *account,
+                                           gpointer data)
+{
+	const gchar *protocol_id = (const gchar *)data;
+
+	/* I'm not sure that we can finalize a protocol plugin if an account is
+	 * still using it..  Right now accounts don't ref protocols, but maybe
+	 * they should?
+	 */
+	if(purple_account_is_disconnected(account)) {
+		return;
+	}
+
+	if(purple_strequal(protocol_id, purple_account_get_protocol_id(account))) {
+		purple_account_disconnect(account);
+	}
+}
+
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
@@ -228,11 +247,15 @@ purple_protocol_init(PurpleProtocol *protocol) {
 
 static void
 purple_protocol_finalize(GObject *object) {
+	PurpleAccountManager *manager = purple_account_manager_get_default();
 	PurpleProtocol *protocol = PURPLE_PROTOCOL(object);
 	PurpleProtocolPrivate *priv = NULL;
-	GList *accounts, *l;
 
 	priv = purple_protocol_get_instance_private(protocol);
+
+	purple_account_manager_foreach(manager,
+	                               purple_protocol_foreach_account_disconnect,
+	                               priv->id);
 
 	g_clear_pointer(&priv->id, g_free);
 	g_clear_pointer(&priv->name, g_free);
@@ -240,22 +263,6 @@ purple_protocol_finalize(GObject *object) {
 	g_clear_pointer(&priv->icon_name, g_free);
 	g_clear_pointer(&priv->icon_search_path, g_free);
 	g_clear_pointer(&priv->icon_resource_path, g_free);
-
-	/* I'm not sure that we can finalize a protocol plugin if an account is
-	 * still using it..  Right now accounts don't ref protocols, but maybe
-	 * they should?
-	 */
-	accounts = purple_accounts_get_all_active();
-	for (l = accounts; l != NULL; l = l->next) {
-		PurpleAccount *account = PURPLE_ACCOUNT(l->data);
-		if (purple_account_is_disconnected(account))
-			continue;
-
-		if (purple_strequal(priv->id, purple_account_get_protocol_id(account)))
-			purple_account_disconnect(account);
-	}
-
-	g_list_free(accounts);
 
 	/* these seem to be fallbacks if the subclass protocol doesn't do it's own
 	 * clean up?  I kind of want to delete them... - gk 2021-03-03

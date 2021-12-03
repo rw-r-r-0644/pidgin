@@ -1,5 +1,6 @@
 PROGS = [
     'account_option',
+    'account_manager',
     'circular_buffer',
     'credential_manager',
     'credential_provider',

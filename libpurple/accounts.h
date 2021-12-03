@@ -119,6 +119,7 @@ G_BEGIN_DECLS
  *
  * Adds an account to the list of accounts.
  */
+G_DEPRECATED_FOR(purple_account_manager_add)
 void purple_accounts_add(PurpleAccount *account);
 
 /**
@@ -127,6 +128,7 @@ void purple_accounts_add(PurpleAccount *account);
  *
  * Removes an account from the list of accounts.
  */
+G_DEPRECATED_FOR(purple_account_manager_remove)
 void purple_accounts_remove(PurpleAccount *account);
 
 /**
@@ -148,6 +150,7 @@ void purple_accounts_delete(PurpleAccount *account);
  *
  * Reorders an account.
  */
+G_DEPRECATED_FOR(purple_account_manager_reorder)
 void purple_accounts_reorder(PurpleAccount *account, guint new_index);
 
 /**
@@ -157,6 +160,7 @@ void purple_accounts_reorder(PurpleAccount *account, guint new_index);
  *
  * Returns: (element-type PurpleAccount) (transfer none): A list of all accounts.
  */
+G_DEPRECATED_FOR(purple_account_manager_get_all)
 GList *purple_accounts_get_all(void);
 
 /**
@@ -167,6 +171,7 @@ GList *purple_accounts_get_all(void);
  * Returns: (element-type PurpleAccount) (transfer container): A list of all
  *          enabled accounts.
  */
+G_DEPRECATED_FOR(purple_account_manager_get_active)
 GList *purple_accounts_get_all_active(void);
 
 /**
@@ -178,6 +183,7 @@ GList *purple_accounts_get_all_active(void);
  *
  * Returns: (transfer none): The account, if found, or %NULL otherwise.
  */
+G_DEPRECATED_FOR(purple_account_manager_find)
 PurpleAccount *purple_accounts_find(const char *name, const char *protocol);
 
 /**

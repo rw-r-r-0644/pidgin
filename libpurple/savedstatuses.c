@@ -27,6 +27,7 @@
 #include "debug.h"
 #include "idle.h"
 #include "notify.h"
+#include "purpleaccountmanager.h"
 #include "purplemarkup.h"
 #include "savedstatuses.h"
 #include "request.h"
@@ -374,42 +375,46 @@ parse_substatus(PurpleXmlNode *substatus)
 
 	/* Read the account */
 	node = purple_xmlnode_get_child(substatus, "account");
-	if (node != NULL)
-	{
-		char *acct_name;
+	if(node != NULL) {
+		gchar *acct_name;
 		const char *protocol;
+
 		acct_name = purple_xmlnode_get_data(node);
 		protocol = purple_xmlnode_get_attrib(node, "protocol");
-		if ((acct_name != NULL) && (protocol != NULL))
-			ret->account = purple_accounts_find(acct_name, protocol);
+
+		if(acct_name != NULL && protocol != NULL) {
+			PurpleAccountManager *manager = NULL;
+
+			manager = purple_account_manager_get_default();
+
+			ret->account = purple_account_manager_find(manager, acct_name,
+			                                           protocol);
+		}
+
 		g_free(acct_name);
 	}
 
-	if (ret->account == NULL)
-	{
+	if(ret->account == NULL) {
 		g_free(ret);
 		return NULL;
 	}
 
 	/* Read the state */
 	node = purple_xmlnode_get_child(substatus, "state");
-	if ((node != NULL) && ((data = purple_xmlnode_get_data(node)) != NULL))
-	{
+	if((node != NULL) && ((data = purple_xmlnode_get_data(node)) != NULL)) {
 		ret->type = purple_status_type_find_with_id(
 							purple_account_get_status_types(ret->account), data);
 		g_free(data);
 	}
 
-	if (ret->type == NULL)
-	{
+	if(ret->type == NULL) {
 		g_free(ret);
 		return NULL;
 	}
 
 	/* Read the message */
 	node = purple_xmlnode_get_child(substatus, "message");
-	if ((node != NULL) && ((data = purple_xmlnode_get_data(node)) != NULL))
-	{
+	if((node != NULL) && ((data = purple_xmlnode_get_data(node)) != NULL)) {
 		ret->message = data;
 	}
 
@@ -846,14 +851,15 @@ purple_savedstatus_is_idleaway()
 }
 
 void
-purple_savedstatus_set_idleaway(gboolean idleaway)
-{
-	GList *accounts, *node;
+purple_savedstatus_set_idleaway(gboolean idleaway) {
+	PurpleAccountManager *manager = NULL;
 	PurpleSavedStatus *old, *saved_status;
+	GList *accounts, *node;
 
-	if (purple_savedstatus_is_idleaway() == idleaway)
+	if(purple_savedstatus_is_idleaway() == idleaway) {
 		/* Don't need to do anything */
 		return;
+	}
 
 	old = purple_savedstatus_get_current();
 	saved_status = idleaway ? purple_savedstatus_get_idleaway()
@@ -861,16 +867,19 @@ purple_savedstatus_set_idleaway(gboolean idleaway)
 	purple_prefs_set_bool("/purple/savedstatus/isidleaway", idleaway);
 
 	/* Changing our status makes us un-idle */
-	if (!idleaway)
+	if(!idleaway) {
 		purple_idle_touch();
+	}
 
-	if (idleaway && (purple_savedstatus_get_primitive_type(old) != PURPLE_STATUS_AVAILABLE))
+	if(idleaway && (purple_savedstatus_get_primitive_type(old) != PURPLE_STATUS_AVAILABLE))
+	{
 		/* Our global status is already "away," so don't change anything */
 		return;
+	}
 
-	accounts = purple_accounts_get_all_active();
-	for (node = accounts; node != NULL; node = node->next)
-	{
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_active(manager);
+	for (node = accounts; node != NULL; node = node->next) {
 		PurpleAccount *account;
 		PurplePresence *presence;
 		PurpleStatus *status;
@@ -1085,10 +1094,10 @@ purple_savedstatus_substatus_get_message(const PurpleSavedStatusSub *substatus)
 }
 
 void
-purple_savedstatus_activate(PurpleSavedStatus *saved_status)
-{
-	GList *accounts, *node;
+purple_savedstatus_activate(PurpleSavedStatus *saved_status) {
+	PurpleAccountManager *manager = NULL;
 	PurpleSavedStatus *old = purple_savedstatus_get_current();
+	GList *accounts, *node;
 
 	g_return_if_fail(saved_status != NULL);
 
@@ -1096,13 +1105,14 @@ purple_savedstatus_activate(PurpleSavedStatus *saved_status)
 	saved_status->lastused = time(NULL);
 	saved_status->usage_count++;
 	saved_statuses = g_list_remove(saved_statuses, saved_status);
-	saved_statuses = g_list_insert_sorted(saved_statuses, saved_status, saved_statuses_sort_func);
+	saved_statuses = g_list_insert_sorted(saved_statuses, saved_status,
+	                                      saved_statuses_sort_func);
 	purple_prefs_set_int("/purple/savedstatus/default",
-					   purple_savedstatus_get_creation_time(saved_status));
+	                     purple_savedstatus_get_creation_time(saved_status));
 
-	accounts = purple_accounts_get_all_active();
-	for (node = accounts; node != NULL; node = node->next)
-	{
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_active(manager);
+	for(node = accounts; node != NULL; node = node->next) {
 		PurpleAccount *account;
 
 		account = node->data;
@@ -1112,11 +1122,11 @@ purple_savedstatus_activate(PurpleSavedStatus *saved_status)
 
 	g_list_free(accounts);
 
-	if (purple_savedstatus_is_idleaway()) {
+	if(purple_savedstatus_is_idleaway()) {
 		purple_savedstatus_set_idleaway(FALSE);
 	} else {
-		purple_signal_emit(purple_savedstatuses_get_handle(), "savedstatus-changed",
-					 	   saved_status, old);
+		purple_signal_emit(purple_savedstatuses_get_handle(),
+		                   "savedstatus-changed", saved_status, old);
 	}
 }
 

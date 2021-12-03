@@ -29,6 +29,7 @@
 #include "network.h"
 #include "notify.h"
 #include "prefs.h"
+#include "purpleaccountmanager.h"
 #include "purpleaccountpresence.h"
 #include "purpleconversationmanager.h"
 #include "purplecredentialmanager.h"
@@ -1152,22 +1153,24 @@ purple_account_class_init(PurpleAccountClass *klass)
  * Public API
  *****************************************************************************/
 PurpleAccount *
-purple_account_new(const char *username, const char *protocol_id)
-{
+purple_account_new(const gchar *username, const gchar *protocol_id) {
 	PurpleAccount *account;
+	PurpleAccountManager *manager = NULL;
 
 	g_return_val_if_fail(username != NULL, NULL);
 	g_return_val_if_fail(protocol_id != NULL, NULL);
 
-	account = purple_accounts_find(username, protocol_id);
-
-	if (account != NULL)
+	manager = purple_account_manager_get_default();
+	account = purple_account_manager_find(manager, username, protocol_id);
+	if(account != NULL) {
 		return account;
+	}
 
-	account = g_object_new(PURPLE_TYPE_ACCOUNT,
-					"username",    username,
-					"protocol-id", protocol_id,
-					NULL);
+	account = g_object_new(
+		PURPLE_TYPE_ACCOUNT,
+		"username", username,
+		"protocol-id", protocol_id,
+		NULL);
 
 	return account;
 }

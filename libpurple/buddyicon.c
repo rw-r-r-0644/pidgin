@@ -23,6 +23,7 @@
 #include "buddyicon.h"
 #include "debug.h"
 #include "image.h"
+#include "purpleaccountmanager.h"
 #include "purpleconversation.h"
 #include "purpleconversationmanager.h"
 #include "purpleprivate.h"
@@ -1003,33 +1004,39 @@ delete_buddy_icon_settings(PurpleBlistNode *node, const char *setting_name)
 	}
 }
 
-void
-_purple_buddy_icons_account_loaded_cb()
+static void
+_purple_buddy_icons_account_loaded_cb_helper(PurpleAccount *account,
+                                             gpointer data)
 {
-	const char *dirname = purple_buddy_icons_get_cache_dir();
-	GList *cur;
+	const gchar *dirname = (const gchar *)data;
+	const gchar *filename = NULL;
 
-	for (cur = purple_accounts_get_all(); cur != NULL; cur = cur->next)
-	{
-		PurpleAccount *account = cur->data;
-		const char *account_icon_file = purple_account_get_string(account, "buddy_icon", NULL);
+	filename = purple_account_get_string(account, "buddy_icon", NULL);
+	if(filename != NULL) {
+		gchar *path = g_build_filename(dirname, filename, NULL);
 
-		if (account_icon_file != NULL)
-		{
-			char *path = g_build_filename(dirname, account_icon_file, NULL);
-			if (!g_file_test(path, G_FILE_TEST_EXISTS))
-			{
-				purple_account_set_string(account, "buddy_icon", NULL);
-			} else {
-				ref_filename(account_icon_file);
-			}
-			g_free(path);
+		if(!g_file_test(path, G_FILE_TEST_EXISTS)) {
+			purple_account_set_string(account, "buddy_icon", NULL);
+		} else {
+			ref_filename(filename);
 		}
+		g_free(path);
 	}
 }
 
 void
-_purple_buddy_icons_blist_loaded_cb()
+_purple_buddy_icons_account_loaded_cb(void)
+{
+	PurpleAccountManager *manager = purple_account_manager_get_default();
+	const char *dirname = purple_buddy_icons_get_cache_dir();
+
+	purple_account_manager_foreach(manager,
+	                               _purple_buddy_icons_account_loaded_cb_helper,
+	                               (gpointer)dirname);
+}
+
+void
+_purple_buddy_icons_blist_loaded_cb(void)
 {
 	PurpleBlistNode *node = purple_blist_get_default_root();
 	const char *dirname = purple_buddy_icons_get_cache_dir();
