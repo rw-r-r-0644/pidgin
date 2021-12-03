@@ -6115,11 +6115,15 @@ pidgin_blist_get_handle() {
 static gboolean buddy_signonoff_timeout_cb(PurpleBuddy *buddy)
 {
 	PidginBlistNode *gtknode = g_object_get_data(G_OBJECT(buddy), UI_DATA);
+	PurpleAccount *account = NULL;
 
 	gtknode->recent_signonoff = FALSE;
 	gtknode->recent_signonoff_timer = 0;
 
-	pidgin_blist_update(NULL, PURPLE_BLIST_NODE(buddy));
+	account = purple_buddy_get_account(buddy);
+	if(purple_account_is_connected(account)) {
+		pidgin_blist_update(NULL, PURPLE_BLIST_NODE(buddy));
+	}
 
 	return FALSE;
 }
