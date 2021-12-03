@@ -1741,9 +1741,14 @@ combo_box_changed_cb(GtkComboBoxText *combo_box, GtkEntry *entry)
 }
 
 static gboolean
-entry_key_pressed_cb(GtkWidget *entry, GdkEventKey *key, GtkComboBoxText *combo)
+entry_key_pressed_cb(G_GNUC_UNUSED GtkEventControllerKey *controller,
+                     guint keyval, G_GNUC_UNUSED guint keycode,
+                     G_GNUC_UNUSED GdkModifierType state,
+                     gpointer data)
 {
-	if (key->keyval == GDK_KEY_Down || key->keyval == GDK_KEY_Up) {
+	GtkComboBoxText *combo = data;
+
+	if (keyval == GDK_KEY_Down || keyval == GDK_KEY_Up) {
 		gtk_combo_box_popup(GTK_COMBO_BOX(combo));
 		return TRUE;
 	}
@@ -1755,6 +1760,7 @@ pidgin_text_combo_box_entry_new(const char *default_item, GList *items)
 {
 	GtkComboBoxText *ret = NULL;
 	GtkWidget *the_entry = NULL;
+	GtkEventController *controller = NULL;
 
 	ret = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new_with_entry());
 	the_entry = gtk_bin_get_child(GTK_BIN(ret));
@@ -1769,7 +1775,12 @@ pidgin_text_combo_box_entry_new(const char *default_item, GList *items)
 	}
 
 	g_signal_connect(G_OBJECT(ret), "changed", (GCallback)combo_box_changed_cb, the_entry);
-	g_signal_connect_after(G_OBJECT(the_entry), "key-press-event", G_CALLBACK(entry_key_pressed_cb), ret);
+
+	controller = gtk_event_controller_key_new(the_entry);
+	g_object_set_data_full(G_OBJECT(the_entry), "pidgin-event-controller",
+	                       controller, g_object_unref);
+	g_signal_connect_after(G_OBJECT(controller), "key-pressed",
+	                       G_CALLBACK(entry_key_pressed_cb), ret);
 
 	return GTK_WIDGET(ret);
 }
