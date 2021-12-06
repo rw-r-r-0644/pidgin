@@ -65,7 +65,8 @@ typedef void (*PurpleAccountManagerForeachFunc)(PurpleAccount *account, gpointer
  */
 PurpleAccountManager *purple_account_manager_get_default(void);
 
-/** purple_account_manager_add:
+/**
+ * purple_account_manager_add:
  * @manager: The account manager instance.
  * @account: (transfer full): The account to add.
  *
@@ -75,7 +76,8 @@ PurpleAccountManager *purple_account_manager_get_default(void);
  */
 void purple_account_manager_add(PurpleAccountManager *manager, PurpleAccount *account);
 
-/** purple_account_manager_remove:
+/**
+ * purple_account_manager_remove:
  * @manager: The account manager instance.
  * @account: The account to remove.
  *
