@@ -103,6 +103,47 @@ pidgin_conversation_window_foreach_destroy(GtkTreeModel *model,
 	return FALSE;
 }
 
+static gboolean
+pidgin_conversation_window_key_pressed_cb(GtkEventControllerKey *controller,
+                                          guint keyval,
+                                          G_GNUC_UNUSED guint keycode,
+                                          GdkModifierType state,
+                                          gpointer data)
+{
+	PidginConversationWindow *window = data;
+
+	/* If CTRL was held down... */
+	if (state & GDK_CONTROL_MASK) {
+		switch (keyval) {
+			case GDK_KEY_Page_Down:
+			case GDK_KEY_KP_Page_Down:
+			case ']':
+				pidgin_conversation_window_select_next(window);
+				return TRUE;
+				break;
+
+			case GDK_KEY_Page_Up:
+			case GDK_KEY_KP_Page_Up:
+			case '[':
+				pidgin_conversation_window_select_previous(window);
+				return TRUE;
+				break;
+		} /* End of switch */
+	}
+
+	/* If ALT (or whatever) was held down... */
+	else if (state & GDK_MOD1_MASK) {
+		if ('1' <= keyval && keyval <= '9') {
+			guint switchto = keyval - '1';
+			pidgin_conversation_window_select_nth(window, switchto);
+
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 /******************************************************************************
  * GObjectImplementation
  *****************************************************************************/
@@ -123,6 +164,7 @@ pidgin_conversation_window_init(PidginConversationWindow *window) {
 	GtkBuilder *builder = NULL;
 	GtkWidget *menubar = NULL;
 	GMenuModel *model = NULL;
+	GtkEventController *key = NULL;
 
 	gtk_widget_init_template(GTK_WIDGET(window));
 
@@ -139,6 +181,14 @@ pidgin_conversation_window_init(PidginConversationWindow *window) {
 	gtk_widget_show(menubar);
 
 	g_object_unref(G_OBJECT(builder));
+
+	key = gtk_event_controller_key_new(GTK_WIDGET(window));
+	gtk_event_controller_set_propagation_phase(key, GTK_PHASE_CAPTURE);
+	g_signal_connect(G_OBJECT(key), "key-pressed",
+	                 G_CALLBACK(pidgin_conversation_window_key_pressed_cb),
+	                 window);
+	g_object_set_data_full(G_OBJECT(window), "key-press-controller", key,
+	                       g_object_unref);
 }
 
 static void

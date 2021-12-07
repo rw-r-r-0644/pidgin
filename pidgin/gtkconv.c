@@ -1032,29 +1032,9 @@ update_typing_deleting(PidginConversation *gtkconv)
 static gboolean
 conv_keypress_common(PidginConversation *gtkconv, GdkEventKey *event)
 {
-	PidginConversationWindow *convwin;
-	GtkWidget *win;
-
-	win = gtk_widget_get_toplevel(gtkconv->tab_cont);
-	convwin = PIDGIN_CONVERSATION_WINDOW(win);
-
 	/* If CTRL was held down... */
 	if (event->state & GDK_CONTROL_MASK) {
 		switch (event->keyval) {
-			case GDK_KEY_Page_Down:
-			case GDK_KEY_KP_Page_Down:
-			case ']':
-				pidgin_conversation_window_select_next(convwin);
-				return TRUE;
-				break;
-
-			case GDK_KEY_Page_Up:
-			case GDK_KEY_KP_Page_Up:
-			case '[':
-				pidgin_conversation_window_select_previous(convwin);
-				return TRUE;
-				break;
-
 			case GDK_KEY_F6:
 				if (gtkconv_cycle_focus(gtkconv, event->state & GDK_SHIFT_MASK ? GTK_DIR_TAB_BACKWARD : GTK_DIR_TAB_FORWARD))
 					return TRUE;
@@ -1065,13 +1045,6 @@ conv_keypress_common(PidginConversation *gtkconv, GdkEventKey *event)
 	/* If ALT (or whatever) was held down... */
 	else if (event->state & GDK_MOD1_MASK)
 	{
-		if (event->keyval > '0' && event->keyval <= '9')
-		{
-			guint switchto = event->keyval - '1';
-			pidgin_conversation_window_select_nth(convwin, switchto);
-
-			return TRUE;
-		}
 	}
 
 	/* If neither CTRL nor ALT were held down... */
