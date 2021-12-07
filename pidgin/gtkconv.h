@@ -70,8 +70,6 @@ enum {
 
 #include <purple.h>
 
-#include "gtkconvwin.h"
-
 /**************************************************************************
  * Structures
  **************************************************************************/
@@ -87,11 +85,7 @@ struct _PidginConversation
 	GList *convs;
 	GList *send_history;
 
-	PidginConvWindow *win;
-
 	GtkWidget *tab_cont;
-	GtkWidget *tabby;
-	GtkWidget *menu_tabby;
 
 	PurpleMessageFlags last_flags;
 	GtkWidget *history_sw;
@@ -99,12 +93,6 @@ struct _PidginConversation
 
 	GtkWidget *editor;
 	GtkWidget *entry;
-
-	GtkWidget *close; /* "x" on the tab */
-	GtkWidget *icon;
-	GtkWidget *tab_label;
-	GtkWidget *menu_icon;
-	GtkWidget *menu_label;
 
 	PidginUnseenState unseen_state;
 	guint unseen_count;
@@ -175,19 +163,6 @@ GList *
 pidgin_conversations_get_unseen_all(PidginUnseenState min_state, guint max_count);
 
 /**
- * pidgin_conversations_fill_menu:
- * @menu: Menu widget to add items to.
- * @convs: (element-type PurpleConversation): List of PurpleConversation to add to menu.
- *
- * Fill a menu with a list of conversations. Clicking the conversation
- * menu item will present that conversation to the user.
- *
- * Returns:       Number of conversations added to menu.
- */
-guint
-pidgin_conversations_fill_menu(GtkWidget *menu, GList *convs);
-
-/**
  * pidgin_conv_present_conversation:
  * @conv: The conversation.
  *
@@ -206,33 +181,12 @@ void pidgin_conv_present_conversation(PurpleConversation *conv);
 gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv);
 
 /**
- * pidgin_conv_get_window:
- * @gtkconv: The GTK conversation.
- *
- * Returns: The window the conversation belongs to.
- */
-PidginConvWindow *pidgin_conv_get_window(PidginConversation *gtkconv);
-
-/**
  * pidgin_conv_new:
  * @conv: The conversation.
  *
  * Creates a new GTK conversation for a given #PurpleConversation.
  */
 void pidgin_conv_new(PurpleConversation *conv);
-
-/**
- * pidgin_conv_get_tab_at_xy:
- * @win:      The conversation window.
- * @x:        X-coordinate to look up.
- * @y:        Y-coordinate to look up.
- * @to_right: (out): Return address for a boolean which will be %TRUE if the
- *            coordinates are on the right side of the tab (or bottom in case of
- *            a vertical notebook), %FALSE otherwise.
- *
- * Returns: The tab index of a conversation in @win at (@x, @y).
- */
-int pidgin_conv_get_tab_at_xy(PidginConvWindow *win, int x, int y, gboolean *to_right);
 
 /**************************************************************************/
 /* GTK Conversations Subsystem                                            */
@@ -260,6 +214,8 @@ void pidgin_conversations_init(void);
  * Uninitialized the GTK conversation subsystem.
  */
 void pidgin_conversations_uninit(void);
+
+void pidgin_conversation_detach(PurpleConversation *conv);
 
 G_END_DECLS
 

@@ -149,14 +149,19 @@ static int
 alert(PurpleConversation *conv)
 {
 	gint count;
-	PidginConvWindow *purplewin = NULL;
+	PidginConversation *gtkconv = NULL;
+	PidginConversationWindow *convwin = NULL;
+	GtkWidget *win = NULL;
+
 	if (conv == NULL || PIDGIN_CONVERSATION(conv) == NULL)
 		return 0;
 
-	purplewin = PIDGIN_CONVERSATION(conv)->win;
+	gtkconv = PIDGIN_CONVERSATION(conv);
+	win = gtk_widget_get_toplevel(gtkconv->tab_cont);
+	convwin = PIDGIN_CONVERSATION_WINDOW(win);
 
-	if (!pidgin_conv_window_has_focus(purplewin) ||
-		!pidgin_conv_window_is_active_conversation(conv))
+	if (!gtk_widget_has_focus(win) ||
+		!pidgin_conversation_window_conversation_is_selected(convwin, conv))
 	{
 		count = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv),
 				"unity-message-count"));
@@ -256,7 +261,6 @@ message_source_activated(MessagingMenuApp *app, const gchar *id,
 	PurpleConversation *conv = NULL;
 	PurpleConversationManager *manager = NULL;
 	PurpleAccount *account;
-	PidginConvWindow *purplewin = NULL;
 
 	char *type     = sections[0];
 	char *cname    = sections[1];
@@ -276,10 +280,16 @@ message_source_activated(MessagingMenuApp *app, const gchar *id,
 	}
 
 	if (conv) {
+		GtkWidget *win = NULL;
+		PidginConversationWindow *convwin = NULL;
+
+		win = gtk_widget_get_toplevel(PIDGIN_CONVERSATION(conv)->tab_cont);
+		convwin = PIDGIN_CONVERSATION_WINDOW(win);
+
 		unalert(conv);
-		purplewin = PIDGIN_CONVERSATION(conv)->win;
-		pidgin_conv_window_switch_gtkconv(purplewin, PIDGIN_CONVERSATION(conv));
-		gdk_window_focus(gtk_widget_get_window(purplewin->window), time(NULL));
+
+		pidgin_conversation_window_select(convwin, conv);
+		gdk_window_focus(gtk_widget_get_window(win), time(NULL));
 	}
 	g_strfreev (sections);
 }

@@ -20,11 +20,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <interface>
-  <requires lib="gtk+" version="3.22"/>
+  <requires lib="gtk+" version="3.24"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
+  <object class="GtkTreeStore" id="model">
+    <columns>
+      <!-- column-name conversation -->
+      <column type="GObject"/>
+      <!-- column-name icon -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name markup -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <template class="PidginConversationWindow" parent="GtkApplicationWindow">
     <property name="can-focus">False</property>
     <property name="role">conversation</property>
@@ -34,7 +44,81 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <placeholder/>
+          <object class="GtkPaned" id="paned">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="position">100</property>
+            <property name="wide-handle">True</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="shadow-type">in</property>
+                <property name="propagate-natural-width">True</property>
+                <child>
+                  <object class="GtkTreeView" id="view">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="model">model</property>
+                    <property name="headers-visible">False</property>
+                    <property name="search-column">2</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection">
+                        <signal name="changed" handler="pidgin_conversation_window_selection_changed" object="PidginConversationWindow" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="markup">
+                        <child>
+                          <object class="GtkCellRendererPixbuf" id="icon"/>
+                          <attributes>
+                            <attribute name="pixbuf">1</attribute>
+                          </attributes>
+                        </child>
+                        <child>
+                          <object class="GtkCellRendererText" id="name"/>
+                          <attributes>
+                            <attribute name="markup">2</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">True</property>
+                <property name="shrink">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkStack" id="stack">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Select a conversation to chat!</property>
+                  </object>
+                  <packing>
+                    <property name="name">__empty__</property>
+                    <property name="title" translatable="yes">__empty__</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">True</property>
+                <property name="shrink">True</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="pack-type">end</property>
+            <property name="position">0</property>
+          </packing>
         </child>
       </object>
     </child>

@@ -812,7 +812,9 @@ version 3.0.0 (??/??/????):
 		* pidgin_check_if_dir
 		* PidginConversation.sg
 		* PidginConvPlacementFunc
+		* pidgin_conv_get_tab_at_xy
 		* pidgin_conv_get_tab_icon, use PidginPresenceIcon instead.
+		* pidgin_conv_get_window
 		* pidgin_conv_is_hidden
 		* pidgin_conv_placement_get_name
 		* pidgin_conv_placement_add_fnc
@@ -821,10 +823,29 @@ version 3.0.0 (??/??/????):
 		* pidgin_conv_placement_set_current_func
 		* pidgin_conv_placement_get_current_func
 		* pidgin_conv_update_buddy_icon
+		* PidginConvWindow
+		* pidgin_conv_window_add_gtkconv
+		* pidgin_conv_window_destroy
 		* pidgin_conv_window_first_chat
 		* pidgin_conv_window_first_im
+		* pidgin_conv_window_get_active_conversation
+		* pidgin_conv_window_get_active_gtkconv
+		* pidgin_conv_window_get_at_event
+		* pidgin_conv_window_get_gtkconv_at_index
+		* pidgin_conv_window_get_gtkconv_count
+		* pidgin_conv_window_get_gtkconvs
+		* pidgin_conv_window_has_focus
+		* pidgin_conv_window_hide
+		* pidgin_conv_window_is_active_conversation
 		* pidgin_conv_window_last_im
 		* pidgin_conv_window_last_chat
+		* pidgin_conv_window_new
+		* pidgin_conv_window_raise
+		* pidgin_conv_window_remove_gtkconv
+		* pidgin_conv_window_show
+		* pidgin_conv_window_switch_gtkconv
+		* pidgin_conv_windows_get_list
+		* pidgin_conversations_fill_menu
 		* pidgin_create_dialog, use pidgin_dialog_new instead.
 		* pidgin_create_small_button, use pidgin_close_button_new instead.
 		* pidgin_create_status_icon

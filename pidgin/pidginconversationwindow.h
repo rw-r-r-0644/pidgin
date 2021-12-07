@@ -31,6 +31,8 @@
 
 #include <gtk/gtk.h>
 
+#include <purple.h>
+
 G_BEGIN_DECLS
 
 /**
@@ -55,17 +57,147 @@ G_DECLARE_FINAL_TYPE(PidginConversationWindow, pidgin_conversation_window,
 GtkWidget *pidgin_conversation_window_new(void);
 
 /**
- * pidgin_conversation_window_get_vbox:
- * @window: The #PidginConversationWindow instance.
+ * pidgin_conversation_window_get_default:
  *
- * Gets the main vertical box of @window.
+ * Gets or creates the default conversation window.
  *
- * Returns: (transfer none): The main vertical box of @window.
+ * Returns: (transfer none): The default #PidginConversationWindow.
  *
  * Since: 3.0.0
- * Deprecated: 3.0.0
  */
-GtkWidget *pidgin_conversation_window_get_vbox(PidginConversationWindow *window);
+GtkWidget *pidgin_conversation_window_get_default(void);
+
+/**
+ * pidgin_conversation_window_add:
+ * @window: The #PidginConversationWindow instance.
+ * @conversation: The #PurpleConversation to add to @window.
+ *
+ * Adds @conversation to @window. If @conversation is already in @window, this
+ * does nothing.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_conversation_window_add(PidginConversationWindow *window, PurpleConversation *conversation);
+
+/**
+ * pidgin_conversation_window_remove:
+ * @window: The #PidginConversationWindow instance.
+ * @conversation: The #PurpleConversation to remove from @window.
+ *
+ * Removes @conversation from @window. If @conversation is not in @window, this
+ * does nothing.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_conversation_window_remove(PidginConversationWindow *window, PurpleConversation *conversation);
+
+/**
+ * pidgin_conversation_window_get_count:
+ * @window: The conversation window instance.
+ *
+ * Gets the number of conversations that @window contains.
+ *
+ * Returns: The number of conversations that @window contains.
+ *
+ * Since: 3.0.0
+ */
+guint pidgin_conversation_window_get_count(PidginConversationWindow *window);
+
+/**
+ * pidgin_conversation_window_get_selected:
+ * @window: The conversation window instance.
+ *
+ * Gets the currently selected PurpleConversation or %NULL if there is no
+ * selection.
+ *
+ * Returns: (transfer full): The selected PurpleConversation or %NULL.
+ *
+ * Since: 3.0.0
+ */
+PurpleConversation *pidgin_conversation_window_get_selected(PidginConversationWindow *window);
+
+/**
+ * pidgin_conversation_window_select:
+ * @window: The conversation window instance.
+ * @conversation: The conversation to select.
+ *
+ * Selects @conversation, making it the active conversation.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_conversation_window_select(PidginConversationWindow *window, PurpleConversation *conversation);
+
+/**
+ * pidgin_conversation_window_select_previous:
+ * @window: The conversation window instance.
+ *
+ * Switches to the conversation previous to the currently selected
+ * conversation.
+ *
+ * If no conversation is selected, the last conversation will be selected.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_conversation_window_select_previous(PidginConversationWindow *window);
+
+/**
+ * pidgin_conversation_window_select_next:
+ * @window: The conversation window instance.
+ *
+ * Switches to the conversation next of the currently selected conversation.
+ *
+ * If no conversation is selected, the first conversation will be selected.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_conversation_window_select_next(PidginConversationWindow *window);
+
+/**
+ * pidgin_conversation_window_select_first:
+ * @window: The conversation window instance.
+ *
+ * Selects the first conversation in @window. If there are no conversations in
+ * @window this does nothing.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_conversation_window_select_first(PidginConversationWindow *window);
+
+/**
+ * pidgin_conversation_window_select_last:
+ * @window: The conversation window instance.
+ *
+ * Selects the last conversation in @window. If there are no conversations in
+ * @window this does nothing.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_conversation_window_select_last(PidginConversationWindow *window);
+
+/**
+ * pidgin_conversation_window_select_nth:
+ * @window: The conversation window instance.
+ * @nth: The index of the conversation to switch to.
+ *
+ * Switches to the @nth conversation. @nth is a 0 based index, so the first
+ * conversation is at index 0.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_conversation_window_select_nth(PidginConversationWindow *window, guint nth);
+
+/**
+ * pidgin_conversation_window_conversation_is_selected:
+ * @window: The conversation window instance.
+ * @conversation: The conversation instance.
+ *
+ * Checks whether @conversation is the active conversation in @window.
+ *
+ * Returns: %TRUE if @conversation is active.
+ *
+ * Since: 3.0.0
+ */
+gboolean pidgin_conversation_window_conversation_is_selected(PidginConversationWindow *window, PurpleConversation *conversation);
 
 G_END_DECLS
 
