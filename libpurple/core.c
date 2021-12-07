@@ -229,7 +229,6 @@ purple_core_quit(void)
 	purple_savedstatuses_uninit();
 	purple_statuses_uninit();
 	purple_accounts_uninit();
-	purple_account_manager_shutdown();
 	purple_xfers_uninit();
 	purple_proxy_uninit();
 	_purple_image_store_uninit();
@@ -244,6 +243,7 @@ purple_core_quit(void)
 	purple_plugins_uninit();
 
 	/* after plugins */
+	purple_account_manager_shutdown();
 	purple_credential_manager_shutdown();
 	purple_protocol_manager_shutdown();
 	purple_cmds_uninit();
