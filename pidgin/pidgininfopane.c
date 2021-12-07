@@ -71,12 +71,12 @@ pidgin_info_pane_set_conversation(PidginInfoPane *pane,
 
 		g_object_bind_property(G_OBJECT(conversation), "name",
 		                       G_OBJECT(pane->name), "label",
-		                       G_BINDING_BIDIRECTIONAL);
+		                       G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
 
 		if(PURPLE_IS_CHAT_CONVERSATION(conversation)) {
 			g_object_bind_property(G_OBJECT(conversation), "topic",
 			                       G_OBJECT(pane->topic), "label",
-			                       G_BINDING_DEFAULT);
+			                       G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
 			fallback = "chat";
 		} else if(PURPLE_IS_IM_CONVERSATION(conversation)){
 			PurpleAccount *account = NULL;
@@ -139,12 +139,12 @@ pidgin_info_pane_set_property(GObject *obj, guint param_id, const GValue *value,
 }
 
 static void
-pidgin_info_pane_finalize(GObject *obj) {
+pidgin_info_pane_dispose(GObject *obj) {
 	PidginInfoPane *pane = PIDGIN_INFO_PANE(obj);
 
 	g_clear_object(&pane->conversation);
 
-	G_OBJECT_CLASS(pidgin_info_pane_parent_class)->finalize(obj);
+	G_OBJECT_CLASS(pidgin_info_pane_parent_class)->dispose(obj);
 }
 
 static void
@@ -159,7 +159,7 @@ pidgin_info_pane_class_init(PidginInfoPaneClass *klass) {
 
 	obj_class->get_property = pidgin_info_pane_get_property;
 	obj_class->set_property = pidgin_info_pane_set_property;
-	obj_class->finalize = pidgin_info_pane_finalize;
+	obj_class->dispose = pidgin_info_pane_dispose;
 
 	/**
 	 * PidginInfoPane::conversation

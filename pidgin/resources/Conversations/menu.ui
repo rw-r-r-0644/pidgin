@@ -46,10 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <attribute name="accel">&lt;Primary&gt;F</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">_Save As...</attribute>
-          <attribute name="action">win.save-as</attribute>
-        </item>
-        <item>
           <attribute name="label" translatable="yes">Clea_r Scrollback</attribute>
           <attribute name="action">win.clear-history</attribute>
           <attribute name="accel">&lt;Primary&gt;L</attribute>
@@ -99,20 +95,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <attribute name="action">win.alias</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">_Block...</attribute>
+          <attribute name="label" translatable="yes">_Blocked...</attribute>
           <attribute name="action">win.block</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">_Unblock...</attribute>
-          <attribute name="action">win.unblock</attribute>
-        </item>
-        <item>
-          <attribute name="label" translatable="yes">_Add...</attribute>
-          <attribute name="action">win.add</attribute>
-        </item>
-        <item>
-          <attribute name="label" translatable="yes">_Remove...</attribute>
-          <attribute name="action">win.remove</attribute>
+          <attribute name="label" translatable="yes">_Save Contact</attribute>
+          <attribute name="action">win.save-contact</attribute>
         </item>
       </section>
       <section>

@@ -64,7 +64,6 @@ libpidgin_headers = [
 	'gtkblist.h',
 	'gtkconn.h',
 	'gtkconv.h',
-	'gtkconvwin.h',
 	'gtkdialogs.h',
 	'gtkidle.h',
 	'gtkmedia.h',

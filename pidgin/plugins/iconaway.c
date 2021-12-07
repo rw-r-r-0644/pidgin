@@ -29,25 +29,21 @@
 static void
 iconify_windows(PurpleAccount *account, PurpleStatus *old, PurpleStatus *newstatus)
 {
+	GApplication *application = NULL;
 	PurplePresence *presence;
-	PidginConvWindow *win;
 	GList *windows;
 
 	presence = purple_status_get_presence(newstatus);
 
-	if (purple_presence_is_available(presence))
+	if(purple_presence_is_available(presence)) {
 		return;
+	}
 
 	purple_blist_set_visible(FALSE);
 
-	for (windows = pidgin_conv_windows_get_list();
-		 windows != NULL;
-		 windows = windows->next) {
-
-		win = (PidginConvWindow *)windows->data;
-
-		gtk_window_iconify(GTK_WINDOW(win->window));
-	}
+	application = g_application_get_default();
+	windows = gtk_application_get_windows(GTK_APPLICATION(application));
+	g_list_foreach(windows, (GFunc)gtk_window_iconify, NULL);
 }
 
 /*

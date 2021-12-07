@@ -125,9 +125,6 @@ static void handle_count_xprop(PidginConvWindow *purplewin);
 /* urgent function */
 static void handle_urgent(PidginConvWindow *purplewin, gboolean set);
 
-/* raise function */
-static void handle_raise(PidginConvWindow *purplewin);
-
 /* present function */
 static void handle_present(PurpleConversation *conv);
 
@@ -203,8 +200,6 @@ notify_win(PidginConvWindow *purplewin, PurpleConversation *conv)
 		handle_string(purplewin);
 	if (purple_prefs_get_bool("/plugins/gtk/X11/notify/method_urgent"))
 		handle_urgent(purplewin, TRUE);
-	if (purple_prefs_get_bool("/plugins/gtk/X11/notify/method_raise"))
-		handle_raise(purplewin);
 	if (purple_prefs_get_bool("/plugins/gtk/X11/notify/method_present"))
 		handle_present(conv);
 }
@@ -213,14 +208,17 @@ static void
 unnotify(PurpleConversation *conv, gboolean reset)
 {
 	PurpleConversation *active_conv = NULL;
-	PidginConvWindow *purplewin = NULL;
+	PidginConversationWindow *purplewin = NULL;
+	GtkWidget *win;
 
 	g_return_if_fail(conv != NULL);
 	if (PIDGIN_CONVERSATION(conv) == NULL)
 		return;
 
-	purplewin = PIDGIN_CONVERSATION(conv)->win;
-	active_conv = pidgin_conv_window_get_active_conversation(purplewin);
+	win = gtk_widget_get_toplevel(PIDGIN_CONVERSATION(conv)->tab_cont);
+	purplewin = PIDGIN_CONVERSATION_WINDOW(win);
+
+	activate_conv = pidgin_conversation_window_get_selected(purplewin);
 
 	/* reset the conversation window title */
 	purple_conversation_autoset_title(active_conv);
@@ -566,12 +564,6 @@ handle_urgent(PidginConvWindow *purplewin, gboolean set)
 	g_return_if_fail(purplewin->window != NULL);
 
 	gtk_window_set_urgency_hint(GTK_WINDOW(purplewin->window), set);
-}
-
-static void
-handle_raise(PidginConvWindow *purplewin)
-{
-	pidgin_conv_window_raise(purplewin);
 }
 
 static void

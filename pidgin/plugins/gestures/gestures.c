@@ -48,70 +48,53 @@ stroke_close(GtkWidget *widget, void *data)
 }
 
 static void
-switch_page(PidginConvWindow *win, GtkDirectionType dir)
-{
-	int count, current;
-
-	count = gtk_notebook_get_n_pages(GTK_NOTEBOOK(win->notebook));
-	current = gtk_notebook_get_current_page(GTK_NOTEBOOK(win->notebook));
-
-	if (dir == GTK_DIR_LEFT)
-	{
-		gtk_notebook_set_current_page(GTK_NOTEBOOK(win->notebook), current - 1);
-	}
-	else if (dir == GTK_DIR_RIGHT)
-	{
-		if (current == count - 1)
-			gtk_notebook_set_current_page(GTK_NOTEBOOK(win->notebook), 0);
-		else
-			gtk_notebook_set_current_page(GTK_NOTEBOOK(win->notebook), current + 1);
-	}
-}
-
-static void
 stroke_prev_tab(GtkWidget *widget, void *data)
 {
 	PurpleConversation *conv;
 	PidginConversation *gtkconv;
-	PidginConvWindow *win;
+	GtkWidget *win;
 
-	conv  = (PurpleConversation *)data;
+	conv = (PurpleConversation *)data;
 	gtkconv = PIDGIN_CONVERSATION(conv);
-	win   = gtkconv->win;
+	win = gtk_widget_get_toplevel(gtkconv->tab_cont);
 
-	switch_page(win, GTK_DIR_LEFT);
+	pidgin_conversation_window_select_previous(PIDGIN_CONVERSATION_WINDOW(win));
 }
 
 static void
 stroke_next_tab(GtkWidget *widget, void *data)
 {
 	PurpleConversation *conv;
-	PidginConvWindow *win;
+	PidginConversation *gtkconv;
+	GtkWidget *win;
 
-	conv  = (PurpleConversation *)data;
-	win   = PIDGIN_CONVERSATION(conv)->win;
+	conv = (PurpleConversation *)data;
+	gtkconv = PIDGIN_CONVERSATION(conv);
+	win = gtk_widget_get_toplevel(gtkconv->tab_cont);
 
-	switch_page(win, GTK_DIR_RIGHT);
+	pidgin_conversation_window_select_next(PIDGIN_CONVERSATION_WINDOW(win));
 }
 
 static void
 stroke_new_win(GtkWidget *widget, void *data)
 {
-	PidginConvWindow *new_win, *old_win;
+	GtkWidget *new_win, *old_win;
 	PurpleConversation *conv;
 
 	conv    = (PurpleConversation *)data;
-	old_win = PIDGIN_CONVERSATION(conv)->win;
+	old_win = gtk_widget_get_parent(PIDGIN_CONVERSATION(conv)->tab_cont);
 
-	if (pidgin_conv_window_get_gtkconv_count(old_win) <= 1)
+	if(pidgin_conversation_window_get_count(PIDGIN_CONVERSATION_WINDOW(old_win)) <= 1) {
 		return;
+	}
 
-	new_win = pidgin_conv_window_new();
+	new_win = pidgin_conversation_window_new();
 
-	pidgin_conv_window_remove_gtkconv(old_win, PIDGIN_CONVERSATION(conv));
-	pidgin_conv_window_add_gtkconv(new_win, PIDGIN_CONVERSATION(conv));
+	pidgin_conversation_window_remove(PIDGIN_CONVERSATION_WINDOW(old_win),
+	                                  conv);
+	pidgin_conversation_window_add(PIDGIN_CONVERSATION_WINDOW(new_win), conv);
 
-	pidgin_conv_window_show(new_win);
+	gtk_widget_show_all(new_win);
 }
 
 static void
