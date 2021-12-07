@@ -254,25 +254,6 @@ gtk_blist_show_cb(GtkWidget *widget, PidginBuddyList *gtkblist)
 			"gtkblist-unhiding", gtkblist);
 }
 
-static void
-gtk_blist_size_allocate_cb(GtkWidget *widget, GtkAllocation *allocation,
-		gpointer data)
-{
-	int new_width;
-	int new_height;
-
-	/* ignore changes when maximized */
-	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/list_maximized")) {
-		return;
-	}
-
-	gtk_window_get_size(GTK_WINDOW(widget), &new_width, &new_height);
-
-	/* store the size */
-	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/blist/width",  new_width);
-	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/blist/height", new_height);
-}
-
 static void gtk_blist_menu_info_cb(GtkWidget *w, PurpleBuddy *b)
 {
 	PurpleAccount *account = purple_buddy_get_account(b);
@@ -3656,26 +3637,6 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 	return text;
 }
 
-static void pidgin_blist_restore_window_state(void)
-{
-	int blist_width, blist_height;
-
-	blist_width = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/blist/width");
-
-	/* if the window exists, is hidden, we're saving sizes, and the
-	 * size is sane... */
-	if (gtkblist && gtkblist->window &&
-		!gtk_widget_get_visible(gtkblist->window) && blist_width != 0) {
-
-		blist_height = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/blist/height");
-
-		gtk_window_set_default_size(GTK_WINDOW(gtkblist->window),
-				blist_width, blist_height);
-		if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/list_maximized"))
-			gtk_window_maximize(GTK_WINDOW(gtkblist->window));
-	}
-}
-
 static gboolean pidgin_blist_refresh_timer(PurpleBuddyList *list)
 {
 	PurpleBlistNode *gnode, *cnode;
@@ -4714,8 +4675,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	                 G_CALLBACK(gtk_blist_hide_cb), gtkblist);
 	g_signal_connect(G_OBJECT(gtkblist->window), "show",
 	                 G_CALLBACK(gtk_blist_show_cb), gtkblist);
-	g_signal_connect(G_OBJECT(gtkblist->window), "size-allocate",
-			G_CALLBACK(gtk_blist_size_allocate_cb), NULL);
 	g_signal_connect(G_OBJECT(gtkblist->window), "visibility_notify_event", G_CALLBACK(gtk_blist_visibility_cb), NULL);
 	g_signal_connect(G_OBJECT(gtkblist->window), "window_state_event", G_CALLBACK(gtk_blist_window_state_cb), NULL);
 	gtk_widget_add_events(gtkblist->window, GDK_VISIBILITY_NOTIFY_MASK);
@@ -4886,7 +4845,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 
 	/* OK... let's show this bad boy. */
 	pidgin_blist_refresh(list);
-	pidgin_blist_restore_window_state();
 	gtk_widget_show_all(GTK_WIDGET(gtkblist->vbox));
 	gtk_widget_realize(GTK_WIDGET(gtkblist->window));
 	purple_blist_set_visible(purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/list_visible"));
@@ -6167,8 +6125,6 @@ void pidgin_blist_init(void)
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/blist/list_visible", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/blist/list_maximized", FALSE);
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/blist/sort_type", "alphabetical");
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/blist/width", 250); /* Golden ratio, baby */
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/blist/height", 405); /* Golden ratio, baby */
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/blist/theme", "");
 
 	/* Register our signals */
