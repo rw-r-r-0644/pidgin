@@ -69,12 +69,12 @@ PurpleProtocol *pidgin_protocol_chooser_get_selected(PidginProtocolChooser *choo
  *
  * Gets the id of the currently selected protocol from @chooser.
  *
- * Returns: (transfer full): The id of the selected #PurpleProtocol or %NULL if
- *                           nothing is selected.
+ * Returns: The id of the selected #PurpleProtocol or %NULL if nothing is
+ *          selected.
  *
  * Since: 3.0.0
  */
-gchar *pidgin_protocol_chooser_get_selected_id(PidginProtocolChooser *chooser);
+const gchar *pidgin_protocol_chooser_get_selected_id(PidginProtocolChooser *chooser);
 
 /**
  * pidgin_protocol_chooser_set_selected_id:
