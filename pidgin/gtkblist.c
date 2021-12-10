@@ -3854,59 +3854,6 @@ static void _prefs_change_sort_method(const char *pref_name, PurplePrefType type
 		pidgin_blist_sort_method_set(val);
 }
 
-static gboolean pidgin_blist_select_notebook_page_cb(gpointer user_data)
-{
-	PidginBuddyList *gtkblist = (PidginBuddyList *)user_data;
-	int errors = 0;
-	GList *list = NULL;
-	PidginBuddyListPrivate *priv;
-
-	priv = pidgin_buddy_list_get_instance_private(gtkblist);
-
-	priv->select_notebook_page_timeout = 0;
-
-	/* this is far too ugly thanks to me not wanting to fix #3989 properly right now */
-	if (priv->error_scrollbook != NULL) {
-		PidginScrollBook *scroll_book = PIDGIN_SCROLL_BOOK(priv->error_scrollbook);
-		GtkWidget *notebook = pidgin_scroll_book_get_notebook(scroll_book);
-		errors = gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));
-	}
-	if ((list = purple_accounts_get_all_active()) != NULL || errors) {
-		gtk_notebook_set_current_page(GTK_NOTEBOOK(gtkblist->notebook), 1);
-		g_list_free(list);
-	} else
-		gtk_notebook_set_current_page(GTK_NOTEBOOK(gtkblist->notebook), 0);
-
-	priv->select_notebook_page_timeout = 0;
-	return FALSE;
-}
-
-static void pidgin_blist_select_notebook_page(PidginBuddyList *gtkblist)
-{
-	PidginBuddyListPrivate *priv =
-	        pidgin_buddy_list_get_instance_private(gtkblist);
-	priv->select_notebook_page_timeout = g_timeout_add(0,
-		pidgin_blist_select_notebook_page_cb, gtkblist);
-}
-
-static void account_modified(PurpleAccount *account, PidginBuddyList *gtkblist)
-{
-	if (!gtkblist)
-		return;
-
-	pidgin_blist_select_notebook_page(gtkblist);
-}
-
-static void
-account_status_changed(PurpleAccount *account, PurpleStatus *old,
-					   PurpleStatus *new, PidginBuddyList *gtkblist)
-{
-	if (!gtkblist)
-		return;
-
-	account_modified(account, gtkblist);
-}
-
 static void
 reset_headline(PidginBuddyList *gtkblist)
 {
@@ -4349,9 +4296,6 @@ update_account_error_state(PurpleAccount *account,
 	if (old == NULL && new == NULL)
 		return;
 
-	if (new != NULL)
-		pidgin_blist_select_notebook_page(gtkblist);
-
 	if (old != NULL && new == NULL) {
 		if(old->type == PURPLE_CONNECTION_ERROR_NAME_IN_USE)
 			remove_from_signed_on_elsewhere(account);
@@ -4636,9 +4580,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	GtkWidget *sep;
 	GtkWidget *infobar;
 	GtkWidget *content_area;
-	GtkWidget *label;
 	GtkWidget *close;
-	gchar *text;
 	GtkTreeSelection *selection;
 	GtkTargetEntry dte[] = {{"PURPLE_BLIST_NODE", GTK_TARGET_SAME_APP, DRAG_ROW},
 				{"application/x-im-contact", 0, DRAG_BUDDY},
@@ -4668,7 +4610,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	/* the main vbox is already packed and shown via glade, we just need a
 	 * reference to it to pack the rest of our widgets here.
 	 */
-	gtkblist->main_vbox = pidgin_contact_list_get_vbox(PIDGIN_CONTACT_LIST(gtkblist->window));
+	gtkblist->vbox = pidgin_contact_list_get_vbox(PIDGIN_CONTACT_LIST(gtkblist->window));
 
 	g_signal_connect(G_OBJECT(gtkblist->window), "delete_event", G_CALLBACK(gtk_blist_delete_cb), NULL);
 	g_signal_connect(G_OBJECT(gtkblist->window), "hide",
@@ -4678,34 +4620,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	g_signal_connect(G_OBJECT(gtkblist->window), "visibility_notify_event", G_CALLBACK(gtk_blist_visibility_cb), NULL);
 	g_signal_connect(G_OBJECT(gtkblist->window), "window_state_event", G_CALLBACK(gtk_blist_window_state_cb), NULL);
 	gtk_widget_add_events(gtkblist->window, GDK_VISIBILITY_NOTIFY_MASK);
-
-	/****************************** Notebook *************************************/
-	gtkblist->notebook = gtk_notebook_new();
-	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(gtkblist->notebook), FALSE);
-	gtk_notebook_set_show_border(GTK_NOTEBOOK(gtkblist->notebook), FALSE);
-	gtk_box_pack_start(GTK_BOX(gtkblist->main_vbox), gtkblist->notebook, TRUE, TRUE, 0);
-
-#if 0
-	gtk_notebook_append_page(GTK_NOTEBOOK(gtkblist->notebook), kiosk_page(), NULL);
-#endif
-
-	/* Translators: Please maintain the use of ⇦ or ⇨ to refer to menu hierarchy */
-	text = g_strdup_printf(_("<span weight='bold' size='larger'>Welcome to %s!</span>\n\n"
-
-					       "You have no accounts enabled. Enable your IM accounts from the "
-					       "<b>Accounts</b> window at <b>Accounts⇨Manage Accounts</b>. Once you "
-					       "enable accounts, you'll be able to sign on, set your status, "
-					       "and talk to your friends."), PIDGIN_NAME);
-	label = gtk_label_new(NULL);
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-	gtk_label_set_yalign(GTK_LABEL(label), 0.2);
-	gtk_label_set_markup(GTK_LABEL(label), text);
-	g_free(text);
-	gtk_notebook_append_page(GTK_NOTEBOOK(gtkblist->notebook),label, NULL);
-	gtkblist->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_notebook_append_page(GTK_NOTEBOOK(gtkblist->notebook), gtkblist->vbox, NULL);
-	gtk_widget_show_all(gtkblist->notebook);
-	pidgin_blist_select_notebook_page(gtkblist);
 
 	/****************************** Headline **********************************/
 
@@ -4873,22 +4787,9 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	/* Setup some purple signal handlers. */
 
 	handle = purple_accounts_get_handle();
-	purple_signal_connect(handle, "account-enabled", gtkblist,
-	                      PURPLE_CALLBACK(account_modified), gtkblist);
-	purple_signal_connect(handle, "account-disabled", gtkblist,
-	                      PURPLE_CALLBACK(account_modified), gtkblist);
-	purple_signal_connect(handle, "account-removed", gtkblist,
-	                      PURPLE_CALLBACK(account_modified), gtkblist);
-	purple_signal_connect(handle, "account-status-changed", gtkblist,
-	                      PURPLE_CALLBACK(account_status_changed),
-	                      gtkblist);
 	purple_signal_connect(handle, "account-error-changed", gtkblist,
 	                      PURPLE_CALLBACK(update_account_error_state),
 	                      gtkblist);
-
-	handle = pidgin_accounts_get_handle();
-	purple_signal_connect(handle, "account-modified", gtkblist,
-	                      PURPLE_CALLBACK(account_modified), gtkblist);
 
 	handle = purple_conversations_get_handle();
 	purple_signal_connect(handle, "conversation-updated", gtkblist,

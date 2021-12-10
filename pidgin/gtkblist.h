@@ -75,8 +75,6 @@ struct _PidginBuddyList {
 	PurpleBuddyList parent;
 
 	GtkWidget *window;
-	GtkWidget *notebook;
-	GtkWidget *main_vbox;
 	GtkWidget *vbox;
 
 	GtkWidget *treeview;
