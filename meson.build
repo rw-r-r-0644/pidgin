@@ -562,13 +562,6 @@ if get_option('gtkui')
 endif
 
 #######################################################################
-# Check for Nettle (Crypto Library)
-#######################################################################
-
-nettle = dependency('nettle', version : '>= 3.0', required : get_option('nettle'))
-conf.set('HAVE_NETTLE', nettle.found())
-
-#######################################################################
 # Check for Cyrus-SASL (for xmpp/irc)
 #######################################################################
 foreach func : ['snprintf']
@@ -725,7 +718,6 @@ summary({
 }, section: 'Protocol Support', bool_yn: true, list_sep: ', ')
 
 summary({
-    'Internal credential provider (via Nettle)': nettle.found(),
     'KWallet credential provider': kwallet.found(),
     'libsecret credential provider': libsecret.found(),
     'Unity integration': enable_unity,
