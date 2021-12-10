@@ -3,6 +3,7 @@ subdir('keyrings')
 subdir('kwallet')
 subdir('libsecret')
 subdir('notification-sound')
+subdir('wincred')
 
 autoaccept = library('autoaccept', 'autoaccept.c',
     c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="PurplePlugin-AutoAccept"'],

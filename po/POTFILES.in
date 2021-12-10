@@ -62,13 +62,13 @@ libpurple/plugins/idle.c
 libpurple/plugins/joinpart.c
 libpurple/plugins/keychain-access/keychain-access.c
 libpurple/plugins/keyrings/internalkeyring.c
-libpurple/plugins/keyrings/wincred.c
 libpurple/plugins/kwallet/purplekwallet.cpp
 libpurple/plugins/libsecret/libsecret.c
 libpurple/plugins/notification-sound/notification-sound.c
 libpurple/plugins/psychic.c
 libpurple/plugins/purple-toast.c
 libpurple/plugins/statenotify.c
+libpurple/plugins/wincred/wincred.c
 libpurple/prefs.c
 libpurple/protocols/bonjour/bonjour.c
 libpurple/protocols/bonjour/bonjour_ft.c

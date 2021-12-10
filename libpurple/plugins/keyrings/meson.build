@@ -7,14 +7,6 @@ if nettle.found()
 	    install : false, install_dir : PURPLE_PLUGINDIR)
 endif
 
-if IS_WIN32
-	wincred_plugin = library('wincred', 'wincred.c',
-	    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="Purple-WinCredKeyring"'],
-	    dependencies : [libpurple_dep],
-	    name_prefix : '',
-	    install : true, install_dir : PURPLE_PLUGINDIR)
-endif
-
-if nettle.found() or secretservice.found() or IS_WIN32
+if nettle.found() or secretservice.found()
 	devenv.append('PURPLE_PLUGIN_PATH', meson.current_build_dir())
 endif
