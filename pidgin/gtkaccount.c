@@ -2779,23 +2779,12 @@ pidgin_accounts_get_handle(void) {
 void
 pidgin_accounts_init(void)
 {
-	char *default_avatar = NULL;
 	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/accounts");
 	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/accounts/dialog");
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/accounts/dialog/width",  520);
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/accounts/dialog/height", 321);
-	default_avatar = g_build_filename(g_get_home_dir(), ".face.icon", NULL);
-	if (!g_file_test(default_avatar, G_FILE_TEST_EXISTS)) {
-		g_free(default_avatar);
-		default_avatar = g_build_filename(g_get_home_dir(), ".face", NULL);
-		if (!g_file_test(default_avatar, G_FILE_TEST_EXISTS)) {
-			g_free(default_avatar);
-			default_avatar = NULL;
-		}
-	}
 
-	purple_prefs_add_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon", default_avatar);
-	g_free(default_avatar);
+	purple_prefs_add_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon", NULL);
 
 	purple_signal_register(pidgin_accounts_get_handle(), "account-modified",
 						 purple_marshal_VOID__POINTER, G_TYPE_NONE, 1,
