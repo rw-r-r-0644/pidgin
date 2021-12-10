@@ -1,5 +1,4 @@
 subdir('keychain-access')
-subdir('keyrings')
 subdir('kwallet')
 subdir('libsecret')
 subdir('notification-sound')
