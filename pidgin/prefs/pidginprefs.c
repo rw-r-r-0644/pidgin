@@ -102,7 +102,6 @@ struct _PidginPrefsWindow {
 
 	/* Conversations page */
 	struct {
-		PidginPrefCombo notification_chat;
 		GtkWidget *show_incoming_formatting;
 		struct {
 			GtkWidget *send_typing;
@@ -864,10 +863,6 @@ static void
 bind_conv_page(PidginPrefsWindow *win)
 {
 	GSimpleActionGroup *ag = NULL;
-
-	win->conversations.notification_chat.type = PURPLE_PREF_INT;
-	win->conversations.notification_chat.key = PIDGIN_PREFS_ROOT "/conversations/notification_chat";
-	pidgin_prefs_bind_dropdown(&win->conversations.notification_chat);
 
 	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/show_incoming_formatting",
 			win->conversations.show_incoming_formatting);
@@ -1800,9 +1795,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 			iface.conversations.tab_side.combo);
 
 	/* Conversations page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.notification_chat.combo);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.show_incoming_formatting);
