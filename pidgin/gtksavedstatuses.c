@@ -498,18 +498,6 @@ create_saved_status_list(StatusWindow *dialog)
 	return pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS, GTK_SHADOW_IN, -1, -1);
 }
 
-static gboolean
-configure_cb(GtkWidget *widget, GdkEventConfigure *event, StatusWindow *dialog)
-{
-	if (gtk_widget_get_visible(widget))
-	{
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/status/dialog/width",  event->width);
-		purple_prefs_set_int(PIDGIN_PREFS_ROOT "/status/dialog/height", event->height);
-	}
-
-	return FALSE;
-}
-
 static void
 response_cb(GtkDialog *dialog, gint response_id, gpointer data) {
 	StatusWindow *window = data;
@@ -549,7 +537,6 @@ pidgin_status_window_show(void)
 	GtkWidget *list;
 	GtkWidget *vbox;
 	GtkWidget *win;
-	int width, height;
 
 	if (status_window != NULL)
 	{
@@ -559,15 +546,11 @@ pidgin_status_window_show(void)
 
 	status_window = dialog = g_new0(StatusWindow, 1);
 
-	width  = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/status/dialog/width");
-	height = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/status/dialog/height");
-
 	dialog->window = win = pidgin_dialog_new(_("Saved Statuses"), 12, "statuses", TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(win), width, height);
+	gtk_window_set_default_size(GTK_WINDOW(win), 550, 250);
 
 	g_signal_connect(win, "delete_event", G_CALLBACK(status_window_destroy_cb),
 	                 dialog);
-	g_signal_connect(win, "configure_event", G_CALLBACK(configure_cb), dialog);
 	g_signal_connect(win, "response", G_CALLBACK(response_cb), dialog);
 
 	/* Setup the vbox */
@@ -1836,10 +1819,6 @@ pidgin_status_get_handle(void)
 void
 pidgin_status_init(void)
 {
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/status");
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/status/dialog");
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/status/dialog/width",  550);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/status/dialog/height", 250);
 }
 
 void
