@@ -686,15 +686,13 @@ subdir('po')
 configure_file(output : 'config.h',
     configuration : conf)
 
-if meson.version().version_compare('>=0.58.0')
-	config_home = get_option('devenv-config-dir')
-	if config_home == ''
-		config_home = meson.global_build_root() / 'config'
-	endif
-	devenv.set('XDG_CONFIG_HOME', config_home)
-
-	meson.add_devenv(devenv)
+config_home = get_option('devenv-config-dir')
+if config_home == ''
+	config_home = meson.global_build_root() / 'config'
 endif
+devenv.set('XDG_CONFIG_HOME', config_home)
+
+meson.add_devenv(devenv)
 
 summary({
     'prefix': get_option('prefix'),
