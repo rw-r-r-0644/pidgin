@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_MEDIA_CANDIDATE_H
 #define PURPLE_MEDIA_CANDIDATE_H
-/**
- * SECTION:candidate
- * @section_id: libpurple-candidate
- * @short_description: <filename>media/candidate.h</filename>
- * @title: Candidate for Media API
- */
 
 #include "enum-types.h"
 

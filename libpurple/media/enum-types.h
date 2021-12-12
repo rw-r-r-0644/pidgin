@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_MEDIA_ENUM_TYPES_H
 #define PURPLE_MEDIA_ENUM_TYPES_H
-/**
- * SECTION:enum-types
- * @section_id: libpurple-enum-types
- * @short_description: <filename>media/enum-types.h</filename>
- * @title: Enum types for Media API
- */
 
 #include <glib-object.h>
 

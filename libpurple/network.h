@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_NETWORK_H
 #define PURPLE_NETWORK_H
-/**
- * SECTION:network
- * @section_id: libpurple-network
- * @short_description: <filename>network.h</filename>
- * @title: Network API
- */
 
 #include <glib.h>
 #include <gio/gio.h>

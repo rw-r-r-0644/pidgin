@@ -30,12 +30,6 @@
 
 #ifndef PURPLE_NAT_PMP_H
 #define PURPLE_NAT_PMP_H
-/**
- * SECTION:nat-pmp
- * @section_id: libpurple-nat-pmp
- * @short_description: <filename>nat-pmp.h</filename>
- * @title: NAT-PMP Implementation
- */
 
 #include <glib.h>
 

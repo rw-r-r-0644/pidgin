@@ -25,13 +25,6 @@
 
 #ifndef PURPLE_NOTIFY_H
 #define PURPLE_NOTIFY_H
-/**
- * SECTION:notify
- * @section_id: libpurple-notify
- * @short_description: <filename>notify.h</filename>
- * @title: Notification API
- * @see_also: <link linkend="chapter-signals-notify">Notify signals</link>
- */
 
 #include <stdlib.h>
 #include <glib-object.h>

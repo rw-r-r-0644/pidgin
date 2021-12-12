@@ -26,12 +26,6 @@
 
 #ifndef PURPLE_PREFS_H
 #define PURPLE_PREFS_H
-/**
- * SECTION:prefs
- * @section_id: libpurple-prefs
- * @short_description: <filename>prefs.h</filename>
- * @title: Preferences API
- */
 
 #include <glib.h>
 

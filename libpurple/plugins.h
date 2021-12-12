@@ -25,15 +25,6 @@
 
 #ifndef PURPLE_PLUGINS_H
 #define PURPLE_PLUGINS_H
-/**
- * SECTION:plugins
- * @section_id: libpurple-plugins
- * @short_description: <filename>plugins.h</filename>
- * @title: Plugin API
- * @see_also: <link linkend="chapter-signals-plugin">Plugin signals</link>,
- *     <link linkend="chapter-plugin-ids">Plugin IDs</link>,
- *     <link linkend="chapter-plugin-i18n">Third Party Plugin Translation</link>
- */
 
 #include <gplugin.h>
 #include <gplugin-native.h>
