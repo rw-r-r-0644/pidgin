@@ -96,7 +96,12 @@ typedef struct {
  * helpers
  */
 static PurpleConnection *get_null_gc(const char *username) {
-  PurpleAccount *acct = purple_accounts_find(username, "null");
+  PurpleAccountManager *manager = NULL;
+  PurpleAccount *acct = NULL;
+
+  manager = purple_account_manager_get_default();
+  acct = purple_account_manager_find(manager, username, "null");
+
   if (acct && purple_account_is_connected(acct))
     return purple_account_get_connection(acct);
   else
@@ -469,9 +474,13 @@ static int null_send_im(PurpleProtocolIM *im, PurpleConnection *gc,
   const char *from_username = purple_account_get_username(purple_connection_get_account(gc));
   const gchar *who = purple_message_get_recipient(msg);
   PurpleMessageFlags receive_flags;
-  PurpleAccount *to_acct = purple_accounts_find(who, "null");
+  PurpleAccountManager *manager = NULL;
+  PurpleAccount *to_acct = NULL;
   PurpleConnection *to;
   const gchar *message = purple_message_get_contents(msg);
+
+  manager = purple_account_manager_get_default();
+  to_acct = purple_account_manager_find(manager, who, "null");
 
   receive_flags = ((purple_message_get_flags(msg) & ~PURPLE_MESSAGE_SEND) | PURPLE_MESSAGE_RECV);
 
@@ -563,12 +572,14 @@ null_get_info(PurpleProtocolServer *protocol_server, PurpleConnection *gc,
 {
   const char *body;
   PurpleNotifyUserInfo *info = purple_notify_user_info_new();
+  PurpleAccountManager *manager = NULL;
   PurpleAccount *acct;
 
   purple_debug_info("nullprpl", "Fetching %s's user info for %s\n", username,
                     purple_account_get_username(purple_connection_get_account(gc)));
 
-  acct = purple_accounts_find(username, "null");
+  manager = purple_account_manager_get_default();
+  acct = purple_account_manager_find(manager, username, "null");
 
   if (!get_null_gc(username)) {
     char *msg = g_strdup_printf(_("%s is not logged in."), username);
@@ -827,14 +838,19 @@ null_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
                  gint id, const gchar *message, const gchar *who)
 {
   PurpleAccount *account = purple_connection_get_account(gc);
-  PurpleAccount *to_acct = purple_accounts_find(who, "null");
+  PurpleAccount *to_acct = NULL;
+  PurpleAccountManager *account_manager = NULL;
   PurpleConversation *chat;
-  PurpleConversationManager *manager;
+  PurpleConversationManager *conversation_manager;
   const char *username = purple_account_get_username(account);
   const char *room = NULL;
 
-  manager = purple_conversation_manager_get_default();
-  chat = purple_conversation_manager_find_chat_by_id(manager, account, id);
+  account_manager = purple_account_manager_get_default();
+  to_acct = purple_account_manager_find(account_manager, who, "null");
+
+  conversation_manager = purple_conversation_manager_get_default();
+  chat = purple_conversation_manager_find_chat_by_id(conversation_manager,
+                                                     account, id);
   room = purple_conversation_get_name(chat);
 
   purple_debug_info("nullprpl", "%s is inviting %s to join chat room %s\n",
@@ -843,7 +859,8 @@ null_chat_invite(PurpleProtocolChat *protocol_chat, PurpleConnection *gc,
   if (to_acct) {
     PurpleConversation *to_conv;
 
-    to_conv = purple_conversation_manager_find_chat_by_id(manager, to_acct, id);
+    to_conv = purple_conversation_manager_find_chat_by_id(conversation_manager,
+                                                          to_acct, id);
     if (to_conv) {
       char *tmp = g_strdup_printf("%s is already in chat room %s.", who, room);
       purple_debug_info("nullprpl",

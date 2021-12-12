@@ -3619,15 +3619,19 @@ static void jabber_unregister_commands(PurpleProtocol *protocol)
 
 static PurpleAccount *find_acct(const char *protocol, const char *acct_id)
 {
+	PurpleAccountManager *manager = NULL;
 	PurpleAccount *acct = NULL;
+
+	manager = purple_account_manager_get_default();
 
 	/* If we have a specific acct, use it */
 	if (acct_id) {
-		acct = purple_accounts_find(acct_id, protocol);
-		if (acct && !purple_account_is_connected(acct))
+		acct = purple_account_manager_find(manager, acct_id, protocol);
+		if (acct && !purple_account_is_connected(acct)) {
 			acct = NULL;
+		}
 	} else { /* Otherwise find an active account for the protocol */
-		GList *l = purple_accounts_get_all();
+		GList *l = purple_account_manager_get_all(manager);
 		while (l) {
 			if (purple_strequal(protocol, purple_account_get_protocol_id(l->data))
 					&& purple_account_is_connected(l->data)) {

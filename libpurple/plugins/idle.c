@@ -97,11 +97,13 @@ idle_action_ok(void *ignored, PurpleRequestFields *fields)
 static void
 idle_all_action_ok(void *ignored, PurpleRequestFields *fields)
 {
+	PurpleAccountManager *manager = NULL;
 	PurpleAccount *acct = NULL;
 	GList *list, *iter;
 	int tm = purple_request_fields_get_integer(fields, "mins");
 
-	list = purple_accounts_get_all_active();
+	manager = purple_account_manager_get_default();
+	list = purple_account_manager_get_active(manager);
 	for(iter = list; iter; iter = iter->next) {
 		acct = (PurpleAccount *)(iter->data);
 

@@ -613,6 +613,7 @@ static gboolean
 gg_uri_handler(const gchar *scheme, const gchar *screenname,
 		GHashTable *params)
 {
+	PurpleAccountManager *manager = NULL;
 	GList *accounts;
 	GList *account_node;
 	PurpleConversation *im;
@@ -629,9 +630,10 @@ gg_uri_handler(const gchar *scheme, const gchar *screenname,
 	}
 
 	/* Find online Gadu-Gadu account */
-	accounts = purple_accounts_get_all();
-	account_node = g_list_find_custom(
-	        accounts, NULL, (GCompareFunc)gg_uri_handler_find_account);
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_all(manager);
+	account_node = g_list_find_custom(accounts, NULL,
+	                                  (GCompareFunc)gg_uri_handler_find_account);
 
 	if (account_node == NULL) {
 		return FALSE;
