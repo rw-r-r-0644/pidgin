@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_EVENTLOOP_H
 #define PURPLE_EVENTLOOP_H
-/**
- * SECTION:eventloop
- * @section_id: libpurple-eventloop
- * @short_description: <filename>eventloop.h</filename>
- * @title: Event Loop API
- */
 
 #include <glib.h>
 #include <glib-object.h>

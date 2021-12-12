@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_GROUP_H
 #define PURPLE_GROUP_H
-/**
- * SECTION:group
- * @section_id: libpurple-group
- * @short_description: <filename>group.h</filename>
- * @title: Buddy, Chat, Contact and Group node Objects
- */
 
 #include "countingnode.h"
 

@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_MEDIA_H
 #define PURPLE_MEDIA_H
-/**
- * SECTION:media
- * @section_id: libpurple-media
- * @short_description: <filename>media.h</filename>
- * @title: Media Object API
- */
 
 #include <glib.h>
 #include <glib-object.h>

@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_MEDIA_MANAGER_H
 #define PURPLE_MEDIA_MANAGER_H
-/**
- * SECTION:mediamanager
- * @section_id: libpurple-mediamanager
- * @short_description: <filename>mediamanager.h</filename>
- * @title: Media Manager Object
- */
 
 #include <glib.h>
 #include <glib-object.h>

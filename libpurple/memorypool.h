@@ -26,26 +26,6 @@
 
 #ifndef PURPLE_MEMORY_POOL_H
 #define PURPLE_MEMORY_POOL_H
-/**
- * SECTION:memorypool
- * @include:memorypool.h
- * @section_id: libpurple-memorypool
- * @short_description: a container for a large number of small chunks of memory
- * @title: Memory pools
- *
- * A #PurpleMemoryPool allows allocating many small objects within a single
- * memory range and releasing them all at once using a single call. This
- * prevents memory fragmentation and improves performance when used properly.
- * It's purpose is to act as an internal storage for other object private
- * structures, like tree nodes, string chunks, list elements.
- *
- * Current implementation is not optimized for releasing individual objects,
- * so it may be extremely inefficient, when misused. On every memory allocation,
- * it checks if there is enough space in current block. If there is not enough
- * room here, it creates another block of memory. On pool destruction or calling
- * #purple_memory_pool_cleanup, the whole block chain will be freed, using only
- * one #g_free call for every block.
- */
 
 #include <glib-object.h>
 
@@ -67,7 +47,18 @@ typedef struct _PurpleMemoryPoolClass PurpleMemoryPoolClass;
 /**
  * PurpleMemoryPool:
  *
- * The memory pool object instance.
+ * A #PurpleMemoryPool allows allocating many small objects within a single
+ * memory range and releasing them all at once using a single call. This
+ * prevents memory fragmentation and improves performance when used properly.
+ * Its purpose is to act as an internal storage for other object private
+ * structures, like tree nodes, string chunks, list elements.
+ *
+ * Current implementation is not optimized for releasing individual objects,
+ * so it may be extremely inefficient, when misused. On every memory allocation,
+ * it checks if there is enough space in current block. If there is not enough
+ * room here, it creates another block of memory. On pool destruction or calling
+ * #purple_memory_pool_cleanup, the whole block chain will be freed, using only
+ * one #g_free call for every block.
  */
 struct _PurpleMemoryPool
 {

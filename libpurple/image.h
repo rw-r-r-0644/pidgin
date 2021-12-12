@@ -26,22 +26,6 @@
 #ifndef PURPLE_IMAGE_H
 #define PURPLE_IMAGE_H
 
-/**
- * SECTION:image
- * @include:image.h
- * @section_id: libpurple-image
- * @short_description: implementation-independent image data container
- * @title: Images
- *
- * #PurpleImage object is a container for raw image data. It doesn't manipulate
- * image data, just stores it in its binary format - png, jpeg etc. Thus, it's
- * totally independent from the UI.
- *
- * This class also provides certain file-related features, like: friendly
- * filenames (not necessarily real filename for displaying); remote images
- * (which data is not yet loaded) or guessing file format from its header.
- */
-
 #include <glib-object.h>
 
 /**
@@ -62,6 +46,18 @@ struct _PurpleImageClass {
 };
 
 G_BEGIN_DECLS
+
+/**
+ * PurpleImage:
+ *
+ * #PurpleImage object is a container for raw image data. It doesn't manipulate
+ * image data, just stores it in its binary format - png, jpeg etc. Thus, it's
+ * totally independent from the UI.
+ *
+ * This class also provides certain file-related features, like: friendly
+ * filenames (not necessarily real filename for displaying); remote images
+ * (which data is not yet loaded) or guessing file format from its header.
+ */
 
 /**
  * purple_image_get_type:
