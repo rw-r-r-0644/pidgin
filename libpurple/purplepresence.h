@@ -28,16 +28,6 @@
 #define PURPLE_PRESENCE_H
 
 /**
- * SECTION:purplepresence
- * @section_id: libpurple-purplepresence
- * @short_description: Presence Objects
- * @title: Presence Object API
- *
- * This file contains the base #PurplePresence type which is used by
- * #PurpleAccountPresence and #PurpleBuddyPresence.
- */
-
-/**
  * PurplePresence:
  *
  * A PurplePresence is like a collection of PurpleStatuses (plus some other

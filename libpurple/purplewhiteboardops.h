@@ -27,15 +27,6 @@
 #ifndef PURPLE_WHITEBOARD_OPS_H
 #define PURPLE_WHITEBOARD_OPS_H
 
-/**
- * SECTION:purplewhiteboardops
- * @section_id: libpurple-purplewhiteboardops
- * @short_description: Whiteboard Protocol Operations
- * @title: Whiteboard Protocol Operations
- *
- * #PurpleWhiteboardOps contains the protocol operations for whiteboards.
- */
-
 #include <glib.h>
 
 typedef struct _PurpleWhiteboardOps PurpleWhiteboardOps;

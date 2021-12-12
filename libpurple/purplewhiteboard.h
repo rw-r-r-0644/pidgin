@@ -28,16 +28,6 @@
 #define PURPLE_WHITEBOARD_H
 
 /**
- * SECTION:purplewhiteboard
- * @section_id: libpurple-purplewhiteboard
- * @short_description: <filename>whiteboard.h</filename>
- * @title: Whiteboard Object
- *
- * The #PurpleWhiteboard API describes all interactions with whiteboards or
- * shared drawing spaces with other users.
- */
-
-/**
  * PURPLE_TYPE_WHITEBOARD:
  *
  * The standard _get_type macro for #PurpleWhiteboard.

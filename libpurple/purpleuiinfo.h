@@ -27,15 +27,6 @@
 #ifndef PURPLE_UI_INFO_H
 #define PURPLE_UI_INFO_H
 
-/**
- * SECTION:purpleuiinfo
- * @section_id: libpurple-ui-info
- * @short_description: User Interface Information
- * @title: A simple class that contains information about a user interface.
- *
- * #PurpleUiInfo keeps track of basic information about the user interface.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -47,6 +38,12 @@ G_BEGIN_DECLS
  * The standard _get_type macro for #PurpleUiInfo.
  */
 #define PURPLE_TYPE_UI_INFO (purple_ui_info_get_type())
+
+/**
+ * PurpleUiInfo:
+ *
+ * #PurpleUiInfo keeps track of basic information about the user interface.
+ */
 G_DECLARE_FINAL_TYPE(PurpleUiInfo, purple_ui_info, PURPLE, UI_INFO, GObject)
 
 /**

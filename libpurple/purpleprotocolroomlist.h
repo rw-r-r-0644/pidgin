@@ -33,19 +33,17 @@
 #include "roomlist.h"
 #include "purpleprotocol.h"
 
+G_BEGIN_DECLS
+
+#define PURPLE_TYPE_PROTOCOL_ROOMLIST (purple_protocol_roomlist_get_type())
+
 /**
- * SECTION:protocolroomlist
- * @section_id: libpurple-protocolroomlist
- * @title: Room List API
- * @short_description: Protocol Roomlist Interface
+ * PurpleProtocolRoomlist:
  *
  * #PurpleProtocolRoomlist is an interface to abstract how to handle rooms
  * lists at the protocol level.
  */
 
-G_BEGIN_DECLS
-
-#define PURPLE_TYPE_PROTOCOL_ROOMLIST (purple_protocol_roomlist_get_type())
 G_DECLARE_INTERFACE(PurpleProtocolRoomlist, purple_protocol_roomlist, PURPLE,
                     PROTOCOL_ROOMLIST, PurpleProtocol)
 

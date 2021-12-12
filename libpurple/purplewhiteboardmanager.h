@@ -31,16 +31,6 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:purplewhiteboardmanager
- * @section_id: libpurple-purplewhiteboardmanager
- * @title: Purple Whiteboard Manager
- * @short_description: Management of whiteboards.
- *
- * #PurpleWhiteboardManager keeps track of all whiteboards and emits signals
- * when whiteboards are registered and unregistered.
- */
-
-/**
  * PURPLE_WHITEBOARD_MANAGER_DOMAIN:
  *
  * A #GError domain for errors from #PurpleWhiteboardManager.
@@ -69,7 +59,8 @@ G_BEGIN_DECLS
 /**
  * PurpleWhiteboardManager:
  *
- * An opaque data structure that manages whiteboards.
+ * #PurpleWhiteboardManager keeps track of all whiteboards and emits signals
+ * when whiteboards are registered and unregistered.
  *
  * Since: 3.0.0
  */

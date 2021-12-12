@@ -27,16 +27,6 @@
 #ifndef PURPLE_PROTOCOL_CLIENT_H
 #define PURPLE_PROTOCOL_CLIENT_H
 
-/**
- * SECTION:purpleprotocolclient
- * @section_id: libpurple-purpleprotocolclient
- * @short_description: Protocol Client Interface
- * @title: PurpleProtocolClient Interface
- *
- * #PurpleProtocolClient interface defines the behavior of a typical chat
- * service's client interface.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -59,8 +49,8 @@ G_DECLARE_INTERFACE(PurpleProtocolClient, purple_protocol_client, PURPLE,
 /**
  * PurpleProtocolClient:
  *
- * An opaque data structure that represents an object that implements
- * #PurpleProtocolClientInterface.
+ * #PurpleProtocolClient interface defines the behavior of a typical chat
+ * service's client interface.
  */
 
 /**

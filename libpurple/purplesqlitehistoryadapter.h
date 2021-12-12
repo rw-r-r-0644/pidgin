@@ -29,12 +29,6 @@
 #include <purplehistoryadapter.h>
 #include <purplemessage.h>
 
-/**
- * SECTION:purplesqlitehistoryadapter
- * @section_id: libpurple-purplesqlitehistoryadapter
- * @title: SQLite History Adapter Object
- */
-
 G_BEGIN_DECLS
 
 /**

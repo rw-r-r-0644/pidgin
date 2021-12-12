@@ -27,16 +27,6 @@
 #ifndef PURPLE_PROTOCOL_IM_H
 #define PURPLE_PROTOCOL_IM_H
 
-/**
- * SECTION:purpleprotocolim
- * @section_id: libpurple-purpleprotocolim
- * @title: ProtocolIM Interface
- * @short_description: Protocol Instant Message Interface
- *
- * #PurpleProtocolIM describes the API that protocols need to implement for
- * handling one on one conversations.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -65,8 +55,8 @@
 /**
  * PurpleProtocolIM:
  *
- * An opaque data structure that represents and object that implements
- * #PurpleProtocolIMInterface.
+ * #PurpleProtocolIM describes the API that protocols need to implement for
+ * handling one on one conversations.
  *
  * Since: 3.0.0
  */

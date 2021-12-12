@@ -27,15 +27,6 @@
 #ifndef PURPLE_PROTOCOL_FACTORY_H
 #define PURPLE_PROTOCOL_FACTORY_H
 
-/**
- * SECTION:purpleprotocolfactory
- * @section_id: libpurple-purpleprotocolfactory
- * @short_description: <filename>purpleprotocolfactory.h</filename>
- * @title: ProtocolFactoryInterface
- *
- * A interface where protocols can expose subclasses of libpurple objects.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -52,6 +43,12 @@ G_BEGIN_DECLS
  * The standard _get_type macro for #PurpleProtocolFactory.
  */
 #define PURPLE_TYPE_PROTOCOL_FACTORY (purple_protocol_factory_iface_get_type())
+
+/**
+ * PurpleProtocolFactory:
+ *
+ * A interface where protocols can expose subclasses of libpurple objects.
+ */
 G_DECLARE_INTERFACE(PurpleProtocolFactory, purple_protocol_factory, PURPLE,
                     PROTOCOL_FACTORY, PurpleProtocol)
 

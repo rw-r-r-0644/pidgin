@@ -31,16 +31,6 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:purpleprotocolmanager
- * @section_id: libpurple-purpleprotocolmanager
- * @title: Purple Protocol Manager
- * @short_description: Management of protocols.
- *
- * #PurpleProtocolManager keeps track of all protocols and emits signals when
- * protocols are registered and unregistered.
- */
-
-/**
  * PURPLE_PROTOCOL_MANAGER_DOMAIN:
  *
  * A #GError domain for errors from #PurpleProtocolManager.
@@ -61,7 +51,8 @@ G_DECLARE_FINAL_TYPE(PurpleProtocolManager, purple_protocol_manager, PURPLE,
 /**
  * PurpleProtocolManager:
  *
- * An opaque data structure that manages protocols.
+ * #PurpleProtocolManager keeps track of all protocols and emits signals when
+ * protocols are registered and unregistered.
  *
  * Since: 3.0.0
  */

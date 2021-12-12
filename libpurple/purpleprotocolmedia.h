@@ -27,16 +27,6 @@
 #ifndef PURPLE_PROTOCOL_MEDIA_H
 #define PURPLE_PROTOCOL_MEDIA_H
 
-/**
- * SECTION:purpleprotocolmedia
- * @section_id: libpurple-purpleprotocolmedia
- * @short_description: Protocol Media Interface
- * @title: ProtocolMedia Interface
- *
- * #PurpleProtocolMedia describes the multimedia api that is available for
- * protocols.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -56,6 +46,13 @@ G_BEGIN_DECLS
  * The standard _get_type method for #PurpleProtocolMedia.
  *
  * Since: 3.0.0
+ */
+
+/**
+ * PurpleProtocolMedia:
+ *
+ * #PurpleProtocolMedia describes the multimedia api that is available for
+ * protocols.
  */
 
 /**

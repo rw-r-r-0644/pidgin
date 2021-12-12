@@ -27,16 +27,6 @@
 #ifndef PURPLE_PROTOCOL_SERVER_H
 #define PURPLE_PROTOCOL_SERVER_H
 
-/**
- * SECTION:purpleprotocolserver
- * @section_id: libpurple-purpleprotocolserver
- * @short_description: Protocol Server Interface
- * @title: ProtocolServer Interface
- *
- * #PurpleProtocolServer describes the API for protocols that have a central
- * server.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -64,8 +54,8 @@ G_BEGIN_DECLS
 /**
  * PurpleProtocolServer:
  *
- * An opaque data structure used to reference a #PurpleProtocol that implements
- * #PurpleProtocolServerInterface.
+ * #PurpleProtocolServer describes the API for protocols that have a central
+ * server.
  *
  * Since: 3.0.0
  */
