@@ -27,16 +27,6 @@
 
 #ifndef PURPLE_QUEUED_OUTPUT_STREAM_H
 #define PURPLE_QUEUED_OUTPUT_STREAM_H
-/**
- * SECTION:queuedoutputstream
- * @section_id: libpurple-queuedoutputstream
- * @short_description: GOutputStream for queuing data to output
- * @title: GOutputStream class
- *
- * A #PurpleQueuedOutputStream is a #GOutputStream which allows data to be
- * queued for outputting. It differs from a #GBufferedOutputStream in that
- * it allows for data to be queued while other operations are in progress.
- */
 
 #include <gio/gio.h>
 
@@ -49,6 +39,13 @@ G_BEGIN_DECLS
  */
 #define PURPLE_TYPE_QUEUED_OUTPUT_STREAM  purple_queued_output_stream_get_type()
 
+/**
+ * PurpleQueuedOutputStream:
+ *
+ * A #PurpleQueuedOutputStream is a #GOutputStream which allows data to be
+ * queued for outputting. It differs from a #GBufferedOutputStream in that
+ * it allows for data to be queued while other operations are in progress.
+ */
 G_DECLARE_FINAL_TYPE(PurpleQueuedOutputStream,
 		purple_queued_output_stream, PURPLE,
 		QUEUED_OUTPUT_STREAM, GFilterOutputStream)

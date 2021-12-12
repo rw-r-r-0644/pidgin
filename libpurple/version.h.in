@@ -28,16 +28,6 @@
 #define PURPLE_VERSION_H
 
 /**
- * SECTION:version
- * @section_id: libpurple-version
- * @short_description: <filename>version.h</filename>
- * @title: Purple Versioning
- *
- * A collection of constants and functions for handling versioning of libpurple.
- *
- */
-
-/**
  * PURPLE_MAJOR_VERSION:
  *
  * The major version of the running libpurple.

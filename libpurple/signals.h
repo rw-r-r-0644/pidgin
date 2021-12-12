@@ -27,17 +27,6 @@
 #ifndef PURPLE_SIGNALS_H
 #define PURPLE_SIGNALS_H
 
-/**
- * SECTION:signals
- * @section_id: libpurple-signals
- * @short_description: <filename>signals.h</filename>
- * @title: Purple-signals API
- * @see_also: <link linkend="chapter-tut-signals">Signals tutorial</link>
- *
- * The signals API is similar to GObject signals, but works on classes where
- * GObject signals work on instances.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 

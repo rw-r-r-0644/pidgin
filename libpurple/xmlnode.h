@@ -26,15 +26,6 @@
 
 #ifndef PURPLE_XMLNODE_H
 #define PURPLE_XMLNODE_H
-/**
- * SECTION:xmlnode
- * @section_id: libpurple-xmlnode
- * @short_description: <filename>xmlnode.h</filename>
- * @title: XML DOM functions
- *
- * XmlNode is a simplified API for handling XML.  An XmlNode represents an XML
- * element and has API for children as well as attributes.
- */
 
 #include <glib.h>
 #include <glib-object.h>
@@ -71,7 +62,8 @@ typedef enum
  * @prefix:        The namespace prefix if any.
  * @namespace_map: The namespace map.
  *
- * An PurpleXmlNode.
+ * XmlNode is a simplified API for handling XML. An XmlNode represents an XML
+ * element and has API for children as well as attributes.
  */
 typedef struct _PurpleXmlNode PurpleXmlNode;
 struct _PurpleXmlNode

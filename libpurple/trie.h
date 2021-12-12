@@ -26,32 +26,6 @@
 
 #ifndef PURPLE_TRIE_H
 #define PURPLE_TRIE_H
-/**
- * SECTION:trie
- * @include:trie.h
- * @section_id: libpurple-trie
- * @short_description: a structure for linear-time text searching
- * @title: Tries
- *
- * A #PurpleTrie is a structure for quick searching of multiple phrases within
- * a text. It's intended for repeated searches of the same set of patterns
- * within multiple source texts (or a single, big one).
- *
- * It's preparation time is <literal>O(p)</literal>, where <literal>p</literal>
- * is the total length of searched phrases. In current implementation, the
- * internal structure is invalidated after every modification of the
- * #PurpleTrie's contents, so it's not efficient to do alternating modifications
- * and searches. Search time does not depend on patterns being stored within
- * a trie and is always <literal>O(n)</literal>, where <literal>n</literal> is
- * the size of a text.
- *
- * Its main drawback is a significant memory usage - every internal trie node
- * needs about 1kB of memory on 32-bit machine and 2kB on 64-bit. Fortunately,
- * the trie grows slower when more words (with common prefixes) are added.
- * We could avoid invalidating the whole tree when altering it, but it would
- * require figuring out, how to update <literal>longest_suffix</literal> fields
- * in satisfying time.
- */
 
 #include <glib-object.h>
 
@@ -104,6 +78,29 @@ typedef gboolean (*PurpleTrieFindCb)(const gchar *word, gpointer word_data,
 	gpointer user_data);
 
 G_BEGIN_DECLS
+
+/**
+ * PurpleTrie
+ *
+ * A #PurpleTrie is a structure for quick searching of multiple phrases within
+ * a text. It's intended for repeated searches of the same set of patterns
+ * within multiple source texts (or a single, big one).
+ *
+ * It's preparation time is <literal>O(p)</literal>, where <literal>p</literal>
+ * is the total length of searched phrases. In current implementation, the
+ * internal structure is invalidated after every modification of the
+ * #PurpleTrie's contents, so it's not efficient to do alternating modifications
+ * and searches. Search time does not depend on patterns being stored within
+ * a trie and is always <literal>O(n)</literal>, where <literal>n</literal> is
+ * the size of a text.
+ *
+ * Its main drawback is a significant memory usage - every internal trie node
+ * needs about 1kB of memory on 32-bit machine and 2kB on 64-bit. Fortunately,
+ * the trie grows slower when more words (with common prefixes) are added.
+ * We could avoid invalidating the whole tree when altering it, but it would
+ * require figuring out, how to update <literal>longest_suffix</literal> fields
+ * in satisfying time.
+ */
 
 /**
  * purple_trie_get_type:

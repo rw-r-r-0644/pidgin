@@ -28,16 +28,6 @@
 #define PURPLE_ROOMLIST_H
 
 /**
- * SECTION:roomlist
- * @section_id: libpurple-roomlist
- * @short_description: <filename>roomlist.h</filename>
- * @title: Room List API
- *
- * The room list API describes how to display and populate a list of rooms in
- * a protocol abstract way.
- */
-
-/**
  * PURPLE_TYPE_ROOMLIST:
  *
  * The standard _get_type macro for #PurpleRoomlist.

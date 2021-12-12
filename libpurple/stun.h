@@ -27,16 +27,6 @@
 #ifndef PURPLE_STUN_H
 #define PURPLE_STUN_H
 
-/**
- * SECTION:stun
- * @section_id: libpurple-stun
- * @short_description: <filename>stun.h</filename>
- * @title: STUN API
- *
- * The STUN API is an implementation of Session Traversal Utilities for NAT,
- * that is used to help us determine our public IP address.
- */
-
 typedef struct _PurpleStunNatDiscovery PurpleStunNatDiscovery;
 
 /**
