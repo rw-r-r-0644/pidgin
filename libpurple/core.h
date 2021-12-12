@@ -25,13 +25,6 @@
 
 #ifndef PURPLE_CORE_H
 #define PURPLE_CORE_H
-/**
- * SECTION:core
- * @section_id: libpurple-core
- * @short_description: <filename>core.h</filename>
- * @title: Startup and Shutdown of libpurple
- * @see_also: <link linkend="chapter-signals-core">Core signals</link>
- */
 
 #include <glib.h>
 #include <glib-object.h>

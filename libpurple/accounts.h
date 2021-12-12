@@ -25,15 +25,6 @@
 
 #ifndef PURPLE_ACCOUNTS_H
 #define PURPLE_ACCOUNTS_H
-/**
- * SECTION:accounts
- * @section_id: libpurple-accounts
- * @short_description: <filename>accounts.h</filename>
- * @title: Accounts Subsystem API
- * @see_also: <link linkend="chapter-signals-account">Account signals</link>
- *
- * The accounts API is used to help manage #PurpleAccount's.
- */
 
 #include "account.h"
 #include "status.h"

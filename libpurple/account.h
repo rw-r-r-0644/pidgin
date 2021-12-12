@@ -26,17 +26,6 @@
 #ifndef PURPLE_ACCOUNT_H
 #define PURPLE_ACCOUNT_H
 
-/**
- * SECTION:account
- * @section_id: libpurple-account
- * @short_description: <filename>account.h</filename>
- * @title: Account Object
- *
- * A #PurpleAccount is the core configuration for connecting to a specific
- * account. User interfaces typically allow users to create these in a dialog
- * or wizard.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -116,6 +105,14 @@ G_BEGIN_DECLS
 /**************************************************************************/
 /* Account API                                                            */
 /**************************************************************************/
+
+/**
+ * PurpleAccount:
+ *
+ * A #PurpleAccount is the core configuration for connecting to a specific
+ * account. User interfaces typically allow users to create these in a dialog
+ * or wizard.
+ */
 
 /**
  * purple_account_get_type:

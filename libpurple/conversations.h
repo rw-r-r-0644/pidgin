@@ -25,13 +25,6 @@
 
 #ifndef PURPLE_CONVERSATIONS_H
 #define PURPLE_CONVERSATIONS_H
-/**
- * SECTION:conversations
- * @section_id: libpurple-conversations
- * @short_description: <filename>conversations.h</filename>
- * @title: Conversations Subsystem API
- * @see_also: <link linkend="chapter-signals-conversation">Conversation signals</link>
- */
 
 #include <purpleconversation.h>
 #include "server.h"

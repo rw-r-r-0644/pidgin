@@ -26,14 +26,6 @@
 #ifndef PURPLE_BUDDY_LIST_H
 #define PURPLE_BUDDY_LIST_H
 
-/**
- * SECTION:buddylist
- * @section_id: libpurple-buddylist
- * @short_description: <filename>buddylist.h</filename>
- * @title: Buddy List API
- * @see_also: <link linkend="chapter-signals-blist">Buddy List signals</link>
- */
-
 /* I can't believe I let ChipX86 inspire me to write good code. -Sean */
 
 #include "buddy.h"
