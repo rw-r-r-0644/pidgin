@@ -25,15 +25,6 @@
 
 #ifndef PURPLE_MEDIA_BACKEND_FS2_H
 #define PURPLE_MEDIA_BACKEND_FS2_H
-/*
- * SECTION:backend-fs2
- * @section_id: libpurple-backend-fs2
- * @short_description: <filename>media/backend-fs2.h</filename>
- * @title: Farstream backend for media API
- *
- * This file should not yet be part of libpurple's API.
- * It should remain internal only for now.
- */
 
 #include <glib-object.h>
 

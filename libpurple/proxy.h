@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_PROXY_H
 #define PURPLE_PROXY_H
-/**
- * SECTION:proxy
- * @section_id: libpurple-proxy
- * @short_description: <filename>proxy.h</filename>
- * @title: Proxy API
- */
 
 #include <glib.h>
 #include <gio/gio.h>

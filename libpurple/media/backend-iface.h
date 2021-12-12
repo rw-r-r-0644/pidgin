@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_MEDIA_BACKEND_IFACE_H
 #define PURPLE_MEDIA_BACKEND_IFACE_H
-/**
- * SECTION:backend-iface
- * @section_id: libpurple-backend-iface
- * @short_description: <filename>media/backend-iface.h</filename>
- * @title: Interface for Media Backends
- */
 
 #include "codec.h"
 #include "enum-types.h"

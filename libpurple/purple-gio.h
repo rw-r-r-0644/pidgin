@@ -27,11 +27,9 @@
 
 #ifndef PURPLE_GIO_H
 #define PURPLE_GIO_H
+
 /**
- * SECTION:purple-gio
- * @section_id: libpurple-purple-gio
- * @short_description: Gio helper functions
- * @title: Purple Gio API
+ * purple_gio:
  *
  * The Purple Gio API provides helper functions for Gio operations which
  * are commonly used within libpurple and its consumers. These contain

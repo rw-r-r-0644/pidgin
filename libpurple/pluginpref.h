@@ -26,12 +26,6 @@
 
 #ifndef PURPLE_PLUGINPREF_H
 #define PURPLE_PLUGINPREF_H
-/**
- * SECTION:pluginpref
- * @section_id: libpurple-pluginpref
- * @short_description: <filename>pluginpref.h</filename>
- * @title: Plugin Preferences Frontend
- */
 
 typedef struct _PurplePluginPrefFrame		PurplePluginPrefFrame;
 typedef struct _PurplePluginPref		PurplePluginPref;

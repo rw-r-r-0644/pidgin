@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_PROTOCOLS_H
 #define PURPLE_PROTOCOLS_H
-/**
- * SECTION:protocols
- * @section_id: libpurple-protocols
- * @short_description: <filename>protocols.h</filename>
- * @title: Protocols Subsystem API
- */
 
 /**************************************************************************/
 /* Basic Protocol Information                                             */

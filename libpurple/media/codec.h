@@ -26,13 +26,6 @@
 #ifndef PURPLE_MEDIA_CODEC_H
 #define PURPLE_MEDIA_CODEC_H
 
-/**
- * SECTION:codec
- * @section_id: libpurple-codec
- * @short_description: <filename>media/codec.h</filename>
- * @title: Codec for Media API
- */
-
 #include "enum-types.h"
 
 /**
