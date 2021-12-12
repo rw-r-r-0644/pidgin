@@ -23,19 +23,6 @@
 #ifndef PURPLE_PLUGIN_INFO_H
 #define PURPLE_PLUGIN_INFO_H
 
-/**
- * SECTION:purpleplugininfo
- * @section_id: libpurple-purpleplugininfo
- * @title: PurplePluginInfo Object
- * @short_description: An object representing information about purple plugins.
- * @see_also: <link linkend="chapter-signals-plugin">Plugin signals</link>,
- *     <link linkend="chapter-plugin-ids">Plugin IDs</link>,
- *     <link linkend="chapter-plugin-i18n">Third Party Plugin Translation</link>
- *
- * #PurplePluginInfo is a #GPluginPluginInfo subclass that adds additional
- * libpurple specific properties.
- */
-
 #include <glib.h>
 
 #include <gplugin.h>
@@ -51,6 +38,15 @@
  * Since: 3.0.0
  */
 #define PURPLE_TYPE_PLUGIN_INFO (purple_plugin_info_get_type())
+
+/**
+ * PurplePluginInfo:
+ *
+ * #PurplePluginInfo is a #GPluginPluginInfo subclass that adds additional
+ * libpurple specific properties.
+ *
+ * Since: 3.0.0
+ */
 
 /**
  * purple_plugin_info_get_type:

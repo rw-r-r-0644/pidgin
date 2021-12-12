@@ -27,16 +27,6 @@
 #ifndef PURPLE_PROTOCOL_CHAT_H
 #define PURPLE_PROTOCOL_CHAT_H
 
-/**
- * SECTION:purpleprotocolchat
- * @section_id: libpurple-purpleprotocolchat
- * @short_description: Protocol Chat Interface
- * @title: ProtocolChat Interface
- *
- * #PurpleProtocolChat describes the API that protocols need to implement for
- * handling multiple user conversations.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -66,8 +56,8 @@
 /**
  * PurpleProtocolChat:
  *
- * An opaque representation of an object that implements
- * #PurpleProtocolChatInterface.
+ * #PurpleProtocolChat describes the API that protocols need to implement for
+ * handling multiple user conversations.
  *
  * Since: 3.0.0
  */

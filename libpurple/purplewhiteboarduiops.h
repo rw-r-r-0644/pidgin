@@ -27,16 +27,6 @@
 #ifndef PURPLE_WHITEBOARD_UIOPS_H
 #define PURPLE_WHITEBOARD_UIOPS_H
 
-/**
- * SECTION:purplewhiteboarduiops
- * @section_id: libpurple-purplewhiteboarduiops
- * @short_description: Whiteboard UI Operations
- * @title: Whiteboard User Interface Operations
- *
- * #PurpleWhiteboardUiOps contains the user interface operations for
- * whiteboards.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 

@@ -27,15 +27,6 @@
 #ifndef PURPLE_PROTOCOL_PRIVACY_H
 #define PURPLE_PROTOCOL_PRIVACY_H
 
-/**
- * SECTION:purpleprotocolprivacy
- * @section_id: libpurple-purpleprotocolprivacy
- * @short_description: Protocol Privacy Interface
- * @title: ProtocolPrivacy Interface
- *
- * #PurpleProtocolPrivacy describes the privacy API available to protocols.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -48,6 +39,12 @@
  * The standard _get_type method for #PurpleProtocolPrivacy.
  */
 #define PURPLE_TYPE_PROTOCOL_PRIVACY (purple_protocol_privacy_get_type())
+
+/**
+ * PurpleProtocolPrivacy:
+ *
+ * #PurpleProtocolPrivacy describes the privacy API available to protocols.
+ */
 G_DECLARE_INTERFACE(PurpleProtocolPrivacy, purple_protocol_privacy, PURPLE,
                     PROTOCOL_PRIVACY, PurpleProtocol)
 

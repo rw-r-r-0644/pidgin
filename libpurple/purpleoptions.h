@@ -27,15 +27,6 @@
 #ifndef PURPLE_OPTIONS_H
 #define PURPLE_OPTIONS_H
 
-/**
- * SECTION:purpleoptions
- * @section_id: libpurple-purpleoptions
- * @short_description: Command line argument integration
- * @title: Command Line Argument Integration
- *
- * The functions defined here are to help in handling command line options.
- */
-
 #include <glib.h>
 
 G_BEGIN_DECLS

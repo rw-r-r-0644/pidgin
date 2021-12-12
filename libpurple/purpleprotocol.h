@@ -31,15 +31,6 @@
 #include <glib-object.h>
 
 /**
- * SECTION:protocol
- * @section_id: libpurple-protocol
- * @short_description: <filename>protocol.h</filename>
- * @title: Protocol Object and Interfaces
- *
- * #PurpleProtocol is the base type for all protocols in libpurple.
- */
-
-/**
  * PURPLE_TYPE_PROTOCOL:
  *
  * The standard _TYPE_ macro for #PurpleProtocol.
@@ -47,6 +38,12 @@
  * Since: 3.0.0
  */
 #define PURPLE_TYPE_PROTOCOL (purple_protocol_get_type())
+
+/**
+ * PurpleProtocol:
+ *
+ * #PurpleProtocol is the base type for all protocols in libpurple.
+ */
 
 /**
  * purple_protocol_get_type:
