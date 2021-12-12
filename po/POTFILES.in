@@ -401,5 +401,4 @@ pidgin/resources/Roomlist/roomlist.ui
 pidgin/resources/Whiteboard/whiteboard.ui
 pidgin/resources/Xfer/xfer.ui
 pidgin/win32/gtkwin32dep.c
-pidgin/win32/untar.c
 pidgin/win32/winpidgin.c
