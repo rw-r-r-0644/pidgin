@@ -27,15 +27,6 @@
 #ifndef PURPLE_REQUEST_H
 #define PURPLE_REQUEST_H
 
-/**
- * SECTION:request
- * @section_id: libpurple-request
- * @short_description: <filename>request.h</filename>
- * @title: Request API
- *
- * The request API is an abstract procedural ui builder.
- */
-
 #include <stdlib.h>
 
 #include <glib.h>

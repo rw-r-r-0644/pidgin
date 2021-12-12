@@ -27,16 +27,6 @@
 #ifndef PURPLE_SAVEDSTATUSES_H
 #define PURPLE_SAVEDSTATUSES_H
 
-/**
- * SECTION:savedstatuses
- * @section_id: libpurple-savedstatuses
- * @short_description: <filename>savedstatuses.h</filename>
- * @title: Saved Status API
- * @see_also: <link linkend="chapter-signals-savedstatus">Saved Status signals</link>
- *
- * The saved statuses API manages statuses that are saved to disk.
- */
-
 #define PURPLE_TYPE_SAVEDSTATUS  (purple_savedstatus_get_type())
 
 /**

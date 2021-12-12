@@ -28,16 +28,6 @@
 #define PURPLE_STATUS_H
 
 /**
- * SECTION:status
- * @section_id: libpurple-status
- * @short_description: <filename>status.h</filename>
- * @title: Status Object API
- *
- * The status API is what keeps track of all status for all accounts as well as
- * all contacts.
- */
-
-/**
  * PURPLE_TYPE_STATUS:
  *
  * The standard _get_type macro for #PurpleStatus.

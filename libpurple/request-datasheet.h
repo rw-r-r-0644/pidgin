@@ -27,16 +27,13 @@
 #ifndef PURPLE_REQUEST_DATA_H
 #define PURPLE_REQUEST_DATA_H
 
+#include <glib.h>
+
 /**
- * SECTION:request-datasheet
- * @section_id: libpurple-request-datasheet
- * @short_description: <filename>request-datasheet.h</filename>
- * @title: Request Datasheet API
+ * PurpleRequestDatasheet:
  *
  * Request Datasheet is a UI abstracted table.
  */
-
-#include <glib.h>
 
 typedef struct _PurpleRequestDatasheet PurpleRequestDatasheet;
 typedef struct _PurpleRequestDatasheetRecord PurpleRequestDatasheetRecord;

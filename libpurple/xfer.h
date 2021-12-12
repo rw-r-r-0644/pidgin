@@ -26,15 +26,6 @@
 
 #ifndef PURPLE_XFER_H
 #define PURPLE_XFER_H
-/**
- * SECTION:xfer
- * @section_id: libpurple-xfer
- * @short_description: <filename>xfer.h</filename>
- * @title: File Transfer API
- * @see_also: <link linkend="chapter-signals-xfer">File Transfer signals</link>
- *
- * The Xfer API is used to manage file transfers.
- */
 
 /**
  * PURPLE_TYPE_XFER_UI_OPS:

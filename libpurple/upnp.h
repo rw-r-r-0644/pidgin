@@ -27,16 +27,6 @@
 #ifndef PURPLE_UPNP_H
 #define PURPLE_UPNP_H
 
-/**
- * SECTION:upnp
- * @section_id: libpurple-upnp
- * @short_description: <filename>upnp.h</filename>
- * @title: Universal Plug N Play API
- *
- * The UPNP API allows us to use Universal Plug and Play to determine a user's
- * public IP address as well as open port forwards.
- */
-
 typedef struct _PurpleUPnPMappingAddRemove PurpleUPnPMappingAddRemove;
 
 G_BEGIN_DECLS

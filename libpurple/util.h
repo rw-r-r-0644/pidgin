@@ -26,15 +26,6 @@
 
 #ifndef PURPLE_UTIL_H
 #define PURPLE_UTIL_H
-/**
- * SECTION:util
- * @section_id: libpurple-util
- * @short_description: <filename>util.h</filename>
- * @title: Utility Functions
- *
- * The utility API is a cesspool please don't add more stuff here.  Namespace
- * new functions properly and don't put them here.
- */
 
 #include <stdio.h>
 

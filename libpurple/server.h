@@ -27,16 +27,6 @@
 #ifndef PURPLE_SERVER_H
 #define PURPLE_SERVER_H
 
-/**
- * SECTION:server
- * @section_id: libpurple-server
- * @short_description: <filename>server.h</filename>
- * @title: Server API
- *
- * The server API is used by protocol plugins to tell libpurple when certain
- * things have happened.
- */
-
 #include "accounts.h"
 #include "conversations.h"
 #include "group.h"
