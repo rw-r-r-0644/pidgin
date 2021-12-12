@@ -2379,8 +2379,8 @@ reconstruct_plugins_menu_cb(GObject *plugin_manager, GPluginPlugin *plugin,
 }
 
 static void
-reconstruct_accounts_menu(void)
-{
+reconstruct_accounts_menu(void) {
+	PurpleAccountManager *manager = NULL;
 	GntWidget *sub;
 	GntMenuItem *acc, *item;
 	GList *iter;
@@ -2395,8 +2395,10 @@ reconstruct_accounts_menu(void)
 	sub = gnt_menu_new(GNT_MENU_POPUP);
 	gnt_menuitem_set_submenu(acc, GNT_MENU(sub));
 
-	for (iter = purple_accounts_get_all_active(); iter;
-			iter = g_list_delete_link(iter, iter)) {
+	manager = purple_account_manager_get_default();
+	iter = purple_account_manager_get_active(manager);
+
+	for (; iter; iter = g_list_delete_link(iter, iter)) {
 		PurpleAccount *account = iter->data;
 		PurpleConnection *gc = purple_account_get_connection(account);
 		PurpleProtocol *protocol;

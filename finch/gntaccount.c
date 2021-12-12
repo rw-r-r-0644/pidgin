@@ -136,13 +136,12 @@ save_account_cb(AccountEditDialog *dialog)
 		                 (GDestroyNotify)purple_account_user_split_destroy);
 	}
 
-	if (dialog->account == NULL)
-	{
+	if(dialog->account == NULL) {
+		PurpleAccountManager *manager = purple_account_manager_get_default();
+
 		account = purple_account_new(username->str, purple_protocol_get_id(protocol));
-		purple_accounts_add(account);
-	}
-	else
-	{
+		purple_account_manager_add(manager, account);
+	} else {
 		account = dialog->account;
 
 		/* Protocol */
@@ -745,6 +744,7 @@ static gboolean
 account_list_key_pressed_cb(GntWidget *widget, const char *text, gpointer null)
 {
 	GntTree *tree = GNT_TREE(widget);
+	PurpleAccountManager *manager = NULL;
 	PurpleAccount *account = gnt_tree_get_selection_data(tree);
 	int move, pos, count;
 	GList *accounts;
@@ -763,17 +763,19 @@ account_list_key_pressed_cb(GntWidget *widget, const char *text, gpointer null)
 			return FALSE;
 	}
 
-	accounts = purple_accounts_get_all();
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_all(manager);
 	count = g_list_length(accounts);
 	pos = g_list_index(accounts, account);
 	pos = (move + pos + count + 1) % (count + 1);
-	if (pos >= 0)
-		purple_accounts_reorder(account, pos);
+	if(pos >= 0) {
+		purple_account_manager_reorder(manager, account, pos);
+	}
 
 	/* I don't like this, but recreating the entire list seems to be
 	 * the easiest way of doing it */
 	gnt_tree_remove_all(tree);
-	accounts = purple_accounts_get_all();
+	accounts = purple_account_manager_get_all(manager);
 	for (; accounts; accounts = accounts->next)
 		account_add(accounts->data);
 	gnt_tree_set_selected(tree, account);
@@ -790,6 +792,7 @@ reset_accounts_win(GntWidget *widget, gpointer null)
 
 void finch_accounts_show_all()
 {
+	PurpleAccountManager *manager = NULL;
 	GList *iter;
 	GntWidget *box, *button;
 
@@ -813,8 +816,10 @@ void finch_accounts_show_all()
 	accounts.tree = gnt_tree_new_with_columns(2);
 	gnt_widget_set_has_border(accounts.tree, FALSE);
 
-	for (iter = purple_accounts_get_all(); iter; iter = iter->next)
-	{
+	manager = purple_account_manager_get_default();
+	iter = purple_account_manager_get_all(manager);
+
+	for(; iter; iter = iter->next) {
 		PurpleAccount *account = iter->data;
 		account_add(account);
 	}
@@ -893,6 +898,7 @@ account_abled_cb(PurpleAccount *account, gpointer user_data)
 
 void finch_accounts_init()
 {
+	PurpleAccountManager *manager = NULL;
 	GList *iter;
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-added",
@@ -908,7 +914,8 @@ void finch_accounts_init()
 			finch_accounts_get_handle(),
 			PURPLE_CALLBACK(account_abled_cb), GINT_TO_POINTER(TRUE));
 
-	iter = purple_accounts_get_all();
+	manager = purple_account_manager_get_default();
+	iter = purple_account_manager_get_all(manager);
 	if (iter) {
 		for (; iter; iter = iter->next) {
 			if (purple_account_get_enabled(iter->data, FINCH_UI))
