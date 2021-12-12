@@ -524,16 +524,18 @@ create_account_field(PurpleRequestField *field)
 
 	all = purple_request_field_account_get_show_all(field);
 	def = purple_request_field_account_get_value(field);
-	if (!def)
+	if (!def) {
 		def = purple_request_field_account_get_default_value(field);
+	}
 
-	if (all)
-		list = purple_accounts_get_all();
-	else
+	if(all) {
+		PurpleAccountManager *manager = purple_account_manager_get_default();
+		list = purple_account_manager_get_all(manager);
+	} else {
 		list = purple_connections_get_all();
+	}
 
-	for (; list; list = list->next)
-	{
+	for(; list; list = list->next) {
 		PurpleAccount *account;
 		char *text;
 

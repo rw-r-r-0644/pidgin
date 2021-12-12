@@ -490,6 +490,7 @@ popup_substatus(GntTree *tree, const char *key, EditStatus *edit)
 
 void finch_savedstatus_edit(PurpleSavedStatus *saved)
 {
+	PurpleAccountManager *manager = NULL;
 	EditStatus *edit;
 	GntWidget *window, *box, *button, *entry, *combo, *label, *tree;
 	PurpleStatusPrimitive prims[] = {PURPLE_STATUS_AVAILABLE, PURPLE_STATUS_AWAY,
@@ -565,8 +566,9 @@ void finch_savedstatus_edit(PurpleSavedStatus *saved)
 	gnt_tree_set_col_width(GNT_TREE(tree), 1, 10);
 	gnt_tree_set_col_width(GNT_TREE(tree), 2, 30);
 
-	for (iter = purple_accounts_get_all(); iter; iter = iter->next)
-	{
+	manager = purple_account_manager_get_default();
+	iter = purple_account_manager_get_all(manager);
+	for(; iter; iter = iter->next) {
 		add_substatus(edit, iter->data);
 	}
 
