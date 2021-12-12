@@ -133,6 +133,18 @@ G_DECLARE_FINAL_TYPE(PurpleAccount, purple_account, PURPLE, ACCOUNT, GObject)
 PurpleAccount *purple_account_new(const char *username, const char *protocol_id);
 
 /**
+ * purple_account_get_id:
+ * @account: The account instance.
+ *
+ * Gets the identifier of @account.
+ *
+ * Returns: The identifier of @account.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_account_get_id(PurpleAccount *account);
+
+/**
  * purple_account_connect:
  * @account: The account to connect to.
  *

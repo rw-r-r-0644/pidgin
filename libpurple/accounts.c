@@ -412,9 +412,15 @@ parse_account(PurpleXmlNode *node)
 {
 	PurpleAccount *ret;
 	PurpleXmlNode *child;
+	gchar *id = NULL;
 	char *protocol_id = NULL;
 	char *name = NULL;
 	char *data;
+
+	child = purple_xmlnode_get_child(node, "id");
+	if(child != NULL) {
+		id = purple_xmlnode_get_data(child);
+	}
 
 	child = purple_xmlnode_get_child(node, "protocol");
 	if (child != NULL)
@@ -433,12 +439,22 @@ parse_account(PurpleXmlNode *node)
 
 	if ((protocol_id == NULL) || (name == NULL))
 	{
+		g_free(id);
 		g_free(protocol_id);
 		g_free(name);
 		return NULL;
 	}
 
-	ret = purple_account_new(name, protocol_id);
+	/* Manually create the account as the id parameter is construct only and we
+	 * don't want people messing with it.
+	 */
+	ret = g_object_new(PURPLE_TYPE_ACCOUNT,
+		"id", id,
+		"username", name,
+		"protocol-id", protocol_id,
+		NULL);
+
+	g_free(id);
 	g_free(name);
 	g_free(protocol_id);
 

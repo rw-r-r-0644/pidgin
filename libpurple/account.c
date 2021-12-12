@@ -54,6 +54,8 @@ struct _PurpleAccount
 
 typedef struct
 {
+	gchar *id;
+
 	char *username;             /* The username.                          */
 	char *alias;                /* How you appear to yourself.            */
 	char *user_info;            /* User information.                      */
@@ -130,6 +132,7 @@ typedef struct
 enum
 {
 	PROP_0,
+	PROP_ID,
 	PROP_USERNAME,
 	PROP_PRIVATE_ALIAS,
 	PROP_ENABLED,
@@ -836,6 +839,11 @@ _purple_account_to_xmlnode(PurpleAccount *account)
 
 	node = purple_xmlnode_new("account");
 
+	if(priv->id != NULL) {
+		child = purple_xmlnode_new_child(node, "id");
+		purple_xmlnode_insert_data(child, priv->id, -1);
+	}
+
 	child = purple_xmlnode_new_child(node, "protocol");
 	purple_xmlnode_insert_data(child, purple_account_get_protocol_id(account), -1);
 
@@ -885,15 +893,31 @@ _purple_account_to_xmlnode(PurpleAccount *account)
 }
 
 /******************************************************************************
+ * Helpers
+ *****************************************************************************/
+static void
+purple_account_set_id(PurpleAccount *account, const gchar *id) {
+	PurpleAccountPrivate *priv = purple_account_get_instance_private(account);
+
+	g_free(priv->id);
+	priv->id = g_strdup(id);
+
+	g_object_notify_by_pspec(G_OBJECT(account), properties[PROP_ID]);
+}
+
+/******************************************************************************
  * GObject Implementation
  *****************************************************************************/
 static void
 purple_account_set_property(GObject *obj, guint param_id, const GValue *value,
-		GParamSpec *pspec)
+                            GParamSpec *pspec)
 {
 	PurpleAccount *account = PURPLE_ACCOUNT(obj);
 
 	switch (param_id) {
+		case PROP_ID:
+			purple_account_set_id(account, g_value_get_string(value));
+			break;
 		case PROP_USERNAME:
 			purple_account_set_username(account, g_value_get_string(value));
 			break;
@@ -929,11 +953,14 @@ purple_account_set_property(GObject *obj, guint param_id, const GValue *value,
 
 static void
 purple_account_get_property(GObject *obj, guint param_id, GValue *value,
-		GParamSpec *pspec)
+                            GParamSpec *pspec)
 {
 	PurpleAccount *account = PURPLE_ACCOUNT(obj);
 
 	switch (param_id) {
+		case PROP_ID:
+			g_value_set_string(value, purple_account_get_id(account));
+			break;
 		case PROP_USERNAME:
 			g_value_set_string(value, purple_account_get_username(account));
 			break;
@@ -991,6 +1018,15 @@ purple_account_constructed(GObject *object)
 	PurpleStatusType *status_type;
 
 	G_OBJECT_CLASS(purple_account_parent_class)->constructed(object);
+
+	/* If we didn't get an id, just generate a random one. */
+	if(priv->id == NULL) {
+		gchar *uuid = g_uuid_string_random();
+
+		purple_account_set_id(account, uuid);
+
+		g_free(uuid);
+	}
 
 	g_object_get(object,
 			"username",    &username,
@@ -1107,6 +1143,19 @@ purple_account_class_init(PurpleAccountClass *klass)
 	obj_class->get_property = purple_account_get_property;
 	obj_class->set_property = purple_account_set_property;
 
+	/**
+	 * PurpleAccount::id
+	 *
+	 * An identifier for the account.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_ID] = g_param_spec_string(
+		"id", "id",
+		"The identifier of the account",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
 	properties[PROP_USERNAME] = g_param_spec_string("username", "Username",
 				"The username for the account.", NULL,
 				G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
@@ -1173,6 +1222,17 @@ purple_account_new(const gchar *username, const gchar *protocol_id) {
 		NULL);
 
 	return account;
+}
+
+const gchar *
+purple_account_get_id(PurpleAccount *account) {
+	PurpleAccountPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
+
+	priv = purple_account_get_instance_private(account);
+
+	return priv->id;
 }
 
 void
