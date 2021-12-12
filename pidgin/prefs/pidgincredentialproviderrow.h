@@ -27,16 +27,6 @@
 #ifndef PIDGIN_CREDENTIAL_PROVIDER_ROW_H
 #define PIDGIN_CREDENTIAL_PROVIDER_ROW_H
 
-/**
- * SECTION:pidgincredentialproviderrow
- * @section_id: pidgin-pidgincredentialproviderrow
- * @short_description: The preferences widget for a credential provider.
- * @title: Credential provider widget
- *
- * #PidginCredentialProviderRow is a widget for the preferences window to let
- * users configure their credential provider.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>
@@ -60,7 +50,8 @@ G_DECLARE_FINAL_TYPE(PidginCredentialProviderRow,
 /**
  * PidginCredentialProviderRow:
  *
- * A widget that displays a credential provider.
+ * #PidginCredentialProviderRow is a widget for the preferences window to let
+ * users configure their credential provider.
  *
  * Since: 3.0.0
  */

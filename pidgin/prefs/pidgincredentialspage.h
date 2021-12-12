@@ -27,16 +27,6 @@
 #ifndef PIDGIN_CREDENTIALS_PAGE_H
 #define PIDGIN_CREDENTIALS_PAGE_H
 
-/**
- * SECTION:pidgincredentialspage
- * @section_id: pidgin-pidgincredentialspage
- * @short_description: The preferences page for credential management.
- * @title: Credential management widget
- *
- * #PidginCredentialsPage is a widget for the preferences window to let users
- * choose and configure their credential provider.
- */
-
 #include <glib.h>
 
 #include <gtk/gtk.h>
@@ -58,7 +48,8 @@ G_DECLARE_FINAL_TYPE(PidginCredentialsPage, pidgin_credentials_page,
 /**
  * PidginCredentialsPage:
  *
- * A widget that displays a page of credential settings.
+ * #PidginCredentialsPage is a widget for the preferences window to let users
+ * choose and configure their credential provider.
  *
  * Since: 3.0.0
  */
