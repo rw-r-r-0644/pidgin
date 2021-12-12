@@ -29,12 +29,6 @@
 #include <purplemessage.h>
 #include <purpleconversation.h>
 
-/**
- * SECTION:purplehistoryadapter
- * @section_id: libpurple-purplehistoryadapter
- * @title: History Adapter Object
- */
-
 G_BEGIN_DECLS
 
 /**

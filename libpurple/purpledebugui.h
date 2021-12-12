@@ -27,15 +27,6 @@
 #ifndef PURPLE_DEBUG_UI_H
 #define PURPLE_DEBUG_UI_H
 
-/**
- * SECTION:purpledebugui
- * @section_id: libpurple-purpledebugui
- * @title: Debug User Interface API
- *
- * #PurpleDebugUiInterface defines the behavior that libpurple uses to
- * interface the debug API with the user interface.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -47,6 +38,15 @@ G_BEGIN_DECLS
  * The standard _get_type macro for #PurpleDebugUi.
  */
 #define PURPLE_TYPE_DEBUG_UI (purple_debug_ui_get_type())
+
+/**
+ * PurpleDebugUi:
+ *
+ * #PurpleDebugUiInterface defines the behavior that libpurple uses to
+ * interface the debug API with the user interface.
+ *
+ * Since: 3.0.0
+ */
 G_DECLARE_INTERFACE(PurpleDebugUi, purple_debug_ui, PURPLE, DEBUG_UI, GObject)
 
 #include "debug.h"

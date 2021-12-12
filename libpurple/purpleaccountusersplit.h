@@ -26,13 +26,6 @@
 #ifndef PURPLE_ACCOUNT_USER_SPLIT_H
 #define PURPLE_ACCOUNT_USER_SPLIT_H
 
-/**
- * SECTION:purpleaccountusersplit
- * @section_id: libpurple-account-user-split
- * @short_description: Username splitting
- * @title: Account Username Splitting API
- */
-
 #include <glib.h>
 #include <glib-object.h>
 

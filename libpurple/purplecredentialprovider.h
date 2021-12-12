@@ -29,18 +29,6 @@
 #include "account.h"
 #include "request.h"
 
-/**
- * SECTION:purplecredentialprovider
- * @section_id: libpurple-purplecredentialprovider
- * @title: Credential Provider Object
- * @short_description: Abstraction of credential providers.
- *
- * #PurpleCredentialProvider is an abstract base class for implementing support
- * for a specific password or keyring manager. At the time of this writing,
- * libpurple ships with plugins for libsecret, KWallet, and the Windows
- * Credentials store by subclassing #PurpleCredentialProvider.
- */
-
 G_BEGIN_DECLS
 
 /**
@@ -55,9 +43,10 @@ G_BEGIN_DECLS
 /**
  * PurpleCredentialProvider:
  *
- * #PurpleCredentialProvider is a base class that should be sub classed by
- * credential providers.  It defines the behavior of all credential providers
- * and implements some shared properties.
+ * #PurpleCredentialProvider is an abstract base class for implementing support
+ * for a specific password or keyring manager. At the time of this writing,
+ * libpurple ships with plugins for libsecret, macOS Keychain Access, KWallet,
+ * and the Windows Credentials store by subclassing #PurpleCredentialProvider.
  *
  * Since: 3.0.0
  */

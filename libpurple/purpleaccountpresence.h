@@ -21,15 +21,6 @@
 #ifndef PURPLE_ACCOUNT_PRESENCE_H
 #define PURPLE_ACCOUNT_PRESENCE_H
 
-/**
- * SECTION:purpleaccountpresence
- * @section_id: libpurple-purpleaccountpresence
- * @title: Account Presence API
- *
- * A #PurpleAccountPresence represent the #PurplePresence for a specific
- * #PurpleAccount.
- */
-
 #include "account.h"
 #include "purplepresence.h"
 
@@ -38,7 +29,8 @@ G_BEGIN_DECLS
 /**
  * PurpleAccountPresence:
  *
- * A presence for an account
+ * A #PurpleAccountPresence represent the #PurplePresence for a specific
+ * #PurpleAccount.
  */
 
 /**

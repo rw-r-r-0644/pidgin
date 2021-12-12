@@ -31,13 +31,6 @@
 #include <glib-object.h>
 
 /**
- * SECTION:purplechatuser
- * @section_id: libpurple-purplechatuser
- * @short_description: <filename>purplechatuser.h</filename>
- * @title: Chat User Objects
- */
-
-/**
  * PurpleChatUser:
  *
  * Structure representing a chat user instance.

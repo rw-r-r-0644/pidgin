@@ -27,13 +27,6 @@
 #ifndef PURPLE_CHAT_CONVERSATION_H
 #define PURPLE_CHAT_CONVERSATION_H
 
-/**
- * SECTION:purplechatconversation
- * @section_id: libpurple-purplechatconversation
- * @short_description: <filename>purplechatconversation.h</filename>
- * @title: Chat Conversation Objects
- */
-
 #define PURPLE_TYPE_CHAT_CONVERSATION            (purple_chat_conversation_get_type())
 #define PURPLE_CHAT_CONVERSATION(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), PURPLE_TYPE_CHAT_CONVERSATION, PurpleChatConversation))
 #define PURPLE_CHAT_CONVERSATION_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), PURPLE_TYPE_CHAT_CONVERSATION, PurpleChatConversationClass))
