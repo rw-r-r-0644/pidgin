@@ -943,7 +943,11 @@ const gchar* jabber_caps_get_own_hash(JabberStream *js)
 
 void jabber_caps_broadcast_change()
 {
-	GList *node, *accounts = purple_accounts_get_all_active();
+	PurpleAccountManager *manager = NULL;
+	GList *node, *accounts;
+
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_active(manager);
 
 	for (node = accounts; node; node = node->next) {
 		PurpleAccount *account = node->data;

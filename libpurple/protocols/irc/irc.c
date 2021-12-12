@@ -91,6 +91,7 @@ irc_uri_handler_match_server(PurpleAccount *account, const gchar *match_server)
 static gboolean
 irc_uri_handler(const gchar *scheme, const gchar *uri, GHashTable *params)
 {
+	PurpleAccountManager *manager = NULL;
 	gchar *target;
 	gchar *server;
 	GList *accounts;
@@ -125,9 +126,10 @@ irc_uri_handler(const gchar *scheme, const gchar *uri, GHashTable *params)
 	server = g_strndup(uri, target - uri);
 
 	/* Find account with correct server */
-	accounts = purple_accounts_get_all();
-	account_node = g_list_find_custom(
-	        accounts, server, (GCompareFunc)irc_uri_handler_match_server);
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_all(manager);
+	account_node = g_list_find_custom(accounts, server,
+	                                  (GCompareFunc)irc_uri_handler_match_server);
 
 	if (account_node == NULL) {
 		purple_debug_warning("irc",
