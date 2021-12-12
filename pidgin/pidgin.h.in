@@ -23,18 +23,6 @@
 #ifndef PIDGIN_PIDGIN_H
 #define PIDGIN_PIDGIN_H
 
-/**
- * SECTION:pidgin
- * @section_id: libpurple-purple
- * @short_description: <filename>pidgin.h</filename>
- * @title: Global header for Pidgin
- *
- * This file contains all the necessary preprocessor directives to include
- * Pidgin's headers and other preprocessor directives required for plugins
- * to build.  Including this file eliminates the need to directly include any
- * other Pidgin files.
- */
-
 #include <glib.h>
 
 #ifndef __GI_SCANNER__

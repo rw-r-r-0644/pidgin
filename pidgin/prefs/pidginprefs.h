@@ -26,12 +26,6 @@
 
 #ifndef PIDGIN_PREFS_H
 #define PIDGIN_PREFS_H
-/**
- * SECTION:pidginprefs
- * @section_id: pidgin-pidginprefs
- * @short_description: <filename>pidginprefs.h</filename>
- * @title: Preferences
- */
 
 #include <purple.h>
 
