@@ -26,13 +26,6 @@
 #ifndef PURPLE_BUDDY_H
 #define PURPLE_BUDDY_H
 
-/**
- * SECTION:buddy
- * @section_id: libpurple-buddy
- * @short_description: <filename>buddy.h</filename>
- * @title: Buddy Object
- */
-
 #define PURPLE_TYPE_BUDDY             (purple_buddy_get_type())
 #define PURPLE_BUDDY(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), PURPLE_TYPE_BUDDY, PurpleBuddy))
 #define PURPLE_BUDDY_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), PURPLE_TYPE_BUDDY, PurpleBuddyClass))

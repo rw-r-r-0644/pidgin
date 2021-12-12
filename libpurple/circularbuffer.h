@@ -23,12 +23,6 @@
 
 #ifndef PURPLE_CIRCULAR_BUFFER_H
 #define PURPLE_CIRCULAR_BUFFER_H
-/**
- * SECTION:circularbuffer
- * @section_id: libpurple-circularbuffer
- * @short_description: <filename>circularbuffer.h</filename>
- * @title: Buffer Utility Functions
- */
 
 #include <glib.h>
 #include <glib-object.h>

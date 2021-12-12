@@ -29,15 +29,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * SECTION:action
- * @section_id: libpurple-action
- * @short_description: <filename>action.h</filename>
- * @title: Protocol Actions
- *
- * This API allows protocols to expose actions to a user interface.
- */
-
 #define PURPLE_TYPE_PROTOCOL_ACTION (purple_protocol_action_get_type())
 typedef struct _PurpleProtocolAction PurpleProtocolAction;
 

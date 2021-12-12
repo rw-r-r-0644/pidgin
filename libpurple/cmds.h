@@ -23,14 +23,6 @@
 #ifndef PURPLE_CMDS_H
 #define PURPLE_CMDS_H
 
-/**
- * SECTION:cmds
- * @section_id: libpurple-cmds
- * @short_description: <filename>cmds.h</filename>
- * @title: Commands API
- * @see_also: <link linkend="chapter-signals-cmd">Command signals</link>
- */
-
 #include <purpleconversation.h>
 
 /******************************************************************************

@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_CONTACT_H
 #define PURPLE_CONTACT_H
-/**
- * SECTION:contact
- * @section_id: libpurple-contact
- * @short_description: <filename>contact.h</filename>
- * @title: Contact Object
- */
 
 #define PURPLE_TYPE_CONTACT             (purple_contact_get_type())
 #define PURPLE_CONTACT(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), PURPLE_TYPE_CONTACT, PurpleContact))

@@ -25,13 +25,6 @@
 
 #ifndef PURPLE_CONNECTION_H
 #define PURPLE_CONNECTION_H
-/**
- * SECTION:connection
- * @section_id: libpurple-connection
- * @short_description: <filename>connection.h</filename>
- * @title: Connection API
- * @see_also: <link linkend="chapter-signals-connection">Connection signals</link>
- */
 
 #include <glib.h>
 

@@ -29,13 +29,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-/**
- * SECTION:buddyicon
- * @section_id: libpurple-buddyicon
- * @short_description: <filename>buddyicon.h</filename>
- * @title: Buddy Icon API
- */
-
 #define PURPLE_TYPE_BUDDY_ICON (purple_buddy_icon_get_type())
 
 /**
