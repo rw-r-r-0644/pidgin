@@ -26,15 +26,6 @@
 #ifndef PURPLE_ATTACHMENT_H
 #define PURPLE_ATTACHMENT_H
 
-/**
- * SECTION:purpleattachment
- * @section_id: libpurple-attachment
- * @short_description: message attachment
- * @title: Message Attachments
- *
- * #PurpleAttachment represents a file attached to a #PurpleMessage.
- */
-
 #include <glib-object.h>
 
 G_BEGIN_DECLS
@@ -48,6 +39,12 @@ G_BEGIN_DECLS
  */
 
 #define PURPLE_TYPE_ATTACHMENT purple_attachment_get_type()
+
+/**
+ * PurpleAttachment:
+ *
+ * #PurpleAttachment represents a file attached to a #PurpleMessage.
+ */
 
 /**
  * purple_attachment_get_type:

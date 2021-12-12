@@ -21,15 +21,6 @@
 #ifndef PURPLE_BUDDY_PRESENCE_H
 #define PURPLE_BUDDY_PRESENCE_H
 
-/**
- * SECTION:purplebuddypresence
- * @section_id: libpurple-purplebuddypresence
- * @title: Buddy Presence API
- *
- * A #PurpleBuddyPresence represent the #PurplePresence for a specific
- * #PurpleBuddy.
- */
-
 #include "buddylist.h"
 #include "purplepresence.h"
 
@@ -38,7 +29,8 @@ G_BEGIN_DECLS
 /**
  * PurpleBuddyPresence:
  *
- * A presence for a buddy
+ * A #PurpleBuddyPresence represent the #PurplePresence for a specific
+ * #PurpleBuddy.
  */
 
 /**

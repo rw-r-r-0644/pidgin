@@ -31,13 +31,6 @@
 
 #include <libpurple/prefs.h>
 
-/**
- * SECTION:purpleaccountoption
- * @section_id: libpurple-account-option
- * @short_description: <filename>purpleaccountoption.h</filename>
- * @title: Account Options API
- */
-
 #define PURPLE_TYPE_ACCOUNT_OPTION (purple_account_option_get_type())
 
 /**

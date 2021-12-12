@@ -31,15 +31,6 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:purplehistorymanager
- * @section_id: libpurple-purplehistorymanager
- * @title: Purple History Manager
- *
- * #PurpleHistoryManager keeps track of all adapters and emits signals when
- * adapters are registered and unregistered.
- */
-
-/**
  * PURPLE_HISTORY_MANAGER_DOMAIN:
  *
  * A #GError domain for errors from #PurpleHistoryManager.
@@ -60,7 +51,8 @@ G_DECLARE_FINAL_TYPE(PurpleHistoryManager, purple_history_manager, PURPLE,
 /**
  * PurpleHistoryManager:
  *
- * An opaque data structure that represents a history manager.
+ * #PurpleHistoryManager keeps track of all adapters and emits signals when
+ * adapters are registered and unregistered.
  *
  * Since: 3.0.0
  */

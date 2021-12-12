@@ -27,15 +27,6 @@
 #ifndef PURPLE_MESSAGE_H
 #define PURPLE_MESSAGE_H
 
-/**
- * SECTION:purplemessage
- * @section_id: libpurple-purplemessage
- * @short_description: Message Object
- * @title: Message Object
- *
- * #PurpleMessage represents any message passed between users in libpurple.
- */
-
 #include <glib-object.h>
 
 #include <libpurple/purpleattachment.h>
@@ -115,6 +106,12 @@ typedef enum /*< prefix=PURPLE_MESSAGE_CONTENT_TYPE,underscore_name=PURPLE_MESSA
 	PURPLE_MESSAGE_CONTENT_TYPE_XHTML,
 	PURPLE_MESSAGE_CONTENT_TYPE_MARKDOWN,
 } PurpleMessageContentType;
+
+/**
+ * PurpleMessage:
+ *
+ * #PurpleMessage represents any message passed between users in libpurple.
+ */
 
 /**
  * purple_message_get_type:

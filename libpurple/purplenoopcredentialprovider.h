@@ -28,16 +28,6 @@
 
 #include <purplecredentialprovider.h>
 
-/**
- * SECTION:purplenoopcredentialprovider
- * @section_id: libpurple-purplenoopcredentialprovider
- * @title: No Operation Credential Provider Object
- * @short_description: A #PurpleCredentialProvider that does nothing.
- *
- * This is the "None" credential provider that always returns failures so that
- * the user is forced to enter a password.
- */
-
 G_BEGIN_DECLS
 
 /**

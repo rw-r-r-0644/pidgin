@@ -30,16 +30,6 @@
 #include <glib-object.h>
 
 /**
- * SECTION:purpleconversationuiops
- * @section_id: libpurple-purpleconversationuiops
- * @short_description: Ui Operations for Conversations
- * @title: Ui Operations for Conversations
- *
- * libpurple needs to tell the user interface when certain things happen in a
- * conversation and it uses this structure to do so.
- */
-
-/**
  * PURPLE_TYPE_CONVERSATION_UI_OPS:
  *
  * The standard _get_type macro for #PurpleConversationUiOps.
@@ -94,7 +84,8 @@ typedef struct _PurpleConversationUiOps PurpleConversationUiOps;
  *                accepts. If this field is %NULL, libpurple will fall back to
  *                using purple_request_action().
  *
- * Conversation operations and events.
+ * libpurple needs to tell the user interface when certain things happen in a
+ * conversation and it uses this structure to do so.
  *
  * Any UI representing a conversation must assign a filled-out
  * #PurpleConversationUiOps structure to the #PurpleConversation.

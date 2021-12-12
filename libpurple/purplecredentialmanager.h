@@ -32,20 +32,6 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:purplecredentialmanager
- * @section_id: libpurple-purplecredentialmanager
- * @title: Purple Credential Manager
- * @short_description: Management of credential providers.
- *
- * Purple Credential Manager is the main API access to different credential
- * providers. Providers register themselves with the manager and then the user
- * can choose which provider to use.
- *
- * Once a provider is selected, all credential access will be directed to that
- * provider.
- */
-
-/**
  * PURPLE_CREDENTIAL_MANAGER_DOMAIN:
  *
  * A #GError domain for errors from #PurpleCredentialManager.
@@ -68,7 +54,12 @@ G_DECLARE_FINAL_TYPE(PurpleCredentialManager, purple_credential_manager,
 /**
  * PurpleCredentialManager:
  *
- * An opaque data structure that manages credentials.
+ * Purple Credential Manager is the main API access to different credential
+ * providers. Providers register themselves with the manager and then the user
+ * can choose which provider to use.
+ *
+ * Once a provider is selected, all credential access will be directed to that
+ * provider.
  *
  * Since: 3.0.0
  */

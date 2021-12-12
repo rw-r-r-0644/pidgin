@@ -27,15 +27,6 @@
 #ifndef PURPLE_KEY_VALUE_PAIR_H
 #define PURPLE_KEY_VALUE_PAIR_H
 
-/**
- * SECTION:purplekeyvaluepair
- * @section_id: libpurple-keyvaluepair
- * @short_description: <filename>purplekeyvaluepair.h</filename>
- * @title: Key Value Pairs
- *
- * A simple key value pair data structure.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 

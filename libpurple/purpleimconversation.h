@@ -30,12 +30,6 @@
 #include <glib-object.h>
 
 /**
- * SECTION:purpleimconversation
- * @section_id: libpurple-purpleimconversation
- * @title: IM Conversation Objects
- */
-
-/**
  * PurpleIMTypingState:
  * @PURPLE_IM_NOT_TYPING: Not typing.
  * @PURPLE_IM_TYPING:     Currently typing.

@@ -27,17 +27,6 @@
 
 #include <purpleconversation.h>
 
-/**
- * SECTION:purpleconversationmanager
- * @section_id: libpurple-purpleconversationmanager
- * @title: Conversation Management
- * @short_description: Management of conversations.
- *
- * #PurpleConversationManager keeps track of all #PurpleConversation's inside of
- * libpurple and allows searching of them.
- */
-
-
 G_BEGIN_DECLS
 
 /**
@@ -62,7 +51,8 @@ G_BEGIN_DECLS
 /**
  * PurpleConversationManager:
  *
- * An opaque structure that represents the conversation manager.
+ * #PurpleConversationManager keeps track of all #PurpleConversation's inside
+ * of libpurple and allows searching of them.
  *
  * Since: 3.0.0
  */

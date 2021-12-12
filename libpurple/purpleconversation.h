@@ -26,18 +26,6 @@
 #ifndef PURPLE_CONVERSATION_H
 #define PURPLE_CONVERSATION_H
 
-/**
- * SECTION:purpleconversation
- * @section_id: libpurple-purpleconversation
- * @short_description: Conversation base class
- * @title: Conversation Base Class
- *
- * This is the base class for the conversation abstraction on Libpurple.
- *
- * The present API manages the common functionality for both kinds of conversations
- * @PurpleIMConversation and @PurpleChatConversation.
- */
-
 #include <glib.h>
 #include <glib-object.h>
 
