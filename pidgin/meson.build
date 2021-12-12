@@ -148,7 +148,6 @@ if IS_WIN32
 	libpidgin_SOURCES += [
 		'pidgin.c',
 		'win32/gtkwin32dep.c',
-		'win32/untar.c'
 	]
 
 	pidgin_exe_rc = configure_file(

@@ -21,6 +21,12 @@
 #include <io.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+/* winsock2.h needs to be include before windows.h or else it throws a warning
+ * saying it needs to be included first. We don't use it directly but it's
+ * included indirectly.
+ */
+#include <winsock2.h>
 #include <windows.h>
 #include <winuser.h>
 #include <shellapi.h>
@@ -33,7 +39,6 @@
 #include <purple.h>
 
 #include "resource.h"
-#include "untar.h"
 
 #include "gtkwin32dep.h"
 #include "gtkblist.h"
@@ -46,7 +51,6 @@
 HINSTANCE exe_hInstance = 0;
 HINSTANCE dll_hInstance = 0;
 HWND messagewin_hwnd;
-static int gtkwin32_handle;
 
 static gboolean pwm_handles_connections = TRUE;
 
@@ -126,28 +130,6 @@ int winpidgin_gz_decompress(const char* in, const char* out) {
 	}
 
 	return 1;
-}
-
-int winpidgin_gz_untar(const char* filename, const char* destdir) {
-	char tmpfile[_MAX_PATH];
-	char template[]="wpidginXXXXXX";
-
-	sprintf(tmpfile, "%s%s%s", g_get_tmp_dir(), G_DIR_SEPARATOR_S, _mktemp(template));
-	if(winpidgin_gz_decompress(filename, tmpfile)) {
-		int ret;
-		if(untar(tmpfile, destdir, UNTAR_FORCE | UNTAR_QUIET))
-			ret = 1;
-		else {
-			purple_debug_error("winpidgin_gz_untar", "Failure untarring %s\n", tmpfile);
-			ret = 0;
-		}
-		g_unlink(tmpfile);
-		return ret;
-	}
-	else {
-		purple_debug_error("winpidgin_gz_untar", "Failed to gz decompress %s\n", filename);
-		return 0;
-	}
 }
 
 void winpidgin_shell_execute(const char *target, const char *verb, const char *clazz) {
