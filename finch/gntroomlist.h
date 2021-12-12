@@ -27,13 +27,6 @@
 #ifndef FINCH_ROOMLIST_H
 #define FINCH_ROOMLIST_H
 
-/**
- * SECTION:gntroomlist
- * @section_id: finch-gntroomlist
- * @short_description: <filename>gntroomlist.h</filename>
- * @title: Room List API
- */
-
 #include <purple.h>
 
 /**********************************************************************
