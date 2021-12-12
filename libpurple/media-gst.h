@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_MEDIA_GST_H
 #define PURPLE_MEDIA_GST_H
-/**
- * SECTION:media-gst
- * @section_id: libpurple-media-gst
- * @short_description: <filename>media-gst.h</filename>
- * @title: Media Element API
- */
 
 #include "media.h"
 #include "mediamanager.h"

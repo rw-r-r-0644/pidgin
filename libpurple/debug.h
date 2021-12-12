@@ -27,13 +27,6 @@
 #ifndef PURPLE_DEBUG_H
 #define PURPLE_DEBUG_H
 
-/**
- * SECTION:debug
- * @section_id: libpurple-debug
- * @short_description: Developer Logging API
- * @title: Debug API
- */
-
 #include <glib.h>
 #include <glib-object.h>
 

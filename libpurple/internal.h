@@ -21,12 +21,6 @@
 
 #ifndef PURPLE_INTERNAL_H
 #define PURPLE_INTERNAL_H
-/*
- * SECTION:internal
- * @section_id: libpurple-internal
- * @short_description: <filename>internal.h</filename>
- * @title: Internal definitions and includes
- */
 
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
 # error "only <purple.h> may be included directly"

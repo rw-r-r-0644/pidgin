@@ -25,12 +25,9 @@
 
 #ifndef PURPLE_IMAGE_STORE_H
 #define PURPLE_IMAGE_STORE_H
+
 /**
- * SECTION:image-store
- * @include:image-store.h
- * @section_id: libpurple-image-store
- * @short_description: a global, temporary storage for images
- * @title: Image store
+ * PurpleImageStore:
  *
  * Image store references #PurpleImage's by a simple integer value.
  * It's a convenient way to embed images in HTML-like strings.

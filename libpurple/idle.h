@@ -25,12 +25,6 @@
 
 #ifndef PURPLE_IDLE_H
 #define PURPLE_IDLE_H
-/**
- * SECTION:idle
- * @section_id: libpurple-idle
- * @short_description: <filename>idle.h</filename>
- * @title: Idle API
- */
 
 #include <time.h>
 #include <glib-object.h>
