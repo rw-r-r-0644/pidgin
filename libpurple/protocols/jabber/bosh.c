@@ -99,7 +99,7 @@ jabber_bosh_connection_new(JabberStream *js, const gchar *url)
 	PurpleAccount *account;
 	GProxyResolver *resolver;
 	GError *error = NULL;
-	SoupURI *url_p;
+	const gchar *scheme;
 
 	account = purple_connection_get_account(js->gc);
 	resolver = purple_proxy_get_proxy_resolver(account, &error);
@@ -111,8 +111,8 @@ jabber_bosh_connection_new(JabberStream *js, const gchar *url)
 		return NULL;
 	}
 
-	url_p = soup_uri_new(url);
-	if (!SOUP_URI_VALID_FOR_HTTP(url_p)) {
+	scheme = g_uri_peek_scheme(url);
+	if (scheme == NULL) {
 		purple_debug_error("jabber-bosh", "Unable to parse given BOSH URL: %s",
 		                   url);
 		g_object_unref(resolver);
@@ -127,7 +127,7 @@ jabber_bosh_connection_new(JabberStream *js, const gchar *url)
 	        NULL);
 	conn->url = g_strdup(url);
 	conn->js = js;
-	conn->is_ssl = (url_p->scheme == SOUP_URI_SCHEME_HTTPS);
+	conn->is_ssl = g_str_equal(scheme, "https");
 	conn->send_buff = g_string_new(NULL);
 
 	/*
@@ -140,7 +140,6 @@ jabber_bosh_connection_new(JabberStream *js, const gchar *url)
 	conn->rid = (((guint64)g_random_int() << 32) | g_random_int());
 	conn->rid &= 0xFFFFFFFFFFFFFLL;
 
-	soup_uri_free(url_p);
 	g_object_unref(resolver);
 
 	jabber_bosh_connection_session_create(conn);

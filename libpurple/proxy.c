@@ -552,23 +552,37 @@ purple_proxy_get_setup(PurpleAccount *account)
 			(tmp = g_getenv("http_proxy")) != NULL ||
 			(tmp = g_getenv("HTTPPROXY")) != NULL)
 		{
-			SoupURI *url;
+			gchar *scheme, *host, *username, *password;
+			gint port;
+			GError *error = NULL;
 
 			/* http_proxy-format:
 			 * export http_proxy="http://user:passwd@your.proxy.server:port/"
 			 */
-			url = soup_uri_new(tmp);
-			if (!SOUP_URI_VALID_FOR_HTTP(url)) {
+			if (!g_uri_split_with_user(tmp, G_URI_FLAGS_HAS_PASSWORD, &scheme,
+			                           &username, &password, NULL,
+			                           &host, &port, NULL, NULL, NULL, &error))
+			{
+				purple_debug_warning("proxy", "Couldn't parse URL: %s: %s", tmp, error->message);
+				g_error_free(error);
+				return gpi;
+			}
+			if (!purple_strequal(scheme, "http")) {
 				purple_debug_warning("proxy", "Couldn't parse URL: %s", tmp);
+				g_free(username);
+				g_free(password);
+				g_free(host);
 				return gpi;
 			}
 
-			purple_proxy_info_set_host(gpi, url->host);
-			purple_proxy_info_set_username(gpi, url->user);
-			purple_proxy_info_set_password(gpi, url->password);
-			purple_proxy_info_set_port(gpi, url->port);
+			purple_proxy_info_set_host(gpi, host);
+			purple_proxy_info_set_username(gpi, username);
+			purple_proxy_info_set_password(gpi, password);
+			purple_proxy_info_set_port(gpi, port);
 
-			soup_uri_free(url);
+			g_free(host);
+			g_free(username);
+			g_free(password);
 
 			/* XXX: Do we want to skip this step if user/password/port were part of url? */
 			if ((tmp = g_getenv("HTTP_PROXY_USER")) != NULL ||
