@@ -728,7 +728,7 @@ fb_api_http_req(FbApi *api, const gchar *url, const gchar *name,
 	g_list_free(keys);
 	g_free(data);
 
-	msg = soup_form_request_new_from_hash("POST", url, params);
+	msg = soup_message_new_from_encoded_form("POST", url, soup_form_encode_hash(params));
 	fb_http_params_free(params);
 
 	if (priv->token != NULL) {

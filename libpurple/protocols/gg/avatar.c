@@ -279,8 +279,9 @@ ggp_avatar_own_got_token(PurpleConnection *gc, const gchar *token,
 	purple_debug_misc("gg", "ggp_avatar_own_got_token: "
 		"uploading new avatar...\n");
 
-	req = soup_form_request_new("POST", "http://avatars.nowe.gg/upload", "uin",
-	                            uin_str, "photo", img_data, NULL);
+	req = soup_message_new_from_encoded_form(
+	        "POST", "http://avatars.nowe.gg/upload",
+	        soup_form_encode("uin", uin_str, "photo", img_data, NULL));
 	// purple_http_request_set_max_len(req, GGP_AVATAR_RESPONSE_MAX);
 	headers = soup_message_get_request_headers(req);
 	soup_message_headers_replace(headers, "Authorization", token);
