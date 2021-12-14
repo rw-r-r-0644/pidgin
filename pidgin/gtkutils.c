@@ -363,8 +363,8 @@ void pidgin_retrieve_user_info_in_chat(PurpleConnection *conn, const char *name,
 
 gboolean
 pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
-							PurpleAccount **ret_account, char **ret_protocol,
-							char **ret_username, char **ret_alias)
+                          PurpleAccount **ret_account, char **ret_protocol,
+                          char **ret_username, char **ret_alias)
 {
 	char *protocol = NULL;
 	char *username = NULL;
@@ -434,17 +434,21 @@ pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
 			*ret_alias = alias;
 
 		/* Check for a compatible account. */
-		if (ret_account != NULL)
-		{
-			GList *list;
+		if(ret_account != NULL) {
 			PurpleAccount *account = NULL;
+			GList *list;
 			GList *l;
 			const char *protoname;
 
-			if (all_accounts)
-				list = purple_accounts_get_all();
-			else
+
+			if(all_accounts) {
+				PurpleAccountManager *manager = NULL;
+
+				manager = purple_account_manager_get_default();
+				list = purple_account_manager_get_all(manager);
+			} else {
 				list = purple_connections_get_all();
+			}
 
 			for (l = list; l != NULL; l = l->next)
 			{

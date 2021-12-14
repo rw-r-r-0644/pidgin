@@ -133,19 +133,23 @@ pidgin_accounts_menu_add_disabled_account(PidginAccountsMenu *menu,
 }
 
 static void
-pidgin_accounts_menu_add_current(PidginAccountsMenu *menu) {
-	GList *accounts = NULL, *l = NULL;
+pidgin_accounts_menu_foreach_cb(PurpleAccount *account, gpointer data) {
+	PidginAccountsMenu *menu = PIDGIN_ACCOUNTS_MENU(data);
 
-	accounts = purple_accounts_get_all();
-	for(l = accounts; l != NULL; l = l->next) {
-		PurpleAccount *account = PURPLE_ACCOUNT(l->data);
-
-		if(purple_account_get_enabled(account, PIDGIN_UI)) {
-			pidgin_accounts_menu_add_enabled_account(menu, account);
-		} else {
-			pidgin_accounts_menu_add_disabled_account(menu, account);
-		}
+	if(purple_account_get_enabled(account, PIDGIN_UI)) {
+		pidgin_accounts_menu_add_enabled_account(menu, account);
+	} else {
+		pidgin_accounts_menu_add_disabled_account(menu, account);
 	}
+}
+
+static void
+pidgin_accounts_menu_add_current(PidginAccountsMenu *menu) {
+	PurpleAccountManager *manager = NULL;
+
+	manager = purple_account_manager_get_default();
+	purple_account_manager_foreach(manager, pidgin_accounts_menu_foreach_cb,
+	                               menu);
 }
 
 /******************************************************************************

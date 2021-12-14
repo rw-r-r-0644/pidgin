@@ -1031,18 +1031,22 @@ static void
 status_editor_populate_list(StatusEditor *dialog, PurpleSavedStatus *saved_status)
 {
 	GList *iter;
+	PurpleAccountManager *manager = NULL;
 	PurpleSavedStatusSub *substatus;
 
 	gtk_list_store_clear(dialog->model);
 
-	for (iter = purple_accounts_get_all(); iter != NULL; iter = iter->next)
-	{
+	manager = purple_account_manager_get_default();
+	iter = purple_account_manager_get_all(manager);
+
+	for(; iter != NULL; iter = iter->next) {
 		PurpleAccount *account = (PurpleAccount *)iter->data;
 
-		if (saved_status != NULL)
+		if (saved_status != NULL) {
 			substatus = purple_savedstatus_get_substatus(saved_status, account);
-		else
+		} else {
 			substatus = NULL;
+		}
 
 		status_editor_add_account(dialog, account, substatus);
 	}

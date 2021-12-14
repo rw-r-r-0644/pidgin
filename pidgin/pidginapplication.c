@@ -502,6 +502,7 @@ pidgin_application_signed_off_cb(PurpleAccount *account, gpointer data) {
  *****************************************************************************/
 static void
 pidgin_application_startup(GApplication *application) {
+	PurpleAccountManager *manager = NULL;
 	GtkCssProvider *provider = NULL;
 	GError *error = NULL;
 	GList *active_accounts = NULL;
@@ -609,7 +610,9 @@ pidgin_application_startup(GApplication *application) {
 		purple_accounts_restore_current_statuses();
 	}
 
-	if((active_accounts = purple_accounts_get_all_active()) == NULL) {
+	manager = purple_account_manager_get_default();
+	active_accounts = purple_account_manager_get_active(manager);
+	if(active_accounts == NULL) {
 		pidgin_accounts_window_show();
 	} else {
 		g_list_free(active_accounts);

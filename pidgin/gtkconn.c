@@ -154,34 +154,40 @@ pidgin_connection_report_disconnect(PurpleConnection *gc,
 	}
 }
 
-static void pidgin_connection_network_connected (void)
-{
-	GList *list, *l;
+static void
+pidgin_connection_network_connected(void) {
+	PurpleAccountManager *manager = NULL;
+	GList *l = NULL;
 
-	l = list = purple_accounts_get_all_active();
-	while (l) {
+	manager = purple_account_manager_get_default();
+	l = purple_account_manager_get_active(manager);
+
+	while(l != NULL) {
 		PurpleAccount *account = (PurpleAccount*)l->data;
 		g_hash_table_remove(auto_reconns, account);
 		if (purple_account_is_disconnected(account))
 			do_signon(account);
-		l = l->next;
+
+		l = g_list_delete_link(l, l);
 	}
-	g_list_free(list);
 }
 
-static void pidgin_connection_network_disconnected (void)
-{
-	GList *list, *l;
+static void
+pidgin_connection_network_disconnected(void) {
+	PurpleAccountManager *manager = NULL;
+	GList *l = NULL;
 
-	l = list = purple_accounts_get_all_active();
-	while (l) {
+	manager = purple_account_manager_get_default();
+	l = purple_account_manager_get_active(manager);
+
+	while(l != NULL) {
 		PurpleAccount *a = (PurpleAccount*)l->data;
 		if (!purple_account_is_disconnected(a)) {
 			purple_account_disconnect(a);
 		}
-		l = l->next;
+
+		l = g_list_delete_link(l, l);
 	}
-	g_list_free(list);
 }
 
 static void pidgin_connection_notice(PurpleConnection *gc, const char *text)

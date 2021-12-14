@@ -95,7 +95,8 @@ pidgin_mood_dialog_edit_cb(PurpleConnection *connection,
 
 		update_status_with_mood(account, mood, text);
 	} else {
-		GList *accounts = purple_accounts_get_all_active();
+		PurpleAccountManager *manager = purple_account_manager_get_default();
+		GList *accounts = purple_account_manager_get_all(manager);
 
 		for (; accounts ; accounts = g_list_delete_link(accounts, accounts)) {
 			PurpleAccount *account = (PurpleAccount *) accounts->data;
@@ -130,6 +131,7 @@ pidgin_mood_dialog_edit_cb(PurpleConnection *connection,
  */
 static PurpleMood *
 pidgin_mood_get_global_moods(void) {
+	PurpleAccountManager *manager = NULL;
 	GHashTable *global_moods = NULL;
 	GHashTable *mood_counts = NULL;
 	GList *accounts = NULL;
@@ -141,7 +143,8 @@ pidgin_mood_get_global_moods(void) {
 	global_moods = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 	mood_counts = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 
-	accounts = purple_accounts_get_all_active();
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_active(manager);
 	for (; accounts ; accounts = g_list_delete_link(accounts, accounts)) {
 		PurpleAccount *account = (PurpleAccount *) accounts->data;
 		if (purple_account_is_connected(account)) {
@@ -202,9 +205,12 @@ pidgin_mood_get_global_moods(void) {
  */
 static const gchar *
 pidgin_mood_get_global_status(void) {
-	GList *accounts = purple_accounts_get_all_active();
+	PurpleAccountManager *manager = NULL;
+	GList *accounts = NULL;
 	const gchar *found_mood = NULL;
 
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_active(manager);
 	for (; accounts ; accounts = g_list_delete_link(accounts, accounts)) {
 		PurpleAccount *account = (PurpleAccount *) accounts->data;
 

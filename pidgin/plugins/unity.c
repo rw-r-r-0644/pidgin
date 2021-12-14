@@ -259,24 +259,29 @@ message_source_activated(MessagingMenuApp *app, const gchar *id,
 {
 	gchar **sections = g_strsplit(id, ":", 0);
 	PurpleConversation *conv = NULL;
-	PurpleConversationManager *manager = NULL;
+	PurpleConversationManager *conversation_manager = NULL;
 	PurpleAccount *account;
+	PurpleAccountManager *account_manager = NULL;
 
 	char *type     = sections[0];
 	char *cname    = sections[1];
 	char *aname    = sections[2];
 	char *protocol = sections[3];
 
-	manager = purple_conversation_manager_get_default();
+	conversation_manager = purple_conversation_manager_get_default();
 
-	account = purple_accounts_find(aname, protocol);
+	account_manager = purple_account_manager_get_default();
+	account = purple_account_manager_find(account_manager, aname, protocol);
 
 	if (g_strcmp0(type, "im") == 0) {
-		conv = purple_conversation_manager_find_im(manager, account, cname);
+		conv = purple_conversation_manager_find_im(conversation_manager,
+		                                           account, cname);
 	} else if (g_strcmp0(type, "chat") == 0) {
-		conv = purple_conversation_manager_find_chat(manager, account, cname);
+		conv = purple_conversation_manager_find_chat(conversation_manager,
+		                                             account, cname);
 	} else {
-		conv = purple_conversation_manager_find(manager, account, cname);
+		conv = purple_conversation_manager_find(conversation_manager,
+		                                        account, cname);
 	}
 
 	if (conv) {
@@ -295,17 +300,26 @@ message_source_activated(MessagingMenuApp *app, const gchar *id,
 }
 
 static PurpleSavedStatus *
-create_transient_status(PurpleStatusPrimitive primitive, PurpleStatusType *status_type)
+create_transient_status(PurpleStatusPrimitive primitive,
+                        PurpleStatusType *status_type)
 {
 	PurpleSavedStatus *saved_status = purple_savedstatus_new(NULL, primitive);
 
 	if(status_type != NULL) {
-		GList *tmp, *active_accts = purple_accounts_get_all_active();
-		for (tmp = active_accts; tmp != NULL; tmp = tmp->next) {
-			purple_savedstatus_set_substatus(saved_status,
-				(PurpleAccount*) tmp->data, status_type, NULL);
+		PurpleAccountManager *manager = NULL;
+		GList *active_accts = NULL;
+
+		manager = purple_account_manager_get_default();
+		active_accts = purple_account_manager_get_active(manager);
+
+		while(active_accts != NULL) {
+			PurpleAccount *account = PURPLE_ACCOUNT(active_accts->data);
+
+			purple_savedstatus_set_substatus(saved_status, account,
+			                                 status_type, NULL);
+
+			active_accts = g_list_delete_link(active_accts, active_accts);
 		}
-		g_list_free(active_accts);
 	}
 
 	return saved_status;
