@@ -420,7 +420,8 @@ static void
 purple_upnp_parse_description(const gchar* descriptionURL, UPnPDiscoveryData *dd)
 {
 	SoupMessage *msg;
-	SoupURI *uri;
+	gchar *host;
+	gint port;
 
 	/* Remove the timeout because everything it is waiting for has
 	 * successfully completed */
@@ -430,13 +431,14 @@ purple_upnp_parse_description(const gchar* descriptionURL, UPnPDiscoveryData *dd
 	/* Extract base url out of the descriptionURL.
 	 * Example description URL: http://192.168.1.1:5678/rootDesc.xml
 	 */
-	uri = soup_uri_new(descriptionURL);
-	if (!uri) {
+	if (!g_uri_split_network(descriptionURL, G_URI_FLAGS_NONE, NULL, &host,
+	                         &port, NULL))
+	{
 		upnp_parse_description_cb(NULL, NULL, dd);
 		return;
 	}
-	dd->full_url = g_strdup_printf("http://%s:%d", uri->host, uri->port);
-	soup_uri_free(uri);
+	dd->full_url = g_strdup_printf("http://%s:%d", host, port);
+	g_free(host);
 
 	msg = soup_message_new("GET", descriptionURL);
 	// purple_http_request_set_max_len(msg, MAX_UPNP_DOWNLOAD);
@@ -815,33 +817,35 @@ looked_up_internal_ip_cb(GObject *source, GAsyncResult *result,
 static void
 lookup_internal_ip()
 {
-	SoupURI *uri;
+	gchar *host;
+	gint port;
 	GSocketClient *client;
 	GError *error = NULL;
 
-	uri = soup_uri_new(control_info.control_url);
-	if (!uri) {
+	if (!g_uri_split_network(control_info.control_url, G_URI_FLAGS_NONE, NULL,
+	                         &host, &port, &error))
+	{
 		purple_debug_error("upnp",
-			"lookup_internal_ip(): Failed In Parse URL\n");
+			"lookup_internal_ip(): Failed In Parse URL: %s",
+			error->message);
 		return;
 	}
 
 	client = purple_gio_socket_client_new(NULL, &error);
 	if (client == NULL) {
 		purple_debug_error("upnp", "Get Local IP Connect to %s:%d Failed: %s",
-		                   uri->host, uri->port, error->message);
+		                   host, port, error->message);
 		g_clear_error(&error);
-		soup_uri_free(uri);
+		g_free(host);
 		return;
 	}
 
-	purple_debug_info("upnp", "Attempting connection to %s:%u\n", uri->host,
-	                  uri->port);
-	g_socket_client_connect_to_host_async(client, uri->host, uri->port, NULL,
+	purple_debug_info("upnp", "Attempting connection to %s:%u\n", host, port);
+	g_socket_client_connect_to_host_async(client, host, port, NULL,
 	                                      looked_up_internal_ip_cb, NULL);
 
 	g_object_unref(client);
-	soup_uri_free(uri);
+	g_free(host);
 }
 
 static void

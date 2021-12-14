@@ -58,7 +58,7 @@ fb_http_params_new(void)
 FbHttpParams *
 fb_http_params_new_parse(const gchar *data, gboolean isurl)
 {
-	SoupURI *uri = NULL;
+	gchar *query = NULL;
 	FbHttpParams *params;
 
 	if (data == NULL) {
@@ -66,20 +66,18 @@ fb_http_params_new_parse(const gchar *data, gboolean isurl)
 	}
 
 	if (isurl) {
-		uri = soup_uri_new(data);
-
-		if (uri == NULL) {
+		if (!g_uri_split(data, G_URI_FLAGS_ENCODED_QUERY, NULL, NULL, NULL,
+		                 NULL, NULL, &query, NULL, NULL))
+		{
 			return fb_http_params_new();
 		}
 
-		data = uri->query;
+		data = query;
 	}
 
 	params = soup_form_decode(data);
 
-	if (isurl) {
-		soup_uri_free(uri);
-	}
+	g_free(query);
 
 	return params;
 }
@@ -232,9 +230,12 @@ fb_http_params_set_strf(FbHttpParams *params, const gchar *name,
 gboolean
 fb_http_urlcmp(const gchar *url1, const gchar *url2, gboolean protocol)
 {
-	SoupURI *uri1;
-	SoupURI *uri2;
 	gboolean ret = TRUE;
+#if SOUP_MAJOR_VERSION >= 3
+	GUri *uri1, *uri2;
+#else
+	SoupURI *uri1, *uri2;
+#endif
 
 	if ((url1 == NULL) || (url2 == NULL)) {
 		return url1 == url2;
@@ -244,14 +245,43 @@ fb_http_urlcmp(const gchar *url1, const gchar *url2, gboolean protocol)
 		return TRUE;
 	}
 
-	uri1 = soup_uri_new(url1);
+#if SOUP_MAJOR_VERSION >= 3
+	uri1 = g_uri_parse(url1, SOUP_HTTP_URI_FLAGS, NULL);
+	if (uri1 == NULL) {
+		return g_ascii_strcasecmp(url1, url2) == 0;
+	}
 
+	uri2 = g_uri_parse(url2, SOUP_HTTP_URI_FLAGS, NULL);
+	if (uri2 == NULL) {
+		g_uri_unref(uri1);
+		return g_ascii_strcasecmp(url1, url2) == 0;
+	}
+
+	if (!protocol) {
+		/* Force the same scheme (and same port). */
+		GUri *tmp = NULL;
+
+		tmp = soup_uri_copy(uri1,
+		                    SOUP_URI_SCHEME, "https",
+		                    SOUP_URI_PORT, 443,
+		                    SOUP_URI_NONE);
+		g_uri_unref(uri1);
+		uri1 = tmp;
+
+		tmp = soup_uri_copy(uri2,
+		                    SOUP_URI_SCHEME, "https",
+		                    SOUP_URI_PORT, 443,
+		                    SOUP_URI_NONE);
+		g_uri_unref(uri2);
+		uri2 = tmp;
+	}
+#else
+	uri1 = soup_uri_new(url1);
 	if (uri1 == NULL) {
 		return g_ascii_strcasecmp(url1, url2) == 0;
 	}
 
 	uri2 = soup_uri_new(url2);
-
 	if (uri2 == NULL) {
 		soup_uri_free(uri1);
 		return g_ascii_strcasecmp(url1, url2) == 0;
@@ -262,10 +292,16 @@ fb_http_urlcmp(const gchar *url1, const gchar *url2, gboolean protocol)
 		soup_uri_set_scheme(uri1, SOUP_URI_SCHEME_HTTPS);
 		soup_uri_set_scheme(uri2, SOUP_URI_SCHEME_HTTPS);
 	}
+#endif
 
 	ret = soup_uri_equal(uri1, uri2);
 
+#if SOUP_MAJOR_VERSION >= 3
+	g_uri_unref(uri1);
+	g_uri_unref(uri2);
+#else
 	soup_uri_free(uri1);
 	soup_uri_free(uri2);
+#endif
 	return ret;
 }
