@@ -309,7 +309,8 @@ ggp_ggdrive_auth_done(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	}
 
 	sdata->security_token = g_strdup(soup_message_headers_get_one(
-	        msg->response_headers, "X-gged-security-token"));
+	        soup_message_get_response_headers(msg),
+	        "X-gged-security-token"));
 	if (!sdata->security_token) {
 		purple_debug_misc("gg", "ggp_ggdrive_auth_done: authentication failed "
 		                        "due to missing security token header");
