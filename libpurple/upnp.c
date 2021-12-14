@@ -861,7 +861,7 @@ done_port_mapping_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		purple_debug_error("upnp",
 		                   "purple_upnp_set_port_mapping(): Failed HTTP_OK: %s",
-		                   msg->reason_phrase);
+		                   soup_message_get_reason_phrase(msg));
 		success =  FALSE;
 	} else {
 		purple_debug_info("upnp",
