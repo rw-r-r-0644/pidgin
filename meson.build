@@ -295,7 +295,19 @@ json = dependency('json-glib-1.0', version : '>= 0.14.0')
 # Check for libsoup (required)
 #######################################################################
 
-libsoup = dependency('libsoup-2.4', version : '>= 2.42')
+libsoup = dependency('libsoup-3.0', version : '>= 3', required : false)
+if libsoup.found()
+	add_project_arguments(
+		'-DSOUP_VERSION_MIN_REQUIRED=SOUP_VERSION_3_0',
+		'-DSOUP_VERSION_MAX_ALLOWED=SOUP_VERSION_3_0',
+		language : 'c')
+else
+	libsoup = dependency('libsoup-2.4', version : '>= 2.42')
+	add_project_arguments(
+		'-DSOUP_VERSION_MIN_REQUIRED=SOUP_VERSION_2_42',
+		'-DSOUP_VERSION_MAX_ALLOWED=SOUP_VERSION_2_42',
+		language : 'c')
+endif
 
 #######################################################################
 # Check for sqlite3 (required)
