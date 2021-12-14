@@ -702,11 +702,15 @@ add_popular_statuses(PidginStatusBox *statusbox)
 
 /* This returns NULL if the active accounts don't have identical
  * statuses and a token account if they do */
-static PurpleAccount* check_active_accounts_for_identical_statuses(void)
-{
-	GList *iter, *active_accts = purple_accounts_get_all_active();
+static
+PurpleAccount *check_active_accounts_for_identical_statuses(void) {
+	PurpleAccountManager *manager = NULL;
+	GList *iter, *active_accts = NULL;
 	PurpleAccount *acct1 = NULL;
 	const char *proto1 = NULL;
+
+	manager = purple_account_manager_get_default();
+	active_accts = purple_account_manager_get_active(manager);
 
 	if (active_accts) {
 		acct1 = active_accts->data;
@@ -1713,8 +1717,12 @@ activate_currently_selected_status(PidginStatusBox *status_box)
 		{
 			/* Manually find the appropriate transient status */
 			if (status_box->token_status_account) {
+				PurpleAccountManager *manager = NULL;
 				GList *iter = purple_savedstatuses_get_all();
-				GList *tmp, *active_accts = purple_accounts_get_all_active();
+				GList *active_accts = NULL;
+
+				manager = purple_account_manager_get_default();
+				active_accts = purple_account_manager_get_active(manager);
 
 				for (; iter != NULL; iter = iter->next) {
 					PurpleSavedStatus *ss = iter->data;
@@ -1727,8 +1735,8 @@ activate_currently_selected_status(PidginStatusBox *status_box)
 					{
 						gboolean found = FALSE;
 						/* this status must have substatuses for all the active accts */
-						for(tmp = active_accts; tmp != NULL; tmp = tmp->next) {
-							PurpleAccount *acct = tmp->data;
+						while(active_accts != NULL) {
+							PurpleAccount *acct = active_accts->data;
 							PurpleSavedStatusSub *sub = purple_savedstatus_get_substatus(ss, acct);
 							if (sub) {
 								const PurpleStatusType *sub_type =
@@ -1739,6 +1747,9 @@ activate_currently_selected_status(PidginStatusBox *status_box)
 									break;
 								}
 							}
+
+							active_accts = g_list_delete_link(active_accts,
+							                                  active_accts);
 						}
 
 						if (found) {
@@ -1756,17 +1767,28 @@ activate_currently_selected_status(PidginStatusBox *status_box)
 			}
 
 			/* If this type+message is unique then create a new transient saved status */
-			if (saved_status == NULL)
-			{
+			if(saved_status == NULL) {
 				saved_status = purple_savedstatus_new(NULL, primitive);
 				purple_savedstatus_set_message(saved_status, message);
+
 				if (status_box->token_status_account) {
-					GList *tmp, *active_accts = purple_accounts_get_all_active();
-					for (tmp = active_accts; tmp != NULL; tmp = tmp->next) {
-						purple_savedstatus_set_substatus(saved_status,
-							(PurpleAccount*) tmp->data, acct_status_type, message);
+					PurpleAccountManager *manager = NULL;
+					GList *active_accts = NULL;
+
+					manager = purple_account_manager_get_default();
+					active_accts = purple_account_manager_get_active(manager);
+
+					while(active_accts != NULL) {
+						PurpleAccount *account = NULL;
+
+						account = PURPLE_ACCOUNT(active_accts->data);
+						purple_savedstatus_set_substatus(saved_status, account,
+						                                 acct_status_type,
+						                                 message);
+
+						active_accts = g_list_delete_link(active_accts,
+						                                  active_accts);
 					}
-					g_list_free(active_accts);
 				}
 			}
 
@@ -1889,10 +1911,16 @@ static void pidgin_status_box_changed(PidginStatusBox *status_box)
 	 * message attribute on any protocol that is enabled,
 	 * or our protocol, if we have account set
 	 */
-	if (status_box->account)
+	if(status_box->account) {
 		accounts = g_list_prepend(accounts, status_box->account);
-	else
-		accounts = purple_accounts_get_all_active();
+	} else {
+		PurpleAccountManager *manager = NULL;
+
+		manager = purple_account_manager_get_default();
+
+		accounts = purple_account_manager_get_active(manager);
+	}
+
 	status_box->editor_visible = FALSE;
 	for (node = accounts; node != NULL; node = node->next)
 	{

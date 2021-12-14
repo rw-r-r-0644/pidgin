@@ -71,17 +71,21 @@ pidgin_account_store_add_account(PidginAccountStore *store,
 }
 
 static void
-pidgin_account_store_add_account_helper(gpointer data, gpointer user_data) {
-	if(PURPLE_IS_ACCOUNT(data)) {
-		pidgin_account_store_add_account(PIDGIN_ACCOUNT_STORE(user_data),
-		                                 PURPLE_ACCOUNT(data));
+pidgin_account_store_add_account_helper(PurpleAccount *account, gpointer data) {
+	if(PURPLE_IS_ACCOUNT(account)) {
+		pidgin_account_store_add_account(PIDGIN_ACCOUNT_STORE(data),
+		                                 PURPLE_ACCOUNT(account));
 	}
 }
 
 static void
 pidgin_account_store_add_accounts(PidginAccountStore *store) {
-	g_list_foreach(purple_accounts_get_all(),
-	               pidgin_account_store_add_account_helper, store);
+	PurpleAccountManager *manager = NULL;
+
+	manager = purple_account_manager_get_default();
+	purple_account_manager_foreach(manager,
+	                               pidgin_account_store_add_account_helper,
+	                               store);
 }
 
 static void

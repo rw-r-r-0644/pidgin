@@ -1520,6 +1520,7 @@ _pidgin_datasheet_stock_icon_get(const gchar *stock_name)
 
 	if (purple_strequal(domain, "protocol")) {
 		PurpleAccount *account;
+		PurpleAccountManager *manager = NULL;
 		gchar *protocol_id, *accountname;
 
 		protocol_id = id;
@@ -1533,8 +1534,10 @@ _pidgin_datasheet_stock_icon_get(const gchar *stock_name)
 		accountname[0] = '\0';
 		accountname++;
 
-		account = purple_accounts_find(accountname, protocol_id);
-		if (account) {
+		manager = purple_account_manager_get_default();
+		account = purple_account_manager_find(manager, accountname,
+		                                      protocol_id);
+		if(account) {
 			image = pidgin_create_protocol_icon(account,
 				PIDGIN_PROTOCOL_ICON_SMALL);
 		}

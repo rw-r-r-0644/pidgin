@@ -72,7 +72,6 @@ typedef struct
 
 	GtkWidget *modify_button;
 	GtkWidget *delete_button;
-	GtkWidget *notebook;
 
 	GtkListStore *model;
 	GtkTreeIter drag_iter;
@@ -1241,8 +1240,8 @@ account_register_cb(PurpleAccount *account, gboolean succeeded, void *user_data)
 }
 
 static void
-account_prefs_save(AccountPrefsDialog *dialog)
-{
+account_prefs_save(AccountPrefsDialog *dialog) {
+	PurpleAccountManager *manager = NULL;
 	PurpleProxyInfo *proxy_info = NULL;
 	GList *l, *l2;
 	const char *value;
@@ -1251,6 +1250,8 @@ account_prefs_save(AccountPrefsDialog *dialog)
 	gboolean new_acct = FALSE, icon_change = FALSE;
 	PurpleAccount *account;
 	PurpleBuddyIconSpec *icon_spec = NULL;
+
+	manager = purple_account_manager_get_default();
 
 	/* Build the username string. */
 	username = g_strdup(gtk_entry_get_text(GTK_ENTRY(dialog->username_entry)));
@@ -1284,22 +1285,29 @@ account_prefs_save(AccountPrefsDialog *dialog)
 
 	if (dialog->account == NULL)
 	{
-		if (purple_accounts_find(username, dialog->protocol_id) != NULL) {
-			purple_debug_warning("gtkaccount", "Trying to add a duplicate %s account (%s).\n",
-				dialog->protocol_id, username);
+		account = purple_account_manager_find(manager, username,
+		                                      dialog->protocol_id);
+		if(PURPLE_IS_ACCOUNT(account)) {
+			purple_debug_warning("gtkaccount",
+			                     "Trying to add a duplicate %s account (%s).\n",
+			                     dialog->protocol_id, username);
 
 			purple_notify_error(NULL, NULL, _("Unable to save new account"),
-				_("An account already exists with the specified criteria."), NULL);
+			                    _("An account already exists with the "
+			                      "specified criteria."),
+			                    NULL);
 
 			g_free(username);
+
 			return;
 		}
 
-		if (purple_accounts_get_all() == NULL) {
-			/* We're adding our first account.  Be polite and show the buddy list */
-			PidginBuddyList *blist =
-					pidgin_blist_get_default_gtk_blist();
-			if (blist != NULL && blist->window != NULL) {
+		if(purple_account_manager_get_all(manager) == NULL) {
+			/* We're adding our first account.  Be polite and show the buddy
+			 * list.
+			 */
+			PidginBuddyList *blist = pidgin_blist_get_default_gtk_blist();
+			if(blist != NULL && blist->window != NULL) {
 				gtk_window_present(GTK_WINDOW(blist->window));
 			}
 		}
@@ -1475,10 +1483,11 @@ account_prefs_save(AccountPrefsDialog *dialog)
 	}
 
 	/* If this is a new account, add it to our list */
-	if (new_acct)
-		purple_accounts_add(account);
-	else
+	if(new_acct) {
+		purple_account_manager_add(manager, account);
+	} else {
 		purple_signal_emit(pidgin_accounts_get_handle(), "account-modified", account);
+	}
 
 	/* If this is a new account, then sign on! */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dialog->register_button))) {
@@ -1699,31 +1708,38 @@ static void
 signed_on_off_cb(PurpleConnection *gc, gpointer user_data)
 {
 	PurpleAccount *account;
+	PurpleAccountManager *manager = NULL;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	GdkPixbuf *pixbuf;
+	GList *accounts = NULL;
 	size_t index;
 
 	/* Don't need to do anything if the accounts window is not visible */
-	if (accounts_window == NULL)
+	if(accounts_window == NULL) {
 		return;
+	}
+
+	manager = purple_account_manager_get_default();
+	accounts = purple_account_manager_get_all(manager);
 
 	account = purple_connection_get_account(gc);
 	model = GTK_TREE_MODEL(accounts_window->model);
-	index = g_list_index(purple_accounts_get_all(), account);
+	index = g_list_index(accounts, account);
 
-	if (gtk_tree_model_iter_nth_child(model, &iter, NULL, index))
-	{
+	if(gtk_tree_model_iter_nth_child(model, &iter, NULL, index)) {
 		pixbuf = pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_MEDIUM);
-		if ((pixbuf != NULL) && purple_account_is_disconnected(account))
+		if((pixbuf != NULL) && purple_account_is_disconnected(account)) {
 			gdk_pixbuf_saturate_and_pixelate(pixbuf, pixbuf, 0.0, FALSE);
+		}
 
 		gtk_list_store_set(accounts_window->model, &iter,
-				   COLUMN_ICON, pixbuf,
-				   -1);
+		                   COLUMN_ICON, pixbuf,
+		                   -1);
 
-		if (pixbuf != NULL)
+		if(pixbuf != NULL) {
 			g_object_unref(G_OBJECT(pixbuf));
+		}
 	}
 }
 
@@ -1766,18 +1782,18 @@ account_removed_cb(PurpleAccount *account, gpointer user_data)
 	GtkTreeIter iter;
 
 	/* If the account was being modified, close the edit window */
-	if ((dialog = g_hash_table_lookup(account_pref_wins, account)) != NULL)
+	if((dialog = g_hash_table_lookup(account_pref_wins, account)) != NULL) {
 		account_win_destroy_cb(NULL, NULL, dialog);
+	}
 
-	if (accounts_window == NULL)
+	if(accounts_window == NULL) {
 		return;
+	}
 
 	/* Remove the account from the GtkListStore */
-	if (accounts_window_find_account_in_treemodel(&iter, account))
+	if(accounts_window_find_account_in_treemodel(&iter, account)) {
 		gtk_list_store_remove(accounts_window->model, &iter);
-
-	if (purple_accounts_get_all() == NULL)
-		gtk_notebook_set_current_page(GTK_NOTEBOOK(accounts_window->notebook), 0);
+	}
 }
 
 static void
@@ -1885,11 +1901,13 @@ drag_data_received_cb(GtkWidget *widget, GdkDragContext *ctx,
 		memcpy(&a, data, sizeof(a));
 
 		if (gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(widget), x, y,
-											  &path, &position)) {
-
+		                                      &path, &position))
+		{
 			GtkTreeIter iter;
 			PurpleAccount *account;
+			PurpleAccountManager *manager = NULL;
 			GValue val;
+			GList *accounts = NULL;
 
 			gtk_tree_model_get_iter(GTK_TREE_MODEL(dialog->model), &iter, path);
 			val.g_type = 0;
@@ -1898,19 +1916,20 @@ drag_data_received_cb(GtkWidget *widget, GdkDragContext *ctx,
 
 			account = g_value_get_pointer(&val);
 
+			manager = purple_account_manager_get_default();
+			accounts = purple_account_manager_get_all(manager);
+
 			switch (position) {
 				case GTK_TREE_VIEW_DROP_AFTER:
 				case GTK_TREE_VIEW_DROP_INTO_OR_AFTER:
 					move_account_after(dialog->model, &dialog->drag_iter,
 									   &iter);
-					dest_index = g_list_index(purple_accounts_get_all(),
-											  account) + 1;
+					dest_index = g_list_index(accounts, account) + 1;
 					break;
 
 				case GTK_TREE_VIEW_DROP_BEFORE:
 				case GTK_TREE_VIEW_DROP_INTO_OR_BEFORE:
-					dest_index = g_list_index(purple_accounts_get_all(),
-											  account);
+					dest_index = g_list_index(accounts, account);
 
 					move_account_before(dialog->model, &dialog->drag_iter,
 										&iter);
@@ -1920,8 +1939,9 @@ drag_data_received_cb(GtkWidget *widget, GdkDragContext *ctx,
 					return;
 			}
 
-			if (dest_index >= 0)
-				purple_accounts_reorder(a, dest_index);
+			if (dest_index >= 0) {
+				purple_account_manager_reorder(manager, a, dest_index);
+			}
 		}
 	}
 }
@@ -2168,23 +2188,22 @@ set_account(GtkListStore *store, GtkTreeIter *iter, PurpleAccount *account, GdkP
 }
 
 static void
-add_account_to_liststore(PurpleAccount *account, gpointer user_data)
-{
+add_account_to_liststore(PurpleAccount *account, gpointer user_data) {
 	GtkTreeIter iter;
 	GdkPixbuf *global_buddyicon = user_data;
 
-	if (accounts_window == NULL)
+	if(accounts_window == NULL) {
 		return;
+	}
 
 	gtk_list_store_append(accounts_window->model, &iter);
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(accounts_window->notebook),1);
 
 	set_account(accounts_window->model, &iter, account, global_buddyicon);
 }
 
-static gboolean
+static void
 populate_accounts_list(AccountsWindow *dialog) {
-	GList *l;
+	PurpleAccountManager *manager = NULL;
 	GdkPixbuf *global_buddyicon = NULL;
 	const gchar *path;
 
@@ -2200,14 +2219,13 @@ populate_accounts_list(AccountsWindow *dialog) {
 		}
 	}
 
-	l = purple_accounts_get_all();
-	g_list_foreach(l, (GFunc)add_account_to_liststore, global_buddyicon);
+	manager = purple_account_manager_get_default();
+	purple_account_manager_foreach(manager, add_account_to_liststore,
+	                               global_buddyicon);
 
 	if(global_buddyicon != NULL) {
 		g_object_unref(G_OBJECT(global_buddyicon));
 	}
-
-	return l != NULL;
 }
 
 static void
@@ -2261,41 +2279,12 @@ static GtkWidget *
 create_accounts_list(AccountsWindow *dialog)
 {
 	GtkWidget *frame;
-	GtkWidget *label;
 	GtkWidget *treeview;
 	GtkTreeSelection *sel;
 	GtkTargetEntry gte[] = {{"PURPLE_ACCOUNT", GTK_TARGET_SAME_APP, 0}};
-	gchar *text;
 
 	frame = gtk_frame_new(NULL);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_IN);
-
-	accounts_window->notebook = gtk_notebook_new();
-	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(accounts_window->notebook), FALSE);
-	gtk_notebook_set_show_border(GTK_NOTEBOOK(accounts_window->notebook), FALSE);
-	gtk_container_add(GTK_CONTAINER(frame), accounts_window->notebook);
-
-	/* Create a helpful first-time-use label */
-	label = gtk_label_new(NULL);
-	/* Translators: Please maintain the use of ⇦ or ⇨ to represent the menu hierarchy */
-	text = g_strdup_printf(_(
-						 "<span size='larger' weight='bold'>Welcome to %s!</span>\n\n"
-
-						 "You have no IM accounts configured. To start connecting with %s "
-						 "press the <b>Add...</b> button below and configure your first "
-						 "account. If you want %s to connect to multiple IM accounts, "
-						 "press <b>Add...</b> again to configure them all.\n\n"
-
-						 "You can come back to this window to add, edit, or remove "
-						 "accounts from <b>Accounts⇨Manage Accounts</b> in the Buddy "
-						 "List window"), PIDGIN_NAME, PIDGIN_NAME, PIDGIN_NAME);
-	gtk_label_set_markup(GTK_LABEL(label), text);
-	g_free(text);
-
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-	gtk_widget_show(label);
-
-	gtk_notebook_append_page(GTK_NOTEBOOK(accounts_window->notebook), label, NULL);
 
 	/* Create the list model. */
 	dialog->model = gtk_list_store_new(NUM_COLUMNS,
@@ -2321,17 +2310,13 @@ create_accounts_list(AccountsWindow *dialog)
 	g_signal_connect(G_OBJECT(treeview), "button_press_event",
 					 G_CALLBACK(account_treeview_double_click_cb), dialog);
 
-	gtk_notebook_append_page(GTK_NOTEBOOK(accounts_window->notebook),
-		pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_NONE, -1, -1),
-		NULL);
+	gtk_container_add(GTK_CONTAINER(frame),
+	                  pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_NONE, -1, -1));
 
 	add_columns(treeview, dialog);
 	gtk_tree_view_columns_autosize(GTK_TREE_VIEW(treeview));
 
-	if (populate_accounts_list(dialog))
-		gtk_notebook_set_current_page(GTK_NOTEBOOK(accounts_window->notebook), 1);
-	else
-		gtk_notebook_set_current_page(GTK_NOTEBOOK(accounts_window->notebook), 0);
+	populate_accounts_list(dialog);
 
 	/* Setup DND. I wanna be an orc! */
 	gtk_tree_view_enable_model_drag_source(
@@ -2351,8 +2336,8 @@ create_accounts_list(AccountsWindow *dialog)
 }
 
 static void
-account_modified_cb(PurpleAccount *account, AccountsWindow *window)
-{
+account_modified_cb(PurpleAccount *account, gpointer data) {
+	AccountsWindow *window = (AccountsWindow *)data;
 	GtkTreeIter iter;
 
 	if (!accounts_window_find_account_in_treemodel(&iter, account))
@@ -2362,11 +2347,13 @@ account_modified_cb(PurpleAccount *account, AccountsWindow *window)
 }
 
 static void
-global_buddyicon_changed(const char *name, PurplePrefType type,
-			gconstpointer value, gpointer window)
+global_buddyicon_changed(const gchar *name, PurplePrefType type,
+                         gconstpointer value, gpointer window)
 {
-	GList *list = purple_accounts_get_all();
-	g_list_foreach(list, (GFunc)account_modified_cb, window);
+	PurpleAccountManager *manager = NULL;
+
+	manager = purple_account_manager_get_default();
+	purple_account_manager_foreach(manager, account_modified_cb, window);
 }
 
 void

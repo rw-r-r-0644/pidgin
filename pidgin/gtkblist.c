@@ -4345,12 +4345,14 @@ update_account_error_state(PurpleAccount *account,
 static void
 show_initial_account_errors(PidginBuddyList *gtkblist)
 {
-	GList *l = purple_accounts_get_all();
+	PurpleAccountManager *manager = NULL;
+	GList *l = NULL;
 	PurpleAccount *account;
 	const PurpleConnectionErrorInfo *err;
 
-	for (; l; l = l->next)
-	{
+	manager = purple_account_manager_get_default();
+	l = purple_account_manager_get_all(manager);
+	for(; l; l = l->next) {
 		account = l->data;
 		err = purple_account_get_current_error(account);
 
