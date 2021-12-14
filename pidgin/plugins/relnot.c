@@ -101,15 +101,16 @@ do_check(void)
 
 		purple_debug_info("relnot", "Checking for new version.");
 
-		msg = soup_form_request_new("GET", "https://pidgin.im/version.php",
-		                            "version", purple_core_get_version(),
-		                            "build",
+		msg = soup_message_new_from_encoded_form("GET", "https://pidgin.im/version.php",
+		        soup_form_encode(
+		                "version", purple_core_get_version(),
+		                "build",
 #ifdef _WIN32
-		                            "purple-win32",
+		                "purple-win32",
 #else
-		                            "purple",
+		                "purple",
 #endif
-		                            NULL);
+		                NULL));
 
 		soup_session_queue_message(session, msg, version_fetch_cb, NULL);
 
