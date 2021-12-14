@@ -141,28 +141,29 @@ void ggp_edisc_cleanup(PurpleConnection *gc)
 static void
 ggp_edisc_set_defaults(SoupMessage *msg)
 {
+	SoupMessageHeaders *headers = soup_message_get_request_headers(msg);
+
 	// purple_http_request_set_max_len(msg, GGP_EDISC_RESPONSE_MAX);
-	soup_message_headers_replace(msg->request_headers, "X-gged-api-version",
+	soup_message_headers_replace(headers, "X-gged-api-version",
 	                             GGP_EDISC_API);
 
 	/* optional fields */
 	soup_message_headers_replace(
-	        msg->request_headers, "User-Agent",
+	        headers, "User-Agent",
 	        "Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20120613 "
 	        "GG/11.0.0.8169 (WINNT_x86-msvc; pl; beta; standard)");
 	soup_message_headers_replace(
-	        msg->request_headers, "Accept",
+	        headers, "Accept",
 	        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-	soup_message_headers_replace(msg->request_headers, "Accept-Language",
+	soup_message_headers_replace(headers, "Accept-Language",
 	                             "pl,en-us;q=0.7,en;q=0.3");
-	/* soup_message_headers_replace(msg->request_headers, "Accept-Encoding",
+	/* soup_message_headers_replace(headers, "Accept-Encoding",
 	 *                              "gzip, deflate"); */
-	soup_message_headers_replace(msg->request_headers, "Accept-Charset",
+	soup_message_headers_replace(headers, "Accept-Charset",
 	                             "ISO-8859-2,utf-8;q=0.7,*;q=0.7");
-	soup_message_headers_replace(msg->request_headers, "Connection",
-	                             "keep-alive");
+	soup_message_headers_replace(headers, "Connection", "keep-alive");
 	soup_message_headers_replace(
-	        msg->request_headers, "Content-Type",
+	        headers, "Content-Type",
 	        "application/x-www-form-urlencoded; charset=UTF-8");
 }
 
@@ -334,6 +335,7 @@ ggp_ggdrive_auth(PurpleConnection *gc, ggp_ggdrive_auth_cb cb,
 	gchar *metadata;
 	gchar *tmp;
 	SoupMessage *msg;
+	SoupMessageHeaders *headers;
 
 	g_return_if_fail(sdata != NULL);
 
@@ -361,6 +363,7 @@ ggp_ggdrive_auth(PurpleConnection *gc, ggp_ggdrive_auth_cb cb,
 
 	msg = soup_message_new("PUT", "https://drive.mpa.gg.pl/signin");
 	ggp_edisc_set_defaults(msg);
+	headers = soup_message_get_request_headers(msg);
 
 	metadata = g_strdup_printf("{"
 	                           "\"id\": \"%032x\", "
@@ -372,13 +375,12 @@ ggp_ggdrive_auth(PurpleConnection *gc, ggp_ggdrive_auth_cb cb,
 	                           g_get_host_name(), ggp_libgaduw_version(gc));
 
 	tmp = g_strdup_printf("IMToken %s", imtoken);
-	soup_message_headers_replace(msg->request_headers, "Authorization", tmp);
+	soup_message_headers_replace(headers, "Authorization", tmp);
 	g_free(tmp);
 	tmp = g_strdup_printf("gg/pl:%u", accdata->session->uin);
-	soup_message_headers_replace(msg->request_headers, "X-gged-user", tmp);
+	soup_message_headers_replace(headers, "X-gged-user", tmp);
 	g_free(tmp);
-	soup_message_headers_replace(msg->request_headers, "X-gged-client-metadata",
-	                             metadata);
+	soup_message_headers_replace(headers, "X-gged-client-metadata", metadata);
 	g_free(metadata);
 
 	soup_session_queue_message(sdata->session, msg, ggp_ggdrive_auth_done, gc);
@@ -529,7 +531,8 @@ ggp_edisc_xfer_send_init_authenticated(PurpleConnection *gc, gboolean success,
 	msg = soup_message_new("PUT", "https://drive.mpa.gg.pl/send_ticket");
 	ggp_edisc_set_defaults(msg);
 
-	soup_message_headers_replace(msg->request_headers, "X-gged-security-token",
+	soup_message_headers_replace(soup_message_get_request_headers(msg),
+	                             "X-gged-security-token",
 	                             sdata->security_token);
 
 	data = g_strdup_printf("{\"send_ticket\":{"
@@ -634,6 +637,7 @@ static void ggp_edisc_xfer_send_start(PurpleXfer *xfer)
 	GGPXfer *edisc_xfer;
 	gchar *upload_url, *filename_e;
 	SoupMessage *msg;
+	SoupMessageHeaders *headers;
 
 	g_return_if_fail(xfer != NULL);
 	edisc_xfer = GGP_XFER(xfer);
@@ -650,16 +654,16 @@ static void ggp_edisc_xfer_send_start(PurpleXfer *xfer)
 
 	ggp_edisc_set_defaults(msg);
 
-	soup_message_headers_replace(msg->request_headers, "X-gged-local-revision",
-	                             "0");
-	soup_message_headers_replace(msg->request_headers, "X-gged-security-token",
+	headers = soup_message_get_request_headers(msg);
+	soup_message_headers_replace(headers, "X-gged-local-revision", "0");
+	soup_message_headers_replace(headers, "X-gged-security-token",
 	                             sdata->security_token);
-	soup_message_headers_replace(msg->request_headers, "X-gged-metadata",
+	soup_message_headers_replace(headers, "X-gged-metadata",
 	                             "{\"node_type\": \"file\"}");
 
 	soup_message_set_flags(msg, SOUP_MESSAGE_CAN_REBUILD);
 	soup_message_body_set_accumulate(msg->request_body, FALSE);
-	soup_message_headers_set_content_length(msg->request_headers,
+	soup_message_headers_set_content_length(headers,
 	                                        purple_xfer_get_size(xfer));
 	g_signal_connect(msg, "wrote-headers",
 	                 G_CALLBACK(ggp_edisc_xfer_send_reader), xfer);
@@ -758,6 +762,7 @@ static void ggp_edisc_xfer_recv_ack(PurpleXfer *xfer, gboolean accept)
 	GGPXfer *edisc_xfer = GGP_XFER(xfer);
 	ggp_edisc_session_data *sdata = ggp_edisc_get_sdata(edisc_xfer->gc);
 	SoupMessage *msg;
+	SoupMessageHeaders *headers;
 
 	g_return_if_fail(sdata != NULL);
 
@@ -767,9 +772,10 @@ static void ggp_edisc_xfer_recv_ack(PurpleXfer *xfer, gboolean accept)
 	                       ggp_edisc_xfer_ticket_url(edisc_xfer->ticket_id));
 	ggp_edisc_set_defaults(msg);
 
-	soup_message_headers_replace(msg->request_headers, "X-gged-security-token",
+	headers = soup_message_get_request_headers(msg);
+	soup_message_headers_replace(headers, "X-gged-security-token",
 	                             sdata->security_token);
-	soup_message_headers_replace(msg->request_headers, "X-gged-ack-status",
+	soup_message_headers_replace(headers, "X-gged-ack-status",
 	                             accept ? "allow" : "reject");
 
 	soup_session_queue_message(sdata->session, msg,
@@ -1024,7 +1030,8 @@ ggp_edisc_xfer_recv_ticket_update_authenticated(PurpleConnection *gc,
 
 	ggp_edisc_set_defaults(msg);
 
-	soup_message_headers_replace(msg->request_headers, "X-gged-security-token",
+	soup_message_headers_replace(soup_message_get_request_headers(msg),
+	                             "X-gged-security-token",
 	                             sdata->security_token);
 
 	soup_session_queue_message(sdata->session, msg,

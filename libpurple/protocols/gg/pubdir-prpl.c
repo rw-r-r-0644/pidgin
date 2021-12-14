@@ -297,7 +297,8 @@ ggp_pubdir_get_info_got_token(PurpleConnection *gc, const gchar *token,
 	                      request->params.user_info.uin);
 	msg = soup_message_new("GET", url);
 	g_free(url);
-	soup_message_headers_replace(msg->request_headers, "Authorization", token);
+	soup_message_headers_replace(soup_message_get_request_headers(msg),
+	                             "Authorization", token);
 	soup_session_queue_message(info->http, msg, ggp_pubdir_got_data, request);
 }
 
@@ -537,7 +538,8 @@ static void ggp_pubdir_search_got_token(PurpleConnection *gc,
 
 	url = g_strdup_printf("http://api.gadu-gadu.pl%s", query);
 	msg = soup_message_new("GET", url);
-	soup_message_headers_replace(msg->request_headers, "Authorization", token);
+	soup_message_headers_replace(soup_message_get_request_headers(msg),
+	                             "Authorization", token);
 	soup_session_queue_message(info->http, msg, ggp_pubdir_got_data, request);
 
 	g_free(url);
@@ -831,7 +833,8 @@ static void ggp_pubdir_set_info_got_token(PurpleConnection *gc,
 
 	url = g_strdup_printf("http://api.gadu-gadu.pl/users/%u.xml", uin);
 	msg = soup_message_new("PUT", url);
-	soup_message_headers_replace(msg->request_headers, "Authorization", token);
+	soup_message_headers_replace(soup_message_get_request_headers(msg),
+	                             "Authorization", token);
 	soup_message_set_request(msg, "application/x-www-form-urlencoded",
 	                         SOUP_MEMORY_TAKE, request_data, -1);
 	soup_session_queue_message(info->http, msg,

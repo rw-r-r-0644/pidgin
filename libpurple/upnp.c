@@ -678,7 +678,8 @@ purple_upnp_generate_action_message_and_send(const gchar *actionName,
 	// purple_http_request_set_max_len(msg, MAX_UPNP_DOWNLOAD);
 	action = g_strdup_printf("\"urn:schemas-upnp-org:service:%s#%s\"",
 	                         control_info.service_type, actionName);
-	soup_message_headers_replace(msg->request_headers, "SOAPAction", action);
+	soup_message_headers_replace(soup_message_get_request_headers(msg),
+	                             "SOAPAction", action);
 	g_free(action);
 	soup_message_set_request(msg, "text/xml; charset=utf-8", SOUP_MEMORY_TAKE,
 	                         soapMessage, strlen(soapMessage));

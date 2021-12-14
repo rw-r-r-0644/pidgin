@@ -733,8 +733,8 @@ fb_api_http_req(FbApi *api, const gchar *url, const gchar *name,
 
 	if (priv->token != NULL) {
 		data = g_strdup_printf("OAuth %s", priv->token);
-		soup_message_headers_replace(msg->request_headers, "Authorization",
-		                             data);
+		soup_message_headers_replace(soup_message_get_request_headers(msg),
+		                             "Authorization", data);
 		g_free(data);
 	}
 

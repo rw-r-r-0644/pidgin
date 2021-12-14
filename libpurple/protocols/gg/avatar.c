@@ -216,8 +216,8 @@ ggp_avatar_buddy_update(PurpleConnection *gc, uin_t uin, time_t timestamp)
 	url = g_strdup_printf(GGP_AVATAR_BUDDY_URL, pending_update->uin);
 	req = soup_message_new("GET", url);
 	g_free(url);
-	soup_message_headers_replace(req->request_headers, "User-Agent",
-	                             GGP_AVATAR_USERAGENT);
+	soup_message_headers_replace(soup_message_get_request_headers(req),
+	                             "User-Agent", GGP_AVATAR_USERAGENT);
 	// purple_http_request_set_max_len(req, GGP_AVATAR_SIZE_MAX);
 	soup_session_queue_message(
 	        info->http, req, ggp_avatar_buddy_update_received, pending_update);
@@ -259,6 +259,7 @@ ggp_avatar_own_got_token(PurpleConnection *gc, const gchar *token,
 	GGPInfo *info = purple_connection_get_protocol_data(gc);
 	ggp_avatar_session_data *avdata = ggp_avatar_get_avdata(gc);
 	SoupMessage *req;
+	SoupMessageHeaders *headers;
 	PurpleImage *img = _img;
 	gchar *img_data, *uin_str;
 	PurpleAccount *account = purple_connection_get_account(gc);
@@ -281,9 +282,9 @@ ggp_avatar_own_got_token(PurpleConnection *gc, const gchar *token,
 	req = soup_form_request_new("POST", "http://avatars.nowe.gg/upload", "uin",
 	                            uin_str, "photo", img_data, NULL);
 	// purple_http_request_set_max_len(req, GGP_AVATAR_RESPONSE_MAX);
-	soup_message_headers_replace(req->request_headers, "Authorization", token);
-	soup_message_headers_replace(req->request_headers, "From",
-	                             "avatars to avatars");
+	headers = soup_message_get_request_headers(req);
+	soup_message_headers_replace(headers, "Authorization", token);
+	soup_message_headers_replace(headers, "From", "avatars to avatars");
 	soup_session_queue_message(info->http, req, ggp_avatar_own_sent, gc);
 	g_free(img_data);
 	g_free(uin_str);
