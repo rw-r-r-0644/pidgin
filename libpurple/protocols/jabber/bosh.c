@@ -202,7 +202,7 @@ jabber_bosh_connection_parse(PurpleJabberBOSHConnection *conn,
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(response))) {
 		gchar *tmp = g_strdup_printf(_("Unable to connect: %s"),
-		                             response->reason_phrase);
+		                             soup_message_get_reason_phrase(response));
 		purple_connection_error(conn->js->gc,
 		                        PURPLE_CONNECTION_ERROR_NETWORK_ERROR, tmp);
 		g_free(tmp);

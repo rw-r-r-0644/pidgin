@@ -31,6 +31,11 @@
 
 #if SOUP_MAJOR_VERSION < 3
 
+static inline const char *
+soup_message_get_reason_phrase(SoupMessage *msg) {
+	return msg->reason_phrase;
+}
+
 static inline SoupStatus
 soup_message_get_status(SoupMessage *msg) {
 	return msg->status_code;

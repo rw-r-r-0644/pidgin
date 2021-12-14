@@ -644,7 +644,7 @@ fb_api_http_chk(FbApi *api, SoupMessage *res, JsonNode **root)
 	gint code;
 	gsize size;
 
-	msg = res->reason_phrase;
+	msg = soup_message_get_reason_phrase(res);
 	code = soup_message_get_status(res);
 	data = res->response_body->data;
 	size = res->response_body->length;

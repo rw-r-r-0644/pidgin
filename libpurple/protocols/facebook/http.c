@@ -49,7 +49,7 @@ fb_http_error_chk(SoupMessage *res, GError **error)
 	}
 
 	g_set_error(error, FB_HTTP_ERROR, status_code, "%s",
-	            res->reason_phrase);
+	            soup_message_get_reason_phrase(res));
 	return FALSE;
 }
 

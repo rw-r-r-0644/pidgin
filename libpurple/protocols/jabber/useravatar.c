@@ -221,7 +221,7 @@ do_buddy_avatar_update_fromurl(G_GNUC_UNUSED SoupSession *session,
 	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		purple_debug_error("jabber",
 		                   "do_buddy_avatar_update_fromurl got error \"%s\"",
-		                   msg->reason_phrase);
+		                   soup_message_get_reason_phrase(msg));
 		goto out;
 	}
 
