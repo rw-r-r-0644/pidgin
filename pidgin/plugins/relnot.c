@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include <purple.h>
+#include "soupcompat.h"
 
 #include <pidgin.h>
 
@@ -61,7 +62,7 @@ version_fetch_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	GString *message;
 	int i = 0;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		return;
 	}
 

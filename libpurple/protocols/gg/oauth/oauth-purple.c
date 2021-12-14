@@ -35,6 +35,7 @@
 #include "../xml.h"
 
 #include <purple.h>
+#include "libpurple/soupcompat.h"
 
 #define GGP_OAUTH_RESPONSE_MAX 10240
 
@@ -118,6 +119,7 @@ ggp_oauth_authorization_done(SoupSession *session, SoupMessage *msg,
 {
 	ggp_oauth_data *data = user_data;
 	PurpleAccount *account;
+	SoupStatus status_code;
 	char *auth;
 	const char *method = "POST";
 	const char *url = "http://api.gadu-gadu.pl/access_token";
@@ -126,10 +128,11 @@ ggp_oauth_authorization_done(SoupSession *session, SoupMessage *msg,
 
 	account = purple_connection_get_account(data->gc);
 
-	if (msg->status_code != 302) {
+	status_code = soup_message_get_status(msg);
+	if (status_code != 302) {
 		purple_debug_error("gg",
 		                   "ggp_oauth_authorization_done: failed (code = %d)",
-		                   msg->status_code);
+		                   status_code);
 		ggp_oauth_data_free(data);
 		return;
 	}
@@ -164,7 +167,7 @@ ggp_oauth_request_token_got(SoupSession *session, SoupMessage *msg,
 
 	account = purple_connection_get_account(data->gc);
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		purple_debug_error("gg", "ggp_oauth_request_token_got: "
 			"requested token not received\n");
 		ggp_oauth_data_free(data);

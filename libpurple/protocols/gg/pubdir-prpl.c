@@ -30,6 +30,7 @@
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
+#include "libpurple/soupcompat.h"
 
 #include "pubdir-prpl.h"
 #include "gg.h"
@@ -764,7 +765,7 @@ static void
 ggp_pubdir_set_info_got_response(G_GNUC_UNUSED SoupSession *session,
                                  SoupMessage *msg, gpointer user_data)
 {
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		purple_debug_error("gg", "ggp_pubdir_set_info_got_response: failed");
 		return;
 	}

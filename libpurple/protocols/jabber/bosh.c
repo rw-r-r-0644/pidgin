@@ -25,6 +25,7 @@
 #include <purple.h>
 
 #include <libsoup/soup.h>
+#include "libpurple/soupcompat.h"
 
 #include "bosh.h"
 
@@ -199,7 +200,7 @@ jabber_bosh_connection_parse(PurpleJabberBOSHConnection *conn,
 		return NULL;
 	}
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(response->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(response))) {
 		gchar *tmp = g_strdup_printf(_("Unable to connect: %s"),
 		                             response->reason_phrase);
 		purple_connection_error(conn->js->gc,

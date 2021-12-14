@@ -30,6 +30,7 @@
 #include "avatar.h"
 
 #include "libpurple/glibcompat.h"
+#include "libpurple/soupcompat.h"
 
 #include "gg.h"
 #include "utils.h"
@@ -112,7 +113,7 @@ ggp_avatar_buddy_update_received(G_GNUC_UNUSED SoupSession *session,
 
 	PURPLE_ASSERT_CONNECTION_IS_VALID(gc);
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		purple_debug_error("gg",
 		                   "ggp_avatar_buddy_update_received: bad response "
 		                   "while getting avatar for %u: %s",
@@ -241,7 +242,7 @@ ggp_avatar_own_sent(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 
 	PURPLE_ASSERT_CONNECTION_IS_VALID(gc);
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		purple_debug_error("gg", "ggp_avatar_own_sent: avatar not sent. %s\n",
 		                   msg->reason_phrase);
 		return;
