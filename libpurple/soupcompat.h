@@ -37,6 +37,11 @@ soup_message_get_reason_phrase(SoupMessage *msg) {
 }
 
 static inline SoupMessageHeaders *
+soup_message_get_response_headers(SoupMessage *msg) {
+	return msg->response_headers;
+}
+
+static inline SoupMessageHeaders *
 soup_message_get_request_headers(SoupMessage *msg) {
 	return msg->request_headers;
 }

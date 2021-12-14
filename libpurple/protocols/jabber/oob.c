@@ -81,9 +81,11 @@ static void
 jabber_oob_xfer_got_content_length(SoupMessage *msg, gpointer user_data)
 {
 	PurpleXfer *xfer = user_data;
+	SoupMessageHeaders *headers;
 	goffset total;
 
-	total = soup_message_headers_get_content_length(msg->response_headers);
+	headers = soup_message_get_response_headers(msg);
+	total = soup_message_headers_get_content_length(headers);
 
 	purple_xfer_set_size(xfer, total);
 }
