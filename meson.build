@@ -225,15 +225,15 @@ endif
 # #######################################################################
 # # Check for GLib (required)
 # #######################################################################
-glib = dependency('glib-2.0', version : '>= 2.66.0')
+glib = dependency('glib-2.0', version : '>= 2.70.0')
 gio = dependency('gio-2.0')
 gobject = dependency('gobject-2.0')
 gthread = dependency('gthread-2.0')
 gnome = import('gnome')
 
 add_project_arguments(
-	'-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_66',
-	'-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_66',
+	'-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_70',
+	'-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_70',
 	language : 'c',)
 
 #######################################################################
