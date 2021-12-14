@@ -27,6 +27,7 @@
 
 #include <purple.h>
 #include "libpurple/glibcompat.h"
+#include "libpurple/soupcompat.h"
 
 #include <libsoup/soup.h>
 
@@ -217,7 +218,7 @@ do_buddy_avatar_update_fromurl(G_GNUC_UNUSED SoupSession *session,
 	JabberBuddyAvatarUpdateURLInfo *info = data;
 	gpointer icon_data;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		purple_debug_error("jabber",
 		                   "do_buddy_avatar_update_fromurl got error \"%s\"",
 		                   msg->reason_phrase);

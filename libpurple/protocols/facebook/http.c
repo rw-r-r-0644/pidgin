@@ -25,6 +25,8 @@
 
 #include "http.h"
 
+#include "libpurple/soupcompat.h"
+
 GQuark
 fb_http_error_quark(void)
 {
@@ -40,11 +42,13 @@ fb_http_error_quark(void)
 gboolean
 fb_http_error_chk(SoupMessage *res, GError **error)
 {
-	if (SOUP_STATUS_IS_SUCCESSFUL(res->status_code)) {
+	SoupStatus status_code = soup_message_get_status(res);
+
+	if (SOUP_STATUS_IS_SUCCESSFUL(status_code)) {
 		return TRUE;
 	}
 
-	g_set_error(error, FB_HTTP_ERROR, res->status_code, "%s",
+	g_set_error(error, FB_HTTP_ERROR, status_code, "%s",
 	            res->reason_phrase);
 	return FALSE;
 }

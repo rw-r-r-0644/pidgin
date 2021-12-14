@@ -26,6 +26,7 @@
 #include "upnp.h"
 
 #include "glibcompat.h"
+#include "soupcompat.h"
 
 #include "debug.h"
 #include "eventloop.h"
@@ -374,7 +375,7 @@ upnp_parse_description_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	UPnPDiscoveryData *dd = _dd;
 	gchar *control_url = NULL;
 
-	if (msg && SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (msg && SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		control_url = purple_upnp_parse_description_response(
 		        msg->response_body->data, msg->response_body->length,
 		        dd->full_url, dd->service_type);
@@ -712,7 +713,7 @@ looked_up_public_ip_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	const gchar *got_data;
 	size_t got_len;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		return;
 	}
 
@@ -857,7 +858,7 @@ done_port_mapping_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	gboolean success = TRUE;
 
 	/* determine if port mapping was a success */
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		purple_debug_error("upnp",
 		                   "purple_upnp_set_port_mapping(): Failed HTTP_OK: %s",
 		                   msg->reason_phrase);

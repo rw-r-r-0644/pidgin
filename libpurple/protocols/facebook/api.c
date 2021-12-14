@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "libpurple/glibcompat.h"
+#include "libpurple/soupcompat.h"
 
 #include "api.h"
 #include "http.h"
@@ -644,7 +645,7 @@ fb_api_http_chk(FbApi *api, SoupMessage *res, JsonNode **root)
 	gsize size;
 
 	msg = res->reason_phrase;
-	code = res->status_code;
+	code = soup_message_get_status(res);
 	data = res->response_body->data;
 	size = res->response_body->length;
 

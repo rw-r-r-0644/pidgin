@@ -22,6 +22,8 @@
  */
 #include <purple.h>
 
+#include "libpurple/soupcompat.h"
+
 #include "jabber.h"
 #include "iq.h"
 #include "oob.h"
@@ -65,7 +67,7 @@ jabber_oob_xfer_got(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	jox = JABBER_OOB_XFER(xfer);
 	jox->msg = NULL;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code) ||
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg)) ||
 	    purple_xfer_get_bytes_remaining(xfer) > 0) {
 		purple_xfer_set_status(xfer, PURPLE_XFER_STATUS_CANCEL_REMOTE);
 		purple_xfer_end(xfer);

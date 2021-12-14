@@ -36,6 +36,7 @@
 #include <glib/gi18n-lib.h>
 
 #include <purple.h>
+#include "libpurple/soupcompat.h"
 
 #define GGP_EDISC_OS "WINNT x86-msvc"
 #define GGP_EDISC_TYPE "desktop"
@@ -267,6 +268,7 @@ ggp_ggdrive_auth_done(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 {
 	PurpleConnection *gc = user_data;
 	ggp_edisc_session_data *sdata = ggp_edisc_get_sdata(gc);
+	SoupStatus status_code;
 	JsonParser *parser;
 	JsonObject *result;
 	int status = -1;
@@ -275,11 +277,12 @@ ggp_ggdrive_auth_done(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 
 	sdata->auth_request = NULL;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	status_code = soup_message_get_status(msg);
+	if (!SOUP_STATUS_IS_SUCCESSFUL(status_code)) {
 		purple_debug_misc("gg",
 		                  "ggp_ggdrive_auth_done: authentication failed due to "
 		                  "unsuccessful request (code = %d)",
-		                  msg->status_code);
+		                  status_code);
 		ggp_ggdrive_auth_results(gc, FALSE);
 		return;
 	}
@@ -456,7 +459,7 @@ ggp_edisc_xfer_send_init_ticket_created(G_GNUC_UNUSED SoupSession *session,
 
 	edisc_xfer->msg = NULL;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		int error_id = ggp_edisc_parse_error(msg->response_body->data);
 		if (error_id == 206) /* recipient not logged in */
 			ggp_edisc_xfer_error(xfer,
@@ -604,7 +607,7 @@ ggp_edisc_xfer_send_done(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 
 	edisc_xfer->msg = NULL;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		ggp_edisc_xfer_error(xfer, _("Error while sending a file"));
 		return;
 	}
@@ -741,7 +744,7 @@ ggp_edisc_xfer_recv_ack_done(G_GNUC_UNUSED SoupSession *session,
 	edisc_xfer = GGP_XFER(xfer);
 	edisc_xfer->msg = NULL;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		ggp_edisc_xfer_error(xfer, _("Cannot confirm file transfer."));
 		return;
 	}
@@ -842,7 +845,7 @@ ggp_edisc_xfer_recv_done(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 
 	edisc_xfer->msg = NULL;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		ggp_edisc_xfer_error(xfer, _("Error while receiving a file"));
 		return;
 	}
@@ -907,12 +910,14 @@ ggp_edisc_xfer_recv_ticket_update_got(G_GNUC_UNUSED SoupSession *session,
 	const gchar *ticket_id, *file_name, *send_mode_str;
 	uin_t sender, recipient;
 	int file_size;
+	SoupStatus status_code;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	status_code = soup_message_get_status(msg);
+	if (!SOUP_STATUS_IS_SUCCESSFUL(status_code)) {
 		purple_debug_error("gg",
 		                   "ggp_edisc_xfer_recv_ticket_update_got: cannot "
 		                   "fetch update for ticket (code=%d)",
-		                   msg->status_code);
+		                   status_code);
 		return;
 	}
 

@@ -27,7 +27,7 @@
 
 #include <purple.h>
 
-#include <glib.h>
+#include "soupcompat.h"
 
 #include <gnt.h>
 
@@ -206,7 +206,7 @@ url_fetched(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	manager = purple_conversation_manager_get_default();
 	convs = purple_conversation_manager_get_all(manager);
 
-	if (SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		url = msg->response_body->data;
 		g_hash_table_insert(tinyurl_cache, data->original_url, g_strdup(url));
 	} else {
@@ -377,7 +377,7 @@ tinyurl_notify_fetch_cb(G_GNUC_UNUSED SoupSession *session, SoupMessage *msg,
 	const gchar *url;
 	const gchar *original_url;
 
-	if (!SOUP_STATUS_IS_SUCCESSFUL(msg->status_code)) {
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soup_message_get_status(msg))) {
 		return;
 	}
 
