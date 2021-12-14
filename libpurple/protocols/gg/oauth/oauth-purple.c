@@ -147,7 +147,8 @@ ggp_oauth_authorization_done(SoupSession *session, SoupMessage *msg,
 
 	msg = soup_message_new(method, url);
 	// purple_http_request_set_max_len(req, GGP_OAUTH_RESPONSE_MAX);
-	soup_message_headers_replace(msg->request_headers, "Authorization", auth);
+	soup_message_headers_replace(soup_message_get_request_headers(msg),
+	                             "Authorization", auth);
 	soup_session_queue_message(session, msg, ggp_oauth_access_token_got, data);
 
 	g_free(auth);
@@ -241,7 +242,8 @@ ggp_oauth_request(PurpleConnection *gc, ggp_oauth_request_cb callback,
 
 	msg = soup_message_new(method, url);
 	// purple_http_request_set_max_len(req, GGP_OAUTH_RESPONSE_MAX);
-	soup_message_headers_replace(msg->request_headers, "Authorization", auth);
+	soup_message_headers_replace(soup_message_get_request_headers(msg),
+	                             "Authorization", auth);
 	soup_session_queue_message(info->http, msg, ggp_oauth_request_token_got,
 	                           data);
 
