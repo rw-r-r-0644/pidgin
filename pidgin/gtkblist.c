@@ -4600,9 +4600,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtkblist = PIDGIN_BUDDY_LIST(list);
 	priv = pidgin_buddy_list_get_instance_private(gtkblist);
 
-	gtkblist->empty_avatar = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, 32, 32);
-	gdk_pixbuf_fill(gtkblist->empty_avatar, 0x00000000);
-
 	gtkblist->window = pidgin_contact_list_new();
 	g_signal_connect(G_OBJECT(gtkblist->window), "focus-in-event",
 			 G_CALLBACK(blist_focus_cb), gtkblist);
@@ -5165,11 +5162,10 @@ static void buddy_node(PurpleBuddy *buddy, GtkTreeIter *iter, PurpleBlistNode *n
 	else
 		avatar = NULL;
 
-	if (!avatar) {
-		g_object_ref(G_OBJECT(gtkblist->empty_avatar));
-		avatar = gtkblist->empty_avatar;
-	} else if ((!PURPLE_BUDDY_IS_ONLINE(buddy) || purple_presence_is_idle(presence))) {
-		do_alphashift(avatar, 77);
+	if(avatar != NULL) {
+		if(!PURPLE_BUDDY_IS_ONLINE(buddy) || purple_presence_is_idle(presence)) {
+			do_alphashift(avatar, 77);
+		}
 	}
 
 	emblem = pidgin_blist_get_emblem(PURPLE_BLIST_NODE(buddy));
@@ -5389,7 +5385,7 @@ static void pidgin_blist_update_chat(PurpleBuddyList *list, PurpleBlistNode *nod
 		gtk_tree_store_set(gtkblist->treemodel, &iter,
 				STATUS_ICON_COLUMN, status,
 				STATUS_ICON_VISIBLE_COLUMN, TRUE,
-				BUDDY_ICON_COLUMN, avatar ? avatar : gtkblist->empty_avatar,
+				BUDDY_ICON_COLUMN, avatar,
 				BUDDY_ICON_VISIBLE_COLUMN, showicons,
 				EMBLEM_COLUMN, emblem,
 				EMBLEM_VISIBLE_COLUMN, emblem != NULL,
@@ -6105,7 +6101,6 @@ pidgin_buddy_list_finalize(GObject *obj)
 
 	gtkblist->window = gtkblist->vbox = gtkblist->treeview = NULL;
 	g_clear_object(&gtkblist->treemodel);
-	g_object_unref(G_OBJECT(gtkblist->empty_avatar));
 
 	if (priv->select_notebook_page_timeout) {
 		g_source_remove(priv->select_notebook_page_timeout);
