@@ -67,6 +67,11 @@ struct _PidginAboutDialog {
 };
 
 /******************************************************************************
+ * Globals
+ *****************************************************************************/
+static GtkWidget *about_dialog = NULL;
+
+/******************************************************************************
  * Helpers
  *****************************************************************************/
 static void
@@ -575,10 +580,19 @@ pidgin_about_dialog_init(PidginAboutDialog *about) {
  *****************************************************************************/
 GtkWidget *
 pidgin_about_dialog_new(void) {
-	return GTK_WIDGET(g_object_new(
+	if(GTK_IS_WIDGET(about_dialog)) {
+		return about_dialog;
+	}
+
+	about_dialog = g_object_new(
 		PIDGIN_TYPE_ABOUT_DIALOG,
 		"title", "About Pidgin",
 		NULL
-	));
+	);
+
+	g_object_add_weak_pointer(G_OBJECT(about_dialog),
+	                          (gpointer)&about_dialog);
+
+	return about_dialog;
 }
 
