@@ -103,7 +103,6 @@ struct _PidginBuddyList {
 	GDestroyNotify headline_destroy;
 
 	GtkWidget *statusbox;
-	GdkPixbuf *empty_avatar;
 };
 
 G_BEGIN_DECLS
