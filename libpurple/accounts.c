@@ -194,98 +194,6 @@ parse_settings(PurpleXmlNode *node, PurpleAccount *account)
 	migrate_xmpp_encryption(account);
 }
 
-static GHashTable *
-parse_status_attrs(PurpleXmlNode *node, PurpleStatus *status)
-{
-	GHashTable *attrs = g_hash_table_new(g_str_hash, g_str_equal);
-	PurpleXmlNode *child;
-	GValue *attr_value;
-
-	for (child = purple_xmlnode_get_child(node, "attribute"); child != NULL;
-			child = purple_xmlnode_get_next_twin(child))
-	{
-		const char *id = purple_xmlnode_get_attrib(child, "id");
-		const char *value = purple_xmlnode_get_attrib(child, "value");
-
-		if (!id || !*id || !value || !*value)
-			continue;
-
-		attr_value = purple_status_get_attr_value(status, id);
-		if (!attr_value)
-			continue;
-
-		switch (G_VALUE_TYPE(attr_value))
-		{
-			case G_TYPE_STRING:
-				g_hash_table_insert(attrs, (char *)id, (char *)value);
-				break;
-			case G_TYPE_INT:
-			case G_TYPE_BOOLEAN:
-			{
-				int v;
-				if (sscanf(value, "%d", &v) == 1) {
-					g_hash_table_insert(attrs, (char *)id, GINT_TO_POINTER(v));
-				}
-				break;
-			}
-			default:
-				break;
-		}
-	}
-
-	return attrs;
-}
-
-static void
-parse_status(PurpleXmlNode *node, PurpleAccount *account)
-{
-	gboolean active = FALSE;
-	const char *data;
-	const char *type;
-	PurpleXmlNode *child;
-	GHashTable *attrs = NULL;
-
-	/* Get the active/inactive state */
-	data = purple_xmlnode_get_attrib(node, "active");
-	if (data == NULL)
-		return;
-	if (g_ascii_strcasecmp(data, "true") == 0)
-		active = TRUE;
-	else if (g_ascii_strcasecmp(data, "false") == 0)
-		active = FALSE;
-	else
-		return;
-
-	/* Get the type of the status */
-	type = purple_xmlnode_get_attrib(node, "type");
-	if (type == NULL)
-		return;
-
-	/* Read attributes into a GList */
-	child = purple_xmlnode_get_child(node, "attributes");
-	if (child != NULL)
-	{
-		attrs = parse_status_attrs(child,
-						purple_account_get_status(account, type));
-	}
-
-	purple_account_set_status_attrs(account, type, active, attrs);
-
-	g_hash_table_destroy(attrs);
-}
-
-static void
-parse_statuses(PurpleXmlNode *node, PurpleAccount *account)
-{
-	PurpleXmlNode *child;
-
-	for (child = purple_xmlnode_get_child(node, "status"); child != NULL;
-			child = purple_xmlnode_get_next_twin(child))
-	{
-		parse_status(child, account);
-	}
-}
-
 static void
 parse_proxy_info(PurpleXmlNode *node, PurpleAccount *account)
 {
@@ -465,13 +373,6 @@ parse_account(PurpleXmlNode *node)
 		if (*data != '\0')
 			purple_account_set_private_alias(ret, data);
 		g_free(data);
-	}
-
-	/* Read the statuses */
-	child = purple_xmlnode_get_child(node, "statuses");
-	if (child != NULL)
-	{
-		parse_statuses(child, ret);
 	}
 
 	/* Read the userinfo */
