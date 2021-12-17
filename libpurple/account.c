@@ -562,138 +562,6 @@ _purple_account_set_current_error(PurpleAccount *account,
  * XmlNode Helpers
  *****************************************************************************/
 static PurpleXmlNode *
-status_attribute_to_xmlnode(PurpleStatus *status, PurpleStatusType *type,
-		PurpleStatusAttribute *attr)
-{
-	PurpleXmlNode *node;
-	const char *id;
-	char *value = NULL;
-	PurpleStatusAttribute *default_attr;
-	GValue *default_value;
-	GType attr_type;
-	GValue *attr_value;
-
-	id = purple_status_attribute_get_id(attr);
-	g_return_val_if_fail(id, NULL);
-
-	attr_value = purple_status_get_attr_value(status, id);
-	g_return_val_if_fail(attr_value, NULL);
-	attr_type = G_VALUE_TYPE(attr_value);
-
-	/*
-	 * If attr_value is a different type than it should be
-	 * then don't write it to the file.
-	 */
-	default_attr = purple_status_type_get_attr(type, id);
-	default_value = purple_status_attribute_get_value(default_attr);
-	if (attr_type != G_VALUE_TYPE(default_value))
-		return NULL;
-
-	/*
-	 * If attr_value is the same as the default for this status
-	 * then there is no need to write it to the file.
-	 */
-	if (attr_type == G_TYPE_STRING)
-	{
-		const char *string_value = g_value_get_string(attr_value);
-		const char *default_string_value = g_value_get_string(default_value);
-		if (purple_strequal(string_value, default_string_value))
-			return NULL;
-		value = g_value_dup_string(attr_value);
-	}
-	else if (attr_type == G_TYPE_INT)
-	{
-		int int_value = g_value_get_int(attr_value);
-		if (int_value == g_value_get_int(default_value))
-			return NULL;
-		value = g_strdup_printf("%d", int_value);
-	}
-	else if (attr_type == G_TYPE_BOOLEAN)
-	{
-		gboolean boolean_value = g_value_get_boolean(attr_value);
-		if (boolean_value == g_value_get_boolean(default_value))
-			return NULL;
-		value = g_strdup(boolean_value ?
-								"true" : "false");
-	}
-	else
-	{
-		return NULL;
-	}
-
-	g_return_val_if_fail(value, NULL);
-
-	node = purple_xmlnode_new("attribute");
-
-	purple_xmlnode_set_attrib(node, "id", id);
-	purple_xmlnode_set_attrib(node, "value", value);
-
-	g_free(value);
-
-	return node;
-}
-
-static PurpleXmlNode *
-status_attrs_to_xmlnode(PurpleStatus *status)
-{
-	PurpleStatusType *type = purple_status_get_status_type(status);
-	PurpleXmlNode *node, *child;
-	GList *attrs, *attr;
-
-	node = purple_xmlnode_new("attributes");
-
-	attrs = purple_status_type_get_attrs(type);
-	for (attr = attrs; attr != NULL; attr = attr->next)
-	{
-		child = status_attribute_to_xmlnode(status, type, (PurpleStatusAttribute *)attr->data);
-		if (child)
-			purple_xmlnode_insert_child(node, child);
-	}
-
-	return node;
-}
-
-static PurpleXmlNode *
-status_to_xmlnode(PurpleStatus *status)
-{
-	PurpleXmlNode *node, *child;
-
-	node = purple_xmlnode_new("status");
-	purple_xmlnode_set_attrib(node, "type", purple_status_get_id(status));
-	if (purple_status_get_name(status) != NULL)
-		purple_xmlnode_set_attrib(node, "name", purple_status_get_name(status));
-	purple_xmlnode_set_attrib(node, "active", purple_status_is_active(status) ? "true" : "false");
-
-	child = status_attrs_to_xmlnode(status);
-	purple_xmlnode_insert_child(node, child);
-
-	return node;
-}
-
-static PurpleXmlNode *
-statuses_to_xmlnode(PurplePresence *presence)
-{
-	PurpleXmlNode *node, *child;
-	GList *statuses;
-	PurpleStatus *status;
-
-	node = purple_xmlnode_new("statuses");
-
-	statuses = purple_presence_get_statuses(presence);
-	for (; statuses != NULL; statuses = statuses->next)
-	{
-		status = statuses->data;
-		if (purple_status_type_is_saveable(purple_status_get_status_type(status)))
-		{
-			child = status_to_xmlnode(status);
-			purple_xmlnode_insert_child(node, child);
-		}
-	}
-
-	return node;
-}
-
-static PurpleXmlNode *
 proxy_settings_to_xmlnode(const PurpleProxyInfo *proxy_info)
 {
 	PurpleXmlNode *node, *child;
@@ -833,7 +701,6 @@ _purple_account_to_xmlnode(PurpleAccount *account)
 {
 	PurpleXmlNode *node, *child;
 	const char *tmp;
-	PurplePresence *presence;
 	const PurpleProxyInfo *proxy_info;
 	PurpleAccountPrivate *priv = purple_account_get_instance_private(account);
 
@@ -854,12 +721,6 @@ _purple_account_to_xmlnode(PurpleAccount *account)
 	{
 		child = purple_xmlnode_new_child(node, "alias");
 		purple_xmlnode_insert_data(child, tmp, -1);
-	}
-
-	if ((presence = purple_account_get_presence(account)) != NULL)
-	{
-		child = statuses_to_xmlnode(presence);
-		purple_xmlnode_insert_child(node, child);
 	}
 
 	if ((tmp = purple_account_get_user_info(account)) != NULL)
