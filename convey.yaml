@@ -19,11 +19,10 @@ tasks:
     files:
       - appimage-x86_64
       - clang
-      - debian-bullseye-amd64
       - debian-bookworm-amd64
-      - fedora-34-amd64
+      - fedora-35-amd64
       - scanbuild
-      - ubuntu-hirsute-amd64
+      - ubuntu-jammy-amd64
 
   docs-clean:
     type: convey/clean
@@ -95,8 +94,8 @@ plans:
     stages:
       - tasks: [docs-clean, import, docs-build, docs-export]
 
-  fedora-34-amd64:
-    environment: [TARGET=fedora-34-amd64]
+  fedora-35-amd64:
+    environment: [TARGET=fedora-35-amd64]
     stages:
       - tasks: [import, build]
       - tasks: [export]
@@ -109,8 +108,8 @@ plans:
       - tasks: [export]
         run: always
 
-  ubuntu-hirsute-amd64:
-    environment: [TARGET=ubuntu-hirsute-amd64]
+  ubuntu-jammy-amd64:
+    environment: [TARGET=ubuntu-jammy-amd64]
     stages:
       - tasks: [import, build]
       - tasks: [export]
