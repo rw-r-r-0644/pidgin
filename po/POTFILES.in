@@ -344,7 +344,6 @@ pidgin/pidgingdkpixbuf.c
 pidgin/pidginiconname.c
 pidgin/pidgininfopane.c
 pidgin/pidgininvitedialog.c
-pidgin/pidginmenutray.c
 pidgin/pidginmessage.c
 pidgin/pidginmooddialog.c
 pidgin/pidginplugininfo.c

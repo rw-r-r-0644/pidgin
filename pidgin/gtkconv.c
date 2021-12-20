@@ -56,7 +56,6 @@
 #include "pidgingdkpixbuf.h"
 #include "pidgininfopane.h"
 #include "pidgininvitedialog.h"
-#include "pidginmenutray.h"
 #include "pidginmessage.h"
 #include "pidginpresenceicon.h"
 #include "pidginstylecontext.h"
@@ -3515,7 +3514,6 @@ pidgin_conversations_uninit(void)
 #include "gtkdialogs.h"
 #include "gtkprivacy.h"
 #include "gtkutils.h"
-#include "pidginmenutray.h"
 
 /**************************************************************************
  * Callbacks

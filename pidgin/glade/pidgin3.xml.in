@@ -13,7 +13,6 @@
     <glade-widget-class name="PidginCredentialsPage" generic-name="credentials_page" title="CredentialsPage"/>
     <glade-widget-class name="PidginDialog" generic-name="dialog" title="Dialog"/>
     <glade-widget-class name="PidginInviteDialog" generic-name="invite_dialog" title="InviteDialog"/>
-    <glade-widget-class name="PidginMenuTray" generic-name="menu_tray" title="MenuTray"/>
     <glade-widget-class name="PidginPluginsMenu" generic-name="plugins_menu" title="PluginsMenu"/>
     <glade-widget-class name="PidginPresenceIcon" generic-name="presence_icon" title="PresenceIcon"/>
     <glade-widget-class name="PidginProtocolChooser" generic-name="protocol_chooser" title="ProtocolChooser"/>
@@ -34,7 +33,6 @@
     <glade-widget-class-ref name="PidginCredentialsPage"/>
     <glade-widget-class-ref name="PidginDialog"/>
     <glade-widget-class-ref name="PidginInviteDialog"/>
-    <glade-widget-class-ref name="PidginMenuTray"/>
     <glade-widget-class-ref name="PidginPluginsMenu"/>
     <glade-widget-class-ref name="PidginPresenceIcon"/>
     <glade-widget-class-ref name="PidginProtocolChooser"/>
