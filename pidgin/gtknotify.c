@@ -630,8 +630,6 @@ void pidgin_notify_uninit(void)
 static PurpleNotifyUiOps ops =
 {
 	pidgin_notify_message,
-	NULL,
-	NULL,
 	pidgin_notify_formatted,
 	pidgin_notify_searchresults,
 	pidgin_notify_searchresults_new_rows,

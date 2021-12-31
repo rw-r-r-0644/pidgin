@@ -65,8 +65,6 @@ typedef void  (*PurpleNotifyCloseCallback) (gpointer user_data);
 /**
  * PurpleNotifyType:
  * @PURPLE_NOTIFY_MESSAGE:       Message notification.
- * @PURPLE_NOTIFY_EMAIL:         Single email notification.
- * @PURPLE_NOTIFY_EMAILS:        Multiple email notification.
  * @PURPLE_NOTIFY_FORMATTED:     Formatted text.
  * @PURPLE_NOTIFY_SEARCHRESULTS: Buddy search results.
  * @PURPLE_NOTIFY_USERINFO:      Formatted userinfo text.
@@ -77,13 +75,10 @@ typedef void  (*PurpleNotifyCloseCallback) (gpointer user_data);
 typedef enum
 {
 	PURPLE_NOTIFY_MESSAGE = 0,
-	PURPLE_NOTIFY_EMAIL,
-	PURPLE_NOTIFY_EMAILS,
 	PURPLE_NOTIFY_FORMATTED,
 	PURPLE_NOTIFY_SEARCHRESULTS,
 	PURPLE_NOTIFY_USERINFO,
 	PURPLE_NOTIFY_URI
-
 } PurpleNotifyType;
 
 
@@ -195,8 +190,6 @@ struct _PurpleNotifySearchButton
 /**
  * PurpleNotifyUiOps:
  * @notify_message: UI op for purple_notify_message().
- * @notify_email: UI op for purple_notify_email().
- * @notify_emails: UI op for purple_notify_emails().
  * @notify_formatted: UI op for purple_notify_formatted().
  * @notify_searchresults: UI op for purple_notify_searchresults().
  * @notify_searchresults_new_rows: UI op for
@@ -213,15 +206,6 @@ struct _PurpleNotifyUiOps
 	void *(*notify_message)(PurpleNotifyMessageType type, const char *title,
 		const char *primary, const char *secondary,
 		PurpleRequestCommonParameters *cpar);
-
-	void *(*notify_email)(PurpleConnection *gc,
-	                      const char *subject, const char *from,
-	                      const char *to, const char *url);
-
-	void *(*notify_emails)(PurpleConnection *gc,
-	                       size_t count, gboolean detailed,
-	                       const char **subjects, const char **froms,
-	                       const char **tos, const char **urls);
 
 	void *(*notify_formatted)(const char *title, const char *primary,
 	                          const char *secondary, const char *text);
@@ -429,51 +413,6 @@ void *purple_notify_message(void *handle, PurpleNotifyMessageType type,
 	const char *title, const char *primary, const char *secondary,
 	PurpleRequestCommonParameters *cpar, PurpleNotifyCloseCallback cb,
 	gpointer user_data);
-
-/**
- * purple_notify_email:
- * @handle:    The plugin or connection handle.
- * @subject:   The subject of the email.
- * @from:      The from address.
- * @to:        The destination address.
- * @url:       The URL where the message can be read.
- * @cb:        (scope call): The callback to call when the user closes
- *             the notification.
- * @user_data: The data to pass to the callback.
- *
- * Displays a single email notification to the user.
- *
- * Returns: A UI-specific handle.
- */
-void *purple_notify_email(void *handle, const char *subject,
-						const char *from, const char *to,
-						const char *url, PurpleNotifyCloseCallback cb,
-						gpointer user_data);
-
-/**
- * purple_notify_emails:
- * @handle:    The plugin or connection handle.
- * @count:     The number of emails.  '0' can be used to signify that
- *             the user has no unread emails and the UI should remove
- *             the mail notification.
- * @detailed:  %TRUE if there is information for each email in the
- *             arrays.
- * @subjects:  The array of subjects.
- * @froms:     The array of from addresses.
- * @tos:       The array of destination addresses.
- * @urls:      The URLs where the messages can be read.
- * @cb:        (scope call): The callback to call when the user closes
- *             the notification.
- * @user_data: The data to pass to the callback.
- *
- * Displays a notification for multiple emails to the user.
- *
- * Returns: A UI-specific handle.
- */
-void *purple_notify_emails(void *handle, size_t count, gboolean detailed,
-						 const char **subjects, const char **froms,
-						 const char **tos, const char **urls,
-						 PurpleNotifyCloseCallback cb, gpointer user_data);
 
 /**
  * purple_notify_formatted:

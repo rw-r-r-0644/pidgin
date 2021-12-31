@@ -399,8 +399,6 @@ finch_notify_uri(const char *url)
 static PurpleNotifyUiOps ops =
 {
 	finch_notify_message,
-	NULL,
-	NULL,
 	finch_notify_formatted,
 	finch_notify_searchresults,
 	finch_notify_sr_new_rows,
