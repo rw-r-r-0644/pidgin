@@ -22,6 +22,13 @@
 #include <purpleimconversation.h>
 #include <purpleprivate.h>
 
+enum {
+	SIG_REGISTERED,
+	SIG_UNREGISTERED,
+	N_SIGNALS,
+};
+static guint signals[N_SIGNALS] = {0, };
+
 struct _PurpleConversationManager {
 	GObject parent;
 
@@ -121,6 +128,48 @@ purple_conversation_manager_class_init(PurpleConversationManagerClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 
 	obj_class->finalize = purple_conversation_manager_finalize;
+
+	/**
+	 * PurpleConversationManager::registered:
+	 * @manager: The manager.
+	 * @converstion: The conversation that was registered.
+	 *
+	 * Emitted after @conversation has been registered with @manager.
+	 *
+	 * Since: 3.0.0
+	 */
+	signals[SIG_REGISTERED] = g_signal_new_class_handler(
+		"registered",
+		G_OBJECT_CLASS_TYPE(klass),
+		G_SIGNAL_RUN_LAST,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		G_TYPE_NONE,
+		1,
+		PURPLE_TYPE_CONVERSATION);
+
+	/**
+	 * PurpleConversationManager::unregistered:
+	 * @manager: The manager.
+	 * @conversation: The conversation that was unregistered.
+	 *
+	 * Emitted after @conversation has been unregistered from @manager.
+	 *
+	 * Since: 3.0.0
+	 */
+	signals[SIG_UNREGISTERED] = g_signal_new_class_handler(
+		"unregistered",
+		G_OBJECT_CLASS_TYPE(klass),
+		G_SIGNAL_RUN_LAST,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		G_TYPE_NONE,
+		1,
+		PURPLE_TYPE_CONVERSATION);
 }
 
 /******************************************************************************
@@ -150,21 +199,41 @@ gboolean
 purple_conversation_manager_register(PurpleConversationManager *manager,
                                      PurpleConversation *conversation)
 {
+	gboolean registered = FALSE;
+
 	g_return_val_if_fail(PURPLE_IS_CONVERSATION_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_CONVERSATION(conversation), FALSE);
 
-	return g_hash_table_insert(manager->conversations,
-	                           g_object_ref(conversation), NULL);
+	registered = g_hash_table_insert(manager->conversations,
+	                                 g_object_ref(conversation), NULL);
+	if(registered) {
+		g_signal_emit(manager, signals[SIG_REGISTERED], 0, conversation);
+	} else {
+		/* We need to clean up the ref we created above if the insert failed as
+		 * the key destroy function won't be called until the manager is
+		 * destroyed which will leave the conversation floating around.
+		 */
+		g_object_unref(conversation);
+	}
+
+	return registered;
 }
 
 gboolean
 purple_conversation_manager_unregister(PurpleConversationManager *manager,
                                        PurpleConversation *conversation)
 {
+	gboolean unregistered = FALSE;
+
 	g_return_val_if_fail(PURPLE_IS_CONVERSATION_MANAGER(manager), FALSE);
 	g_return_val_if_fail(PURPLE_IS_CONVERSATION(conversation), FALSE);
 
-	return g_hash_table_remove(manager->conversations, conversation);
+	unregistered = g_hash_table_remove(manager->conversations, conversation);
+	if(unregistered) {
+		g_signal_emit(manager, signals[SIG_UNREGISTERED], 0, conversation);
+	}
+
+	return unregistered;
 }
 
 gboolean
