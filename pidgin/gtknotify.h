@@ -53,22 +53,6 @@ void pidgin_notify_init(void);
  */
 void pidgin_notify_uninit(void);
 
-/**
- * pidgin_notify_emails_pending:
- *
- * Returns TRUE if there are unseen emails, FALSE otherwise.
- *
- * Returns: TRUE if there are unseen emails, FALSE otherwise.
- */
-gboolean pidgin_notify_emails_pending(void);
-
-/**
- * pidgin_notify_emails_present:
- *
- * Presents mail dialog to the user.
- */
-void pidgin_notify_emails_present(void *data);
-
 G_END_DECLS
 
 #endif /* _PIDGINNOTIFY_H_ */
