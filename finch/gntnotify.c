@@ -28,12 +28,6 @@
 
 #include "gntnotify.h"
 
-static struct
-{
-	GntWidget *window;
-	GntWidget *tree;
-} emaildialog;
-
 static void
 notify_msg_window_destroy_cb(GntWidget *window, PurpleNotifyType type)
 {
@@ -154,105 +148,6 @@ static void *finch_notify_formatted(const char *title, const char *primary,
 	g_free(xhtml);
 
 	return ret;
-}
-
-static void
-reset_email_dialog(void)
-{
-	emaildialog.window = NULL;
-	emaildialog.tree = NULL;
-}
-
-static void
-setup_email_dialog(void)
-{
-	GntWidget *box, *tree, *button;
-	if (emaildialog.window)
-		return;
-
-	emaildialog.window = box = gnt_vbox_new(FALSE);
-	gnt_box_set_toplevel(GNT_BOX(box), TRUE);
-	gnt_box_set_title(GNT_BOX(box), _("Emails"));
-	gnt_box_set_fill(GNT_BOX(box), FALSE);
-	gnt_box_set_alignment(GNT_BOX(box), GNT_ALIGN_MID);
-	gnt_box_set_pad(GNT_BOX(box), 0);
-
-	gnt_box_add_widget(GNT_BOX(box),
-			gnt_label_new_with_format(_("You have mail!"), GNT_TEXT_FLAG_BOLD));
-
-	emaildialog.tree = tree = gnt_tree_new_with_columns(3);
-	gnt_tree_set_column_titles(GNT_TREE(tree), _("Account"), _("Sender"), _("Subject"));
-	gnt_tree_set_show_title(GNT_TREE(tree), TRUE);
-	gnt_tree_set_col_width(GNT_TREE(tree), 0, 15);
-	gnt_tree_set_col_width(GNT_TREE(tree), 1, 25);
-	gnt_tree_set_col_width(GNT_TREE(tree), 2, 25);
-
-	gnt_box_add_widget(GNT_BOX(box), tree);
-
-	button = gnt_button_new(_("Close"));
-	gnt_box_add_widget(GNT_BOX(box), button);
-
-	g_signal_connect_swapped(G_OBJECT(button), "activate", G_CALLBACK(gnt_widget_destroy), box);
-	g_signal_connect(G_OBJECT(box), "destroy", G_CALLBACK(reset_email_dialog), NULL);
-}
-
-static void *
-finch_notify_emails(PurpleConnection *gc, size_t count, gboolean detailed,
-		const char **subjects, const char **froms, const char **tos,
-		const char **urls)
-{
-	PurpleAccount *account = purple_connection_get_account(gc);
-	void *ret = NULL;
-	static int key = 0;
-
-	if (count == 0)
-		return NULL;
-
-	if (!detailed) {
-		gchar *message;
-		message = g_strdup_printf(
-		        ngettext("%s (%s) has %d new message.",
-		                 "%s (%s) has %d new messages.", (int)count),
-		        tos ? *tos : purple_account_get_username(account),
-		        purple_account_get_protocol_name(account), (int)count);
-		ret = finch_notify_common(PURPLE_NOTIFY_EMAIL, PURPLE_NOTIFY_MSG_INFO,
-		                          _("New Mail"), _("You have mail!"), message,
-		                          NULL);
-		g_free(message);
-	} else {
-		char *to;
-		gboolean newwin = (emaildialog.window == NULL);
-
-		if (newwin)
-			setup_email_dialog();
-
-		to = g_strdup_printf("%s (%s)", tos ? *tos : purple_account_get_username(account),
-					purple_account_get_protocol_name(account));
-		gnt_tree_add_row_after(GNT_TREE(emaildialog.tree), GINT_TO_POINTER(++key),
-				gnt_tree_create_row(GNT_TREE(emaildialog.tree), to,
-					froms ? *froms : "[Unknown sender]",
-					*subjects),
-				NULL, NULL);
-		g_free(to);
-		if (newwin)
-			gnt_widget_show(emaildialog.window);
-		else
-			gnt_window_present(emaildialog.window);
-		ret = NULL;
-	}
-
-	return ret;
-}
-
-static void *
-finch_notify_email(PurpleConnection *gc, const char *subject, const char *from,
-		const char *to, const char *url)
-{
-	return finch_notify_emails(gc, 1, subject != NULL,
-			subject ? &subject : NULL,
-			from ? &from : NULL,
-			to ? &to : NULL,
-			url ? &url : NULL);
 }
 
 /** User information. **/
@@ -504,8 +399,8 @@ finch_notify_uri(const char *url)
 static PurpleNotifyUiOps ops =
 {
 	finch_notify_message,
-	finch_notify_email,
-	finch_notify_emails,
+	NULL,
+	NULL,
 	finch_notify_formatted,
 	finch_notify_searchresults,
 	finch_notify_sr_new_rows,
