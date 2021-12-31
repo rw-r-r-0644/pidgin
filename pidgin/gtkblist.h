@@ -101,8 +101,6 @@ struct _PidginBuddyList {
 	GCallback headline_callback;
 	gpointer headline_data;
 	GDestroyNotify headline_destroy;
-
-	GtkWidget *statusbox;
 };
 
 G_BEGIN_DECLS
