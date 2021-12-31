@@ -145,7 +145,6 @@ enum {
 	(gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(x))) & \
 	GDK_WINDOW_STATE_MAXIMIZED)
 
-static guint visibility_manager_count = 0;
 static GdkVisibilityState gtk_blist_visibility = GDK_VISIBILITY_UNOBSCURED;
 static gboolean gtk_blist_focused = FALSE;
 static gboolean editing_blist = FALSE;
@@ -231,10 +230,7 @@ static gboolean gtk_blist_window_state_cb(GtkWidget *w, GdkEventWindowState *eve
 
 static gboolean gtk_blist_delete_cb(GtkWidget *w, GdkEventAny *event, gpointer data)
 {
-	if(visibility_manager_count)
-		purple_blist_set_visible(FALSE);
-	else
-		purple_core_quit();
+	purple_core_quit();
 
 	/* we handle everything, event should not propagate further */
 	return TRUE;
@@ -4759,7 +4755,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	/* OK... let's show this bad boy. */
 	pidgin_blist_refresh(list);
 	gtk_widget_show_all(GTK_WIDGET(gtkblist->vbox));
-	gtk_widget_realize(GTK_WIDGET(gtkblist->window));
 	purple_blist_set_visible(purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/blist/list_visible"));
 
 	/* start the refresh timer */
@@ -5442,13 +5437,9 @@ static void pidgin_blist_set_visible(PurpleBuddyList *list, gboolean show)
 	if (show) {
 		gtk_widget_show(gtkblist->window);
 	} else {
-		if(visibility_manager_count) {
-			gtk_widget_hide(gtkblist->window);
-		} else {
-			if (!gtk_widget_get_visible(gtkblist->window))
-				gtk_widget_show(gtkblist->window);
-			gtk_window_iconify(GTK_WINDOW(gtkblist->window));
-		}
+		if (!gtk_widget_get_visible(gtkblist->window))
+			gtk_widget_show(gtkblist->window);
+		gtk_window_iconify(GTK_WINDOW(gtkblist->window));
 	}
 }
 
@@ -5871,23 +5862,6 @@ pidgin_blist_toggle_visibility()
 			purple_blist_set_visible(TRUE);
 		}
 	}
-}
-
-void
-pidgin_blist_visibility_manager_add()
-{
-	visibility_manager_count++;
-	purple_debug_info("gtkblist", "added visibility manager: %d\n", visibility_manager_count);
-}
-
-void
-pidgin_blist_visibility_manager_remove()
-{
-	if (visibility_manager_count)
-		visibility_manager_count--;
-	if (!visibility_manager_count)
-		purple_blist_set_visible(TRUE);
-	purple_debug_info("gtkblist", "removed visibility manager: %d\n", visibility_manager_count);
 }
 
 void pidgin_blist_add_alert(GtkWidget *widget)

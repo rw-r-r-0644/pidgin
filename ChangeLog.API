@@ -806,6 +806,8 @@ version 3.0.0 (??/??/????):
 		* pidgin_blist_theme_set_unread_message_text_info
 		* pidgin_blist_tooltip_destroy
 		* pidgin_blist_update_account_error_state
+		* pidgin_blist_visibility_manager_add
+		* pidgin_blist_visibility_manager_remove
 		* PidginBlistLayout
 		* PidginBuddyList.connection_errors
 		* PidginButtonStyle
