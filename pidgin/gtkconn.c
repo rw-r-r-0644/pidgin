@@ -47,28 +47,11 @@ typedef struct {
 static GHashTable *auto_reconns = NULL;
 
 static void
-pidgin_connection_connect_progress(PurpleConnection *gc,
-		const char *text, size_t step, size_t step_count)
-{
-	PidginBuddyList *gtkblist = pidgin_blist_get_default_gtk_blist();
-	if (!gtkblist)
-		return;
-	pidgin_status_box_set_connecting(PIDGIN_STATUS_BOX(gtkblist->statusbox),
-					   (purple_connections_get_connecting() != NULL));
-}
-
-static void
 pidgin_connection_connected(PurpleConnection *gc)
 {
 	PurpleAccount *account;
-	PidginBuddyList *gtkblist;
 
 	account  = purple_connection_get_account(gc);
-	gtkblist = pidgin_blist_get_default_gtk_blist();
-
-	if (gtkblist != NULL)
-		pidgin_status_box_set_connecting(PIDGIN_STATUS_BOX(gtkblist->statusbox),
-					   (purple_connections_get_connecting() != NULL));
 
 	g_hash_table_remove(auto_reconns, account);
 }
@@ -76,12 +59,6 @@ pidgin_connection_connected(PurpleConnection *gc)
 static void
 pidgin_connection_disconnected(PurpleConnection *gc)
 {
-	PidginBuddyList *gtkblist = pidgin_blist_get_default_gtk_blist();
-	if (!gtkblist)
-		return;
-	pidgin_status_box_set_connecting(PIDGIN_STATUS_BOX(gtkblist->statusbox),
-					   (purple_connections_get_connecting() != NULL));
-
 	if (purple_connections_get_all() != NULL)
 		return;
 
@@ -195,7 +172,7 @@ static void pidgin_connection_notice(PurpleConnection *gc, const char *text)
 
 static PurpleConnectionUiOps conn_ui_ops =
 {
-	pidgin_connection_connect_progress,
+	NULL,
 	pidgin_connection_connected,
 	pidgin_connection_disconnected,
 	pidgin_connection_notice,
