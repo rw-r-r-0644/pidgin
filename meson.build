@@ -420,8 +420,8 @@ Then rerun this Meson build
 endif
 
 
-DEFAULT_PRPLS = ['bonjour', 'facebook', 'gg', 'irc', 'jabber', 'novell',
-                 'null', 'sametime', 'silc', 'zephyr']
+DEFAULT_PRPLS = ['bonjour', 'demo', 'facebook', 'gg', 'irc', 'jabber',
+                 'novell', 'null', 'sametime', 'silc', 'zephyr']
 ALL_PRPLS = DEFAULT_PRPLS + ['null']
 
 dynamic_list = get_option('dynamic-prpls').split(',')
@@ -448,6 +448,7 @@ foreach prpl : dynamic_list
 endforeach
 
 DYNAMIC_BONJOUR = DYNAMIC_PRPLS.contains('bonjour')
+DYNAMIC_DEMO = DYNAMIC_PRPLS.contains('demo')
 DYNAMIC_FACEBOOK = DYNAMIC_PRPLS.contains('facebook')
 DYNAMIC_GG  = DYNAMIC_PRPLS.contains('gg')
 DYNAMIC_IRC = DYNAMIC_PRPLS.contains('irc')

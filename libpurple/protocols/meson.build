@@ -1,4 +1,5 @@
 subdir('bonjour')
+subdir('demo')
 subdir('facebook')
 subdir('gg')
 subdir('irc')
