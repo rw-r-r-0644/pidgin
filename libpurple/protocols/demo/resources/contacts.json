@@ -1,0 +1,47 @@
+{
+	"Family": [{
+		"alias": "Grim",
+		"buddies": [{
+			"name": "Gary",
+			"status": {
+				"id": "available",
+				"message": "💤 Sleeping... 😴",
+				"idle": 1337
+			}
+		}]
+	}],
+	"Friends": [{
+		"buddies": [{
+			"name": "John",
+			"alias": "Rekkanoryo",
+			"status": {
+				"id": "away"
+			}
+		}]
+	}],
+	"Work": [{
+		"buddies": [{
+			"name": "Elliot",
+			"status": {
+				"id": "away",
+				"message": "Coding..."
+			}
+		}]
+	}, {
+		"buddies": [{
+			"name": "Richard",
+			"status": {
+				"id": "available"
+			}
+		}]
+	}],
+	"School": [{
+		"buddies": [{
+			"name": "Eion",
+			"status": {
+				"id": "available",
+				"message": "Writing crazy patches!"
+			}
+		}]
+	}]
+}

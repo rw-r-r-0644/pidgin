@@ -69,6 +69,7 @@ libpurple/plugins/purple-toast.c
 libpurple/plugins/statenotify.c
 libpurple/plugins/wincred/wincred.c
 libpurple/prefs.c
+libpurple/protocols.c
 libpurple/protocols/bonjour/bonjour.c
 libpurple/protocols/bonjour/bonjour_ft.c
 libpurple/protocols/bonjour/buddy.c
@@ -79,7 +80,9 @@ libpurple/protocols/bonjour/mdns_dns_sd.c
 libpurple/protocols/bonjour/mdns_win32.c
 libpurple/protocols/bonjour/parser.c
 libpurple/protocols/bonjour/xmpp.c
-libpurple/protocols.c
+libpurple/protocols/demo/purpledemocontacts.c
+libpurple/protocols/demo/purpledemoplugin.c
+libpurple/protocols/demo/purpledemoprotocol.c
 libpurple/protocols/facebook/api.c
 libpurple/protocols/facebook/data.c
 libpurple/protocols/facebook/facebook.c
