@@ -118,6 +118,8 @@ struct _PidginStatusBox {
 	GtkWidget *tree_view;
 	gboolean popup_in_progress;
 	GtkTreeRowReference *active_row;
+
+	GList *connections_in_progress;
 };
 
 static void pidgin_status_box_add(PidginStatusBox *status_box, PidginStatusBoxItemType type, GdkPixbuf *pixbuf, const char *text, const char *sec_text, gpointer data);
@@ -305,6 +307,42 @@ account_status_changed_cb(PurpleAccount *account, PurpleStatus *oldstatus, Purpl
 		update_to_reflect_account_status(status_box, account, newstatus);
 	else if (status_box->token_status_account == account)
 		status_menu_refresh_iter(status_box, TRUE);
+}
+
+static void
+connection_start_cb(PurpleConnection *connection, gpointer data) {
+	PidginStatusBox *status_box = data;
+
+	status_box->connections_in_progress =
+		g_list_append(status_box->connections_in_progress, connection);
+
+	pidgin_status_box_set_connecting(status_box, TRUE);
+}
+
+static void
+connection_finish_cb(PurpleConnection *connection, gpointer data) {
+	PidginStatusBox *status_box = data;
+
+	status_box->connections_in_progress =
+		g_list_remove(status_box->connections_in_progress, connection);
+
+	if(status_box->connections_in_progress == NULL) {
+		pidgin_status_box_set_connecting(status_box, FALSE);
+	}
+}
+
+static void
+connection_error_cb(PurpleConnection *connection, G_GNUC_UNUSED gint conn_err,
+                    G_GNUC_UNUSED const gchar *conn_message, gpointer data)
+{
+	PidginStatusBox *status_box = data;
+
+	status_box->connections_in_progress =
+		g_list_remove(status_box->connections_in_progress, connection);
+
+	if(status_box->connections_in_progress == NULL) {
+		pidgin_status_box_set_connecting(status_box, FALSE);
+	}
 }
 
 static void
@@ -1255,6 +1293,7 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 	GtkWidget *toplevel;
 	GtkTreeSelection *sel;
 	gboolean network_available = FALSE;
+	gpointer handle;
 
 	gtk_widget_set_has_window(GTK_WIDGET(status_box), FALSE);
 	status_box->editor_visible = FALSE;
@@ -1385,28 +1424,38 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 
 	pidgin_status_box_regenerate(status_box, TRUE);
 
-	purple_signal_connect(purple_savedstatuses_get_handle(), "savedstatus-changed",
-						status_box,
-						PURPLE_CALLBACK(current_savedstatus_changed_cb),
-						status_box);
-	purple_signal_connect(purple_savedstatuses_get_handle(),
-			"savedstatus-added", status_box,
-			PURPLE_CALLBACK(saved_status_updated_cb), status_box);
-	purple_signal_connect(purple_savedstatuses_get_handle(),
-			"savedstatus-deleted", status_box,
-			PURPLE_CALLBACK(saved_status_updated_cb), status_box);
-	purple_signal_connect(purple_savedstatuses_get_handle(),
-			"savedstatus-modified", status_box,
-			PURPLE_CALLBACK(saved_status_updated_cb), status_box);
-	purple_signal_connect(purple_accounts_get_handle(), "account-enabled", status_box,
-						PURPLE_CALLBACK(account_enabled_cb),
-						status_box);
-	purple_signal_connect(purple_accounts_get_handle(), "account-disabled", status_box,
-						PURPLE_CALLBACK(account_enabled_cb),
-						status_box);
-	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed", status_box,
-						PURPLE_CALLBACK(account_status_changed_cb),
-						status_box);
+	handle = purple_savedstatuses_get_handle();
+	purple_signal_connect(handle, "savedstatus-changed", status_box,
+	                      PURPLE_CALLBACK(current_savedstatus_changed_cb),
+	                      status_box);
+	purple_signal_connect(handle, "savedstatus-added", status_box,
+	                      PURPLE_CALLBACK(saved_status_updated_cb), status_box);
+	purple_signal_connect(handle, "savedstatus-deleted", status_box,
+	                      PURPLE_CALLBACK(saved_status_updated_cb), status_box);
+	purple_signal_connect(handle, "savedstatus-modified", status_box,
+	                      PURPLE_CALLBACK(saved_status_updated_cb), status_box);
+
+	handle = purple_accounts_get_handle();
+	purple_signal_connect(handle, "account-enabled", status_box,
+	                      PURPLE_CALLBACK(account_enabled_cb), status_box);
+	purple_signal_connect(handle, "account-disabled", status_box,
+	                      PURPLE_CALLBACK(account_enabled_cb), status_box);
+	purple_signal_connect(handle, "account-status-changed", status_box,
+	                      PURPLE_CALLBACK(account_status_changed_cb),
+	                      status_box);
+
+	handle = purple_connections_get_handle();
+	purple_signal_connect(handle, "signing-on", status_box,
+	                      PURPLE_CALLBACK(connection_start_cb),
+	                      status_box);
+	purple_signal_connect(handle, "signed-on", status_box,
+	                      PURPLE_CALLBACK(connection_finish_cb),
+	                      status_box);
+	purple_signal_connect(handle, "signing-off", status_box,
+	                      PURPLE_CALLBACK(connection_finish_cb),
+	                      status_box);
+	purple_signal_connect(handle, "connection-error", status_box,
+	                      PURPLE_CALLBACK(connection_error_cb), status_box);
 
 	monitor = g_network_monitor_get_default();
 	g_signal_connect(G_OBJECT(monitor), "network-changed",
