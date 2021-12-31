@@ -219,26 +219,6 @@ gboolean pidgin_blist_node_is_contact_expanded(PurpleBlistNode *node);
 void pidgin_blist_toggle_visibility(void);
 
 /**
- * pidgin_blist_visibility_manager_add:
- *
- * Increases the reference count of visibility managers. Callers should
- * call the complementary remove function when no longer managing
- * visibility.
- *
- * A visibility manager is something that provides some method for
- * showing the buddy list after it is hidden (e.g. docklet plugin).
- */
-void pidgin_blist_visibility_manager_add(void);
-
-/**
- * pidgin_blist_visibility_manager_remove:
- *
- * Decreases the reference count of visibility managers. If the count
- * drops below zero, the buddy list is shown.
- */
-void pidgin_blist_visibility_manager_remove(void);
-
-/**
  * pidgin_blist_add_alert:
  * @widget:   The widget to add
  *
