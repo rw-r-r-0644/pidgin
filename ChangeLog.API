@@ -463,6 +463,10 @@ version 3.0.0 (??/??/????):
 		* purple_network_listen_map_external
 		* purple_network_listen_range
 		* purple_network_listen_range_family
+		* PurpleNotifyUiOps.notify_email
+		* PurpleNotifyUiOps.notify_emails
+		* purple_notify_email
+		* purple_notify_emails
 		* purple_notify_searchresults_column_get_title
 		* purple_notify_searchresults_get_columns_count
 		* purple_notify_searchresults_get_rows_count
