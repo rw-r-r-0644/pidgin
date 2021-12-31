@@ -4743,12 +4743,6 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtk_box_pack_start(GTK_BOX(gtkblist->vbox),
 		GTK_WIDGET(priv->error_scrollbook), FALSE, FALSE, 0);
 
-	/* Add the statusbox */
-	gtkblist->statusbox = pidgin_status_box_new();
-	gtk_box_pack_start(GTK_BOX(gtkblist->vbox), gtkblist->statusbox, FALSE, TRUE, 0);
-	gtk_widget_set_name(gtkblist->statusbox, "pidgin_blist_statusbox");
-	gtk_widget_show(gtkblist->statusbox);
-
 	/* Update some dynamic things */
 	pidgin_blist_update_sort_methods();
 
