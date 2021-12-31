@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
+  <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
@@ -48,42 +49,66 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="position">100</property>
-            <property name="wide-handle">True</property>
             <child>
-              <object class="GtkScrolledWindow">
+              <object class="GtkBox">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="shadow-type">in</property>
-                <property name="propagate-natural-width">True</property>
+                <property name="can-focus">False</property>
+                <property name="border-width">6</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
                 <child>
-                  <object class="GtkTreeView" id="view">
+                  <object class="PidginStatusBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="model">model</property>
-                    <property name="headers-visible">False</property>
-                    <property name="search-column">2</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection">
-                        <signal name="changed" handler="pidgin_conversation_window_selection_changed" object="PidginConversationWindow" swapped="no"/>
-                      </object>
-                    </child>
+                    <property name="shadow-type">out</property>
+                    <property name="propagate-natural-width">True</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="markup">
-                        <child>
-                          <object class="GtkCellRendererPixbuf" id="icon"/>
-                          <attributes>
-                            <attribute name="pixbuf">1</attribute>
-                          </attributes>
+                      <object class="GtkTreeView" id="view">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="model">model</property>
+                        <property name="headers-visible">False</property>
+                        <property name="search-column">2</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection">
+                            <signal name="changed" handler="pidgin_conversation_window_selection_changed" object="PidginConversationWindow" swapped="no"/>
+                          </object>
                         </child>
                         <child>
-                          <object class="GtkCellRendererText" id="name"/>
-                          <attributes>
-                            <attribute name="markup">2</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn" id="markup">
+                            <child>
+                              <object class="GtkCellRendererPixbuf" id="icon"/>
+                              <attributes>
+                                <attribute name="pixbuf">1</attribute>
+                              </attributes>
+                            </child>
+                            <child>
+                              <object class="GtkCellRendererText" id="name"/>
+                              <attributes>
+                                <attribute name="markup">2</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
               <packing>
