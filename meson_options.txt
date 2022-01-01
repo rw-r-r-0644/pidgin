@@ -40,6 +40,9 @@ option('libsecret', type : 'feature',
 option('vv', type : 'feature',
        description : 'compile with voice and video support')
 
+option('soup3', type : 'boolean', value : false,
+       description : 'compile against libsoup3')
+
 ##############################################################################
 # Protocol Plugins
 

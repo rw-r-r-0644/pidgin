@@ -295,8 +295,9 @@ json = dependency('json-glib-1.0', version : '>= 0.14.0')
 # Check for libsoup (required)
 #######################################################################
 
-libsoup = dependency('libsoup-3.0', version : '>= 3', required : false)
-if libsoup.found()
+libsoup = disabler()
+if get_option('soup3')
+	libsoup = dependency('libsoup-3.0', version : '>= 3')
 	add_project_arguments(
 		'-DSOUP_VERSION_MIN_REQUIRED=SOUP_VERSION_3_0',
 		'-DSOUP_VERSION_MAX_ALLOWED=SOUP_VERSION_3_0',
