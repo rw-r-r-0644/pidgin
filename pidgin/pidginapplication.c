@@ -40,6 +40,7 @@
 #include "gtkdialogs.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
+#include "gtksavedstatuses.h"
 #include "gtkxfer.h"
 #include "pidginabout.h"
 #include "pidgincore.h"
@@ -326,6 +327,13 @@ pidgin_application_set_mood(GSimpleAction *simple, GVariant *parameter,
 	pidgin_mood_dialog_show(NULL);
 }
 
+static void
+pidgin_application_show_status_manager(GSimpleAction *simple,
+                                       GVariant *parameter, gpointer data)
+{
+	pidgin_status_window_show();
+}
+
 static GActionEntry app_entries[] = {
 	{
 		.name = "about",
@@ -378,6 +386,9 @@ static GActionEntry app_entries[] = {
 	}, {
 		.name = "set-mood",
 		.activate = pidgin_application_set_mood,
+	}, {
+		.name = "status-manager",
+		.activate = pidgin_application_show_status_manager,
 	}
 };
 
