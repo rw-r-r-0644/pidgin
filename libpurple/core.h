@@ -132,19 +132,6 @@ PurpleCoreUiOps *purple_core_get_ui_ops(void);
  */
 PurpleUiInfo* purple_core_get_ui_info(void);
 
-/**
- * purple_core_migrate_to_xdg_base_dirs:
- *
- * Migrates from legacy directory for libpurple to location following
- * XDG base dir spec. https://developer.pidgin.im/ticket/10029
- * NOTE This is not finished yet. Need to decide where other profile files
- * should be moved. Search for usages of purple_user_dir().
- *
- * Returns: TRUE if migrated successfully, FALSE otherwise. On failure,
- *         the application must display an error to the user and then exit.
- */
-gboolean purple_core_migrate_to_xdg_base_dirs(void);
-
 G_END_DECLS
 
 #endif /* PURPLE_CORE_H */

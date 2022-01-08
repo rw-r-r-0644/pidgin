@@ -514,53 +514,6 @@ purple_data_dir(void)
 	return purple_xdg_dir(&data_dir, g_get_user_data_dir(), "data");
 }
 
-gboolean
-purple_move_to_xdg_base_dir(const char *purple_xdg_dir, char *path)
-{
-	gint mkdir_res;
-	gchar *xdg_path;
-	gboolean xdg_path_exists;
-
-	/* Create destination directory */
-	mkdir_res = g_mkdir_with_parents(purple_xdg_dir, S_IRWXU);
-	if (mkdir_res == -1) {
-		purple_debug_error("util", "Error creating xdg directory %s: %s; failed migration\n",
-					purple_xdg_dir, g_strerror(errno));
-		return FALSE;
-	}
-
-	xdg_path = g_build_filename(purple_xdg_dir, path, NULL);
-	xdg_path_exists = g_file_test(xdg_path, G_FILE_TEST_EXISTS);
-	if (!xdg_path_exists) {
-		gchar *old_path;
-		gboolean old_path_exists;
-
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-		old_path = g_build_filename(purple_user_dir(), path, NULL);
-G_GNUC_END_IGNORE_DEPRECATIONS
-		old_path_exists = g_file_test(old_path, G_FILE_TEST_EXISTS);
-		if (old_path_exists) {
-			int rename_res;
-
-			rename_res = g_rename(old_path, xdg_path);
-			if (rename_res == -1) {
-				purple_debug_error("util", "Error renaming %s to %s; failed migration\n",
-							old_path, xdg_path);
-				g_free(old_path);
-				g_free(xdg_path);
-
-				return FALSE;
-			}
-		}
-
-		g_free(old_path);
-	}
-
-	g_free(xdg_path);
-
-	return TRUE;
-}
-
 void purple_util_set_user_dir(const char *dir)
 {
 	g_free(custom_user_dir);
