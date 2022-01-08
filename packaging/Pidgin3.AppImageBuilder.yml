@@ -11,8 +11,8 @@ AppDir:
   apt:
     arch: amd64
     sources:
-      - sourceline: 'deb [arch=amd64] http://deb.debian.org/debian/ bullseye main'
-        key_url: 'https://ftp-master.debian.org/keys/archive-key-10.asc'
+      - sourceline: 'deb [arch=amd64] http://deb.debian.org/debian/ bookworm main'
+        key_url: 'https://ftp-master.debian.org/keys/archive-key-11.asc'
     include:
       - dictionaries-common
       - gir1.2-gdkpixbuf-2.0
@@ -25,7 +25,7 @@ AppDir:
       - libavahi-client3
       - libavahi-glib1
       - libcanberra0
-      - libcmark0.29.0
+      - libcmark0.30.2
       - libfarstream-0.2-5
       - libfontconfig1
       - libfreetype6
@@ -39,7 +39,8 @@ AppDir:
       - libgstreamer1.0-0
       - libgtk-3-0
       - libgumbo1
-      - libidn11
+      - libhandy-1-0
+      - libidn12
       - libidn2-0
       - libjson-glib-1.0-0
       # - libkf5wallet5 # 57mb
@@ -73,4 +74,3 @@ AppDir:
       XDG_DATA_DIRS: $APPDIR/share:$XDG_DATA_DIRS
 AppImage:
   arch: x86_64
-

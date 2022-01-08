@@ -53,17 +53,18 @@ tasks:
     type: docker/export
     files: build-${TARGET}:${TARGET}
 
+  bare-export:
+    type: docker/export
+    files: ${TARGET}:${TARGET}
+
 plans:
   pidgin3-appimage-x86_64:
     environment:
       - TARGET=appimage-x86_64
-      - BUILD_NUMBER=0
-      - COMMIT_SHORT=${HG_COMMIT_SHORT}
-      - VERSION=${BUILD_NUMBER}~${COMMIT_SHORT}
       - RECIPE=Pidgin3
       - CONFIGURE_ARGS=-Dconsoleui=False
     stages:
-      - tasks: [import, build, export]
+      - tasks: [import, build, bare-export]
 
   clang:
     environment: [TARGET=clang]
