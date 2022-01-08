@@ -32,6 +32,7 @@
 
 #include "prefs.h"
 #include "debug.h"
+#include "purplepath.h"
 #include "util.h"
 
 static PurplePrefsUiOps *prefs_ui_ops = NULL;

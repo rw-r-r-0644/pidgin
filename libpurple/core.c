@@ -39,6 +39,7 @@
 #include "purplecredentialmanager.h"
 #include "purplehistorymanager.h"
 #include "purplemessage.h"
+#include "purplepath.h"
 #include "purpleprivate.h"
 #include "savedstatuses.h"
 #include "signals.h"

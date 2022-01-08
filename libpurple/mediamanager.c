@@ -28,6 +28,7 @@
 #include "glibcompat.h"
 #include "media.h"
 #include "mediamanager.h"
+#include "purplepath.h"
 
 #include "media-gst.h"
 #include <media/backend-fs2.h>

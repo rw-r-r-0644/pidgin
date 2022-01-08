@@ -30,7 +30,8 @@
 #include "debug.h"
 #include "network.h"
 #include "media-gst.h"
-#include <purplekeyvaluepair.h>
+#include <libpurple/purplepath.h>
+#include <libpurple/purplekeyvaluepair.h>
 
 /* Ignore deprecations of GParameter in FarStream's headers. */
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
