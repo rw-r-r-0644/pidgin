@@ -256,20 +256,6 @@ const gchar *purple_config_dir(void);
 const gchar *purple_data_dir(void);
 
 /**
- * purple_move_to_xdg_base_dir:
- * @purple_xdg_dir: The path to cache, config or data dir.
- *                  Use respective function
- * @path:           File or directory in purple_user_dir
- * 
- * Moves file or directory from legacy user dir to XDG
- * based dir.
- * 
- * Returns: TRUE if moved successfully, FALSE otherwise
- */
-gboolean
-purple_move_to_xdg_base_dir(const char *purple_xdg_dir, char *path);
-
-/**
  * purple_util_set_user_dir:
  * @dir: The custom settings directory
  *
