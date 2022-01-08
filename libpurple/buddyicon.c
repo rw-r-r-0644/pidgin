@@ -26,9 +26,9 @@
 #include "purpleaccountmanager.h"
 #include "purpleconversation.h"
 #include "purpleconversationmanager.h"
+#include "purplepath.h"
 #include "purpleprivate.h"
 #include "purpleprotocolserver.h"
-#include "util.h"
 
 /* NOTE: Instances of this struct are allocated without zeroing the memory, so
  * NOTE: be sure to update purple_buddy_icon_new() if you add members. */

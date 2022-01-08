@@ -29,42 +29,20 @@
 #include "prefs.h"
 #include "purpleaccountmanager.h"
 #include "purpleconversation.h"
+#include "purplepath.h"
 #include "purpleprotocol.h"
 #include "purpleprotocolclient.h"
 #include "util.h"
 
 #include <json-glib/json-glib.h>
 
-static char *custom_user_dir = NULL;
-static char *user_dir = NULL;
-static gchar *cache_dir = NULL;
-static gchar *config_dir = NULL;
-static gchar *data_dir = NULL;
-
 void
-purple_util_init(void)
-{
+purple_util_init(void) {
 }
 
 void
-purple_util_uninit(void)
-{
-	/* Free these so we don't have leaks at shutdown. */
-
-	g_free(custom_user_dir);
-	custom_user_dir = NULL;
-
-	g_free(user_dir);
-	user_dir = NULL;
-
-	g_free(cache_dir);
-	cache_dir = NULL;
-
-	g_free(config_dir);
-	config_dir = NULL;
-
-	g_free(data_dir);
-	data_dir = NULL;
+purple_util_uninit(void) {
+	purple_util_set_user_dir(NULL);
 }
 
 /**************************************************************************
@@ -460,70 +438,6 @@ gint purple_time_parse_month(const char *month_abbr)
 /**************************************************************************
  * Path/Filename Functions
  **************************************************************************/
-const char *
-purple_home_dir(void)
-{
-#ifndef _WIN32
-	return g_get_home_dir();
-#else
-	return wpurple_home_dir();
-#endif
-}
-
-/* Returns the argument passed to -c IFF it was present, or ~/.purple. */
-const char *
-purple_user_dir(void)
-{
-	if (custom_user_dir != NULL)
-		return custom_user_dir;
-	else if (!user_dir)
-		user_dir = g_build_filename(purple_home_dir(), ".purple", NULL);
-
-	return user_dir;
-}
-
-static const gchar *
-purple_xdg_dir(gchar **xdg_dir, const gchar *xdg_base_dir, const gchar *xdg_type)
-{
-	if (!*xdg_dir) {
-		if (!custom_user_dir) {
-			*xdg_dir = g_build_filename(xdg_base_dir, "purple", NULL);
-		} else {
-			*xdg_dir = g_build_filename(custom_user_dir, xdg_type, NULL);
-		}
-	}
-
-	return *xdg_dir;
-}
-
-const gchar *
-purple_cache_dir(void)
-{
-	return purple_xdg_dir(&cache_dir, g_get_user_cache_dir(), "cache");
-}
-
-const gchar *
-purple_config_dir(void)
-{
-	return purple_xdg_dir(&config_dir, g_get_user_config_dir(), "config");
-}
-
-const gchar *
-purple_data_dir(void)
-{
-	return purple_xdg_dir(&data_dir, g_get_user_data_dir(), "data");
-}
-
-void purple_util_set_user_dir(const char *dir)
-{
-	g_free(custom_user_dir);
-
-	if (dir != NULL && *dir)
-		custom_user_dir = g_strdup(dir);
-	else
-		custom_user_dir = NULL;
-}
-
 static gboolean
 purple_util_write_data_to_file_common(const char *dir, const char *filename, const char *data, gssize size)
 {
