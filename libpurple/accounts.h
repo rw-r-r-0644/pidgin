@@ -105,24 +105,6 @@ G_BEGIN_DECLS
 /**************************************************************************/
 
 /**
- * purple_accounts_add:
- * @account: The account.
- *
- * Adds an account to the list of accounts.
- */
-G_DEPRECATED_FOR(purple_account_manager_add)
-void purple_accounts_add(PurpleAccount *account);
-
-/**
- * purple_accounts_remove:
- * @account: The account.
- *
- * Removes an account from the list of accounts.
- */
-G_DEPRECATED_FOR(purple_account_manager_remove)
-void purple_accounts_remove(PurpleAccount *account);
-
-/**
  * purple_accounts_delete:
  * @account: The account.
  *
@@ -133,49 +115,6 @@ void purple_accounts_remove(PurpleAccount *account);
  * destroy @account.
  */
 void purple_accounts_delete(PurpleAccount *account);
-
-/**
- * purple_accounts_reorder:
- * @account:   The account to reorder.
- * @new_index: The new index for the account.
- *
- * Reorders an account.
- */
-G_DEPRECATED_FOR(purple_account_manager_reorder)
-void purple_accounts_reorder(PurpleAccount *account, guint new_index);
-
-/**
- * purple_accounts_get_all:
- *
- * Returns a list of all accounts.
- *
- * Returns: (element-type PurpleAccount) (transfer none): A list of all accounts.
- */
-G_DEPRECATED_FOR(purple_account_manager_get_all)
-GList *purple_accounts_get_all(void);
-
-/**
- * purple_accounts_get_all_active:
- *
- * Returns a list of all enabled accounts
- *
- * Returns: (element-type PurpleAccount) (transfer container): A list of all
- *          enabled accounts.
- */
-G_DEPRECATED_FOR(purple_account_manager_get_active)
-GList *purple_accounts_get_all_active(void);
-
-/**
- * purple_accounts_find:
- * @name:     The account username.
- * @protocol: The account protocol ID.
- *
- * Finds an account with the specified name and protocol id.
- *
- * Returns: (transfer none): The account, if found, or %NULL otherwise.
- */
-G_DEPRECATED_FOR(purple_account_manager_find)
-PurpleAccount *purple_accounts_find(const char *name, const char *protocol);
 
 /**
  * purple_accounts_restore_current_statuses:

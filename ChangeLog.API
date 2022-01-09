@@ -336,6 +336,12 @@ version 3.0.0 (??/??/????):
 		* purple_account_set_password.  Use
 		  purple_credential_manager_write_password_async instead.
 		* purple_account_set_public_alias
+		* purple_accounts_add
+		* purple_accounts_find
+		* purple_accounts_get_all
+		* purple_accounts_get_all_active
+		* purple_accounts_remove
+		* purple_accounts_reorder
 		* PurpleAttentionType
 		* purple_attention_type_set_name
 		* purple_attention_type_set_incoming_desc
