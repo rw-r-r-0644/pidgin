@@ -2240,48 +2240,6 @@ pidgin_conv_write_conv(PurpleConversation *conv, PurpleMessage *pmsg)
 		gtkconv_set_unseen(gtkconv, unseen);
 	}
 
-	/* on rejoin only request message history from after this message */
-	if (flags & (PURPLE_MESSAGE_SEND | PURPLE_MESSAGE_RECV) &&
-		PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		PurpleChat *chat = purple_blist_find_chat(
-			purple_conversation_get_account(conv),
-			purple_conversation_get_name(conv));
-		if (chat) {
-			GHashTable *comps = purple_chat_get_components(chat);
-			GDateTime *dt = NULL;
-			time_t now, history_since, prev_history_since = 0;
-			struct tm *history_since_tm;
-			const char *history_since_s, *prev_history_since_s;
-
-			dt = purple_message_get_timestamp(pmsg);
-			history_since = g_date_time_to_unix(dt) + 1;
-
-			prev_history_since_s = g_hash_table_lookup(comps,
-				"history_since");
-			if (prev_history_since_s != NULL)
-				prev_history_since = purple_str_to_time(
-					prev_history_since_s, TRUE, NULL, NULL,
-					NULL);
-
-			now = time(NULL);
-			/* in case of incorrectly stored timestamps */
-			if (prev_history_since > now)
-				prev_history_since = now;
-			/* in case of delayed messages */
-			if (history_since < prev_history_since)
-				history_since = prev_history_since;
-
-			history_since_tm = gmtime(&history_since);
-			history_since_s = purple_utf8_strftime(
-				"%Y-%m-%dT%H:%M:%SZ", history_since_tm);
-			if (!purple_strequal(prev_history_since_s,
-				history_since_s))
-				g_hash_table_replace(comps,
-					g_strdup("history_since"),
-					g_strdup(history_since_s));
-		}
-	}
-
 	purple_signal_emit(pidgin_conversations_get_handle(),
 		(PURPLE_IS_IM_CONVERSATION(conv) ? "displayed-im-msg" : "displayed-chat-msg"),
 		conv, pmsg);
