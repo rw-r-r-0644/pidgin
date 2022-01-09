@@ -85,7 +85,7 @@ void purple_account_user_split_destroy(PurpleAccountUserSplit *split);
  *
  * Returns: The account username split's text.
  */
-const gchar *purple_account_user_split_get_text(const PurpleAccountUserSplit *split);
+const gchar *purple_account_user_split_get_text(PurpleAccountUserSplit *split);
 
 /**
  * purple_account_user_split_get_default_value:
@@ -95,7 +95,7 @@ const gchar *purple_account_user_split_get_text(const PurpleAccountUserSplit *sp
  *
  * Returns: The default string.
  */
-const gchar *purple_account_user_split_get_default_value(const PurpleAccountUserSplit *split);
+const gchar *purple_account_user_split_get_default_value(PurpleAccountUserSplit *split);
 
 /**
  * purple_account_user_split_get_separator:
@@ -105,7 +105,7 @@ const gchar *purple_account_user_split_get_default_value(const PurpleAccountUser
  *
  * Returns: The field separator.
  */
-gchar purple_account_user_split_get_separator(const PurpleAccountUserSplit *split);
+gchar purple_account_user_split_get_separator(PurpleAccountUserSplit *split);
 
 /**
  * purple_account_user_split_get_reverse:
@@ -115,7 +115,7 @@ gchar purple_account_user_split_get_separator(const PurpleAccountUserSplit *spli
  *
  * Returns: The 'reverse' value.
  */
-gboolean purple_account_user_split_get_reverse(const PurpleAccountUserSplit *split);
+gboolean purple_account_user_split_get_reverse(PurpleAccountUserSplit *split);
 
 /**
  * purple_account_user_split_set_reverse:
@@ -137,7 +137,7 @@ void purple_account_user_split_set_reverse(PurpleAccountUserSplit *split, gboole
  *
  * Returns: %TRUE, if the split is constant.
  */
-gboolean purple_account_user_split_is_constant(const PurpleAccountUserSplit *split);
+gboolean purple_account_user_split_is_constant(PurpleAccountUserSplit *split);
 
 /**
  * purple_account_user_split_set_constant:

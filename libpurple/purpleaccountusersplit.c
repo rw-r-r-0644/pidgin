@@ -84,7 +84,7 @@ purple_account_user_split_destroy(PurpleAccountUserSplit *split)
 }
 
 const gchar *
-purple_account_user_split_get_text(const PurpleAccountUserSplit *split)
+purple_account_user_split_get_text(PurpleAccountUserSplit *split)
 {
 	g_return_val_if_fail(split != NULL, NULL);
 
@@ -92,7 +92,7 @@ purple_account_user_split_get_text(const PurpleAccountUserSplit *split)
 }
 
 const gchar *
-purple_account_user_split_get_default_value(const PurpleAccountUserSplit *split)
+purple_account_user_split_get_default_value(PurpleAccountUserSplit *split)
 {
 	g_return_val_if_fail(split != NULL, NULL);
 
@@ -100,7 +100,7 @@ purple_account_user_split_get_default_value(const PurpleAccountUserSplit *split)
 }
 
 char
-purple_account_user_split_get_separator(const PurpleAccountUserSplit *split)
+purple_account_user_split_get_separator(PurpleAccountUserSplit *split)
 {
 	g_return_val_if_fail(split != NULL, 0);
 
@@ -108,7 +108,7 @@ purple_account_user_split_get_separator(const PurpleAccountUserSplit *split)
 }
 
 gboolean
-purple_account_user_split_get_reverse(const PurpleAccountUserSplit *split)
+purple_account_user_split_get_reverse(PurpleAccountUserSplit *split)
 {
 	g_return_val_if_fail(split != NULL, FALSE);
 
@@ -124,7 +124,7 @@ purple_account_user_split_set_reverse(PurpleAccountUserSplit *split, gboolean re
 }
 
 gboolean
-purple_account_user_split_is_constant(const PurpleAccountUserSplit *split)
+purple_account_user_split_is_constant(PurpleAccountUserSplit *split)
 {
 	g_return_val_if_fail(split != NULL, FALSE);
 
