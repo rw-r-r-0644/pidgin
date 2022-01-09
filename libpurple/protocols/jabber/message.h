@@ -41,7 +41,7 @@ typedef struct {
 		JABBER_MESSAGE_EVENT,
 		JABBER_MESSAGE_OTHER
 	} type;
-	time_t sent;
+	GDateTime *sent;
 	gboolean delayed;
 	gboolean forwarded;
 	gboolean outgoing;

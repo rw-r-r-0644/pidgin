@@ -90,6 +90,8 @@ void jabber_message_free(JabberMessage *jm)
 	g_list_free(jm->etc);
 	g_list_free(jm->eventitems);
 
+	g_clear_pointer(&jm->sent, g_date_time_unref);
+
 	g_free(jm);
 }
 
@@ -204,7 +206,8 @@ static void handle_chat(JabberMessage *jm)
 		}
 		flags |= jm->outgoing ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV;
 
-		purple_serv_got_im(gc, contact, body->str, flags, jm->sent);
+		purple_serv_got_im(gc, contact, body->str, flags,
+		                   (time_t)g_date_time_to_unix(jm->sent));
 	}
 
 	jabber_id_free(jid);
@@ -266,14 +269,17 @@ static void handle_groupchat(JabberMessage *jm)
 	}
 
 	if(jm->xhtml || jm->body) {
-		if(jid->resource)
+		if(jid->resource) {
+			time_t sent = (time_t)g_date_time_to_unix(jm->sent);
+
 			purple_serv_got_chat_in(jm->js->gc, chat->id, jid->resource,
 							messageFlags | (jm->delayed ? PURPLE_MESSAGE_DELAYED : 0),
-							jm->xhtml ? jm->xhtml : jm->body, jm->sent);
-		else if(chat->muc)
+							jm->xhtml ? jm->xhtml : jm->body, sent);
+		} else if(chat->muc) {
 			purple_conversation_write_system_message(
 				PURPLE_CONVERSATION(chat->conv),
 				jm->xhtml ? jm->xhtml : jm->body, messageFlags);
+		}
 	}
 
 	jabber_id_free(jid);
@@ -392,7 +398,7 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 	PurpleXmlNode *child = NULL, *received = NULL;
 	gboolean signal_return;
 	gboolean delayed = FALSE, is_outgoing = FALSE, is_forwarded = FALSE;
-	time_t timestamp = time(NULL);
+	GDateTime *timestamp = g_date_time_new_now_utc();
 
 	/* Check if we have a carbons received element from our own account. */
 	from = purple_xmlnode_get_attrib(packet, "from");
@@ -441,11 +447,19 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 				                                                "delay",
 				                                                NS_DELAYED_DELIVERY);
 				if(delay != NULL) {
+					GDateTime *delayed_ts = NULL;
+					GTimeZone *tz = g_time_zone_new_utc();
 					const gchar *ts = purple_xmlnode_get_attrib(delay,
 					                                            "stamp");
 
-					timestamp = purple_str_to_time(ts, TRUE, NULL, NULL, NULL);
-					delayed = TRUE;
+					delayed_ts = g_date_time_new_from_iso8601(ts, tz);
+					g_time_zone_unref(tz);
+
+					if(delayed_ts != NULL) {
+						delayed = TRUE;
+						g_date_time_unref(timestamp);
+						timestamp = delayed_ts;
+					}
 				}
 			}
 		}
@@ -584,16 +598,37 @@ void jabber_message_parse(JabberStream *js, PurpleXmlNode *packet)
 			for(items = purple_xmlnode_get_child(child,"items"); items; items = items->next)
 				jm->eventitems = g_list_append(jm->eventitems, items);
 		} else if(purple_strequal(child->name, "delay") && purple_strequal(xmlns, NS_DELAYED_DELIVERY)) {
-			const char *timestamp = purple_xmlnode_get_attrib(child, "stamp");
-			jm->delayed = TRUE;
-			if(timestamp)
-				jm->sent = purple_str_to_time(timestamp, TRUE, NULL, NULL, NULL);
+			const char *stamp = purple_xmlnode_get_attrib(child, "stamp");
+			if(stamp != NULL) {
+				GDateTime *delayed_ts = NULL;
+				GTimeZone *tz = g_time_zone_new_utc();
+
+				delayed_ts = g_date_time_new_from_iso8601(stamp, tz);
+				g_time_zone_unref(tz);
+
+				if(delayed_ts != NULL) {
+					jm->delayed = TRUE;
+					g_date_time_unref(jm->sent);
+					jm->sent = delayed_ts;
+				}
+			}
 		} else if(purple_strequal(child->name, "x")) {
 			if(purple_strequal(xmlns, NS_DELAYED_DELIVERY_LEGACY)) {
-				const char *timestamp = purple_xmlnode_get_attrib(child, "stamp");
-				jm->delayed = TRUE;
-				if(timestamp)
-					jm->sent = purple_str_to_time(timestamp, TRUE, NULL, NULL, NULL);
+				const char *stamp = purple_xmlnode_get_attrib(child, "stamp");
+
+				if(stamp != NULL) {
+					GDateTime *delayed_ts = NULL;
+					GTimeZone *tz = g_time_zone_new_utc();
+
+					delayed_ts = g_date_time_new_from_iso8601(stamp, tz);
+					g_time_zone_unref(tz);
+
+					if(delayed_ts != NULL) {
+						jm->delayed = TRUE;
+						g_date_time_unref(jm->sent);
+						jm->sent = delayed_ts;
+					}
+				}
 			} else if(purple_strequal(xmlns, "jabber:x:conference") &&
 					jm->type != JABBER_MESSAGE_GROUPCHAT_INVITE &&
 					jm->type != JABBER_MESSAGE_ERROR) {
