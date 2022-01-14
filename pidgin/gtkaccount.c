@@ -1302,16 +1302,6 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 			return;
 		}
 
-		if(purple_account_manager_get_all(manager) == NULL) {
-			/* We're adding our first account.  Be polite and show the buddy
-			 * list.
-			 */
-			PidginBuddyList *blist = pidgin_blist_get_default_gtk_blist();
-			if(blist != NULL && blist->window != NULL) {
-				gtk_window_present(GTK_WINDOW(blist->window));
-			}
-		}
-
 		account = purple_account_new(username, dialog->protocol_id);
 		new_acct = TRUE;
 	}

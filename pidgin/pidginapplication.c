@@ -43,6 +43,7 @@
 #include "gtksavedstatuses.h"
 #include "gtkxfer.h"
 #include "pidginabout.h"
+#include "pidginconversationwindow.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
 #include "pidginmooddialog.h"
@@ -663,10 +664,10 @@ pidgin_application_startup(GApplication *application) {
 
 static void
 pidgin_application_activate(GApplication *application) {
-	PidginBuddyList *blist = pidgin_blist_get_default_gtk_blist();
+	GtkWidget *convwin = pidgin_conversation_window_get_default();
 
-	if(blist != NULL && blist->window != NULL) {
-		gtk_window_present(GTK_WINDOW(blist->window));
+	if(GTK_IS_WINDOW(convwin)) {
+		gtk_window_present(GTK_WINDOW(convwin));
 	}
 }
 
