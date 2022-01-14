@@ -89,35 +89,6 @@ void purple_util_uninit(void);
 /**************************************************************************/
 
 /**
- * purple_utf8_strftime:
- * @format: The format string, in UTF-8
- * @tm:     The time to format, or %NULL to use the current local time
- *
- * Formats a time into the specified format.
- *
- * This is essentially strftime(), but it has a static buffer
- * and handles the UTF-8 conversion for the caller.
- *
- * This function also provides the GNU \%z formatter if the underlying C
- * library doesn't.  However, the format string parser is very naive, which
- * means that conversions specifiers to \%z cannot be guaranteed.  The GNU
- * strftime(3) man page describes \%z as: 'The time-zone as hour offset from
- * GMT.  Required to emit RFC822-conformant dates
- * (using "\%a, \%d \%b \%Y \%H:\%M:\%S \%z"). (GNU)'
- *
- * On Windows, this function also converts the results for \%Z from a timezone
- * name (as returned by the system strftime() \%Z format string) to a timezone
- * abbreviation (as is the case on Unix).  As with \%z, conversion specifiers
- * should not be used.
- *
- * Note: @format is required to be in UTF-8.  This differs from strftime(),
- *       where the format is provided in the locale charset.
- *
- * Returns: The formatted time, in UTF-8.
- */
-const char *purple_utf8_strftime(const char *format, const struct tm *tm);
-
-/**
  * purple_date_format_full:
  * @tm: The time to format, or %NULL to use the current local time
  *

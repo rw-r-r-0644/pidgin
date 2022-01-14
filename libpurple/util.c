@@ -48,15 +48,12 @@ purple_util_uninit(void) {
 /**************************************************************************
  * Date/Time Functions
  **************************************************************************/
-
 const char *
-purple_utf8_strftime(const char *format, const struct tm *tm)
+purple_date_format_full(const struct tm *tm)
 {
 	static char buf[128];
 	GDateTime *dt;
 	char *utf8;
-
-	g_return_val_if_fail(format != NULL, NULL);
 
 	if (tm == NULL)
 	{
@@ -67,24 +64,18 @@ purple_utf8_strftime(const char *format, const struct tm *tm)
 				tm->tm_min, tm->tm_sec);
 	}
 
-	utf8 = g_date_time_format(dt, format);
+	utf8 = g_date_time_format(dt, "%c");
 	g_date_time_unref(dt);
 
 	if (utf8 == NULL) {
 		purple_debug_error("util",
-				"purple_utf8_strftime(): Formatting failed\n");
+				"purple_date_format_full(): Formatting failed\n");
 		return "";
 	}
 
 	g_strlcpy(buf, utf8, sizeof(buf));
 	g_free(utf8);
 	return buf;
-}
-
-const char *
-purple_date_format_full(const struct tm *tm)
-{
-	return purple_utf8_strftime("%c", tm);
 }
 
 /**************************************************************************

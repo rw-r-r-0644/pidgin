@@ -689,8 +689,8 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 	const gchar *domain = NULL;
 	const gchar *arg_s = NULL;
 	GtkTextTag *level_tag = NULL;
-	const char *mdate = NULL;
-	time_t mtime;
+	GDateTime *local_date_time = NULL;
+	gchar *local_time = NULL;
 	GtkTextIter end;
 	gboolean scroll;
 	gsize i;
@@ -732,16 +732,20 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 	gtk_text_buffer_get_end_iter(debug_win->buffer, &end);
 	gtk_text_buffer_move_mark(debug_win->buffer, debug_win->start_mark, &end);
 
-	mtime = time(NULL);
-	mdate = purple_utf8_strftime("(%H:%M:%S) ", localtime(&mtime));
+	local_date_time = g_date_time_new_now_local();
+	local_time = g_date_time_format(local_date_time, "(%H:%M:%S) ");
+	g_date_time_unref(local_date_time);
+
 	gtk_text_buffer_insert_with_tags(
 			debug_win->buffer,
 			&end,
-			mdate,
+			local_time,
 			-1,
 			level_tag,
 			debug_win->paused ? debug_win->tags.paused : NULL,
 			NULL);
+
+	g_free(local_time);
 
 	if (domain != NULL && *domain != '\0') {
 		gtk_text_buffer_insert_with_tags(

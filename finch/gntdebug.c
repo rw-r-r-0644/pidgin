@@ -130,8 +130,8 @@ finch_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 	const gchar *search_str = NULL;
 	gint pos = 0;
 	GntTextFormatFlags flag = 0;
-	const char *mdate = NULL;
-	time_t mtime;
+	GDateTime *local_date_time = NULL;
+	gchar *local_time = NULL;
 	gsize i;
 
 	if (debug.window == NULL || debug.paused) {
@@ -165,10 +165,14 @@ finch_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 	}
 
 	pos = gnt_text_view_get_lines_below(GNT_TEXT_VIEW(debug.tview));
-	mtime = time(NULL);
-	mdate = purple_utf8_strftime("%H:%M:%S ", localtime(&mtime));
-	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), mdate,
+
+	local_date_time = g_date_time_new_now_local();
+	local_time = g_date_time_format(local_date_time, "%H:%M:%S ");
+	g_date_time_unref(local_date_time);
+
+	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), local_time,
 	                                     GNT_TEXT_FLAG_NORMAL);
+	g_free(local_time);
 
 	gnt_text_view_append_text_with_flags(GNT_TEXT_VIEW(debug.tview), domain,
 	                                     GNT_TEXT_FLAG_BOLD);
