@@ -97,7 +97,4 @@
 /* XEP-0297 Stanza Forwarding */
 #define NS_FORWARD "urn:xmpp:forward:0"
 
-/* Apple extension(s) */
-#define NS_APPLE_IDLE "http://www.apple.com/xmpp/idle"
-
 #endif /* PURPLE_JABBER_NAMESPACES_H */
