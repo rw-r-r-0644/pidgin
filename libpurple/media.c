@@ -27,7 +27,6 @@
 
 #include "debug.h"
 
-#include "media/backend-fs2.h"
 #include "media-gst.h"
 
 #ifdef USE_VV
@@ -520,11 +519,8 @@ GstElement *
 purple_media_get_src(PurpleMedia *media, const gchar *sess_id)
 {
 	g_return_val_if_fail(PURPLE_IS_MEDIA(media), NULL);
-	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(media->priv->backend),
-	                     NULL);
 
-	return purple_media_backend_fs2_get_src(
-	        PURPLE_MEDIA_BACKEND_FS2(media->priv->backend), sess_id);
+	return NULL;
 }
 #endif /* USE_VV */
 
@@ -1341,12 +1337,6 @@ void purple_media_set_input_volume(PurpleMedia *media,
 {
 #ifdef USE_VV
 	g_return_if_fail(PURPLE_IS_MEDIA(media));
-	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(media->priv->backend));
-
-	purple_media_backend_fs2_set_input_volume(
-			PURPLE_MEDIA_BACKEND_FS2(
-			media->priv->backend),
-			session_id, level);
 #endif
 }
 
@@ -1356,12 +1346,6 @@ void purple_media_set_output_volume(PurpleMedia *media,
 {
 #ifdef USE_VV
 	g_return_if_fail(PURPLE_IS_MEDIA(media));
-	g_return_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(media->priv->backend));
-
-	purple_media_backend_fs2_set_output_volume(
-			PURPLE_MEDIA_BACKEND_FS2(
-			media->priv->backend),
-			session_id, participant, level);
 #endif
 }
 
@@ -1407,12 +1391,8 @@ purple_media_get_tee(PurpleMedia *media,
 		const gchar *session_id, const gchar *participant)
 {
 	g_return_val_if_fail(PURPLE_IS_MEDIA(media), NULL);
-	g_return_val_if_fail(PURPLE_MEDIA_IS_BACKEND_FS2(media->priv->backend),
-	                     NULL);
 
-	return purple_media_backend_fs2_get_tee(
-	        PURPLE_MEDIA_BACKEND_FS2(media->priv->backend),
-	        session_id, participant);
+	return NULL;
 }
 #endif /* USE_VV */
 

@@ -31,10 +31,8 @@
 #include "purplepath.h"
 
 #include "media-gst.h"
-#include <media/backend-fs2.h>
 
 #ifdef USE_VV
-#include <farstream/fs-element-added-notifier.h>
 #include <gst/video/videooverlay.h>
 #ifdef HAVE_MEDIA_APPLICATION
 #include <gst/app/app.h>
@@ -194,7 +192,6 @@ purple_media_manager_init (PurpleMediaManager *media)
 	media->priv->medias = NULL;
 	media->priv->private_medias = NULL;
 	media->priv->next_output_window_id = 1;
-	media->priv->backend_type = PURPLE_MEDIA_TYPE_BACKEND_FS2;
 #ifdef HAVE_MEDIA_APPLICATION
 	media->priv->appdata_info = NULL;
 	g_mutex_init (&media->priv->appdata_mutex);
@@ -300,10 +297,6 @@ purple_media_manager_get_pipeline(PurpleMediaManager *manager)
 	g_return_val_if_fail(PURPLE_IS_MEDIA_MANAGER(manager), NULL);
 
 	if (manager->priv->pipeline == NULL) {
-		FsElementAddedNotifier *notifier;
-		gchar *filename;
-		GError *err = NULL;
-		GKeyFile *keyfile;
 		GstBus *bus;
 		manager->priv->pipeline = gst_pipeline_new(NULL);
 
@@ -314,38 +307,6 @@ purple_media_manager_get_pipeline(PurpleMediaManager *manager)
 				G_CALLBACK(pipeline_bus_call), manager);
 		gst_bus_set_sync_handler(bus, gst_bus_sync_signal_handler, NULL, NULL);
 		gst_object_unref(bus);
-
-		filename = g_build_filename(purple_config_dir(),
-				"fs-element.conf", NULL);
-		keyfile = g_key_file_new();
-		if (!g_key_file_load_from_file(keyfile, filename,
-				G_KEY_FILE_NONE, &err)) {
-			if (err->code == 4)
-				purple_debug_info("mediamanager",
-						"Couldn't read "
-						"fs-element.conf: %s\n",
-						err->message);
-			else
-				purple_debug_error("mediamanager",
-						"Error reading "
-						"fs-element.conf: %s\n",
-						err->message);
-			g_error_free(err);
-		}
-		g_free(filename);
-
-		/* Hack to make alsasrc stop messing up audio timestamps */
-		if (!g_key_file_has_key(keyfile,
-				"alsasrc", "slave-method", NULL)) {
-			g_key_file_set_integer(keyfile,
-					"alsasrc", "slave-method", 2);
-		}
-
-		notifier = fs_element_added_notifier_new();
-		fs_element_added_notifier_add(notifier,
-				GST_BIN(manager->priv->pipeline));
-		fs_element_added_notifier_set_properties_from_keyfile(
-				notifier, keyfile);
 
 		gst_element_set_state(manager->priv->pipeline,
 				GST_STATE_PLAYING);

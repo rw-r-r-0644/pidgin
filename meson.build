@@ -329,23 +329,17 @@ gstreamer_video = dependency('gstreamer-video-1.0',
 conf.set('USE_GSTVIDEO', gstreamer_video.found())
 
 #######################################################################
-# Check for Farstream
-#######################################################################
-farstream = dependency('farstream-0.2', version : '>= 0.2.7',
-                       required : get_option('farstream'))
-
-#######################################################################
 # Check for Voice and Video support
 #######################################################################
 if get_option('vv').enabled() or get_option('vv').auto()
-	if gstreamer_video.found() and farstream.found()
+	if gstreamer_video.found()
 		conf.set('USE_VV', true)
 		enable_vv = true
 	else
 		if get_option('vv').enabled()
 			error('''
 Dependencies for voice/video were not met.
-Install the necessary gstreamer and farstream packages first.
+Install the necessary gstreamer packages first.
 Or use -Dvv=disabled if you do not need voice/video support.
 			''')
 		endif

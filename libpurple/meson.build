@@ -20,7 +20,6 @@ purple_coresources = [
 	'idle.c',
 	'image.c',
 	'image-store.c',
-	'media/backend-fs2.c',
 	'media/backend-iface.c',
 	'media/candidate.c',
 	'media/codec.c',
@@ -296,7 +295,7 @@ libpurple = library('purple',
                     version : PURPLE_LIB_VERSION,
                     dependencies : # static_link_libs
                         [dnsapi, ws2_32, glib, gio, gplugin_dep, libsoup,
-                         libxml, farstream, gstreamer, gstreamer_video,
+                         libxml, gstreamer, gstreamer_video,
                          gstreamer_app, json, sqlite3, math])
 
 install_headers(purple_coreheaders,
