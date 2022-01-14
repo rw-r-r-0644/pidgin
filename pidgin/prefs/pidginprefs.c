@@ -87,19 +87,6 @@ struct _PidginPrefsWindow {
 	/* Stack */
 	GtkWidget *stack;
 
-	/* Interface page */
-	struct {
-		struct {
-			GtkWidget *minimize_new_convs;
-		} win32;
-		struct {
-			GtkWidget *tabs;
-			GtkWidget *tabs_vbox;
-			GtkWidget *close_on_tabs;
-			PidginPrefCombo tab_side;
-		} conversations;
-	} iface;
-
 	/* Conversations page */
 	struct {
 		GtkWidget *show_incoming_formatting;
@@ -800,37 +787,6 @@ formatting_toggle_cb(TalkatuActionGroup *ag, GAction *action, const gchar *name,
 		purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/conversations/send_strike",
 		                      activated);
 	}
-}
-
-static void
-bind_interface_page(PidginPrefsWindow *win)
-{
-#ifdef _WIN32
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/win32/minimize_new_convs",
-			win->iface.win32.minimize_new_convs);
-#else
-	gtk_widget_hide(win->iface.win32.minimize_new_convs);
-#endif
-
-	/* All the tab options! */
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/tabs",
-			win->iface.conversations.tabs);
-
-	/*
-	 * Connect a signal to the above preference.  When conversations are not
-	 * shown in a tabbed window then all tabbing options should be disabled.
-	 */
-	g_object_bind_property(win->iface.conversations.tabs, "active",
-			win->iface.conversations.tabs_vbox, "sensitive",
-			G_BINDING_SYNC_CREATE);
-
-	pidgin_prefs_bind_checkbox(
-			PIDGIN_PREFS_ROOT "/conversations/close_on_tabs",
-			win->iface.conversations.close_on_tabs);
-
-	win->iface.conversations.tab_side.type = PURPLE_PREF_INT;
-	win->iface.conversations.tab_side.key = PIDGIN_PREFS_ROOT "/conversations/tab_side";
-	pidgin_prefs_bind_dropdown(&win->iface.conversations.tab_side);
 }
 
 /* This is also Win32-specific, but must be visible for Glade binding. */
@@ -1748,7 +1704,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 	GtkWidget *vv;
 #endif
 
-	bind_interface_page(win);
 	bind_conv_page(win);
 	bind_network_page(win);
 	bind_proxy_page(win);
@@ -1776,23 +1731,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
 	                                     stack);
 	gtk_widget_class_bind_template_callback(widget_class, delete_prefs);
-
-	/* Interface page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			iface.win32.minimize_new_convs);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			iface.conversations.tabs);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			iface.conversations.tabs_vbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			iface.conversations.close_on_tabs);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			iface.conversations.tab_side.combo);
 
 	/* Conversations page */
 	gtk_widget_class_bind_template_child(

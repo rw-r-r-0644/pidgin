@@ -3263,7 +3263,6 @@ pidgin_conversations_init(void)
 	/* Conversations */
 	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/conversations");
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/use_smooth_scrolling", TRUE);
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/close_on_tabs", TRUE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_bold", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_italic", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_underline", FALSE);
@@ -3277,8 +3276,6 @@ pidgin_conversations_init(void)
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/fgcolor", "");
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/font_face", "");
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/font_size", 3);
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/tabs", TRUE);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/tab_side", GTK_POS_TOP);
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/scrollback_lines", 4000);
 
 #ifdef _WIN32
@@ -3303,11 +3300,6 @@ pidgin_conversations_init(void)
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/height", 390);
 
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/entry_height", 54);
-
-#ifdef _WIN32
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/win32");
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/win32/minimize_new_convs", FALSE);
-#endif
 
 	/* Connect callbacks. */
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar",
