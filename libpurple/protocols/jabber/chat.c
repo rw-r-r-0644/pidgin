@@ -394,6 +394,9 @@ void jabber_chat_free(JabberChat *chat)
 	g_free(chat->handle);
 	g_hash_table_destroy(chat->members);
 	g_hash_table_destroy(chat->components);
+
+	g_clear_pointer(&chat->joined, g_date_time_unref);
+
 	g_free(chat);
 }
 

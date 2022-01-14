@@ -71,7 +71,7 @@ struct _JabberPresence {
 	char *nickname;
 
 	gboolean delayed;
-	time_t sent;
+	GDateTime *sent;
 	int idle;
 	gboolean adjust_idle_for_delay;
 };
