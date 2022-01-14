@@ -591,15 +591,32 @@ handle_presence_chat(JabberStream *js, JabberPresence *presence, PurpleXmlNode *
 
 		jabber_chat_track_handle(chat, presence->jid_from->resource, jid, affiliation, role);
 
-		if(!jabber_chat_find_buddy(chat->conv, presence->jid_from->resource))
-			purple_chat_conversation_add_user(chat->conv, presence->jid_from->resource,
-					jid, flags, chat->joined > 0 && ((!presence->delayed) || (presence->sent > chat->joined)));
-		else
+		if(!jabber_chat_find_buddy(chat->conv, presence->jid_from->resource)) {
+			gboolean new_arrival = FALSE;
+
+			if(chat->joined != NULL) {
+				gint newer = -1;
+
+				if(presence->sent != NULL) {
+					newer = g_date_time_compare(presence->sent, chat->joined);
+				}
+
+				if(!presence->delayed || newer > 0) {
+					new_arrival = TRUE;
+				}
+			}
+
+			purple_chat_conversation_add_user(chat->conv,
+			                                  presence->jid_from->resource,
+			                                  jid, flags, new_arrival);
+		} else {
 			purple_chat_user_set_flags(purple_chat_conversation_find_user(chat->conv, presence->jid_from->resource),
 					flags);
+		}
 
-		if (is_our_resource && chat->joined == 0)
-			chat->joined = time(NULL);
+		if (is_our_resource && chat->joined == NULL) {
+			chat->joined = g_date_time_new_now_utc();
+		}
 
 	} else if (presence->type == JABBER_PRESENCE_UNAVAILABLE) {
 		gboolean nick_change = FALSE;
@@ -868,7 +885,7 @@ void jabber_presence_parse(JabberStream *js, PurpleXmlNode *packet)
 	memset(&presence, 0, sizeof(presence));
 	/* defaults */
 	presence.state = JABBER_BUDDY_STATE_UNKNOWN;
-	presence.sent = time(NULL);
+	presence.sent = g_date_time_new_now_utc();
 	/* interesting values */
 	presence.from = purple_xmlnode_get_attrib(packet, "from");
 	presence.to   = purple_xmlnode_get_attrib(packet, "to");
@@ -974,8 +991,15 @@ void jabber_presence_parse(JabberStream *js, PurpleXmlNode *packet)
 	}
 
 	if (presence.delayed && presence.idle && presence.adjust_idle_for_delay) {
+		GDateTime *now = g_date_time_new_now_utc();
+		GTimeSpan difference = 0;
+
+		difference = g_date_time_difference(now, presence.sent);
+
+		g_date_time_unref(now);
+
 		/* Delayed and idle, so update idle time */
-		presence.idle = presence.idle + (time(NULL) - presence.sent);
+		presence.idle = presence.idle + (difference / G_TIME_SPAN_SECOND);
 	}
 
 	/* TODO: Handle tracking jb(r) here? */
@@ -1026,6 +1050,7 @@ out:
 	g_free(presence.vcard_avatar_hash);
 	g_free(presence.nickname);
 	jabber_id_free(presence.jid_from);
+	g_clear_pointer(&presence.sent, g_date_time_unref);
 }
 
 void jabber_presence_subscription_set(JabberStream *js, const char *who, const char *type)
@@ -1118,9 +1143,13 @@ parse_status(JabberStream *js, JabberPresence *presence, PurpleXmlNode *status)
 static void
 parse_delay(JabberStream *js, JabberPresence *presence, PurpleXmlNode *delay)
 {
+	GTimeZone *tz = g_time_zone_new_utc();
 	const char *stamp = purple_xmlnode_get_attrib(delay, "stamp");
+
 	presence->delayed = TRUE;
-	presence->sent = purple_str_to_time(stamp, TRUE, NULL, NULL, NULL);
+	presence->sent = g_date_time_new_from_iso8601(stamp, tz);
+
+	g_time_zone_unref(tz);
 }
 
 static void
