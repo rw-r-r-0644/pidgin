@@ -139,55 +139,6 @@ const char *purple_date_format_full(const struct tm *tm);
  */
 #define PURPLE_NO_TZ_OFF -500000
 
-/**
- * purple_str_to_time:
- * @timestamp: The timestamp
- * @utc:       Assume UTC if no timezone specified
- * @tm:        If not %NULL, the caller can get a copy of the
- *                  struct tm used to calculate the time_t return value.
- * @tz_off:    If not %NULL, the caller can get a copy of the
- *                  timezone offset (from UTC) used to calculate the time_t
- *                  return value. Note: Zero is a valid offset. As such,
- *                  the value of the macro PURPLE_NO_TZ_OFF indicates no
- *                  offset was specified (which means that the local
- *                  timezone was used in the calculation).
- * @rest:      If not %NULL, the caller can get a pointer to the
- *                  part of @timestamp left over after parsing is
- *                  completed, if it's not the end of @timestamp.
- *
- * Parses a timestamp in jabber, ISO8601, or MM/DD/YYYY format and returns
- * a time_t.
- *
- * Returns: A time_t.
- */
-time_t purple_str_to_time(const char *timestamp, gboolean utc,
-                        struct tm *tm, long *tz_off, const char **rest);
-
-/**
- * purple_str_to_date_time:
- * @timestamp: The timestamp
- * @utc:       Assume UTC if no timezone specified
- *
- * Parses a timestamp in jabber, ISO8601, or MM/DD/YYYY format and returns
- * a GDateTime.
- *
- * Returns: (transfer full): A GDateTime.
- */
-GDateTime *purple_str_to_date_time(const char *timestamp, gboolean utc);
-
-/**
- * purple_time_parse_month:
- * @month_abbr: The 3-letter month abbreviation
- *
- * Get month number suitable for GDateTime. If @month_abbr is unknown,
- * returns 0.
- *
- * Returns: A month number or 0.
- *
- * Since: 3.0.0
- */
-gint purple_time_parse_month(const char *month_abbr);
-
 /**************************************************************************/
 /* Path/Filename Functions                                                */
 /**************************************************************************/

@@ -59,7 +59,6 @@ version 3.0.0 (??/??/????):
 		* purple_roomlist_room_get_expanded_once
 		* purple_roomlist_room_set_expanded_once
 		* purple_roomlist_set_proto_data
-		* purple_time_parse_month
 		* purple_whiteboard_get_account
 		* purple_whiteboard_get_draw_list
 		* purple_whiteboard_set_draw_list
@@ -659,6 +658,8 @@ version 3.0.0 (??/??/????):
 		* purple_str_has_prefix. Use g_str_has_prefix instead
 		* purple_str_has_suffix. Use g_str_has_suffix instead
 		* purple_str_size_to_units. Use g_format_size() instead.
+		* purple_str_to_date_time
+		* purple_str_to_time
 		* purple_time_build. Use g_date_time_new* instead.
 		* purple_time_format. Use g_date_time_format instead.
 		* purple_timeout_*. Use g_timeout_* or g_idle_* instead.
