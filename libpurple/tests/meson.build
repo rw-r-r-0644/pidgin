@@ -39,8 +39,5 @@ foreach prog : PROGS
                    dependencies : [libpurple_dep, glib],
                    link_with: test_ui,
     )
-    test(prog, e, env: [
-		   'XDG_CACHE_HOME=',
-		   'XDG_CONFIG_HOME=',
-		   'XDG_DATA_HOME='])
+    test(prog, e)
 endforeach
