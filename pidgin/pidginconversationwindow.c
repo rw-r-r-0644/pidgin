@@ -20,6 +20,8 @@
  * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <glib/gi18n-lib.h>
+
 #include "pidginconversationwindow.h"
 
 #include "gtkconv.h"
@@ -45,6 +47,8 @@ struct _PidginConversationWindow {
 	GtkTreeStore *model;
 
 	GtkWidget *stack;
+
+	GtkTreePath *conversation_path;
 };
 
 G_DEFINE_TYPE(PidginConversationWindow, pidgin_conversation_window,
@@ -80,27 +84,6 @@ pidgin_conversation_window_selection_changed(GtkTreeSelection *selection,
 	if(!changed) {
 		gtk_stack_set_visible_child_name(GTK_STACK(window->stack), "__empty__");
 	}
-}
-
-static gboolean
-pidgin_conversation_window_foreach_destroy(GtkTreeModel *model,
-                                           GtkTreePath *path,
-                                           GtkTreeIter *iter,
-                                           gpointer data)
-{
-	PurpleConversation *conversation = NULL;
-
-	gtk_tree_model_get(model, iter,
-	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_OBJECT, &conversation,
-	                   -1);
-
-	if(conversation != NULL) {
-		pidgin_conversation_detach(conversation);
-
-		gtk_list_store_remove(GTK_LIST_STORE(model), iter);
-	}
-
-	return FALSE;
 }
 
 static gboolean
@@ -152,8 +135,32 @@ pidgin_conversation_window_dispose(GObject *obj) {
 	PidginConversationWindow *window = PIDGIN_CONVERSATION_WINDOW(obj);
 
 	if(GTK_IS_TREE_MODEL(window->model)) {
-		gtk_tree_model_foreach(GTK_TREE_MODEL(window->model),
-		                       pidgin_conversation_window_foreach_destroy, window);
+		GtkTreeModel *model = GTK_TREE_MODEL(window->model);
+		GtkTreeIter parent, iter;
+
+		gtk_tree_model_get_iter(model, &parent, window->conversation_path);
+		if(gtk_tree_model_iter_children(model, &iter, &parent)) {
+			gboolean valid = FALSE;
+
+			/* gtk_tree_store_remove moves the iter to the next item at the
+			 * same level, so we abuse that to do our iteration.
+			 */
+			do {
+				PurpleConversation *conversation = NULL;
+
+				gtk_tree_model_get(model, &iter,
+				                   PIDGIN_CONVERSATION_WINDOW_COLUMN_OBJECT, &conversation,
+				                   -1);
+
+				if(PURPLE_IS_CONVERSATION(conversation)) {
+					pidgin_conversation_detach(conversation);
+
+					valid = gtk_tree_store_remove(window->model, &iter);
+				}
+			} while(valid);
+		}
+
+		g_clear_pointer(&window->conversation_path, gtk_tree_path_free);
 	}
 
 	G_OBJECT_CLASS(pidgin_conversation_window_parent_class)->dispose(obj);
@@ -162,6 +169,7 @@ pidgin_conversation_window_dispose(GObject *obj) {
 static void
 pidgin_conversation_window_init(PidginConversationWindow *window) {
 	GtkEventController *key = NULL;
+	GtkTreeIter iter;
 
 	gtk_widget_init_template(GTK_WIDGET(window));
 
@@ -175,6 +183,14 @@ pidgin_conversation_window_init(PidginConversationWindow *window) {
 	                 window);
 	g_object_set_data_full(G_OBJECT(window), "key-press-controller", key,
 	                       g_object_unref);
+
+	/* Add our toplevels to the tree store. */
+	gtk_tree_store_append(window->model, &iter, NULL);
+	gtk_tree_store_set(window->model, &iter,
+	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_MARKUP, _("Conversations"),
+	                   -1);
+	window->conversation_path = gtk_tree_model_get_path(GTK_TREE_MODEL(window->model),
+	                                                    &iter);
 }
 
 static void
@@ -241,11 +257,25 @@ pidgin_conversation_window_add(PidginConversationWindow *window,
                                PurpleConversation *conversation)
 {
 	PidginConversation *gtkconv = NULL;
-	GtkTreeIter iter;
+	GtkTreeIter parent, iter;
+	GtkTreeModel *model = NULL;
 	const gchar *markup = NULL;
+	gboolean expand = FALSE;
 
 	g_return_if_fail(PIDGIN_IS_CONVERSATION_WINDOW(window));
 	g_return_if_fail(PURPLE_IS_CONVERSATION(conversation));
+
+	model = GTK_TREE_MODEL(window->model);
+	if(!gtk_tree_model_get_iter(model, &parent, window->conversation_path)) {
+		/* If we can't find the conversation_path we have to bail. */
+		g_warning("couldn't get an iterator to conversation_path");
+
+		return;
+	}
+
+	if(!gtk_tree_model_iter_has_child(model, &parent)) {
+		expand = TRUE;
+	}
 
 	markup = purple_conversation_get_name(conversation);
 
@@ -266,11 +296,18 @@ pidgin_conversation_window_add(PidginConversationWindow *window,
 		}
 	}
 
-	gtk_tree_store_prepend(window->model, &iter, NULL);
+	gtk_tree_store_prepend(window->model, &iter, &parent);
 	gtk_tree_store_set(window->model, &iter,
 	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_OBJECT, conversation,
 	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_MARKUP, markup,
 	                   -1);
+
+	/* If we just added the first child, expand the parent. */
+	if(expand) {
+		gtk_tree_view_expand_row(GTK_TREE_VIEW(window->view),
+		                         window->conversation_path, FALSE);
+	}
+
 
 	if(!gtk_widget_is_visible(GTK_WIDGET(window))) {
 		gtk_widget_show_all(GTK_WIDGET(window));
@@ -281,19 +318,27 @@ void
 pidgin_conversation_window_remove(PidginConversationWindow *window,
                                   PurpleConversation *conversation)
 {
-	GtkTreeIter iter;
+	GtkTreeIter parent, iter;
+	GtkTreeModel *model = NULL;
 	GObject *obj = NULL;
 
 	g_return_if_fail(PIDGIN_IS_CONVERSATION_WINDOW(window));
 	g_return_if_fail(PURPLE_IS_CONVERSATION(conversation));
 
-	if(!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(window->model), &iter)) {
-		/* The tree is empty. */
+	model = GTK_TREE_MODEL(window->model);
+
+	if(!gtk_tree_model_get_iter(model, &parent, window->conversation_path)) {
+		/* The path is somehow invalid, so bail... */
+		return;
+	}
+
+	if(!gtk_tree_model_iter_children(model, &iter, &parent)) {
+		/* The conversations iter has no children. */
 		return;
 	}
 
 	do {
-		gtk_tree_model_get(GTK_TREE_MODEL(window->model), &iter,
+		gtk_tree_model_get(model, &iter,
 		                   PIDGIN_CONVERSATION_WINDOW_COLUMN_OBJECT, &obj,
 		                   -1);
 
@@ -306,7 +351,7 @@ pidgin_conversation_window_remove(PidginConversationWindow *window,
 		}
 
 		g_clear_object(&obj);
-	} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(window->model), &iter));
+	} while(gtk_tree_model_iter_next(model, &iter));
 }
 
 guint
