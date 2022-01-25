@@ -781,6 +781,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_blist_draw_tooltip
 		* pidgin_blist_get_theme
 		* pidgin_blist_layout_get_type
+		* pidgin_blist_set_headline
 		* pidgin_blist_set_theme
 		* pidgin_blist_theme_get_background_color
 		* pidgin_blist_theme_get_collapsed_background_color
@@ -816,8 +817,13 @@ version 3.0.0 (??/??/????):
 		* pidgin_blist_theme_set_status_text_info
 		* pidgin_blist_theme_set_unread_message_nick_said_text_info
 		* pidgin_blist_theme_set_unread_message_text_info
+		* pidgin_blist_toggle_visibility
 		* pidgin_blist_tooltip_destroy
 		* pidgin_blist_update_account_error_state
+		* pidgin_blist_update_accounts_menu
+		* pidgin_blist_update_columns
+		* pidgin_blist_update_plugin_actions
+		* pidgin_blist_update_refresh_timeout
 		* pidgin_blist_visibility_manager_add
 		* pidgin_blist_visibility_manager_remove
 		* PidginBlistLayout

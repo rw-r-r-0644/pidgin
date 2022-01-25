@@ -95,12 +95,6 @@ struct _PidginBuddyList {
 	PurpleBlistNode *selected_node;
 
 	GtkWidget *scrollbook;
-	GtkWidget *headline;
-	GtkWidget *headline_label;
-	GtkWidget *headline_image;
-	GCallback headline_callback;
-	gpointer headline_data;
-	GDestroyNotify headline_destroy;
 };
 
 G_BEGIN_DECLS
@@ -167,9 +161,6 @@ void pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean 
  */
 void pidgin_blist_refresh(PurpleBuddyList *list);
 
-void pidgin_blist_update_columns(void);
-void pidgin_blist_update_refresh_timeout(void);
-
 /**
  * pidgin_blist_get_emblem:
  * @node:   The node to return an emblem for
@@ -206,15 +197,6 @@ GdkPixbuf *pidgin_blist_get_status_icon(PurpleBlistNode *node,
  * Returns: A boolean indicating if @node is part of an expanded contact.
  */
 gboolean pidgin_blist_node_is_contact_expanded(PurpleBlistNode *node);
-
-/**
- * pidgin_blist_toggle_visibility:
- *
- * Intelligently toggles the visibility of the buddy list. If the buddy
- * list is obscured, it is brought to the front. If it is not obscured,
- * it is hidden. If it is hidden it is shown.
- */
-void pidgin_blist_toggle_visibility(void);
 
 /**
  * pidgin_blist_add_alert:
@@ -281,20 +263,6 @@ void pidgin_blist_sort_method_set(const char *id);
 void pidgin_blist_setup_sort_methods(void);
 
 /**
- * pidgin_blist_update_accounts_menu:
- *
- * Updates the accounts menu on the GTK buddy list window.
- */
-void pidgin_blist_update_accounts_menu(void);
-
-/**
- * pidgin_blist_update_plugin_actions:
- *
- * Updates the plugin actions menu on the GTK buddy list window.
- */
-void pidgin_blist_update_plugin_actions(void);
-
-/**
  * pidgin_blist_update_sort_methods:
  *
  * Updates the Sorting menu on the GTK buddy list window.
@@ -341,22 +309,6 @@ void pidgin_append_blist_node_proto_menu (GtkWidget *menu, PurpleConnection *gc,
  */
 /* TODO Rename these. */
 void pidgin_append_blist_node_extended_menu(GtkWidget *menu, PurpleBlistNode *node);
-
-/**
- * pidgin_blist_set_headline:
- * @text:	    Pango Markup for the label text
- * @icon_name: The icon name from the #GtkIconTheme
- * @callback:  The callback to call when headline is clicked
- * @user_data: The userdata to include in the callback
- * @destroy:   The callback to call when headline is closed or replaced by another headline.
- *
- * Sets a headline notification
- *
- * This is currently used for mail notification, but could theoretically be used for anything.
- * Only the most recent headline will be shown.
- */
-void pidgin_blist_set_headline(const char *text, const gchar *icon_name,
-		GCallback callback, gpointer user_data, GDestroyNotify destroy);
 
 /**
  * pidgin_blist_get_name_markup:
