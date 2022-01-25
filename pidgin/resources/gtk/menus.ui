@@ -4,10 +4,10 @@
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,9 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 -->
 <interface>
   <requires lib="gtk+" version="3.22"/>
@@ -25,9 +23,54 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
-  <menu id="conversation">
+  <menu id="menubar">
+    <submenu>
+      <attribute name="label" translatable="yes">_Buddies</attribute>
+
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">New Instant _Message</attribute>
+          <attribute name="action">app.new-message</attribute>
+          <attribute name="accel">&lt;Primary&gt;M</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Join a _Chat...</attribute>
+          <attribute name="action">app.join-chat</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Get User _Info...</attribute>
+          <attribute name="action">app.get-user-info</attribute>
+          <attribute name="accel">&lt;Primary&gt;I</attribute>
+        </item>
+      </section>
+
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Add Buddy...</attribute>
+          <attribute name="action">app.add-buddy</attribute>
+          <attribute name="accel">&lt;Primary&gt;B</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Add Chat...</attribute>
+          <attribute name="action">app.add-chat</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Add Group...</attribute>
+          <attribute name="action">app.add-group</attribute>
+        </item>
+      </section>
+
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Quit</attribute>
+          <attribute name="action">app.quit</attribute>
+          <attribute name="accel">&lt;Primary&gt;Q</attribute>
+        </item>
+      </section>
+    </submenu>
     <submenu>
       <attribute name="label" translatable="yes">_Conversation</attribute>
+
       <section>
         <item>
           <attribute name="label" translatable="yes">New Instant _Message...</attribute>
@@ -39,6 +82,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <attribute name="action">app.join-chat</attribute>
         </item>
       </section>
+
       <section>
         <item>
           <attribute name="label" translatable="yes">_Find...</attribute>
@@ -51,9 +95,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <attribute name="accel">&lt;Primary&gt;L</attribute>
         </item>
       </section>
+
       <section>
         <submenu>
           <attribute name="label" translatable="yes">M_edia</attribute>
+
           <section>
             <item>
               <attribute name="label" translatable="yes">_Audio Call</attribute>
@@ -70,6 +116,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           </section>
         </submenu>
       </section>
+
       <section>
         <item>
           <attribute name="label" translatable="yes">Se_nd File...</attribute>
@@ -86,9 +133,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </item>
         <submenu>
           <attribute name="label" translatable="yes">M_ore</attribute>
+
           <section id="more"></section>
         </submenu>
       </section>
+
       <section>
         <item>
           <attribute name="label" translatable="yes">Al_ias...</attribute>
@@ -103,6 +152,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <attribute name="action">win.save-contact</attribute>
         </item>
       </section>
+
       <section>
         <item>
           <attribute name="label" translatable="yes">Insert Lin_k...</attribute>
@@ -113,11 +163,66 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <attribute name="action">win.insert-image</attribute>
         </item>
       </section>
+
       <section>
         <item>
           <attribute name="label" translatable="yes">_Close</attribute>
           <attribute name="action">win.close</attribute>
           <attribute name="accel">&lt;Primary&gt;W</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="label" translatable="yes">_Tools</attribute>
+
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Pr_eferences</attribute>
+          <attribute name="action">app.preferences</attribute>
+          <attribute name="accel">&lt;Primary&gt;P</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Pr_ivacy</attribute>
+          <attribute name="action">app.privacy</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Set _Mood</attribute>
+          <attribute name="action">app.set-mood</attribute>
+          <attribute name="accel">&lt;Primary&gt;D</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Statuses</attribute>
+          <attribute name="action">app.status-manager</attribute>
+        </item>
+      </section>
+
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_File Transfers</attribute>
+          <attribute name="action">app.file-transfers</attribute>
+          <attribute name="accel">&lt;Primary&gt;T</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">R_oom List</attribute>
+          <attribute name="action">app.room-list</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="label" translatable="yes">_Help</attribute>
+
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Online _Help</attribute>
+          <attribute name="action">app.online-help</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_Debug Window</attribute>
+          <attribute name="action">app.debug</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">_About</attribute>
+          <attribute name="action">app.about</attribute>
         </item>
       </section>
     </submenu>

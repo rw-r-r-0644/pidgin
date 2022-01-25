@@ -50,42 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkMenuItem" id="new_message">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.new-message</property>
-                        <property name="label" translatable="yes">New Instant _Message...</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="m" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="join_chat">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.join-chat</property>
-                        <property name="label" translatable="yes">Join a _Chat...</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="c" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="get_user_info">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.get-user-info</property>
-                        <property name="label" translatable="yes">Get User _Info...</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="i" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkMenuItem">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
@@ -152,56 +116,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <property name="use-underline">True</property>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="add_buddy">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.add-buddy</property>
-                        <property name="label" translatable="yes">_Add Buddy...</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="b" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="add_chat">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.add-chat</property>
-                        <property name="label" translatable="yes">Add C_hat...</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="add_group">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.add-group</property>
-                        <property name="label" translatable="yes">Add _Group...</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="quit">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.quit</property>
-                        <property name="label" translatable="yes">_Quit</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
                   </object>
                 </child>
               </object>
@@ -215,129 +129,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Tools</property>
-                <property name="use-underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkMenuItem" id="preferences">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.preferences</property>
-                        <property name="label" translatable="yes">Pr_eferences</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="privacy">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.privacy</property>
-                        <property name="label" translatable="yes">Pr_ivacy</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="set_mood">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.set-mood</property>
-                        <property name="label" translatable="yes">Set _Mood</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="d" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="status_manager">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.status-manager</property>
-                        <property name="label" translatable="yes">_Statuses</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="file_transfers">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.file-transfers</property>
-                        <property name="label" translatable="yes">_File Transfers</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="t" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="room_list">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.room-list</property>
-                        <property name="label" translatable="yes">R_oom List</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
               <object class="GtkMenuItem" id="plugins">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">_Plugins</property>
                 <property name="use-underline">True</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuItem">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Help</property>
-                <property name="use-underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkMenuItem" id="online_help">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.online-help</property>
-                        <property name="label" translatable="yes">Online _Help</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="debug">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.debug</property>
-                        <property name="label" translatable="yes">_Debug Window</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="about">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">app.about</property>
-                        <property name="label" translatable="yes">_About</property>
-                        <property name="use-underline">True</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
               </object>
             </child>
           </object>
