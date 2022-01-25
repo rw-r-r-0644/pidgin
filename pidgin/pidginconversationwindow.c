@@ -161,26 +161,12 @@ pidgin_conversation_window_dispose(GObject *obj) {
 
 static void
 pidgin_conversation_window_init(PidginConversationWindow *window) {
-	GtkBuilder *builder = NULL;
-	GtkWidget *menubar = NULL;
-	GMenuModel *model = NULL;
 	GtkEventController *key = NULL;
 
 	gtk_widget_init_template(GTK_WIDGET(window));
 
 	gtk_window_set_application(GTK_WINDOW(window),
 	                           GTK_APPLICATION(g_application_get_default()));
-
-	/* setup our menu */
-	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin3/Conversations/menu.ui");
-
-	model = (GMenuModel *)gtk_builder_get_object(builder, "conversation");
-	menubar = gtk_menu_bar_new_from_model(model);
-
-	gtk_box_pack_start(GTK_BOX(window->vbox), menubar, FALSE, FALSE, 0);
-	gtk_widget_show(menubar);
-
-	g_object_unref(G_OBJECT(builder));
 
 	key = gtk_event_controller_key_new(GTK_WIDGET(window));
 	gtk_event_controller_set_propagation_phase(key, GTK_PHASE_CAPTURE);
