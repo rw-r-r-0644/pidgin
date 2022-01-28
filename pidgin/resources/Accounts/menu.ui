@@ -30,16 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="can-focus">False</property>
     <property name="menu-type-hint">dnd</property>
     <child>
-      <object class="GtkMenuItem">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="action-name">app.manage-accounts</property>
-        <property name="label" translatable="yes">Account _Manager</property>
-        <property name="use-underline">True</property>
-        <accelerator key="a" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-      </object>
-    </child>
-    <child>
       <object class="GtkMenuItem" id="enable_account">
         <property name="visible">True</property>
         <property name="sensitive">False</property>
