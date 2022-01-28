@@ -376,7 +376,6 @@ pidgin/plugins/gestures/stroke-draw.c
 pidgin/plugins/gtkbuddynote.c
 pidgin/plugins/iconaway.c
 pidgin/plugins/notify.c
-pidgin/plugins/relnot.c
 pidgin/plugins/spellchk.c
 pidgin/plugins/transparency.c
 pidgin/plugins/unity.c
@@ -395,7 +394,6 @@ pidgin/resources/BuddyList/window.ui
 pidgin/resources/closebutton.ui
 pidgin/resources/Conversations/infopane.ui
 pidgin/resources/Conversations/invite_dialog.ui
-pidgin/resources/Conversations/menu.ui
 pidgin/resources/Conversations/window.ui
 pidgin/resources/Debug/debug.ui
 pidgin/resources/Debug/plugininfo.ui
@@ -411,6 +409,7 @@ pidgin/resources/Protocols/chooser.ui
 pidgin/resources/Roomlist/roomlist.ui
 pidgin/resources/Whiteboard/whiteboard.ui
 pidgin/resources/Xfer/xfer.ui
+pidgin/resources/gtk/menus.ui
 pidgin/win32/gtkwin32dep.c
 pidgin/win32/winpidgin.c
 purple-history/purplehistorycore.c
