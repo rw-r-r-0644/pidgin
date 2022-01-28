@@ -5275,7 +5275,7 @@ msgstr "Master-Archiv ist fehlerhaft konfiguriert"
 
 #: libpurple/protocols/novell/nmuser.c:1914
 msgid "Incorrect username or password"
-msgstr "Benutzername oder Passwort ungülzig"
+msgstr "Benutzername oder Passwort ungültig"
 
 #: libpurple/protocols/novell/nmuser.c:1917
 msgid "Could not recognize the host of the username you entered"
