@@ -21,12 +21,6 @@ notify = library('notify', 'notify.c',
     build_by_default: false,
     install : false, install_dir : PIDGIN_PLUGINDIR)
 
-relnot = library('relnot', 'relnot.c',
-    c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="PidginPlugin-RelNot"'],
-    dependencies : [libpurple_dep, libpidgin_dep, libsoup, glib],
-    name_prefix : '',
-    install : true, install_dir : PIDGIN_PLUGINDIR)
-
 spellchk = library('spellchk', 'spellchk.c',
     c_args : ['-DG_LOG_USE_STRUCTURED', '-DG_LOG_DOMAIN="PidginPlugin-SpellCheck"'],
     dependencies : [libpurple_dep, libpidgin_dep, glib],
