@@ -29,16 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <child>
-      <object class="GtkMenuItem">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="action-name">app.manage-plugins</property>
-        <property name="label" translatable="yes">Manage Plu_gins</property>
-        <property name="use-underline">True</property>
-        <accelerator key="u" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-      </object>
-    </child>
-    <child>
       <object class="GtkSeparatorMenuItem" id="separator">
         <property name="can-focus">False</property>
       </object>
