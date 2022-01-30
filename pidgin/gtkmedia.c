@@ -775,22 +775,20 @@ static struct phone_label {
 };
 
 static gboolean
-pidgin_media_dtmf_key_press_event_cb(GtkWidget *widget,
-		GdkEvent *event, gpointer user_data)
+pidgin_media_dtmf_key_press_event_cb(G_GNUC_UNUSED GtkEventControllerKey *controller,
+                                     guint keyval,
+                                     G_GNUC_UNUSED guint keycode,
+                                     G_GNUC_UNUSED GdkModifierType state,
+                                     gpointer user_data)
 {
 	PidginMedia *gtkmedia = user_data;
-	GdkEventKey *key = (GdkEventKey *) event;
 
-	if (event->type != GDK_KEY_PRESS) {
-		return FALSE;
-	}
+	if ((keyval >= GDK_KEY_0 && keyval <= GDK_KEY_9) ||
+		keyval == GDK_KEY_asterisk ||
+		keyval == GDK_KEY_numbersign) {
+		gchar *sid = g_object_get_data(G_OBJECT(gtkmedia), "session-id");
 
-	if ((key->keyval >= GDK_KEY_0 && key->keyval <= GDK_KEY_9) ||
-		key->keyval == GDK_KEY_asterisk ||
-		key->keyval == GDK_KEY_numbersign) {
-		gchar *sid = g_object_get_data(G_OBJECT(widget), "session-id");
-
-		purple_media_send_dtmf(gtkmedia->priv->media, sid, key->keyval, 25, 50);
+		purple_media_send_dtmf(gtkmedia->priv->media, sid, keyval, 25, 50);
 	}
 
 	return FALSE;
@@ -800,10 +798,11 @@ static GtkWidget *
 pidgin_media_add_dtmf_widget(PidginMedia *gtkmedia,
 		PurpleMediaSessionType type, const gchar *_sid)
 {
+	GtkApplicationWindow *win = GTK_APPLICATION_WINDOW(gtkmedia);
+	GtkEventController *event_controller = NULL;
 	GtkWidget *grid = gtk_grid_new();
 	GtkWidget *button;
 	gint index = 0;
-	GtkApplicationWindow *win = &gtkmedia->parent;
 
 	gtk_grid_set_row_homogeneous(GTK_GRID(grid), TRUE);
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
@@ -823,8 +822,13 @@ pidgin_media_add_dtmf_widget(PidginMedia *gtkmedia,
 		g_object_set(button, "expand", TRUE, "margin", 2, NULL);
 	}
 
-	g_signal_connect(G_OBJECT(win), "key-press-event",
+	event_controller = gtk_event_controller_key_new(GTK_WIDGET(win));
+	g_object_set_data_full(G_OBJECT(win), "pidgin-event-controller",
+	                       event_controller, g_object_unref);
+
+	g_signal_connect(event_controller, "key-pressed",
 		G_CALLBACK(pidgin_media_dtmf_key_press_event_cb), gtkmedia);
+
 	g_object_set_data_full(G_OBJECT(win), "session-id",
 		g_strdup(_sid), g_free);
 
