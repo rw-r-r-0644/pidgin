@@ -877,6 +877,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_dialog_get_vbox_with_properties
 		* pidgin_dialogs_alias_contact
 		* pidgin_dialogs_log
+		* pidgin_get_dim_grey_string
 		* PIDGIN_ICON_SIZE_*
 		* PIDGIN_ICON_THEME
 		* PIDGIN_ICON_THEME_CLASS

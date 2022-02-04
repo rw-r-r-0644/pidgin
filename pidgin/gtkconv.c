@@ -2666,12 +2666,11 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 			unaliased_esc = unaliased ? g_markup_escape_text(unaliased, -1) : NULL;
 			title_esc = g_markup_escape_text(title, -1);
 
-			markup = g_strdup_printf("%s%s<span size='smaller'>%s</span>%s<span color='%s' size='smaller'>%s</span>",
+			markup = g_strdup_printf("%s%s<span size='smaller'>%s</span>%s<span size='smaller'>%s</span>",
 						title_esc,
 						unaliased_esc ? " " : "",
 						unaliased_esc ? unaliased_esc : "",
 						topic_esc  && *topic_esc ? "\n" : "",
-						pidgin_get_dim_grey_string(gtkconv->infopane),
 						topic_esc ? topic_esc : "");
 
 			g_free(title_esc);

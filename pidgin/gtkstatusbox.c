@@ -433,7 +433,6 @@ pidgin_status_box_class_init (PidginStatusBoxClass *klass)
 static void
 pidgin_status_box_refresh(PidginStatusBox *status_box)
 {
-	const char *aa_color;
 	PurpleSavedStatus *saved_status;
 	char *primary, *secondary, *text;
 	const char *icon_name = NULL;
@@ -493,15 +492,14 @@ pidgin_status_box_refresh(PidginStatusBox *status_box)
 		icon_name = pidgin_icon_name_from_status_primitive(prim, "user-offline");
 	}
 
-	aa_color = pidgin_get_dim_grey_string(GTK_WIDGET(status_box));
 	if (status_box->account != NULL) {
-		text = g_strdup_printf("%s - <span size=\"smaller\" color=\"%s\">%s</span>",
+		text = g_strdup_printf("%s - <span size=\"smaller\">%s</span>",
 				       purple_account_get_username(status_box->account),
-				       aa_color, secondary ? secondary : primary);
+				       secondary ? secondary : primary);
 		emblem = pidgin_create_protocol_icon(status_box->account, PIDGIN_PROTOCOL_ICON_SMALL);
 	} else if (secondary != NULL) {
-		text = g_strdup_printf("%s<span size=\"smaller\" color=\"%s\"> - %s</span>",
-				       primary, aa_color, secondary);
+		text = g_strdup_printf("%s<span size=\"smaller\"> - %s</span>",
+				       primary, secondary);
 	} else {
 		text = g_strdup(primary);
 	}
@@ -1599,16 +1597,12 @@ pidgin_status_box_add(PidginStatusBox *status_box, PidginStatusBoxItemType type,
 	}
 	else
 	{
-		const char *aa_color;
 		gchar *escaped_title, *escaped_desc;
-
-		aa_color = pidgin_get_dim_grey_string(GTK_WIDGET(status_box));
 
 		escaped_title = g_markup_escape_text(title, -1);
 		escaped_desc = g_markup_escape_text(desc, -1);
-		text = g_strdup_printf("%s - <span color=\"%s\" size=\"smaller\">%s</span>",
-					escaped_title,
-				       aa_color, escaped_desc);
+		text = g_strdup_printf("%s - <span size=\"smaller\">%s</span>",
+		                       escaped_title, escaped_desc);
 		g_free(escaped_title);
 		g_free(escaped_desc);
 	}

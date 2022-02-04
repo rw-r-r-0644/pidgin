@@ -1712,30 +1712,6 @@ gboolean pidgin_tree_view_search_equal_func(GtkTreeModel *model, gint column,
 	return result;
 }
 
-const char *pidgin_get_dim_grey_string(GtkWidget *widget) {
-	static char dim_grey_string[8] = "";
-	GtkStyleContext *context;
-	GdkRGBA fg, bg;
-
-	if (!widget)
-		return "dim grey";
-
-	context = gtk_widget_get_style_context(widget);
-	if (!context)
-		return "dim grey";
-
-	gtk_style_context_get_color(context, gtk_style_context_get_state(context),
-	                            &fg);
-	gtk_style_context_get_background_color(context,
-	                                       gtk_style_context_get_state(context),
-	                                       &bg);
-	g_snprintf(dim_grey_string, sizeof(dim_grey_string), "#%02x%02x%02x",
-	           (unsigned int)((fg.red + bg.red) * 0.5 * 255),
-	           (unsigned int)((fg.green + bg.green) * 0.5 * 255),
-	           (unsigned int)((fg.blue + bg.blue) * 0.5 * 255));
-	return dim_grey_string;
-}
-
 static void
 combo_box_changed_cb(GtkComboBoxText *combo_box, GtkEntry *entry)
 {
