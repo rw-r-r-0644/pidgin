@@ -100,11 +100,6 @@ struct _PidginPrefsWindow {
 		GtkWidget *minimum_entry_lines;
 		GtkTextBuffer *format_buffer;
 		GtkWidget *format_view;
-		/* Win32 specific frame */
-		GtkWidget *font_frame;
-		GtkWidget *use_theme_font;
-		GtkWidget *custom_font_hbox;
-		GtkWidget *custom_font;
 	} conversations;
 
 	/* Network page */
@@ -789,32 +784,6 @@ formatting_toggle_cb(TalkatuActionGroup *ag, GAction *action, const gchar *name,
 	}
 }
 
-/* This is also Win32-specific, but must be visible for Glade binding. */
-static void
-apply_custom_font(GtkWidget *unused, PidginPrefsWindow *win)
-{
-	PangoFontDescription *desc = NULL;
-	if (!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/use_theme_font")) {
-		const char *font = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/custom_font");
-		desc = pango_font_description_from_string(font);
-	}
-
-	gtk_widget_override_font(win->conversations.format_view, desc);
-	if (desc)
-		pango_font_description_free(desc);
-
-}
-
-static void
-pidgin_custom_font_set(GtkWidget *font_button, PidginPrefsWindow *win)
-{
-
-	purple_prefs_set_string(PIDGIN_PREFS_ROOT "/conversations/custom_font",
-			gtk_font_chooser_get_font(GTK_FONT_CHOOSER(font_button)));
-
-	apply_custom_font(font_button, win);
-}
-
 static void
 bind_conv_page(PidginPrefsWindow *win)
 {
@@ -839,28 +808,6 @@ bind_conv_page(PidginPrefsWindow *win)
 	pidgin_prefs_bind_spin_button(
 		PIDGIN_PREFS_ROOT "/conversations/minimum_entry_lines",
 		win->conversations.minimum_entry_lines);
-
-#ifdef _WIN32
-	{
-	const char *font_name;
-	gtk_widget_show(win->conversations.font_frame);
-
-	pidgin_prefs_bind_checkbox(
-			PIDGIN_PREFS_ROOT "/conversations/use_theme_font",
-			win->conversations.use_theme_font);
-
-	font_name = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/custom_font");
-	if (font_name != NULL && *font_name != '\0') {
-		gtk_font_chooser_set_font(
-				GTK_FONT_CHOOSER(win->conversations.custom_font),
-				font_name);
-	}
-
-	g_object_bind_property(win->conversations.use_theme_font, "active",
-			win->conversations.custom_font_hbox, "sensitive",
-			G_BINDING_SYNC_CREATE|G_BINDING_INVERT_BOOLEAN);
-	}
-#endif
 
 	ag = talkatu_buffer_get_action_group(TALKATU_BUFFER(win->conversations.format_buffer));
 	g_signal_connect_after(G_OBJECT(ag), "action-activated",
@@ -1754,25 +1701,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.format_view);
-#ifdef WIN32
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.font_frame);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.use_theme_font);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.custom_font_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.custom_font);
-#endif
-	/* Even though Win32-specific, must be bound to avoid Glade warnings. */
-	gtk_widget_class_bind_template_callback(widget_class,
-			apply_custom_font);
-	gtk_widget_class_bind_template_callback(widget_class,
-			pidgin_custom_font_set);
 
 	/* Network page */
 	gtk_widget_class_bind_template_child(
