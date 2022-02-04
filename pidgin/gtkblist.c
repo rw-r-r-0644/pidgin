@@ -2853,7 +2853,7 @@ pidgin_blist_get_name_markup(PurpleBuddy *b, gboolean selected, gboolean aliased
 		}
 	}
 
-	dim_grey = pidgin_style_context_is_dark() ? "light slate grey" : "dim grey";
+	dim_grey = "dim grey";
 
 	/* choose the colors of the text */
 	name_color = NULL;
