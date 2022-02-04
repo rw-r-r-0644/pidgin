@@ -6,8 +6,8 @@ baseURLs = [
     [ 'GLib', 'https://docs.gtk.org/glib/' ],
     [ 'GObject', 'https://docs.gtk.org/gobject/' ],
     [ 'GPlugin', 'https://docs.imfreedom.org/gplugin/' ],
-    [ 'GPlugin-Gtk3', 'https://docs.imfreedom.org/gplugin-gtk3/' ],
-    [ 'Gtk', 'https://docs.gtk.org/gtk3/' ],
+    [ 'GPlugin-Gtk4', 'https://docs.imfreedom.org/gplugin-gtk4/' ],
+    [ 'Gtk', 'https://docs.gtk.org/gtk4/' ],
     [ 'Purple3', 'https://docs.imfreedom.org/purple3/' ],
     [ 'Talkatu', 'https://docs.imfreedom.org/talkatu/' ],
 ]
