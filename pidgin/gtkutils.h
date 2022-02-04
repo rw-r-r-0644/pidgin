@@ -364,17 +364,6 @@ gboolean pidgin_tree_view_search_equal_func(GtkTreeModel *model, gint column,
 			const gchar *key, GtkTreeIter *iter, gpointer data);
 
 /**
- * pidgin_get_dim_grey_string:
- * @widget:  The widget to return dim grey for
- *
- * Returns an HTML-style color string for use as a dim grey
- * string
- *
- * Returns: The dim grey string
- */
-const char *pidgin_get_dim_grey_string(GtkWidget *widget);
-
-/**
  * pidgin_text_combo_box_entry_new:
  * @default_item: Initial contents of GtkEntry
  * @items: (element-type utf8): GList containing strings to add to GtkComboBox
