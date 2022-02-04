@@ -26,7 +26,7 @@ if get_option('doc')
 			'--no-namespace-dir',
 			'--content-dir=@0@'.format(meson.current_source_dir()),
 			'--add-include-path=@0@'.format(meson.global_build_root() / 'subprojects/gplugin/gplugin'),
-			'--add-include-path=@0@'.format(meson.global_build_root() / 'subprojects/gplugin/gplugin-gtk3'),
+			'--add-include-path=@0@'.format(meson.global_build_root() / 'subprojects/gplugin/gplugin-gtk4'),
 			'--add-include-path=@0@'.format(meson.project_build_root() / 'libpurple'),
 			'--add-include-path=@0@'.format(meson.global_build_root() / 'subprojects/talkatu/talkatu'),
 			'@INPUT1@'

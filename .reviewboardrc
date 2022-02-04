@@ -1,6 +1,6 @@
 REVIEWBOARD_URL = "https://reviews.imfreedom.org/"
 REPOSITORY = "pidgin/pidgin"
 REPOSITORY_TYPE = "mercurial"
-BRANCH = "default"
-LAND_DEST_BRANCH = "default"
+BRANCH = "gtk4"
+LAND_DEST_BRANCH = "gtk4"
 LAND_PUSH = False
