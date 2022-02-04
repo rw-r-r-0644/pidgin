@@ -460,22 +460,11 @@ do_pidgin_append_menu_action(GtkWidget *menu, PurpleActionMenu *act,
 	} else {
 		GList *l = NULL;
 		GtkWidget *submenu = NULL;
-		GtkAccelGroup *group;
 
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
 		submenu = gtk_menu_new();
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), submenu);
-
-		group = gtk_menu_get_accel_group(GTK_MENU(menu));
-		if (group) {
-			char *path = g_strdup_printf("%s/%s",
-				gtk_menu_item_get_accel_path(GTK_MENU_ITEM(menuitem)),
-				purple_action_menu_get_label(act));
-			gtk_menu_set_accel_path(GTK_MENU(submenu), path);
-			g_free(path);
-			gtk_menu_set_accel_group(GTK_MENU(submenu), group);
-		}
 
 		for (l = list; l; l = l->next) {
 			PurpleActionMenu *act = (PurpleActionMenu *)l->data;
