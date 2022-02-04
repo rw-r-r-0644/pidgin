@@ -37,7 +37,8 @@ pidgin_color_calculate_for_text(const gchar *text, GdkRGBA *color) {
 
     g_return_if_fail(color != NULL);
 
-    pidgin_style_context_get_background_color(&background);
+#warning figure out how to get the background color
+    gdk_rgba_parse(&background, "#FFFFFFFF");
 
     /* hash the string and get the first 2 bytes of the digest */
     checksum = g_checksum_new(G_CHECKSUM_SHA1);
