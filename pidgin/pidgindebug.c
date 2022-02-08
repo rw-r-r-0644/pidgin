@@ -69,6 +69,13 @@ struct _PidginDebugWindow {
 	GRegex *regex;
 };
 
+typedef struct {
+	GDateTime *timestamp;
+	PurpleDebugLevel level;
+	gchar *domain;
+	gchar *message;
+} PidginDebugMessage;
+
 static gboolean debug_print_enabled = FALSE;
 static PidginDebugWindow *debug_win = NULL;
 static guint debug_enabled_timer = 0;
@@ -682,59 +689,32 @@ debug_enabled_cb(G_GNUC_UNUSED const gchar *name,
 	                                    (gpointer)value);
 }
 
-static GLogWriterOutput
-pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
-                           gsize n_fields, G_GNUC_UNUSED gpointer user_data)
+static gboolean
+pidgin_debug_g_log_handler_cb(gpointer data)
 {
-	const gchar *domain = NULL;
-	const gchar *arg_s = NULL;
+	PidginDebugMessage *message = data;
 	GtkTextTag *level_tag = NULL;
-	GDateTime *local_date_time = NULL;
 	gchar *local_time = NULL;
 	GtkTextIter end;
 	gboolean scroll;
-	gsize i;
 
 	if (debug_win == NULL ||
 			!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled")) {
-		if (debug_print_enabled) {
-			return g_log_writer_default(log_level, fields, n_fields, user_data);
-		} else {
-			return G_LOG_WRITER_UNHANDLED;
-		}
-	}
-
-	for (i = 0; i < n_fields; i++) {
-		if (purple_strequal(fields[i].key, "GLIB_DOMAIN")) {
-			domain = fields[i].value;
-		} else if (purple_strequal(fields[i].key, "MESSAGE")) {
-			arg_s = fields[i].value;
-		}
-	}
-
-	if((log_level & G_LOG_LEVEL_ERROR) != 0) {
-		level_tag = debug_win->tags.level[PURPLE_DEBUG_ERROR];
-	} else if((log_level & G_LOG_LEVEL_CRITICAL) != 0) {
-		level_tag = debug_win->tags.level[PURPLE_DEBUG_FATAL];
-	} else if((log_level & G_LOG_LEVEL_WARNING) != 0) {
-		level_tag = debug_win->tags.level[PURPLE_DEBUG_WARNING];
-	} else if((log_level & G_LOG_LEVEL_MESSAGE) != 0) {
-		level_tag = debug_win->tags.level[PURPLE_DEBUG_INFO];
-	} else if((log_level & G_LOG_LEVEL_INFO) != 0) {
-		level_tag = debug_win->tags.level[PURPLE_DEBUG_INFO];
-	} else if((log_level & G_LOG_LEVEL_DEBUG) != 0) {
-		level_tag = debug_win->tags.level[PURPLE_DEBUG_MISC];
-	} else {
-		level_tag = debug_win->tags.level[PURPLE_DEBUG_MISC];
+		/* The Debug Window may have been closed/disabled after the thread that
+		 * sent this message. */
+		g_date_time_unref(message->timestamp);
+		g_free(message->domain);
+		g_free(message->message);
+		g_free(message);
+		return FALSE;
 	}
 
 	scroll = view_near_bottom(debug_win);
 	gtk_text_buffer_get_end_iter(debug_win->buffer, &end);
 	gtk_text_buffer_move_mark(debug_win->buffer, debug_win->start_mark, &end);
 
-	local_date_time = g_date_time_new_now_local();
-	local_time = g_date_time_format(local_date_time, "(%H:%M:%S) ");
-	g_date_time_unref(local_date_time);
+	level_tag = debug_win->tags.level[message->level];
+	local_time = g_date_time_format(message->timestamp, "(%H:%M:%S) ");
 
 	gtk_text_buffer_insert_with_tags(
 			debug_win->buffer,
@@ -745,13 +725,11 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 			debug_win->paused ? debug_win->tags.paused : NULL,
 			NULL);
 
-	g_free(local_time);
-
-	if (domain != NULL && *domain != '\0') {
+	if (message->domain != NULL && *message->domain != '\0') {
 		gtk_text_buffer_insert_with_tags(
 				debug_win->buffer,
 				&end,
-				domain,
+				message->domain,
 				-1,
 				level_tag,
 				debug_win->tags.category,
@@ -771,7 +749,7 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 	gtk_text_buffer_insert_with_tags(
 			debug_win->buffer,
 			&end,
-			arg_s,
+			message->message,
 			-1,
 			level_tag,
 			debug_win->paused ? debug_win->tags.paused : NULL,
@@ -803,6 +781,59 @@ pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
 				GTK_TEXT_VIEW(debug_win->textview),
 				debug_win->end_mark, 0, TRUE, 0, 1);
 	}
+
+	g_free(local_time);
+	g_date_time_unref(message->timestamp);
+	g_free(message->domain);
+	g_free(message->message);
+	g_free(message);
+
+	return FALSE;
+}
+
+static GLogWriterOutput
+pidgin_debug_g_log_handler(GLogLevelFlags log_level, const GLogField *fields,
+                           gsize n_fields, G_GNUC_UNUSED gpointer user_data)
+{
+	PidginDebugMessage *message = NULL;
+	gsize i;
+
+	if (debug_win == NULL) {
+		if (debug_print_enabled) {
+			return g_log_writer_default(log_level, fields, n_fields, user_data);
+		} else {
+			return G_LOG_WRITER_UNHANDLED;
+		}
+	}
+
+	message = g_new0(PidginDebugMessage, 1);
+	message->timestamp = g_date_time_new_now_local();
+
+	for (i = 0; i < n_fields; i++) {
+		if (purple_strequal(fields[i].key, "GLIB_DOMAIN")) {
+			message->domain = g_strdup(fields[i].value);
+		} else if (purple_strequal(fields[i].key, "MESSAGE")) {
+			message->message = g_strdup(fields[i].value);
+		}
+	}
+
+	if((log_level & G_LOG_LEVEL_ERROR) != 0) {
+		message->level = PURPLE_DEBUG_ERROR;
+	} else if((log_level & G_LOG_LEVEL_CRITICAL) != 0) {
+		message->level = PURPLE_DEBUG_FATAL;
+	} else if((log_level & G_LOG_LEVEL_WARNING) != 0) {
+		message->level = PURPLE_DEBUG_WARNING;
+	} else if((log_level & G_LOG_LEVEL_MESSAGE) != 0) {
+		message->level = PURPLE_DEBUG_INFO;
+	} else if((log_level & G_LOG_LEVEL_INFO) != 0) {
+		message->level = PURPLE_DEBUG_INFO;
+	} else if((log_level & G_LOG_LEVEL_DEBUG) != 0) {
+		message->level = PURPLE_DEBUG_MISC;
+	} else {
+		message->level = PURPLE_DEBUG_MISC;
+	}
+
+	g_timeout_add(0, pidgin_debug_g_log_handler_cb, message);
 
 	if (debug_print_enabled) {
 		return g_log_writer_default(log_level, fields, n_fields, user_data);
