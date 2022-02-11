@@ -53,7 +53,6 @@
 #include "pidgininvitedialog.h"
 #include "pidginmessage.h"
 #include "pidginpresenceicon.h"
-#include "pidginstylecontext.h"
 
 #define ADD_MESSAGE_HISTORY_AT_ONCE 100
 
