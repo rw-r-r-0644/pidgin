@@ -48,7 +48,6 @@
 #include "pidgin/pidginmooddialog.h"
 #include "pidgin/pidginplugininfo.h"
 #include "pidginscrollbook.h"
-#include "pidgin/pidginstylecontext.h"
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
