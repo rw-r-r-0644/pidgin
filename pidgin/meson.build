@@ -232,7 +232,7 @@ if ENABLE_GTK
 		gtk,
 		IOKIT,
 		json,
-		libhandy,
+		libadwaita,
 		math,
 		nice,
 		libsoup,
@@ -265,7 +265,7 @@ if ENABLE_GTK
 	    include_directories : [toplevel_inc, libpidgin_inc],
 	    link_with : libpidgin,
 	    sources : libpidgin_built_headers,
-	    dependencies : [gtk, glib, libhandy, math, talkatu_dep, gplugin_gtk_dep])
+	    dependencies : [gtk, glib, libadwaita, math, talkatu_dep, gplugin_gtk_dep])
 
 	pidgin = executable('pidgin3',
 	    pidgin_SOURCES,
@@ -285,7 +285,7 @@ if ENABLE_GTK
 	    filebase : pidgin_filebase,
 	    subdirs : pidgin_filebase,
 	    # NOTE: Don't use dependencies from subprojects.
-	    requires : [gtk, libhandy, libpurple, 'talkatu', 'gplugin-gtk4'],
+	    requires : [gtk, libadwaita, libpurple, 'talkatu', 'gplugin-gtk4'],
 	    variables : ['plugindir=${libdir}/pidgin-@0@'.format(purple_major_version)])
 
 	PIDGIN_DESKTOP_FILE = 'im.pidgin.Pidgin3.desktop'

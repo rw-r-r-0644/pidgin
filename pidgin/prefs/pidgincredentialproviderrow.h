@@ -31,7 +31,7 @@
 
 #include <gtk/gtk.h>
 
-#include <handy.h>
+#include <adwaita.h>
 
 G_BEGIN_DECLS
 
@@ -45,7 +45,7 @@ G_BEGIN_DECLS
 #define PIDGIN_TYPE_CREDENTIAL_PROVIDER_ROW (pidgin_credential_provider_row_get_type())
 G_DECLARE_FINAL_TYPE(PidginCredentialProviderRow,
                      pidgin_credential_provider_row,
-                     PIDGIN, CREDENTIAL_PROVIDER_ROW, HdyActionRow)
+                     PIDGIN, CREDENTIAL_PROVIDER_ROW, AdwActionRow)
 
 /**
  * PidginCredentialProviderRow:

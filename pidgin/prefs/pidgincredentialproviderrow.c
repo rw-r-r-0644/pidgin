@@ -22,12 +22,12 @@
 
 #include <purple.h>
 
-#include <handy.h>
+#include <adwaita.h>
 
 #include "pidgincredentialproviderrow.h"
 
 struct _PidginCredentialProviderRow {
-	HdyActionRow parent;
+	AdwActionRow parent;
 
 	PurpleCredentialProvider *provider;
 
@@ -44,7 +44,7 @@ enum {
 static GParamSpec *properties[N_PROPERTIES] = {NULL, };
 
 G_DEFINE_TYPE(PidginCredentialProviderRow, pidgin_credential_provider_row,
-              HDY_TYPE_ACTION_ROW)
+              ADW_TYPE_ACTION_ROW)
 
 /******************************************************************************
  * Helpers
@@ -58,11 +58,11 @@ pidgin_credential_provider_row_set_provider(PidginCredentialProviderRow *row,
 	}
 
 	if(PURPLE_IS_CREDENTIAL_PROVIDER(provider)) {
-		hdy_preferences_row_set_title(
-		    HDY_PREFERENCES_ROW(row),
+		adw_preferences_row_set_title(
+		    ADW_PREFERENCES_ROW(row),
 		    purple_credential_provider_get_name(provider));
-		hdy_action_row_set_subtitle(
-		    HDY_ACTION_ROW(row),
+		adw_action_row_set_subtitle(
+		    ADW_ACTION_ROW(row),
 		    purple_credential_provider_get_description(provider));
 		/* Not implemented yet, so always hide the configure button. */
 		gtk_widget_set_visible(row->configure, FALSE);

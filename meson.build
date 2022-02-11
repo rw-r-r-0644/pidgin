@@ -263,7 +263,7 @@ nice = dependency('nice',
 #######################################################################
 if get_option('gtkui')
 	gtk = dependency('gtk4', version : '>= 4.0.0')
-	libhandy = dependency('libhandy-1', version : '>= 1')
+	libadwaita = dependency('libadwaita-1', version : '>= 1')
 
 	talkatu_dep = dependency('talkatu',
 		version: '>=0.1.0',
