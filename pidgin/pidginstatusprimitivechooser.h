@@ -32,7 +32,7 @@ G_BEGIN_DECLS
 /**
  * PidginStatusPrimitiveChooser:
  *
- * A [class@Gtk.Combobox] for presenting [class@Purple.StatusPrimitive]'s to a
+ * A [class@Gtk.ComboBox] for presenting [enum@Purple.StatusPrimitive]'s to a
  * user.
  *
  * Since: 3.0.0
