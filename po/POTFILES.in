@@ -352,6 +352,7 @@ pidgin/pidgincontactlist.c
 pidgin/pidginconversationwindow.c
 pidgin/pidgindebug.c
 pidgin/pidgindialog.c
+pidgin/pidgindnd.c
 pidgin/pidgingdkpixbuf.c
 pidgin/pidginiconname.c
 pidgin/pidgininfopane.c

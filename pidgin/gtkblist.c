@@ -46,6 +46,7 @@
 #include "pidgin/pidgincontactlist.h"
 #include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
+#include "pidgin/pidgindnd.h"
 #include "pidgin/pidgingdkpixbuf.h"
 #include "pidgin/pidginmooddialog.h"
 #include "pidgin/pidginplugininfo.h"
