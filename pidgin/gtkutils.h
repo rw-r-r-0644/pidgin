@@ -230,16 +230,6 @@ void pidgin_set_accessible_relations(GtkWidget *w, GtkLabel *l);
 void pidgin_menu_popup_at_treeview_selection(GtkWidget *menu, GtkWidget *treeview);
 
 /**
- * pidgin_dnd_file_manage:
- * @sd: GtkSelectionData for managing drag'n'drop
- * @account: Account to be used (may be NULL if conv is not NULL)
- * @who: Buddy name (may be NULL if conv is not NULL)
- *
- * Manages drag'n'drop of files.
- */
-void pidgin_dnd_file_manage(GtkSelectionData *sd, PurpleAccount *account, const char *who);
-
-/**
  * pidgin_buddy_icon_get_scale_size:
  *
  * Convenience wrapper for purple_buddy_icon_spec_get_scaled_size
