@@ -51,6 +51,8 @@ libpidgin_SOURCES = [
 	'pidginprotocolchooser.c',
 	'pidginprotocolstore.c',
 	'pidginscrollbook.c',
+	'pidginstatusprimitivechooser.c',
+	'pidginstatusprimitivestore.c',
 	'pidginstylecontext.c',
 	'pidgintalkatu.c',
 	'prefs/pidginprefs.c',
@@ -110,6 +112,8 @@ libpidgin_headers = [
 	'pidginprotocolchooser.h',
 	'pidginprotocolstore.h',
 	'pidginscrollbook.h',
+	'pidginstatusprimitivechooser.h',
+	'pidginstatusprimitivestore.h',
 	'pidginstylecontext.h',
 	'pidgintalkatu.h',
 ]

@@ -32,6 +32,9 @@
 #include "pidgindialog.h"
 #include "pidginiconname.h"
 
+#include "pidginstatusprimitivechooser.h"
+#include "pidginstatusprimitivestore.h"
+
 /*
  * TODO: Should attach to the account-deleted and account-added signals
  *       and update the GtkListStores in any StatusEditor windows that
@@ -128,7 +131,6 @@ typedef struct
 	PurpleAccount *account;
 
 	GtkWidget *window;
-	GtkListStore *model;
 	GtkComboBox *box;
 	GtkWidget *message_view;
 	GtkTextBuffer *message_buffer;
@@ -805,61 +807,6 @@ editor_title_changed_cb(GtkWidget *widget, gpointer user_data)
 	gtk_widget_set_sensitive(GTK_WIDGET(dialog->save_button), (*text != '\0'));
 }
 
-static GtkWidget *
-create_status_type_menu(PurpleStatusPrimitive type)
-{
-	int i;
-	GtkWidget *dropdown;
-	GtkListStore *store;
-	GtkTreeIter iter;
-	GtkCellRenderer *renderer;
-
-	store = gtk_list_store_new(STATUS_NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-
-	for (i = PURPLE_STATUS_UNSET + 1; i < PURPLE_STATUS_NUM_PRIMITIVES; i++)
-	{
-		/* Someone should fix this for 3.0.0.  The independent boolean
-		 * should probably be set on the status type, not the status.
-		 * I guess that would prevent third party plugins from creating
-		 * independent statuses?
-		 */
-		if (i == PURPLE_STATUS_MOBILE ||
-		    i == PURPLE_STATUS_MOOD ||
-		    i == PURPLE_STATUS_TUNE)
-			/*
-			 * Special-case these.  They're intended to be independent
-			 * status types, so don't show them in the list.
-			 */
-			continue;
-
-		gtk_list_store_append(store, &iter);
-		gtk_list_store_set(store, &iter,
-		                   STATUS_COLUMN_ICON, pidgin_icon_name_from_status_primitive(i, NULL),
-		                   STATUS_COLUMN_STATUS_ID, purple_primitive_get_id_from_type(i),
-		                   STATUS_COLUMN_STATUS_NAME, purple_primitive_get_name_from_type(i),
-		                   -1);
-	}
-
-	dropdown = gtk_combo_box_new_with_model(GTK_TREE_MODEL(store));
-
-	renderer = gtk_cell_renderer_pixbuf_new();
-	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(dropdown), renderer, FALSE);
-	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(dropdown), renderer,
-	                               "icon-name", STATUS_COLUMN_ICON,
-	                               NULL);
-
-	renderer = gtk_cell_renderer_text_new();
-	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(dropdown), renderer, TRUE);
-	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(dropdown), renderer,
-	                               "text", STATUS_COLUMN_STATUS_NAME,
-	                               NULL);
-
-	gtk_combo_box_set_active(GTK_COMBO_BOX(dropdown),
-	                         type - (PURPLE_STATUS_UNSET + 1));
-
-	return dropdown;
-}
-
 static void edit_substatus(StatusEditor *status_editor, PurpleAccount *account);
 
 static void
@@ -1066,6 +1013,8 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	GtkWidget *hbox;
 	GtkWidget *vbox;
 	GtkWidget *win;
+	GtkListStore *store;
+	PurpleStatusPrimitive primitive = PURPLE_STATUS_AWAY;
 
 	if (edit)
 	{
@@ -1122,11 +1071,16 @@ pidgin_status_editor_show(gboolean edit, PurpleSavedStatus *saved_status)
 	pidgin_add_widget_to_vbox(GTK_BOX(vbox), _("_Title:"), sg, entry, TRUE, NULL);
 
 	/* Status type */
-	if (saved_status != NULL)
-		dropdown = create_status_type_menu(purple_savedstatus_get_primitive_type(saved_status));
-	else
-		dropdown = create_status_type_menu(PURPLE_STATUS_AWAY);
+	if (saved_status != NULL) {
+		primitive = purple_savedstatus_get_primitive_type(saved_status);
+	}
+
+	store = pidgin_status_primitive_store_new();
+	dropdown = pidgin_status_primitive_chooser_new();
 	dialog->type = GTK_COMBO_BOX(dropdown);
+	gtk_combo_box_set_model(GTK_COMBO_BOX(dropdown), GTK_TREE_MODEL(store));
+	gtk_combo_box_set_active_id(GTK_COMBO_BOX(dropdown),
+	                            purple_primitive_get_id_from_type(primitive));
 	pidgin_add_widget_to_vbox(GTK_BOX(vbox), _("_Status:"), sg, dropdown, TRUE, NULL);
 
 	/* Status message */
@@ -1215,24 +1169,26 @@ static void
 substatus_selection_changed_cb(GtkComboBox *box, gpointer user_data)
 {
 	SubStatusEditor *select = user_data;
-	GtkTreeIter iter;
-	char *id;
 	PurpleStatusType *type;
+	PurpleStatusPrimitive primitive;
+	const gchar *id;
 
-	if (!gtk_combo_box_get_active_iter(box, &iter))
+	id = gtk_combo_box_get_active_id(box);
+	if(id == NULL) {
 		return;
-	gtk_tree_model_get(GTK_TREE_MODEL(select->model), &iter,
-					   STATUS_COLUMN_STATUS_ID, &id,
-					   -1);
-	type = purple_account_get_status_type(select->account, id);
-	g_free(id);
-
-	if (purple_status_type_get_attr(type, "message") == NULL)
-	{
-		gtk_widget_set_sensitive(select->message_view, FALSE);
 	}
-	else
-	{
+
+	primitive = purple_primitive_get_type_from_id(id);
+	if(primitive == PURPLE_STATUS_UNSET) {
+		return;
+	}
+
+	type = purple_account_get_status_type_with_primitive(select->account,
+	                                                     primitive);
+
+	if(purple_status_type_get_attr(type, "message") == NULL) {
+		gtk_widget_set_sensitive(select->message_view, FALSE);
+	} else {
 		gtk_widget_set_sensitive(select->message_view, TRUE);
 	}
 }
@@ -1298,25 +1254,30 @@ substatus_editor_ok(SubStatusEditor *dialog)
 	StatusEditor *status_editor;
 	GtkTreeIter iter;
 	PurpleStatusType *type;
-	char *id = NULL;
+	PurpleStatusPrimitive primitive;
+	const char *id = NULL;
 	char *message = NULL;
 	const gchar *name = NULL, *icon_name = NULL;
 
-	if (!gtk_combo_box_get_active_iter(dialog->box, &iter))
-	{
+	id = gtk_combo_box_get_active_id(GTK_COMBO_BOX(dialog->box));
+	if(id == NULL) {
 		gtk_widget_destroy(dialog->window);
 		return;
 	}
 
-	gtk_tree_model_get(GTK_TREE_MODEL(dialog->model), &iter,
-					   STATUS_COLUMN_STATUS_ID, &id,
-					   -1);
-	type = purple_account_get_status_type(dialog->account, id);
+	primitive = purple_primitive_get_type_from_id(id);
+	if(primitive == PURPLE_STATUS_UNSET) {
+		gtk_widget_destroy(dialog->window);
+		return;
+	}
+
+	type = purple_account_get_status_type_with_primitive(dialog->account,
+	                                                     primitive);
 	if (purple_status_type_get_attr(type, "message") != NULL) {
 		message = talkatu_markup_get_html(dialog->message_buffer, NULL);
 	}
 	name = purple_status_type_get_name(type);
-	icon_name = pidgin_icon_name_from_status_primitive(purple_status_type_get_primitive(type), NULL);
+	icon_name = pidgin_icon_name_from_status_primitive(primitive, NULL);
 
 	status_editor = dialog->status_editor;
 
@@ -1333,7 +1294,6 @@ substatus_editor_ok(SubStatusEditor *dialog)
 	}
 
 	gtk_widget_destroy(dialog->window);
-	g_free(id);
 	g_free(message);
 }
 
@@ -1368,12 +1328,11 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	GtkWidget *vbox;
 	GtkWidget *win;
 	GtkTreeIter iter;
-	GtkCellRenderer *rend;
 	char *status_id = NULL;
 	char *message = NULL;
 	gboolean parent_dialog_has_substatus = FALSE;
-	GList *list;
-	gboolean select = FALSE;
+	GtkListStore *store;
+	PurpleStatusPrimitive primitive = PURPLE_STATUS_AWAY;
 
 	g_return_if_fail(status_editor != NULL);
 	g_return_if_fail(account       != NULL);
@@ -1419,22 +1378,12 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	gtk_size_group_add_widget(sg, label);
 
-	dialog->model = gtk_list_store_new(STATUS_NUM_COLUMNS,
-									   G_TYPE_STRING,
-									   G_TYPE_STRING,
-									   G_TYPE_STRING);
-	combo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(dialog->model));
+	store = pidgin_status_primitive_store_new();
+	pidgin_status_primitive_store_set_account(PIDGIN_STATUS_PRIMITIVE_STORE(store),
+	                                          account);
+	combo = pidgin_status_primitive_chooser_new();
+	gtk_combo_box_set_model(GTK_COMBO_BOX(combo), GTK_TREE_MODEL(store));
 	dialog->box = GTK_COMBO_BOX(combo);
-
-	rend = GTK_CELL_RENDERER(gtk_cell_renderer_pixbuf_new());
-	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo), rend, FALSE);
-	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo), rend,
-	                               "icon-name", STATUS_COLUMN_ICON, NULL);
-
-	rend = GTK_CELL_RENDERER(gtk_cell_renderer_text_new());
-	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo), rend, TRUE);
-	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo), rend,
-						"text", STATUS_COLUMN_STATUS_NAME, NULL);
 
 	g_signal_connect(G_OBJECT(combo), "changed",
 					 G_CALLBACK(substatus_selection_changed_cb), dialog);
@@ -1484,45 +1433,19 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	}
 	/* TODO: Else get the generic status type from our parent */
 
+	if(status_id != NULL) {
+		PurpleStatus *status = purple_account_get_status(account, status_id);
+		PurpleStatusType *type = purple_status_get_status_type(status);
+
+		primitive = purple_status_type_get_primitive(type);
+	}
+
+	gtk_combo_box_set_active_id(GTK_COMBO_BOX(combo),
+	                            purple_primitive_get_id_from_type(primitive));
+
 	if (message) {
 		talkatu_markup_set_html(TALKATU_BUFFER(dialog->message_buffer), message, -1);
 	}
-
-	for (list = purple_account_get_status_types(account); list; list = list->next)
-	{
-		PurpleStatusType *status_type;
-		const char *id, *name;
-		PurpleStatusPrimitive prim;
-
-		status_type = list->data;
-
-		/*
-		 * Only allow users to select statuses that are flagged as
-		 * "user settable" and that aren't independent.
-		 */
-		if (!purple_status_type_is_user_settable(status_type) ||
-				purple_status_type_is_independent(status_type))
-			continue;
-
-		id = purple_status_type_get_id(status_type);
-		prim = purple_status_type_get_primitive(status_type);
-		name = purple_status_type_get_name(status_type);
-
-		gtk_list_store_append(dialog->model, &iter);
-		gtk_list_store_set(dialog->model, &iter,
-		                   STATUS_COLUMN_ICON, pidgin_icon_name_from_status_primitive(prim, NULL),
-		                   STATUS_COLUMN_STATUS_ID, id,
-		                   STATUS_COLUMN_STATUS_NAME, name,
-		                   -1);
-		if ((status_id != NULL) && purple_strequal(status_id, id))
-		{
-			gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combo), &iter);
-			select = TRUE;
-		}
-	}
-
-	if (!select)
-		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
 
 	if (parent_dialog_has_substatus) {
 		/* These two were gotten from the parent tree model, so they need to be freed */

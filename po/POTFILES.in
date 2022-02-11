@@ -365,6 +365,8 @@ pidgin/pidginpresenceicon.c
 pidgin/pidginprotocolchooser.c
 pidgin/pidginprotocolstore.c
 pidgin/pidginscrollbook.c
+pidgin/pidginstatusprimitivechooser.c
+pidgin/pidginstatusprimitivestore.c
 pidgin/pidginstylecontext.c
 pidgin/pidgintalkatu.c
 pidgin/plugins/disco/gtkdisco.c
