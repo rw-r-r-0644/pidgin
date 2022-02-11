@@ -94,7 +94,7 @@ pidgin_whiteboard_rgb24_to_rgba(int color_rgb, GdkRGBA *color)
 	color->red = ((color_rgb >> 16) & 0xFF) / 255.0f;
 	color->green = ((color_rgb >> 8) & 0xFF) / 255.0f;
 	color->blue = (color_rgb & 0xFF) / 255.0f;
-	color->alpha = 1.0;
+	color->alpha = 1.0f;
 }
 
 static gboolean
@@ -113,7 +113,7 @@ static gboolean pidgin_whiteboard_configure_event(GtkWidget *widget, GdkEventCon
 	PidginWhiteboard *gtkwb = (PidginWhiteboard*)data;
 	cairo_t *cr;
 	GtkAllocation allocation;
-	GdkRGBA white = {1.0, 1.0, 1.0, 1.0};
+	GdkRGBA white = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	if (gtkwb->cr) {
 		cairo_destroy(gtkwb->cr);
@@ -461,7 +461,7 @@ static void pidgin_whiteboard_clear(PurpleWhiteboard *wb)
 	GtkWidget *drawing_area = gtkwb->drawing_area;
 	cairo_t *cr = gtkwb->cr;
 	GtkAllocation allocation;
-	GdkRGBA white = {1.0, 1.0, 1.0, 1.0};
+	GdkRGBA white = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	gtk_widget_get_allocation(drawing_area, &allocation);
 
