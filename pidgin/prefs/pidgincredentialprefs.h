@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include <gtk/gtk.h>
-#include <handy.h>
+#include <adwaita.h>
 
 G_BEGIN_DECLS
 
@@ -43,7 +43,7 @@ G_BEGIN_DECLS
  */
 #define PIDGIN_TYPE_CREDENTIAL_PREFS (pidgin_credential_prefs_get_type())
 G_DECLARE_FINAL_TYPE(PidginCredentialPrefs, pidgin_credential_prefs,
-                     PIDGIN, CREDENTIAL_PREFS, HdyPreferencesPage)
+                     PIDGIN, CREDENTIAL_PREFS, AdwPreferencesPage)
 
 /**
  * PidginCredentialPrefs:

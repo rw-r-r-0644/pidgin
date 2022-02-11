@@ -31,7 +31,7 @@
 #include <gplugin.h>
 #include <purple.h>
 
-#include <handy.h>
+#include <adwaita.h>
 
 #include "pidginapplication.h"
 
@@ -685,7 +685,7 @@ pidgin_application_startup(GApplication *application) {
 	gpointer handle = NULL;
 
 	G_APPLICATION_CLASS(pidgin_application_parent_class)->startup(application);
-	hdy_init();
+	adw_init();
 
 	/* set a user-specified config directory */
 	if (opt_config_dir_arg != NULL) {

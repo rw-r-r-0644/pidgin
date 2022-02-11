@@ -22,20 +22,20 @@
 
 #include <purple.h>
 
-#include <handy.h>
+#include <adwaita.h>
 
 #include "pidgincredentialprefs.h"
 
 #include "pidgincredentialproviderrow.h"
 
 struct _PidginCredentialPrefs {
-	HdyPreferencesPage parent;
+	AdwPreferencesPage parent;
 
 	GtkWidget *credential_list;
 };
 
 G_DEFINE_TYPE(PidginCredentialPrefs, pidgin_credential_prefs,
-              HDY_TYPE_PREFERENCES_PAGE)
+              ADW_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers
