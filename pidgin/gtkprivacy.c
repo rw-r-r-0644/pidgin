@@ -187,8 +187,6 @@ type_changed_cb(GtkComboBox *combo, PidginPrivacyDialog *dialog)
 	gtk_widget_set_sensitive(dialog->remove_button, FALSE);
 	gtk_widget_set_sensitive(dialog->removeall_button, buttons_sensitive);
 
-	gtk_widget_show_all(dialog->close_button);
-
 	purple_blist_schedule_save();
 	pidgin_blist_refresh(purple_blist_get_default());
 }
@@ -335,18 +333,19 @@ pidgin_privacy_dialog_show(void)
 
 	if (privacy_dialog == NULL) {
 		privacy_dialog = g_object_new(PIDGIN_TYPE_PRIVACY_DIALOG, NULL);
-		g_signal_connect(privacy_dialog, "destroy",
-		                 G_CALLBACK(gtk_widget_destroyed), &privacy_dialog);
+		g_object_add_weak_pointer(G_OBJECT(privacy_dialog),
+		                          (gpointer)&privacy_dialog);
 	}
 
 	gtk_widget_show(GTK_WIDGET(privacy_dialog));
-	gdk_window_raise(gtk_widget_get_window(GTK_WIDGET(privacy_dialog)));
 }
 
 void
 pidgin_privacy_dialog_hide(void)
 {
-	gtk_widget_destroy(GTK_WIDGET(privacy_dialog));
+	if(GTK_IS_WIDGET(privacy_dialog)) {
+		gtk_window_destroy(GTK_WINDOW(privacy_dialog));
+	}
 }
 
 static void
