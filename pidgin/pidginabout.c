@@ -314,9 +314,9 @@ pidgin_about_dialog_load_runtime_info(PidginAboutDialog *about) {
 	/* add the gtk version */
 	pidgin_about_dialog_build_info_add_version(about->build_info_store,
 	                                           &section, _("GTK Version"),
-	                                           gtk_major_version,
-	                                           gtk_minor_version,
-	                                           gtk_micro_version);
+	                                           gtk_get_major_version(),
+	                                           gtk_get_minor_version(),
+	                                           gtk_get_micro_version());
 }
 
 static void
@@ -512,7 +512,7 @@ pidgin_about_dialog_response_cb(GtkDialog *dialog, gint response_id,
 {
 	switch(response_id) {
 		case GTK_RESPONSE_CLOSE:
-			gtk_widget_destroy(GTK_WIDGET(dialog));
+			gtk_window_destroy(GTK_WINDOW(dialog));
 			break;
 	}
 }
