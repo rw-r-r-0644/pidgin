@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
-
+<!--
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
 
@@ -15,12 +14,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+along with this library; if not, see <https://www.gnu.org/licenses/>.
 -->
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk" version="4.0"/>
   <requires lib="libhandy" version="1.2"/>
   <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
@@ -40,46 +37,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </columns>
   </object>
   <template class="PidginConversationWindow" parent="GtkApplicationWindow">
-    <property name="can-focus">False</property>
-    <property name="role">conversation</property>
+    <child>
+      <object class="GtkEventControllerKey">
+        <property name="propagation-phase">GTK_PHASE_CAPTURE</property>
+        <signal name="key-pressed" handler="pidgin_conversation_window_key_pressed_cb"/>
+      </object>
+    </child>
     <child>
       <object class="GtkBox" id="vbox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkPaned" id="paned">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="vexpand">1</property>
+            <property name="focusable">1</property>
             <property name="position">100</property>
             <child>
               <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="border-width">6</property>
+                <property name="margin-top">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-bottom">6</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">6</property>
                 <child>
                   <object class="PidginStatusBox">
-                    <property name="visible">True</property>
                     <property name="can-focus">False</property>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="shadow-type">out</property>
-                    <property name="propagate-natural-width">True</property>
-                    <child>
+                    <property name="vexpand">1</property>
+                    <property name="focusable">1</property>
+                    <property name="propagate-natural-width">1</property>
+                    <property name="child">
                       <object class="GtkTreeView" id="view">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
+                        <property name="focusable">1</property>
                         <property name="model">model</property>
                         <property name="headers-visible">False</property>
                         <property name="search-column">3</property>
@@ -105,24 +97,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                           </object>
                         </child>
                       </object>
-                    </child>
+                    </property>
                   </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
               </object>
-              <packing>
-                <property name="resize">True</property>
-                <property name="shrink">True</property>
-              </packing>
             </child>
             <child>
               <object class="GtkStack" id="stack">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
                 <child>
                   <object class="PidginNotificationList" id="notification_list">
                     <property name="visible">True</property>
@@ -153,18 +134,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   </packing>
                 </child>
               </object>
-              <packing>
-                <property name="resize">True</property>
-                <property name="shrink">True</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="pack-type">end</property>
-            <property name="position">0</property>
-          </packing>
         </child>
       </object>
     </child>
