@@ -1271,7 +1271,6 @@ pidgin_account_dialog_show(PidginAccountDialogType type,
 /**************************************************************************
  * Accounts Dialog
  **************************************************************************/
-
 static void
 free_add_user_data(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
                    G_GNUC_UNUSED GtkButton *button,

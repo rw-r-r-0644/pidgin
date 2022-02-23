@@ -1145,7 +1145,7 @@ create_string_field(PurpleRequestField *field)
 							 G_CALLBACK(req_entry_field_changed_cb), field);
 	    }
 
-		widget = pidgin_make_scrollable(textview, GTK_POLICY_NEVER, GTK_POLICY_ALWAYS, GTK_SHADOW_IN, -1, 75);
+		widget = pidgin_make_scrollable(textview, GTK_POLICY_NEVER, GTK_POLICY_ALWAYS, -1, 75);
 	}
 	else
 	{
@@ -1483,7 +1483,7 @@ create_list_field(PurpleRequestField *field)
 
 	gtk_widget_show(treeview);
 
-	return pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_IN, -1, -1);
+	return pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, -1, -1);
 }
 
 static GdkPixbuf*
@@ -1826,7 +1826,7 @@ create_datasheet_field(PurpleRequestField *field, GtkSizeGroup *buttons_sg)
 	gtk_widget_set_size_request(GTK_WIDGET(view), 400, 250);
 
 	scrollable = pidgin_make_scrollable(GTK_WIDGET(view),
-		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS, GTK_SHADOW_IN, -1, -1);
+		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS, -1, -1);
 	gtk_widget_show(GTK_WIDGET(view));
 
 	buttons_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
@@ -2040,7 +2040,7 @@ pidgin_request_fields(const char *title, const char *primary,
 			gtk_box_pack_start(GTK_BOX(pages[i]),
 				pidgin_make_scrollable(hbox_for_spacing,
 					GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC,
-					GTK_SHADOW_NONE, -1, 200),
+					-1, 200),
 				TRUE, TRUE, 0);
 			gtk_widget_show(hbox_for_spacing);
 
