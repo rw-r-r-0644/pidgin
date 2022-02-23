@@ -223,7 +223,7 @@ pidgin_application_about(GSimpleAction *simple, GVariant *parameter,
 		g_object_add_weak_pointer(G_OBJECT(about), (gpointer)&about);
 	}
 
-	gtk_widget_show_all(about);
+	gtk_widget_show(about);
 }
 
 static void
@@ -402,7 +402,7 @@ pidgin_application_plugins(GSimpleAction *simple, GVariant *parameter,
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
 #endif
 
-	gtk_widget_show_all(dialog);
+	gtk_widget_show(dialog);
 }
 
 static void
@@ -679,12 +679,12 @@ pidgin_application_startup(GApplication *application) {
 	PurpleAccountManager *manager = NULL;
 	PurpleUiInfo *ui_info = NULL;
 	GtkCssProvider *provider = NULL;
-	GError *error = NULL;
 	GList *active_accounts = NULL;
 	gchar *search_path = NULL;
 	gpointer handle = NULL;
 
 	G_APPLICATION_CLASS(pidgin_application_parent_class)->startup(application);
+
 	adw_init();
 
 	/* set a user-specified config directory */
@@ -713,17 +713,10 @@ pidgin_application_startup(GApplication *application) {
 	provider = gtk_css_provider_new();
 
 	search_path = g_build_filename(purple_config_dir(), "gtk-3.0.css", NULL);
-	gtk_css_provider_load_from_path(provider, search_path, &error);
-	if(error != NULL) {
-		purple_debug_info("gtk", "Unable to load custom gtk-3.0.css: %s\n",
-		                  error->message);
-		g_clear_error(&error);
-	} else {
-		GdkScreen *screen = gdk_screen_get_default();
-		gtk_style_context_add_provider_for_screen(screen,
-		                                          GTK_STYLE_PROVIDER(provider),
-		                                          GTK_STYLE_PROVIDER_PRIORITY_USER);
-	}
+	gtk_css_provider_load_from_path(provider, search_path);
+	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
+	                                           GTK_STYLE_PROVIDER(provider),
+	                                           GTK_STYLE_PROVIDER_PRIORITY_USER);
 
 	g_free(search_path);
 
@@ -802,11 +795,6 @@ pidgin_application_startup(GApplication *application) {
 
 	/* Populate our dynamic menus. */
 	pidgin_application_populate_dynamic_menus(PIDGIN_APPLICATION(application));
-
-	/* GTK clears the notification for us when opening the first window, but we
-	 * may have launched with only a status icon, so clear it just in case.
-	 */
-	gdk_notify_startup_complete();
 
 	/* TODO: Use GtkApplicationWindow or add a window instead */
 	g_application_hold(application);
