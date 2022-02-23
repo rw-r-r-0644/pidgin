@@ -333,7 +333,6 @@ GtkWidget *pidgin_add_widget_to_vbox(GtkBox *vbox, const char *widget_label, Gtk
  * @child:              The child widget
  * @hscrollbar_policy:  Horizontal scrolling policy
  * @vscrollbar_policy:  Vertical scrolling policy
- * @shadow_type:        Shadow type
  * @width:              Desired widget width, or -1 for default
  * @height:             Desired widget height, or -1 for default
  *
@@ -341,7 +340,7 @@ GtkWidget *pidgin_add_widget_to_vbox(GtkBox *vbox, const char *widget_label, Gtk
  *
  * Returns: (transfer full): A scrolled window with @child packed inside of it.
  */
-GtkWidget *pidgin_make_scrollable(GtkWidget *child, GtkPolicyType hscrollbar_policy, GtkPolicyType vscrollbar_policy, GtkShadowType shadow_type, int width, int height);
+GtkWidget *pidgin_make_scrollable(GtkWidget *child, GtkPolicyType hscrollbar_policy, GtkPolicyType vscrollbar_policy, int width, int height);
 
 G_END_DECLS
 

@@ -1737,7 +1737,7 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 	gtkconv->list = list;
 
 	gtk_box_pack_start(GTK_BOX(lbox),
-		pidgin_make_scrollable(list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_IN, -1, -1),
+		pidgin_make_scrollable(list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, -1, -1),
 		TRUE, TRUE, 0);
 }
 

@@ -436,7 +436,7 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 								GTK_SELECTION_SINGLE);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), TRUE);
 	gtk_box_pack_start(GTK_BOX(vbox),
-		pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS, GTK_SHADOW_IN, -1, -1),
+		pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS, -1, -1),
 		TRUE, TRUE, 0);
 	gtk_widget_show(treeview);
 

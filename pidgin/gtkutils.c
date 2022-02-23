@@ -1381,14 +1381,13 @@ gboolean pidgin_auto_parent_window(GtkWidget *widget)
 }
 
 GtkWidget *
-pidgin_make_scrollable(GtkWidget *child, GtkPolicyType hscrollbar_policy, GtkPolicyType vscrollbar_policy, GtkShadowType shadow_type, int width, int height)
+pidgin_make_scrollable(GtkWidget *child, GtkPolicyType hscrollbar_policy, GtkPolicyType vscrollbar_policy, int width, int height)
 {
-	GtkWidget *sw = gtk_scrolled_window_new(NULL, NULL);
+	GtkWidget *sw = gtk_scrolled_window_new();
 
 	if (G_LIKELY(sw)) {
 		gtk_widget_show(sw);
 		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw), hscrollbar_policy, vscrollbar_policy);
-		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw), shadow_type);
 		if (width != -1 || height != -1)
 			gtk_widget_set_size_request(sw, width, height);
 		if (child) {
