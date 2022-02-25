@@ -43,18 +43,6 @@
 #include "pidgindebug.h"
 #include "pidgingdkpixbuf.h"
 #include "pidginprefs.h"
-#ifdef USE_VV
-#include <gst/video/videooverlay.h>
-#ifdef GDK_WINDOWING_WIN32
-#include <gdk/gdkwin32.h>
-#endif
-#ifdef GDK_WINDOWING_X11
-#include <gdk/gdkx.h>
-#endif
-#ifdef GDK_WINDOWING_QUARTZ
-#include <gdk/gdkquartz.h>
-#endif
-#endif
 #include <libsoup/soup.h>
 
 #define PREFS_OPTIMAL_ICON_SIZE 32
