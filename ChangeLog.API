@@ -922,6 +922,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_dialog_get_vbox
 		* pidgin_dialog_get_vbox_with_properties
 		* pidgin_dialogs_alias_contact
+		* pidgin_dialogs_destroy_all
 		* pidgin_dialogs_log
 		* pidgin_get_dim_grey_string
 		* pidgin_gdk_pixbuf_make_round, use purple_gdk_pixbuf_make_round instead.
