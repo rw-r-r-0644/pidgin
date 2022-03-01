@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
-
+<!--
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
 
@@ -15,12 +14,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+along with this library; if not, see <https://www.gnu.org/licenses/>.
 -->
 <interface>
-  <requires lib="gtk+" version="3.22"/>
+  <requires lib="gtk" version="4.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
@@ -42,105 +39,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </columns>
   </object>
   <template class="PidginXferDialog" parent="GtkDialog">
-    <property name="can-focus">False</property>
-    <property name="title" translatable="yes">File Transfer</property>
-    <property name="role">file transfer</property>
+    <property name="title" translatable="1">File Transfer</property>
     <property name="default-width">450</property>
     <property name="default-height">250</property>
-    <property name="type-hint">normal</property>
-    <signal name="delete-event" handler="delete_win_cb" swapped="no"/>
-    <child internal-child="vbox">
+    <signal name="close-request" handler="close_request_cb" swapped="no"/>
+    <child internal-child="content_area">
       <object class="GtkBox">
-        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox">
-            <property name="can-focus">False</property>
-            <property name="layout-style">end</property>
-            <child>
-              <object class="GtkButton" id="open_button">
-                <property name="label" translatable="yes">_Open</property>
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="use-underline">True</property>
-                <signal name="clicked" handler="open_button_cb" object="PidginXferDialog" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="remove_button">
-                <property name="label" translatable="yes">_Remove</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="use-underline">True</property>
-                <signal name="clicked" handler="remove_button_cb" object="PidginXferDialog" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="stop_button">
-                <property name="label" translatable="yes">_Stop</property>
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="use-underline">True</property>
-                <signal name="clicked" handler="stop_button_cb" object="PidginXferDialog" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="close_button">
-                <property name="label" translatable="yes">_Close</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="use-underline">True</property>
-                <signal name="clicked" handler="close_button_cb" object="PidginXferDialog" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="vexpand">1</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkScrolledWindow">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="shadow-type">in</property>
+                <property name="vexpand">1</property>
+                <property name="focusable">1</property>
                 <property name="min-content-height">140</property>
-                <child>
+                <property name="child">
                   <object class="GtkTreeView" id="tree">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
+                    <property name="focusable">1</property>
                     <property name="model">model</property>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection">
@@ -149,7 +67,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn">
-                        <property name="resizable">True</property>
+                        <property name="resizable">1</property>
                         <property name="sizing">fixed</property>
                         <property name="fixed-width">25</property>
                         <child>
@@ -162,8 +80,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn">
-                        <property name="resizable">True</property>
-                        <property name="title" translatable="yes">Progress</property>
+                        <property name="resizable">1</property>
+                        <property name="title" translatable="1">Progress</property>
                         <child>
                           <object class="GtkCellRendererProgress"/>
                           <attributes>
@@ -174,8 +92,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn">
-                        <property name="resizable">True</property>
-                        <property name="title" translatable="yes">Filename</property>
+                        <property name="resizable">1</property>
+                        <property name="title" translatable="1">Filename</property>
                         <child>
                           <object class="GtkCellRendererText"/>
                           <attributes>
@@ -186,8 +104,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn">
-                        <property name="resizable">True</property>
-                        <property name="title" translatable="yes">Size</property>
+                        <property name="resizable">1</property>
+                        <property name="title" translatable="1">Size</property>
                         <child>
                           <object class="GtkCellRendererText"/>
                           <attributes>
@@ -198,8 +116,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn">
-                        <property name="resizable">True</property>
-                        <property name="title" translatable="yes">Remaining</property>
+                        <property name="resizable">1</property>
+                        <property name="title" translatable="1">Remaining</property>
                         <child>
                           <object class="GtkCellRendererText"/>
                           <attributes>
@@ -209,376 +127,313 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                       </object>
                     </child>
                   </object>
-                </child>
+                </property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkCheckButton" id="keep_open">
-                <property name="label" translatable="yes">Close this window when all transfers _finish</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">False</property>
-                <property name="use-underline">True</property>
-                <property name="draw-indicator">True</property>
+                <property name="valign">center</property>
+                <property name="label" translatable="1">Close this window when all transfers _finish</property>
+                <property name="focusable">1</property>
+                <property name="use-underline">1</property>
                 <signal name="toggled" handler="toggle_keep_open_cb" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
             </child>
             <child>
               <object class="GtkCheckButton" id="auto_clear">
-                <property name="label" translatable="yes">C_lear finished transfers</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">False</property>
-                <property name="use-underline">True</property>
-                <property name="draw-indicator">True</property>
+                <property name="valign">center</property>
+                <property name="label" translatable="1">C_lear finished transfers</property>
+                <property name="focusable">1</property>
+                <property name="use-underline">1</property>
                 <signal name="toggled" handler="toggle_clear_finished_cb" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">2</property>
-              </packing>
             </child>
             <child>
               <object class="GtkExpander" id="expander">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">True</property>
-                <property name="resize-toplevel">True</property>
+                <property name="valign">center</property>
+                <property name="sensitive">0</property>
+                <property name="focusable">1</property>
+                <property name="resize-toplevel">1</property>
                 <child>
-                  <!-- n-columns=3 n-rows=10 -->
                   <object class="GtkGrid">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="margin-start">20</property>
                     <property name="row-spacing">6</property>
                     <property name="column-spacing">6</property>
                     <child>
                       <object class="GtkLabel" id="local_user_desc_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="remote_user_desc_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">1</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Protocol:</property>
+                        <property name="label" translatable="1">Protocol:</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">2</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">2</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Filename:</property>
+                        <property name="label" translatable="1">Filename:</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">3</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">3</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Local File:</property>
+                        <property name="label" translatable="1">Local File:</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">4</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">4</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Status:</property>
+                        <property name="label" translatable="1">Status:</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">5</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">5</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Speed:</property>
+                        <property name="label" translatable="1">Speed:</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">6</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">6</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Time Elapsed:</property>
+                        <property name="label" translatable="1">Time Elapsed:</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">7</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">7</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Time Remaining:</property>
+                        <property name="label" translatable="1">Time Remaining:</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
                         <attributes>
-                          <attribute name="weight" value="bold"/>
+                          <attribute name="weight" value="bold"></attribute>
                         </attributes>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">8</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">8</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="local_user_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="hexpand">True</property>
+                        <property name="hexpand">1</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="remote_user_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="hexpand">True</property>
+                        <property name="hexpand">1</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">1</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="protocol_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">2</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="filename_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">3</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">3</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="localfile_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">4</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">4</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="status_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">5</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">5</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="speed_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">6</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">6</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="time_elapsed_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">7</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">7</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="time_remaining_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="justify">right</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">8</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">8</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkProgressBar" id="progress">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="show-text">True</property>
+                        <property name="show-text">1</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">9</property>
+                          <property name="column-span">2</property>
+                        </layout>
                       </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">9</property>
-                        <property name="width">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </object>
                 </child>
                 <child type="label">
                   <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">File transfer _details</property>
-                    <property name="use-underline">True</property>
+                    <property name="label" translatable="1">File transfer _details</property>
+                    <property name="use-underline">1</property>
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">3</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
         </child>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="open_button">
+        <property name="label" translatable="1">_Open</property>
+        <property name="sensitive">0</property>
+        <property name="focusable">1</property>
+        <property name="receives-default">1</property>
+        <property name="use-underline">1</property>
+        <signal name="clicked" handler="open_button_cb" object="PidginXferDialog" swapped="no"/>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="remove_button">
+        <property name="label" translatable="1">_Remove</property>
+        <property name="sensitive">0</property>
+        <property name="focusable">1</property>
+        <property name="receives-default">1</property>
+        <property name="use-underline">1</property>
+        <signal name="clicked" handler="remove_button_cb" object="PidginXferDialog" swapped="no"/>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="stop_button">
+        <property name="label" translatable="1">_Stop</property>
+        <property name="sensitive">0</property>
+        <property name="focusable">1</property>
+        <property name="receives-default">1</property>
+        <property name="use-underline">1</property>
+        <signal name="clicked" handler="stop_button_cb" object="PidginXferDialog" swapped="no"/>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="close_button">
+        <property name="label" translatable="1">_Close</property>
+        <property name="focusable">1</property>
+        <property name="receives-default">1</property>
+        <property name="use-underline">1</property>
+        <signal name="clicked" handler="close_button_cb" object="PidginXferDialog" swapped="no"/>
       </object>
     </child>
   </template>
