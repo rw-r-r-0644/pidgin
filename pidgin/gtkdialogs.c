@@ -42,19 +42,10 @@
 #include "pidgincore.h"
 #include "pidgindialog.h"
 
-static GList *dialogwindows = NULL;
-
 struct _PidginGroupMergeObject {
 	PurpleGroup* parent;
 	char *new_name;
 };
-
-void
-pidgin_dialogs_destroy_all()
-{
-	g_list_free_full(dialogwindows, (GDestroyNotify)gtk_widget_destroy);
-	dialogwindows = NULL;
-}
 
 static void
 pidgin_dialogs_im_cb(gpointer data, PurpleRequestFields *fields)
@@ -146,92 +137,22 @@ pidgin_dialogs_im_with_user(PurpleAccount *account, const char *username)
 	purple_conversation_present(im);
 }
 
-static gboolean
-pidgin_dialogs_ee(const char *ee)
-{
-	GtkWidget *window;
-	GtkWidget *hbox;
-	GtkWidget *label;
-	GtkWidget *img;
-	gchar *norm = purple_strreplace(ee, "rocksmyworld", "");
-
-	label = gtk_label_new(NULL);
-	if (purple_strequal(norm, "zilding"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"purple\">Amazing!  Simply Amazing!</span>");
-	else if (purple_strequal(norm, "robflynn"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"#1f6bad\">Pimpin\' Penguin Style! *Waddle Waddle*</span>");
-	else if (purple_strequal(norm, "flynorange"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				      "<span weight=\"bold\" size=\"large\" foreground=\"blue\">You should be me.  I'm so cute!</span>");
-	else if (purple_strequal(norm, "ewarmenhoven"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"orange\">Now that's what I like!</span>");
-	else if (purple_strequal(norm, "markster97"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"brown\">Ahh, and excellent choice!</span>");
-	else if (purple_strequal(norm, "seanegn"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"#009900\">Every time you click my name, an angel gets its wings.</span>");
-	else if (purple_strequal(norm, "chipx86"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"red\">This sunflower seed taste like pizza.</span>");
-	else if (purple_strequal(norm, "markdoliner"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"#6364B1\">Hey!  I was in that tumbleweed!</span>");
-	else if (purple_strequal(norm, "lschiere"))
-		gtk_label_set_markup(GTK_LABEL(label),
-				     "<span weight=\"bold\" size=\"large\" foreground=\"gray\">I'm not anything.</span>");
-	g_free(norm);
-
-	if (strlen(gtk_label_get_label(GTK_LABEL(label))) <= 0)
-		return FALSE;
-
-	window = gtk_dialog_new_with_buttons(PIDGIN_ALERT_TITLE, NULL, 0,
-			_("_Close"), GTK_RESPONSE_OK, NULL);
-	gtk_dialog_set_default_response (GTK_DIALOG(window), GTK_RESPONSE_OK);
-	g_signal_connect(G_OBJECT(window), "response", G_CALLBACK(gtk_widget_destroy), NULL);
-
-	gtk_container_set_border_width (GTK_CONTAINER(window), 6);
-	gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
-	gtk_box_set_spacing(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(window))),
-	                    12);
-	gtk_container_set_border_width(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(window))),
-	                               6);
-
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
-	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(window))), hbox);
-	img = gtk_image_new_from_icon_name("dialog-cool", GTK_ICON_SIZE_DIALOG);
-	gtk_box_pack_start(GTK_BOX(hbox), img, FALSE, FALSE, 0);
-
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-	gtk_label_set_xalign(GTK_LABEL(label), 0);
-	gtk_label_set_yalign(GTK_LABEL(label), 0);
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-
-	gtk_widget_show_all(window);
-	return TRUE;
-}
-
 static void
 pidgin_dialogs_info_cb(gpointer data, PurpleRequestFields *fields)
 {
 	char *username;
-	gboolean found = FALSE;
 	PurpleAccount *account;
+	const gchar *screenname = NULL;
 
-	account  = purple_request_fields_get_account(fields, "account");
+	account = purple_request_fields_get_account(fields, "account");
 
-	username = g_strdup(purple_normalize(account,
-		purple_request_fields_get_string(fields,  "screenname")));
+	screenname = purple_request_fields_get_string(fields,  "screenname");
+	username = g_strdup(purple_normalize(account, screenname));
 
-	if (username != NULL && g_str_has_suffix(username, "rocksmyworld")) {
-		found = pidgin_dialogs_ee(username);
+	if(username != NULL && *username != '\0' && account != NULL) {
+		pidgin_retrieve_user_info(purple_account_get_connection(account),
+		                          username);
 	}
-
-	if (!found && username != NULL && *username != '\0' && account != NULL)
-		pidgin_retrieve_user_info(purple_account_get_connection(account), username);
 
 	g_free(username);
 }

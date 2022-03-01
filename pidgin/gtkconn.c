@@ -60,8 +60,6 @@ pidgin_connection_disconnected(PurpleConnection *gc)
 {
 	if (purple_connections_get_all() != NULL)
 		return;
-
-	pidgin_dialogs_destroy_all();
 }
 
 static void
