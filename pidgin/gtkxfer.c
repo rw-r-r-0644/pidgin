@@ -368,12 +368,9 @@ ensure_row_selected(PidginXferDialog *dialog)
 /**************************************************************************
  * Callbacks
  **************************************************************************/
-static gint
-delete_win_cb(GtkWidget *w, GdkEventAny *e, gpointer d)
-{
-	PidginXferDialog *dialog;
-
-	dialog = (PidginXferDialog *)d;
+static gboolean
+close_request_cb(GtkWidget *w, gpointer d) {
+	PidginXferDialog *dialog = (PidginXferDialog *)d;
 
 	pidgin_xfer_dialog_hide(dialog);
 
@@ -432,21 +429,10 @@ static void
 open_button_cb(GtkButton *button, PidginXferDialog *dialog)
 {
 	gchar *uri = NULL;
-	GError *error = NULL;
 
 	uri = g_strdup_printf("file://%s",
 	                      purple_xfer_get_local_filename(dialog->selected_xfer));
-	if(!gtk_show_uri_on_window(GTK_WINDOW(dialog), uri, GDK_CURRENT_TIME,
-	                           &error))
-	{
-		gchar *tmp = g_strdup_printf(
-		    _("Error launching %s: %s"),
-		    purple_xfer_get_local_filename(dialog->selected_xfer),
-		    error->message);
-		purple_notify_error(dialog, NULL, _("Unable to open file."), tmp, NULL);
-		g_free(tmp);
-		g_error_free(error);
-	}
+	gtk_show_uri(GTK_WINDOW(dialog), uri, GDK_CURRENT_TIME);
 	g_free(uri);
 }
 
@@ -486,7 +472,7 @@ pidgin_xfer_dialog_class_init(PidginXferDialogClass *klass)
 	gtk_widget_class_set_template_from_resource(
 	        widget_class, "/im/pidgin/Pidgin3/Xfer/xfer.ui");
 
-	gtk_widget_class_bind_template_callback(widget_class, delete_win_cb);
+	gtk_widget_class_bind_template_callback(widget_class, close_request_cb);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginXferDialog,
 	                                     tree);
@@ -579,7 +565,7 @@ pidgin_xfer_dialog_destroy(PidginXferDialog *dialog)
 
 	purple_notify_close_with_handle(dialog);
 
-	gtk_widget_destroy(GTK_WIDGET(dialog));
+	gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
 void
