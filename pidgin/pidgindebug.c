@@ -303,7 +303,7 @@ regex_pref_expression_cb(const gchar *name, PurplePrefType type,
 	PidginDebugWindow *win = (PidginDebugWindow *)data;
 	const gchar *exp = (const gchar *)val;
 
-	gtk_entry_set_text(GTK_ENTRY(win->expression), exp);
+	gtk_editable_set_text(GTK_EDITABLE(win->expression), exp);
 }
 
 static void
@@ -341,7 +341,7 @@ regex_changed_cb(GtkWidget *w, PidginDebugWindow *win) {
 									 FALSE);
 	}
 
-	text = gtk_entry_get_text(GTK_ENTRY(win->expression));
+	text = gtk_editable_get_text(GTK_EDITABLE(win->expression));
 	purple_prefs_set_string(PIDGIN_PREFS_ROOT "/debug/regex", text);
 
 	if (text == NULL || *text == '\0') {
@@ -573,8 +573,8 @@ pidgin_debug_window_init(PidginDebugWindow *win)
 		                               GTK_STYLE_PROVIDER(filter_css),
 		                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-		gtk_entry_set_text(GTK_ENTRY(win->expression),
-						   purple_prefs_get_string(PIDGIN_PREFS_ROOT "/debug/regex"));
+		gtk_editable_set_text(GTK_EDITABLE(win->expression),
+		                      purple_prefs_get_string(PIDGIN_PREFS_ROOT "/debug/regex"));
 		purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/debug/regex",
 									regex_pref_expression_cb, win);
 

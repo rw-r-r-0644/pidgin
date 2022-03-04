@@ -30,7 +30,7 @@ static gboolean
 entry_cb(GtkWidget *entry, gpointer data) {
 	char *pref = data;
 
-	purple_prefs_set_string(pref, gtk_entry_get_text(GTK_ENTRY(entry)));
+	purple_prefs_set_string(pref, gtk_editable_get_text(GTK_EDITABLE(entry)));
 
 	return FALSE;
 }
@@ -75,7 +75,7 @@ make_string_pref(GtkWidget *parent, PurplePluginPref *pref, GtkSizeGroup *sg) {
 			if (format == PURPLE_STRING_FORMAT_TYPE_NONE)
 			{
 				entry = gtk_entry_new();
-				gtk_entry_set_text(GTK_ENTRY(entry), purple_prefs_get_string(pref_name));
+				gtk_editable_set_text(GTK_EDITABLE(entry), purple_prefs_get_string(pref_name));
 				gtk_entry_set_max_length(GTK_ENTRY(entry),
 									 purple_plugin_pref_get_max_length(pref));
 				if (purple_plugin_pref_get_masked(pref))

@@ -203,7 +203,7 @@ pidgin_invite_dialog_get_contact(PidginInviteDialog *dialog) {
 
 	priv = pidgin_invite_dialog_get_instance_private(dialog);
 
-	return gtk_entry_get_text(GTK_ENTRY(priv->contact));
+	return gtk_editable_get_text(GTK_EDITABLE(priv->contact));
 }
 
 void
@@ -217,7 +217,7 @@ pidgin_invite_dialog_set_contact(PidginInviteDialog *dialog,
 	priv = pidgin_invite_dialog_get_instance_private(dialog);
 
 	if(contact != NULL) {
-		gtk_entry_set_text(GTK_ENTRY(priv->contact), contact);
+		gtk_editable_set_text(GTK_EDITABLE(priv->contact), contact);
 
 		g_object_notify_by_pspec(G_OBJECT(dialog), properties[PROP_CONTACT]);
 	}
@@ -231,7 +231,7 @@ pidgin_invite_dialog_get_message(PidginInviteDialog *dialog) {
 
 	priv = pidgin_invite_dialog_get_instance_private(dialog);
 
-	return gtk_entry_get_text(GTK_ENTRY(priv->message));
+	return gtk_editable_get_text(GTK_EDITABLE(priv->message));
 }
 
 void
@@ -245,7 +245,7 @@ pidgin_invite_dialog_set_message(PidginInviteDialog *dialog,
 	priv = pidgin_invite_dialog_get_instance_private(dialog);
 
 	if(message != NULL) {
-		gtk_entry_set_text(GTK_ENTRY(priv->message), message);
+		gtk_editable_set_text(GTK_EDITABLE(priv->message), message);
 
 		g_object_notify_by_pspec(G_OBJECT(dialog), properties[PROP_MESSAGE]);
 	}

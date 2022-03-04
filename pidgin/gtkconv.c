@@ -1325,7 +1325,7 @@ static void topic_callback(GtkWidget *w, PidginConversation *gtkconv)
 		return;
 
 	gtkconv = PIDGIN_CONVERSATION(conv);
-	new_topic = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtkconv->topic_text)));
+	new_topic = g_strdup(gtk_editable_get_text(GTK_EDITABLE(gtkconv->topic_text)));
 	current_topic = purple_chat_conversation_get_topic(PURPLE_CHAT_CONVERSATION(conv));
 
 	if(current_topic && !g_utf8_collate(new_topic, current_topic)){
@@ -1333,10 +1333,11 @@ static void topic_callback(GtkWidget *w, PidginConversation *gtkconv)
 		return;
 	}
 
-	if (current_topic)
-		gtk_entry_set_text(GTK_ENTRY(gtkconv->topic_text), current_topic);
-	else
-		gtk_entry_set_text(GTK_ENTRY(gtkconv->topic_text), "");
+	if (current_topic) {
+		gtk_editable_set_text(GTK_EDITABLE(gtkconv->topic_text), current_topic);
+	} else {
+		gtk_editable_set_text(GTK_EDITABLE(gtkconv->topic_text), "");
+	}
 
 	purple_protocol_chat_set_topic(PURPLE_PROTOCOL_CHAT(protocol), gc, purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv)),
 			new_topic);
@@ -2266,7 +2267,7 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 		{
 			topic = purple_chat_conversation_get_topic(PURPLE_CHAT_CONVERSATION(conv));
 
-			gtk_entry_set_text(GTK_ENTRY(gtkconv->topic_text), topic ? topic : "");
+			gtk_editable_set_text(GTK_EDITABLE(gtkconv->topic_text), topic ? topic : "");
 			gtk_widget_set_tooltip_text(gtkconv->topic_text,
 			                            topic ? topic : "");
 		}
@@ -2298,7 +2299,7 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 			}
 		} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
 			const char *topic = gtkconv->topic_text
-				? gtk_entry_get_text(GTK_ENTRY(gtkconv->topic_text))
+				? gtk_editable_get_text(GTK_EDITABLE(gtkconv->topic_text))
 				: NULL;
 			const char *title = purple_conversation_get_title(conv);
 			const char *name = purple_conversation_get_name(conv);

@@ -230,7 +230,7 @@ username_changed_cb(GtkEntry *entry, AccountPrefsDialog *dialog)
 	gboolean opt_noscreenname = (dialog->protocol != NULL &&
 		(purple_protocol_get_options(dialog->protocol) & OPT_PROTO_REGISTER_NOSCREENNAME));
 	gboolean username_valid = purple_validate(dialog->protocol,
-		gtk_entry_get_text(entry));
+		gtk_editable_get_text(GTK_EDITABLE(entry)));
 
 	if (dialog->ok_button) {
 		if (opt_noscreenname && dialog->register_button &&
@@ -261,14 +261,14 @@ register_button_cb(GtkWidget *checkbox, AccountPrefsDialog *dialog)
 	int register_noscreenname = (opt_noscreenname && register_checked);
 
 	if (register_noscreenname) {
-		gtk_entry_set_text(GTK_ENTRY(dialog->username_entry), "");
+		gtk_editable_set_text(GTK_EDITABLE(dialog->username_entry), "");
 	}
 	gtk_widget_set_sensitive(dialog->username_entry, !register_noscreenname);
 
 	if (dialog->ok_button) {
 		gtk_widget_set_sensitive(dialog->ok_button,
 			(opt_noscreenname && register_checked) ||
-			*gtk_entry_get_text(GTK_ENTRY(dialog->username_entry))
+			*gtk_editable_get_text(GTK_EDITABLE(dialog->username_entry))
 				!= '\0');
 	}
 }
@@ -488,15 +488,17 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 		if (value == NULL)
 			value = purple_account_user_split_get_default_value(split);
 
-		if (value != NULL && entry != NULL)
-			gtk_entry_set_text(GTK_ENTRY(entry), value);
+		if (value != NULL && entry != NULL) {
+			gtk_editable_set_text(GTK_EDITABLE(entry), value);
+		}
 	}
 
 	g_list_free_full(user_splits,
 	                 (GDestroyNotify)purple_account_user_split_destroy);
 
-	if (username != NULL)
-		gtk_entry_set_text(GTK_ENTRY(dialog->username_entry), username);
+	if (username != NULL) {
+		gtk_editable_set_text(GTK_EDITABLE(dialog->username_entry), username);
+	}
 
 	g_free(username);
 
@@ -607,9 +609,10 @@ add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 		gpointer data = NULL;
 		size_t len = 0;
 
-		if (purple_account_get_private_alias(dialog->account))
-			gtk_entry_set_text(GTK_ENTRY(dialog->alias_entry),
-							   purple_account_get_private_alias(dialog->account));
+		if (purple_account_get_private_alias(dialog->account)) {
+			gtk_editable_set_text(GTK_EDITABLE(dialog->alias_entry),
+			                      purple_account_get_private_alias(dialog->account));
+		}
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dialog->icon_check),
 					     !purple_account_get_bool(dialog->account, "use-global-buddyicon",
@@ -745,7 +748,7 @@ add_account_options(AccountPrefsDialog *dialog)
 				g_snprintf(buf, sizeof(buf), "%d", int_value);
 
 				opt_entry->widget = entry = gtk_entry_new();
-				gtk_entry_set_text(GTK_ENTRY(entry), buf);
+				gtk_editable_set_text(GTK_EDITABLE(entry), buf);
 
 				title = g_strdup_printf("_%s:",
 						purple_account_option_get_text(option));
@@ -791,11 +794,12 @@ add_account_options(AccountPrefsDialog *dialog)
 					gtk_entry_set_visibility(GTK_ENTRY(entry), FALSE);
 				}
 
-				if (str_value != NULL && str_hints)
-					gtk_entry_set_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(entry))),
-					                   str_value);
-				else
-					gtk_entry_set_text(GTK_ENTRY(entry), str_value ? str_value : "");
+				if (str_value != NULL && str_hints) {
+					gtk_editable_set_text(GTK_EDITABLE(gtk_bin_get_child(GTK_BIN(entry))),
+					                      str_value);
+				} else {
+					gtk_editable_set_text(GTK_EDITABLE(entry), str_value ? str_value : "");
+				}
 
 				title = g_strdup_printf("_%s:",
 						purple_account_option_get_text(option));
@@ -963,7 +967,7 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 	manager = purple_account_manager_get_default();
 
 	/* Build the username string. */
-	username = g_strdup(gtk_entry_get_text(GTK_ENTRY(dialog->username_entry)));
+	username = g_strdup(gtk_editable_get_text(GTK_EDITABLE(dialog->username_entry)));
 
 	if (dialog->protocol != NULL)
 	{
@@ -976,7 +980,7 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 			GtkEntry *entry = l2->data;
 			char sep[2] = " ";
 
-			value = entry ? gtk_entry_get_text(entry) : "";
+			value = entry ? gtk_editable_get_text(GTK_EDITABLE(entry)) : "";
 			if (!value)
 				value = "";
 
@@ -1023,7 +1027,7 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 	}
 
 	/* Alias */
-	value = gtk_entry_get_text(GTK_ENTRY(dialog->alias_entry));
+	value = gtk_editable_get_text(GTK_EDITABLE(dialog->alias_entry));
 
 	if (*value != '\0')
 		purple_account_set_private_alias(account, value);
@@ -1092,12 +1096,12 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 					if (GTK_IS_COMBO_BOX(opt_entry->widget))
 						value = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(opt_entry->widget));
 					else
-						value = gtk_entry_get_text(GTK_ENTRY(opt_entry->widget));
+						value = gtk_editable_get_text(GTK_EDITABLE(opt_entry->widget));
 					purple_account_set_string(account, opt_entry->setting, value);
 					break;
 
 				case PURPLE_PREF_INT:
-					int_value = atoi(gtk_entry_get_text(GTK_ENTRY(opt_entry->widget)));
+					int_value = atoi(gtk_editable_get_text(GTK_EDITABLE(opt_entry->widget)));
 					purple_account_set_int(account, opt_entry->setting, int_value);
 					break;
 

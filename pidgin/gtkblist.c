@@ -755,10 +755,10 @@ static void gtk_blist_renderer_editing_started_cb(GtkCellRenderer *renderer,
 	else
 		g_return_if_reached();
 
-	if (GTK_IS_ENTRY (editable)) {
-		GtkEntry *entry = GTK_ENTRY (editable);
-		gtk_entry_set_text(entry, text);
+	if(GTK_IS_EDITABLE(editable)) {
+		gtk_editable_set_text(GTK_EDITABLE(editable), text);
 	}
+
 	editing_blist = TRUE;
 }
 
@@ -955,7 +955,7 @@ do_join_chat(PidginChatData *data)
 			{
 				g_hash_table_replace(components,
 					g_strdup(g_object_get_data(tmp->data, "identifier")),
-					g_strdup(gtk_entry_get_text(tmp->data)));
+					g_strdup(gtk_editable_get_text(GTK_EDITABLE(tmp->data))));
 			}
 		}
 
@@ -1008,7 +1008,7 @@ set_sensitive_if_input_chat_cb(GtkWidget *entry, gpointer user_data)
 		if (!g_object_get_data(tmp->data, "is_spin"))
 		{
 			required = GPOINTER_TO_INT(g_object_get_data(tmp->data, "required"));
-			text = gtk_entry_get_text(tmp->data);
+			text = gtk_editable_get_text(GTK_EDITABLE(tmp->data));
 			if (required && (*text == '\0'))
 				sensitive = FALSE;
 		}
@@ -1031,7 +1031,7 @@ set_sensitive_if_input_buddy_cb(GtkWidget *entry, gpointer user_data)
 	const char *text;
 
 	protocol = purple_account_get_protocol(data->rq_data.account);
-	text = gtk_entry_get_text(GTK_ENTRY(entry));
+	text = gtk_editable_get_text(GTK_EDITABLE(entry));
 
 	gtk_dialog_set_response_sensitive(GTK_DIALOG(data->rq_data.window),
 		GTK_RESPONSE_OK, purple_validate(protocol, text));
@@ -1216,8 +1216,9 @@ rebuild_chat_entries(PidginChatData *data, const char *default_chat_name)
 			input = gtk_entry_new();
 			gtk_entry_set_activates_default(GTK_ENTRY(input), TRUE);
 			value = g_hash_table_lookup(defaults, pce->identifier);
-			if (value != NULL)
-				gtk_entry_set_text(GTK_ENTRY(input), value);
+			if(value != NULL) {
+				gtk_editable_set_text(GTK_EDITABLE(input), value);
+			}
 			if (pce->secret)
 			{
 				gtk_entry_set_visibility(GTK_ENTRY(input), FALSE);
@@ -4029,12 +4030,12 @@ add_buddy_cb(GtkWidget *w, int resp, PidginAddBuddyData *data)
 	{
 		PurpleConversationManager *manager;
 
-		who = gtk_entry_get_text(GTK_ENTRY(data->entry));
+		who = gtk_editable_get_text(GTK_EDITABLE(data->entry));
 		grp = pidgin_text_combo_box_entry_get_text(data->combo);
-		whoalias = gtk_entry_get_text(GTK_ENTRY(data->entry_for_alias));
+		whoalias = gtk_editable_get_text(GTK_EDITABLE(data->entry_for_alias));
 		if (*whoalias == '\0')
 			whoalias = NULL;
-		invite = gtk_entry_get_text(GTK_ENTRY(data->entry_for_invite));
+		invite = gtk_editable_get_text(GTK_EDITABLE(data->entry_for_invite));
 		if (*invite == '\0')
 			invite = NULL;
 
@@ -4131,11 +4132,12 @@ pidgin_blist_request_add_buddy(PurpleBuddyList *list, PurpleAccount *account,
 		data->rq_data.sg, data->entry, TRUE, NULL);
 	gtk_widget_grab_focus(data->entry);
 
-	if (username != NULL)
-		gtk_entry_set_text(GTK_ENTRY(data->entry), username);
-	else
+	if (username != NULL) {
+		gtk_editable_set_text(GTK_EDITABLE(data->entry), username);
+	} else {
 		gtk_dialog_set_response_sensitive(GTK_DIALOG(data->rq_data.window),
 		                                  GTK_RESPONSE_OK, FALSE);
+	}
 
 	gtk_entry_set_activates_default (GTK_ENTRY(data->entry), TRUE);
 
@@ -4148,8 +4150,9 @@ pidgin_blist_request_add_buddy(PurpleBuddyList *list, PurpleAccount *account,
 	                          data->rq_data.sg, data->entry_for_alias, TRUE,
 	                          NULL);
 
-	if (alias != NULL)
-		gtk_entry_set_text(GTK_ENTRY(data->entry_for_alias), alias);
+	if (alias != NULL) {
+		gtk_editable_set_text(GTK_EDITABLE(data->entry_for_alias), alias);
+	}
 
 	if (username != NULL)
 		gtk_widget_grab_focus(GTK_WIDGET(data->entry_for_alias));
@@ -4191,7 +4194,7 @@ add_chat_cb(GtkWidget *w, PidginAddChatData *data)
 		}
 		else
 		{
-			const char *value = gtk_entry_get_text(tmp->data);
+			const char *value = gtk_editable_get_text(GTK_EDITABLE(tmp->data));
 
 			if (*value != '\0')
 				g_hash_table_replace(components,
@@ -4201,7 +4204,7 @@ add_chat_cb(GtkWidget *w, PidginAddChatData *data)
 	}
 
 	chat = purple_chat_new(data->chat_data.rq_data.account,
-	                       gtk_entry_get_text(GTK_ENTRY(data->alias_entry)),
+	                       gtk_editable_get_text(GTK_EDITABLE(data->alias_entry)),
 	                       components);
 
 	if (chat != NULL) {
@@ -4314,8 +4317,9 @@ pidgin_blist_request_add_chat(PurpleBuddyList *list, PurpleAccount *account,
 	rebuild_chat_entries((PidginChatData *)data, name);
 
 	data->alias_entry = gtk_entry_new();
-	if (alias != NULL)
-		gtk_entry_set_text(GTK_ENTRY(data->alias_entry), alias);
+	if (alias != NULL) {
+		gtk_editable_set_text(GTK_EDITABLE(data->alias_entry), alias);
+	}
 	gtk_entry_set_activates_default(GTK_ENTRY(data->alias_entry), TRUE);
 
 	pidgin_add_widget_to_vbox(GTK_BOX(vbox), _("A_lias:"),

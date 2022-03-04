@@ -110,7 +110,7 @@ entry_set(GtkEntry *entry, gpointer data)
 {
 	const char *key = (const char*)data;
 
-	purple_prefs_set_string(key, gtk_entry_get_text(entry));
+	purple_prefs_set_string(key, gtk_editable_get_text(GTK_EDITABLE(entry)));
 }
 
 void
@@ -120,7 +120,7 @@ pidgin_prefs_bind_entry(const char *key, GtkWidget *entry)
 
 	value = purple_prefs_get_string(key);
 
-	gtk_entry_set_text(GTK_ENTRY(entry), value);
+	gtk_editable_set_text(GTK_EDITABLE(entry), value);
 	g_signal_connect(G_OBJECT(entry), "changed", G_CALLBACK(entry_set),
 			(char*)key);
 }

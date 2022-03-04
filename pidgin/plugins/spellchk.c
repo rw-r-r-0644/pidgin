@@ -1919,7 +1919,7 @@ static void case_sensitive_toggled(GtkCellRendererToggle *cellrenderertoggle,
 static void list_add_new(void)
 {
 	GtkTreeIter iter;
-	const char *word = gtk_entry_get_text(GTK_ENTRY(bad_entry));
+	const char *word = gtk_editable_get_text(GTK_EDITABLE(bad_entry));
 	gboolean case_sensitive = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(case_toggle));
 
 	if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter)) {
@@ -1965,7 +1965,7 @@ static void list_add_new(void)
 
 				purple_notify_error(NULL, _("Duplicate Correction"),
 					_("The specified word already exists in the correction list."),
-					gtk_entry_get_text(GTK_ENTRY(bad_entry)), NULL);
+					gtk_editable_get_text(GTK_EDITABLE(bad_entry)), NULL);
 				return;
 			}
 
@@ -1980,7 +1980,7 @@ static void list_add_new(void)
 	gtk_list_store_append(model, &iter);
 	gtk_list_store_set(model, &iter,
 		BAD_COLUMN, word,
-		GOOD_COLUMN, gtk_entry_get_text(GTK_ENTRY(good_entry)),
+		GOOD_COLUMN, gtk_editable_get_text(GTK_EDITABLE(good_entry)),
 		WORD_ONLY_COLUMN, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(complete_toggle)),
 		CASE_SENSITIVE_COLUMN, case_sensitive,
 		-1);
@@ -2092,8 +2092,8 @@ static gboolean non_empty(const char *s)
 static void on_entry_changed(GtkEditable *editable, gpointer data)
 {
 	gtk_widget_set_sensitive((GtkWidget*)data,
-		non_empty(gtk_entry_get_text(GTK_ENTRY(bad_entry))) &&
-		non_empty(gtk_entry_get_text(GTK_ENTRY(good_entry))));
+		non_empty(gtk_editable_get_text(GTK_EDITABLE(bad_entry))) &&
+		non_empty(gtk_editable_get_text(GTK_EDITABLE(good_entry))));
 }
 
 static void whole_words_button_toggled(GtkToggleButton *complete_toggle, GtkToggleButton *case_toggle)
