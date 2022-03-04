@@ -335,7 +335,7 @@ iq_clicked_cb(GtkWidget *w, gpointer data)
 	const gchar *to;
 	char *stanza;
 
-	to = gtk_entry_get_text(console->iq.to);
+	to = gtk_editable_get_text(GTK_EDITABLE(console->iq.to));
 	stanza = g_strdup_printf(
 	        "<iq %s%s%s id='console%x' type='%s'>", to && *to ? "to='" : "",
 	        to && *to ? to : "", to && *to ? "'" : "", g_random_int(),
@@ -345,7 +345,7 @@ iq_clicked_cb(GtkWidget *w, gpointer data)
 	g_free(stanza);
 
 	/* Reset everything. */
-	gtk_entry_set_text(console->iq.to, "");
+	gtk_editable_set_text(GTK_EDITABLE(console->iq.to), "");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(console->iq.type), 0);
 	gtk_popover_popdown(console->iq.popover);
 }
@@ -358,7 +358,7 @@ presence_clicked_cb(GtkWidget *w, gpointer data)
 	gchar *type, *show;
 	char *stanza;
 
-	to = gtk_entry_get_text(console->presence.to);
+	to = gtk_editable_get_text(GTK_EDITABLE(console->presence.to));
 	type = gtk_combo_box_text_get_active_text(console->presence.type);
 	if (purple_strequal(type, "default")) {
 		g_free(type);
@@ -369,8 +369,8 @@ presence_clicked_cb(GtkWidget *w, gpointer data)
 		g_free(show);
 		show = g_strdup("");
 	}
-	status = gtk_entry_get_text(console->presence.status);
-	priority = gtk_entry_get_text(console->presence.priority);
+	status = gtk_editable_get_text(GTK_EDITABLE(console->presence.status));
+	priority = gtk_editable_get_text(GTK_EDITABLE(console->presence.priority));
 	if (purple_strequal(priority, "0"))
 		priority = "";
 
@@ -404,11 +404,11 @@ presence_clicked_cb(GtkWidget *w, gpointer data)
 	g_free(show);
 
 	/* Reset everything. */
-	gtk_entry_set_text(console->presence.to, "");
+	gtk_editable_set_text(GTK_EDITABLE(console->presence.to), "");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(console->presence.type), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(console->presence.show), 0);
-	gtk_entry_set_text(console->presence.status, "");
-	gtk_entry_set_text(console->presence.priority, "0");
+	gtk_editable_set_text(GTK_EDITABLE(console->presence.status), "");
+	gtk_editable_set_text(GTK_EDITABLE(console->presence.priority), "0");
 	gtk_popover_popdown(console->presence.popover);
 }
 
@@ -419,10 +419,10 @@ message_clicked_cb(GtkWidget *w, gpointer data)
 	const gchar *to, *body, *thread, *subject;
 	char *stanza;
 
-	to = gtk_entry_get_text(console->message.to);
-	body = gtk_entry_get_text(console->message.body);
-	thread = gtk_entry_get_text(console->message.thread);
-	subject = gtk_entry_get_text(console->message.subject);
+	to = gtk_editable_get_text(GTK_EDITABLE(console->message.to));
+	body = gtk_editable_get_text(GTK_EDITABLE(console->message.body));
+	thread = gtk_editable_get_text(GTK_EDITABLE(console->message.thread));
+	subject = gtk_editable_get_text(GTK_EDITABLE(console->message.subject));
 
 	stanza = g_strdup_printf(
 	        "<message %s%s%s id='console%x' type='%s'>"
@@ -446,11 +446,11 @@ message_clicked_cb(GtkWidget *w, gpointer data)
 	g_free(stanza);
 
 	/* Reset everything. */
-	gtk_entry_set_text(console->message.to, "");
+	gtk_editable_set_text(GTK_EDITABLE(console->message.to), "");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(console->message.type), 0);
-	gtk_entry_set_text(console->message.body, "");
-	gtk_entry_set_text(console->message.subject, "0");
-	gtk_entry_set_text(console->message.thread, "0");
+	gtk_editable_set_text(GTK_EDITABLE(console->message.body), "");
+	gtk_editable_set_text(GTK_EDITABLE(console->message.subject), "0");
+	gtk_editable_set_text(GTK_EDITABLE(console->message.thread), "0");
 	gtk_popover_popdown(console->message.popover);
 }
 

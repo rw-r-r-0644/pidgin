@@ -524,7 +524,7 @@ static gboolean buddyname_completion_match_selected_cb(GtkEntryCompletion *compl
 
 	val.g_type = 0;
 	gtk_tree_model_get_value(model, iter, COMPLETION_BUDDY_COLUMN, &val);
-	gtk_entry_set_text(GTK_ENTRY(data->entry), g_value_get_string(&val));
+	gtk_editable_set_text(GTK_EDITABLE(data->entry), g_value_get_string(&val));
 	g_value_unset(&val);
 
 	gtk_tree_model_get_value(model, iter, COMPLETION_ACCOUNT_COLUMN, &val);
@@ -1163,7 +1163,7 @@ static void
 combo_box_changed_cb(GtkComboBoxText *combo_box, GtkEntry *entry)
 {
 	char *text = gtk_combo_box_text_get_active_text(combo_box);
-	gtk_entry_set_text(entry, text ? text : "");
+	gtk_editable_set_text(GTK_EDITABLE(entry), text ? text : "");
 	g_free(text);
 }
 
@@ -1192,8 +1192,9 @@ pidgin_text_combo_box_entry_new(const char *default_item, GList *items)
 	ret = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new_with_entry());
 	the_entry = gtk_bin_get_child(GTK_BIN(ret));
 
-	if (default_item)
-		gtk_entry_set_text(GTK_ENTRY(the_entry), default_item);
+	if(default_item) {
+		gtk_editable_set_text(GTK_EDITABLE(the_entry), default_item);
+	}
 
 	for (; items != NULL ; items = items->next) {
 		char *text = items->data;
@@ -1212,9 +1213,9 @@ pidgin_text_combo_box_entry_new(const char *default_item, GList *items)
 	return GTK_WIDGET(ret);
 }
 
-const char *pidgin_text_combo_box_entry_get_text(GtkWidget *widget)
-{
-	return gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN((widget)))));
+const char *
+pidgin_text_combo_box_entry_get_text(GtkWidget *widget) {
+	return gtk_editable_get_text(GTK_EDITABLE(gtk_bin_get_child(GTK_BIN((widget)))));
 }
 
 GtkWidget *

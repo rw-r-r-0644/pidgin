@@ -151,7 +151,7 @@ input_response_cb(GtkDialog *dialog, gint id, PidginRequestData *data)
 		value = multiline_value;
 	}
 	else {
-		value = gtk_entry_get_text(GTK_ENTRY(data->u.input.entry));
+		value = gtk_editable_get_text(GTK_EDITABLE(data->u.input.entry));
 	}
 
 	if (id >= 0 && (gsize)id < data->cb_count && data->cbs[id] != NULL)
@@ -216,7 +216,7 @@ field_string_focus_out_cb(GtkWidget *entry, GdkEventFocus *event,
 		value = gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, FALSE);
 	}
 	else
-		value = gtk_entry_get_text(GTK_ENTRY(entry));
+		value = gtk_editable_get_text(GTK_EDITABLE(entry));
 
 	purple_request_field_string_set_value(field,
 			(*value == '\0' ? NULL : value));
@@ -604,7 +604,7 @@ pidgin_request_input(const char *title, const char *primary,
 		gtk_box_pack_start(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
 
 		if(default_value != NULL) {
-			gtk_entry_set_text(GTK_ENTRY(entry), default_value);
+			gtk_editable_set_text(GTK_EDITABLE(entry), default_value);
 		}
 
 		if(masked) {
@@ -1018,7 +1018,7 @@ req_entry_field_changed_cb(GtkWidget *entry, PurpleRequestField *field)
 	else
 	{
 		const char *text = NULL;
-		text = gtk_entry_get_text(GTK_ENTRY(entry));
+		text = gtk_editable_get_text(GTK_EDITABLE(entry));
 		purple_request_field_string_set_value(field, (*text == '\0') ? NULL : text);
 	}
 }
@@ -1153,8 +1153,9 @@ create_string_field(PurpleRequestField *field)
 
 		setup_entry_field(widget, field);
 
-		if (value != NULL)
-			gtk_entry_set_text(GTK_ENTRY(widget), value);
+		if(value != NULL) {
+			gtk_editable_set_text(GTK_EDITABLE(widget), value);
+		}
 
 		gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
 

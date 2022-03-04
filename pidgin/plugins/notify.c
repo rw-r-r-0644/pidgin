@@ -554,7 +554,7 @@ method_toggle_cb(GtkWidget *widget, gpointer data)
 		gtk_widget_set_sensitive(entry, on);
 
 		purple_prefs_set_string("/plugins/gtk/X11/notify/title_string",
-		                      gtk_entry_get_text(GTK_ENTRY(entry)));
+		                        gtk_editable_get_text(GTK_EDITABLE(entry)));
 	}
 
 	apply_method();
@@ -582,7 +582,7 @@ options_entry_cb(GtkWidget *widget, GdkEventFocus *evt, gpointer data)
 
 	if (purple_strequal(data, "method_string")) {
 		purple_prefs_set_string("/plugins/gtk/X11/notify/title_string",
-		                      gtk_entry_get_text(GTK_ENTRY(widget)));
+		                        gtk_editable_get_text(GTK_EDITABLE(widget)));
 	}
 
 	apply_method();
@@ -708,8 +708,8 @@ get_config_frame(PurplePlugin *plugin)
 	gtk_entry_set_max_length(GTK_ENTRY(entry), 10);
 	gtk_widget_set_sensitive(GTK_WIDGET(entry),
 	                         purple_prefs_get_bool("/plugins/gtk/X11/notify/method_string"));
-	gtk_entry_set_text(GTK_ENTRY(entry),
-	                   purple_prefs_get_string("/plugins/gtk/X11/notify/title_string"));
+	gtk_editable_set_text(GTK_EDITABLE(entry),
+	                      purple_prefs_get_string("/plugins/gtk/X11/notify/title_string"));
 	g_object_set_data(G_OBJECT(toggle), "title-entry", entry);
 	g_signal_connect(G_OBJECT(toggle), "toggled",
 	                 G_CALLBACK(method_toggle_cb), "method_string");
