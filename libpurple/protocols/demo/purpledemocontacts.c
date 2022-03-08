@@ -76,6 +76,27 @@ purple_demo_protocol_load_status(PurpleAccount *account, PurpleGroup *group,
 }
 
 static void
+purple_demo_protocol_load_icon(PurpleAccount *account, const gchar *name)
+{
+	gchar *path = NULL;
+	GBytes *icon = NULL;
+	gpointer icon_data = NULL;
+	gsize icon_len = 0;
+
+	path = g_strdup_printf("/im/pidgin/purple/demo/buddy_icons/%s.png", name);
+	icon = g_resource_lookup_data(purple_demo_get_resource(), path, G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+	g_free(path);
+
+	if(icon == NULL) {
+		/* No stored icon. */
+		return;
+	}
+
+	icon_data = g_bytes_unref_to_data(icon, &icon_len);
+	purple_buddy_icons_set_for_user(account, name, icon_data, icon_len, NULL);
+}
+
+static void
 purple_demo_protocol_load_buddies(PurpleAccount *account, PurpleGroup *group,
                                   PurpleContact *contact, GList *buddies)
 {
@@ -104,6 +125,7 @@ purple_demo_protocol_load_buddies(PurpleAccount *account, PurpleGroup *group,
 				purple_blist_add_buddy(buddy, contact, group, NULL);
 			}
 
+			purple_demo_protocol_load_icon(account, name);
 			purple_demo_protocol_load_status(account, group, contact, buddy,
 			                                 buddy_object);
 		}
