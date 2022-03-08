@@ -310,14 +310,15 @@ pidgin_avatar_button_press_handler(GtkWidget *widget, GdkEventButton *event,
 	builder = gtk_builder_new_from_resource("/im/pidgin/Pidgin3/Avatar/menu.ui");
 	model = (GMenuModel *)gtk_builder_get_object(builder, "menu");
 
-	menu = gtk_menu_new_from_model(model);
-	gtk_menu_attach_to_widget(GTK_MENU(menu), GTK_WIDGET(avatar), NULL);
+	menu = gtk_popover_menu_new();
+	gtk_popover_bind_model(GTK_POPOVER(menu), model, NULL);
+	gtk_popover_set_relative_to(GTK_POPOVER(menu), GTK_WIDGET(avatar));
+	gtk_popover_set_pointing_to(GTK_POPOVER(menu),
+	                            &(const GdkRectangle){(int)event->x, (int)event->y, 0, 0});
 
 	g_clear_object(&builder);
 
-	gtk_widget_show_all(menu);
-
-	gtk_menu_popup_at_pointer(GTK_MENU(menu), (GdkEvent *)event);
+	gtk_popover_popup(GTK_POPOVER(menu));
 
 	return TRUE;
 }
