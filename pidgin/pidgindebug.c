@@ -461,48 +461,6 @@ filter_level_changed_cb(GtkWidget *combo, gpointer null)
 }
 
 static void
-toolbar_style_pref_changed_cb(const char *name, PurplePrefType type, gconstpointer value, gpointer data)
-{
-	gtk_toolbar_set_style(GTK_TOOLBAR(data), GPOINTER_TO_INT(value));
-}
-
-static void
-toolbar_icon_pref_changed(GtkWidget *item, GtkWidget *toolbar)
-{
-	int style = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "user_data"));
-	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/debug/style", style);
-}
-
-static gboolean
-toolbar_context(GtkWidget *toolbar, gint x, gint y, gint button, gpointer null)
-{
-	GtkWidget *menu, *item;
-	const char *text[3];
-	GtkToolbarStyle value[3];
-	int i;
-
-	text[0] = _("_Icon Only");          value[0] = GTK_TOOLBAR_ICONS;
-	text[1] = _("_Text Only");          value[1] = GTK_TOOLBAR_TEXT;
-	text[2] = _("_Both Icon & Text");   value[2] = GTK_TOOLBAR_BOTH_HORIZ;
-
-	menu = gtk_menu_new();
-
-	for (i = 0; i < 3; i++) {
-		item = gtk_check_menu_item_new_with_mnemonic(text[i]);
-		g_object_set_data(G_OBJECT(item), "user_data", GINT_TO_POINTER(value[i]));
-		g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(toolbar_icon_pref_changed), toolbar);
-		if (value[i] == (GtkToolbarStyle)purple_prefs_get_int(PIDGIN_PREFS_ROOT "/debug/style"))
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	}
-
-	gtk_widget_show_all(menu);
-
-	gtk_menu_popup_at_pointer(GTK_MENU(menu), NULL);
-	return FALSE;
-}
-
-static void
 pidgin_debug_window_class_init(PidginDebugWindowClass *klass) {
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
@@ -551,7 +509,6 @@ pidgin_debug_window_class_init(PidginDebugWindowClass *klass) {
 			widget_class, PidginDebugWindow, popover_invert);
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginDebugWindow, popover_highlight);
-	gtk_widget_class_bind_template_callback(widget_class, toolbar_context);
 	gtk_widget_class_bind_template_callback(widget_class, save_cb);
 	gtk_widget_class_bind_template_callback(widget_class, clear_cb);
 	gtk_widget_class_bind_template_callback(widget_class, pause_cb);
@@ -594,13 +551,8 @@ pidgin_debug_window_init(PidginDebugWindow *win)
 
 	handle = pidgin_debug_get_handle();
 
+	/* Setup our top button bar thingie. */
 	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/toolbar")) {
-		/* Setup our top button bar thingie. */
-		gtk_toolbar_set_style(GTK_TOOLBAR(win->toolbar),
-		                      purple_prefs_get_int(PIDGIN_PREFS_ROOT "/debug/style"));
-		purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/debug/style",
-	                                toolbar_style_pref_changed_cb, win->toolbar);
-
 		/* we purposely disable the toggle button here in case
 		 * /purple/gtk/debug/expression has an empty string.  If it does not have
 		 * an empty string, the change signal will get called and make the
@@ -893,8 +845,6 @@ pidgin_debug_init(void)
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/enabled", FALSE);
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/filterlevel",
 	                     PURPLE_DEBUG_ALL);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/style",
-	                     GTK_TOOLBAR_BOTH_HORIZ);
 
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/debug/toolbar", TRUE);
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/debug/width",  450);
