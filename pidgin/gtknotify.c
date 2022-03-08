@@ -127,9 +127,9 @@ pidgin_widget_decorate_account(GtkWidget *cont, PurpleAccount *account)
 	if (GTK_IS_BOX(cont)) {
 		gtk_widget_set_halign(image, GTK_ALIGN_START);
 		gtk_widget_set_valign(image, GTK_ALIGN_START);
-		gtk_box_pack_end(GTK_BOX(cont), image, FALSE, TRUE, 0);
+		gtk_widget_set_hexpand(image, TRUE);
+		gtk_box_append(GTK_BOX(cont), image);
 	}
-	gtk_widget_show(image);
 }
 
 static void *
@@ -166,8 +166,8 @@ pidgin_notify_message(PurpleNotifyMessageType type, const char *title,
 
 	if (icon_name != NULL)
 	{
-		img = gtk_image_new_from_icon_name(icon_name,
-				GTK_ICON_SIZE_DIALOG);
+		img = gtk_image_new_from_icon_name(icon_name);
+		gtk_image_set_pixel_size(GTK_IMAGE(img), 48);
 		gtk_widget_set_halign(img, GTK_ALIGN_START);
 		gtk_widget_set_valign(img, GTK_ALIGN_START);
 	}
@@ -176,27 +176,20 @@ pidgin_notify_message(PurpleNotifyMessageType type, const char *title,
 										 NULL, 0, _("Close"),
 										 GTK_RESPONSE_CLOSE, NULL);
 
-	gtk_window_set_role(GTK_WINDOW(dialog), "notify_dialog");
-
 	g_signal_connect(G_OBJECT(dialog), "response",
 					 G_CALLBACK(message_response_cb), dialog);
 
-	gtk_container_set_border_width(GTK_CONTAINER(dialog), 12);
 	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
 	gtk_box_set_spacing(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
 	                    12);
-	gtk_container_set_border_width(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
-	                               6);
 
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
-	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
-	                  hbox);
+	gtk_box_append(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+	               hbox);
 
-	if (img != NULL)
-		gtk_box_pack_start(GTK_BOX(hbox), img, FALSE, FALSE, 0);
-
-	pidgin_widget_decorate_account(hbox,
-		purple_request_cpar_get_account(cpar));
+	if (img != NULL) {
+		gtk_box_append(GTK_BOX(hbox), img);
+	}
 
 	primary_esc = g_markup_escape_text(primary, -1);
 	secondary_esc = (secondary != NULL) ? g_markup_escape_text(secondary, -1) : NULL;
@@ -210,26 +203,29 @@ pidgin_notify_message(PurpleNotifyMessageType type, const char *title,
 	label = gtk_label_new(NULL);
 
 	gtk_label_set_markup(GTK_LABEL(label), label_text);
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	gtk_label_set_wrap(GTK_LABEL(label), TRUE);
 	gtk_label_set_selectable(GTK_LABEL(label), TRUE);
 	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_label_set_yalign(GTK_LABEL(label), 0);
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_box_append(GTK_BOX(hbox), label);
+
+	pidgin_widget_decorate_account(hbox,
+		purple_request_cpar_get_account(cpar));
 
 	g_object_set_data(G_OBJECT(dialog), "pidgin-parent-from",
 		purple_request_cpar_get_parent_from(cpar));
 	pidgin_auto_parent_window(dialog);
 
-	gtk_widget_show_all(dialog);
+	gtk_widget_show(dialog);
 
 	return dialog;
 }
 
 static gboolean
-formatted_input_cb(GtkWidget *win, GdkEventKey *event, gpointer data)
+formatted_input_cb(GtkWidget *win, guint keyval, G_GNUC_UNUSED guint keycode,
+                   G_GNUC_UNUSED GdkModifierType state, gpointer data)
 {
-	if (event->keyval == GDK_KEY_Escape)
-	{
+	if (keyval == GDK_KEY_Escape) {
 		purple_notify_close(PURPLE_NOTIFY_FORMATTED, win);
 
 		return TRUE;
@@ -246,6 +242,7 @@ pidgin_notify_formatted(const char *title, const char *primary,
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GtkWidget *button;
+	GtkEventController *event = NULL;
 	GtkWidget *sw;
 	GtkWidget *view;
 	GtkTextBuffer *buffer;
@@ -276,32 +273,34 @@ pidgin_notify_formatted(const char *title, const char *primary,
 	label = gtk_label_new(NULL);
 
 	gtk_label_set_markup(GTK_LABEL(label), label_text);
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	gtk_label_set_wrap(GTK_LABEL(label), TRUE);
 	gtk_label_set_selectable(GTK_LABEL(label), TRUE);
 	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_label_set_yalign(GTK_LABEL(label), 0);
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
+	gtk_box_append(GTK_BOX(vbox), label);
 
 	/* Add the view */
-	sw = gtk_scrolled_window_new(NULL, NULL);
-	gtk_box_pack_start(GTK_BOX(vbox), sw, TRUE, TRUE, 0);
+	sw = gtk_scrolled_window_new();
+	gtk_box_append(GTK_BOX(vbox), sw);
+	gtk_widget_set_valign(sw, GTK_ALIGN_FILL);
+	gtk_widget_set_vexpand(sw, TRUE);
 
 	buffer = talkatu_html_buffer_new();
 	view = talkatu_view_new_with_buffer(buffer);
-	gtk_container_add(GTK_CONTAINER(sw), view);
+	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), view);
 	gtk_widget_set_name(view, "pidgin_notify_view");
 	gtk_widget_set_size_request(view, 300, 250);
-	gtk_widget_show_all(sw);
 
 	/* Add the Close button. */
 	button = gtk_dialog_add_button(GTK_DIALOG(window), _("Close"), GTK_RESPONSE_CLOSE);
 	gtk_widget_grab_focus(button);
 
 	g_signal_connect_swapped(G_OBJECT(button), "clicked",
-							 G_CALLBACK(formatted_close_cb), window);
-	g_signal_connect(G_OBJECT(window), "key_press_event",
-					 G_CALLBACK(formatted_input_cb), NULL);
+	                         G_CALLBACK(formatted_close_cb), window);
+	event = gtk_event_controller_key_new();
+	gtk_widget_add_controller(window, event);
+	g_signal_connect(G_OBJECT(event), "key-pressed",
+	                 G_CALLBACK(formatted_input_cb), NULL);
 
 	/* Make sure URLs are clickable */
 	linked_text = purple_markup_linkify(text);
@@ -371,6 +370,7 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 	GList *l;
 
 	GtkWidget *vbox;
+	GtkWidget *sw;
 	GtkWidget *label;
 	PidginNotifySearchResultsData *data;
 	char *label_text;
@@ -386,7 +386,6 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 	/* Create the window */
 	window = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(window), title ? title :_("Search Results"));
-	gtk_container_set_border_width(GTK_CONTAINER(window), 12);
 	gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 
 	g_signal_connect_swapped(G_OBJECT(window), "delete_event",
@@ -407,11 +406,10 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 	g_free(secondary_esc);
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(label), label_text);
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	gtk_label_set_wrap(GTK_LABEL(label), TRUE);
 	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_label_set_yalign(GTK_LABEL(label), 0);
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
+	gtk_box_append(GTK_BOX(vbox), label);
 	g_free(label_text);
 
 	/* +1 is for the automagically created Status column. */
@@ -435,10 +433,13 @@ pidgin_notify_searchresults(PurpleConnection *gc, const char *title,
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview)),
 								GTK_SELECTION_SINGLE);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), TRUE);
-	gtk_box_pack_start(GTK_BOX(vbox),
-		pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS, -1, -1),
-		TRUE, TRUE, 0);
-	gtk_widget_show(treeview);
+	sw = gtk_scrolled_window_new();
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
+	                               GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), treeview);
+	gtk_widget_set_valign(sw, GTK_ALIGN_FILL);
+	gtk_widget_set_vexpand(sw, TRUE);
+	gtk_box_append(GTK_BOX(vbox), sw);
 
 	renderer = gtk_cell_renderer_pixbuf_new();
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(treeview),
@@ -591,22 +592,22 @@ pidgin_notify_userinfo(PurpleConnection *gc, const char *who,
 static void
 pidgin_close_notify(PurpleNotifyType type, void *ui_handle)
 {
-	if (type == PURPLE_NOTIFY_SEARCHRESULTS)
-	{
+	if (type == PURPLE_NOTIFY_SEARCHRESULTS) {
 		PidginNotifySearchResultsData *data = (PidginNotifySearchResultsData *)ui_handle;
 
-		gtk_widget_destroy(data->window);
+		gtk_window_destroy(GTK_WINDOW(data->window));
 		purple_notify_searchresults_free(data->results);
 
 		g_free(data);
+
+	} else if (ui_handle != NULL) {
+		gtk_window_destroy(GTK_WINDOW(ui_handle));
 	}
-	else if (ui_handle != NULL)
-		gtk_widget_destroy(GTK_WIDGET(ui_handle));
 }
 
 static void *
 pidgin_notify_uri(const char *uri) {
-	gtk_show_uri_on_window(NULL, uri, GDK_CURRENT_TIME, NULL);
+	gtk_show_uri(NULL, uri, GDK_CURRENT_TIME);
 
 	return NULL;
 }
