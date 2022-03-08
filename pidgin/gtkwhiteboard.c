@@ -32,12 +32,6 @@
 #include "gtkwhiteboard.h"
 #include "gtkutils.h"
 
-typedef enum {
-	PIDGIN_WHITEBOARD_BRUSH_UP,
-	PIDGIN_WHITEBOARD_BRUSH_DOWN,
-	PIDGIN_WHITEBOARD_BRUSH_MOTION
-} PidginWhiteboardBrushState;
-
 #define UI_DATA "pidgin-ui-data"
 #define PIDGIN_TYPE_WHITEBOARD (pidgin_whiteboard_get_type())
 G_DECLARE_FINAL_TYPE(PidginWhiteboard, pidgin_whiteboard, PIDGIN, WHITEBOARD,
@@ -74,13 +68,12 @@ struct _PidginWhiteboard
 	int height;
 	int brush_color;
 	int brush_size;
-	PidginWhiteboardBrushState brush_state;
 
 	/* Tracks last position of the mouse when drawing */
-	gint last_x;
-	gint last_y;
-	/* Tracks how many brush motions made */
-	gint motion_count;
+	gdouble start_x;
+	gdouble start_y;
+	gdouble last_x;
+	gdouble last_y;
 };
 
 G_DEFINE_TYPE(PidginWhiteboard, pidgin_whiteboard, GTK_TYPE_WINDOW)
@@ -108,30 +101,24 @@ whiteboard_close_cb(GtkWidget *widget, GdkEvent *event,
 	return FALSE;
 }
 
-static gboolean pidgin_whiteboard_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
+static void
+pidgin_whiteboard_resize(GtkDrawingArea *self, gint width, gint height,
+                         gpointer data)
 {
 	PidginWhiteboard *gtkwb = (PidginWhiteboard*)data;
-	cairo_t *cr;
-	GtkAllocation allocation;
 	GdkRGBA white = {1.0f, 1.0f, 1.0f, 1.0f};
+	cairo_t *cr;
 
-	if (gtkwb->cr) {
-		cairo_destroy(gtkwb->cr);
-	}
-	if (gtkwb->surface) {
-		cairo_surface_destroy(gtkwb->surface);
-	}
+	g_clear_pointer(&gtkwb->cr, cairo_destroy);
+	g_clear_pointer(&gtkwb->surface, cairo_surface_destroy);
 
-	gtk_widget_get_allocation(widget, &allocation);
-
-	gtkwb->surface = cairo_image_surface_create(
-	        CAIRO_FORMAT_RGB24, allocation.width, allocation.height);
+	gtkwb->surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, width,
+	                                            height);
 	gtkwb->cr = cr = cairo_create(gtkwb->surface);
-	gdk_cairo_set_source_rgba(cr, &white);
-	cairo_rectangle(cr, 0, 0, allocation.width, allocation.height);
-	cairo_fill(cr);
 
-	return TRUE;
+	gdk_cairo_set_source_rgba(cr, &white);
+	cairo_rectangle(cr, 0, 0, width, height);
+	cairo_fill(cr);
 }
 
 static gboolean
@@ -144,18 +131,6 @@ pidgin_whiteboard_draw_event(GtkWidget *widget, cairo_t *cr,
 	cairo_paint(cr);
 
 	return FALSE;
-}
-
-static void
-pidgin_whiteboard_set_canvas_as_icon(PidginWhiteboard *gtkwb)
-{
-	GdkPixbuf *pixbuf;
-
-	/* Makes an icon from the whiteboard's canvas 'image' */
-	pixbuf = gdk_pixbuf_get_from_surface(gtkwb->surface, 0, 0, gtkwb->width,
-	                                     gtkwb->height);
-	gtk_window_set_icon(GTK_WINDOW(gtkwb), pixbuf);
-	g_object_unref(pixbuf);
 }
 
 static void
@@ -175,9 +150,9 @@ pidgin_whiteboard_draw_brush_point(PurpleWhiteboard *wb, int x, int y,
 	cairo_arc(gfx_con, x, y, size / 2.0, 0.0, 2.0 * M_PI);
 	cairo_fill(gfx_con);
 
-	gtk_widget_queue_draw_area(widget, x - size / 2, y - size / 2, size,
-	                           size);
+	gtk_widget_queue_draw(widget);
 }
+
 /* Uses Bresenham's algorithm (as provided by Wikipedia) */
 static void
 pidgin_whiteboard_draw_brush_line(PurpleWhiteboard *wb, int x0, int y0, int x1,
@@ -254,178 +229,85 @@ pidgin_whiteboard_draw_brush_line(PurpleWhiteboard *wb, int x0, int y0, int x1,
 	}
 }
 
-static gboolean pidgin_whiteboard_brush_down(GtkWidget *widget, GdkEventButton *event, gpointer data)
+static void
+pidgin_whiteboard_brush_down(GtkGestureDrag* self, gdouble x, gdouble y,
+                             gpointer data)
 {
 	PidginWhiteboard *gtkwb = (PidginWhiteboard*)data;
-
 	PurpleWhiteboard *wb = gtkwb->wb;
 	GList *draw_list = purple_whiteboard_get_draw_list(wb);
 
-	if (gtkwb->brush_state != PIDGIN_WHITEBOARD_BRUSH_UP) {
-		/* Potential double-click DOWN to DOWN? */
-		gtkwb->brush_state = PIDGIN_WHITEBOARD_BRUSH_DOWN;
-
-		/* return FALSE; */
-	}
-
-	gtkwb->brush_state = PIDGIN_WHITEBOARD_BRUSH_DOWN;
-
-	if (event->button == GDK_BUTTON_PRIMARY && gtkwb->cr != NULL) {
+	if(gtkwb->cr != NULL) {
 		/* Check if draw_list has contents; if so, clear it */
-		if(draw_list)
-		{
+		if(draw_list) {
 			purple_whiteboard_draw_list_destroy(draw_list);
 			draw_list = NULL;
 		}
 
 		/* Set tracking variables */
-		gtkwb->last_x = event->x;
-		gtkwb->last_y = event->y;
+		gtkwb->start_x = x;
+		gtkwb->start_y = y;
 
-		gtkwb->motion_count = 0;
+		gtkwb->last_x = 0;
+		gtkwb->last_y = 0;
 
-		draw_list = g_list_append(draw_list,
-		                          GINT_TO_POINTER(gtkwb->last_x));
-		draw_list = g_list_append(draw_list,
-		                          GINT_TO_POINTER(gtkwb->last_y));
+		draw_list = g_list_append(draw_list, GINT_TO_POINTER(gtkwb->start_x));
+		draw_list = g_list_append(draw_list, GINT_TO_POINTER(gtkwb->start_y));
 
-		pidgin_whiteboard_draw_brush_point(gtkwb->wb,
-											 event->x, event->y,
-											 gtkwb->brush_color, gtkwb->brush_size);
+		pidgin_whiteboard_draw_brush_point(gtkwb->wb, gtkwb->start_x,
+		                                   gtkwb->start_y, gtkwb->brush_color,
+		                                   gtkwb->brush_size);
 	}
 
 	purple_whiteboard_set_draw_list(wb, draw_list);
-
-	return TRUE;
 }
 
-static gboolean pidgin_whiteboard_brush_motion(GtkWidget *widget, GdkEventMotion *event, gpointer data)
+static void
+pidgin_whiteboard_brush_motion(GtkGestureDrag* self, gdouble x, gdouble y,
+                               gpointer data)
 {
-	int x;
-	int y;
-	int dx;
-	int dy;
-
-	GdkModifierType state;
-
 	PidginWhiteboard *gtkwb = (PidginWhiteboard*)data;
-
 	PurpleWhiteboard *wb = gtkwb->wb;
 	GList *draw_list = purple_whiteboard_get_draw_list(wb);
 
-	if(event->is_hint)
-		gdk_window_get_device_position(event->window, event->device, &x, &y,
-		                               &state);
-	else
-	{
-		x = event->x;
-		y = event->y;
-		state = event->state;
-	}
+	if (gtkwb->cr != NULL) {
+		gdouble dx, dy;
 
-	if (state & GDK_BUTTON1_MASK && gtkwb->cr != NULL) {
-		if ((gtkwb->brush_state != PIDGIN_WHITEBOARD_BRUSH_DOWN) &&
-		    (gtkwb->brush_state != PIDGIN_WHITEBOARD_BRUSH_MOTION)) {
-			purple_debug_error(
-			        "gtkwhiteboard",
-			        "***Bad brush state transition %d to MOTION\n",
-			        gtkwb->brush_state);
-
-			gtkwb->brush_state = PIDGIN_WHITEBOARD_BRUSH_MOTION;
-
-			return FALSE;
-		}
-		gtkwb->brush_state = PIDGIN_WHITEBOARD_BRUSH_MOTION;
-
-		dx = x - gtkwb->last_x;
-		dy = y - gtkwb->last_y;
-
-		gtkwb->motion_count++;
-
-		/* NOTE 100 is a temporary constant for how many deltas/motions in a
-		 * stroke (needs UI Ops?)
+		/* x and y are relative to the starting post, but we need to know where
+		 * there are according to the last point, so we have to do the algebra.
 		 */
-		if (gtkwb->motion_count == 100) {
-			draw_list = g_list_append(draw_list, GINT_TO_POINTER(dx));
-			draw_list = g_list_append(draw_list, GINT_TO_POINTER(dy));
-
-			/* Send draw list to the draw_list handler */
-			purple_whiteboard_send_draw_list(gtkwb->wb, draw_list);
-
-			/* The brush stroke is finished, clear the list for another one */
-			if(draw_list)
-			{
-				purple_whiteboard_draw_list_destroy(draw_list);
-				draw_list = NULL;
-			}
-
-			/* Reset motion tracking */
-			gtkwb->motion_count = 0;
-
-			draw_list = g_list_append(
-			        draw_list, GINT_TO_POINTER(gtkwb->last_x));
-			draw_list = g_list_append(
-			        draw_list, GINT_TO_POINTER(gtkwb->last_y));
-
-			dx = x - gtkwb->last_x;
-			dy = y - gtkwb->last_y;
-		}
+		dx = (x + gtkwb->start_x - gtkwb->last_x);
+		dy = (y + gtkwb->start_y - gtkwb->last_y);
 
 		draw_list = g_list_append(draw_list, GINT_TO_POINTER(dx));
 		draw_list = g_list_append(draw_list, GINT_TO_POINTER(dy));
 
-		pidgin_whiteboard_draw_brush_line(
-		        gtkwb->wb, gtkwb->last_x, gtkwb->last_y, x, y,
-		        gtkwb->brush_color, gtkwb->brush_size);
+		pidgin_whiteboard_draw_brush_line(gtkwb->wb,
+		                                  gtkwb->start_x + gtkwb->last_x,
+		                                  gtkwb->start_y + gtkwb->last_y,
+		                                  gtkwb->start_x + x,
+		                                  gtkwb->start_y + y,
+		                                  gtkwb->brush_color,
+		                                  gtkwb->brush_size);
 
-		/* Set tracking variables */
 		gtkwb->last_x = x;
 		gtkwb->last_y = y;
 	}
 
 	purple_whiteboard_set_draw_list(wb, draw_list);
-
-	return TRUE;
 }
 
-static gboolean pidgin_whiteboard_brush_up(GtkWidget *widget, GdkEventButton *event, gpointer data)
+static void
+pidgin_whiteboard_brush_up(GtkGestureDrag *self, gdouble x, gdouble y,
+                           gpointer data)
 {
 	PidginWhiteboard *gtkwb = (PidginWhiteboard*)data;
-
 	PurpleWhiteboard *wb = gtkwb->wb;
 	GList *draw_list = purple_whiteboard_get_draw_list(wb);
 
-	if ((gtkwb->brush_state != PIDGIN_WHITEBOARD_BRUSH_DOWN) &&
-	    (gtkwb->brush_state != PIDGIN_WHITEBOARD_BRUSH_MOTION)) {
-		purple_debug_error("gtkwhiteboard",
-		                   "***Bad brush state transition %d to UP\n",
-		                   gtkwb->brush_state);
-
-		gtkwb->brush_state = PIDGIN_WHITEBOARD_BRUSH_UP;
-
-		return FALSE;
-	}
-	gtkwb->brush_state = PIDGIN_WHITEBOARD_BRUSH_UP;
-
-	if (event->button == GDK_BUTTON_PRIMARY && gtkwb->cr != NULL) {
-		/* If the brush was never moved, express two sets of two deltas That's a
-		 * 'point,' but not for Yahoo!
-		 */
-		if (gtkwb->motion_count == 0) {
-			int index;
-
-			/* For Yahoo!, a (0 0) indicates the end of drawing */
-			/* FIXME: Yahoo Doodle specific! */
-			for (index = 0; index < 2; index++) {
-				draw_list = g_list_append(draw_list, 0);
-				draw_list = g_list_append(draw_list, 0);
-			}
-		}
-
+	if(gtkwb->cr != NULL) {
 		/* Send draw list to protocol draw_list handler */
 		purple_whiteboard_send_draw_list(gtkwb->wb, draw_list);
-
-		pidgin_whiteboard_set_canvas_as_icon(gtkwb);
 
 		/* The brush stroke is finished, clear the list for another one
 		 */
@@ -435,8 +317,6 @@ static gboolean pidgin_whiteboard_brush_up(GtkWidget *widget, GdkEventButton *ev
 
 		purple_whiteboard_set_draw_list(wb, NULL);
 	}
-
-	return TRUE;
 }
 
 static void pidgin_whiteboard_set_dimensions(PurpleWhiteboard *wb, int width, int height)
@@ -469,27 +349,17 @@ static void pidgin_whiteboard_clear(PurpleWhiteboard *wb)
 	cairo_rectangle(cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill(cr);
 
-	gtk_widget_queue_draw_area(drawing_area, 0, 0,
-		allocation.width, allocation.height);
+	gtk_widget_queue_draw(drawing_area);
 }
 
-static void pidgin_whiteboard_button_clear_press(GtkWidget *widget, gpointer data)
+static void
+pidgin_whiteboard_clear_response(GtkDialog *self, guint response,
+                                 gpointer data)
 {
-	PidginWhiteboard *gtkwb = (PidginWhiteboard*)(data);
+	PidginWhiteboard *gtkwb = (PidginWhiteboard *)data;
 
-	/* Confirm whether the user really wants to clear */
-	GtkWidget *dialog = gtk_message_dialog_new(
-	        GTK_WINDOW(gtkwb), GTK_DIALOG_DESTROY_WITH_PARENT,
-	        GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "%s",
-	        _("Do you really want to clear?"));
-	gint response = gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
-
-	if (response == GTK_RESPONSE_YES)
-	{
+	if(response == GTK_RESPONSE_YES) {
 		pidgin_whiteboard_clear(gtkwb->wb);
-
-		pidgin_whiteboard_set_canvas_as_icon(gtkwb);
 
 		/* Do protocol specific clearing procedures */
 		purple_whiteboard_send_clear(gtkwb->wb);
@@ -497,47 +367,74 @@ static void pidgin_whiteboard_button_clear_press(GtkWidget *widget, gpointer dat
 }
 
 static void
+pidgin_whiteboard_button_clear_press(GtkWidget *widget, gpointer data) {
+	PidginWhiteboard *gtkwb = (PidginWhiteboard*)(data);
+
+	/* Confirm whether the user really wants to clear */
+	GtkWidget *dialog = gtk_message_dialog_new(
+	        GTK_WINDOW(gtkwb), GTK_DIALOG_DESTROY_WITH_PARENT,
+	        GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "%s",
+	        _("Do you really want to clear?"));
+
+	g_signal_connect(dialog, "response",
+	                 G_CALLBACK(pidgin_whiteboard_clear_response), gtkwb);
+
+	gtk_widget_show(dialog);
+}
+
+static void
+pidgin_whiteboard_save_response(GtkNativeDialog *self, gint response_id,
+                                gpointer data)
+{
+	PidginWhiteboard *gtkwb = (PidginWhiteboard *)data;
+	GdkPixbuf *pixbuf;
+
+	if(response_id == GTK_RESPONSE_ACCEPT) {
+		gboolean success;
+		GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(self));
+		gchar *filename = g_file_get_path(file);
+
+		pixbuf = gdk_pixbuf_get_from_surface(gtkwb->surface, 0, 0,
+		                                     gtkwb->width, gtkwb->height);
+
+		success = gdk_pixbuf_save(pixbuf, filename, "png", NULL,
+		                          "compression", "9", NULL);
+		g_object_unref(pixbuf);
+
+		if (success) {
+			purple_debug_info("gtkwhiteboard", "whiteboard saved to \"%s\"",
+			                  filename);
+		} else {
+			purple_notify_error(NULL, _("Whiteboard"),
+			                    _("Unable to save the file"), NULL, NULL);
+			purple_debug_error("gtkwhiteboard", "whiteboard "
+			                   "couldn't be saved to \"%s\"", filename);
+		}
+
+		g_free(filename);
+	}
+
+	g_object_unref(self);
+}
+
+
+static void
 pidgin_whiteboard_button_save_press(GtkWidget *widget, gpointer _gtkwb)
 {
 	PidginWhiteboard *gtkwb = _gtkwb;
-	GdkPixbuf *pixbuf;
 	GtkFileChooserNative *chooser;
-	int result;
 
 	chooser = gtk_file_chooser_native_new(_("Save File"), GTK_WINDOW(gtkwb),
 	                                      GTK_FILE_CHOOSER_ACTION_SAVE,
 	                                      _("_Save"), _("_Cancel"));
 
-	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(chooser),
-	                                               TRUE);
 	gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(chooser),
 	                                  "whiteboard.png");
 
-	result = gtk_native_dialog_run(GTK_NATIVE_DIALOG(chooser));
-	if (result == GTK_RESPONSE_ACCEPT) {
-		gboolean success;
-		gchar *filename =
-		        gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
+	g_signal_connect(chooser, "response",
+	                 G_CALLBACK(pidgin_whiteboard_save_response), gtkwb);
 
-		pixbuf = gdk_pixbuf_get_from_surface(
-		        gtkwb->surface, 0, 0, gtkwb->width, gtkwb->height);
-
-		success = gdk_pixbuf_save(pixbuf, filename, "png", NULL,
-			"compression", "9", NULL);
-		g_object_unref(pixbuf);
-		if (success) {
-			purple_debug_info("gtkwhiteboard",
-				"whiteboard saved to \"%s\"", filename);
-		} else {
-			purple_notify_error(NULL, _("Whiteboard"),
-				_("Unable to save the file"), NULL, NULL);
-			purple_debug_error("gtkwhiteboard", "whiteboard "
-				"couldn't be saved to \"%s\"", filename);
-		}
-		g_free(filename);
-	}
-
-	g_object_unref(chooser);
+	gtk_native_dialog_show(GTK_NATIVE_DIALOG(chooser));
 }
 
 static void
@@ -606,8 +503,6 @@ pidgin_whiteboard_create(PurpleWhiteboard *wb)
 	/* Make all this (window) visible */
 	gtk_widget_show(GTK_WIDGET(gtkwb));
 
-	pidgin_whiteboard_set_canvas_as_icon(gtkwb);
-
 	/* TODO Specific protocol/whiteboard assignment here? Needs a UI Op? */
 	/* Set default brush size and color */
 	/*
@@ -635,16 +530,12 @@ pidgin_whiteboard_destroy(PurpleWhiteboard *wb)
  * GObject implementation
  *****************************************************************************/
 static void
-pidgin_whiteboard_init(PidginWhiteboard *self)
-{
+pidgin_whiteboard_init(PidginWhiteboard *self) {
 	gtk_widget_init_template(GTK_WIDGET(self));
-
-	self->brush_state = PIDGIN_WHITEBOARD_BRUSH_UP;
 }
 
 static void
-pidgin_whiteboard_finalize(GObject *obj)
-{
+pidgin_whiteboard_finalize(GObject *obj) {
 	PidginWhiteboard *gtkwb = PIDGIN_WHITEBOARD(obj);
 
 	/* Clear graphical memory */
@@ -675,7 +566,7 @@ pidgin_whiteboard_class_init(PidginWhiteboardClass *klass)
 	gtk_widget_class_bind_template_callback(
 	        widget_class, pidgin_whiteboard_draw_event);
 	gtk_widget_class_bind_template_callback(
-	        widget_class, pidgin_whiteboard_configure_event);
+	        widget_class, pidgin_whiteboard_resize);
 	gtk_widget_class_bind_template_callback(
 	        widget_class, pidgin_whiteboard_brush_down);
 	gtk_widget_class_bind_template_callback(
