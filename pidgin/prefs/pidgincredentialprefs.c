@@ -114,15 +114,17 @@ static void
 pidgin_credential_prefs_set_active_provider(PidginCredentialPrefs *prefs,
                                             const gchar *new_id)
 {
-	GList *rows = NULL;
+	GtkWidget *child = NULL;
 
-	rows = gtk_container_get_children(GTK_CONTAINER(prefs->credential_list));
-	for (; rows; rows = g_list_delete_link(rows, rows)) {
+	for (child = gtk_widget_get_first_child(prefs->credential_list);
+	     child;
+	     child = gtk_widget_get_next_sibling(child))
+	{
 		PidginCredentialProviderRow *row = NULL;
 		PurpleCredentialProvider *provider = NULL;
 		const gchar *id = NULL;
 
-		row = PIDGIN_CREDENTIAL_PROVIDER_ROW(rows->data);
+		row = PIDGIN_CREDENTIAL_PROVIDER_ROW(child);
 		provider = pidgin_credential_provider_row_get_provider(row);
 		id = purple_credential_provider_get_id(provider);
 
