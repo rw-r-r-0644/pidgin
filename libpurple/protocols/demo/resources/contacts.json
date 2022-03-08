@@ -21,7 +21,7 @@
 	}],
 	"Work": [{
 		"buddies": [{
-			"name": "Elliot",
+			"name": "Elliott",
 			"status": {
 				"id": "away",
 				"message": "Coding..."

@@ -6,5 +6,10 @@
     <file>icons/22x22/apps/im-purple-demo.png</file>
     <file>icons/48x48/apps/im-purple-demo.png</file>
     <file>icons/scalable/apps/im-purple-demo.svg</file>
+    <file>buddy_icons/Eion.png</file>
+    <file>buddy_icons/Elliott.png</file>
+    <file>buddy_icons/Gary.png</file>
+    <file>buddy_icons/John.png</file>
+    <file>buddy_icons/Richard.png</file>
   </gresource>
 </gresources>
