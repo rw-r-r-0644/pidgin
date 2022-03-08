@@ -145,7 +145,6 @@ funky is going on. The raw text is below for pasting.
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="icon_size">2</property>
-            <signal name="popup-context-menu" handler="toolbar_context" swapped="no"/>
             <child>
               <object class="GtkToolButton" id="save">
                 <property name="visible">True</property>
