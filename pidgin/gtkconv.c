@@ -31,10 +31,6 @@
 
 #define BUF_LONG (4096)
 
-#ifdef HAVE_X11
-# include <X11/Xlib.h>
-#endif
-
 #include <gdk/gdkkeysyms.h>
 
 #include <talkatu.h>

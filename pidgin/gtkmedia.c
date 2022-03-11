@@ -222,42 +222,6 @@ pidgin_media_delete_event_cb(GtkWidget *widget,
 	return FALSE;
 }
 
-#ifdef HAVE_X11
-static int
-pidgin_x_error_handler(Display *display, XErrorEvent *event)
-{
-	const gchar *error_type;
-	switch (event->error_code) {
-#define XERRORCASE(type) case type: error_type = #type; break
-		XERRORCASE(BadAccess);
-		XERRORCASE(BadAlloc);
-		XERRORCASE(BadAtom);
-		XERRORCASE(BadColor);
-		XERRORCASE(BadCursor);
-		XERRORCASE(BadDrawable);
-		XERRORCASE(BadFont);
-		XERRORCASE(BadGC);
-		XERRORCASE(BadIDChoice);
-		XERRORCASE(BadImplementation);
-		XERRORCASE(BadLength);
-		XERRORCASE(BadMatch);
-		XERRORCASE(BadName);
-		XERRORCASE(BadPixmap);
-		XERRORCASE(BadRequest);
-		XERRORCASE(BadValue);
-		XERRORCASE(BadWindow);
-#undef XERRORCASE
-		default:
-			error_type = "unknown";
-			break;
-	}
-	purple_debug_error("media", "A %s Xlib error has occurred. "
-			"The program would normally crash now.\n",
-			error_type);
-	return 0;
-}
-#endif
-
 static const GActionEntry media_action_entries[] = {
 	{ "Hangup", pidgin_media_hangup_activate_cb },
 	{ "Hold", NULL, NULL, "false", pidgin_media_hold_change_state_cb },
@@ -309,10 +273,6 @@ pidgin_media_init (PidginMedia *media)
 {
 	GtkWidget *vbox;
 	media->priv = pidgin_media_get_instance_private(media);
-
-#ifdef HAVE_X11
-	XSetErrorHandler(pidgin_x_error_handler);
-#endif
 
 	g_action_map_add_action_entries(G_ACTION_MAP(media),
 			media_action_entries,
