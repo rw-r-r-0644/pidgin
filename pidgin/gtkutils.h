@@ -136,29 +136,6 @@ void pidgin_setup_screenname_autocomplete(
 gboolean pidgin_screenname_autocomplete_default_filter(const PidginBuddyCompletionEntry *completion_entry, gpointer all_accounts);
 
 /**
- * pidgin_save_accels_cb:
- *
- * Save menu accelerators callback
- */
-void pidgin_save_accels_cb(GtkAccelGroup *accel_group, guint arg1,
-							 GdkModifierType arg2, GClosure *arg3,
-							 gpointer data);
-
-/**
- * pidgin_save_accels:
- *
- * Save menu accelerators
- */
-gboolean pidgin_save_accels(gpointer data);
-
-/**
- * pidgin_load_accels:
- *
- * Load menu accelerators
- */
-void pidgin_load_accels(void);
-
-/**
  * pidgin_retrieve_user_info:
  * @conn:   The connection to get information from.
  * @name:   The user to get information about.
@@ -286,33 +263,6 @@ GdkPixbuf *pidgin_create_icon_from_protocol(PurpleProtocol *protocol, PidginProt
  */
 GtkWidget *pidgin_append_menu_action(GtkWidget *menu, PurpleActionMenu *act,
                                  gpointer gobject);
-
-/**
- * pidgin_set_cursor:
- * @widget:      The widget for which to set the mouse pointer
- * @cursor_type: The type of cursor to set
- *
- * Sets the mouse pointer for a GtkWidget.
- *
- * After setting the cursor, the display is flushed, so the change will
- * take effect immediately.
- *
- * If the window for @widget is %NULL, this function simply returns.
- */
-void pidgin_set_cursor(GtkWidget *widget, GdkCursorType cursor_type);
-
-/**
- * pidgin_clear_cursor:
- *
- * Sets the mouse point for a GtkWidget back to that of its parent window.
- *
- * If @widget is %NULL, this function simply returns.
- *
- * If the window for @widget is %NULL, this function simply returns.
- *
- * Note: The display is not flushed from this function.
- */
-void pidgin_clear_cursor(GtkWidget *widget);
 
 /**
  * pidgin_buddy_icon_chooser_new:

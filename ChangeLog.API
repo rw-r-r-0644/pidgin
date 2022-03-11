@@ -830,6 +830,7 @@ version 3.0.0 (??/??/????):
 		* PidginBuddyList.connection_errors
 		* PidginButtonStyle
 		* pidgin_check_if_dir
+		* pidgin_clear_cursor
 		* PidginConversation.sg
 		* PidginConvPlacementFunc
 		* pidgin_conv_get_tab_at_xy
@@ -900,6 +901,7 @@ version 3.0.0 (??/??/????):
 		* PidginIconThemeLoader
 		* PidginIconThemeLoaderClass
 		* pidgin_idle_get_ui_ops
+		* pidgin_load_accels
 		* pidgin_make_mini_dialog_with_custom_icon; use
 		  pidgin_mini_dialog_new_with_custom_icon instead.
 		* pidgin_make_pretty_arrows
@@ -916,6 +918,9 @@ version 3.0.0 (??/??/????):
 		* pidgin_pounces_manager_hide
 		* pidgin_pounces_manager_show
 		* pidgin_protocol_option_menu_get_selected
+		* pidgin_save_accels
+		* pidgin_save_accels_cb
+		* pidgin_set_cursor
 		* pidgin_set_custom_buddy_icon
 		* pidgin_set_sensitive_if_input
 		* pidgin_set_urgent, use gtk_window_set_urgency_hint instead.
