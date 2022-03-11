@@ -37,10 +37,9 @@ pidgin_protocol_store_add_protocol(PidginProtocolStore *store,
                                    PurpleProtocol *protocol)
 {
 	GtkTreeIter iter;
-	GdkPixbuf *pixbuf = NULL;
+	const gchar *icon_name = NULL;
 
-	pixbuf = pidgin_create_icon_from_protocol(protocol,
-	                                          PIDGIN_PROTOCOL_ICON_SMALL, NULL);
+	icon_name = purple_protocol_get_icon_name(protocol);
 
 	gtk_list_store_append(GTK_LIST_STORE(store), &iter);
 	gtk_list_store_set(
@@ -49,11 +48,9 @@ pidgin_protocol_store_add_protocol(PidginProtocolStore *store,
 		PIDGIN_PROTOCOL_STORE_COLUMN_PROTOCOL, protocol,
 		PIDGIN_PROTOCOL_STORE_COLUMN_ID, purple_protocol_get_id(protocol),
 		PIDGIN_PROTOCOL_STORE_COLUMN_NAME, purple_protocol_get_name(protocol),
-		PIDGIN_PROTOCOL_STORE_COLUMN_ICON, pixbuf,
+		PIDGIN_PROTOCOL_STORE_COLUMN_ICON_NAME, icon_name,
 		-1
 	);
-
-	g_clear_object(&pixbuf);
 }
 
 static void
@@ -139,7 +136,7 @@ pidgin_protocol_store_init(PidginProtocolStore *store) {
 		PURPLE_TYPE_PROTOCOL,
 		G_TYPE_STRING,
 		G_TYPE_STRING,
-		GDK_TYPE_PIXBUF,
+		G_TYPE_STRING,
 	};
 
 	gtk_list_store_set_column_types(
