@@ -29,6 +29,69 @@ struct _PurpleDemoProtocol {
 };
 
 /******************************************************************************
+ * PurpleProtocolIM Implementation
+ *****************************************************************************/
+typedef struct {
+	PurpleConnection *connection;
+	PurpleMessage *message;
+} PurpleDemoProtocolIMInfo;
+
+static void
+purple_demo_protocol_im_info_free(PurpleDemoProtocolIMInfo *info) {
+	g_object_unref(info->message);
+	g_free(info);
+}
+
+static gboolean
+purple_demo_protocol_echo_im_cb(gpointer data)
+{
+	PurpleDemoProtocolIMInfo *info = data;
+	const char *who = NULL;
+	PurpleMessageFlags flags;
+	GDateTime *timestamp = NULL;
+
+	/* Turn outgoing message back incoming. */
+	who = purple_message_get_recipient(info->message);
+	flags = purple_message_get_flags(info->message);
+	flags &= ~PURPLE_MESSAGE_SEND;
+	flags |= PURPLE_MESSAGE_RECV;
+	timestamp = purple_message_get_timestamp(info->message);
+
+	purple_serv_got_im(info->connection, who,
+	                   purple_message_get_contents(info->message), flags,
+	                   g_date_time_to_unix(timestamp));
+
+	g_date_time_unref(timestamp);
+
+	return FALSE;
+}
+
+static gint
+purple_demo_protocol_send_im(PurpleProtocolIM *im, PurpleConnection *conn,
+                             PurpleMessage *msg)
+{
+	const gchar *who = purple_message_get_recipient(msg);
+
+	if(purple_strequal(who, "Echo")) {
+		PurpleDemoProtocolIMInfo *info = g_new(PurpleDemoProtocolIMInfo, 1);
+
+		info->connection = conn;
+		info->message = g_object_ref(msg);
+
+		g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
+		                purple_demo_protocol_echo_im_cb, info,
+		                (GDestroyNotify)purple_demo_protocol_im_info_free);
+	}
+
+	return 1;
+}
+
+static void
+purple_demo_protocol_im_iface_init(PurpleProtocolIMInterface *iface) {
+	iface->send = purple_demo_protocol_send_im;
+}
+
+/******************************************************************************
  * PurpleProtocolClient Implementation
  *****************************************************************************/
 static gchar *
@@ -107,6 +170,8 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED(
 	0,
 	G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_CLIENT,
 	                              purple_demo_protocol_client_init)
+	G_IMPLEMENT_INTERFACE_DYNAMIC(PURPLE_TYPE_PROTOCOL_IM,
+	                              purple_demo_protocol_im_iface_init)
 )
 
 static void
