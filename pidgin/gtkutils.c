@@ -99,12 +99,6 @@ struct _icon_chooser {
 };
 
 /******************************************************************************
- * Globals
- *****************************************************************************/
-
-static guint accels_save_timer = 0;
-
-/******************************************************************************
  * Code
  *****************************************************************************/
 
@@ -278,42 +272,6 @@ aop_option_menu_select_by_data(GtkWidget *optmenu, gpointer data)
 			}
 		} while (gtk_tree_model_iter_next(model, &iter));
 	}
-}
-
-void
-pidgin_save_accels_cb(GtkAccelGroup *accel_group, guint arg1,
-                         GdkModifierType arg2, GClosure *arg3,
-                         gpointer data)
-{
-	purple_debug_misc("accels", "accel changed, scheduling save.");
-
-	if (!accels_save_timer)
-		accels_save_timer = g_timeout_add_seconds(5, pidgin_save_accels,
-		                                  NULL);
-}
-
-gboolean
-pidgin_save_accels(gpointer data)
-{
-	char *filename = NULL;
-
-	filename = g_build_filename(purple_config_dir(), "accels", NULL);
-	purple_debug_misc("accels", "saving accels to %s", filename);
-	gtk_accel_map_save(filename);
-	g_free(filename);
-
-	accels_save_timer = 0;
-	return FALSE;
-}
-
-void
-pidgin_load_accels()
-{
-	char *filename = NULL;
-
-	filename = g_build_filename(purple_config_dir(), "accels", NULL);
-	gtk_accel_map_load(filename);
-	g_free(filename);
 }
 
 static void
@@ -938,33 +896,6 @@ pidgin_screenname_autocomplete_default_filter(const PidginBuddyCompletionEntry *
 	gboolean all = GPOINTER_TO_INT(all_accounts);
 
 	return all || purple_account_is_connected(purple_buddy_get_account(completion_entry->buddy));
-}
-
-void pidgin_set_cursor(GtkWidget *widget, GdkCursorType cursor_type)
-{
-	GdkDisplay *display;
-	GdkCursor *cursor;
-
-	g_return_if_fail(widget != NULL);
-	if (gtk_widget_get_window(widget) == NULL)
-		return;
-
-	display = gtk_widget_get_display(widget);
-	cursor = gdk_cursor_new_for_display(display, cursor_type);
-	gdk_window_set_cursor(gtk_widget_get_window(widget), cursor);
-
-	g_object_unref(cursor);
-
-	gdk_display_flush(gdk_window_get_display(gtk_widget_get_window(widget)));
-}
-
-void pidgin_clear_cursor(GtkWidget *widget)
-{
-	g_return_if_fail(widget != NULL);
-	if (gtk_widget_get_window(widget) == NULL)
-		return;
-
-	gdk_window_set_cursor(gtk_widget_get_window(widget), NULL);
 }
 
 static void
