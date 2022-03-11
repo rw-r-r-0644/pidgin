@@ -35,15 +35,6 @@
 
 #ifdef USE_VV
 
-#ifdef GDK_WINDOWING_WIN32
-#include <gdk/gdkwin32.h>
-#endif
-#ifdef GDK_WINDOWING_X11
-#include <gdk/gdkx.h>
-#endif
-#ifdef GDK_WINDOWING_QUARTZ
-#include <gdk/gdkquartz.h>
-#endif
 #include <gdk/gdkkeysyms.h>
 
 #define PIDGIN_TYPE_MEDIA            (pidgin_media_get_type())
