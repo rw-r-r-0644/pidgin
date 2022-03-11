@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <child>
       <object class="GtkCellRendererPixbuf" id="icon"/>
       <attributes>
-        <attribute name="pixbuf">3</attribute>
+        <attribute name="icon-name">3</attribute>
       </attributes>
     </child>
     <child>
