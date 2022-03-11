@@ -20,6 +20,10 @@
  * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
+#if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
+# error "only <pidgin.h> may be included directly"
+#endif
+
 #ifndef PIDGIN_ACCOUNT_FILTER_CONNECTED_H
 #define PIDGIN_ACCOUNT_FILTER_CONNECTED_H
 

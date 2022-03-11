@@ -19,12 +19,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#ifndef PURPLE_INTERNAL_H
-#define PURPLE_INTERNAL_H
-
 #if !defined(PURPLE_GLOBAL_HEADER_INSIDE) && !defined(PURPLE_COMPILATION)
 # error "only <purple.h> may be included directly"
 #endif
+
+#ifndef PURPLE_INTERNAL_H
+#define PURPLE_INTERNAL_H
 
 #ifdef HAVE_CONFIG_H
 # ifdef GETTEXT_PACKAGE
