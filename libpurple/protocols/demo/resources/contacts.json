@@ -43,5 +43,14 @@
 				"message": "Writing crazy patches!"
 			}
 		}]
+	}],
+	"Nymphs": [{
+		"buddies": [{
+			"name": "Echo",
+			"status": {
+				"id": "available",
+				"message": "Cursed to speak the last words spoken to me"
+			}
+		}]
 	}]
 }
