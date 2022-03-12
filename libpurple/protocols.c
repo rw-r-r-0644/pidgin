@@ -312,8 +312,9 @@ do_protocol_change_account_status(PurpleAccount *account,
 	protocol = purple_protocol_manager_find(manager,
 	                                        purple_account_get_protocol_id(account));
 
-	if (protocol == NULL)
+	if (!PURPLE_IS_PROTOCOL_SERVER(protocol)) {
 		return;
+	}
 
 	if(!purple_account_is_disconnected(account)) {
 		purple_protocol_server_set_status(PURPLE_PROTOCOL_SERVER(protocol),
