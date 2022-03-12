@@ -45,8 +45,7 @@ G_BEGIN_DECLS
  */
 
 #define PIDGIN_TYPE_AVATAR (pidgin_avatar_get_type())
-G_DECLARE_FINAL_TYPE(PidginAvatar, pidgin_avatar,
-                     PIDGIN, AVATAR, GtkEventBox)
+G_DECLARE_FINAL_TYPE(PidginAvatar, pidgin_avatar, PIDGIN, AVATAR, GtkBox)
 
 /**
  * pidgin_avatar_new:
