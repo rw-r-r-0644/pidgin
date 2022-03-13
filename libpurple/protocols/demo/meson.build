@@ -5,6 +5,8 @@ DEMO_SOURCES = [
 	'purpledemoplugin.h',
 	'purpledemoprotocol.c',
 	'purpledemoprotocol.h',
+	'purpledemoprotocolim.c',
+	'purpledemoprotocolim.h',
 ]
 
 if DYNAMIC_DEMO
