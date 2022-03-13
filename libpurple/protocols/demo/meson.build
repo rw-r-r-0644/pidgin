@@ -5,6 +5,8 @@ DEMO_SOURCES = [
 	'purpledemoplugin.h',
 	'purpledemoprotocol.c',
 	'purpledemoprotocol.h',
+	'purpledemoprotocolclient.c',
+	'purpledemoprotocolclient.h',
 	'purpledemoprotocolim.c',
 	'purpledemoprotocolim.h',
 ]
