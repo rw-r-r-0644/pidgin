@@ -43,6 +43,8 @@
  * PurpleProtocol:
  *
  * #PurpleProtocol is the base type for all protocols in libpurple.
+ *
+ * Since: 3.0.0
  */
 
 /**
@@ -124,14 +126,6 @@ typedef enum  /*< flags >*/
     OPT_PROTO_AUTHORIZATION_DENIED_MESSAGE  = 0x00002000
 
 } PurpleProtocolOptions;
-
-/**
- * PurpleProtocol:
- *
- * Represents an instance of a protocol registered with #PurpleProtocolManager.
- *
- * Since: 3.0.0
- */
 
 /**
  * PurpleProtocolClass:

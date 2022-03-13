@@ -138,14 +138,6 @@ typedef enum /*< flags >*/
 } PurplePluginInfoFlags;
 
 /**
- * PurplePluginInfo:
- *
- * Holds information about a plugin.
- *
- * Since: 3.0.0
- */
-
-/**
  * PURPLE_PLUGIN_ABI_VERSION:
  * @major: The major version of libpurple to target.
  * @minor: The minor version of libpurple to target.
