@@ -47,17 +47,12 @@ G_BEGIN_DECLS
 /**
  * PurpleProtocolFactory:
  *
- * A interface where protocols can expose subclasses of libpurple objects.
+ * An interface where protocols can expose subclasses of libpurple objects.
+ *
+ * Since: 3.0.0
  */
 G_DECLARE_INTERFACE(PurpleProtocolFactory, purple_protocol_factory, PURPLE,
                     PROTOCOL_FACTORY, PurpleProtocol)
-
-/**
- * PurpleProtocolFactory:
- *
- * #PurpleProtocolFactory is an opaque representation of an object that
- * implements #PurpleProtocolFactoryInterface.
- */
 
 /**
  * PurpleProtocolFactoryInterface:
