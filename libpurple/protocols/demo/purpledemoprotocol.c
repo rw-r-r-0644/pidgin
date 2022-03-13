@@ -21,6 +21,7 @@
 #include <glib/gi18n-lib.h>
 
 #include "purpledemoprotocol.h"
+#include "purpledemoprotocolclient.h"
 #include "purpledemoprotocolim.h"
 
 #include "purpledemocontacts.h"
@@ -28,35 +29,6 @@
 struct _PurpleDemoProtocol {
 	PurpleProtocol parent;
 };
-
-/******************************************************************************
- * PurpleProtocolClient Implementation
- *****************************************************************************/
-static gchar *
-purple_demo_protocol_status_text(PurpleProtocolClient *client,
-                                 PurpleBuddy *buddy)
-{
-	PurplePresence *presence = NULL;
-	PurpleStatus *status = NULL;
-	const gchar *message = NULL;
-	gchar *ret = NULL;
-
-	presence = purple_buddy_get_presence(buddy);
-	status = purple_presence_get_active_status(presence);
-
-	message = purple_status_get_attr_string(status, "message");
-	if(message != NULL) {
-		ret = g_markup_escape_text(message, -1);
-		purple_util_chrreplace(ret, '\n', ' ');
-	}
-
-	return ret;
-}
-
-static void
-purple_demo_protocol_client_init(PurpleProtocolClientInterface *iface) {
-	iface->status_text = purple_demo_protocol_status_text;
-}
 
 /******************************************************************************
  * PurpleProtocol Implementation
