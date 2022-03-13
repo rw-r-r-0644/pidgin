@@ -41,7 +41,9 @@ pidgin_color_calculate_for_text(const gchar *text, GdkRGBA *color) {
 
     /* hash the string and get the first 2 bytes of the digest */
     checksum = g_checksum_new(G_CHECKSUM_SHA1);
-    g_checksum_update(checksum, (const guchar *)text, -1);
+    if(text != NULL) {
+        g_checksum_update(checksum, (const guchar *)text, -1);
+    }
     g_checksum_get_digest(checksum, digest, &digest_len);
     g_checksum_free(checksum);
 
