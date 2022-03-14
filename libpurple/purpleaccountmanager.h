@@ -126,6 +126,19 @@ GList *purple_account_manager_get_all(PurpleAccountManager *manager);
 GList *purple_account_manager_get_active(PurpleAccountManager *manager);
 
 /**
+ * purple_account_manager_find_by_id:
+ * @manager: The account manager instance.
+ * @id: The id of the account.
+ *
+ * Looks up an account based on its id property.
+ *
+ * Returns: (transfer none): The account if found, otherwise %NULL.
+ *
+ * Since: 3.0.0
+ */
+PurpleAccount *purple_account_manager_find_by_id(PurpleAccountManager *manager, const gchar *id);
+
+/**
  * purple_account_manager_find:
  * @manager: The account manager instance.
  * @username: The username of the account.

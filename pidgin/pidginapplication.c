@@ -43,6 +43,7 @@
 #include "gtksavedstatuses.h"
 #include "gtkxfer.h"
 #include "pidginabout.h"
+#include "pidginaccountsdisabledmenu.h"
 #include "pidginconversationwindow.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
@@ -123,6 +124,18 @@ pidgin_application_init_plugins(void) {
 	}
 
 	purple_plugins_refresh();
+}
+
+static void
+pidgin_application_populate_dynamic_menus(PidginApplication *application) {
+	GMenu *target = NULL;
+	GMenuModel *source = NULL;
+
+	/* Link the AccountsDisabledMenu into its proper location. */
+	target = gtk_application_get_menu_by_id(GTK_APPLICATION(application),
+	                                        "disabled-accounts");
+	source = pidgin_accounts_disabled_menu_new();
+	g_menu_append_section(target, NULL, source);
 }
 
 /******************************************************************************
@@ -245,6 +258,26 @@ pidgin_application_debug(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
+pidgin_application_enable_account(GSimpleAction *simple, GVariant *parameter,
+                                  gpointer data)
+{
+	PurpleAccount *account = NULL;
+	PurpleAccountManager *manager = NULL;
+	const gchar *id = NULL;
+
+	id = g_variant_get_string(parameter, NULL);
+
+	manager = purple_account_manager_get_default();
+
+	account = purple_account_manager_find_by_id(manager, id);
+	if(PURPLE_IS_ACCOUNT(account)) {
+		if(!purple_account_get_enabled(account, PIDGIN_UI)) {
+			purple_account_set_enabled(account, PIDGIN_UI, TRUE);
+		}
+	}
+}
+
+static void
 pidgin_application_file_transfers(GSimpleAction *simple, GVariant *parameter,
                                   gpointer data)
 {
@@ -351,6 +384,10 @@ static GActionEntry app_entries[] = {
 	}, {
 		.name = "debug",
 		.activate = pidgin_application_debug,
+	}, {
+		.name = "enable-account",
+		.activate = pidgin_application_enable_account,
+		.parameter_type = "s",
 	}, {
 		.name = "file-transfers",
 		.activate = pidgin_application_file_transfers,
@@ -629,6 +666,9 @@ pidgin_application_startup(GApplication *application) {
 	} else {
 		g_list_free(active_accounts);
 	}
+
+	/* Populate our dynamic menus. */
+	pidgin_application_populate_dynamic_menus(PIDGIN_APPLICATION(application));
 
 	/* GTK clears the notification for us when opening the first window, but we
 	 * may have launched with only a status icon, so clear it just in case.
