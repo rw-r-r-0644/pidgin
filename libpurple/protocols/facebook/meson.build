@@ -41,7 +41,7 @@ if DYNAMIC_FACEBOOK
 	if enable_introspection
 		introspection_sources = FACEBOOK_SOURCES
 
-		facebook_gir_includes = ['GObject-2.0', 'Gio-2.0', 'Gst-1.0', 'Json-1.0', libpurple_gir[0]]
+		facebook_gir_includes = ['GObject-2.0', 'Gio-2.0', 'Gst-1.0', 'Json-1.0', 'Soup-2.4', libpurple_gir[0]]
 
 		facebook_gir = gnome.generate_gir(facebook_prpl,
 		    sources : introspection_sources,
