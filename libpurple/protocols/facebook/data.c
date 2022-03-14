@@ -288,21 +288,16 @@ fb_data_save(FbData *fata)
 }
 
 void
-fb_data_add_timeout(FbData *fata, const gchar *name, guint interval,
-                    GSourceFunc func, gpointer data)
+fb_data_save_timeout(FbData *fata, const gchar *name, guint id)
 {
 	FbDataPrivate *priv;
-	gchar *key;
-	guint id;
 
 	g_return_if_fail(FB_IS_DATA(fata));
 	priv = fata->priv;
 
 	fb_data_clear_timeout(fata, name, TRUE);
 
-	key = g_strdup(name);
-	id = g_timeout_add_seconds(interval, func, data);
-	g_hash_table_replace(priv->evs, key, GUINT_TO_POINTER(id));
+	g_hash_table_replace(priv->evs, g_strdup(name), GUINT_TO_POINTER(id));
 }
 
 void

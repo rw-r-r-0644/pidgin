@@ -93,20 +93,18 @@ void
 fb_data_save(FbData *fata);
 
 /**
- * fb_data_add_timeout:
+ * fb_data_save_timeout:
  * @fata: The #FbData.
  * @name: The name of the timeout.
- * @interval: The time, in seconds, between calls to @func.
- * @func: The #GSourceFunc.
- * @data: The data passed to @func.
+ * @id: The source id of the timeout.
  *
- * Adds a new callback timer. The callback is called repeatedly on the
- * basis of @interval, until @func returns #FALSE. The timeout should
- * be cleared with #fb_data_clear_timeout() when no longer needed.
+ * Saves a new callback timer. The callback should be added to the main loop
+ * with `g_timeout_add` or similar, and the returned source identifier passed
+ * to this function. The timeout should be cleared with
+ * #fb_data_clear_timeout() when no longer needed.
  */
 void
-fb_data_add_timeout(FbData *fata, const gchar *name, guint interval,
-                    GSourceFunc func, gpointer data);
+fb_data_save_timeout(FbData *fata, const gchar *name, guint id);
 
 /**
  * fb_data_clear_timeout:
