@@ -99,7 +99,7 @@ fb_util_error_quark(void);
  *
  * Finds a buddy by their name or alias.
  *
- * Returns: The #PurpleBuddy if found, otherwise #NULL.
+ * Returns: (transfer none): The #PurpleBuddy if found, otherwise #NULL.
  */
 PurpleBuddy *
 fb_util_account_find_buddy(PurpleAccount *acct, PurpleChatConversation *chat,
@@ -314,7 +314,7 @@ fb_util_zlib_test(const GByteArray *bytes);
  * Deflates a #GByteArray with zlib. The returned #GByteArray should be
  * freed with #g_byte_array_free() when no longer needed.
  *
- * Returns: The deflated #GByteArray or #NULL on error.
+ * Returns: (transfer full): The deflated #GByteArray or #NULL on error.
  */
 GByteArray *
 fb_util_zlib_deflate(const GByteArray *bytes, GError **error);
@@ -327,7 +327,7 @@ fb_util_zlib_deflate(const GByteArray *bytes, GError **error);
  * Inflates a #GByteArray with zlib. The returned #GByteArray should be
  * freed with #g_byte_array_free() when no longer needed.
  *
- * Returns: The inflated #GByteArray or #NULL on error.
+ * Returns: (transfer full): The inflated #GByteArray or #NULL on error.
  */
 GByteArray *
 fb_util_zlib_inflate(const GByteArray *bytes, GError **error);

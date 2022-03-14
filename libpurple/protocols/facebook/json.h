@@ -97,7 +97,7 @@ fb_json_error_quark(void);
  * freeing, the returned #JsonBuilder can be closed with
  * #fb_json_bldr_close().
  *
- * Returns: The new #JsonBuilder.
+ * Returns: (transfer full): The new #JsonBuilder.
  */
 JsonBuilder *
 fb_json_bldr_new(JsonNodeType type);
