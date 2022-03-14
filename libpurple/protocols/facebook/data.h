@@ -213,9 +213,10 @@ fb_data_remove_message(FbData *fata, FbApiMessage *msg);
  * @uid: The user #FbId.
  *
  * Gets a #GSList of messages by the user #FbId from the #FbData. The
- * #FbApiMessage's are removed from the #FbData. The returned #GSList
- * and its #FbApiMessage's should be freed with #fb_api_message_free()
- * and #g_slist_free_full() when no longer needed.
+ * #FbApiMessage's are removed from the #FbData.
+ *
+ * Returns: (element-type FbApiMessage) (transfer full): The messages from the
+ *          user.
  */
 GSList *
 fb_data_take_messages(FbData *fata, FbId uid);

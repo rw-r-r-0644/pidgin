@@ -230,7 +230,7 @@ fb_util_rand_alnum(guint len);
  * @title: The title of the message or #NULL.
  * @primary: The main point of the message or #NULL.
  * @secondary: The secondary information or #NULL.
- * @select: A #GSList of selected buddies or #NULL.
+ * @select: (element-type PurpleBuddy): A #GSList of selected buddies or #NULL.
  * @multi: #TRUE to for multiple buddy selections, otherwise #FALSE.
  * @ok_cb: The callback for the `OK` button or #NULL.
  * @cancel_cb: The callback for the `Cancel` button or #NULL.
