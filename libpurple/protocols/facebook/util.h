@@ -232,8 +232,8 @@ fb_util_rand_alnum(guint len);
  * @secondary: The secondary information or #NULL.
  * @select: (element-type PurpleBuddy): A #GSList of selected buddies or #NULL.
  * @multi: #TRUE to for multiple buddy selections, otherwise #FALSE.
- * @ok_cb: The callback for the `OK` button or #NULL.
- * @cancel_cb: The callback for the `Cancel` button or #NULL.
+ * @ok_cb: (scope async): The callback for the `OK` button or #NULL.
+ * @cancel_cb: (scope async): The callback for the `Cancel` button or #NULL.
  * @data: The user-defined data.
  *
  * Displays a buddy list selection form.
