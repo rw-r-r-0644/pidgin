@@ -112,8 +112,6 @@ fb_thrift_get_pos(FbThrift *thft);
  * @pos: The position.
  *
  * Sets the cursor position of an #FbThrift.
- *
- * Returns: The #GByteArray.
  */
 void
 fb_thrift_set_pos(FbThrift *thft, guint pos);
@@ -123,8 +121,6 @@ fb_thrift_set_pos(FbThrift *thft, guint pos);
  * @thft: The #FbThrift.
  *
  * Resets the cursor position of an #FbThrift.
- *
- * Returns: The #GByteArray.
  */
 void
 fb_thrift_reset(FbThrift *thft);
