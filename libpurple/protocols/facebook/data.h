@@ -127,7 +127,7 @@ fb_data_clear_timeout(FbData *fata, const gchar *name, gboolean remove);
  *
  * Gets the #FbApi from the #FbData.
  *
- * Return: The #FbApi.
+ * Return: (transfer none): The #FbApi.
  */
 FbApi *
 fb_data_get_api(FbData *fata);
@@ -138,7 +138,7 @@ fb_data_get_api(FbData *fata);
  *
  * Gets the #PurpleConnection from the #FbData.
  *
- * Return: The #PurpleConnection.
+ * Return: (transfer none): The #PurpleConnection.
  */
 PurpleConnection *
 fb_data_get_connection(FbData *fata);
@@ -149,7 +149,7 @@ fb_data_get_connection(FbData *fata);
  *
  * Gets the #PurpleRoomlist from the #FbData.
  *
- * Return: The #PurpleRoomlist.
+ * Return: (transfer none): The #PurpleRoomlist.
  */
 PurpleRoomlist *
 fb_data_get_roomlist(FbData *fata);
@@ -232,7 +232,7 @@ fb_data_take_messages(FbData *fata, FbId uid);
  * from HTTP sources. After calling this, #fb_data_image_queue() should
  * be called to queue the fetching process.
  *
- * Return: The #FbDataImage.
+ * Return: (transfer none): The #FbDataImage.
  */
 FbDataImage *
 fb_data_image_add(FbData *fata, const gchar *url, FbDataImageFunc func,
@@ -266,7 +266,7 @@ fb_data_image_get_data(FbDataImage *img);
  *
  * Gets the #FbData from the #FbDataImage.
  *
- * Returns: The #FbData.
+ * Returns: (transfer none): The #FbData.
  */
 FbData *
 fb_data_image_get_fata(FbDataImage *img);

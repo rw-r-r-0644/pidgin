@@ -82,7 +82,7 @@ gboolean fb_http_error_chk(SoupMessage *res, GError **error);
  * instead of freeing, the returned #FbHttpParams can be closed with
  * #fb_http_params_close().
  *
- * Returns: The new #FbHttpParams.
+ * Returns: (transfer full): The new #FbHttpParams.
  */
 FbHttpParams *
 fb_http_params_new(void);
@@ -98,7 +98,7 @@ fb_http_params_new(void);
  * instead of freeing, the returned #FbHttpParams can be closed with
  * #fb_http_params_close().
  *
- * Returns: The new #FbHttpParams.
+ * Returns: (transfer full): The new #FbHttpParams.
  */
 FbHttpParams *
 fb_http_params_new_parse(const gchar *data, gboolean isurl);
