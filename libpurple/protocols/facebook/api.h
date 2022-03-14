@@ -764,7 +764,6 @@ fb_api_typing(FbApi *api, FbId uid, gboolean state);
 /**
  * fb_api_event_dup:
  * @event: The #FbApiEvent or #NULL.
- * @deep: #TRUE to duplicate allocated data, otherwise #FALSE.
  *
  * Duplicates an #FbApiEvent. The returned #FbApiEvent should be freed with
  * #fb_api_event_free() when no longer needed.
@@ -772,7 +771,7 @@ fb_api_typing(FbApi *api, FbId uid, gboolean state);
  * Returns: The new #FbApiEvent.
  */
 FbApiEvent *
-fb_api_event_dup(const FbApiEvent *event, gboolean deep);
+fb_api_event_dup(const FbApiEvent *event);
 
 /**
  * fb_api_event_reset:
@@ -796,7 +795,6 @@ fb_api_event_free(FbApiEvent *event);
 /**
  * fb_api_message_dup:
  * @msg: The #FbApiMessage or #NULL.
- * @deep: #TRUE to duplicate allocated data, otherwise #FALSE.
  *
  * Duplicates an #FbApiMessage. The returned #FbApiMessage should be freed with
  * #fb_api_message_free() when no longer needed.
@@ -804,7 +802,7 @@ fb_api_event_free(FbApiEvent *event);
  * Returns: The new #FbApiMessage.
  */
 FbApiMessage *
-fb_api_message_dup(const FbApiMessage *msg, gboolean deep);
+fb_api_message_dup(const FbApiMessage *msg);
 
 /**
  * fb_api_message_reset:
@@ -858,7 +856,6 @@ fb_api_presence_free(FbApiPresence *presence);
 /**
  * fb_api_thread_dup:
  * @thrd: The #FbApiThread or #NULL.
- * @deep: #TRUE to duplicate allocated data, otherwise #FALSE.
  *
  * Duplicates an #FbApiThread. The returned #FbApiThread should be freed with
  * #fb_api_thread_free() when no longer needed.
@@ -866,7 +863,7 @@ fb_api_presence_free(FbApiPresence *presence);
  * Returns: The new #FbApiThread.
  */
 FbApiThread *
-fb_api_thread_dup(const FbApiThread *thrd, gboolean deep);
+fb_api_thread_dup(const FbApiThread *thrd);
 
 /**
  * fb_api_thread_reset:
@@ -920,7 +917,6 @@ fb_api_typing_free(FbApiTyping *typg);
 /**
  * fb_api_user_dup:
  * @user: The #FbApiUser or #NULL.
- * @deep: #TRUE to duplicate allocated data, otherwise #FALSE.
  *
  * Duplicates an #FbApiUser. The returned #FbApiUser should be freed with
  * #fb_api_user_free() when no longer needed.
@@ -928,7 +924,7 @@ fb_api_typing_free(FbApiTyping *typg);
  * Returns: The new #FbApiUser.
  */
 FbApiUser *
-fb_api_user_dup(const FbApiUser *user, gboolean deep);
+fb_api_user_dup(const FbApiUser *user);
 
 /**
  * fb_api_user_reset:

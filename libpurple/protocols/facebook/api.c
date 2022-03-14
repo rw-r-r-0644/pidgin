@@ -3264,7 +3264,7 @@ fb_api_typing(FbApi *api, FbId uid, gboolean state)
 }
 
 FbApiEvent *
-fb_api_event_dup(const FbApiEvent *event, gboolean deep)
+fb_api_event_dup(const FbApiEvent *event)
 {
 	FbApiEvent *ret;
 
@@ -3273,10 +3273,7 @@ fb_api_event_dup(const FbApiEvent *event, gboolean deep)
 	}
 
 	ret = g_memdup2(event, sizeof *event);
-
-	if (deep) {
-		ret->text = g_strdup(event->text);
-	}
+	ret->text = g_strdup(event->text);
 
 	return ret;
 }
@@ -3303,7 +3300,7 @@ fb_api_event_free(FbApiEvent *event)
 }
 
 FbApiMessage *
-fb_api_message_dup(const FbApiMessage *msg, gboolean deep)
+fb_api_message_dup(const FbApiMessage *msg)
 {
 	FbApiMessage *ret;
 
@@ -3312,10 +3309,7 @@ fb_api_message_dup(const FbApiMessage *msg, gboolean deep)
 	}
 
 	ret = g_memdup2(msg, sizeof *msg);
-
-	if (deep) {
-		ret->text = g_strdup(msg->text);
-	}
+	ret->text = g_strdup(msg->text);
 
 	return ret;
 }
@@ -3363,29 +3357,17 @@ fb_api_presence_free(FbApiPresence *presence)
 }
 
 FbApiThread *
-fb_api_thread_dup(const FbApiThread *thrd, gboolean deep)
+fb_api_thread_dup(const FbApiThread *thrd)
 {
 	FbApiThread *ret;
-	FbApiUser *user;
-	GSList *l;
 
 	if (thrd == NULL) {
 		return NULL;
 	}
 
 	ret = g_memdup2(thrd, sizeof *thrd);
-
-	if (deep) {
-		ret->users = NULL;
-
-		for (l = thrd->users; l != NULL; l = l->next) {
-			user = fb_api_user_dup(l->data, TRUE);
-			ret->users = g_slist_prepend(ret->users, user);
-		}
-
-		ret->topic = g_strdup(thrd->topic);
-		ret->users = g_slist_reverse(ret->users);
-	}
+	ret->topic = g_strdup(thrd->topic);
+	ret->users = g_slist_copy_deep(thrd->users, (GCopyFunc)fb_api_user_dup, NULL);
 
 	return ret;
 }
@@ -3435,7 +3417,7 @@ fb_api_typing_free(FbApiTyping *typg)
 }
 
 FbApiUser *
-fb_api_user_dup(const FbApiUser *user, gboolean deep)
+fb_api_user_dup(const FbApiUser *user)
 {
 	FbApiUser *ret;
 
@@ -3444,12 +3426,9 @@ fb_api_user_dup(const FbApiUser *user, gboolean deep)
 	}
 
 	ret = g_memdup2(user, sizeof *user);
-
-	if (deep) {
-		ret->name = g_strdup(user->name);
-		ret->icon = g_strdup(user->icon);
-		ret->csum = g_strdup(user->csum);
-	}
+	ret->name = g_strdup(user->name);
+	ret->icon = g_strdup(user->icon);
+	ret->csum = g_strdup(user->csum);
 
 	return ret;
 }
