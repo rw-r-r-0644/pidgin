@@ -3299,6 +3299,9 @@ fb_api_event_free(FbApiEvent *event)
 	}
 }
 
+G_DEFINE_BOXED_TYPE(FbApiEvent, fb_api_event, fb_api_event_dup,
+                    fb_api_event_free)
+
 FbApiMessage *
 fb_api_message_dup(const FbApiMessage *msg)
 {
@@ -3335,6 +3338,9 @@ fb_api_message_free(FbApiMessage *msg)
 	}
 }
 
+G_DEFINE_BOXED_TYPE(FbApiMessage, fb_api_message, fb_api_message_dup,
+                    fb_api_message_free)
+
 FbApiPresence *
 fb_api_presence_dup(const FbApiPresence *presence)
 {
@@ -3355,6 +3361,9 @@ fb_api_presence_free(FbApiPresence *presence)
 		g_free(presence);
 	}
 }
+
+G_DEFINE_BOXED_TYPE(FbApiPresence, fb_api_presence, fb_api_presence_dup,
+                    fb_api_presence_free)
 
 FbApiThread *
 fb_api_thread_dup(const FbApiThread *thrd)
@@ -3395,6 +3404,9 @@ fb_api_thread_free(FbApiThread *thrd)
 	}
 }
 
+G_DEFINE_BOXED_TYPE(FbApiThread, fb_api_thread, fb_api_thread_dup,
+                    fb_api_thread_free)
+
 FbApiTyping *
 fb_api_typing_dup(const FbApiTyping *typg)
 {
@@ -3415,6 +3427,9 @@ fb_api_typing_free(FbApiTyping *typg)
 		g_free(typg);
 	}
 }
+
+G_DEFINE_BOXED_TYPE(FbApiTyping, fb_api_typing, fb_api_typing_dup,
+                    fb_api_typing_free)
 
 FbApiUser *
 fb_api_user_dup(const FbApiUser *user)
@@ -3457,3 +3472,5 @@ fb_api_user_free(FbApiUser *user)
 		g_free(user);
 	}
 }
+
+G_DEFINE_BOXED_TYPE(FbApiUser, fb_api_user, fb_api_user_dup, fb_api_user_free)
