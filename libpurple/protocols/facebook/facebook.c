@@ -213,8 +213,8 @@ fb_sync_contacts_add_timeout(FbData *fata)
 	}
 
 	sync *= 60;
-	fb_data_add_timeout(fata, "sync-contacts", sync, fb_cb_sync_contacts,
-	                    fata);
+	fb_data_save_timeout(fata, "sync-contacts",
+	                     g_timeout_add_seconds(sync, fb_cb_sync_contacts, fata));
 }
 
 static void
@@ -889,7 +889,8 @@ fb_cb_conv_updated(PurpleConversation *conv, PurpleConversationUpdateType type,
 		/* Use event loop for purple_conversation_has_focus() */
 		name = purple_conversation_get_name(conv);
 		tname = g_strconcat("conv-read-", name, NULL);
-		fb_data_add_timeout(fata, tname, 0, fb_cb_conv_read, conv);
+		fb_data_save_timeout(fata, tname,
+		                     g_timeout_add_seconds(0, fb_cb_conv_read, conv));
 		g_free(tname);
 	}
 }
