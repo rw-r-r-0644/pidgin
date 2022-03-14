@@ -426,6 +426,8 @@ typedef enum
 	FB_API_MESSAGE_FLAG_SELF = 1 << 2
 } FbApiMessageFlags;
 
+#define FB_TYPE_API_EVENT (fb_api_event_get_type())
+
 /**
  * FbApiEvent:
  * @type: The #FbApiEventType.
@@ -442,6 +444,8 @@ struct _FbApiEvent
 	FbId tid;
 	gchar *text;
 };
+
+#define FB_TYPE_API_MESSAGE (fb_api_message_get_type())
 
 /**
  * FbApiMessage:
@@ -462,6 +466,8 @@ struct _FbApiMessage
 	gchar *text;
 };
 
+#define FB_TYPE_API_PRESENCE (fb_api_presence_get_type())
+
 /**
  * FbApiPresence:
  * @uid: The user #FbId.
@@ -474,6 +480,8 @@ struct _FbApiPresence
 	FbId uid;
 	gboolean active;
 };
+
+#define FB_TYPE_API_THREAD (fb_api_thread_get_type())
 
 /**
  * FbApiThread:
@@ -490,6 +498,8 @@ struct _FbApiThread
 	GSList *users;
 };
 
+#define FB_TYPE_API_TYPING (fb_api_typing_get_type())
+
 /**
  * FbApiTyping:
  * @uid: The user #FbId.
@@ -502,6 +512,8 @@ struct _FbApiTyping
 	FbId uid;
 	gboolean state;
 };
+
+#define FB_TYPE_API_USER (fb_api_user_get_type())
 
 /**
  * FbApiUser:
@@ -762,6 +774,13 @@ void
 fb_api_typing(FbApi *api, FbId uid, gboolean state);
 
 /**
+ * fb_api_event_get_type:
+ *
+ * Returns: The #GType for the #FbApiEvent boxed structure.
+ */
+GType fb_api_event_get_type(void);
+
+/**
  * fb_api_event_dup:
  * @event: The #FbApiEvent or #NULL.
  *
@@ -791,6 +810,13 @@ fb_api_event_reset(FbApiEvent *event, gboolean deep);
  */
 void
 fb_api_event_free(FbApiEvent *event);
+
+/**
+ * fb_api_message_get_type:
+ *
+ * Returns: The #GType for the #FbApiMessage boxed structure.
+ */
+GType fb_api_message_get_type(void);
 
 /**
  * fb_api_message_dup:
@@ -824,6 +850,13 @@ void
 fb_api_message_free(FbApiMessage *msg);
 
 /**
+ * fb_api_presence_get_type:
+ *
+ * Returns: The #GType for the #FbApiPresence boxed structure.
+ */
+GType fb_api_presence_get_type(void);
+
+/**
  * fb_api_presence_dup:
  * @presence: The #FbApiPresence or %NULL.
  *
@@ -852,6 +885,13 @@ fb_api_presence_reset(FbApiPresence *presence);
  */
 void
 fb_api_presence_free(FbApiPresence *presence);
+
+/**
+ * fb_api_thread_get_type:
+ *
+ * Returns: The #GType for the #FbApiThread boxed structure.
+ */
+GType fb_api_thread_get_type(void);
 
 /**
  * fb_api_thread_dup:
@@ -885,6 +925,13 @@ void
 fb_api_thread_free(FbApiThread *thrd);
 
 /**
+ * fb_api_typing_get_type:
+ *
+ * Returns: The #GType for the #FbApiTyping boxed structure.
+ */
+GType fb_api_typing_get_type(void);
+
+/**
  * fb_api_typing_dup:
  * @typg: The #FbApiTyping or #NULL.
  *
@@ -913,6 +960,13 @@ fb_api_typing_reset(FbApiTyping *typg);
  */
 void
 fb_api_typing_free(FbApiTyping *typg);
+
+/**
+ * fb_api_user_get_type:
+ *
+ * Returns: The #GType for the #FbApiUser boxed structure.
+ */
+GType fb_api_user_get_type(void);
 
 /**
  * fb_api_user_dup:
