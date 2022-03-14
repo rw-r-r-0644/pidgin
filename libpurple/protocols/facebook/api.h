@@ -711,7 +711,7 @@ fb_api_thread(FbApi *api, FbId tid);
 /**
  * fb_api_thread_create:
  * @api: The #FbApi.
- * @uids: The #GSList of #FbId's.
+ * @uids: (element-type FbId): The #GSList of #FbId's.
  *
  * Sends a thread creation request. In order to create a thread, there
  * must be at least two other users in @uids.
