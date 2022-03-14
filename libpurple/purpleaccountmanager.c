@@ -251,6 +251,26 @@ purple_account_manager_reorder(PurpleAccountManager *manager,
 }
 
 PurpleAccount *
+purple_account_manager_find_by_id(PurpleAccountManager *manager,
+                                  const gchar *id)
+{
+	GList *l = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT_MANAGER(manager), NULL);
+	g_return_val_if_fail(id != NULL, NULL);
+
+	for(l = manager->accounts; l != NULL; l = l->next) {
+		PurpleAccount *account = PURPLE_ACCOUNT(l->data);
+
+		if(purple_strequal(purple_account_get_id(account), id)) {
+			return account;
+		}
+	}
+
+	return NULL;
+}
+
+PurpleAccount *
 purple_account_manager_find(PurpleAccountManager *manager,
                             const gchar *username, const gchar *protocol_id)
 {
