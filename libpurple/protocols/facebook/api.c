@@ -1145,9 +1145,10 @@ fb_api_event_parse(FbApi *api, FbApiEvent *event, GSList *events,
 		str = strrchr(str, ':');
 
 		if (str != NULL) {
-			devent = fb_api_event_dup(event, FALSE);
+			devent = g_new(FbApiEvent, 1);
 			devent->type = FB_API_EVENT_TYPE_THREAD_TOPIC;
 			devent->uid = FB_ID_FROM_STR(str + 1);
+			devent->tid = event->tid;
 			devent->text = fb_json_values_next_str_dup(values, NULL);
 			events = g_slist_prepend(events, devent);
 		}
@@ -1165,9 +1166,10 @@ fb_api_event_parse(FbApi *api, FbApiEvent *event, GSList *events,
 			str = strrchr(str, ':');
 
 			if (str != NULL) {
-				devent = fb_api_event_dup(event, FALSE);
+				devent = g_new0(FbApiEvent, 1);
 				devent->type = evtypes[i].type;
 				devent->uid = FB_ID_FROM_STR(str + 1);
+				devent->tid = event->tid;
 				events = g_slist_prepend(events, devent);
 			}
 		}
@@ -1384,7 +1386,7 @@ fb_api_message_parse_attach(FbApi *api, const gchar *mid, FbApiMessage *msg,
 
 		if (str == NULL) {
 			id = fb_json_values_next_int(values, 0);
-			dmsg = fb_api_message_dup(msg, FALSE);
+			dmsg = g_memdup2(msg, sizeof(*msg));
 			fb_api_attach(api, id, mid, dmsg);
 			continue;
 		}
@@ -1399,7 +1401,7 @@ fb_api_message_parse_attach(FbApi *api, const gchar *mid, FbApiMessage *msg,
 		xma = fb_api_xma_parse(api, body, xode, &err);
 
 		if (xma != NULL) {
-			dmsg = fb_api_message_dup(msg, FALSE);
+			dmsg = g_memdup2(msg, sizeof(*msg));
 			dmsg->text = xma;
 			msgs = g_slist_prepend(msgs, dmsg);
 		}
@@ -1627,7 +1629,7 @@ fb_api_cb_publish_ms_new_message(FbApi *api, JsonNode *root, GSList *msgs, GErro
 		body = fb_json_values_next_str(values, NULL);
 
 		if (body != NULL) {
-			dmsg = fb_api_message_dup(&msg, FALSE);
+			dmsg = g_memdup2(&msg, sizeof(msg));
 			dmsg->text = g_strdup(body);
 			msgs = g_slist_prepend(msgs, dmsg);
 		}
@@ -1635,7 +1637,7 @@ fb_api_cb_publish_ms_new_message(FbApi *api, JsonNode *root, GSList *msgs, GErro
 		id = fb_json_values_next_int(values, 0);
 
 		if (id != 0) {
-			dmsg = fb_api_message_dup(&msg, FALSE);
+			dmsg = g_memdup2(&msg, sizeof(msg));
 			fb_api_sticker(api, id, dmsg);
 		}
 
@@ -1720,15 +1722,16 @@ fb_api_cb_publish_ms_event(FbApi *api, JsonNode *root, GSList *events, FbApiEven
 	} else if (type == FB_API_EVENT_TYPE_THREAD_USER_ADDED) {
 
 		while (fb_json_values_update(values_inner, &err)) {
-			FbApiEvent *devent = fb_api_event_dup(event, FALSE);
+			FbApiEvent *devent = g_new0(FbApiEvent, 1);
 
+			devent->type = event->type;
 			devent->uid = fb_json_values_next_int(values_inner, 0);
+			devent->tid = event->tid;
 			devent->text = fb_json_values_next_str_dup(values_inner, NULL);
 
 			events = g_slist_prepend(events, devent);
 		}
-		fb_api_event_free(event);
-		event = NULL;
+		g_clear_pointer(&event, fb_api_event_free);
 		g_object_unref(values_inner);
 	}
 
@@ -2629,7 +2632,7 @@ fb_api_cb_unread_parse_attach(FbApi *api, const gchar *mid, FbApiMessage *msg,
 	while (fb_json_values_update(values, &err)) {
 		str = fb_json_values_next_str(values, NULL);
 		id = FB_ID_FROM_STR(str);
-		dmsg = fb_api_message_dup(msg, FALSE);
+		dmsg = g_memdup2(msg, sizeof(*msg));
 		fb_api_attach(api, id, mid, dmsg);
 	}
 
@@ -2715,7 +2718,7 @@ fb_api_cb_unread_msgs(G_GNUC_UNUSED SoupSession *session, SoupMessage *res,
 		msg.tstamp = g_ascii_strtoll(str, NULL, 10);
 
 		if (body != NULL) {
-			dmsg = fb_api_message_dup(&msg, FALSE);
+			dmsg = g_memdup2(&msg, sizeof(msg));
 			dmsg->text = g_strdup(body);
 			msgs = g_slist_prepend(msgs, dmsg);
 		}
@@ -2723,7 +2726,7 @@ fb_api_cb_unread_msgs(G_GNUC_UNUSED SoupSession *session, SoupMessage *res,
 		str = fb_json_values_next_str(values, NULL);
 
 		if (str != NULL) {
-			dmsg = fb_api_message_dup(&msg, FALSE);
+			dmsg = g_memdup2(&msg, sizeof(msg));
 			id = FB_ID_FROM_STR(str);
 			fb_api_sticker(api, id, dmsg);
 		}
@@ -2735,7 +2738,7 @@ fb_api_cb_unread_msgs(G_GNUC_UNUSED SoupSession *session, SoupMessage *res,
 			xma = fb_api_xma_parse(api, body, xode, &err);
 
 			if (xma != NULL) {
-				dmsg = fb_api_message_dup(&msg, FALSE);
+				dmsg = g_memdup2(&msg, sizeof(msg));
 				dmsg->text = xma;
 				msgs = g_slist_prepend(msgs, dmsg);
 			}
@@ -3209,7 +3212,7 @@ fb_api_cb_threads(G_GNUC_UNUSED SoupSession *session, SoupMessage *res,
 		fb_api_thread_reset(&thrd, FALSE);
 
 		if (fb_api_thread_parse(api, &thrd, l->data, &err)) {
-			dthrd = fb_api_thread_dup(&thrd, FALSE);
+			dthrd = g_memdup2(&thrd, sizeof(thrd));
 			thrds = g_slist_prepend(thrds, dthrd);
 		} else {
 			fb_api_thread_reset(&thrd, TRUE);
