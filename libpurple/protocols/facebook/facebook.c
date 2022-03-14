@@ -531,7 +531,7 @@ fb_cb_api_messages(FbApi *api, GSList *msgs, gpointer data)
 		FB_ID_TO_STR(msg->uid, uid);
 
 		if (purple_blist_find_buddy(acct, uid) == NULL) {
-			msg = fb_api_message_dup(msg, TRUE);
+			msg = fb_api_message_dup(msg);
 			fb_data_add_message(fata, msg);
 			fb_api_contact(api, msg->uid);
 			continue;
@@ -548,7 +548,7 @@ fb_cb_api_messages(FbApi *api, GSList *msgs, gpointer data)
 
 		if (msg->flags & FB_API_MESSAGE_FLAG_IMAGE) {
 			if (!(msg->flags & FB_API_MESSAGE_FLAG_DONE)) {
-				msg = fb_api_message_dup(msg, TRUE);
+				msg = fb_api_message_dup(msg);
 				fb_data_image_add(fata, msg->text, fb_cb_image,
 				                  msg, (GDestroyNotify)
 				                       fb_api_message_free);
