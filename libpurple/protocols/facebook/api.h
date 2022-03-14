@@ -766,9 +766,8 @@ fb_api_typing(FbApi *api, FbId uid, gboolean state);
  * @event: The #FbApiEvent or #NULL.
  * @deep: #TRUE to duplicate allocated data, otherwise #FALSE.
  *
- * Duplicates an #FbApiEvent. If @event is #NULL, a new zero filled
- * #FbApiEvent is returned. The returned #FbApiEvent should be freed
- * with #fb_api_event_free() when no longer needed.
+ * Duplicates an #FbApiEvent. The returned #FbApiEvent should be freed with
+ * #fb_api_event_free() when no longer needed.
  *
  * Returns: The new #FbApiEvent.
  */
@@ -799,9 +798,8 @@ fb_api_event_free(FbApiEvent *event);
  * @msg: The #FbApiMessage or #NULL.
  * @deep: #TRUE to duplicate allocated data, otherwise #FALSE.
  *
- * Duplicates an #FbApiMessage. If @msg is #NULL, a new zero filled
- * #FbApiMessage is returned. The returned #FbApiMessage should be
- * freed with #fb_api_message_free() when no longer needed.
+ * Duplicates an #FbApiMessage. The returned #FbApiMessage should be freed with
+ * #fb_api_message_free() when no longer needed.
  *
  * Returns: The new #FbApiMessage.
  */
@@ -831,9 +829,8 @@ fb_api_message_free(FbApiMessage *msg);
  * fb_api_presence_dup:
  * @presence: The #FbApiPresence or %NULL.
  *
- * Duplicates an #FbApiPresence. If @presence is %NULL, a new zero filled
- * #FbApiPresence is returned. The returned #FbApiPresence should be freed with
- * #fb_api_presence_free() when no longer needed.
+ * Duplicates an #FbApiPresence. The returned #FbApiPresence should be freed
+ * with #fb_api_presence_free() when no longer needed.
  *
  * Returns: The new #FbApiPresence.
  */
@@ -863,9 +860,8 @@ fb_api_presence_free(FbApiPresence *presence);
  * @thrd: The #FbApiThread or #NULL.
  * @deep: #TRUE to duplicate allocated data, otherwise #FALSE.
  *
- * Duplicates an #FbApiThread. If @thrd is #NULL, a new zero filled
- * #FbApiThread is returned. The returned #FbApiThread should be freed
- * with #fb_api_thread_free() when no longer needed.
+ * Duplicates an #FbApiThread. The returned #FbApiThread should be freed with
+ * #fb_api_thread_free() when no longer needed.
  *
  * Returns: The new #FbApiThread.
  */
@@ -895,9 +891,8 @@ fb_api_thread_free(FbApiThread *thrd);
  * fb_api_typing_dup:
  * @typg: The #FbApiTyping or #NULL.
  *
- * Duplicates an #FbApiTyping. If @typg is #NULL, a new zero filled
- * #FbApiTyping is returned. The returned #FbApiTyping should be freed
- * with #fb_api_typing_free() when no longer needed.
+ * Duplicates an #FbApiTyping. The returned #FbApiTyping should be freed with
+ * #fb_api_typing_free() when no longer needed.
  *
  * Returns: The new #FbApiTyping.
  */
@@ -927,8 +922,7 @@ fb_api_typing_free(FbApiTyping *typg);
  * @user: The #FbApiUser or #NULL.
  * @deep: #TRUE to duplicate allocated data, otherwise #FALSE.
  *
- * Duplicates an #FbApiUser. If @user is #NULL, a new zero filled
- * #FbApiUser is returned. The returned #FbApiUser should be freed with
+ * Duplicates an #FbApiUser. The returned #FbApiUser should be freed with
  * #fb_api_user_free() when no longer needed.
  *
  * Returns: The new #FbApiUser.
