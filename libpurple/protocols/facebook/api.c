@@ -1706,7 +1706,7 @@ fb_api_cb_publish_ms_event(FbApi *api, JsonNode *root, GSList *events, FbApiEven
 
 	fb_json_values_update(values, &err);
 
-	event = fb_api_event_dup(NULL, FALSE);
+	event = g_new0(FbApiEvent, 1);
 	event->type = type;
 	event->tid = fb_json_values_next_int(values, 0);
 	event->uid = fb_json_values_next_int(values, 0);
@@ -1785,7 +1785,7 @@ fb_api_cb_publish_pt(FbThrift *thft, GSList **presences, GError **error)
 		FB_API_TCHK(id == 2);
 		FB_API_TCHK(fb_thrift_read_i32(thft, &i32));
 
-		api_presence = fb_api_presence_dup(NULL);
+		api_presence = g_new0(FbApiPresence, 1);
 		api_presence->uid = i64;
 		api_presence->active = i32 != 0;
 		*presences = g_slist_prepend(*presences, api_presence);
@@ -2267,7 +2267,7 @@ fb_api_cb_contacts_nodes(FbApi *api, JsonNode *root, GSList *users)
 			continue;
 		}
 
-		user = fb_api_user_dup(NULL, FALSE);
+		user = g_new0(FbApiUser, 1);
 		user->uid = uid;
 		user->name = fb_json_values_next_str_dup(values, NULL);
 		user->icon = fb_json_values_next_str_dup(values, NULL);
@@ -2534,7 +2534,7 @@ fb_api_message(FbApi *api, FbId id, gboolean thread, const gchar *text)
 	g_return_if_fail(text != NULL);
 	priv = api->priv;
 
-	msg = fb_api_message_dup(NULL, FALSE);
+	msg = g_new0(FbApiMessage, 1);
 	msg->text = g_strdup(text);
 
 	if (thread) {
@@ -2959,7 +2959,7 @@ fb_api_thread_parse(FbApi *api, FbApiThread *thrd, JsonNode *root,
 		num_users++;
 
 		if (uid != priv->uid) {
-			user = fb_api_user_dup(NULL, FALSE);
+			user = g_new0(FbApiUser, 1);
 			user->uid = uid;
 			user->name = fb_json_values_next_str_dup(values, NULL);
 			thrd->users = g_slist_prepend(thrd->users, user);
@@ -3266,7 +3266,7 @@ fb_api_event_dup(const FbApiEvent *event, gboolean deep)
 	FbApiEvent *ret;
 
 	if (event == NULL) {
-		return g_new0(FbApiEvent, 1);
+		return NULL;
 	}
 
 	ret = g_memdup2(event, sizeof *event);
@@ -3305,7 +3305,7 @@ fb_api_message_dup(const FbApiMessage *msg, gboolean deep)
 	FbApiMessage *ret;
 
 	if (msg == NULL) {
-		return g_new0(FbApiMessage, 1);
+		return NULL;
 	}
 
 	ret = g_memdup2(msg, sizeof *msg);
@@ -3341,10 +3341,6 @@ fb_api_message_free(FbApiMessage *msg)
 FbApiPresence *
 fb_api_presence_dup(const FbApiPresence *presence)
 {
-	if (presence == NULL) {
-		return g_new0(FbApiPresence, 1);
-	}
-
 	return g_memdup2(presence, sizeof *presence);
 }
 
@@ -3371,7 +3367,7 @@ fb_api_thread_dup(const FbApiThread *thrd, gboolean deep)
 	GSList *l;
 
 	if (thrd == NULL) {
-		return g_new0(FbApiThread, 1);
+		return NULL;
 	}
 
 	ret = g_memdup2(thrd, sizeof *thrd);
@@ -3417,10 +3413,6 @@ fb_api_thread_free(FbApiThread *thrd)
 FbApiTyping *
 fb_api_typing_dup(const FbApiTyping *typg)
 {
-	if (typg == NULL) {
-		return g_new0(FbApiTyping, 1);
-	}
-
 	return g_memdup2(typg, sizeof *typg);
 }
 
@@ -3445,7 +3437,7 @@ fb_api_user_dup(const FbApiUser *user, gboolean deep)
 	FbApiUser *ret;
 
 	if (user == NULL) {
-		return g_new0(FbApiUser, 1);
+		return NULL;
 	}
 
 	ret = g_memdup2(user, sizeof *user);

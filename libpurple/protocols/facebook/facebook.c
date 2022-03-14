@@ -425,7 +425,7 @@ fb_cb_api_events(FbApi *api, GSList *events, gpointer data)
 		case FB_API_EVENT_TYPE_THREAD_USER_ADDED:
 			if (purple_blist_find_buddy(acct, uid) == NULL) {
 				if (event->text) {
-					FbApiUser *user = fb_api_user_dup(NULL, FALSE);
+					FbApiUser *user = g_new0(FbApiUser, 1);
 					user->uid = event->uid;
 					user->name = g_strdup(event->text);
 
