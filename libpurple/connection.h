@@ -406,6 +406,18 @@ gboolean
 purple_connection_is_disconnecting(PurpleConnection *gc);
 
 /**
+ * purple_connection_get_id:
+ * @connection: The connection.
+ *
+ * Gets the identifier of the connection.
+ *
+ * Returns: The identifier of the connection.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_connection_get_id(PurpleConnection *connection);
+
+/**
  * purple_connection_get_account:
  * @gc: The connection.
  *
