@@ -129,13 +129,13 @@ pidgin_application_init_plugins(void) {
 static void
 pidgin_application_populate_dynamic_menus(PidginApplication *application) {
 	GMenu *target = NULL;
-	GMenuModel *source = NULL;
+	GMenu *source = NULL;
 
 	/* Link the AccountsDisabledMenu into its proper location. */
 	target = gtk_application_get_menu_by_id(GTK_APPLICATION(application),
 	                                        "disabled-accounts");
 	source = pidgin_accounts_disabled_menu_new();
-	g_menu_append_section(target, NULL, source);
+	g_menu_append_section(target, NULL, G_MENU_MODEL(source));
 }
 
 /******************************************************************************
