@@ -187,9 +187,7 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
           <section id="disabled-accounts"/>
         </submenu>
       </section>
-      <section>
-        <attribute name="id">enabled-accounts</attribute>
-      </section>
+      <section id="enabled-accounts"/>
     </submenu>
     <submenu>
       <attribute name="label" translatable="yes">_Tools</attribute>
