@@ -767,6 +767,7 @@ version 3.0.0 (??/??/????):
 		* PidginWindow renamed to PidginConvWindow
 
 		Removed:
+		* conversation-dragging (gtkconv signal)
 		* conversation-timestamp (gtkconv signal)
 		* conversation-hiding (gtkconv signal)
 		* GtkIMHtml.clipboard_html_string
