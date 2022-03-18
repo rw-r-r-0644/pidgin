@@ -47,6 +47,8 @@
 struct _PurpleConnection {
 	GObject gparent;
 
+	gchar *id;
+
 	PurpleProtocol *protocol;     /* The protocol.                     */
 	PurpleConnectionFlags flags;  /* Connection flags.                 */
 
@@ -83,6 +85,7 @@ struct _PurpleConnection {
 
 enum {
 	PROP_0,
+	PROP_ID,
 	PROP_PROTOCOL,
 	PROP_FLAGS,
 	PROP_STATE,
@@ -273,6 +276,13 @@ purple_connection_get_account(PurpleConnection *gc) {
 	g_return_val_if_fail(PURPLE_IS_CONNECTION(gc), NULL);
 
 	return gc->account;
+}
+
+const gchar *
+purple_connection_get_id(PurpleConnection *connection) {
+	g_return_val_if_fail(PURPLE_IS_CONNECTION(connection), NULL);
+
+	return connection->id;
 }
 
 PurpleProtocol *
@@ -641,6 +651,18 @@ purple_connection_error_info_get_type(void) {
 	return type;
 }
 
+
+/**************************************************************************
+ * Helpers
+ **************************************************************************/
+static void
+purple_connection_set_id(PurpleConnection *connection, const gchar *id) {
+	g_free(connection->id);
+	connection->id = g_strdup(id);
+
+	g_object_notify_by_pspec(G_OBJECT(connection), properties[PROP_ID]);
+}
+
 /**************************************************************************
  * GObject code
  **************************************************************************/
@@ -652,6 +674,9 @@ purple_connection_set_property(GObject *obj, guint param_id,
 	PurpleConnection *gc = PURPLE_CONNECTION(obj);
 
 	switch (param_id) {
+		case PROP_ID:
+			purple_connection_set_id(gc, g_value_get_string(value));
+			break;
 		case PROP_PROTOCOL:
 			gc->protocol = g_value_get_object(value);
 			break;
@@ -684,6 +709,9 @@ purple_connection_get_property(GObject *obj, guint param_id, GValue *value,
 	PurpleConnection *gc = PURPLE_CONNECTION(obj);
 
 	switch (param_id) {
+		case PROP_ID:
+			g_value_set_string(value, purple_connection_get_id(gc));
+			break;
 		case PROP_PROTOCOL:
 			g_value_set_object(value, purple_connection_get_protocol(gc));
 			break;
@@ -720,6 +748,14 @@ purple_connection_constructed(GObject *object) {
 	PurpleAccount *account;
 
 	G_OBJECT_CLASS(purple_connection_parent_class)->constructed(object);
+
+	if(gc->id == NULL) {
+		gchar *uuid = g_uuid_string_random();
+
+		purple_connection_set_id(gc, uuid);
+
+		g_free(uuid);
+	}
 
 	g_object_get(gc, "account", &account, NULL);
 	purple_account_set_connection(account, gc);
@@ -796,6 +832,7 @@ purple_connection_finalize(GObject *object) {
 
 	purple_str_wipe(gc->password);
 	g_free(gc->display_name);
+	g_free(gc->id);
 
 	G_OBJECT_CLASS(purple_connection_parent_class)->finalize(object);
 }
@@ -808,6 +845,12 @@ purple_connection_class_init(PurpleConnectionClass *klass) {
 	obj_class->set_property = purple_connection_set_property;
 	obj_class->finalize = purple_connection_finalize;
 	obj_class->constructed = purple_connection_constructed;
+
+	properties[PROP_ID] = g_param_spec_string(
+		"id", "id",
+		"The identifier of the account",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_PROTOCOL] = g_param_spec_object(
 		"protocol", "Protocol",
