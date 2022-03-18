@@ -44,6 +44,7 @@
 #include "gtkxfer.h"
 #include "pidginabout.h"
 #include "pidginaccountsdisabledmenu.h"
+#include "pidginaccountsenabledmenu.h"
 #include "pidginconversationwindow.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
@@ -128,13 +129,18 @@ pidgin_application_init_plugins(void) {
 
 static void
 pidgin_application_populate_dynamic_menus(PidginApplication *application) {
-	GMenu *target = NULL;
-	GMenu *source = NULL;
+	GMenu *source = NULL, *target = NULL;
 
 	/* Link the AccountsDisabledMenu into its proper location. */
+	source = pidgin_accounts_disabled_menu_new();
 	target = gtk_application_get_menu_by_id(GTK_APPLICATION(application),
 	                                        "disabled-accounts");
-	source = pidgin_accounts_disabled_menu_new();
+	g_menu_append_section(target, NULL, G_MENU_MODEL(source));
+
+	/* Link the AccountsEnabledMenu into its proper location. */
+	source = pidgin_accounts_enabled_menu_new();
+	target = gtk_application_get_menu_by_id(GTK_APPLICATION(application),
+	                                        "enabled-accounts");
 	g_menu_append_section(target, NULL, G_MENU_MODEL(source));
 }
 
@@ -255,6 +261,45 @@ pidgin_application_debug(GSimpleAction *simple, GVariant *parameter,
 {
 	gboolean old = purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/debug/enabled");
 	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/debug/enabled", !old);
+}
+
+
+static void
+pidgin_application_disable_account(GSimpleAction *simple, GVariant *parameter,
+                                   gpointer data)
+{
+	PurpleAccount *account = NULL;
+	PurpleAccountManager *manager = NULL;
+	const gchar *id = NULL;
+
+	id = g_variant_get_string(parameter, NULL);
+
+	manager = purple_account_manager_get_default();
+
+	account = purple_account_manager_find_by_id(manager, id);
+	if(PURPLE_IS_ACCOUNT(account)) {
+		if(purple_account_get_enabled(account, PIDGIN_UI)) {
+			purple_account_set_enabled(account, PIDGIN_UI, FALSE);
+		}
+	}
+}
+
+static void
+pidgin_application_edit_account(GSimpleAction *simple, GVariant *parameter,
+                                gpointer data)
+{
+	PurpleAccount *account = NULL;
+	PurpleAccountManager *manager = NULL;
+	const gchar *id = NULL;
+
+	id = g_variant_get_string(parameter, NULL);
+
+	manager = purple_account_manager_get_default();
+
+	account = purple_account_manager_find_by_id(manager, id);
+	if(PURPLE_IS_ACCOUNT(account)) {
+		pidgin_account_dialog_show(PIDGIN_MODIFY_ACCOUNT_DIALOG, account);
+	}
 }
 
 static void
@@ -384,6 +429,14 @@ static GActionEntry app_entries[] = {
 	}, {
 		.name = "debug",
 		.activate = pidgin_application_debug,
+	}, {
+		.name = "disable-account",
+		.activate = pidgin_application_disable_account,
+		.parameter_type = "s",
+	}, {
+		.name = "edit-account",
+		.activate = pidgin_application_edit_account,
+		.parameter_type = "s",
 	}, {
 		.name = "enable-account",
 		.activate = pidgin_application_enable_account,
