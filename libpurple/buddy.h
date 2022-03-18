@@ -121,6 +121,18 @@ GType purple_buddy_get_type(void);
 PurpleBuddy *purple_buddy_new(PurpleAccount *account, const char *name, const char *alias);
 
 /**
+ * purple_buddy_get_id:
+ * @buddy: The buddy.
+ *
+ * Gets the globally unique identifier of the buddy.
+ *
+ * Returns: The id of @buddy.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_buddy_get_id(PurpleBuddy *buddy);
+
+/**
  * purple_buddy_set_icon:
  * @buddy: The buddy.
  * @icon:  The buddy icon.

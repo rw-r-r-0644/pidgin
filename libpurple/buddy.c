@@ -30,6 +30,7 @@
 #include "util.h"
 
 typedef struct {
+	gchar *id;
 	gchar *name;
 	gchar *local_alias;
 	gchar *server_alias;
@@ -45,6 +46,7 @@ typedef struct {
 
 enum {
 	PROP_0,
+	PROP_ID,
 	PROP_NAME,
 	PROP_LOCAL_ALIAS,
 	PROP_SERVER_ALIAS,
@@ -62,6 +64,16 @@ G_DEFINE_TYPE_WITH_PRIVATE(PurpleBuddy, purple_buddy, PURPLE_TYPE_BLIST_NODE)
 /******************************************************************************
  * Helpers
  *****************************************************************************/
+static void
+purple_buddy_set_id(PurpleBuddy *buddy, const gchar *id) {
+	PurpleBuddyPrivate *priv = purple_buddy_get_instance_private(buddy);
+
+	g_free(priv->id);
+	priv->id = g_strdup(id);
+
+	g_object_notify_by_pspec(G_OBJECT(buddy), properties[PROP_ID]);
+}
+
 static void
 purple_buddy_set_account(PurpleBuddy *buddy, PurpleAccount *account) {
 	PurpleBuddyPrivate *priv = purple_buddy_get_instance_private(buddy);
@@ -81,6 +93,9 @@ purple_buddy_set_property(GObject *obj, guint param_id, const GValue *value,
 	PurpleBuddy *buddy = PURPLE_BUDDY(obj);
 
 	switch (param_id) {
+		case PROP_ID:
+			purple_buddy_set_id(buddy, g_value_get_string(value));
+			break;
 		case PROP_NAME:
 			purple_buddy_set_name(buddy, g_value_get_string(value));
 			break;
@@ -113,6 +128,9 @@ purple_buddy_get_property(GObject *obj, guint param_id, GValue *value,
 	PurpleBuddy *buddy = PURPLE_BUDDY(obj);
 
 	switch (param_id) {
+		case PROP_ID:
+			g_value_set_string(value, purple_buddy_get_id(buddy));
+			break;
 		case PROP_NAME:
 			g_value_set_string(value, purple_buddy_get_name(buddy));
 			break;
@@ -151,6 +169,14 @@ purple_buddy_constructed(GObject *object) {
 
 	G_OBJECT_CLASS(purple_buddy_parent_class)->constructed(object);
 
+	if(priv->id == NULL) {
+		gchar *id = g_uuid_string_random();
+
+		purple_buddy_set_id(buddy, id);
+
+		g_free(id);
+	}
+
 	priv->presence = PURPLE_PRESENCE(purple_buddy_presence_new(buddy));
 	purple_presence_set_status_active(priv->presence, "offline", TRUE);
 
@@ -184,6 +210,7 @@ purple_buddy_finalize(GObject *object) {
 		                                  buddy);
 	}
 
+	g_free(priv->id);
 	g_free(priv->name);
 	g_free(priv->local_alias);
 	g_free(priv->server_alias);
@@ -199,6 +226,22 @@ static void purple_buddy_class_init(PurpleBuddyClass *klass) {
 	obj_class->finalize = purple_buddy_finalize;
 	obj_class->get_property = purple_buddy_get_property;
 	obj_class->set_property = purple_buddy_set_property;
+
+	/**
+	 * PurpleBuddy::id:
+	 *
+	 * A globally unique identifier for this specific buddy.
+	 *
+	 * If an id is not passed during instantiation a uuid4 string is set as the
+	 * id.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_ID] = g_param_spec_string(
+		"id", "id",
+		"The globally unique identifier of the buddy.",
+		NULL,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_NAME] = g_param_spec_string(
 		"name", "Name",
@@ -259,6 +302,17 @@ purple_buddy_new(PurpleAccount *account, const gchar *name, const gchar *alias)
 		"name", name,
 		"local-alias", alias,
 		NULL);
+}
+
+const gchar *
+purple_buddy_get_id(PurpleBuddy *buddy) {
+	PurpleBuddyPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_BUDDY(buddy), NULL);
+
+	priv = purple_buddy_get_instance_private(buddy);
+
+	return priv->id;
 }
 
 void
