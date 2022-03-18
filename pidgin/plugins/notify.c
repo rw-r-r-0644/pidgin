@@ -448,55 +448,6 @@ deleting_conv(PurpleConversation *conv)
 #endif
 }
 
-#if 0
-static void
-conversation_dragging(PurpleConversation *active_conv,
-                        PidginConvWindow *old_purplewin,
-                        PidginConvWindow *new_purplewin)
-{
-	if (old_purplewin != new_purplewin) {
-		if (old_purplewin == NULL) {
-			/*
-			purple_conversation_autoset_title(active_conv);
-			handle_urgent(new_purplewin, FALSE);
-				*/
-
-			if (count_messages(new_purplewin))
-				notify_win(new_purplewin);
-		} else {
-			printf("if else count = %d\n", count_messages(new_purplewin));
-			printf("if else count = %d\n", count_messages(old_purplewin));
-			/*
-			PurpleConversation *old_active_conv = NULL;
-			old_active_conv = purple_conversation_window_get_active_conversation(new_purplewin);
-
-			purple_conversation_autoset_title(old_active_conv);
-			handle_urgent(old_purplewin, FALSE);
-
-			if (count_messages(old_purplewin))
-				notify_win(old_purplewin);
-
-			purple_conversation_autoset_title(active_conv);
-			handle_urgent(new_purplewin, FALSE);
-
-			if (count_messages(new_purplewin))
-				notify_win(new_purplewin);
-				*/
-		}
-	} else {
-		printf("else count = %d\n", count_messages(new_purplewin));
-		printf("else count = %d\n", count_messages(old_purplewin));
-		/*
-		purple_conversation_autoset_title(active_conv);
-		handle_urgent(old_purplewin, FALSE);
-
-		if (count_messages(old_purplewin))
-			notify_win(old_purplewin);
-			*/
-	}
-}
-#endif
-
 static void
 handle_string(PidginConvWindow *purplewin)
 {
@@ -933,10 +884,6 @@ notify_load(GPluginPlugin *plugin, GError **error)
 	                    PURPLE_CALLBACK(conv_created), NULL);
 	purple_signal_connect(conv_handle, "deleting-conversation", plugin,
 	                    PURPLE_CALLBACK(deleting_conv), NULL);
-#if 0
-	purple_signal_connect(gtk_conv_handle, "conversation-dragging", plugin,
-	                    PURPLE_CALLBACK(conversation_dragging), NULL);
-#endif
 
 	while (convs) {
 		PurpleConversation *conv = (PurpleConversation *)convs->data;

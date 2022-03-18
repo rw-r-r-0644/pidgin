@@ -3298,11 +3298,6 @@ pidgin_conversations_init(void)
 	/**********************************************************************
 	 * Register signals
 	 **********************************************************************/
-	purple_signal_register(handle, "conversation-dragging",
-	                     purple_marshal_VOID__POINTER_POINTER, G_TYPE_NONE, 2,
-	                     G_TYPE_POINTER, /* pointer to a (PidginConvWindow *) */
-	                     G_TYPE_POINTER); /* pointer to a (PidginConvWindow *) */
-
 	purple_signal_register(handle, "displaying-im-msg",
 		purple_marshal_BOOLEAN__POINTER_POINTER,
 		G_TYPE_BOOLEAN, 2, PURPLE_TYPE_CONVERSATION, PURPLE_TYPE_MESSAGE);

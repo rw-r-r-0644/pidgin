@@ -612,9 +612,6 @@ transparency_load(GPluginPlugin *plugin, GError **error) {
 	purple_signal_connect(conv_handle, "deleting-conversation", plugin,
 	                      PURPLE_CALLBACK(conversation_delete_cb), NULL);
 
-	purple_signal_connect(conv_handle, "conversation-dragging", plugin,
-	                      PURPLE_CALLBACK(set_conv_window_trans), NULL);
-
 	purple_signal_connect(conv_handle, "conversation-updated", plugin,
 	                      PURPLE_CALLBACK(conv_updated_cb), NULL);
 

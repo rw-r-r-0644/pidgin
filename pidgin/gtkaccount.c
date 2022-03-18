@@ -74,7 +74,6 @@ typedef struct
 	GtkWidget *delete_button;
 
 	GtkListStore *model;
-	GtkTreeIter drag_iter;
 
 	GtkTreeViewColumn *username_col;
 
@@ -346,42 +345,6 @@ static void
 icon_reset_cb(GtkWidget *button, AccountPrefsDialog *dialog)
 {
 	set_dialog_icon(dialog, NULL, 0, NULL);
-}
-
-static void
-account_dnd_recv(GtkWidget *widget, GdkDragContext *dc, gint x, gint y,
-		 GtkSelectionData *sd, guint info, guint t, AccountPrefsDialog *dialog)
-{
-	const gchar *name = (gchar *)gtk_selection_data_get_data(sd);
-	gint length = gtk_selection_data_get_length(sd);
-	gint format = gtk_selection_data_get_format(sd);
-
-	if ((length >= 0) && (format == 8)) {
-		/* Well, it looks like the drag event was cool.
-		 * Let's do something with it */
-		if (!g_ascii_strncasecmp(name, "file://", 7)) {
-			GError *converr = NULL;
-			gchar *tmp, *rtmp;
-			gpointer data;
-			size_t len = 0;
-
-			/* It looks like we're dealing with a local file. */
-			if(!(tmp = g_filename_from_uri(name, NULL, &converr))) {
-				purple_debug_error("buddyicon", "%s",
-				                   converr ? converr->message :
-				                   "g_filename_from_uri error");
-				return;
-			}
-			if ((rtmp = strchr(tmp, '\r')) || (rtmp = strchr(tmp, '\n')))
-				*rtmp = '\0';
-
-			data = pidgin_convert_buddy_icon(dialog->protocol, tmp, &len);
-			/* This takes ownership of tmp */
-			set_dialog_icon(dialog, data, len, tmp);
-		}
-		gtk_drag_finish(dc, TRUE, FALSE, t);
-	}
-	gtk_drag_finish(dc, FALSE, FALSE, t);
 }
 
 static void
@@ -1514,12 +1477,6 @@ account_prefs_response_cb(GtkDialog *dialog, gint response_id, gpointer data) {
 	}
 }
 
-static const GtkTargetEntry dnd_targets[] = {
-	{"text/plain", 0, 0},
-	{"text/uri-list", 0, 1},
-	{"STRING", 0, 2}
-};
-
 static void
 pidgin_account_dialog_show_continue(PidginAccountDialogType type,
                                     PurpleAccount *account,
@@ -1624,17 +1581,6 @@ pidgin_account_dialog_show_continue(PidginAccountDialogType type,
 	if (dialog->account == NULL) {
 		gtk_widget_set_sensitive(dialog->ok_button, FALSE);
 	}
-
-	/* Set up DND */
-	gtk_drag_dest_set(dialog->window,
-			  GTK_DEST_DEFAULT_MOTION |
-			  GTK_DEST_DEFAULT_DROP,
-			  dnd_targets,
-			  sizeof(dnd_targets) / sizeof(GtkTargetEntry),
-			  GDK_ACTION_COPY);
-
-	g_signal_connect(G_OBJECT(dialog->window), "drag_data_received",
-			 G_CALLBACK(account_dnd_recv), dialog);
 
 	/* Show the window. */
 	gtk_widget_show(win);
@@ -1799,141 +1745,6 @@ account_abled_cb(PurpleAccount *account, gpointer user_data)
 		gtk_list_store_set(accounts_window->model, &iter,
 						   COLUMN_ENABLED, GPOINTER_TO_INT(user_data),
 						   -1);
-}
-
-static void
-drag_data_get_cb(GtkWidget *widget, GdkDragContext *ctx,
-				 GtkSelectionData *data, guint info, guint time,
-				 AccountsWindow *dialog)
-{
-	GdkAtom target = gtk_selection_data_get_target(data);
-
-	if (target == gdk_atom_intern("PURPLE_ACCOUNT", FALSE)) {
-		GtkTreeRowReference *ref;
-		GtkTreePath *source_row;
-		GtkTreeIter iter;
-		PurpleAccount *account = NULL;
-		GValue val;
-
-		ref = g_object_get_data(G_OBJECT(ctx), "gtk-tree-view-source-row");
-		source_row = gtk_tree_row_reference_get_path(ref);
-
-		if (source_row == NULL)
-			return;
-
-		gtk_tree_model_get_iter(GTK_TREE_MODEL(dialog->model), &iter,
-								source_row);
-		val.g_type = 0;
-		gtk_tree_model_get_value(GTK_TREE_MODEL(dialog->model), &iter,
-								 COLUMN_DATA, &val);
-
-		dialog->drag_iter = iter;
-
-		account = g_value_get_pointer(&val);
-
-		gtk_selection_data_set(data, gdk_atom_intern("PURPLE_ACCOUNT", FALSE),
-							   8, (void *)&account, sizeof(account));
-
-		gtk_tree_path_free(source_row);
-	}
-}
-
-static void
-move_account_after(GtkListStore *store, GtkTreeIter *iter,
-				   GtkTreeIter *position)
-{
-	GtkTreeIter new_iter;
-	PurpleAccount *account;
-
-	gtk_tree_model_get(GTK_TREE_MODEL(store), iter,
-					   COLUMN_DATA, &account,
-					   -1);
-
-	gtk_list_store_insert_after(store, &new_iter, position);
-
-	set_account(store, &new_iter, account, NULL);
-
-	gtk_list_store_remove(store, iter);
-}
-
-static void
-move_account_before(GtkListStore *store, GtkTreeIter *iter,
-					GtkTreeIter *position)
-{
-	GtkTreeIter new_iter;
-	PurpleAccount *account;
-
-	gtk_tree_model_get(GTK_TREE_MODEL(store), iter,
-					   COLUMN_DATA, &account,
-					   -1);
-
-	gtk_list_store_insert_before(store, &new_iter, position);
-
-	set_account(store, &new_iter, account, NULL);
-
-	gtk_list_store_remove(store, iter);
-}
-
-static void
-drag_data_received_cb(GtkWidget *widget, GdkDragContext *ctx,
-					  guint x, guint y, GtkSelectionData *sd,
-					  guint info, guint t, AccountsWindow *dialog)
-{
-	GdkAtom target = gtk_selection_data_get_target(sd);
-	const guchar *data = gtk_selection_data_get_data(sd);
-
-	if (target == gdk_atom_intern("PURPLE_ACCOUNT", FALSE) && data) {
-		gint dest_index;
-		PurpleAccount *a = NULL;
-		GtkTreePath *path = NULL;
-		GtkTreeViewDropPosition position;
-
-		memcpy(&a, data, sizeof(a));
-
-		if (gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(widget), x, y,
-		                                      &path, &position))
-		{
-			GtkTreeIter iter;
-			PurpleAccount *account;
-			PurpleAccountManager *manager = NULL;
-			GValue val;
-			GList *accounts = NULL;
-
-			gtk_tree_model_get_iter(GTK_TREE_MODEL(dialog->model), &iter, path);
-			val.g_type = 0;
-			gtk_tree_model_get_value(GTK_TREE_MODEL(dialog->model), &iter,
-									 COLUMN_DATA, &val);
-
-			account = g_value_get_pointer(&val);
-
-			manager = purple_account_manager_get_default();
-			accounts = purple_account_manager_get_all(manager);
-
-			switch (position) {
-				case GTK_TREE_VIEW_DROP_AFTER:
-				case GTK_TREE_VIEW_DROP_INTO_OR_AFTER:
-					move_account_after(dialog->model, &dialog->drag_iter,
-									   &iter);
-					dest_index = g_list_index(accounts, account) + 1;
-					break;
-
-				case GTK_TREE_VIEW_DROP_BEFORE:
-				case GTK_TREE_VIEW_DROP_INTO_OR_BEFORE:
-					dest_index = g_list_index(accounts, account);
-
-					move_account_before(dialog->model, &dialog->drag_iter,
-										&iter);
-					break;
-
-				default:
-					return;
-			}
-
-			if (dest_index >= 0) {
-				purple_account_manager_reorder(manager, a, dest_index);
-			}
-		}
-	}
 }
 
 static gboolean
@@ -2271,7 +2082,6 @@ create_accounts_list(AccountsWindow *dialog)
 	GtkWidget *frame;
 	GtkWidget *treeview;
 	GtkTreeSelection *sel;
-	GtkTargetEntry gte[] = {{"PURPLE_ACCOUNT", GTK_TARGET_SAME_APP, 0}};
 
 	frame = gtk_frame_new(NULL);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_IN);
@@ -2307,19 +2117,6 @@ create_accounts_list(AccountsWindow *dialog)
 	gtk_tree_view_columns_autosize(GTK_TREE_VIEW(treeview));
 
 	populate_accounts_list(dialog);
-
-	/* Setup DND. I wanna be an orc! */
-	gtk_tree_view_enable_model_drag_source(
-			GTK_TREE_VIEW(treeview), GDK_BUTTON1_MASK, gte,
-			1, GDK_ACTION_COPY);
-	gtk_tree_view_enable_model_drag_dest(
-			GTK_TREE_VIEW(treeview), gte, 1,
-			GDK_ACTION_COPY | GDK_ACTION_MOVE);
-
-	g_signal_connect(G_OBJECT(treeview), "drag-data-received",
-					 G_CALLBACK(drag_data_received_cb), dialog);
-	g_signal_connect(G_OBJECT(treeview), "drag-data-get",
-					 G_CALLBACK(drag_data_get_cb), dialog);
 
 	gtk_widget_show_all(frame);
 	return frame;

@@ -55,9 +55,6 @@ typedef enum {
  * @treemodel:         This is the treemodel.
  * @text_column:       Column
  * @refresh_timer:     The timer for refreshing every 30 seconds
- * @drag_timeout:      The timeout for expanding contacts on drags
- * @drag_rect:         This is the bounding rectangle of the cell we're
- *                     currently hovering over.  This is used for drag'n'drop.
  * @contact_rect:      This is the bounding rectangle of the contact node and
  *                     its children.  This is used for auto-expand on mouseover.
  * @mouseover_contact: This is the contact currently mouse-over expanded
@@ -91,8 +88,6 @@ struct _PidginBuddyList {
 
 	guint refresh_timer;
 
-	guint      drag_timeout;
-	GdkRectangle drag_rect;
 	GdkRectangle contact_rect;
 	PurpleBlistNode *mouseover_contact;
 
