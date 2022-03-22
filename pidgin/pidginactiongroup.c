@@ -164,19 +164,6 @@ pidgin_action_group_setup_string(PidginActionGroup *group,
  * Preference Callbacks
  *****************************************************************************/
 static void
-pidgin_action_group_show_buddy_icons_callback(const gchar *name,
-                                              PurplePrefType type,
-                                              gconstpointer value,
-                                              gpointer data)
-{
-	PidginActionGroup *group = PIDGIN_ACTION_GROUP(data);
-
-	pidgin_action_group_bool_pref_handler(group,
-	                                      PIDGIN_ACTION_SHOW_BUDDY_ICONS,
-	                                      (gboolean)GPOINTER_TO_INT(value));
-}
-
-static void
 pidgin_action_group_show_empty_groups_callback(const gchar *name,
                                                PurplePrefType type,
                                                gconstpointer value,
@@ -245,14 +232,6 @@ pidgin_action_group_sort_method_callback(const gchar *name,
  * Action Callbacks
  *****************************************************************************/
 static void
-pidgin_action_group_show_buddy_icons(GSimpleAction *action, GVariant *value,
-                                     gpointer data)
-{
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/blist/show_buddy_icons",
-	                      g_variant_get_boolean(value));
-}
-
-static void
 pidgin_action_group_show_empty_groups(GSimpleAction *action, GVariant *value,
                                       gpointer data)
 {
@@ -305,10 +284,6 @@ static void
 pidgin_action_group_init(PidginActionGroup *group) {
 	GActionEntry entries[] = {
 		{
-			.name = PIDGIN_ACTION_SHOW_BUDDY_ICONS,
-			.state = "false",
-			.change_state = pidgin_action_group_show_buddy_icons,
-		}, {
 			.name = PIDGIN_ACTION_SHOW_EMPTY_GROUPS,
 			.state = "false",
 			.change_state = pidgin_action_group_show_empty_groups,
@@ -338,9 +313,6 @@ pidgin_action_group_init(PidginActionGroup *group) {
 	/* now add some handlers for preference changes and set actions to the
 	 * correct value.
 	 */
-	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_BUDDY_ICONS,
-	                               PIDGIN_PREFS_ROOT "/blist/show_buddy_icons",
-	                               pidgin_action_group_show_buddy_icons_callback);
 	pidgin_action_group_setup_bool(group, PIDGIN_ACTION_SHOW_EMPTY_GROUPS,
 	                               PIDGIN_PREFS_ROOT "/blist/show_empty_groups",
 	                               pidgin_action_group_show_empty_groups_callback);
