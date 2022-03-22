@@ -35,6 +35,15 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(PidginAboutDialog, pidgin_about_dialog, PIDGIN,
                      ABOUT_DIALOG, GtkDialog)
 
+/**
+ * pidgin_about_dialog_new:
+ *
+ * Creates a new about window.
+ *
+ * Returns: (transfer full): A new instance of the about dialog.
+ *
+ * Since: 3.0.0
+ */
 GtkWidget *pidgin_about_dialog_new(void);
 
 G_END_DECLS

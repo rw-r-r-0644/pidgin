@@ -217,12 +217,12 @@ static void
 pidgin_application_about(GSimpleAction *simple, GVariant *parameter,
                          gpointer data)
 {
-	GtkWidget *about = pidgin_about_dialog_new();
+	static GtkWidget *about = NULL;
 
-	/* fix me? */
-#if 0
-	gtk_window_set_transient_for(GTK_WINDOW(about), GTK_WINDOW(window));
-#endif
+	if(!GTK_IS_WIDGET(about)) {
+		about = pidgin_about_dialog_new();
+		g_object_add_weak_pointer(G_OBJECT(about), (gpointer)&about);
+	}
 
 	gtk_widget_show_all(about);
 }
