@@ -42,6 +42,7 @@
 #include "gtkroomlist.h"
 #include "gtkxfer.h"
 #include "pidginabout.h"
+#include "pidginaccountmanager.h"
 #include "pidginaccountsdisabledmenu.h"
 #include "pidginaccountsenabledmenu.h"
 #include "pidginconversationwindow.h"
@@ -231,7 +232,15 @@ static void
 pidgin_application_accounts(GSimpleAction *simple, GVariant *parameter,
                             gpointer data)
 {
-	pidgin_accounts_window_show();
+	static GtkWidget *manager = NULL;
+
+	if(!GTK_IS_WIDGET(manager)) {
+		manager = pidgin_account_manager_new();
+		g_object_add_weak_pointer(G_OBJECT(manager), (gpointer)&manager);
+	}
+
+
+	gtk_window_present_with_time(GTK_WINDOW(manager), GDK_CURRENT_TIME);
 }
 
 static void
@@ -722,7 +731,8 @@ pidgin_application_startup(GApplication *application) {
 	manager = purple_account_manager_get_default();
 	active_accounts = purple_account_manager_get_active(manager);
 	if(active_accounts == NULL) {
-		pidgin_accounts_window_show();
+		g_action_group_activate_action(G_ACTION_GROUP(application),
+		                               "manage-accounts", NULL);
 	} else {
 		g_list_free(active_accounts);
 	}

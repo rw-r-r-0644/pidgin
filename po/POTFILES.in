@@ -392,6 +392,7 @@ pidgin/prefs/pidginprefs.c
 pidgin/resources/About/about.ui
 pidgin/resources/Accounts/actionsmenu.ui
 pidgin/resources/Accounts/chooser.ui
+pidgin/resources/Accounts/manager.ui
 pidgin/resources/Accounts/menu.ui
 pidgin/resources/Avatar/avatar.ui
 pidgin/resources/Avatar/menu.ui
