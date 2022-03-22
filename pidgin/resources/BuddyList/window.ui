@@ -78,15 +78,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                               </object>
                             </child>
                             <child>
-                              <object class="GtkCheckMenuItem" id="show_buddy_icons">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="action-name">blist.show-buddy-icons</property>
-                                <property name="label" translatable="yes">Buddy _Icons</property>
-                                <property name="use-underline">True</property>
-                              </object>
-                            </child>
-                            <child>
                               <object class="GtkCheckMenuItem" id="show_idle_times">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
