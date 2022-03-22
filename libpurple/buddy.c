@@ -247,13 +247,13 @@ static void purple_buddy_class_init(PurpleBuddyClass *klass) {
 		"name", "Name",
 		"The name of the buddy.",
 		NULL,
-		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
+		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_LOCAL_ALIAS] = g_param_spec_string(
 		"local-alias", "Local alias",
 		"Local alias of thee buddy.",
 		NULL,
-		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
+		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_SERVER_ALIAS] = g_param_spec_string(
 		"server-alias", "Server alias",
