@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 
+
+Pidgin - Internet Messenger
+Copyright (C) Pidgin Developers <devel@pidgin.im>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, see <https://www.gnu.org/licenses/>.
+
+-->
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <!-- interface-license-type gplv2 -->
+  <!-- interface-name Pidgin -->
+  <!-- interface-description Internet Messenger -->
+  <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
+  <object class="GtkListStore" id="model">
+    <columns>
+      <!-- column-name title -->
+      <column type="gchararray"/>
+      <!-- column-name icon-name -->
+      <column type="gchararray"/>
+      <!-- column-name type -->
+      <column type="gchararray"/>
+      <!-- column-name message -->
+      <column type="gchararray"/>
+      <!-- column-name status -->
+      <column type="gpointer"/>
+    </columns>
+  </object>
+  <template class="PidginStatusManager" parent="GtkDialog">
+    <property name="can-focus">False</property>
+    <property name="title" translatable="yes">Saved Statuses</property>
+    <property name="default-width">550</property>
+    <property name="default-height">250</property>
+    <property name="type-hint">dialog</property>
+    <signal name="response" handler="pidgin_status_manager_response_cb" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can-focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can-focus">False</property>
+            <property name="layout-style">end</property>
+            <child>
+              <object class="GtkButton" id="use_button">
+                <property name="label" translatable="yes">_Use</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label" translatable="yes">_Add</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="modify_button">
+                <property name="label" translatable="yes">_Modify</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="remove_button">
+                <property name="label" translatable="yes">_Remove</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button2">
+                <property name="label" translatable="yes">_Close</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
+            <child>
+              <object class="GtkTreeView">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="model">model</property>
+                <property name="search-column">0</property>
+                <signal name="row-activated" handler="pidgin_status_manager_row_activated_cb" object="PidginStatusManager" swapped="no"/>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection" id="selection">
+                    <signal name="changed" handler="pidgin_status_manager_selection_changed_cb" object="PidginStatusManager" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="resizable">True</property>
+                    <property name="min-width">100</property>
+                    <property name="title" translatable="yes">Title</property>
+                    <property name="clickable">True</property>
+                    <property name="sort-column-id">0</property>
+                    <child>
+                      <object class="GtkCellRendererText">
+                        <property name="ellipsize">end</property>
+                      </object>
+                      <attributes>
+                        <attribute name="markup">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="resizable">True</property>
+                    <property name="title" translatable="yes">Type</property>
+                    <property name="clickable">True</property>
+                    <property name="sort-column-id">2</property>
+                    <child>
+                      <object class="GtkCellRendererPixbuf"/>
+                      <attributes>
+                        <attribute name="icon-name">1</attribute>
+                      </attributes>
+                    </child>
+                    <child>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="markup">2</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="resizable">True</property>
+                    <property name="title" translatable="yes">Message</property>
+                    <property name="clickable">True</property>
+                    <property name="sort-column-id">4</property>
+                    <child>
+                      <object class="GtkCellRendererText">
+                        <property name="ellipsize">end</property>
+                      </object>
+                      <attributes>
+                        <attribute name="markup">3</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">use_button</action-widget>
+      <action-widget response="1">button1</action-widget>
+      <action-widget response="2">modify_button</action-widget>
+      <action-widget response="3">remove_button</action-widget>
+      <action-widget response="-7">button2</action-widget>
+    </action-widgets>
+  </template>
+</interface>

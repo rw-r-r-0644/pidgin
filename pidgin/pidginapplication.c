@@ -40,7 +40,6 @@
 #include "gtkdialogs.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
-#include "gtksavedstatuses.h"
 #include "gtkxfer.h"
 #include "pidginabout.h"
 #include "pidginaccountsdisabledmenu.h"
@@ -50,6 +49,7 @@
 #include "pidgindebug.h"
 #include "pidginmooddialog.h"
 #include "pidgin/pidginpluginsdialog.h"
+#include "pidgin/pidginstatusmanager.h"
 #include "pidginprefs.h"
 
 struct _PidginApplication {
@@ -410,7 +410,14 @@ static void
 pidgin_application_show_status_manager(GSimpleAction *simple,
                                        GVariant *parameter, gpointer data)
 {
-	pidgin_status_window_show();
+	static GtkWidget *manager = NULL;
+
+	if(!GTK_IS_WIDGET(manager)) {
+		manager = pidgin_status_manager_new();
+		g_object_add_weak_pointer(G_OBJECT(manager), (gpointer)&manager);
+	}
+
+	gtk_widget_show_all(manager);
 }
 
 static GActionEntry app_entries[] = {

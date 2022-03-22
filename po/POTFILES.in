@@ -412,6 +412,7 @@ pidgin/resources/Prefs/vv.ui
 pidgin/resources/Privacy/dialog.ui
 pidgin/resources/Protocols/chooser.ui
 pidgin/resources/Roomlist/roomlist.ui
+pidgin/resources/Status/manager.ui
 pidgin/resources/Whiteboard/whiteboard.ui
 pidgin/resources/Xfer/xfer.ui
 pidgin/resources/gtk/menus.ui
