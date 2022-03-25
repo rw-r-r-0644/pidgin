@@ -361,13 +361,13 @@ gnt_gf_load(GPluginPlugin *plugin, GError **error) {
 #endif
 
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-on", plugin,
-			PURPLE_CALLBACK(buddy_signed_on), NULL);
+			G_CALLBACK(buddy_signed_on), NULL);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-off", plugin,
-			PURPLE_CALLBACK(buddy_signed_off), NULL);
+			G_CALLBACK(buddy_signed_off), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "received-im-msg", plugin,
-			PURPLE_CALLBACK(received_im_msg), NULL);
+			G_CALLBACK(received_im_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "received-chat-msg", plugin,
-			PURPLE_CALLBACK(received_chat_msg), NULL);
+			G_CALLBACK(received_chat_msg), NULL);
 
 	memset(&gpsy, 0, sizeof(gpsy));
 	memset(&gpsw, 0, sizeof(gpsw));

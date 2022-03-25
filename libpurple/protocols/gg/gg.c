@@ -1276,7 +1276,7 @@ gg_load(GPluginPlugin *plugin, GError **error)
 	ggp_message_setup_global();
 
 	purple_signal_connect(purple_get_core(), "uri-handler", plugin,
-			PURPLE_CALLBACK(gg_uri_handler), NULL);
+			G_CALLBACK(gg_uri_handler), NULL);
 
 	return TRUE;
 }
@@ -1291,7 +1291,7 @@ gg_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 	}
 
 	purple_signal_disconnect(purple_get_core(), "uri-handler", plugin,
-			PURPLE_CALLBACK(gg_uri_handler));
+			G_CALLBACK(gg_uri_handler));
 
 	ggp_servconn_cleanup();
 	ggp_html_cleanup();

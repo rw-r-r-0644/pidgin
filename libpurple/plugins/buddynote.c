@@ -59,7 +59,7 @@ buddynote_extended_menu_cb(PurpleBlistNode *node, GList **m)
 		return;
 
 	*m = g_list_append(*m, bna);
-	bna = purple_action_menu_new(_("Edit Notes..."), PURPLE_CALLBACK(buddynote_edit_cb), NULL, NULL);
+	bna = purple_action_menu_new(_("Edit Notes..."), G_CALLBACK(buddynote_edit_cb), NULL, NULL);
 	*m = g_list_append(*m, bna);
 }
 
@@ -91,7 +91,7 @@ buddy_note_load(GPluginPlugin *plugin, GError **error)
 {
 
 	purple_signal_connect(purple_blist_get_handle(), "blist-node-extended-menu",
-						plugin, PURPLE_CALLBACK(buddynote_extended_menu_cb), NULL);
+						plugin, G_CALLBACK(buddynote_extended_menu_cb), NULL);
 
 	return TRUE;
 }

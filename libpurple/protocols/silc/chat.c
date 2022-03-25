@@ -866,31 +866,31 @@ GList *silcpurple_chat_menu(PurpleChat *chat)
 		return NULL;
 
 	act = purple_action_menu_new(_("Get Info"),
-	                           PURPLE_CALLBACK(silcpurple_chat_getinfo_menu),
+	                           G_CALLBACK(silcpurple_chat_getinfo_menu),
 	                           NULL, NULL);
 	m = g_list_append(m, act);
 
 	if (chu) {
 		act = purple_action_menu_new(_("Add Private Group"),
-		                           PURPLE_CALLBACK(silcpurple_chat_prv),
+		                           G_CALLBACK(silcpurple_chat_prv),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 	}
 
 	if (chu && mode & SILC_CHANNEL_UMODE_CHANFO) {
 		act = purple_action_menu_new(_("Channel Authentication"),
-		                           PURPLE_CALLBACK(silcpurple_chat_chauth),
+		                           G_CALLBACK(silcpurple_chat_chauth),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 
 		if (channel->mode & SILC_CHANNEL_MODE_FOUNDER_AUTH) {
 			act = purple_action_menu_new(_("Reset Permanent"),
-			                           PURPLE_CALLBACK(silcpurple_chat_permanent_reset),
+			                           G_CALLBACK(silcpurple_chat_permanent_reset),
 			                           NULL, NULL);
 			m = g_list_append(m, act);
 		} else {
 			act = purple_action_menu_new(_("Set Permanent"),
-			                           PURPLE_CALLBACK(silcpurple_chat_permanent),
+			                           G_CALLBACK(silcpurple_chat_permanent),
 			                           NULL, NULL);
 			m = g_list_append(m, act);
 		}
@@ -898,42 +898,42 @@ GList *silcpurple_chat_menu(PurpleChat *chat)
 
 	if (chu && mode & SILC_CHANNEL_UMODE_CHANOP) {
 		act = purple_action_menu_new(_("Set User Limit"),
-		                           PURPLE_CALLBACK(silcpurple_chat_ulimit),
+		                           G_CALLBACK(silcpurple_chat_ulimit),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 
 		if (channel->mode & SILC_CHANNEL_MODE_TOPIC) {
 			act = purple_action_menu_new(_("Reset Topic Restriction"),
-			                           PURPLE_CALLBACK(silcpurple_chat_resettopic),
+			                           G_CALLBACK(silcpurple_chat_resettopic),
 			                           NULL, NULL);
 			m = g_list_append(m, act);
 		} else {
 			act = purple_action_menu_new(_("Set Topic Restriction"),
-			                           PURPLE_CALLBACK(silcpurple_chat_settopic),
+			                           G_CALLBACK(silcpurple_chat_settopic),
 			                           NULL, NULL);
 			m = g_list_append(m, act);
 		}
 
 		if (channel->mode & SILC_CHANNEL_MODE_PRIVATE) {
 			act = purple_action_menu_new(_("Reset Private Channel"),
-			                           PURPLE_CALLBACK(silcpurple_chat_resetprivate),
+			                           G_CALLBACK(silcpurple_chat_resetprivate),
 			                           NULL, NULL);
 			m = g_list_append(m, act);
 		} else {
 			act = purple_action_menu_new(_("Set Private Channel"),
-			                           PURPLE_CALLBACK(silcpurple_chat_setprivate),
+			                           G_CALLBACK(silcpurple_chat_setprivate),
 			                           NULL, NULL);
 			m = g_list_append(m, act);
 		}
 
 		if (channel->mode & SILC_CHANNEL_MODE_SECRET) {
 			act = purple_action_menu_new(_("Reset Secret Channel"),
-			                           PURPLE_CALLBACK(silcpurple_chat_resetsecret),
+			                           G_CALLBACK(silcpurple_chat_resetsecret),
 			                           NULL, NULL);
 			m = g_list_append(m, act);
 		} else {
 			act = purple_action_menu_new(_("Set Secret Channel"),
-			                           PURPLE_CALLBACK(silcpurple_chat_setsecret),
+			                           G_CALLBACK(silcpurple_chat_setsecret),
 			                           NULL, NULL);
 			m = g_list_append(m, act);
 		}
@@ -945,7 +945,7 @@ GList *silcpurple_chat_menu(PurpleChat *chat)
 		wb->sg = sg;
 		wb->channel = channel;
 		act = purple_action_menu_new(_("Draw On Whiteboard"),
-		                           PURPLE_CALLBACK(silcpurple_chat_wb),
+		                           G_CALLBACK(silcpurple_chat_wb),
 		                           (void *)wb, NULL);
 		m = g_list_append(m, act);
 	}

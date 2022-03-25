@@ -753,10 +753,10 @@ pidgin_application_startup(GApplication *application) {
 	 */
 	handle = purple_connections_get_handle();
 	purple_signal_connect(handle, "online", application,
-	                      PURPLE_CALLBACK(pidgin_application_online_cb),
+	                      G_CALLBACK(pidgin_application_online_cb),
 	                      application);
 	purple_signal_connect(handle, "offline", application,
-	                      PURPLE_CALLBACK(pidgin_application_offline_cb),
+	                      G_CALLBACK(pidgin_application_offline_cb),
 	                      application);
 
 	/* connect to account-signed-on and account-signed-off to toggle actions
@@ -764,10 +764,10 @@ pidgin_application_startup(GApplication *application) {
 	 */
 	handle = purple_accounts_get_handle();
 	purple_signal_connect(handle, "account-signed-on", application,
-	                      PURPLE_CALLBACK(pidgin_application_signed_on_cb),
+	                      G_CALLBACK(pidgin_application_signed_on_cb),
 	                      application);
 	purple_signal_connect(handle, "account-signed-off", application,
-	                      PURPLE_CALLBACK(pidgin_application_signed_off_cb),
+	                      G_CALLBACK(pidgin_application_signed_off_cb),
 	                      application);
 
 }

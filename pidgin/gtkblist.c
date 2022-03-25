@@ -500,7 +500,7 @@ gtk_blist_auto_personize(PurpleBlistNode *group, const char *alias)
 		char *msg = g_strdup_printf(ngettext("You have %d contact named %s. Would you like to merge them?", "You currently have %d contacts named %s. Would you like to merge them?", i), i, alias);
 		purple_request_action(NULL, NULL, msg, _("Merging these contacts will cause them to share a single entry on the buddy list and use a single conversation window. "
 							 "You can separate them again by choosing 'Expand' from the contact's context menu"), 0, NULL,
-				      merges, 2, _("_Yes"), PURPLE_CALLBACK(gtk_blist_do_personize), _("_No"), PURPLE_CALLBACK(g_list_free));
+				      merges, 2, _("_Yes"), G_CALLBACK(gtk_blist_do_personize), _("_No"), G_CALLBACK(g_list_free));
 		g_free(msg);
 	} else
 		g_list_free(merges);
@@ -3106,7 +3106,7 @@ conversation_created_cb(PurpleConversation *conv, PidginBuddyList *gtkblist)
 			ui->conv = conv;
 
 			purple_signal_connect(purple_conversations_get_handle(), "deleting-conversation",
-					ui, PURPLE_CALLBACK(conversation_deleted_update_ui_cb), ui);
+					ui, G_CALLBACK(conversation_deleted_update_ui_cb), ui);
 		}
 	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
 		PurpleChat *chat = purple_blist_find_chat(account, purple_conversation_get_name(conv));
@@ -3119,7 +3119,7 @@ conversation_created_cb(PurpleConversation *conv, PidginBuddyList *gtkblist)
 		ui->conv = conv;
 
 		purple_signal_connect(purple_conversations_get_handle(), "deleting-conversation",
-				ui, PURPLE_CALLBACK(conversation_deleted_update_ui_cb), ui);
+				ui, G_CALLBACK(conversation_deleted_update_ui_cb), ui);
 	}
 }
 
@@ -4014,21 +4014,21 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 
 	handle = purple_accounts_get_handle();
 	purple_signal_connect(handle, "account-error-changed", gtkblist,
-	                      PURPLE_CALLBACK(update_account_error_state),
+	                      G_CALLBACK(update_account_error_state),
 	                      gtkblist);
 
 	handle = purple_conversations_get_handle();
 	purple_signal_connect(handle, "conversation-updated", gtkblist,
-	                      PURPLE_CALLBACK(conversation_updated_cb),
+	                      G_CALLBACK(conversation_updated_cb),
 	                      gtkblist);
 	purple_signal_connect(handle, "deleting-conversation", gtkblist,
-	                      PURPLE_CALLBACK(conversation_deleting_cb),
+	                      G_CALLBACK(conversation_deleting_cb),
 	                      gtkblist);
 	purple_signal_connect(handle, "conversation-created", gtkblist,
-	                      PURPLE_CALLBACK(conversation_created_cb),
+	                      G_CALLBACK(conversation_created_cb),
 	                      gtkblist);
 	purple_signal_connect(handle, "chat-joined", gtkblist,
-	                      PURPLE_CALLBACK(conversation_created_cb),
+	                      G_CALLBACK(conversation_created_cb),
 	                      gtkblist);
 
 	show_initial_account_errors(gtkblist);
@@ -5147,14 +5147,14 @@ void pidgin_blist_init(void)
 						G_TYPE_STRING, 1, PURPLE_TYPE_BUDDY);
 
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-on",
-			gtk_blist_handle, PURPLE_CALLBACK(buddy_signonoff_cb), NULL);
+			gtk_blist_handle, G_CALLBACK(buddy_signonoff_cb), NULL);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-off",
-			gtk_blist_handle, PURPLE_CALLBACK(buddy_signonoff_cb), NULL);
+			gtk_blist_handle, G_CALLBACK(buddy_signonoff_cb), NULL);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-privacy-changed",
-			gtk_blist_handle, PURPLE_CALLBACK(pidgin_blist_update_privacy_cb), NULL);
+			gtk_blist_handle, G_CALLBACK(pidgin_blist_update_privacy_cb), NULL);
 
 	purple_signal_connect_priority(purple_connections_get_handle(), "autojoin",
-	                               gtk_blist_handle, PURPLE_CALLBACK(autojoin_cb),
+	                               gtk_blist_handle, G_CALLBACK(autojoin_cb),
 	                               NULL, PURPLE_SIGNAL_PRIORITY_HIGHEST);
 }
 

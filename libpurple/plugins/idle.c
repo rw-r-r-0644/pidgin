@@ -297,7 +297,7 @@ idle_load(GPluginPlugin *plugin, GError **error)
 {
 	purple_signal_connect(purple_connections_get_handle(), "signing-off",
 						plugin,
-						PURPLE_CALLBACK(signing_off_cb), NULL);
+						G_CALLBACK(signing_off_cb), NULL);
 
 	return TRUE;
 }

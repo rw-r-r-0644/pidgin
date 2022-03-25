@@ -1244,7 +1244,7 @@ purple_savedstatuses_init(void)
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-removed",
 			handle,
-			PURPLE_CALLBACK(purple_savedstatus_unset_all_substatuses),
+			G_CALLBACK(purple_savedstatus_unset_all_substatuses),
 			NULL);
 }
 

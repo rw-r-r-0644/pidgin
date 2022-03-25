@@ -1800,11 +1800,11 @@ static GList *jabber_buddy_menu(PurpleBuddy *buddy)
 			jb != js->user_jb) {
 		if(jb->invisible & JABBER_INVIS_BUDDY) {
 			act = purple_action_menu_new(_("Un-hide From"),
-			                           PURPLE_CALLBACK(jabber_buddy_make_visible),
+			                           G_CALLBACK(jabber_buddy_make_visible),
 			                           NULL, NULL);
 		} else {
 			act = purple_action_menu_new(_("Temporarily Hide From"),
-			                           PURPLE_CALLBACK(jabber_buddy_make_invisible),
+			                           G_CALLBACK(jabber_buddy_make_invisible),
 			                           NULL, NULL);
 		}
 		m = g_list_append(m, act);
@@ -1812,14 +1812,14 @@ static GList *jabber_buddy_menu(PurpleBuddy *buddy)
 
 	if(jb->subscription & JABBER_SUB_FROM && jb != js->user_jb) {
 		act = purple_action_menu_new(_("Cancel Presence Notification"),
-		                           PURPLE_CALLBACK(jabber_buddy_cancel_presence_notification),
+		                           G_CALLBACK(jabber_buddy_cancel_presence_notification),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 	}
 
 	if(!(jb->subscription & JABBER_SUB_TO)) {
 		act = purple_action_menu_new(_("(Re-)Request authorization"),
-		                           PURPLE_CALLBACK(jabber_buddy_rerequest_auth),
+		                           G_CALLBACK(jabber_buddy_rerequest_auth),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 
@@ -1828,7 +1828,7 @@ static GList *jabber_buddy_menu(PurpleBuddy *buddy)
 		/* shouldn't this just happen automatically when the buddy is
 		   removed? */
 		act = purple_action_menu_new(_("Unsubscribe"),
-		                           PURPLE_CALLBACK(jabber_buddy_unsubscribe),
+		                           G_CALLBACK(jabber_buddy_unsubscribe),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 	}
@@ -1845,11 +1845,11 @@ static GList *jabber_buddy_menu(PurpleBuddy *buddy)
 	 */
 	if (strchr(name, '@') == NULL) {
 		act = purple_action_menu_new(_("Log In"),
-									 PURPLE_CALLBACK(jabber_buddy_login),
+									 G_CALLBACK(jabber_buddy_login),
 									 NULL, NULL);
 		m = g_list_append(m, act);
 		act = purple_action_menu_new(_("Log Out"),
-									 PURPLE_CALLBACK(jabber_buddy_logout),
+									 G_CALLBACK(jabber_buddy_logout),
 									 NULL, NULL);
 		m = g_list_append(m, act);
 	}
@@ -1862,7 +1862,7 @@ static GList *jabber_buddy_menu(PurpleBuddy *buddy)
 			continue;
 		for(commands = jbr->commands; commands; commands = g_list_next(commands)) {
 			JabberAdHocCommands *cmd = commands->data;
-			act = purple_action_menu_new(cmd->name, PURPLE_CALLBACK(jabber_adhoc_execute_action), cmd, NULL);
+			act = purple_action_menu_new(cmd->name, G_CALLBACK(jabber_adhoc_execute_action), cmd, NULL);
 			m = g_list_append(m, act);
 		}
 	}
@@ -2208,7 +2208,7 @@ void jabber_user_search_begin(PurpleProtocolAction *action)
 			_("Select a user directory to search"),
 			def_val,
 			FALSE, FALSE, NULL,
-			_("Search Directory"), PURPLE_CALLBACK(jabber_user_search),
+			_("Search Directory"), G_CALLBACK(jabber_user_search),
 			_("Cancel"), NULL,
 			NULL, js);
 }

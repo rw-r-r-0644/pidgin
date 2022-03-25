@@ -871,19 +871,19 @@ notify_load(GPluginPlugin *plugin, GError **error)
 	purple_prefs_add_bool("/plugins/gtk/X11/notify/notify_switch", TRUE);
 
 	purple_signal_connect(gtk_conv_handle, "displayed-im-msg", plugin,
-	                    PURPLE_CALLBACK(message_displayed_cb), NULL);
+	                    G_CALLBACK(message_displayed_cb), NULL);
 	purple_signal_connect(gtk_conv_handle, "displayed-chat-msg", plugin,
-	                    PURPLE_CALLBACK(message_displayed_cb), NULL);
+	                    G_CALLBACK(message_displayed_cb), NULL);
 	purple_signal_connect(gtk_conv_handle, "conversation-switched", plugin,
-	                    PURPLE_CALLBACK(conv_switched), NULL);
+	                    G_CALLBACK(conv_switched), NULL);
 	purple_signal_connect(conv_handle, "sent-im-msg", plugin,
-	                    PURPLE_CALLBACK(im_sent_im), NULL);
+	                    G_CALLBACK(im_sent_im), NULL);
 	purple_signal_connect(conv_handle, "sent-chat-msg", plugin,
-	                    PURPLE_CALLBACK(chat_sent_im), NULL);
+	                    G_CALLBACK(chat_sent_im), NULL);
 	purple_signal_connect(conv_handle, "conversation-created", plugin,
-	                    PURPLE_CALLBACK(conv_created), NULL);
+	                    G_CALLBACK(conv_created), NULL);
 	purple_signal_connect(conv_handle, "deleting-conversation", plugin,
-	                    PURPLE_CALLBACK(deleting_conv), NULL);
+	                    G_CALLBACK(deleting_conv), NULL);
 
 	while (convs) {
 		PurpleConversation *conv = (PurpleConversation *)convs->data;

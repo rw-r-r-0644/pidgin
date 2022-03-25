@@ -2197,7 +2197,7 @@ pidgin_accounts_window_show(void)
 	/* Signals */
 	purple_signal_connect(pidgin_accounts_get_handle(), "account-modified",
 	                    accounts_window,
-	                    PURPLE_CALLBACK(account_modified_cb), accounts_window);
+	                    G_CALLBACK(account_modified_cb), accounts_window);
 	purple_prefs_connect_callback(accounts_window,
 	                    PIDGIN_PREFS_ROOT "/accounts/buddyicon",
 	                    global_buddyicon_changed, accounts_window);
@@ -2567,22 +2567,22 @@ pidgin_accounts_init(void)
 	/* Setup some purple signal handlers. */
 	purple_signal_connect(purple_connections_get_handle(), "signed-on",
 						pidgin_accounts_get_handle(),
-						PURPLE_CALLBACK(signed_on_off_cb), NULL);
+						G_CALLBACK(signed_on_off_cb), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "signed-off",
 						pidgin_accounts_get_handle(),
-						PURPLE_CALLBACK(signed_on_off_cb), NULL);
+						G_CALLBACK(signed_on_off_cb), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-added",
 						pidgin_accounts_get_handle(),
-						PURPLE_CALLBACK(add_account_to_liststore), NULL);
+						G_CALLBACK(add_account_to_liststore), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-removed",
 						pidgin_accounts_get_handle(),
-						PURPLE_CALLBACK(account_removed_cb), NULL);
+						G_CALLBACK(account_removed_cb), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-disabled",
 						pidgin_accounts_get_handle(),
-						PURPLE_CALLBACK(account_abled_cb), GINT_TO_POINTER(FALSE));
+						G_CALLBACK(account_abled_cb), GINT_TO_POINTER(FALSE));
 	purple_signal_connect(purple_accounts_get_handle(), "account-enabled",
 						pidgin_accounts_get_handle(),
-						PURPLE_CALLBACK(account_abled_cb), GINT_TO_POINTER(TRUE));
+						G_CALLBACK(account_abled_cb), GINT_TO_POINTER(TRUE));
 
 	account_pref_wins =
 		g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);

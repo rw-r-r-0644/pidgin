@@ -1424,36 +1424,36 @@ pidgin_status_box_init (PidginStatusBox *status_box)
 
 	handle = purple_savedstatuses_get_handle();
 	purple_signal_connect(handle, "savedstatus-changed", status_box,
-	                      PURPLE_CALLBACK(current_savedstatus_changed_cb),
+	                      G_CALLBACK(current_savedstatus_changed_cb),
 	                      status_box);
 	purple_signal_connect(handle, "savedstatus-added", status_box,
-	                      PURPLE_CALLBACK(saved_status_updated_cb), status_box);
+	                      G_CALLBACK(saved_status_updated_cb), status_box);
 	purple_signal_connect(handle, "savedstatus-deleted", status_box,
-	                      PURPLE_CALLBACK(saved_status_updated_cb), status_box);
+	                      G_CALLBACK(saved_status_updated_cb), status_box);
 	purple_signal_connect(handle, "savedstatus-modified", status_box,
-	                      PURPLE_CALLBACK(saved_status_updated_cb), status_box);
+	                      G_CALLBACK(saved_status_updated_cb), status_box);
 
 	handle = purple_accounts_get_handle();
 	purple_signal_connect(handle, "account-enabled", status_box,
-	                      PURPLE_CALLBACK(account_enabled_cb), status_box);
+	                      G_CALLBACK(account_enabled_cb), status_box);
 	purple_signal_connect(handle, "account-disabled", status_box,
-	                      PURPLE_CALLBACK(account_enabled_cb), status_box);
+	                      G_CALLBACK(account_enabled_cb), status_box);
 	purple_signal_connect(handle, "account-status-changed", status_box,
-	                      PURPLE_CALLBACK(account_status_changed_cb),
+	                      G_CALLBACK(account_status_changed_cb),
 	                      status_box);
 
 	handle = purple_connections_get_handle();
 	purple_signal_connect(handle, "signing-on", status_box,
-	                      PURPLE_CALLBACK(connection_start_cb),
+	                      G_CALLBACK(connection_start_cb),
 	                      status_box);
 	purple_signal_connect(handle, "signed-on", status_box,
-	                      PURPLE_CALLBACK(connection_finish_cb),
+	                      G_CALLBACK(connection_finish_cb),
 	                      status_box);
 	purple_signal_connect(handle, "signing-off", status_box,
-	                      PURPLE_CALLBACK(connection_finish_cb),
+	                      G_CALLBACK(connection_finish_cb),
 	                      status_box);
 	purple_signal_connect(handle, "connection-error", status_box,
-	                      PURPLE_CALLBACK(connection_error_cb), status_box);
+	                      G_CALLBACK(connection_error_cb), status_box);
 
 	monitor = g_network_monitor_get_default();
 	g_signal_connect(G_OBJECT(monitor), "network-changed",

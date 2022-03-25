@@ -878,8 +878,8 @@ jabber_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
 			_("Select a conference server to query"),
 			js->chat_servers ? js->chat_servers->data : NULL,
 			FALSE, FALSE, NULL,
-			_("Find Rooms"), PURPLE_CALLBACK(roomlist_ok_cb),
-			_("Cancel"), PURPLE_CALLBACK(roomlist_cancel_cb),
+			_("Find Rooms"), G_CALLBACK(roomlist_ok_cb),
+			_("Cancel"), G_CALLBACK(roomlist_cancel_cb),
 			purple_request_cpar_from_connection(gc),
 			js);
 

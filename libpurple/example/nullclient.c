@@ -135,7 +135,7 @@ connect_to_signals_for_demonstration_purposes_only(void)
 {
 	static int handle;
 	purple_signal_connect(purple_connections_get_handle(), "signed-on", &handle,
-				PURPLE_CALLBACK(signed_on), NULL);
+				G_CALLBACK(signed_on), NULL);
 }
 
 #if defined(_WIN32) || defined(__BIONIC__)

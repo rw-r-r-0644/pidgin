@@ -173,7 +173,7 @@ purple_credential_manager_init(PurpleCredentialManager *manager) {
 	 * were unable to find their credential provider.
 	 */
 	purple_signal_connect(purple_get_core(), "core-initialized", manager,
-	                      PURPLE_CALLBACK(purple_credential_manager_core_init_cb),
+	                      G_CALLBACK(purple_credential_manager_core_init_cb),
 	                      manager);
 }
 

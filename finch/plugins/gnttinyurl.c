@@ -497,19 +497,19 @@ tiny_url_load(GPluginPlugin *plugin, GError **error) {
 
 	purple_signal_connect(purple_conversations_get_handle(),
 			"wrote-im-msg",
-			plugin, PURPLE_CALLBACK(wrote_msg), NULL);
+			plugin, G_CALLBACK(wrote_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(),
 			"wrote-chat-msg",
-			plugin, PURPLE_CALLBACK(wrote_msg), NULL);
+			plugin, G_CALLBACK(wrote_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(),
 			"writing-im-msg",
-			plugin, PURPLE_CALLBACK(writing_msg), NULL);
+			plugin, G_CALLBACK(writing_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(),
 			"writing-chat-msg",
-			plugin, PURPLE_CALLBACK(writing_msg), NULL);
+			plugin, G_CALLBACK(writing_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(),
 			"deleting-conversation",
-			plugin, PURPLE_CALLBACK(free_conv_urls), NULL);
+			plugin, G_CALLBACK(free_conv_urls), NULL);
 
 	return TRUE;
 }

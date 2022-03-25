@@ -257,7 +257,7 @@ gestures_load(GPluginPlugin *plugin, GError **error)
 
 	purple_signal_connect(purple_conversations_get_handle(),
 						"conversation-created",
-						plugin, PURPLE_CALLBACK(new_conv_cb), NULL);
+						plugin, G_CALLBACK(new_conv_cb), NULL);
 
 	return TRUE;
 }

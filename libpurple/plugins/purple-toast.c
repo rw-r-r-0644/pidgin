@@ -214,14 +214,14 @@ purple_toast_load(GPluginPlugin *plugin, G_GNUC_UNUSED GError **error) {
 	purple_signal_connect(conv_handle,
 	                      "received-im-msg",
 	                      plugin,
-	                      PURPLE_CALLBACK(purple_toast_im_message_received),
+	                      G_CALLBACK(purple_toast_im_message_received),
 	                      NULL
 	);
 
 	purple_signal_connect(conv_handle,
 	                      "received-chat-msg",
 	                      plugin,
-	                      PURPLE_CALLBACK(purple_toast_chat_message_received),
+	                      G_CALLBACK(purple_toast_chat_message_received),
 	                      NULL
 	);
 

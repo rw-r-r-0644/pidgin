@@ -2311,7 +2311,7 @@ spell_check_load(GPluginPlugin *plugin, GError **error)
 	}
 
 	purple_signal_connect(conv_handle, "conversation-created",
-			    plugin, PURPLE_CALLBACK(spellchk_new_attach), NULL);
+			    plugin, G_CALLBACK(spellchk_new_attach), NULL);
 
 	return TRUE;
 }

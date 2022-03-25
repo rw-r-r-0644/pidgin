@@ -234,7 +234,7 @@ context_menu(PurpleBlistNode *node, GList **menu, gpointer plugin)
 		return;
 
 	action = purple_action_menu_new(_("Autoaccept File Transfers..."),
-					PURPLE_CALLBACK(set_auto_accept_settings), plugin, NULL);
+					G_CALLBACK(set_auto_accept_settings), plugin, NULL);
 	(*menu) = g_list_prepend(*menu, action);
 }
 
@@ -325,9 +325,9 @@ auto_accept_load(GPluginPlugin *plugin, GError **error)
 	}
 
 	purple_signal_connect(purple_xfers_get_handle(), "file-recv-request", plugin,
-						PURPLE_CALLBACK(file_recv_request_cb), plugin);
+						G_CALLBACK(file_recv_request_cb), plugin);
 	purple_signal_connect(purple_blist_get_handle(), "blist-node-extended-menu", plugin,
-						PURPLE_CALLBACK(context_menu), plugin);
+						G_CALLBACK(context_menu), plugin);
 	return TRUE;
 }
 

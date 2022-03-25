@@ -583,16 +583,16 @@ pidgin_status_window_show(void)
 
 	purple_signal_connect(purple_savedstatuses_get_handle(),
 			"savedstatus-changed", status_window,
-			PURPLE_CALLBACK(current_status_changed), dialog);
+			G_CALLBACK(current_status_changed), dialog);
 	purple_signal_connect(purple_savedstatuses_get_handle(),
 			"savedstatus-added", status_window,
-			PURPLE_CALLBACK(saved_status_updated_cb), dialog);
+			G_CALLBACK(saved_status_updated_cb), dialog);
 	purple_signal_connect(purple_savedstatuses_get_handle(),
 			"savedstatus-deleted", status_window,
-			PURPLE_CALLBACK(saved_status_updated_cb), dialog);
+			G_CALLBACK(saved_status_updated_cb), dialog);
 	purple_signal_connect(purple_savedstatuses_get_handle(),
 			"savedstatus-modified", status_window,
-			PURPLE_CALLBACK(saved_status_updated_cb), dialog);
+			G_CALLBACK(saved_status_updated_cb), dialog);
 
 	gtk_widget_show_all(win);
 }

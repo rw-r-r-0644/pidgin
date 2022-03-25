@@ -1096,11 +1096,11 @@ static void
 create_group_menu(GntMenu *menu, PurpleGroup *group)
 {
 	add_custom_action(menu, _("Add Buddy"),
-			PURPLE_CALLBACK(finch_add_buddy), group);
+			G_CALLBACK(finch_add_buddy), group);
 	add_custom_action(menu, _("Add Chat"),
-			PURPLE_CALLBACK(finch_add_chat), group);
+			G_CALLBACK(finch_add_chat), group);
 	add_custom_action(menu, _("Add Group"),
-			PURPLE_CALLBACK(finch_add_group), group);
+			G_CALLBACK(finch_add_group), group);
 }
 
 gpointer finch_retrieve_user_info(PurpleConnection *conn, const char *name)
@@ -1162,7 +1162,7 @@ create_buddy_menu(GntMenu *menu, PurpleBuddy *buddy)
 	if (protocol && PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, get_info))
 	{
 		add_custom_action(menu, _("Get Info"),
-				PURPLE_CALLBACK(finch_blist_get_buddy_info_cb), buddy);
+				G_CALLBACK(finch_blist_get_buddy_info_cb), buddy);
 	}
 
 	if (PURPLE_IS_PROTOCOL_XFER(protocol))
@@ -1173,7 +1173,7 @@ create_buddy_menu(GntMenu *menu, PurpleBuddy *buddy)
 			purple_buddy_get_name(buddy))
 		) {
 			add_custom_action(menu, _("Send File"),
-					PURPLE_CALLBACK(finch_blist_menu_send_file_cb), buddy);
+					G_CALLBACK(finch_blist_menu_send_file_cb), buddy);
 		}
 	}
 
@@ -1522,19 +1522,19 @@ draw_context_menu(FinchBuddyList *ggblist)
 	if (node) {
 		add_custom_action(GNT_MENU(context),
 				PURPLE_IS_GROUP(node) ? _("Rename") : _("Alias"),
-				PURPLE_CALLBACK(finch_blist_rename_node_cb), node);
+				G_CALLBACK(finch_blist_rename_node_cb), node);
 		add_custom_action(GNT_MENU(context), _("Remove"),
-				PURPLE_CALLBACK(finch_blist_remove_node_cb), node);
+				G_CALLBACK(finch_blist_remove_node_cb), node);
 
 		if (ggblist->tagged && (PURPLE_IS_CONTACT(node)
 				|| PURPLE_IS_GROUP(node))) {
 			add_custom_action(GNT_MENU(context), _("Place tagged"),
-					PURPLE_CALLBACK(finch_blist_place_tagged), node);
+					G_CALLBACK(finch_blist_place_tagged), node);
 		}
 
 		if (PURPLE_IS_BUDDY(node) || PURPLE_IS_CONTACT(node)) {
 			add_custom_action(GNT_MENU(context), _("Toggle Tag"),
-					PURPLE_CALLBACK(finch_blist_toggle_tag_buddy), node);
+					G_CALLBACK(finch_blist_toggle_tag_buddy), node);
 		}
 	}
 
@@ -2826,15 +2826,15 @@ blist_show(PurpleBuddyList *list)
 	gnt_widget_show(ggblist->window);
 
 	purple_signal_connect(purple_connections_get_handle(), "signed-on", finch_blist_get_handle(),
-				PURPLE_CALLBACK(reconstruct_accounts_menu), NULL);
+				G_CALLBACK(reconstruct_accounts_menu), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "signed-off", finch_blist_get_handle(),
-				PURPLE_CALLBACK(reconstruct_accounts_menu), NULL);
+				G_CALLBACK(reconstruct_accounts_menu), NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-actions-changed", finch_blist_get_handle(),
-				PURPLE_CALLBACK(reconstruct_accounts_menu), NULL);
+				G_CALLBACK(reconstruct_accounts_menu), NULL);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-status-changed", finch_blist_get_handle(),
-				PURPLE_CALLBACK(buddy_status_changed), ggblist);
+				G_CALLBACK(buddy_status_changed), ggblist);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-idle-changed", finch_blist_get_handle(),
-				PURPLE_CALLBACK(buddy_idle_changed), ggblist);
+				G_CALLBACK(buddy_idle_changed), ggblist);
 
 	plugin_manager = gplugin_manager_get_default();
 	g_signal_connect_object(plugin_manager, "loaded-plugin",
@@ -2843,9 +2843,9 @@ blist_show(PurpleBuddyList *list)
 	                        G_CALLBACK(reconstruct_plugins_menu_cb), ggblist, 0);
 
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-on", finch_blist_get_handle(),
-				PURPLE_CALLBACK(buddy_signed_on_off), ggblist);
+				G_CALLBACK(buddy_signed_on_off), ggblist);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-off", finch_blist_get_handle(),
-				PURPLE_CALLBACK(buddy_signed_on_off), ggblist);
+				G_CALLBACK(buddy_signed_on_off), ggblist);
 
 	g_signal_connect(G_OBJECT(ggblist->tree), "selection_changed", G_CALLBACK(selection_changed), ggblist);
 	g_signal_connect(G_OBJECT(ggblist->tree), "key_pressed", G_CALLBACK(key_pressed), ggblist);
@@ -2864,7 +2864,7 @@ blist_show(PurpleBuddyList *list)
 
 	/* Status signals */
 	purple_signal_connect(purple_savedstatuses_get_handle(), "savedstatus-changed", finch_blist_get_handle(),
-				PURPLE_CALLBACK(savedstatus_changed), NULL);
+				G_CALLBACK(savedstatus_changed), NULL);
 	g_signal_connect(G_OBJECT(ggblist->status), "selection_changed",
 				G_CALLBACK(status_selection_changed), NULL);
 	g_signal_connect(G_OBJECT(ggblist->statustext), "key_pressed",

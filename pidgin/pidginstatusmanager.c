@@ -254,16 +254,16 @@ pidgin_status_manager_init(PidginStatusManager *manager) {
 
 	handle = purple_savedstatuses_get_handle();
 	purple_signal_connect(handle, "savedstatus-changed", manager,
-	                      PURPLE_CALLBACK(pidgin_status_manager_savedstatus_changed_cb),
+	                      G_CALLBACK(pidgin_status_manager_savedstatus_changed_cb),
 	                      manager);
 	purple_signal_connect(handle, "savedstatus-added", manager,
-	                      PURPLE_CALLBACK(pidgin_status_manager_savedstatus_updated_cb),
+	                      G_CALLBACK(pidgin_status_manager_savedstatus_updated_cb),
 	                      manager);
 	purple_signal_connect(handle, "savedstatus-deleted", manager,
-	                      PURPLE_CALLBACK(pidgin_status_manager_savedstatus_updated_cb),
+	                      G_CALLBACK(pidgin_status_manager_savedstatus_updated_cb),
 	                      manager);
 	purple_signal_connect(handle, "savedstatus-modified", manager,
-	                      PURPLE_CALLBACK(pidgin_status_manager_savedstatus_updated_cb),
+	                      G_CALLBACK(pidgin_status_manager_savedstatus_updated_cb),
 	                      manager);
 }
 

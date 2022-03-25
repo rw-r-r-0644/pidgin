@@ -3505,7 +3505,7 @@ novell_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node)
 
 	if(PURPLE_IS_BUDDY(node)) {
 		act = purple_action_menu_new(_("Initiate _Chat"),
-		                           PURPLE_CALLBACK(_initiate_conference_cb),
+		                           G_CALLBACK(_initiate_conference_cb),
 		                           NULL, NULL);
 		list = g_list_append(list, act);
 	}

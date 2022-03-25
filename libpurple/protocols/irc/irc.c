@@ -1222,7 +1222,7 @@ irc_load(GPluginPlugin *plugin, GError **error)
 			     G_TYPE_POINTER); /* pointer to a string */
 
 	purple_signal_connect(purple_get_core(), "uri-handler", plugin,
-			PURPLE_CALLBACK(irc_uri_handler), NULL);
+			G_CALLBACK(irc_uri_handler), NULL);
 
 	return TRUE;
 }
@@ -1239,7 +1239,7 @@ irc_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 	irc_unregister_commands();
 
 	purple_signal_disconnect(purple_get_core(), "uri-handler", plugin,
-			PURPLE_CALLBACK(irc_uri_handler));
+			G_CALLBACK(irc_uri_handler));
 
 	g_clear_object(&_irc_protocol);
 

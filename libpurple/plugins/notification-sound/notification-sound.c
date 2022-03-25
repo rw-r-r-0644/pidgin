@@ -272,14 +272,14 @@ notification_sound_load(GPluginPlugin *plugin, GError **error) {
 	purple_signal_connect(conv_handle,
 	                      "received-im-msg",
 	                      plugin,
-	                      PURPLE_CALLBACK(purple_notification_sound_im_message_received),
+	                      G_CALLBACK(purple_notification_sound_im_message_received),
 	                      NULL
 	);
 
 	purple_signal_connect(conv_handle,
 	                      "received-chat-msg",
 	                      plugin,
-	                      PURPLE_CALLBACK(purple_notification_sound_chat_message_received),
+	                      G_CALLBACK(purple_notification_sound_chat_message_received),
 	                      NULL
 	);
 

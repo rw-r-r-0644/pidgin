@@ -776,11 +776,11 @@ purple_accounts_init(void)
 	                       PURPLE_TYPE_CONNECTION_ERROR, G_TYPE_STRING);
 
 	purple_signal_connect(conn_handle, "signed-on", handle,
-	                      PURPLE_CALLBACK(signed_on_cb), NULL);
+	                      G_CALLBACK(signed_on_cb), NULL);
 	purple_signal_connect(conn_handle, "signed-off", handle,
-	                      PURPLE_CALLBACK(signed_off_cb), NULL);
+	                      G_CALLBACK(signed_off_cb), NULL);
 	purple_signal_connect(conn_handle, "connection-error", handle,
-	                      PURPLE_CALLBACK(connection_error_cb), NULL);
+	                      G_CALLBACK(connection_error_cb), NULL);
 
 	load_accounts();
 
