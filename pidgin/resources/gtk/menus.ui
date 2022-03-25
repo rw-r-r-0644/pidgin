@@ -184,7 +184,7 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
         <submenu>
           <attribute name="label" translatable="yes">_Enable Account</attribute>
 
-          <section id="disabled-accounts"/>
+          <section id="inactive-accounts"/>
         </submenu>
       </section>
       <section id="enabled-accounts"/>

@@ -126,6 +126,19 @@ GList *purple_account_manager_get_all(PurpleAccountManager *manager);
 GList *purple_account_manager_get_active(PurpleAccountManager *manager);
 
 /**
+ * purple_account_manager_get_inactive:
+ * @manager: The account manager instance.
+ *
+ * Gets the list of all inactive accounts.
+ *
+ * Returns: (transfer container) (element-type PurpleAccount): The list of all
+ *          inactive accounts.
+ *
+ * Since: 3.0.0
+ */
+GList *purple_account_manager_get_inactive(PurpleAccountManager *manager);
+
+/**
  * purple_account_manager_find_by_id:
  * @manager: The account manager instance.
  * @id: The id of the account.
