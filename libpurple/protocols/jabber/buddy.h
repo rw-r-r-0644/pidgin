@@ -59,12 +59,6 @@ struct _JabberBuddy {
 };
 
 typedef struct {
-	char *jid;
-	char *node;
-	char *name;
-} JabberAdHocCommands;
-
-typedef struct {
 	JabberBuddy *jb;
 	char *name;
 	int priority;
@@ -92,8 +86,6 @@ typedef struct {
 	GList *commands;
 	gboolean commands_fetched;
 } JabberBuddyResource;
-
-void jabber_adhoc_commands_free(JabberAdHocCommands *cmd);
 
 void jabber_buddy_free(JabberBuddy *jb);
 JabberBuddy *jabber_buddy_find(JabberStream *js, const char *name,
