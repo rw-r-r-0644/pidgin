@@ -250,11 +250,11 @@ join_part_load(GPluginPlugin *plugin, GError **error)
 
 	conv_handle = purple_conversations_get_handle();
 	purple_signal_connect(conv_handle, "chat-user-joining", plugin,
-	                    PURPLE_CALLBACK(chat_user_joining_cb), users);
+	                    G_CALLBACK(chat_user_joining_cb), users);
 	purple_signal_connect(conv_handle, "chat-user-leaving", plugin,
-	                    PURPLE_CALLBACK(chat_user_leaving_cb), users);
+	                    G_CALLBACK(chat_user_leaving_cb), users);
 	purple_signal_connect(conv_handle, "received-chat-msg", plugin,
-	                    PURPLE_CALLBACK(received_chat_msg_cb), users);
+	                    G_CALLBACK(received_chat_msg_cb), users);
 
 	/* Cleanup every 5 minutes */
 	id = g_timeout_add_seconds(60 * 5, (GSourceFunc)clean_users_hash, users);

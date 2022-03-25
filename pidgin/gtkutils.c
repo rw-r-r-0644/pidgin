@@ -879,14 +879,14 @@ pidgin_setup_screenname_autocomplete(
 	gtk_entry_completion_set_text_column(completion, COMPLETION_DISPLAYED_COLUMN);
 
 	purple_signal_connect(purple_connections_get_handle(), "signed-on", entry,
-						PURPLE_CALLBACK(repopulate_autocomplete), data);
+						G_CALLBACK(repopulate_autocomplete), data);
 	purple_signal_connect(purple_connections_get_handle(), "signed-off", entry,
-						PURPLE_CALLBACK(repopulate_autocomplete), data);
+						G_CALLBACK(repopulate_autocomplete), data);
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-added", entry,
-						PURPLE_CALLBACK(repopulate_autocomplete), data);
+						G_CALLBACK(repopulate_autocomplete), data);
 	purple_signal_connect(purple_accounts_get_handle(), "account-removed", entry,
-						PURPLE_CALLBACK(repopulate_autocomplete), data);
+						G_CALLBACK(repopulate_autocomplete), data);
 
 	g_signal_connect(G_OBJECT(entry), "destroy", G_CALLBACK(buddyname_autocomplete_destroyed_cb), data);
 }

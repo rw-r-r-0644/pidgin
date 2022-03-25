@@ -2198,12 +2198,12 @@ purple_blist_init(void)
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-created",
 			handle,
-			PURPLE_CALLBACK(purple_blist_buddies_cache_add_account),
+			G_CALLBACK(purple_blist_buddies_cache_add_account),
 			NULL);
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-destroying",
 			handle,
-			PURPLE_CALLBACK(purple_blist_buddies_cache_remove_account),
+			G_CALLBACK(purple_blist_buddies_cache_remove_account),
 			NULL);
 }
 

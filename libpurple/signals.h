@@ -31,14 +31,6 @@
 #include <glib-object.h>
 
 /**
- * PURPLE_CALLBACK:
- * @func: a function pointer.
- *
- * Cast a function pointer to #GCallback.
- */
-#define PURPLE_CALLBACK(func) ((GCallback)(func))
-
-/**
  * PurpleSignalMarshalFunc:
  * @cb: The #GCallback to call.
  * @args: The arguments to the function.

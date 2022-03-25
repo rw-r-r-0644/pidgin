@@ -607,24 +607,24 @@ unity_load(GPluginPlugin *plugin, GError **error) {
 	status_changed_cb(saved_status);
 
 	purple_signal_connect(savedstat_handle, "savedstatus-changed", plugin,
-			PURPLE_CALLBACK(status_changed_cb), NULL);
+			G_CALLBACK(status_changed_cb), NULL);
 
 	launcher = unity_launcher_entry_get_for_desktop_id("pidgin.desktop");
 	g_object_ref(launcher);
 	launcher_count = purple_prefs_get_int("/plugins/gtk/unity/launcher_count");
 
 	purple_signal_connect(gtk_conv_handle, "displayed-im-msg", plugin,
-			PURPLE_CALLBACK(message_displayed_cb), NULL);
+			G_CALLBACK(message_displayed_cb), NULL);
 	purple_signal_connect(gtk_conv_handle, "displayed-chat-msg", plugin,
-			PURPLE_CALLBACK(message_displayed_cb), NULL);
+			G_CALLBACK(message_displayed_cb), NULL);
 	purple_signal_connect(conv_handle, "sent-im-msg", plugin,
-			PURPLE_CALLBACK(im_sent_im), NULL);
+			G_CALLBACK(im_sent_im), NULL);
 	purple_signal_connect(conv_handle, "sent-chat-msg", plugin,
-			PURPLE_CALLBACK(chat_sent_im), NULL);
+			G_CALLBACK(chat_sent_im), NULL);
 	purple_signal_connect(conv_handle, "conversation-created", plugin,
-			PURPLE_CALLBACK(conv_created), NULL);
+			G_CALLBACK(conv_created), NULL);
 	purple_signal_connect(conv_handle, "deleting-conversation", plugin,
-			PURPLE_CALLBACK(deleting_conv), NULL);
+			G_CALLBACK(deleting_conv), NULL);
 
 	manager = purple_conversation_manager_get_default();
 	convs = purple_conversation_manager_get_all(manager);

@@ -1370,25 +1370,25 @@ void finch_conversation_init()
 			NULL);
 
 	purple_signal_connect(purple_conversations_get_handle(), "buddy-typing", finch_conv_get_handle(),
-					PURPLE_CALLBACK(update_buddy_typing), NULL);
+					G_CALLBACK(update_buddy_typing), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "buddy-typing-stopped", finch_conv_get_handle(),
-					PURPLE_CALLBACK(update_buddy_typing), NULL);
+					G_CALLBACK(update_buddy_typing), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-left", finch_conv_get_handle(),
-					PURPLE_CALLBACK(chat_left_cb), NULL);
+					G_CALLBACK(chat_left_cb), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "cleared-message-history", finch_conv_get_handle(),
-					PURPLE_CALLBACK(cleared_message_history_cb), NULL);
+					G_CALLBACK(cleared_message_history_cb), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", finch_conv_get_handle(),
-					PURPLE_CALLBACK(conv_updated), NULL);
+					G_CALLBACK(conv_updated), NULL);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-on", finch_conv_get_handle(),
-					PURPLE_CALLBACK(buddy_signed_on_off), NULL);
+					G_CALLBACK(buddy_signed_on_off), NULL);
 	purple_signal_connect(purple_blist_get_handle(), "buddy-signed-off", finch_conv_get_handle(),
-					PURPLE_CALLBACK(buddy_signed_on_off), NULL);
+					G_CALLBACK(buddy_signed_on_off), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "signed-on", finch_conv_get_handle(),
-					PURPLE_CALLBACK(account_signed_on_off), NULL);
+					G_CALLBACK(account_signed_on_off), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "signed-off", finch_conv_get_handle(),
-					PURPLE_CALLBACK(account_signed_on_off), NULL);
+					G_CALLBACK(account_signed_on_off), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "signing-off", finch_conv_get_handle(),
-					PURPLE_CALLBACK(account_signing_off), NULL);
+					G_CALLBACK(account_signing_off), NULL);
 }
 
 void finch_conversation_uninit()

@@ -126,7 +126,7 @@ xmpp_iq_received(PurpleConnection *pc, const char *type, const char *id,
 		PurpleProtocol *protocol = purple_connection_get_protocol(pc);
 		iq_listening = FALSE;
 		purple_signal_disconnect(protocol, "jabber-receiving-iq", my_plugin,
-		                         PURPLE_CALLBACK(xmpp_iq_received));
+		                         G_CALLBACK(xmpp_iq_received));
 	}
 
 	/* Om nom nom nom */
@@ -152,7 +152,7 @@ xmpp_iq_register_callback(PurpleConnection *pc, gchar *id, gpointer data,
 
 		iq_listening = TRUE;
 		purple_signal_connect(protocol, "jabber-receiving-iq", my_plugin,
-		                      PURPLE_CALLBACK(xmpp_iq_received), NULL);
+		                      G_CALLBACK(xmpp_iq_received), NULL);
 	}
 }
 
@@ -654,7 +654,7 @@ xmpp_disco_load(GPluginPlugin *plugin, GError **error)
 	pidgin_disco_dialog_register(plugin);
 
 	purple_signal_connect(purple_connections_get_handle(), "signing-off",
-	                      plugin, PURPLE_CALLBACK(signed_off_cb), NULL);
+	                      plugin, G_CALLBACK(signed_off_cb), NULL);
 
 	iq_callbacks = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 

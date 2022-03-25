@@ -78,7 +78,7 @@ static gboolean
 icon_away_load(GPluginPlugin *plugin, GError **error)
 {
 	purple_signal_connect(purple_accounts_get_handle(), "account-status-changed",
-						plugin, PURPLE_CALLBACK(iconify_windows), NULL);
+						plugin, G_CALLBACK(iconify_windows), NULL);
 
 	return TRUE;
 }

@@ -3868,9 +3868,9 @@ static void jabber_init_protocol(PurpleProtocol *protocol)
 			G_TYPE_STRING); /* namespace */
 
 	purple_signal_connect(protocol, "jabber-register-namespace-watcher",
-			protocol, PURPLE_CALLBACK(jabber_iq_signal_register), NULL);
+			protocol, G_CALLBACK(jabber_iq_signal_register), NULL);
 	purple_signal_connect(protocol, "jabber-unregister-namespace-watcher",
-			protocol, PURPLE_CALLBACK(jabber_iq_signal_unregister), NULL);
+			protocol, G_CALLBACK(jabber_iq_signal_unregister), NULL);
 
 
 	purple_signal_register(protocol, "jabber-receiving-xmlnode",
@@ -3888,7 +3888,7 @@ static void jabber_init_protocol(PurpleProtocol *protocol)
 	 * warned!
 	 */
 	purple_signal_connect_priority(protocol, "jabber-sending-xmlnode",
-			protocol, PURPLE_CALLBACK(jabber_send_signal_cb),
+			protocol, G_CALLBACK(jabber_send_signal_cb),
 			NULL, PURPLE_SIGNAL_PRIORITY_HIGHEST);
 
 	purple_signal_register(protocol, "jabber-sending-text",
@@ -4160,7 +4160,7 @@ jabber_load(GPluginPlugin *plugin, GError **error)
 	}
 
 	purple_signal_connect(purple_get_core(), "uri-handler", xmpp_protocol,
-		PURPLE_CALLBACK(xmpp_uri_handler), xmpp_protocol);
+		G_CALLBACK(xmpp_uri_handler), xmpp_protocol);
 
 	jabber_init_protocol(xmpp_protocol);
 
@@ -4177,7 +4177,7 @@ jabber_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 	}
 
 	purple_signal_disconnect(purple_get_core(), "uri-handler",
-			xmpp_protocol, PURPLE_CALLBACK(xmpp_uri_handler));
+			xmpp_protocol, G_CALLBACK(xmpp_uri_handler));
 
 	jabber_uninit_protocol(xmpp_protocol);
 

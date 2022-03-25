@@ -235,8 +235,8 @@ static void browse_button_cb(GtkWidget *button, PidginDiscoDialog *dialog)
 	dialog->prompt_handle = purple_request_input(my_plugin, _("Server name request"), _("Enter an XMPP Server"),
 			_("Select an XMPP server to query"),
 			server, FALSE, FALSE, NULL,
-			_("Find Services"), PURPLE_CALLBACK(discolist_ok_cb),
-			_("Cancel"), PURPLE_CALLBACK(discolist_cancel_cb),
+			_("Find Services"), G_CALLBACK(discolist_ok_cb),
+			_("Cancel"), G_CALLBACK(discolist_cancel_cb),
 			purple_request_cpar_from_connection(pc), pdl);
 
 	g_free(server);

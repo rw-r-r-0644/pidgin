@@ -1174,7 +1174,7 @@ purple_account_unregister(PurpleAccount *account,
 
 	cbb = g_new0(PurpleCallbackBundle, 1);
 	cbb->account = account;
-	cbb->cb = PURPLE_CALLBACK(cb);
+	cbb->cb = G_CALLBACK(cb);
 	cbb->data = user_data;
 
 	manager = purple_credential_manager_get_default();

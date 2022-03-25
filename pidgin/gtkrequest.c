@@ -1866,7 +1866,7 @@ create_datasheet_field(PurpleRequestField *field, GtkSizeGroup *buttons_sg)
 	datasheet_fill(sheet, model);
 	purple_signal_connect(sheet, "record-changed",
 		pidgin_request_get_handle(),
-		PURPLE_CALLBACK(datasheet_update), model);
+		G_CALLBACK(datasheet_update), model);
 
 	sel = gtk_tree_view_get_selection(view);
 	g_signal_connect(G_OBJECT(sel), "changed",

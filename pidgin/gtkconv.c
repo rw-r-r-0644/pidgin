@@ -1860,11 +1860,11 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 	                                               NULL);
 
 	purple_signal_connect(blist_handle, "blist-node-added",
-						gtkchat, PURPLE_CALLBACK(buddy_added_cb), conv);
+						gtkchat, G_CALLBACK(buddy_added_cb), conv);
 	purple_signal_connect(blist_handle, "blist-node-removed",
-						gtkchat, PURPLE_CALLBACK(buddy_removed_cb), conv);
+						gtkchat, G_CALLBACK(buddy_removed_cb), conv);
 	purple_signal_connect(blist_handle, "blist-node-aliased",
-						gtkchat, PURPLE_CALLBACK(blist_node_aliased_cb), conv);
+						gtkchat, G_CALLBACK(blist_node_aliased_cb), conv);
 
 	gtk_tree_view_column_set_expand(col, TRUE);
 	g_object_set(rend, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
@@ -3362,36 +3362,36 @@ pidgin_conversations_init(void)
 
 	/* Callbacks to update a conversation */
 	purple_signal_connect(blist_handle, "buddy-signed-on",
-						handle, PURPLE_CALLBACK(update_buddy_sign), "on");
+						handle, G_CALLBACK(update_buddy_sign), "on");
 	purple_signal_connect(blist_handle, "buddy-signed-off",
-						handle, PURPLE_CALLBACK(update_buddy_sign), "off");
+						handle, G_CALLBACK(update_buddy_sign), "off");
 	purple_signal_connect(blist_handle, "buddy-status-changed",
-						handle, PURPLE_CALLBACK(update_buddy_status_changed), NULL);
+						handle, G_CALLBACK(update_buddy_status_changed), NULL);
 	purple_signal_connect(blist_handle, "buddy-privacy-changed",
-						handle, PURPLE_CALLBACK(update_buddy_privacy_changed), NULL);
+						handle, G_CALLBACK(update_buddy_privacy_changed), NULL);
 	purple_signal_connect(blist_handle, "buddy-idle-changed",
-						handle, PURPLE_CALLBACK(update_buddy_idle_changed), NULL);
+						handle, G_CALLBACK(update_buddy_idle_changed), NULL);
 	purple_signal_connect(blist_handle, "buddy-icon-changed",
-						handle, PURPLE_CALLBACK(update_buddy_icon), NULL);
+						handle, G_CALLBACK(update_buddy_icon), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "buddy-typing",
-						handle, PURPLE_CALLBACK(update_buddy_typing), NULL);
+						handle, G_CALLBACK(update_buddy_typing), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "buddy-typing-stopped",
-						handle, PURPLE_CALLBACK(update_buddy_typing), NULL);
+						handle, G_CALLBACK(update_buddy_typing), NULL);
 	purple_signal_connect(pidgin_conversations_get_handle(), "conversation-switched",
-						handle, PURPLE_CALLBACK(update_conversation_switched), NULL);
+						handle, G_CALLBACK(update_conversation_switched), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-left", handle,
-						PURPLE_CALLBACK(update_chat), NULL);
+						G_CALLBACK(update_chat), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-joined", handle,
-						PURPLE_CALLBACK(update_chat), NULL);
+						G_CALLBACK(update_chat), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "chat-topic-changed", handle,
-						PURPLE_CALLBACK(update_chat_topic), NULL);
+						G_CALLBACK(update_chat_topic), NULL);
 	purple_signal_connect_priority(purple_conversations_get_handle(), "conversation-updated", handle,
-						PURPLE_CALLBACK(pidgin_conv_updated), NULL,
+						G_CALLBACK(pidgin_conv_updated), NULL,
 						PURPLE_SIGNAL_PRIORITY_LOWEST);
 	purple_signal_connect(purple_conversations_get_handle(), "wrote-im-msg", handle,
-			PURPLE_CALLBACK(wrote_msg_update_unseen_cb), NULL);
+			G_CALLBACK(wrote_msg_update_unseen_cb), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "wrote-chat-msg", handle,
-			PURPLE_CALLBACK(wrote_msg_update_unseen_cb), NULL);
+			G_CALLBACK(wrote_msg_update_unseen_cb), NULL);
 }
 
 void

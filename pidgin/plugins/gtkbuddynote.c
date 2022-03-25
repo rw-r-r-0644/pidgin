@@ -73,7 +73,7 @@ static gboolean
 gtk_buddy_note_load(GPluginPlugin *plugin, GError **error)
 {
 	purple_signal_connect(pidgin_blist_get_handle(), "drawing-tooltip",
-	                      plugin, PURPLE_CALLBACK(append_to_tooltip), NULL);
+	                      plugin, G_CALLBACK(append_to_tooltip), NULL);
 	return TRUE;
 }
 

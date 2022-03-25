@@ -152,7 +152,7 @@ psychic_load(GPluginPlugin *plugin, GError **error) {
   convs_handle = purple_conversations_get_handle();
 
   purple_signal_connect(convs_handle, "buddy-typing", plugin,
-		      PURPLE_CALLBACK(buddy_typing_cb), NULL);
+		      G_CALLBACK(buddy_typing_cb), NULL);
 
   return TRUE;
 }

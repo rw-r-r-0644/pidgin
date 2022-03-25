@@ -1297,7 +1297,7 @@ static void blist_node_menu_cb(PurpleBlistNode *node,
   owner = purple_blist_node_get_string(node, GROUP_KEY_OWNER);
   if(owner && purple_strequal(owner, purple_account_get_username(acct))) {
     act = purple_action_menu_new(_("Get Notes Address Book Info"),
-                               PURPLE_CALLBACK(blist_menu_nab), pd, NULL);
+                               G_CALLBACK(blist_menu_nab), pd, NULL);
     *menu = g_list_append(*menu, act);
   }
 }
@@ -1449,12 +1449,12 @@ static void session_started(struct mwPurpleProtocolData *pd) {
   /* start watching for new conversations */
   purple_signal_connect(purple_conversations_get_handle(),
 		      "conversation-created", pd,
-		      PURPLE_CALLBACK(conversation_created_cb), pd);
+		      G_CALLBACK(conversation_created_cb), pd);
 
   /* watch for group extended menu items */
   purple_signal_connect(purple_blist_get_handle(),
 		      "blist-node-extended-menu", pd,
-		      PURPLE_CALLBACK(blist_node_menu_cb), pd);
+		      G_CALLBACK(blist_node_menu_cb), pd);
 
   /* use our services to do neat things */
   services_starting(pd);
@@ -3531,7 +3531,7 @@ mw_protocol_blist_node_menu(PurpleProtocolClient *client,
   l = g_list_append(l, NULL);
 
   act = purple_action_menu_new(_("Invite to Conference..."),
-                             PURPLE_CALLBACK(blist_menu_conf), NULL, NULL);
+                             G_CALLBACK(blist_menu_conf), NULL, NULL);
   l = g_list_append(l, act);
 
   /** note: this never gets called for a PurpleGroup, have to use the

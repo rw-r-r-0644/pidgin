@@ -1665,37 +1665,37 @@ GList *silcpurple_buddy_menu(PurpleBuddy *buddy)
 	    silc_client_private_message_key_is_set(sg->client,
 						   sg->conn, client_entry)) {
 		act = purple_action_menu_new(_("Reset IM Key"),
-		                           PURPLE_CALLBACK(silcpurple_buddy_resetkey),
+		                           G_CALLBACK(silcpurple_buddy_resetkey),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 	} else {
 		act = purple_action_menu_new(_("IM with Key Exchange"),
-		                           PURPLE_CALLBACK(silcpurple_buddy_keyagr),
+		                           G_CALLBACK(silcpurple_buddy_keyagr),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 
 		act = purple_action_menu_new(_("IM with Password"),
-		                           PURPLE_CALLBACK(silcpurple_buddy_privkey_menu),
+		                           G_CALLBACK(silcpurple_buddy_privkey_menu),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 	}
 
 	if (pkfile) {
 		act = purple_action_menu_new(_("Show Public Key"),
-		                           PURPLE_CALLBACK(silcpurple_buddy_showkey),
+		                           G_CALLBACK(silcpurple_buddy_showkey),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 
 	} else {
 		act = purple_action_menu_new(_("Get Public Key..."),
-		                           PURPLE_CALLBACK(silcpurple_buddy_getkey_menu),
+		                           G_CALLBACK(silcpurple_buddy_getkey_menu),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 	}
 
 	if (conn && conn->local_entry->mode & SILC_UMODE_ROUTER_OPERATOR) {
 		act = purple_action_menu_new(_("Kill User"),
-		                           PURPLE_CALLBACK(silcpurple_buddy_kill),
+		                           G_CALLBACK(silcpurple_buddy_kill),
 		                           NULL, NULL);
 		m = g_list_append(m, act);
 	}
@@ -1705,7 +1705,7 @@ GList *silcpurple_buddy_menu(PurpleBuddy *buddy)
 		wb->sg = sg;
 		wb->client_entry = client_entry;
 		act = purple_action_menu_new(_("Draw On Whiteboard"),
-		                           PURPLE_CALLBACK(silcpurple_buddy_wb),
+		                           G_CALLBACK(silcpurple_buddy_wb),
 		                           (void *)wb, NULL);
 		m = g_list_append(m, act);
 	}

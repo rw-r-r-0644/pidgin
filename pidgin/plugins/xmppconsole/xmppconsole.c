@@ -748,10 +748,10 @@ xmpp_console_load(GPluginPlugin *plugin, GError **error)
 
 		purple_signal_connect(xmpp, "jabber-receiving-xmlnode",
 			xmpp_console_handle,
-			PURPLE_CALLBACK(purple_xmlnode_received_cb), NULL);
+			G_CALLBACK(purple_xmlnode_received_cb), NULL);
 		purple_signal_connect(xmpp, "jabber-sending-text",
 			xmpp_console_handle,
-			PURPLE_CALLBACK(purple_xmlnode_sent_cb), NULL);
+			G_CALLBACK(purple_xmlnode_sent_cb), NULL);
 	}
 
 	if (!any_registered) {
@@ -761,9 +761,9 @@ xmpp_console_load(GPluginPlugin *plugin, GError **error)
 	}
 
 	purple_signal_connect(purple_connections_get_handle(), "signing-on",
-		plugin, PURPLE_CALLBACK(signing_on_cb), NULL);
+		plugin, G_CALLBACK(signing_on_cb), NULL);
 	purple_signal_connect(purple_connections_get_handle(), "signed-off",
-		plugin, PURPLE_CALLBACK(signed_off_cb), NULL);
+		plugin, G_CALLBACK(signed_off_cb), NULL);
 
 	return TRUE;
 }

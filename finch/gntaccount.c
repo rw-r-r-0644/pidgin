@@ -902,17 +902,17 @@ void finch_accounts_init()
 	GList *iter;
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-added",
-			finch_accounts_get_handle(), PURPLE_CALLBACK(account_added_callback),
+			finch_accounts_get_handle(), G_CALLBACK(account_added_callback),
 			NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-removed",
-			finch_accounts_get_handle(), PURPLE_CALLBACK(account_removed_callback),
+			finch_accounts_get_handle(), G_CALLBACK(account_removed_callback),
 			NULL);
 	purple_signal_connect(purple_accounts_get_handle(), "account-disabled",
 			finch_accounts_get_handle(),
-			PURPLE_CALLBACK(account_abled_cb), GINT_TO_POINTER(FALSE));
+			G_CALLBACK(account_abled_cb), GINT_TO_POINTER(FALSE));
 	purple_signal_connect(purple_accounts_get_handle(), "account-enabled",
 			finch_accounts_get_handle(),
-			PURPLE_CALLBACK(account_abled_cb), GINT_TO_POINTER(TRUE));
+			G_CALLBACK(account_abled_cb), GINT_TO_POINTER(TRUE));
 
 	manager = purple_account_manager_get_default();
 	iter = purple_account_manager_get_all(manager);

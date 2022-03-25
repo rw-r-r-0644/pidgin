@@ -219,7 +219,7 @@ pidgin_connection_init(void)
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-removed",
 						pidgin_connection_get_handle(),
-						PURPLE_CALLBACK(account_removed_cb), NULL);
+						G_CALLBACK(account_removed_cb), NULL);
 }
 
 void

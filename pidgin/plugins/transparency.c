@@ -606,14 +606,14 @@ transparency_load(GPluginPlugin *plugin, GError **error) {
 
 	conv_handle = purple_conversations_get_handle();
 	purple_signal_connect(conv_handle, "conversation-created", plugin,
-	                      PURPLE_CALLBACK(new_conversation_cb), NULL);
+	                      G_CALLBACK(new_conversation_cb), NULL);
 
 	/* Set callback to remove window from the list, if the window is destroyed */
 	purple_signal_connect(conv_handle, "deleting-conversation", plugin,
-	                      PURPLE_CALLBACK(conversation_delete_cb), NULL);
+	                      G_CALLBACK(conversation_delete_cb), NULL);
 
 	purple_signal_connect(conv_handle, "conversation-updated", plugin,
-	                      PURPLE_CALLBACK(conv_updated_cb), NULL);
+	                      G_CALLBACK(conv_updated_cb), NULL);
 
 	update_existing_convs();
 
@@ -623,7 +623,7 @@ transparency_load(GPluginPlugin *plugin, GError **error) {
 	} else {
 		purple_signal_connect(pidgin_blist_get_handle(),
 			"gtkblist-created", plugin,
-			PURPLE_CALLBACK(blist_created_cb), NULL);
+			G_CALLBACK(blist_created_cb), NULL);
 	}
 
 	return TRUE;

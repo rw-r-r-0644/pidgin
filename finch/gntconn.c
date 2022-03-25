@@ -127,8 +127,8 @@ finch_connection_report_disconnect(PurpleConnection *gc, PurpleConnectionError r
 		purple_request_action(account, NULL, primary, secondary, 2,
 			purple_request_cpar_from_account(account), account, 3,
 							_("OK"), NULL,
-							_("Modify Account"), PURPLE_CALLBACK(ce_modify_account_cb),
-							_("Re-enable Account"), PURPLE_CALLBACK(ce_enable_account_cb));
+							_("Modify Account"), G_CALLBACK(ce_modify_account_cb),
+							_("Re-enable Account"), G_CALLBACK(ce_enable_account_cb));
 
 		g_free(act);
 		g_free(primary);
@@ -179,7 +179,7 @@ void finch_connections_init()
 
 	purple_signal_connect(purple_accounts_get_handle(), "account-removed",
 						finch_connection_get_handle(),
-						PURPLE_CALLBACK(account_removed_cb), NULL);
+						G_CALLBACK(account_removed_cb), NULL);
 }
 
 void finch_connections_uninit()

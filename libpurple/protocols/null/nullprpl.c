@@ -378,7 +378,7 @@ null_blist_node_menu(PurpleProtocolClient *client, PurpleBlistNode *node) {
   if (PURPLE_IS_BUDDY(node)) {
     PurpleActionMenu *action = purple_action_menu_new(
       _("NullProtocol example menu item"),
-      PURPLE_CALLBACK(blist_example_menu_item),
+      G_CALLBACK(blist_example_menu_item),
       NULL,   /* userdata passed to the callback */
       NULL);  /* child menu items */
     return g_list_append(NULL, action);
