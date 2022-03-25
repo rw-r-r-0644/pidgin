@@ -336,7 +336,6 @@ pidgin/pidginaccountactionsmenu.c
 pidgin/pidginaccountchooser.c
 pidgin/pidginaccountfilterconnected.c
 pidgin/pidginaccountfilterprotocol.c
-pidgin/pidginaccountsdisabledmenu.c
 pidgin/pidginaccountsenabledmenu.c
 pidgin/pidginaccountsmenu.c
 pidgin/pidginaccountstore.c
@@ -357,6 +356,7 @@ pidgin/pidgindialog.c
 pidgin/pidgindnd.c
 pidgin/pidgingdkpixbuf.c
 pidgin/pidginiconname.c
+pidgin/pidgininactiveaccountsmenu.c
 pidgin/pidgininfopane.c
 pidgin/pidgininvitedialog.c
 pidgin/pidginmessage.c

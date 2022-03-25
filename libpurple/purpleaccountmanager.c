@@ -205,6 +205,24 @@ purple_account_manager_get_active(PurpleAccountManager *manager) {
 	return active;
 }
 
+GList *
+purple_account_manager_get_inactive(PurpleAccountManager *manager) {
+	GList *inactive = NULL, *l = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT_MANAGER(manager), NULL);
+
+	for(l = manager->accounts; l != NULL; l = l->next) {
+		PurpleAccount *account = l->data;
+
+		if(!purple_account_get_enabled(account, purple_core_get_ui())) {
+			inactive = g_list_append(inactive, account);
+		}
+	}
+
+	return inactive;
+}
+
+
 void
 purple_account_manager_reorder(PurpleAccountManager *manager,
                                PurpleAccount *account,

@@ -24,8 +24,8 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef PIDGIN_ACCOUNTS_DISABLED_MENU_H
-#define PIDGIN_ACCOUNTS_DISABLED_MENU_H
+#ifndef PIDGIN_INACTIVE_ACCOUNTS_MENU_H
+#define PIDGIN_INACTIVE_ACCOUNTS_MENU_H
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -34,18 +34,22 @@
 
 G_BEGIN_DECLS
 
+#define PIDGIN_TYPE_INACTIVE_ACCOUNTS_MENU (pidgin_inactive_accounts_menu_get_type())
+G_DECLARE_FINAL_TYPE(PidginInactiveAccountsMenu, pidgin_inactive_accounts_menu,
+                     PIDGIN, INACTIVE_ACCOUNTS_MENU, GMenuModel)
+
 /**
- * pidgin_accounts_disabled_menu_new:
+ * pidgin_inactive_accounts_menu_new:
  *
- * Creates a [class@Gio.Menu] that will automatically update itself to include
- * accounts that are disabled in libpurple.
+ * Creates a menu that will automatically update itself to include accounts
+ * that are inactive in libpurple.
  *
  * Returns: (transfer full): The new menu instance.
  *
  * Since: 3.0.0
  */
-GMenu *pidgin_accounts_disabled_menu_new(void);
+GMenuModel *pidgin_inactive_accounts_menu_new(void);
 
 G_END_DECLS
 
-#endif /* PIDGIN_ACCOUNTS_DISABLED_MENU_H */
+#endif /* PIDGIN_INACTIVE_ACCOUNTS_MENU_H */
