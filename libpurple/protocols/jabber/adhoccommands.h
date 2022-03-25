@@ -28,6 +28,14 @@
 
 /* Implementation of XEP-0050 */
 
+typedef struct {
+	char *jid;
+	char *node;
+	char *name;
+} JabberAdHocCommands;
+
+void jabber_adhoc_commands_free(JabberAdHocCommands *cmd);
+
 void jabber_adhoc_disco_result_cb(JabberStream *js, const char *from,
                                   JabberIqType type, const char *id,
                                   PurpleXmlNode *packet, gpointer data);

@@ -53,17 +53,6 @@ typedef struct {
 	gchar *last_message;
 } JabberBuddyInfo;
 
-void
-jabber_adhoc_commands_free(JabberAdHocCommands *cmd)
-{
-	g_return_if_fail(cmd != NULL);
-
-	g_free(cmd->jid);
-	g_free(cmd->node);
-	g_free(cmd->name);
-	g_free(cmd);
-}
-
 static void
 jabber_buddy_resource_free(JabberBuddyResource *jbr)
 {
