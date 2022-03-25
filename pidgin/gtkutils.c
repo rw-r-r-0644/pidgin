@@ -580,7 +580,7 @@ do_pidgin_append_menu_action(GtkWidget *menu, PurpleActionMenu *act,
 	list = purple_action_menu_get_children(act);
 
 	if (list == NULL) {
-		PurpleCallback callback;
+		GCallback callback;
 
 		callback = purple_action_menu_get_callback(act);
 

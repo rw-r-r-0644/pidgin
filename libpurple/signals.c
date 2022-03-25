@@ -56,7 +56,7 @@ typedef struct
 typedef struct
 {
 	gulong id;
-	PurpleCallback cb;
+	GCallback cb;
 	void *handle;
 	void *data;
 	gboolean use_vargs;
@@ -222,7 +222,7 @@ static gint handler_priority(void * a, void * b) {
 
 static gulong
 signal_connect_common(void *instance, const char *signal, void *handle,
-					  PurpleCallback func, void *data, int priority, gboolean use_vargs)
+					  GCallback func, void *data, int priority, gboolean use_vargs)
 {
 	PurpleInstanceData *instance_data;
 	PurpleSignalData *signal_data;
@@ -272,35 +272,35 @@ signal_connect_common(void *instance, const char *signal, void *handle,
 
 gulong
 purple_signal_connect_priority(void *instance, const char *signal, void *handle,
-					PurpleCallback func, void *data, int priority)
+					GCallback func, void *data, int priority)
 {
 	return signal_connect_common(instance, signal, handle, func, data, priority, FALSE);
 }
 
 gulong
 purple_signal_connect(void *instance, const char *signal, void *handle,
-					PurpleCallback func, void *data)
+					GCallback func, void *data)
 {
 	return signal_connect_common(instance, signal, handle, func, data, PURPLE_SIGNAL_PRIORITY_DEFAULT, FALSE);
 }
 
 gulong
 purple_signal_connect_priority_vargs(void *instance, const char *signal, void *handle,
-						  PurpleCallback func, void *data, int priority)
+						  GCallback func, void *data, int priority)
 {
 	return signal_connect_common(instance, signal, handle, func, data, priority, TRUE);
 }
 
 gulong
 purple_signal_connect_vargs(void *instance, const char *signal, void *handle,
-						  PurpleCallback func, void *data)
+						  GCallback func, void *data)
 {
 	return signal_connect_common(instance, signal, handle, func, data, PURPLE_SIGNAL_PRIORITY_DEFAULT, TRUE);
 }
 
 void
 purple_signal_disconnect(void *instance, const char *signal,
-					   void *handle, PurpleCallback func)
+					   void *handle, GCallback func)
 {
 	PurpleInstanceData *instance_data;
 	PurpleSignalData *signal_data;
@@ -552,14 +552,14 @@ purple_signals_uninit()
  * Marshallers
  **************************************************************************/
 void
-purple_marshal_VOID(PurpleCallback cb, va_list args, void *data,
+purple_marshal_VOID(GCallback cb, va_list args, void *data,
 				  void **return_val)
 {
 	((void (*)(void *))cb)(data);
 }
 
 void
-purple_marshal_VOID__INT(PurpleCallback cb, va_list args, void *data,
+purple_marshal_VOID__INT(GCallback cb, va_list args, void *data,
 					   void **return_val)
 {
 	gint arg1 = va_arg(args, gint);
@@ -568,7 +568,7 @@ purple_marshal_VOID__INT(PurpleCallback cb, va_list args, void *data,
 }
 
 void
-purple_marshal_VOID__INT_INT(PurpleCallback cb, va_list args, void *data,
+purple_marshal_VOID__INT_INT(GCallback cb, va_list args, void *data,
 						   void **return_val)
 {
 	gint arg1 = va_arg(args, gint);
@@ -578,7 +578,7 @@ purple_marshal_VOID__INT_INT(PurpleCallback cb, va_list args, void *data,
 }
 
 void
-purple_marshal_VOID__POINTER(PurpleCallback cb, va_list args, void *data,
+purple_marshal_VOID__POINTER(GCallback cb, va_list args, void *data,
 						   void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -587,7 +587,7 @@ purple_marshal_VOID__POINTER(PurpleCallback cb, va_list args, void *data,
 }
 
 void
-purple_marshal_VOID__POINTER_UINT(PurpleCallback cb, va_list args,
+purple_marshal_VOID__POINTER_UINT(GCallback cb, va_list args,
 										void *data, void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -596,7 +596,7 @@ purple_marshal_VOID__POINTER_UINT(PurpleCallback cb, va_list args,
 	((void (*)(void *, guint, void *))cb)(arg1, arg2, data);
 }
 
-void purple_marshal_VOID__POINTER_INT_INT(PurpleCallback cb, va_list args,
+void purple_marshal_VOID__POINTER_INT_INT(GCallback cb, va_list args,
                                         void *data, void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -606,7 +606,7 @@ void purple_marshal_VOID__POINTER_INT_INT(PurpleCallback cb, va_list args,
 	((void (*)(void *, gint, gint, void *))cb)(arg1, arg2, arg3, data);
 }
 
-void purple_marshal_VOID__POINTER_INT_POINTER(PurpleCallback cb, va_list args,
+void purple_marshal_VOID__POINTER_INT_POINTER(GCallback cb, va_list args,
                                               void *data, void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -617,7 +617,7 @@ void purple_marshal_VOID__POINTER_INT_POINTER(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER(PurpleCallback cb, va_list args,
+purple_marshal_VOID__POINTER_POINTER(GCallback cb, va_list args,
 								   void *data, void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -627,7 +627,7 @@ purple_marshal_VOID__POINTER_POINTER(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER_UINT(PurpleCallback cb, va_list args,
+purple_marshal_VOID__POINTER_POINTER_UINT(GCallback cb, va_list args,
 										void *data, void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -638,7 +638,7 @@ purple_marshal_VOID__POINTER_POINTER_UINT(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER_UINT_UINT(PurpleCallback cb, va_list args,
+purple_marshal_VOID__POINTER_POINTER_UINT_UINT(GCallback cb, va_list args,
 										     void *data, void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -650,7 +650,7 @@ purple_marshal_VOID__POINTER_POINTER_UINT_UINT(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_VOID__POINTER_UINT_UINT(PurpleCallback cb, va_list args,
+purple_marshal_VOID__POINTER_UINT_UINT(GCallback cb, va_list args,
 										     void *data, void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -661,7 +661,7 @@ purple_marshal_VOID__POINTER_UINT_UINT(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER_POINTER(PurpleCallback cb, va_list args,
+purple_marshal_VOID__POINTER_POINTER_POINTER(GCallback cb, va_list args,
 										   void *data, void **return_val)
 {
 	void *arg1 = va_arg(args, void *);
@@ -672,7 +672,7 @@ purple_marshal_VOID__POINTER_POINTER_POINTER(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER(PurpleCallback cb,
+purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER(GCallback cb,
 												   va_list args,
 												   void *data,
 												   void **return_val)
@@ -686,7 +686,7 @@ purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER(PurpleCallback cb,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER(PurpleCallback cb,
+purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER(GCallback cb,
 														   va_list args,
 														   void *data,
 														   void **return_val)
@@ -701,7 +701,7 @@ purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER(PurpleCallback cb,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER_POINTER_UINT(PurpleCallback cb,
+purple_marshal_VOID__POINTER_POINTER_POINTER_UINT(GCallback cb,
 												   va_list args,
 												   void *data,
 												   void **return_val)
@@ -715,7 +715,7 @@ purple_marshal_VOID__POINTER_POINTER_POINTER_UINT(PurpleCallback cb,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT(PurpleCallback cb,
+purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT(GCallback cb,
 													    va_list args,
 													    void *data,
 													    void **return_val)
@@ -730,7 +730,7 @@ purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT(PurpleCallback cb,
 }
 
 void
-purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT(PurpleCallback cb,
+purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT(GCallback cb,
 													 va_list args,
 													 void *data,
 													 void **return_val)
@@ -746,7 +746,7 @@ purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT(PurpleCallback cb,
 }
 
 void
-purple_marshal_INT__INT(PurpleCallback cb, va_list args, void *data,
+purple_marshal_INT__INT(GCallback cb, va_list args, void *data,
 					  void **return_val)
 {
 	gint ret_val;
@@ -759,7 +759,7 @@ purple_marshal_INT__INT(PurpleCallback cb, va_list args, void *data,
 }
 
 void
-purple_marshal_INT__INT_INT(PurpleCallback cb, va_list args, void *data,
+purple_marshal_INT__INT_INT(GCallback cb, va_list args, void *data,
 						  void **return_val)
 {
 	gint ret_val;
@@ -773,7 +773,7 @@ purple_marshal_INT__INT_INT(PurpleCallback cb, va_list args, void *data,
 }
 
 void
-purple_marshal_INT__POINTER_POINTER(PurpleCallback cb, va_list args, void *data,
+purple_marshal_INT__POINTER_POINTER(GCallback cb, va_list args, void *data,
                                       void **return_val)
 {
 	gint ret_val;
@@ -788,7 +788,7 @@ purple_marshal_INT__POINTER_POINTER(PurpleCallback cb, va_list args, void *data,
 
 	void
 purple_marshal_INT__POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val)
+		GCallback cb, va_list args, void *data, void **return_val)
 {
 	gint ret_val;
 	void *arg1 = va_arg(args, void *);
@@ -803,7 +803,7 @@ purple_marshal_INT__POINTER_POINTER_POINTER(
 
 void
 purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val)
+		GCallback cb, va_list args, void *data, void **return_val)
 {
 	gint ret_val;
 	void *arg1 = va_arg(args, void *);
@@ -821,7 +821,7 @@ purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER(
 }
 
 void
-purple_marshal_BOOLEAN__POINTER(PurpleCallback cb, va_list args, void *data,
+purple_marshal_BOOLEAN__POINTER(GCallback cb, va_list args, void *data,
 							  void **return_val)
 {
 	gboolean ret_val;
@@ -834,7 +834,7 @@ purple_marshal_BOOLEAN__POINTER(PurpleCallback cb, va_list args, void *data,
 }
 
 void
-purple_marshal_BOOLEAN__POINTER_POINTER(PurpleCallback cb, va_list args,
+purple_marshal_BOOLEAN__POINTER_POINTER(GCallback cb, va_list args,
 									  void *data, void **return_val)
 {
 	gboolean ret_val;
@@ -848,7 +848,7 @@ purple_marshal_BOOLEAN__POINTER_POINTER(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_BOOLEAN__POINTER_BOOLEAN(PurpleCallback cb, va_list args,
+purple_marshal_BOOLEAN__POINTER_BOOLEAN(GCallback cb, va_list args,
 									  void *data, void **return_val)
 {
 	gboolean ret_val;
@@ -862,7 +862,7 @@ purple_marshal_BOOLEAN__POINTER_BOOLEAN(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_BOOLEAN__POINTER_POINTER_POINTER(PurpleCallback cb, va_list args,
+purple_marshal_BOOLEAN__POINTER_POINTER_POINTER(GCallback cb, va_list args,
 											  void *data, void **return_val)
 {
 	gboolean ret_val;
@@ -878,7 +878,7 @@ purple_marshal_BOOLEAN__POINTER_POINTER_POINTER(PurpleCallback cb, va_list args,
 }
 
 void
-purple_marshal_BOOLEAN__POINTER_POINTER_UINT(PurpleCallback cb,
+purple_marshal_BOOLEAN__POINTER_POINTER_UINT(GCallback cb,
 												   va_list args,
 												   void *data,
 												   void **return_val)
@@ -896,7 +896,7 @@ purple_marshal_BOOLEAN__POINTER_POINTER_UINT(PurpleCallback cb,
 }
 
 void
-purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT(PurpleCallback cb,
+purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT(GCallback cb,
 												   va_list args,
 												   void *data,
 												   void **return_val)
@@ -915,7 +915,7 @@ purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT(PurpleCallback cb,
 }
 
 void
-purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER(PurpleCallback cb,
+purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER(GCallback cb,
 													  va_list args,
 													  void *data,
 													  void **return_val)
@@ -935,7 +935,7 @@ purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER(PurpleCallback cb,
 
 void
 purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val)
+		GCallback cb, va_list args, void *data, void **return_val)
 {
 	gboolean ret_val;
 	void *arg1 = va_arg(args, void *);
@@ -954,7 +954,7 @@ purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER(
 
 void
 purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val)
+		GCallback cb, va_list args, void *data, void **return_val)
 {
 	gboolean ret_val;
 	void *arg1 = va_arg(args, void *);
@@ -973,7 +973,7 @@ purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT(
 
 void
 purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val)
+		GCallback cb, va_list args, void *data, void **return_val)
 {
 	gboolean ret_val;
 	void *arg1 = va_arg(args, void *);
@@ -992,7 +992,7 @@ purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER(
 }
 
 void
-purple_marshal_BOOLEAN__INT_POINTER(PurpleCallback cb, va_list args, void *data,
+purple_marshal_BOOLEAN__INT_POINTER(GCallback cb, va_list args, void *data,
                                   void **return_val)
 {
 	gboolean ret_val;
@@ -1007,7 +1007,7 @@ purple_marshal_BOOLEAN__INT_POINTER(PurpleCallback cb, va_list args, void *data,
 
 void
 purple_marshal_POINTER__POINTER(
-                                    PurpleCallback cb, va_list args, void *data,
+                                    GCallback cb, va_list args, void *data,
                                     void **return_val)
 {
 	gpointer ret_val;
@@ -1022,7 +1022,7 @@ purple_marshal_POINTER__POINTER(
 
 void
 purple_marshal_POINTER__POINTER_INT(
-                                    PurpleCallback cb, va_list args, void *data,
+                                    GCallback cb, va_list args, void *data,
                                     void **return_val)
 {
 	gpointer ret_val;
@@ -1037,7 +1037,7 @@ purple_marshal_POINTER__POINTER_INT(
 
 void
 purple_marshal_POINTER__POINTER_INT64(
-                                    PurpleCallback cb, va_list args, void *data,
+                                    GCallback cb, va_list args, void *data,
                                     void **return_val)
 {
 	gpointer ret_val;
@@ -1052,7 +1052,7 @@ purple_marshal_POINTER__POINTER_INT64(
 
 void
 purple_marshal_POINTER__POINTER_INT_BOOLEAN(
-                                    PurpleCallback cb, va_list args, void *data,
+                                    GCallback cb, va_list args, void *data,
                                     void **return_val)
 {
 	gpointer ret_val;
@@ -1068,7 +1068,7 @@ purple_marshal_POINTER__POINTER_INT_BOOLEAN(
 
 void
 purple_marshal_POINTER__POINTER_INT64_BOOLEAN(
-                                    PurpleCallback cb, va_list args, void *data,
+                                    GCallback cb, va_list args, void *data,
                                     void **return_val)
 {
 	gpointer ret_val;
@@ -1084,7 +1084,7 @@ purple_marshal_POINTER__POINTER_INT64_BOOLEAN(
 
 void
 purple_marshal_POINTER__POINTER_POINTER_BOOLEAN(
-                                    PurpleCallback cb, va_list args, void *data,
+                                    GCallback cb, va_list args, void *data,
                                     void **return_val)
 {
 	gpointer ret_val;
@@ -1099,7 +1099,7 @@ purple_marshal_POINTER__POINTER_POINTER_BOOLEAN(
 }
 
 void
-purple_marshal_POINTER__POINTER_POINTER(PurpleCallback cb, va_list args, void *data,
+purple_marshal_POINTER__POINTER_POINTER(GCallback cb, va_list args, void *data,
                                       void **return_val)
 {
 	gpointer ret_val;

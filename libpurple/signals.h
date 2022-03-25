@@ -34,27 +34,20 @@
  * PURPLE_CALLBACK:
  * @func: a function pointer.
  *
- * Cast a function pointer to #PurpleCallback.
+ * Cast a function pointer to #GCallback.
  */
-#define PURPLE_CALLBACK(func) ((PurpleCallback)(func))
-
-/**
- * PurpleCallback:
- *
- * A generic function pointer type to represent a callback function.
- */
-typedef void (*PurpleCallback)(void);
+#define PURPLE_CALLBACK(func) ((GCallback)(func))
 
 /**
  * PurpleSignalMarshalFunc:
- * @cb: The #PurpleCallback to call.
+ * @cb: The #GCallback to call.
  * @args: The arguments to the function.
  * @data: Userdata to pass to @cb.
  * @return_val: (optional) (out): A return address for a return value.
  *
  * A generic function pointer type used to register signals.
  */
-typedef void (*PurpleSignalMarshalFunc)(PurpleCallback cb, va_list args,
+typedef void (*PurpleSignalMarshalFunc)(GCallback cb, va_list args,
 									  void *data, void **return_val);
 
 G_BEGIN_DECLS
@@ -166,7 +159,7 @@ void purple_signal_get_types(void *instance, const char *signal,
  * Returns: The signal handler ID.
  */
 gulong purple_signal_connect_priority(void *instance, const char *signal,
-	void *handle, PurpleCallback func, void *data, int priority);
+	void *handle, GCallback func, void *data, int priority);
 
 /**
  * purple_signal_connect:
@@ -187,7 +180,7 @@ gulong purple_signal_connect_priority(void *instance, const char *signal,
  * Returns: The signal handler ID.
  */
 gulong purple_signal_connect(void *instance, const char *signal,
-	void *handle, PurpleCallback func, void *data);
+	void *handle, GCallback func, void *data);
 
 /**
  * purple_signal_connect_priority_vargs:
@@ -214,7 +207,7 @@ gulong purple_signal_connect(void *instance, const char *signal,
  * Returns: The signal handler ID.
  */
 gulong purple_signal_connect_priority_vargs(void *instance, const char *signal,
-	void *handle, PurpleCallback func, void *data, int priority);
+	void *handle, GCallback func, void *data, int priority);
 
 /**
  * purple_signal_connect_vargs:
@@ -238,7 +231,7 @@ gulong purple_signal_connect_priority_vargs(void *instance, const char *signal,
  * Returns: The signal handler ID.
  */
 gulong purple_signal_connect_vargs(void *instance, const char *signal,
-	void *handle, PurpleCallback func, void *data);
+	void *handle, GCallback func, void *data);
 
 /**
  * purple_signal_disconnect:
@@ -252,7 +245,7 @@ gulong purple_signal_connect_vargs(void *instance, const char *signal,
  * See purple_signal_connect()
  */
 void purple_signal_disconnect(void *instance, const char *signal,
-							void *handle, PurpleCallback func);
+							void *handle, GCallback func);
 
 /**
  * purple_signals_disconnect_by_handle:
@@ -345,7 +338,7 @@ void purple_signals_uninit(void);
  * A purple marshaller function for use with signals with no arguments.
  */
 void purple_marshal_VOID(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__INT:
@@ -358,7 +351,7 @@ void purple_marshal_VOID(
  * argument.
  */
 void purple_marshal_VOID__INT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__INT_INT:
@@ -371,7 +364,7 @@ void purple_marshal_VOID__INT(
  * arguments.
  */
 void purple_marshal_VOID__INT_INT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER:
@@ -384,7 +377,7 @@ void purple_marshal_VOID__INT_INT(
  * argument.
  */
 void purple_marshal_VOID__POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_UINT:
@@ -397,7 +390,7 @@ void purple_marshal_VOID__POINTER(
  * an unsigned integer argument.
  */
 void purple_marshal_VOID__POINTER_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_INT_INT:
@@ -410,7 +403,7 @@ void purple_marshal_VOID__POINTER_UINT(
  * two integer arguments.
  */
 void purple_marshal_VOID__POINTER_INT_INT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_INT_POINTER:
@@ -423,7 +416,7 @@ void purple_marshal_VOID__POINTER_INT_INT(
  * integer, and then another pointer argument.
  */
 void purple_marshal_VOID__POINTER_INT_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER:
@@ -436,7 +429,7 @@ void purple_marshal_VOID__POINTER_INT_POINTER(
  * arguments.
  */
 void purple_marshal_VOID__POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER_UINT:
@@ -449,7 +442,7 @@ void purple_marshal_VOID__POINTER_POINTER(
  * and an unsigned integer argument.
  */
 void purple_marshal_VOID__POINTER_POINTER_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER_UINT_UINT:
@@ -462,7 +455,7 @@ void purple_marshal_VOID__POINTER_POINTER_UINT(
  * and two unsigned integer arguments.
  */
 void purple_marshal_VOID__POINTER_POINTER_UINT_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_UINT_UINT:
@@ -475,7 +468,7 @@ void purple_marshal_VOID__POINTER_POINTER_UINT_UINT(
  * two unsigned integer arguments.
  */
 void purple_marshal_VOID__POINTER_UINT_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER_POINTER:
@@ -488,7 +481,7 @@ void purple_marshal_VOID__POINTER_UINT_UINT(
  * arguments.
  */
 void purple_marshal_VOID__POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER:
@@ -501,7 +494,7 @@ void purple_marshal_VOID__POINTER_POINTER_POINTER(
  * arguments.
  */
 void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER:
@@ -514,7 +507,7 @@ void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER(
  * arguments.
  */
 void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER_POINTER_UINT:
@@ -527,7 +520,7 @@ void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER(
  * and one unsigned integer arguments.
  */
 void purple_marshal_VOID__POINTER_POINTER_POINTER_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT:
@@ -540,7 +533,7 @@ void purple_marshal_VOID__POINTER_POINTER_POINTER_UINT(
  * one unsigned integer arguments.
  */
 void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT:
@@ -553,7 +546,7 @@ void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT(
  * and two unsigned integer arguments.
  */
 void purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_INT__INT:
@@ -566,7 +559,7 @@ void purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT(
  * and returns an integer.
  */
 void purple_marshal_INT__INT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_INT__INT_INT:
@@ -579,7 +572,7 @@ void purple_marshal_INT__INT(
  * arguments and returns an integer.
  */
 void purple_marshal_INT__INT_INT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_INT__POINTER_POINTER:
@@ -592,7 +585,7 @@ void purple_marshal_INT__INT_INT(
  * arguments and returns an integer.
  */
 void purple_marshal_INT__POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_INT__POINTER_POINTER_POINTER:
@@ -605,7 +598,7 @@ void purple_marshal_INT__POINTER_POINTER(
  * arguments and returns an integer.
  */
 void purple_marshal_INT__POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER:
@@ -618,7 +611,7 @@ void purple_marshal_INT__POINTER_POINTER_POINTER(
  * arguments and returns an integer.
  */
 void purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER:
@@ -631,7 +624,7 @@ void purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER(
  * argument and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_POINTER:
@@ -644,7 +637,7 @@ void purple_marshal_BOOLEAN__POINTER(
  * arguments and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_BOOLEAN:
@@ -657,7 +650,7 @@ void purple_marshal_BOOLEAN__POINTER_POINTER(
  * boolean argument and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_BOOLEAN(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_POINTER_POINTER:
@@ -670,7 +663,7 @@ void purple_marshal_BOOLEAN__POINTER_BOOLEAN(
  * arguments and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_POINTER_UINT:
@@ -683,7 +676,7 @@ void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER(
  * one unsigned integer arguments and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_POINTER_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT:
@@ -696,7 +689,7 @@ void purple_marshal_BOOLEAN__POINTER_POINTER_UINT(
  * and one unsigned integer arguments and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER:
@@ -709,7 +702,7 @@ void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT(
  * arguments and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER:
@@ -722,7 +715,7 @@ void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER(
  * arguments and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT:
@@ -735,7 +728,7 @@ void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER(
  * and one unsigned integer arguments and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER:
@@ -748,7 +741,7 @@ void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT(
  * arguments and returns a boolean.
  */
 void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_BOOLEAN__INT_POINTER:
@@ -761,7 +754,7 @@ void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER(
  * and a pointer argument and returns a boolean.
  */
 void purple_marshal_BOOLEAN__INT_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_POINTER__POINTER:
@@ -774,7 +767,7 @@ void purple_marshal_BOOLEAN__INT_POINTER(
  * argument and returns a pointer.
  */
 void purple_marshal_POINTER__POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_POINTER__POINTER_INT:
@@ -787,7 +780,7 @@ void purple_marshal_POINTER__POINTER(
  * an integer argument and returns a pointer.
  */
 void purple_marshal_POINTER__POINTER_INT(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_POINTER__POINTER_INT64:
@@ -800,7 +793,7 @@ void purple_marshal_POINTER__POINTER_INT(
  * a 64-bit integer argument and returns a pointer.
  */
 void purple_marshal_POINTER__POINTER_INT64(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_POINTER__POINTER_INT_BOOLEAN:
@@ -813,7 +806,7 @@ void purple_marshal_POINTER__POINTER_INT64(
  * integer, and boolean argument and returns a pointer.
  */
 void purple_marshal_POINTER__POINTER_INT_BOOLEAN(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_POINTER__POINTER_INT64_BOOLEAN:
@@ -826,7 +819,7 @@ void purple_marshal_POINTER__POINTER_INT_BOOLEAN(
  * 64-bit integer, and boolean argument and returns a pointer.
  */
 void purple_marshal_POINTER__POINTER_INT64_BOOLEAN(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_POINTER__POINTER_POINTER_BOOLEAN:
@@ -839,7 +832,7 @@ void purple_marshal_POINTER__POINTER_INT64_BOOLEAN(
  * and one boolean arguments and returns a pointer.
  */
 void purple_marshal_POINTER__POINTER_POINTER_BOOLEAN(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 /**
  * purple_marshal_POINTER__POINTER_POINTER:
@@ -852,7 +845,7 @@ void purple_marshal_POINTER__POINTER_POINTER_BOOLEAN(
  * arguments and returns a pointer.
  */
 void purple_marshal_POINTER__POINTER_POINTER(
-		PurpleCallback cb, va_list args, void *data, void **return_val);
+		GCallback cb, va_list args, void *data, void **return_val);
 
 G_END_DECLS
 

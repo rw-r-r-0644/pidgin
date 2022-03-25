@@ -965,7 +965,7 @@ append_proto_menu(GntMenu *menu, PurpleConnection *gc, PurpleBlistNode *node)
 }
 
 static void
-add_custom_action(GntMenu *menu, const char *label, PurpleCallback callback,
+add_custom_action(GntMenu *menu, const char *label, GCallback callback,
 		gpointer data)
 {
 	PurpleActionMenu *action = purple_action_menu_new(label, callback, data, NULL);
@@ -1071,7 +1071,7 @@ create_chat_menu(GntMenu *menu, PurpleChat *chat)
 			purple_account_get_connection(purple_chat_get_account(chat)),
 			(PurpleBlistNode*)chat);
 
-	add_custom_action(menu, _("Edit Settings"), (PurpleCallback)chat_components_edit, chat);
+	add_custom_action(menu, _("Edit Settings"), (GCallback)chat_components_edit, chat);
 }
 
 static void
