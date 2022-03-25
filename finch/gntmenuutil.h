@@ -40,7 +40,7 @@
  * @menu:   the GntMenu to add to
  * @action: the PurpleActionMenu to add
  * @ctx:    the callback context, passed as the first argument to
- *               the PurpleActionMenu's PurpleCallback function.
+ *               the PurpleActionMenu's GCallback function.
  *
  * Add a PurpleActionMenu to a GntMenu.
  */

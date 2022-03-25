@@ -124,7 +124,7 @@ typedef struct
 typedef struct
 {
 	PurpleAccount *account;
-	PurpleCallback cb;
+	GCallback cb;
 	gpointer data;
 } PurpleCallbackBundle;
 
