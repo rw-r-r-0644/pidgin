@@ -254,7 +254,7 @@ purple_buddy_icon_data_new(guchar *icon_data, size_t icon_len)
 	g_return_val_if_fail(icon_data != NULL, NULL);
 	g_return_val_if_fail(icon_len > 0, NULL);
 
-	newimg = purple_image_new_from_data(icon_data, icon_len);
+	newimg = purple_image_new_take_data(icon_data, icon_len);
 	filename = purple_image_generate_filename(newimg);
 
 	/* TODO: Why is this function called for buddies without icons? If this is
