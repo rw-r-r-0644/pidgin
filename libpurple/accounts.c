@@ -204,26 +204,26 @@ parse_proxy_info(PurpleXmlNode *node, PurpleAccount *account)
 	proxy_info = purple_proxy_info_new();
 
 	/* Use the global proxy settings, by default */
-	purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_USE_GLOBAL);
+	purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TYPE_USE_GLOBAL);
 
 	/* Read proxy type */
 	child = purple_xmlnode_get_child(node, "type");
 	if ((child != NULL) && ((data = purple_xmlnode_get_data(child)) != NULL))
 	{
 		if (purple_strequal(data, "global"))
-			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_USE_GLOBAL);
+			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TYPE_USE_GLOBAL);
 		else if (purple_strequal(data, "none"))
-			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_NONE);
+			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TYPE_NONE);
 		else if (purple_strequal(data, "http"))
-			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_HTTP);
+			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TYPE_HTTP);
 		else if (purple_strequal(data, "socks4"))
-			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_SOCKS4);
+			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TYPE_SOCKS4);
 		else if (purple_strequal(data, "socks5"))
-			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_SOCKS5);
+			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TYPE_SOCKS5);
 		else if (purple_strequal(data, "tor"))
-			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TOR);
+			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TYPE_TOR);
 		else if (purple_strequal(data, "envvar"))
-			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_USE_ENVVAR);
+			purple_proxy_info_set_proxy_type(proxy_info, PURPLE_PROXY_TYPE_USE_ENVVAR);
 		else
 		{
 			purple_debug_error("accounts", "Invalid proxy type found when "
@@ -237,7 +237,7 @@ parse_proxy_info(PurpleXmlNode *node, PurpleAccount *account)
 	child = purple_xmlnode_get_child(node, "host");
 	if ((child != NULL) && ((data = purple_xmlnode_get_data(child)) != NULL))
 	{
-		purple_proxy_info_set_host(proxy_info, data);
+		purple_proxy_info_set_hostname(proxy_info, data);
 		g_free(data);
 	}
 
@@ -266,17 +266,19 @@ parse_proxy_info(PurpleXmlNode *node, PurpleAccount *account)
 	}
 
 	/* If there are no values set then proxy_info NULL */
-	if ((purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_USE_GLOBAL) &&
-		(purple_proxy_info_get_host(proxy_info) == NULL) &&
+	if ((purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_TYPE_USE_GLOBAL) &&
+		(purple_proxy_info_get_hostname(proxy_info) == NULL) &&
 		(purple_proxy_info_get_port(proxy_info) == 0) &&
 		(purple_proxy_info_get_username(proxy_info) == NULL) &&
 		(purple_proxy_info_get_password(proxy_info) == NULL))
 	{
-		purple_proxy_info_destroy(proxy_info);
+		g_clear_object(&proxy_info);
 		return;
 	}
 
 	purple_account_set_proxy_info(account, proxy_info);
+
+	g_clear_object(&proxy_info);
 }
 
 static void

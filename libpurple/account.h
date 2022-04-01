@@ -46,8 +46,8 @@ typedef void (*PurpleAccountUnregistrationCb)(PurpleAccount *account, gboolean s
 #include "buddy.h"
 #include "connection.h"
 #include "group.h"
-#include "proxy.h"
 #include "purpleprotocol.h"
+#include "purpleproxyinfo.h"
 #include "status.h"
 #include "xmlnode.h"
 
@@ -725,7 +725,7 @@ gboolean purple_account_get_enabled(PurpleAccount *account,
  *
  * Returns the account's proxy information.
  *
- * Returns: The proxy information.
+ * Returns (transfer none): The proxy information.
  */
 PurpleProxyInfo *purple_account_get_proxy_info(PurpleAccount *account);
 
