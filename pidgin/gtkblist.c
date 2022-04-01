@@ -46,7 +46,6 @@
 #include "pidgin/pidgincontactlist.h"
 #include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
-#include "pidgin/pidgingdkpixbuf.h"
 #include "pidgin/pidginmooddialog.h"
 #include "pidgin/pidginplugininfo.h"
 #include "pidginscrollbook.h"
@@ -2001,7 +2000,7 @@ static GdkPixbuf *pidgin_blist_get_buddy_icon(PurpleBlistNode *node,
 			return NULL;
 	}
 
-	buf = pidgin_pixbuf_from_data(data, len);
+	buf = purple_gdk_pixbuf_from_data(data, len);
 	purple_buddy_icon_unref(icon);
 	if (!buf) {
 		purple_debug_warning("gtkblist", "Couldn't load buddy icon on "
@@ -2068,8 +2067,8 @@ static GdkPixbuf *pidgin_blist_get_buddy_icon(PurpleBlistNode *node,
 		tmpbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, scale_width, scale_height);
 		gdk_pixbuf_fill(tmpbuf, 0x00000000);
 		gdk_pixbuf_scale(buf, tmpbuf, 0, 0, scale_width, scale_height, 0, 0, (double)scale_width/(double)orig_width, (double)scale_height/(double)orig_height, GDK_INTERP_BILINEAR);
-		if (pidgin_gdk_pixbuf_is_opaque(tmpbuf))
-			pidgin_gdk_pixbuf_make_round(tmpbuf);
+		if (purple_gdk_pixbuf_is_opaque(tmpbuf))
+			purple_gdk_pixbuf_make_round(tmpbuf);
 		ret = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, scale_size, scale_size);
 		gdk_pixbuf_fill(ret, 0x00000000);
 		gdk_pixbuf_copy_area(tmpbuf, 0, 0, scale_width, scale_height, ret, (scale_size-scale_width)/2, (scale_size-scale_height)/2);
@@ -2657,7 +2656,7 @@ static GdkPixbuf * _pidgin_blist_get_cached_emblem(gchar *path) {
 		g_object_ref(pb);
 		g_free(path);
 	} else {
-		pb = pidgin_pixbuf_new_from_file(path);
+		pb = purple_gdk_pixbuf_new_from_file(path);
 		if (pb != NULL) {
 			/* We don't want to own a ref to the pixbuf, but we need to keep clean up. */
 			/* I'm not sure if it would be better to just keep our ref and not let the emblem ever be destroyed */

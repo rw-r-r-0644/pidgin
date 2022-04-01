@@ -1,6 +1,8 @@
-/* pidgin
+/*
+ * Purple - Internet Messaging Library
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
- * Pidgin is the legal property of its developers, whose names are too numerous
+ * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
  * source distribution.
  *
@@ -15,46 +17,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301 USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "pidgin/pidgingdkpixbuf.h"
+#include "libpurple/purplegdkpixbuf.h"
 
-GdkPixbuf *
-pidgin_gdk_pixbuf_new_from_image(PurpleImage *image, GError **error) {
-	GdkPixbufLoader *loader = NULL;
-	GdkPixbuf *pixbuf = NULL;
-	GBytes *data = NULL;
-	gboolean success = FALSE;
+#include "debug.h"
 
-	g_return_val_if_fail(PURPLE_IS_IMAGE(image), NULL);
-
-	data = purple_image_get_contents(image);
-	success = gdk_pixbuf_loader_write_bytes(loader, data, error);
-	g_bytes_unref(data);
-
-	if(success) {
-		if(error != NULL && *error != NULL) {
-			g_object_unref(G_OBJECT(loader));
-
-			return NULL;
-		}
-
-		if(gdk_pixbuf_loader_close(loader, error)) {
-			pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
-			if(pixbuf != NULL) {
-				pixbuf = g_object_ref(pixbuf);
-			}
-		}
-
-		g_object_unref(G_OBJECT(loader));
-	}
-
-	return pixbuf;
-}
-
-void pidgin_gdk_pixbuf_make_round(GdkPixbuf *pixbuf) {
+void purple_gdk_pixbuf_make_round(GdkPixbuf *pixbuf) {
 	gint width, height, rowstride;
 	guchar *pixels;
 
@@ -114,7 +84,7 @@ void pidgin_gdk_pixbuf_make_round(GdkPixbuf *pixbuf) {
 }
 
 gboolean
-pidgin_gdk_pixbuf_is_opaque(GdkPixbuf *pixbuf) {
+purple_gdk_pixbuf_is_opaque(GdkPixbuf *pixbuf) {
 	gint height, rowstride, i;
 	guchar *pixels;
 	guchar *row;
@@ -154,7 +124,7 @@ pidgin_gdk_pixbuf_is_opaque(GdkPixbuf *pixbuf) {
 	return TRUE;
 }
 
-static GObject *pidgin_pixbuf_from_data_helper(const guchar *buf, gsize count, gboolean animated)
+static GObject *purple_gdk_pixbuf_from_data_helper(const guchar *buf, gsize count, gboolean animated)
 {
 	GObject *pixbuf;
 	GdkPixbufLoader *loader;
@@ -201,24 +171,19 @@ static GObject *pidgin_pixbuf_from_data_helper(const guchar *buf, gsize count, g
 	return pixbuf;
 }
 
-GdkPixbuf *pidgin_pixbuf_from_data(const guchar *buf, gsize count)
+GdkPixbuf *purple_gdk_pixbuf_from_data(const guchar *buf, gsize count)
 {
-	return GDK_PIXBUF(pidgin_pixbuf_from_data_helper(buf, count, FALSE));
-}
-
-GdkPixbufAnimation *pidgin_pixbuf_anim_from_data(const guchar *buf, gsize count)
-{
-	return GDK_PIXBUF_ANIMATION(pidgin_pixbuf_from_data_helper(buf, count, TRUE));
+	return GDK_PIXBUF(purple_gdk_pixbuf_from_data_helper(buf, count, FALSE));
 }
 
 GdkPixbuf *
-pidgin_pixbuf_from_image(PurpleImage *image)
+purple_gdk_pixbuf_from_image(PurpleImage *image)
 {
-	return pidgin_pixbuf_from_data(purple_image_get_data(image),
+	return purple_gdk_pixbuf_from_data(purple_image_get_data(image),
 		purple_image_get_data_size(image));
 }
 
-GdkPixbuf *pidgin_pixbuf_new_from_file(const gchar *filename)
+GdkPixbuf *purple_gdk_pixbuf_new_from_file(const gchar *filename)
 {
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
@@ -243,7 +208,7 @@ GdkPixbuf *pidgin_pixbuf_new_from_file(const gchar *filename)
 	return pixbuf;
 }
 
-GdkPixbuf *pidgin_pixbuf_new_from_file_at_size(const char *filename, int width, int height)
+GdkPixbuf *purple_gdk_pixbuf_new_from_file_at_size(const char *filename, int width, int height)
 {
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
@@ -267,77 +232,4 @@ GdkPixbuf *pidgin_pixbuf_new_from_file_at_size(const char *filename, int width, 
 	}
 
 	return pixbuf;
-}
-
-GdkPixbuf *pidgin_pixbuf_new_from_file_at_scale(const char *filename, int width, int height, gboolean preserve_aspect_ratio)
-{
-	GdkPixbuf *pixbuf;
-	GError *error = NULL;
-
-	g_return_val_if_fail(filename != NULL, NULL);
-	g_return_val_if_fail(filename[0] != '\0', NULL);
-
-	pixbuf = gdk_pixbuf_new_from_file_at_scale(filename,
-			width, height, preserve_aspect_ratio, &error);
-	if (!pixbuf || error) {
-		purple_debug_warning("gtkutils", "gdk_pixbuf_new_from_file_at_scale() "
-				"returned %s for file %s: %s\n",
-				pixbuf ? "something" : "nothing",
-				filename,
-				error ? error->message : "(no error message)");
-		if (error)
-			g_error_free(error);
-		if (pixbuf)
-			g_object_unref(G_OBJECT(pixbuf));
-		return NULL;
-	}
-
-	return pixbuf;
-}
-
-GdkPixbuf *
-pidgin_pixbuf_scale_down(GdkPixbuf *src, guint max_width, guint max_height,
-	GdkInterpType interp_type, gboolean preserve_ratio)
-{
-	guint cur_w, cur_h;
-	GdkPixbuf *dst;
-
-	g_return_val_if_fail(src != NULL, NULL);
-
-	if (max_width == 0 || max_height == 0) {
-		g_object_unref(src);
-		g_return_val_if_reached(NULL);
-	}
-
-	cur_w = gdk_pixbuf_get_width(src);
-	cur_h = gdk_pixbuf_get_height(src);
-
-	if (cur_w <= max_width && cur_h <= max_height)
-		return src;
-
-	/* cur_ratio = cur_w / cur_h
-	 * max_ratio = max_w / max_h
-	 */
-
-	if (!preserve_ratio) {
-		cur_w = MIN(cur_w, max_width);
-		cur_h = MIN(cur_h, max_height);
-	} else if ((guint64)cur_w * max_height > (guint64)max_width * cur_h) {
-		/* cur_w / cur_h > max_width / max_height */
-		cur_h = (guint64)max_width * cur_h / cur_w;
-		cur_w = max_width;
-	} else {
-		cur_w = (guint64)max_height * cur_w / cur_h;
-		cur_h = max_height;
-	}
-
-	if (cur_w <= 0)
-		cur_w = 1;
-	if (cur_h <= 0)
-		cur_h = 1;
-
-	dst = gdk_pixbuf_scale_simple(src, cur_w, cur_h, interp_type);
-	g_object_unref(src);
-
-	return dst;
 }

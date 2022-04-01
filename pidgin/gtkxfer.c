@@ -28,7 +28,6 @@
 #include "gtkxfer.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
-#include "pidgingdkpixbuf.h"
 
 #ifdef _WIN32
 #  include <shellapi.h>
@@ -835,7 +834,7 @@ pidgin_xfer_add_thumbnail(PurpleXfer *xfer, const gchar *formats,
 
 	if (purple_xfer_get_size(xfer) <= PIDGIN_XFER_MAX_SIZE_IMAGE_THUMBNAIL) {
 		GdkPixbuf *thumbnail =
-			pidgin_pixbuf_new_from_file_at_size(
+			purple_gdk_pixbuf_new_from_file_at_size(
 					purple_xfer_get_local_filename(xfer), 128, 128);
 
 		if (thumbnail) {

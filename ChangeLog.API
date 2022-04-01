@@ -14,6 +14,12 @@ version 3.0.0 (??/??/????):
 	libpurple:
 		Added:
 		* displaying-emails-clear signal (notification signal)
+		* purple_gdk_pixbuf_make_round
+		* purple_gdk_pixbuf_is_opaque
+		* purple_gdk_pixbuf_from_data
+		* purple_gdk_pixbuf_from_image
+		* purple_gdk_pixbuf_new_from_file
+		* purple_gdk_pixbuf_new_from_file_at_size
 		* PurplePluginInfoFlags (PURPLE_PLUGIN_INFO_FLAGS_INTERNAL and
 		  PURPLE_PLUGIN_INFO_FLAGS_AUTO_LOAD)
 		* purple_plugin_get_dependent_plugins
@@ -742,7 +748,6 @@ version 3.0.0 (??/??/????):
 		Added:
 		* pidgin_create_webview
 		* PidginDockletFlag
-		* pidgin_gdk_pixbuf_new_from_image
 		* PidginPluginInfo, inherits PurplePluginInfo
 		* Various WebKit-related functions in gtkwebview.h
 
@@ -885,6 +890,15 @@ version 3.0.0 (??/??/????):
 		* pidgin_dialogs_alias_contact
 		* pidgin_dialogs_log
 		* pidgin_get_dim_grey_string
+		* pidgin_gdk_pixbuf_make_round, use purple_gdk_pixbuf_make_round instead.
+		* pidgin_gdk_pixbuf_is_opaque, use purple_gdk_pixbuf_is_opaque instead.
+		* pidgin_pixbuf_from_data, use purple_gdk_pixbuf_from_data instead.
+		* pidgin_pixbuf_anim_from_data
+		* pidgin_pixbuf_from_image, use purple_gdk_pixbuf_from_image instead.
+		* pidgin_pixbuf_new_from_file, use purple_gdk_pixbuf_new_from_file instead.
+		* pidgin_pixbuf_new_from_file_at_size, use purple_gdk_pixbuf_new_from_file_at_size instead.
+		* pidgin_pixbuf_new_from_file_at_scale
+		* pidgin_pixbuf_scale_down
 		* PIDGIN_ICON_SIZE_*
 		* PIDGIN_ICON_THEME
 		* PIDGIN_ICON_THEME_CLASS

@@ -248,6 +248,7 @@ libpurple/purplecoreuiops.c
 libpurple/purplecredentialmanager.c
 libpurple/purplecredentialprovider.c
 libpurple/purpledebugui.c
+libpurple/purplegdkpixbuf.c
 libpurple/purple-gio.c
 libpurple/purplehistoryadapter.c
 libpurple/purplehistorymanager.c
@@ -353,7 +354,6 @@ pidgin/pidgincontactlist.c
 pidgin/pidginconversationwindow.c
 pidgin/pidgindebug.c
 pidgin/pidgindialog.c
-pidgin/pidgingdkpixbuf.c
 pidgin/pidginiconname.c
 pidgin/pidgininactiveaccountsmenu.c
 pidgin/pidgininfopane.c

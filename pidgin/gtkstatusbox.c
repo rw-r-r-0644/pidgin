@@ -48,7 +48,6 @@
 #include "gtkstatusbox.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
-#include "pidgingdkpixbuf.h"
 #include "pidginiconname.h"
 
 /* Timeout for typing notifications in seconds */
