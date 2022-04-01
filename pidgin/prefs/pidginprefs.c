@@ -1039,9 +1039,9 @@ bind_proxy_page(PidginPrefsWindow *win)
 				proxy_changed_cb, win);
 
 		if (proxy_info != NULL) {
-			if (purple_proxy_info_get_host(proxy_info)) {
+			if (purple_proxy_info_get_hostname(proxy_info)) {
 				gtk_entry_set_text(GTK_ENTRY(win->proxy.host),
-						purple_proxy_info_get_host(proxy_info));
+						purple_proxy_info_get_hostname(proxy_info));
 			}
 
 			if (purple_proxy_info_get_port(proxy_info) != 0) {

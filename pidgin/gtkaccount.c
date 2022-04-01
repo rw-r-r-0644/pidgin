@@ -934,43 +934,43 @@ make_proxy_dropdown(void)
 	gtk_list_store_set(model, &iter,
 			0, purple_running_gnome() ? _("Use GNOME Proxy Settings")
 			:_("Use Global Proxy Settings"),
-			1, PURPLE_PROXY_USE_GLOBAL,
+			1, PURPLE_PROXY_TYPE_USE_GLOBAL,
 			-1);
 
 	gtk_list_store_append(model, &iter);
 	gtk_list_store_set(model, &iter,
 			0, _("No Proxy"),
-			1, PURPLE_PROXY_NONE,
+			1, PURPLE_PROXY_TYPE_NONE,
 			-1);
 
 	gtk_list_store_append(model, &iter);
 	gtk_list_store_set(model, &iter,
 			0, _("SOCKS 4"),
-			1, PURPLE_PROXY_SOCKS4,
+			1, PURPLE_PROXY_TYPE_SOCKS4,
 			-1);
 
 	gtk_list_store_append(model, &iter);
 	gtk_list_store_set(model, &iter,
 			0, _("SOCKS 5"),
-			1, PURPLE_PROXY_SOCKS5,
+			1, PURPLE_PROXY_TYPE_SOCKS5,
 			-1);
 
 	gtk_list_store_append(model, &iter);
 	gtk_list_store_set(model, &iter,
 			0, _("Tor/Privacy (SOCKS5)"),
-			1, PURPLE_PROXY_TOR,
+			1, PURPLE_PROXY_TYPE_TOR,
 			-1);
 
 	gtk_list_store_append(model, &iter);
 	gtk_list_store_set(model, &iter,
 			0, _("HTTP"),
-			1, PURPLE_PROXY_HTTP,
+			1, PURPLE_PROXY_TYPE_HTTP,
 			-1);
 
 	gtk_list_store_append(model, &iter);
 	gtk_list_store_set(model, &iter,
 			0, _("Use Environmental Settings"),
-			1, PURPLE_PROXY_USE_ENVVAR,
+			1, PURPLE_PROXY_TYPE_USE_ENVVAR,
 			-1);
 
 	renderer = gtk_cell_renderer_text_new();
@@ -993,9 +993,9 @@ proxy_type_changed_cb(GtkWidget *menu, AccountPrefsDialog *dialog)
 		dialog->new_proxy_type = int_value;
 	}
 
-	if (dialog->new_proxy_type == PURPLE_PROXY_USE_GLOBAL ||
-		dialog->new_proxy_type == PURPLE_PROXY_NONE ||
-		dialog->new_proxy_type == PURPLE_PROXY_USE_ENVVAR) {
+	if (dialog->new_proxy_type == PURPLE_PROXY_TYPE_USE_GLOBAL ||
+		dialog->new_proxy_type == PURPLE_PROXY_TYPE_NONE ||
+		dialog->new_proxy_type == PURPLE_PROXY_TYPE_USE_ENVVAR) {
 
 		gtk_widget_hide(dialog->proxy_vbox);
 	}
@@ -1082,7 +1082,7 @@ add_proxy_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 
 		dialog->new_proxy_type = purple_proxy_info_get_proxy_type(proxy_info);
 
-		if ((value = purple_proxy_info_get_host(proxy_info)) != NULL)
+		if ((value = purple_proxy_info_get_hostname(proxy_info)) != NULL)
 			gtk_entry_set_text(GTK_ENTRY(dialog->proxy_host_entry), value);
 
 		if ((int_val = purple_proxy_info_get_port(proxy_info)) != 0) {
@@ -1100,7 +1100,7 @@ add_proxy_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 			gtk_entry_set_text(GTK_ENTRY(dialog->proxy_pass_entry), value);
 
 	} else
-		dialog->new_proxy_type = PURPLE_PROXY_USE_GLOBAL;
+		dialog->new_proxy_type = PURPLE_PROXY_TYPE_USE_GLOBAL;
 
 	proxy_model = gtk_combo_box_get_model(
 		GTK_COMBO_BOX(dialog->proxy_dropdown));
@@ -1381,6 +1381,9 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 	if (proxy_info == NULL) {
 		proxy_info = purple_proxy_info_new();
 		purple_account_set_proxy_info(account, proxy_info);
+	} else {
+		/* Add a reference to make sure the proxy info stays around. */
+		g_object_ref(proxy_info);
 	}
 
 	/* Set the proxy info type. */
@@ -1390,9 +1393,9 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 	value = gtk_entry_get_text(GTK_ENTRY(dialog->proxy_host_entry));
 
 	if (*value != '\0')
-		purple_proxy_info_set_host(proxy_info, value);
+		purple_proxy_info_set_hostname(proxy_info, value);
 	else
-		purple_proxy_info_set_host(proxy_info, NULL);
+		purple_proxy_info_set_hostname(proxy_info, NULL);
 
 	/* Port */
 	value = gtk_entry_get_text(GTK_ENTRY(dialog->proxy_port_entry));
@@ -1419,14 +1422,14 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 		purple_proxy_info_set_password(proxy_info, NULL);
 
 	/* If there are no values set then proxy_info NULL */
-	if ((purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_USE_GLOBAL) &&
-		(purple_proxy_info_get_host(proxy_info) == NULL) &&
+	if ((purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_TYPE_USE_GLOBAL) &&
+		(purple_proxy_info_get_hostname(proxy_info) == NULL) &&
 		(purple_proxy_info_get_port(proxy_info) == 0) &&
 		(purple_proxy_info_get_username(proxy_info) == NULL) &&
 		(purple_proxy_info_get_password(proxy_info) == NULL))
 	{
 		purple_account_set_proxy_info(account, NULL);
-		proxy_info = NULL;
+		g_clear_object(&proxy_info);
 	}
 
 	/* Voice and Video settings */
@@ -1459,6 +1462,7 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 	/* We no longer need the data from the dialog window */
 	account_win_destroy_cb(NULL, NULL, dialog);
 
+	g_clear_object(&proxy_info);
 }
 
 static void

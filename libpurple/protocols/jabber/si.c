@@ -1013,7 +1013,7 @@ jabber_si_xfer_bytestreams_send_init(PurpleXfer *xfer)
 	 *       piggy-backing on the TOR proxy type. */
 	proxy_type = purple_proxy_info_get_proxy_type(
 	        purple_proxy_get_setup(purple_connection_get_account(jsx->js->gc)));
-	if (proxy_type == PURPLE_PROXY_TOR) {
+	if (proxy_type == PURPLE_PROXY_TYPE_TOR) {
 		purple_debug_info("jabber", "Skipping attempting local streamhost.\n");
 		jsx->service = NULL;
 	} else {

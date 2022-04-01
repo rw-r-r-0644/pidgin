@@ -141,6 +141,7 @@ enum
 	PROP_USER_INFO,
 	PROP_BUDDY_ICON_PATH,
 	PROP_REMEMBER_PASSWORD,
+	PROP_PROXY_INFO,
 	PROP_LAST
 };
 
@@ -562,7 +563,7 @@ _purple_account_set_current_error(PurpleAccount *account,
  * XmlNode Helpers
  *****************************************************************************/
 static PurpleXmlNode *
-proxy_settings_to_xmlnode(const PurpleProxyInfo *proxy_info)
+proxy_settings_to_xmlnode(PurpleProxyInfo *proxy_info)
 {
 	PurpleXmlNode *node, *child;
 	PurpleProxyType proxy_type;
@@ -576,15 +577,15 @@ proxy_settings_to_xmlnode(const PurpleProxyInfo *proxy_info)
 
 	child = purple_xmlnode_new_child(node, "type");
 	purple_xmlnode_insert_data(child,
-			(proxy_type == PURPLE_PROXY_USE_GLOBAL ? "global" :
-			 proxy_type == PURPLE_PROXY_NONE       ? "none"   :
-			 proxy_type == PURPLE_PROXY_HTTP       ? "http"   :
-			 proxy_type == PURPLE_PROXY_SOCKS4     ? "socks4" :
-			 proxy_type == PURPLE_PROXY_SOCKS5     ? "socks5" :
-			 proxy_type == PURPLE_PROXY_TOR        ? "tor" :
-			 proxy_type == PURPLE_PROXY_USE_ENVVAR ? "envvar" : "unknown"), -1);
+			(proxy_type == PURPLE_PROXY_TYPE_USE_GLOBAL ? "global" :
+			 proxy_type == PURPLE_PROXY_TYPE_NONE       ? "none"   :
+			 proxy_type == PURPLE_PROXY_TYPE_HTTP       ? "http"   :
+			 proxy_type == PURPLE_PROXY_TYPE_SOCKS4     ? "socks4" :
+			 proxy_type == PURPLE_PROXY_TYPE_SOCKS5     ? "socks5" :
+			 proxy_type == PURPLE_PROXY_TYPE_TOR        ? "tor" :
+			 proxy_type == PURPLE_PROXY_TYPE_USE_ENVVAR ? "envvar" : "unknown"), -1);
 
-	if ((value = purple_proxy_info_get_host(proxy_info)) != NULL)
+	if ((value = purple_proxy_info_get_hostname(proxy_info)) != NULL)
 	{
 		child = purple_xmlnode_new_child(node, "host");
 		purple_xmlnode_insert_data(child, value, -1);
@@ -701,7 +702,7 @@ _purple_account_to_xmlnode(PurpleAccount *account)
 {
 	PurpleXmlNode *node, *child;
 	const char *tmp;
-	const PurpleProxyInfo *proxy_info;
+	PurpleProxyInfo *proxy_info;
 	PurpleAccountPrivate *priv = purple_account_get_instance_private(account);
 
 	node = purple_xmlnode_new("account");
@@ -806,6 +807,9 @@ purple_account_set_property(GObject *obj, guint param_id, const GValue *value,
 			purple_account_set_remember_password(account,
 					g_value_get_boolean(value));
 			break;
+		case PROP_PROXY_INFO:
+			purple_account_set_proxy_info(account, g_value_get_object(value));
+			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
 			break;
@@ -848,6 +852,9 @@ purple_account_get_property(GObject *obj, guint param_id, GValue *value,
 		case PROP_REMEMBER_PASSWORD:
 			g_value_set_boolean(value,
 					purple_account_get_remember_password(account));
+			break;
+		case PROP_PROXY_INFO:
+			g_value_set_object(value, purple_account_get_proxy_info(account));
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
@@ -968,8 +975,7 @@ purple_account_finalize(GObject *object)
 
 	purple_account_set_status_types(account, NULL);
 
-	if (priv->proxy_info)
-		purple_proxy_info_destroy(priv->proxy_info);
+	g_clear_object(&priv->proxy_info);
 
 	if (priv->current_error) {
 		g_free(priv->current_error->description);
@@ -1055,6 +1061,12 @@ purple_account_class_init(PurpleAccountClass *klass)
 				"ID of the protocol that is responsible for the account.", NULL,
 				G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
 				G_PARAM_STATIC_STRINGS);
+
+	properties[PROP_PROXY_INFO] = g_param_spec_object(
+		"proxy-info", "proxy-info",
+		"The PurpleProxyInfo for this account.",
+		PURPLE_TYPE_PROXY_INFO,
+		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
 	g_object_class_install_properties(obj_class, PROP_LAST, properties);
 }
@@ -1650,12 +1662,12 @@ purple_account_set_proxy_info(PurpleAccount *account, PurpleProxyInfo *info)
 
 	priv = purple_account_get_instance_private(account);
 
-	if (priv->proxy_info != NULL)
-		purple_proxy_info_destroy(priv->proxy_info);
+	if(g_set_object(&priv->proxy_info, info)) {
+		g_object_notify_by_pspec(G_OBJECT(account),
+		                         properties[PROP_PROXY_INFO]);
 
-	priv->proxy_info = info;
-
-	purple_accounts_schedule_save();
+		purple_accounts_schedule_save();
+	}
 }
 
 void
