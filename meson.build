@@ -636,7 +636,7 @@ endforeach
 
 # OpenBSD 6.7 and FreeBSD 12 require including sys/types.h before sys/sysctl.h.
 # NetBSD 9.0 doesn't care.
-if target_machine.system() in ['freebsd', 'openbsd']
+if host_machine.system() in ['freebsd', 'openbsd']
 	prefix = '''
 #include <sys/types.h>
 '''
