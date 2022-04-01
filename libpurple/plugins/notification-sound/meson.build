@@ -1,4 +1,4 @@
-if target_machine.system() != 'windows'
+if host_machine.system() != 'windows'
 	CANBERRA = dependency('libcanberra', version: '>= 0.30')
 
 	library('notification-sound', 'notification-sound.c',
