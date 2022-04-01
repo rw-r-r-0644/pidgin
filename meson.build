@@ -222,9 +222,9 @@ if host_machine.system() == 'darwin'
 	conf.set('HAVE_IOKIT', true)
 endif
 
-# #######################################################################
-# # Check for GLib (required)
-# #######################################################################
+#######################################################################
+# Check for GLib (required)
+#######################################################################
 glib = dependency('glib-2.0', version : '>= 2.70.0')
 gio = dependency('gio-2.0')
 gobject = dependency('gobject-2.0')
@@ -237,9 +237,13 @@ add_project_arguments(
 	language : 'c',)
 
 #######################################################################
+# Check for gdk-pixbuf (required)
+#######################################################################
+gdk_pixbuf = dependency('gdk-pixbuf-2.0')
+
+#######################################################################
 # Check for GObject Introspection
 #######################################################################
-
 if get_option('introspection')
 	enable_introspection = dependency('gobject-introspection-1.0', version : '>= 1.39.0').found()
 else

@@ -28,7 +28,6 @@
 
 #include "gtkaccount.h"
 #include "pidgincore.h"
-#include "pidgingdkpixbuf.h"
 
 struct _PidginAccountManager {
 	GtkDialog parent;
@@ -124,7 +123,7 @@ pidgin_account_manager_refresh_account(PidginAccountManager *manager,
 	if(image != NULL) {
 		GdkPixbuf *raw = NULL;
 
-		raw = pidgin_pixbuf_from_image(image);
+		raw = purple_gdk_pixbuf_from_image(image);
 		g_object_unref(image);
 
 		avatar = gdk_pixbuf_scale_simple(raw, 22, 22, GDK_INTERP_HYPER);

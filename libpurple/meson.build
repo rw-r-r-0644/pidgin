@@ -51,6 +51,7 @@ purple_coresources = [
 	'purplecredentialmanager.c',
 	'purplecredentialprovider.c',
 	'purpledebugui.c',
+	'purplegdkpixbuf.c',
 	'purplehistoryadapter.c',
 	'purplehistorymanager.c',
 	'purpleidleui.c',
@@ -144,6 +145,7 @@ purple_coreheaders = [
 	'purplecredentialmanager.h',
 	'purplecredentialprovider.h',
 	'purpledebugui.h',
+	'purplegdkpixbuf.h',
 	'purplehistoryadapter.h',
 	'purplehistorymanager.h',
 	'purpleidleui.h',
@@ -298,7 +300,7 @@ libpurple = library('purple',
                     version : PURPLE_LIB_VERSION,
                     dependencies : # static_link_libs
                         [dnsapi, ws2_32, glib, gio, gplugin_dep, libsoup,
-                         libxml, gstreamer, gstreamer_video,
+                         libxml, gdk_pixbuf, gstreamer, gstreamer_video,
                          gstreamer_app, json, sqlite3, math])
 
 install_headers(purple_coreheaders,
@@ -316,7 +318,7 @@ pkgconfig.generate(
 # TODO: Only use purple_filebase once everything is ported to only use purple.h
     subdirs : [purple_filebase, purple_include_base],
     # NOTE: Don't use gplugin from pkgconfig, as it might be a subproject.
-    requires : [glib, 'gplugin'],
+    requires : [glib, gdk_pixbuf, 'gplugin'],
     variables : ['plugindir=${libdir}/@0@'.format(purple_filebase)])
 
 if enable_introspection
@@ -325,7 +327,7 @@ if enable_introspection
 
 	libpurple_gir = gnome.generate_gir(libpurple,
 	    sources : introspection_sources,
-	    includes : ['GLib-2.0', 'Gio-2.0', 'GObject-2.0', 'Gst-1.0', 'GPlugin-1.0'],
+	    includes : ['GdkPixbuf-2.0', 'GLib-2.0', 'Gio-2.0', 'GObject-2.0', 'Gst-1.0', 'GPlugin-1.0'],
 	    header : 'purple.h',
 	    namespace : 'Purple',
 	    symbol_prefix : 'purple',
@@ -345,7 +347,7 @@ libpurple_dep = declare_dependency(
     sources : [purple_builtheaders] + purple_generated_sources,
     include_directories : [toplevel_inc, libpurple_inc],
     link_with : libpurple,
-    dependencies : [gstreamer, gplugin_dep, glib, gio])
+    dependencies : [gdk_pixbuf, gstreamer, gplugin_dep, glib, gio])
 
 meson.override_dependency(purple_filebase, libpurple_dep)
 

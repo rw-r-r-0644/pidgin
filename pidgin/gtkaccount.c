@@ -36,7 +36,6 @@
 #include "pidgincore.h"
 #include "pidgindialog.h"
 #include "minidialog.h"
-#include "pidgingdkpixbuf.h"
 #include "pidginprotocolchooser.h"
 
 enum
@@ -194,7 +193,7 @@ set_dialog_icon(AccountPrefsDialog *dialog, gpointer data, size_t len, gchar *ne
 	}
 
 	if (dialog->icon_img != NULL) {
-		pixbuf = pidgin_pixbuf_from_image(dialog->icon_img);
+		pixbuf = purple_gdk_pixbuf_from_image(dialog->icon_img);
 	}
 
 	if (dialog->protocol)
@@ -1968,7 +1967,7 @@ set_account(GtkListStore *store, GtkTreeIter *iter, PurpleAccount *account, GdkP
 
 	if (img != NULL) {
 		GdkPixbuf *buddyicon_pixbuf;
-		buddyicon_pixbuf = pidgin_pixbuf_from_image(img);
+		buddyicon_pixbuf = purple_gdk_pixbuf_from_image(img);
 		g_object_unref(img);
 
 		if (buddyicon_pixbuf != NULL) {
@@ -2016,7 +2015,7 @@ populate_accounts_list(AccountsWindow *dialog) {
 
 	path = purple_prefs_get_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon");
 	if(path != NULL && *path != '\0') {
-		GdkPixbuf *pixbuf = pidgin_pixbuf_new_from_file(path);
+		GdkPixbuf *pixbuf = purple_gdk_pixbuf_new_from_file(path);
 		if(pixbuf != NULL) {
 			global_buddyicon = gdk_pixbuf_scale_simple(pixbuf, 22, 22,
 			                                           GDK_INTERP_HYPER);

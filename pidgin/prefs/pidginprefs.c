@@ -41,7 +41,6 @@
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
-#include "pidgingdkpixbuf.h"
 #include "pidginprefs.h"
 #include <libsoup/soup.h>
 

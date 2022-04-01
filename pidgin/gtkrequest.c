@@ -33,7 +33,6 @@
 #include "pidginaccountstore.h"
 #include "pidgincore.h"
 #include "pidgindialog.h"
-#include "pidgingdkpixbuf.h"
 
 #include <gdk/gdkkeysyms.h>
 
@@ -359,7 +358,7 @@ pidgin_request_dialog_icon(PurpleRequestType dialog_type,
 	if (icon_data) {
 		GdkPixbuf *pixbuf;
 
-		pixbuf = pidgin_pixbuf_from_data(icon_data, icon_size);
+		pixbuf = purple_gdk_pixbuf_from_data(icon_data, icon_size);
 		if (pixbuf) {
 			/* scale the image if it is too large */
 			int width = gdk_pixbuf_get_width(pixbuf);
@@ -1311,7 +1310,7 @@ create_image_field(PurpleRequestField *field)
 	GtkWidget *widget;
 	GdkPixbuf *buf, *scale;
 
-	buf = pidgin_pixbuf_from_data(
+	buf = purple_gdk_pixbuf_from_data(
 			(const guchar *)purple_request_field_image_get_buffer(field),
 			purple_request_field_image_get_size(field));
 
@@ -1452,7 +1451,7 @@ create_list_field(PurpleRequestField *field)
 			GdkPixbuf* pixbuf = NULL;
 
 			if (icon_path)
-				pixbuf = pidgin_pixbuf_new_from_file(icon_path);
+				pixbuf = purple_gdk_pixbuf_new_from_file(icon_path);
 
 			gtk_list_store_set(store, &iter,
 			                   0, purple_request_field_list_get_data(field, text),

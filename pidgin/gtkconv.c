@@ -49,7 +49,6 @@
 #include "pidgincolor.h"
 #include "pidginconversationwindow.h"
 #include "pidgincore.h"
-#include "pidgingdkpixbuf.h"
 #include "pidgininfopane.h"
 #include "pidgininvitedialog.h"
 #include "pidginmessage.h"

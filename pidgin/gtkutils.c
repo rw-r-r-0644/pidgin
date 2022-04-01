@@ -47,7 +47,6 @@
 #include "gtkutils.h"
 #include "minidialog.h"
 #include "pidgincore.h"
-#include "pidgingdkpixbuf.h"
 
 /******************************************************************************
  * Enums
@@ -519,7 +518,6 @@ pidgin_menu_popup_at_treeview_selection(GtkWidget *menu, GtkWidget *treeview)
 	gtk_tree_path_free(path);
 }
 
-
 void pidgin_buddy_icon_get_scale_size(GdkPixbuf *buf, PurpleBuddyIconSpec *spec, PurpleBuddyIconScaleFlags rules, int *width, int *height)
 {
 	*width = gdk_pixbuf_get_width(buf);
@@ -937,7 +935,7 @@ icon_preview_change_cb(GtkFileChooser *widget, struct _icon_chooser *dialog)
 	filename = gtk_file_chooser_get_preview_filename(
 					GTK_FILE_CHOOSER(dialog->icon_filesel));
 
-	if (!filename || g_stat(filename, &st) || !(pixbuf = pidgin_pixbuf_new_from_file_at_size(filename, 128, 128)))
+	if (!filename || g_stat(filename, &st) || !(pixbuf = purple_gdk_pixbuf_new_from_file_at_size(filename, 128, 128)))
 	{
 		gtk_image_set_from_pixbuf(GTK_IMAGE(dialog->icon_preview), NULL);
 		gtk_label_set_markup(GTK_LABEL(dialog->icon_text), "");
