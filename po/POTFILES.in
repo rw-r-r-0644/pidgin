@@ -348,7 +348,6 @@ pidgin/pidgincellrendererexpander.c
 pidgin/pidginclosebutton.c
 pidgin/pidgincolor.c
 pidgin/pidgincommands.c
-pidgin/pidgincontactcompletion.c
 pidgin/pidgincontactlist.c
 pidgin/pidginconversationwindow.c
 pidgin/pidgindebug.c
