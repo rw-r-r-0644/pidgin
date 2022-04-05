@@ -24,7 +24,6 @@
 #include "gtkblist.h"
 #include "gtkconn.h"
 #include "gtkdialogs.h"
-#include "gtkstatusbox.h"
 #include "pidgincore.h"
 #include "gtkutils.h"
 

@@ -1271,4 +1271,3 @@ purple_savedstatuses_uninit(void)
 	purple_signals_unregister_by_instance(handle);
 	purple_signals_disconnect_by_handle(handle);
 }
-

@@ -326,7 +326,6 @@ pidgin/gtkprivacy.c
 pidgin/gtkrequest.c
 pidgin/gtkroomlist.c
 pidgin/gtksavedstatuses.c
-pidgin/gtkstatusbox.c
 pidgin/gtkutils.c
 pidgin/gtkwhiteboard.c
 pidgin/gtkxfer.c
@@ -367,6 +366,7 @@ pidgin/pidginpresenceicon.c
 pidgin/pidginprotocolchooser.c
 pidgin/pidginprotocolstore.c
 pidgin/pidginscrollbook.c
+pidgin/pidginstatusbox.c
 pidgin/pidginstatusprimitivechooser.c
 pidgin/pidginstatusprimitivestore.c
 pidgin/pidginstylecontext.c

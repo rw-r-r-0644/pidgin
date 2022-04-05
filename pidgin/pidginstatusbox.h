@@ -29,22 +29,13 @@
 
 #include <gtk/gtk.h>
 
-#include <talkatu.h>
-
-#include <purple.h>
-
 G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_STATUS_BOX (pidgin_status_box_get_type ())
 G_DECLARE_FINAL_TYPE(PidginStatusBox, pidgin_status_box, PIDGIN, STATUS_BOX,
-                     GtkContainer);
+                     GtkBox)
 
 GtkWidget *pidgin_status_box_new(void);
-GtkWidget *pidgin_status_box_new_with_account(PurpleAccount *account);
-
-void pidgin_status_box_set_connecting(PidginStatusBox *status_box, gboolean connecting);
-
-gchar *pidgin_status_box_get_message(PidginStatusBox *status_box);
 
 G_END_DECLS
 
