@@ -34,7 +34,6 @@
 #include "gtkxfer.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
-#include "gtkstatusbox.h"
 #include "gtkutils.h"
 #include "pidgin/minidialog.h"
 #include "pidgin/pidginaccountchooser.h"

@@ -40,6 +40,7 @@
 #include "gtkdialogs.h"
 #include "gtkprivacy.h"
 #include "gtkroomlist.h"
+#include "gtksavedstatuses.h"
 #include "gtkxfer.h"
 #include "pidginabout.h"
 #include "pidginaccountmanager.h"
@@ -49,8 +50,8 @@
 #include "pidgindebug.h"
 #include "pidgininactiveaccountsmenu.h"
 #include "pidginmooddialog.h"
-#include "pidgin/pidginpluginsdialog.h"
-#include "pidgin/pidginstatusmanager.h"
+#include "pidginpluginsdialog.h"
+#include "pidginstatusmanager.h"
 #include "pidginprefs.h"
 
 struct _PidginApplication {
@@ -361,6 +362,14 @@ pidgin_application_new_message(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
+pidgin_application_new_status(G_GNUC_UNUSED GSimpleAction *simple,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer data)
+{
+	pidgin_status_editor_show(FALSE, NULL);
+}
+
+static void
 pidgin_application_online_help(GSimpleAction *simple, GVariant *parameter,
                                gpointer data)
 {
@@ -476,6 +485,9 @@ static GActionEntry app_entries[] = {
 	}, {
 		.name = "new-message",
 		.activate = pidgin_application_new_message,
+	}, {
+		.name = "new-status",
+		.activate = pidgin_application_new_status,
 	}, {
 		.name = "online-help",
 		.activate = pidgin_application_online_help,

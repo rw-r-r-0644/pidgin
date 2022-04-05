@@ -32,7 +32,6 @@
 #include "gtkblist.h"
 #include "gtkdialogs.h"
 #include "gtkutils.h"
-#include "gtkstatusbox.h"
 #include "pidgincore.h"
 #include "pidgindialog.h"
 #include "minidialog.h"

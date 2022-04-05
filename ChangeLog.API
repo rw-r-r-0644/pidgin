@@ -961,6 +961,9 @@ version 3.0.0 (??/??/????):
 		* pidgin_sound_get_handle
 		* pidgin_sound_get_ui_ops
 		* pidgin_sound_is_customized
+		* pidgin_status_box_set_connecting
+		* pidgin_status_box_get_message
+		* pidgin_status_box_new_with_account
 		* PIDGIN_IS_STATUS_ICON_THEME
 		* PIDGIN_IS_STATUS_ICON_THEME_CLASS
 		* PIDGIN_STATUS_ICON_THEME
