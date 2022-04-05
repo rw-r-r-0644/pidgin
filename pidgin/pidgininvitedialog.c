@@ -18,7 +18,6 @@
  */
 
 #include "pidgininvitedialog.h"
-#include "pidgincontactcompletion.h"
 
 struct _PidginInviteDialog {
 	GtkDialog parent;
@@ -137,34 +136,6 @@ pidgin_invite_dialog_init(PidginInviteDialog *dialog) {
 }
 
 static void
-pidgin_invite_dialog_constructed(GObject *obj) {
-	PidginInviteDialog *dialog = PIDGIN_INVITE_DIALOG(obj);
-	PidginInviteDialogPrivate *priv = NULL;
-	GtkEntryCompletion *completion = NULL;
-
-	priv = pidgin_invite_dialog_get_instance_private(dialog);
-
-	completion = pidgin_contact_completion_new();
-
-	/* constructed is called after all properties are set, so we set the
-	 * account for the completion from the conversation we were created with.
-	 */
-	if(priv->conversation) {
-		PurpleAccount *account = purple_conversation_get_account(PURPLE_CONVERSATION(priv->conversation));
-
-		if(account != NULL) {
-			pidgin_contact_completion_set_account(
-				PIDGIN_CONTACT_COMPLETION(completion),
-				account
-			);
-		}
-	}
-
-	gtk_entry_set_completion(GTK_ENTRY(priv->contact), completion);
-	g_object_unref(completion);
-}
-
-static void
 pidgin_invite_dialog_class_init(PidginInviteDialogClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
@@ -172,7 +143,6 @@ pidgin_invite_dialog_class_init(PidginInviteDialogClass *klass) {
 	obj_class->get_property = pidgin_invite_dialog_get_property;
 	obj_class->set_property = pidgin_invite_dialog_set_property;
 	obj_class->finalize = pidgin_invite_dialog_finalize;
-	obj_class->constructed = pidgin_invite_dialog_constructed;
 
 	gtk_widget_class_set_template_from_resource(
 		widget_class,
