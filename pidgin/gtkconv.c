@@ -62,15 +62,7 @@
  */
 struct _PidginImPane
 {
-	GtkWidget *block;
-	GtkWidget *send_file;
-	GtkWidget *sep1;
-	GtkWidget *sep2;
-	GtkWidget *check;
-	GtkWidget *progress;
 	guint32 typing_timer;
-
-	GtkWidget *avatar;
 };
 
 /*
@@ -102,11 +94,8 @@ static GtkWidget *invite_dialog = NULL;
 
 /* Prototypes. <-- because Paco-Paco hates this comment. */
 static void got_typing_keypress(PidginConversation *gtkconv, gboolean first);
-static void gray_stuff_out(PidginConversation *gtkconv);
 static void add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const char *old_name);
 static void pidgin_conv_updated(PurpleConversation *conv, PurpleConversationUpdateType type);
-static void conv_set_unseen(PurpleConversation *gtkconv, PidginUnseenState state);
-static void gtkconv_set_unseen(PidginConversation *gtkconv, PidginUnseenState state);
 static void update_typing_icon(PidginConversation *gtkconv);
 gboolean pidgin_conv_has_focus(PurpleConversation *conv);
 static void pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields);
@@ -152,23 +141,6 @@ lbox_size_allocate_cb(GtkWidget *w, GtkAllocation *allocation, gpointer data)
 	return FALSE;
 }
 
-static const char *
-pidgin_get_cmd_prefix(void)
-{
-	return "/";
-}
-
-
-static void clear_conversation_scrollback_cb(PurpleConversation *conv,
-                                             void *data)
-{
-	PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
-
-	if (PIDGIN_CONVERSATION(conv)) {
-		gtkconv->last_flags = 0;
-	}
-}
-
 static void
 send_history_add(PidginConversation *gtkconv, const char *message)
 {
@@ -191,7 +163,7 @@ check_for_and_do_command(PurpleConversation *conv)
 	gboolean retval = FALSE;
 
 	gtkconv = PIDGIN_CONVERSATION(conv);
-	prefix = pidgin_get_cmd_prefix();
+	prefix = "/";
 
 	input = talkatu_editor_get_input(TALKATU_EDITOR(gtkconv->editor));
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(input));
@@ -335,7 +307,6 @@ send_cb(GtkWidget *widget, PidginConversation *gtkconv)
 	g_free(content);
 
 	talkatu_buffer_clear(TALKATU_BUFFER(buffer));
-	gtkconv_set_unseen(gtkconv, PIDGIN_UNSEEN_NONE);
 }
 
 static void
@@ -1197,69 +1168,8 @@ pidgin_conv_switch_active_conversation(PurpleConversation *conv)
 
 	purple_signal_emit(pidgin_conversations_get_handle(), "conversation-switched", conv);
 
-	gray_stuff_out(gtkconv);
 	update_typing_icon(gtkconv);
 	g_object_set_data(G_OBJECT(gtkconv->entry), "transient_buddy", NULL);
-}
-
-void
-pidgin_conv_present_conversation(PurpleConversation *conv)
-{
-#if 0
-	PidginConversation *gtkconv;
-	GdkModifierType state;
-
-	pidgin_conv_attach_to_conversation(conv);
-	gtkconv = PIDGIN_CONVERSATION(conv);
-
-	pidgin_conv_switch_active_conversation(conv);
-	/* Switch the tab only if the user initiated the event by pressing
-	 * a button or hitting a key. */
-	if (gtk_get_current_event_state(&state))
-		pidgin_conv_window_switch_gtkconv(gtkconv->win, gtkconv);
-	gtk_window_present(GTK_WINDOW(gtkconv->win->window));
-#endif
-}
-
-static GList *
-pidgin_conversations_get_unseen(GList *l,
-									PidginUnseenState min_state,
-									guint max_count)
-{
-	GList *r = NULL;
-	guint c = 0;
-
-	for (; l != NULL && (max_count == 0 || c < max_count); l = l->next) {
-		PurpleConversation *conv = (PurpleConversation*)l->data;
-		PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
-
-		if(gtkconv == NULL || gtkconv->active_conv != conv) {
-			continue;
-		}
-
-		if (gtkconv->unseen_state >= min_state) {
-			r = g_list_prepend(r, conv);
-			c++;
-		}
-	}
-
-	return r;
-}
-
-GList *
-pidgin_conversations_get_unseen_all(PidginUnseenState min_state,
-                                    guint max_count)
-{
-	PurpleConversationManager *manager;
-	GList *list, *ret = NULL;
-
-	manager = purple_conversation_manager_get_default();
-	list = purple_conversation_manager_get_all(manager);
-
-	ret = pidgin_conversations_get_unseen(list, min_state, max_count);
-	g_list_free(list);
-
-	return ret;
 }
 
 static GtkActionEntry menu_entries[] =
@@ -2024,11 +1934,6 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	gtkconv->convs = g_list_prepend(gtkconv->convs, conv);
 	gtkconv->send_history = g_list_append(NULL, NULL);
 
-	/* Setup some initial variables. */
-	gtkconv->unseen_state = PIDGIN_UNSEEN_NONE;
-	gtkconv->unseen_count = 0;
-	gtkconv->last_flags = 0;
-
 	if (PURPLE_IS_IM_CONVERSATION(conv)) {
 		gtkconv->u.im = g_malloc0(sizeof(PidginImPane));
 	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
@@ -2069,7 +1974,7 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	pidgin_conv_placement_place(gtkconv);
 }
 
-void
+static void
 pidgin_conv_new(PurpleConversation *conv)
 {
 	private_gtkconv_new(conv, FALSE);
@@ -2216,24 +2121,6 @@ pidgin_conv_write_conv(PurpleConversation *conv, PurpleMessage *pmsg)
 		TALKATU_HISTORY(gtkconv->history),
 		TALKATU_MESSAGE(pidgin_msg)
 	);
-
-	/* Tab highlighting stuff */
-	if (!(flags & PURPLE_MESSAGE_SEND) && !pidgin_conv_has_focus(conv))
-	{
-		PidginUnseenState unseen = PIDGIN_UNSEEN_NONE;
-
-		if ((flags & PURPLE_MESSAGE_NICK) == PURPLE_MESSAGE_NICK)
-			unseen = PIDGIN_UNSEEN_NICK;
-		else if (((flags & PURPLE_MESSAGE_SYSTEM) == PURPLE_MESSAGE_SYSTEM) ||
-			  ((flags & PURPLE_MESSAGE_ERROR) == PURPLE_MESSAGE_ERROR))
-			unseen = PIDGIN_UNSEEN_EVENT;
-		else if ((flags & PURPLE_MESSAGE_NO_LOG) == PURPLE_MESSAGE_NO_LOG)
-			unseen = PIDGIN_UNSEEN_NO_LOG;
-		else
-			unseen = PIDGIN_UNSEEN_TEXT;
-
-		gtkconv_set_unseen(gtkconv, unseen);
-	}
 
 	purple_signal_emit(pidgin_conversations_get_handle(),
 		(PURPLE_IS_IM_CONVERSATION(conv) ? "displayed-im-msg" : "displayed-chat-msg"),
@@ -2434,155 +2321,6 @@ pidgin_conv_has_focus(PurpleConversation *conv)
 	return FALSE;
 }
 
-/*
- * Makes sure all the menu items and all the buttons are hidden/shown and
- * sensitive/insensitive.  This is called after changing tabs and when an
- * account signs on or off.
- */
-static void
-gray_stuff_out(PidginConversation *gtkconv)
-{
-/* This will be replaced by managing an action group in the new conversation
- * window.
- */
-#if 0
-	PidginConvWindow *win;
-	PurpleConversation *conv = gtkconv->active_conv;
-	PurpleConnection *gc;
-	PurpleProtocol *protocol = NULL;
-	PurpleAccount *account;
-
-	win     = pidgin_conv_get_window(gtkconv);
-	gc      = purple_conversation_get_connection(conv);
-	account = purple_conversation_get_account(conv);
-
-	if (gc != NULL)
-		protocol = purple_connection_get_protocol(gc);
-
-	/*
-	 * Handle hiding and showing stuff based on what type of conv this is.
-	 * Stuff that Purple IMs support in general should be shown for IM
-	 * conversations.  Stuff that Purple chats support in general should be
-	 * shown for chat conversations.  It doesn't matter whether the protocol
-	 * supports it or not--that only affects if the button or menu item
-	 * is sensitive or not.
-	 */
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		/* Show stuff that applies to IMs, hide stuff that applies to chats */
-
-		/* Deal with menu items */
-		gtk_action_set_visible(win->menu->view_log, TRUE);
-		gtk_action_set_visible(win->menu->send_file, TRUE);
-		gtk_action_set_visible(win->menu->get_info, TRUE);
-		gtk_action_set_visible(win->menu->invite, FALSE);
-		gtk_action_set_visible(win->menu->alias, TRUE);
-		if (purple_account_privacy_check(account, purple_conversation_get_name(conv))) {
-			gtk_action_set_visible(win->menu->unblock, FALSE);
-			gtk_action_set_visible(win->menu->block, TRUE);
-		} else {
-			gtk_action_set_visible(win->menu->block, FALSE);
-			gtk_action_set_visible(win->menu->unblock, TRUE);
-		}
-
-		if (purple_blist_find_buddy(account, purple_conversation_get_name(conv)) == NULL) {
-			gtk_action_set_visible(win->menu->add, TRUE);
-			gtk_action_set_visible(win->menu->remove, FALSE);
-		} else {
-			gtk_action_set_visible(win->menu->remove, TRUE);
-			gtk_action_set_visible(win->menu->add, FALSE);
-		}
-
-		gtk_action_set_visible(win->menu->insert_link, TRUE);
-		gtk_action_set_visible(win->menu->insert_image, TRUE);
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		/* Show stuff that applies to Chats, hide stuff that applies to IMs */
-
-		/* Deal with menu items */
-		gtk_action_set_visible(win->menu->view_log, TRUE);
-		gtk_action_set_visible(win->menu->send_file, FALSE);
-		gtk_action_set_visible(win->menu->get_info, FALSE);
-		gtk_action_set_visible(win->menu->invite, TRUE);
-		gtk_action_set_visible(win->menu->alias, TRUE);
-		gtk_action_set_visible(win->menu->block, FALSE);
-		gtk_action_set_visible(win->menu->unblock, FALSE);
-
-		if ((account == NULL) || purple_blist_find_chat(account, purple_conversation_get_name(conv)) == NULL) {
-			/* If the chat is NOT in the buddy list */
-			gtk_action_set_visible(win->menu->add, TRUE);
-			gtk_action_set_visible(win->menu->remove, FALSE);
-		} else {
-			/* If the chat IS in the buddy list */
-			gtk_action_set_visible(win->menu->add, FALSE);
-			gtk_action_set_visible(win->menu->remove, TRUE);
-		}
-
-		gtk_action_set_visible(win->menu->insert_link, TRUE);
-		gtk_action_set_visible(win->menu->insert_image, TRUE);
-	}
-
-	/*
-	 * Handle graying stuff out based on whether an account is connected
-	 * and what features that account supports.
-	 */
-	if ((gc != NULL) &&
-		(!PURPLE_IS_CHAT_CONVERSATION(conv) ||
-		 !purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv)) ))
-	{
-		PurpleConnectionFlags features = purple_conversation_get_features(conv);
-		/* Account is online */
-
-		/* Deal with menu items */
-		gtk_action_set_sensitive(win->menu->view_log, TRUE);
-		gtk_action_set_sensitive(win->menu->get_info, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, get_info)));
-		gtk_action_set_sensitive(win->menu->invite, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, invite)));
-		gtk_action_set_sensitive(win->menu->insert_link, (features & PURPLE_CONNECTION_FLAG_HTML));
-		gtk_action_set_sensitive(win->menu->insert_image, !(features & PURPLE_CONNECTION_FLAG_NO_IMAGES));
-
-		if (PURPLE_IS_IM_CONVERSATION(conv))
-		{
-			gboolean can_send_file = FALSE;
-			const gchar *name = purple_conversation_get_name(conv);
-
-			if (PURPLE_IS_PROTOCOL_XFER(protocol) &&
-			    purple_protocol_xfer_can_receive(PURPLE_PROTOCOL_XFER(protocol), gc, name)
-			) {
-				can_send_file = TRUE;
-			}
-
-			gtk_action_set_sensitive(win->menu->add, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, add_buddy)));
-			gtk_action_set_sensitive(win->menu->remove, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, SERVER, remove_buddy)));
-			gtk_action_set_sensitive(win->menu->send_file, can_send_file);
-			gtk_action_set_sensitive(win->menu->alias,
-									 (account != NULL) &&
-									 (purple_blist_find_buddy(account, purple_conversation_get_name(conv)) != NULL));
-		}
-		else if (PURPLE_IS_CHAT_CONVERSATION(conv))
-		{
-			gtk_action_set_sensitive(win->menu->add, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, join)));
-			gtk_action_set_sensitive(win->menu->remove, (PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, join)));
-			gtk_action_set_sensitive(win->menu->alias,
-									 (account != NULL) &&
-									 (purple_blist_find_chat(account, purple_conversation_get_name(conv)) != NULL));
-		}
-
-	} else {
-		/* Account is offline */
-		/* Or it's a chat that we've left. */
-
-		/* Then deal with menu items */
-		gtk_action_set_sensitive(win->menu->view_log, TRUE);
-		gtk_action_set_sensitive(win->menu->send_file, FALSE);
-		gtk_action_set_sensitive(win->menu->get_info, FALSE);
-		gtk_action_set_sensitive(win->menu->invite, FALSE);
-		gtk_action_set_sensitive(win->menu->alias, FALSE);
-		gtk_action_set_sensitive(win->menu->add, FALSE);
-		gtk_action_set_sensitive(win->menu->remove, FALSE);
-		gtk_action_set_sensitive(win->menu->insert_link, TRUE);
-		gtk_action_set_sensitive(win->menu->insert_image, FALSE);
-	}
-#endif
-}
-
 static void
 pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 {
@@ -2600,11 +2338,6 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 	if (fields & PIDGIN_CONV_SET_TITLE)
 	{
 		purple_conversation_autoset_title(conv);
-	}
-
-	if (fields & PIDGIN_CONV_MENU)
-	{
-		gray_stuff_out(PIDGIN_CONVERSATION(conv));
 	}
 
 	if ((fields & PIDGIN_CONV_TOPIC) &&
@@ -2677,21 +2410,6 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 		if (title != markup)
 			g_free(markup);
 
-#if 0
-		if (gtkconv->unseen_state == PIDGIN_UNSEEN_TEXT ||
-				gtkconv->unseen_state == PIDGIN_UNSEEN_NICK ||
-				gtkconv->unseen_state == PIDGIN_UNSEEN_EVENT) {
-			PangoAttrList *list = pango_attr_list_new();
-			PangoAttribute *attr = pango_attr_weight_new(PANGO_WEIGHT_BOLD);
-			attr->start_index = 0;
-			attr->end_index = -1;
-			pango_attr_list_insert(list, attr);
-			gtk_label_set_attributes(GTK_LABEL(gtkconv->tab_label), list);
-			pango_attr_list_unref(list);
-		} else
-			gtk_label_set_attributes(GTK_LABEL(gtkconv->tab_label), NULL);
-#endif
-
 		if (pidgin_conversation_window_conversation_is_selected(convwin, conv)) {
 			const char* current_title = gtk_window_get_title(GTK_WINDOW(win));
 			if (current_title == NULL || !purple_strequal(current_title, title)) {
@@ -2753,49 +2471,16 @@ pidgin_conv_updated(PurpleConversation *conv, PurpleConversationUpdateType type)
 	pidgin_conv_update_fields(conv, flags);
 }
 
-static void
-wrote_msg_update_unseen_cb(PurpleConversation *conv, PurpleMessage *msg,
-	gpointer _unused)
-{
-	PurpleMessageFlags flags;
-	if (conv == NULL)
-		return;
-	flags = purple_message_get_flags(msg);
-	if (flags & (PURPLE_MESSAGE_SEND | PURPLE_MESSAGE_RECV)) {
-		PidginUnseenState unseen = PIDGIN_UNSEEN_NONE;
-
-		if ((flags & PURPLE_MESSAGE_NICK) == PURPLE_MESSAGE_NICK)
-			unseen = PIDGIN_UNSEEN_NICK;
-		else if (((flags & PURPLE_MESSAGE_SYSTEM) == PURPLE_MESSAGE_SYSTEM) ||
-			  ((flags & PURPLE_MESSAGE_ERROR) == PURPLE_MESSAGE_ERROR))
-			unseen = PIDGIN_UNSEEN_EVENT;
-		else if ((flags & PURPLE_MESSAGE_NO_LOG) == PURPLE_MESSAGE_NO_LOG)
-			unseen = PIDGIN_UNSEEN_NO_LOG;
-		else
-			unseen = PIDGIN_UNSEEN_TEXT;
-
-		conv_set_unseen(conv, unseen);
-	}
-}
-
 static PurpleConversationUiOps conversation_ui_ops =
 {
-	pidgin_conv_new,
-	pidgin_conv_destroy,              /* destroy_conversation */
-	NULL,                              /* write_chat           */
-	NULL,                             /* write_im             */
-	pidgin_conv_write_conv,           /* write_conv           */
-	pidgin_conv_chat_add_users,       /* chat_add_users       */
-	pidgin_conv_chat_rename_user,     /* chat_rename_user     */
-	pidgin_conv_chat_remove_users,    /* chat_remove_users    */
-	pidgin_conv_chat_update_user,     /* chat_update_user     */
-	pidgin_conv_present_conversation, /* present              */
-	pidgin_conv_has_focus,            /* has_focus            */
-	NULL,                             /* send_confirm         */
-	NULL,
-	NULL,
-	NULL,
-	NULL
+	.create_conversation = pidgin_conv_new,
+	.destroy_conversation = pidgin_conv_destroy,
+	.write_conv = pidgin_conv_write_conv,
+	.chat_add_users = pidgin_conv_chat_add_users,
+	.chat_rename_user = pidgin_conv_chat_rename_user,
+	.chat_remove_users = pidgin_conv_chat_remove_users,
+	.chat_update_user = pidgin_conv_chat_update_user,
+	.has_focus = pidgin_conv_has_focus,
 };
 
 PurpleConversationUiOps *
@@ -2807,27 +2492,6 @@ pidgin_conversations_get_conv_ui_ops(void)
 /**************************************************************************
  * Public conversation utility functions
  **************************************************************************/
-void
-pidgin_conv_update_buttons_by_protocol(PurpleConversation *conv)
-{
-	PidginConversation *gtkconv;
-	GtkWidget *win;
-
-	if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv))
-		return;
-
-	gtkconv = PIDGIN_CONVERSATION(conv);
-	win = gtk_widget_get_toplevel(gtkconv->tab_cont);
-
-	if(PIDGIN_IS_CONVERSATION_WINDOW(win)) {
-		PidginConversationWindow *convwin = PIDGIN_CONVERSATION_WINDOW(win);
-
-		if(pidgin_conversation_window_conversation_is_selected(convwin, conv)) {
-			gray_stuff_out(PIDGIN_CONVERSATION(conv));
-		}
-	}
-}
-
 static void
 show_formatting_toolbar_pref_cb(const char *name, PurplePrefType type,
 								gconstpointer value, gpointer data)
@@ -2850,13 +2514,6 @@ show_formatting_toolbar_pref_cb(const char *name, PurplePrefType type,
 		}
 
 		gtkconv = PIDGIN_CONVERSATION(conv);
-
-#if 0
-		gtk_toggle_action_set_active(
-		        GTK_TOGGLE_ACTION(win->menu->show_formatting_toolbar),
-		        visible
-		);
-#endif
 
 		talkatu_editor_set_toolbar_visible(TALKATU_EDITOR(gtkconv->editor), visible);
 
@@ -3166,8 +2823,6 @@ static void
 pidgin_conv_attach(PurpleConversation *conv)
 {
 	int timer;
-	g_object_set_data(G_OBJECT(conv), "unseen-count", NULL);
-	g_object_set_data(G_OBJECT(conv), "unseen-state", NULL);
 	purple_conversation_set_ui_ops(conv, pidgin_conversations_get_conv_ui_ops());
 	if (!PIDGIN_CONVERSATION(conv))
 		private_gtkconv_new(conv, FALSE);
@@ -3273,22 +2928,10 @@ pidgin_conversations_init(void)
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/scrollback_lines", 4000);
 
 	/* Conversations -> Chat */
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/conversations/chat");
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/chat/entry_height", 54);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/chat/userlist_width", 80);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/chat/x", 0);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/chat/y", 0);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/chat/width", 340);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/chat/height", 390);
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/chat");
 
 	/* Conversations -> IM */
-	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/conversations/im");
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/x", 0);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/y", 0);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/width", 340);
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/height", 390);
-
-	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/im/entry_height", 54);
+	purple_prefs_remove(PIDGIN_PREFS_ROOT "/conversations/im");
 
 	/* Connect callbacks. */
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar",
@@ -3354,8 +2997,6 @@ pidgin_conversations_init(void)
 		handle, G_CALLBACK(writing_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "received-im-msg",
 						handle, G_CALLBACK(received_im_msg_cb), NULL);
-	purple_signal_connect(purple_conversations_get_handle(), "cleared-message-history",
-	                      handle, G_CALLBACK(clear_conversation_scrollback_cb), NULL);
 
 	purple_conversations_set_ui_ops(&conversation_ui_ops);
 
@@ -3387,10 +3028,6 @@ pidgin_conversations_init(void)
 	purple_signal_connect_priority(purple_conversations_get_handle(), "conversation-updated", handle,
 						G_CALLBACK(pidgin_conv_updated), NULL,
 						PURPLE_SIGNAL_PRIORITY_LOWEST);
-	purple_signal_connect(purple_conversations_get_handle(), "wrote-im-msg", handle,
-			G_CALLBACK(wrote_msg_update_unseen_cb), NULL);
-	purple_signal_connect(purple_conversations_get_handle(), "wrote-chat-msg", handle,
-			G_CALLBACK(wrote_msg_update_unseen_cb), NULL);
 }
 
 void
@@ -3399,113 +3036,6 @@ pidgin_conversations_uninit(void)
 	purple_prefs_disconnect_by_handle(pidgin_conversations_get_handle());
 	purple_signals_disconnect_by_handle(pidgin_conversations_get_handle());
 	purple_signals_unregister_by_instance(pidgin_conversations_get_handle());
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* down here is where gtkconvwin.c ought to start. except they share like every freaking function,
- * and touch each others' private members all day long */
-
-/* pidgin
- *
- * Pidgin is the legal property of its developers, whose names are too numerous
- * to list here.  Please refer to the COPYRIGHT file distributed with this
- * source distribution.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
- */
-
-#include <gdk/gdkkeysyms.h>
-
-#include <purple.h>
-
-#include "gtkblist.h"
-#include "gtkconv.h"
-#include "gtkdialogs.h"
-#include "gtkprivacy.h"
-#include "gtkutils.h"
-
-/**************************************************************************
- * Callbacks
- **************************************************************************/
-
-static void
-conv_set_unseen(PurpleConversation *conv, PidginUnseenState state)
-{
-	int unseen_count = 0;
-	PidginUnseenState unseen_state = PIDGIN_UNSEEN_NONE;
-
-	if(g_object_get_data(G_OBJECT(conv), "unseen-count"))
-		unseen_count = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv), "unseen-count"));
-
-	if(g_object_get_data(G_OBJECT(conv), "unseen-state"))
-		unseen_state = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(conv), "unseen-state"));
-
-	if (state == PIDGIN_UNSEEN_NONE)
-	{
-		unseen_count = 0;
-		unseen_state = PIDGIN_UNSEEN_NONE;
-	}
-	else
-	{
-		if (state >= PIDGIN_UNSEEN_TEXT)
-			unseen_count++;
-
-		if (state > unseen_state)
-			unseen_state = state;
-	}
-
-	g_object_set_data(G_OBJECT(conv), "unseen-count", GINT_TO_POINTER(unseen_count));
-	g_object_set_data(G_OBJECT(conv), "unseen-state", GINT_TO_POINTER(unseen_state));
-
-	purple_conversation_update(conv, PURPLE_CONVERSATION_UPDATE_UNSEEN);
-}
-
-static void
-gtkconv_set_unseen(PidginConversation *gtkconv, PidginUnseenState state)
-{
-	if (state == PIDGIN_UNSEEN_NONE)
-	{
-		gtkconv->unseen_count = 0;
-		gtkconv->unseen_state = PIDGIN_UNSEEN_NONE;
-	}
-	else
-	{
-		if (state >= PIDGIN_UNSEEN_TEXT)
-			gtkconv->unseen_count++;
-
-		if (state > gtkconv->unseen_state)
-			gtkconv->unseen_state = state;
-	}
-
-	g_object_set_data(G_OBJECT(gtkconv->active_conv), "unseen-count", GINT_TO_POINTER(gtkconv->unseen_count));
-	g_object_set_data(G_OBJECT(gtkconv->active_conv), "unseen-state", GINT_TO_POINTER(gtkconv->unseen_state));
-
-	purple_conversation_update(gtkconv->active_conv, PURPLE_CONVERSATION_UPDATE_UNSEEN);
 }
 
 /**************************************************************************

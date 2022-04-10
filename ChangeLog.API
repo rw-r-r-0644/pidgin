@@ -848,13 +848,14 @@ version 3.0.0 (??/??/????):
 		* pidgin_conv_get_tab_icon, use PidginPresenceIcon instead.
 		* pidgin_conv_get_window
 		* pidgin_conv_is_hidden
+		* pidgin_conv_new
 		* pidgin_conv_placement_get_name
 		* pidgin_conv_placement_add_fnc
 		* pidgin_conv_placement_remove_fnc
 		* pidgin_conv_placement_get_fnc
 		* pidgin_conv_placement_set_current_func
 		* pidgin_conv_placement_get_current_func
-		* pidgin_conv_update_buddy_icon
+		* pidgin_conv_present_conversation
 		* PidginConvWindow
 		* pidgin_conv_window_add_gtkconv
 		* pidgin_conv_window_destroy
@@ -877,7 +878,10 @@ version 3.0.0 (??/??/????):
 		* pidgin_conv_window_show
 		* pidgin_conv_window_switch_gtkconv
 		* pidgin_conv_windows_get_list
+		* pidgin_conv_update_buddy_icon
+		* pidgin_conv_update_buttons_by_protocol
 		* pidgin_conversations_fill_menu
+		* pidgin_conversations_get_unseen_all
 		* pidgin_create_dialog, use pidgin_dialog_new instead.
 		* pidgin_create_small_button, use pidgin_close_button_new instead.
 		* pidgin_create_status_icon
@@ -1013,6 +1017,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_tooltip_setup_for_widget
 		* pidgin_tooltip_show
 		* PidginThemeFont
+		* PidginUnseenState enum and all values.
 		* PidginUtilMiniDialogCallback; use PidginMiniDialogCallback
 		  instead
 		* struct _GtkIMHtmlAnimation
