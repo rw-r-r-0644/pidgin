@@ -254,7 +254,9 @@ conf.set('ENABLE_INTROSPECTION', enable_introspection)
 #######################################################################
 # Check for libnice
 #######################################################################
-nice = dependency('nice', version : '>=0.1.13')
+nice = dependency('nice',
+	version : '>=0.1.13',
+	allow_fallback : get_option('build-dependencies'))
 
 #######################################################################
 # Check Pidgin dependencies
