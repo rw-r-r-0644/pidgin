@@ -22,6 +22,9 @@ option('nls', type : 'boolean', value : true,
 option('pixmaps-install', type : 'boolean', value : true,
        description : 'enable installation of pixmap files - Pidgin still needs them!')
 
+option('build-dependencies', type : 'boolean', value : false,
+       description : 'enable the use of subprojects to build missing dependencies.')
+
 ##############################################################################
 # Libpurple Options
 
