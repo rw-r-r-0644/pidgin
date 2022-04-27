@@ -61,21 +61,8 @@ struct _PidginApplication {
 /******************************************************************************
  * Globals
  *****************************************************************************/
-static gboolean
-pidgin_options_debug_cb(G_GNUC_UNUSED const gchar *option_name,
-                        G_GNUC_UNUSED const gchar *value,
-                        G_GNUC_UNUSED gpointer data,
-                        G_GNUC_UNUSED GError **error)
-{
-	pidgin_debug_set_print_enabled(TRUE);
-
-	return TRUE;
-}
-
-/******************************************************************************
- * Globals
- *****************************************************************************/
 static gchar *opt_config_dir_arg = NULL;
+static gboolean opt_debug = FALSE;
 static gboolean opt_nologin = FALSE;
 
 static GOptionEntry option_entries[] = {
@@ -83,8 +70,7 @@ static GOptionEntry option_entries[] = {
 		"config", 'c', 0, G_OPTION_ARG_FILENAME, &opt_config_dir_arg,
 		N_("use DIR for config files"), N_("DIR")
 	}, {
-		"debug", 'd', 0, G_OPTION_ARG_CALLBACK,
-		&pidgin_options_debug_cb,
+		"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug,
 		N_("print debugging messages to stdout"), NULL
 	}, {
 		"nologin", 'n', 0, G_OPTION_ARG_NONE, &opt_nologin,
@@ -662,6 +648,8 @@ pidgin_application_startup(GApplication *application) {
 	pidgin_debug_init_handler();
 #ifdef DEBUG
 	pidgin_debug_set_print_enabled(TRUE);
+#else
+	pidgin_debug_set_print_enabled(opt_debug);
 #endif
 
 	provider = gtk_css_provider_new();
