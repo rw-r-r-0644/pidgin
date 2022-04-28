@@ -656,69 +656,6 @@ jabber_recv_cb(GObject *stream, gpointer data)
 }
 
 static void
-txt_resolved_cb(GObject *sender, GAsyncResult *result, gpointer data)
-{
-	GError *error = NULL;
-	GList *records = NULL, *l = NULL;
-	JabberStream *js = data;
-	gboolean found = FALSE;
-
-	records = g_resolver_lookup_records_finish(G_RESOLVER(sender),
-			result, &error);
-	if(error) {
-		purple_debug_warning("jabber", "Unable to find alternative XMPP connection "
-				  "methods after failing to connect directly. : %s\n",
-				  error->message);
-
-		purple_connection_error(js->gc,
-				PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-				_("Unable to connect"));
-
-		g_error_free(error);
-
-		return;
-	}
-
-	for(l = records; l; l = l->next) {
-		GVariantIter *iter = NULL;
-		gchar *str = NULL;
-
-		g_variant_get((GVariant *)l->data, "(as)", &iter);
-		while(g_variant_iter_loop(iter, "s", &str)) {
-			gchar **token = g_strsplit(str, "=", 2);
-
-			if(!g_ascii_strcasecmp(token[0], "_xmpp-client-xbosh")) {
-				purple_debug_info("jabber","Found alternative connection method using %s at %s.\n", token[0], token[1]);
-
-				js->bosh = jabber_bosh_connection_new(js, token[1]);
-
-				g_strfreev(token);
-
-				break;
-			}
-
-			g_strfreev(token);
-		}
-
-		g_variant_iter_free(iter);
-	}
-
-	g_list_free_full(records, (GDestroyNotify)g_variant_unref);
-
-	if (js->bosh)
-		found = TRUE;
-
-	if (!found) {
-		purple_debug_warning("jabber", "Unable to find alternative XMPP connection "
-				  "methods after failing to connect directly.\n");
-		purple_connection_error(js->gc,
-				PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-				_("Unable to connect"));
-		return;
-	}
-}
-
-static void
 jabber_stream_connect_finish(JabberStream *js, GIOStream *stream)
 {
 	GSource *source;
@@ -752,9 +689,6 @@ jabber_login_callback(GObject *source_object, GAsyncResult *res, gpointer data)
 
 	conn = g_socket_client_connect_to_host_finish(client, res, &error);
 	if (conn == NULL) {
-		GResolver *resolver;
-		gchar *name;
-
 		if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
 			g_error_free(error);
 			return;
@@ -764,18 +698,6 @@ jabber_login_callback(GObject *source_object, GAsyncResult *res, gpointer data)
 			return;
 		}
 		g_error_free(error);
-
-		name = g_strdup_printf("_xmppconnect.%s", js->user->domain);
-		purple_debug_info("jabber",
-		                  "Couldn't connect directly to %s.  Trying to find "
-		                  "alternative connection methods, like BOSH.\n",
-		                  js->user->domain);
-
-		resolver = g_resolver_get_default();
-		g_resolver_lookup_records_async(resolver, name, G_RESOLVER_RECORD_TXT,
-		                                js->cancellable, txt_resolved_cb, js);
-		g_free(name);
-		g_object_unref(resolver);
 
 		return;
 	}
