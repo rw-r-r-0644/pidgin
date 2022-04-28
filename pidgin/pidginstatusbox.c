@@ -98,7 +98,7 @@ pidgin_status_box_update_to_status(PidginStatusBox *status_box,
 		primitive = purple_savedstatus_get_primitive_type(status);
 		id = g_strdup_printf(PRIMITIVE_FORMAT, primitive);
 
-		set = gtk_combo_box_set_active_id(GTK_COMBO_BOX(status_box->combo), id);
+		gtk_combo_box_set_active_id(GTK_COMBO_BOX(status_box->combo), id);
 		g_free(id);
 	}
 }
