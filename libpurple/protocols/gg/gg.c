@@ -1211,7 +1211,7 @@ ggp_protocol_new(void) {
 		GGP_TYPE_PROTOCOL,
 		"id", "prpl-gg",
 		"name", "Gadu-Gadu",
-		"description", "Gadu-Gadu is a Polish instant messaging client",
+		"description", _("Gadu-Gadu is a Polish instant messaging network."),
 		"icon-name", "im-gadu-gadu",
 		"icon-resource-path", "/im/pidgin/libpurple/gg/icons",
 		NULL));

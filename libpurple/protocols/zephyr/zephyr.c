@@ -1725,7 +1725,7 @@ zephyr_protocol_new(void) {
 		ZEPHYR_TYPE_PROTOCOL,
 		"id", "prpl-zephyr",
 		"name", "Zephyr",
-		"description", "Zephyr is an instant messaging protocol, created at MIT",
+		"description", _("The chat component of Project Athena."),
 		"icon-name", "im-zephyr",
 		"icon-resource-path", "/im/pidgin/libpurple/zephyr/icons",
 		"options", OPT_PROTO_CHAT_TOPIC | OPT_PROTO_NO_PASSWORD,

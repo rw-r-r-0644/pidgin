@@ -2350,7 +2350,7 @@ silcpurple_protocol_new(void) {
 	        SILCPURPLE_TYPE_PROTOCOL,
 	        "id", "prpl-silc",
 	        "name", "SILC",
-	        "description", "SILC - Secure Internet Live Conferencing protocol",
+	        "description", _("Secure Internet Live Conferencing protocol."),
 	        "icon-name", "im-silc",
 	        "icon-resource-path", "/im/pidgin/libpurple/silc/icons",
 	        "options", OPT_PROTO_CHAT_TOPIC | OPT_PROTO_UNIQUE_CHATNAME |

@@ -753,7 +753,8 @@ bonjour_protocol_new(void) {
 		BONJOUR_TYPE_PROTOCOL,
 		"id", "prpl-bonjour",
 		"name", "Bonjour",
-		"description", "Bonjour is a serverless protocol, developed by Apple",
+		"description", _("Bonjour is a serverless protocol for local "
+		                 "networks."),
 		"icon-name", "im-bonjour",
 		"icon-resource-path", "/im/pidgin/libpurple/bonjour/icons",
 		"options", OPT_PROTO_NO_PASSWORD,

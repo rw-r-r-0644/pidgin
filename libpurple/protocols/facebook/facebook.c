@@ -1737,7 +1737,9 @@ facebook_load(GPluginPlugin *plugin, GError **error)
 	fb_protocol = g_object_new(FACEBOOK_TYPE_PROTOCOL,
 	                           "id", FB_PROTOCOL_ID,
 	                           "name", "Facebook",
-	                           "description", "Facebook is a chat protocol, developed by Facebook",
+	                           "description", _("Facebook Messenger allows "
+	                                            "you to talk with your "
+	                                            "friends on Facebook."),
 	                           "icon-name", "im-facebook",
 	                           "icon-resource-path", "/im/pidgin/libpurple/facebook/icons",
 	                           "options", OPT_PROTO_CHAT_TOPIC,
