@@ -66,11 +66,6 @@ struct _mwProtocol {
 
 static PurpleProtocol *my_protocol = NULL;
 
-#define PROTOCOL_ID        "prpl-meanwhile"
-#define PROTOCOL_NAME      "Sametime"
-#define PROTOCOL_DESCRIPTION "Sametime chat by Lotus"
-
-
 /* considering that there's no display of this information for protocols,
    I don't know why I even bother providing these. Oh valiant reader,
    I do it all for you. */
@@ -5393,9 +5388,9 @@ static PurpleProtocol *
 mw_protocol_new(void) {
   return PURPLE_PROTOCOL(g_object_new(
     MW_TYPE_PROTOCOL,
-    "id", PROTOCOL_ID,
-    "name", PROTOCOL_NAME,
-    "description", PROTOCOL_DESCRIPTION,
+    "id", "prpl-meanwhile",
+    "name", "Sametime",
+    "description", _("HCL Sametime enterprise chat."),
     "icon-name", "im-meanwhile",
     "icon-resource-path", "/im/pidgin/libpurple/sametime/icons",
     NULL));
