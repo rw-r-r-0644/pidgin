@@ -56,6 +56,23 @@ G_DECLARE_FINAL_TYPE(PidginApplication, pidgin_application, PIDGIN,
  */
 GApplication *pidgin_application_new(void);
 
+/**
+ * pidgin_application_add_action_group:
+ * @application: The [class@Application] instance.
+ * @prefix: The action prefix.
+ * @action_group: The [iface@Gio.ActionGroup] to add.
+ *
+ * Adds @action_group to all of the windows that @application knows about and
+ * will automatically add @action_group to any newly created application
+ * windows.
+ *
+ * To remove @action_group from every window, call this function with the same
+ * prefix, but %NULL for @action_group.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_application_add_action_group(PidginApplication *application, const gchar *prefix, GActionGroup *action_group);
+
 G_END_DECLS
 
 #endif /* PIDGIN_APPLICATION_H */
