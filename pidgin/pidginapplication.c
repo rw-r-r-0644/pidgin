@@ -627,6 +627,9 @@ pidgin_application_window_added(GtkApplication *application,
 	GHashTableIter iter;
 	gpointer key, value;
 
+	GTK_APPLICATION_CLASS(pidgin_application_parent_class)->window_added(application,
+	                                                                     window);
+
 	g_hash_table_iter_init(&iter, pidgin_application->action_groups);
 	while(g_hash_table_iter_next(&iter, &key, &value)) {
 		GActionGroup *action_group = value;
