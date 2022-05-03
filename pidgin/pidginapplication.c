@@ -56,6 +56,8 @@
 
 struct _PidginApplication {
 	GtkApplication parent;
+
+	GHashTable *action_groups;
 };
 
 /******************************************************************************
@@ -615,6 +617,27 @@ pidgin_application_signed_off_cb(PurpleAccount *account, gpointer data) {
 }
 
 /******************************************************************************
+ * GtkApplication Implementation
+ *****************************************************************************/
+static void
+pidgin_application_window_added(GtkApplication *application,
+                                GtkWindow *window)
+{
+	PidginApplication *pidgin_application = PIDGIN_APPLICATION(application);
+	GHashTableIter iter;
+	gpointer key, value;
+
+	g_hash_table_iter_init(&iter, pidgin_application->action_groups);
+	while(g_hash_table_iter_next(&iter, &key, &value)) {
+		GActionGroup *action_group = value;
+		gchar *prefix = key;
+
+		gtk_widget_insert_action_group(GTK_WIDGET(window), prefix,
+		                               action_group);
+	}
+}
+
+/******************************************************************************
  * GApplication Implementation
  *****************************************************************************/
 static void
@@ -824,10 +847,22 @@ pidgin_application_handle_local_options(GApplication *application,
  * GObject Implementation
  *****************************************************************************/
 static void
+pidgin_application_dispose(GObject *obj) {
+	PidginApplication *application = PIDGIN_APPLICATION(obj);
+
+	g_clear_pointer(&application->action_groups, g_hash_table_destroy);
+
+	G_OBJECT_CLASS(pidgin_application_parent_class)->dispose(obj);
+}
+
+static void
 pidgin_application_init(PidginApplication *application) {
 	GApplication *gapp = G_APPLICATION(application);
 	gboolean online = FALSE;
 	gint n_actions = 0;
+
+	application->action_groups = g_hash_table_new_full(g_str_hash, g_str_equal,
+	                                                   g_free, g_object_unref);
 
 	g_application_add_main_option_entries(gapp, option_entries);
 	g_application_add_option_group(gapp, purple_get_option_group());
@@ -860,12 +895,18 @@ pidgin_application_init(PidginApplication *application) {
 
 static void
 pidgin_application_class_init(PidginApplicationClass *klass) {
+	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 	GApplicationClass *app_class = G_APPLICATION_CLASS(klass);
+	GtkApplicationClass *gtk_app_class = GTK_APPLICATION_CLASS(klass);
+
+	obj_class->dispose = pidgin_application_dispose;
 
 	app_class->startup = pidgin_application_startup;
 	app_class->activate = pidgin_application_activate;
 	app_class->command_line = pidgin_application_command_line;
 	app_class->handle_local_options = pidgin_application_handle_local_options;
+
+	gtk_app_class->window_added = pidgin_application_window_added;
 }
 
 /******************************************************************************
@@ -880,4 +921,34 @@ pidgin_application_new(void) {
 		         G_APPLICATION_HANDLES_COMMAND_LINE,
 		"register-session", TRUE,
 		NULL);
+}
+
+void
+pidgin_application_add_action_group(PidginApplication *application,
+                                    const gchar *prefix,
+                                    GActionGroup *action_group)
+{
+	GList *windows = NULL;
+
+	g_return_if_fail(prefix != NULL);
+
+	if(G_IS_ACTION_GROUP(action_group)) {
+		/* If action_group is valid, we need to create new references to the
+		 * prefix and action_group when inserting them into the hash table.
+		 */
+		g_hash_table_insert(application->action_groups, g_strdup(prefix),
+		                    g_object_ref(action_group));
+	} else {
+		g_hash_table_remove(application->action_groups, prefix);
+	}
+
+	/* Now walk through the windows and add/remove the action group. */
+	windows = gtk_application_get_windows(GTK_APPLICATION(application));
+	while(windows != NULL) {
+		GtkWidget *window = GTK_WIDGET(windows->data);
+
+		gtk_widget_insert_action_group(window, prefix, action_group);
+
+		windows = windows->next;
+	}
 }
