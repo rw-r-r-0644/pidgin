@@ -336,6 +336,7 @@ pidgin/pidginaccountactionsmenu.c
 pidgin/pidginaccountchooser.c
 pidgin/pidginaccountfilterconnected.c
 pidgin/pidginaccountfilterprotocol.c
+pidgin/pidginaccountmanager.c
 pidgin/pidginaccountsenabledmenu.c
 pidgin/pidginaccountsmenu.c
 pidgin/pidginaccountstore.c
@@ -364,6 +365,7 @@ pidgin/pidginpluginsmenu.c
 pidgin/pidginpresenceicon.c
 pidgin/pidginprotocolchooser.c
 pidgin/pidginprotocolstore.c
+pidgin/pidginproxyoptions.c
 pidgin/pidginscrollbook.c
 pidgin/pidginstatusbox.c
 pidgin/pidginstatusprimitivechooser.c
@@ -415,6 +417,7 @@ pidgin/resources/Status/manager.ui
 pidgin/resources/Whiteboard/whiteboard.ui
 pidgin/resources/Xfer/xfer.ui
 pidgin/resources/gtk/menus.ui
+pidgin/resources/proxyoptions.ui
 pidgin/win32/gtkwin32dep.c
 pidgin/win32/winpidgin.c
 purple-history/purplehistorycore.c

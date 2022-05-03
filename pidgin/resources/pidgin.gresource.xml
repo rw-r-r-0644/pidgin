@@ -37,6 +37,7 @@
     <file compressed="true">Xfer/xfer.ui</file>
     <file compressed="true">closebutton.ui</file>
     <file compressed="true">gtk/menus.ui</file>
+    <file compressed="true">proxyoptions.ui</file>
     <file compressed="true">statusprimitivechooser.ui</file>
     <file>icons/16x16/status/pidgin-user-available.png</file>
     <file>icons/16x16/status/pidgin-user-away.png</file>
