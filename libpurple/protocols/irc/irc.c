@@ -989,8 +989,6 @@ irc_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
                       PurpleConnection *gc)
 {
 	struct irc_conn *irc;
-	GList *fields = NULL;
-	PurpleRoomlistField *f;
 	char *buf;
 
 	irc = purple_connection_get_protocol_data(gc);
@@ -999,17 +997,6 @@ irc_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
 		g_object_unref(irc->roomlist);
 
 	irc->roomlist = purple_roomlist_new(purple_connection_get_account(gc));
-
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, "", "channel", TRUE);
-	fields = g_list_append(fields, f);
-
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_INT, _("Users"), "users", FALSE);
-	fields = g_list_append(fields, f);
-
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("Topic"), "topic", FALSE);
-	fields = g_list_append(fields, f);
-
-	purple_roomlist_set_fields(irc->roomlist, fields);
 
 	buf = irc_format(irc, "v", "LIST");
 	irc_send(irc, buf);

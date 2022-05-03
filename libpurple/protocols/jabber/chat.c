@@ -802,11 +802,11 @@ static void roomlist_disco_result_cb(JabberStream *js, const char *from,
 		name = purple_xmlnode_get_attrib(item, "name");
 
 
-		room = purple_roomlist_room_new(PURPLE_ROOMLIST_ROOMTYPE_ROOM, jid->node, NULL);
-		purple_roomlist_room_add_field(js->roomlist, room, jid->node);
-		purple_roomlist_room_add_field(js->roomlist, room, jid->domain);
-		purple_roomlist_room_add_field(js->roomlist, room, name ? name : "");
+		room = purple_roomlist_room_new(jid->node, name);
+		purple_roomlist_room_add_field(room, "room", g_strdup(jid->node));
+		purple_roomlist_room_add_field(room, "server", g_strdup(jid->domain));
 		purple_roomlist_room_add(js->roomlist, room);
+		g_object_unref(room);
 
 		jabber_id_free(jid);
 	}
@@ -854,25 +854,11 @@ jabber_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
                          PurpleConnection *gc)
 {
 	JabberStream *js = purple_connection_get_protocol_data(gc);
-	GList *fields = NULL;
-	PurpleRoomlistField *f;
 
 	if(js->roomlist)
 		g_object_unref(js->roomlist);
 
 	js->roomlist = purple_roomlist_new(purple_connection_get_account(js->gc));
-
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, "", "room", TRUE);
-	fields = g_list_append(fields, f);
-
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, "", "server", TRUE);
-	fields = g_list_append(fields, f);
-
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("Description"), "description", FALSE);
-	fields = g_list_append(fields, f);
-
-	purple_roomlist_set_fields(js->roomlist, fields);
-
 
 	purple_request_input(gc, _("Enter a Conference Server"), _("Enter a Conference Server"),
 			_("Select a conference server to query"),
@@ -910,8 +896,12 @@ char *
 jabber_roomlist_room_serialize(PurpleProtocolRoomlist *protocol_roomlist,
                                PurpleRoomlistRoom *room)
 {
-	GList *fields = purple_roomlist_room_get_fields(room);
-	return g_strdup_printf("%s@%s", (char*)fields->data, (char*)fields->next->data);
+	const gchar *room_name = NULL, *server = NULL;
+
+	room_name = purple_roomlist_room_get_field(room, "room");
+	server = purple_roomlist_room_get_field(room, "server");
+
+	return g_strdup_printf("%s@%s", room_name, server);
 }
 
 void jabber_chat_member_free(JabberChatMember *jcm)

@@ -1443,13 +1443,11 @@ silc_command_reply(SilcClient client, SilcClientConnection conn,
 			topic = va_arg(ap, char *);
 			usercount = va_arg(ap, int);
 
-			room = purple_roomlist_room_new(PURPLE_ROOMLIST_ROOMTYPE_ROOM, name, NULL);
-			purple_roomlist_room_add_field(sg->roomlist, room, name);
-			purple_roomlist_room_add_field(sg->roomlist, room,
-						       SILC_32_TO_PTR(usercount));
-			purple_roomlist_room_add_field(sg->roomlist, room,
-						       topic ? topic : "");
+			room = purple_roomlist_room_new(name, topic);
+			purple_roomlist_room_set_user_count(room, usercount);
+			purple_roomlist_room_add_field(room, "channel", g_strdup(name));
 			purple_roomlist_room_add(sg->roomlist, room);
+			g_object_unref(room);
 
 			if (status == SILC_STATUS_LIST_END ||
 			    status == SILC_STATUS_OK) {

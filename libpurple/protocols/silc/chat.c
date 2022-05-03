@@ -1336,8 +1336,6 @@ silcpurple_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
 	SilcPurple sg = purple_connection_get_protocol_data(gc);
 	SilcClient client = sg->client;
 	SilcClientConnection conn = sg->conn;
-	GList *fields = NULL;
-	PurpleRoomlistField *f;
 
 	if (!conn)
 		return NULL;
@@ -1348,15 +1346,6 @@ silcpurple_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
 	sg->roomlist_cancelled = FALSE;
 
 	sg->roomlist = purple_roomlist_new(purple_connection_get_account(gc));
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, "", "channel", TRUE);
-	fields = g_list_append(fields, f);
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_INT,
-				    _("Users"), "users", FALSE);
-	fields = g_list_append(fields, f);
-	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING,
-				    _("Topic"), "topic", FALSE);
-	fields = g_list_append(fields, f);
-	purple_roomlist_set_fields(sg->roomlist, fields);
 
 	/* Call LIST */
 	silc_client_command_call(client, conn, "LIST");

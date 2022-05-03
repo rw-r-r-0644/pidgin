@@ -1081,22 +1081,10 @@ null_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
   const char *username = purple_account_get_username(purple_connection_get_account(gc));
   PurpleConversationManager *manager;
   PurpleRoomlist *roomlist = purple_roomlist_new(purple_connection_get_account(gc));
-  GList *fields = NULL;
-  PurpleRoomlistField *field;
   GList *chats;
   GList *seen_ids = NULL;
 
   purple_debug_info("nullprpl", "%s asks for room list; returning:\n", username);
-
-  /* set up the room list */
-  field = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, "room",
-                                    "room", TRUE /* hidden */);
-  fields = g_list_append(fields, field);
-
-  field = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_INT, "Id", "Id", FALSE);
-  fields = g_list_append(fields, field);
-
-  purple_roomlist_set_fields(roomlist, fields);
 
   manager = purple_conversation_manager_get_default();
 
@@ -1126,10 +1114,10 @@ null_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
     seen_ids = g_list_prepend(seen_ids, (char *)name); /* no, it's new. */
     purple_debug_info("nullprpl", "%s (%d), ", name, id);
 
-    room = purple_roomlist_room_new(PURPLE_ROOMLIST_ROOMTYPE_ROOM, name, NULL);
-    purple_roomlist_room_add_field(roomlist, room, name);
-    purple_roomlist_room_add_field(roomlist, room, &id);
+    room = purple_roomlist_room_new(name, NULL);
+    purple_roomlist_room_add_field(room, "room", g_strdup(name));
     purple_roomlist_room_add(roomlist, room);
+    g_object_unref(room);
   }
 
   g_list_free(seen_ids);
