@@ -289,7 +289,7 @@ purple_roomlist_room_add_field(PurpleRoomlistRoom *room, const gchar *field,
 
 	priv = purple_roomlist_room_get_instance_private(room);
 
-	g_hash_table_replace(priv->components, field, g_strdup(value));
+	g_hash_table_replace(priv->components, (gpointer)field, g_strdup(value));
 }
 
 const gchar *

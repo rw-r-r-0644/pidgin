@@ -149,7 +149,7 @@ void purple_roomlist_cancel_get_list(PurpleRoomlist *list)
 }
 
 void
-purple_roomlist_join_room(PurpleRoomlist *roomlist, PurpleRoomlistRoom *room) {
+purple_roomlist_join_room(PurpleRoomlist *list, PurpleRoomlistRoom *room) {
 	PurpleRoomlistPrivate *priv = NULL;
 	PurpleConnection *connection = NULL;
 	GHashTable *components = NULL, *adjusted = NULL;
@@ -157,10 +157,10 @@ purple_roomlist_join_room(PurpleRoomlist *roomlist, PurpleRoomlistRoom *room) {
 	const gchar *name = NULL;
 	gpointer key, value;
 
-	g_return_if_fail(PURPLE_IS_ROOMLIST(roomlist));
+	g_return_if_fail(PURPLE_IS_ROOMLIST(list));
 	g_return_if_fail(PURPLE_IS_ROOMLIST_ROOM(room));
 
-	priv = purple_roomlist_get_instance_private(roomlist);
+	priv = purple_roomlist_get_instance_private(list);
 
 	connection = purple_account_get_connection(priv->account);
 	if(connection == NULL) {

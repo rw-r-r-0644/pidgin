@@ -234,7 +234,7 @@ void purple_roomlist_cancel_get_list(PurpleRoomlist *list);
  *
  * Since: 3.0.0
  */
-void purple_roomlist_join_room(PurpleRoomlist *roomlist, PurpleRoomlistRoom *room);
+void purple_roomlist_join_room(PurpleRoomlist *list, PurpleRoomlistRoom *room);
 
 /**************************************************************************/
 /* UI Registration Functions                                              */
