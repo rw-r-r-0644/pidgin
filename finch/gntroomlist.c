@@ -117,74 +117,23 @@ roomlist_activated(GntWidget *widget)
 	if (!room)
 		return;
 
-	switch (purple_roomlist_room_get_room_type(room)) {
-		case PURPLE_ROOMLIST_ROOMTYPE_ROOM:
-			purple_roomlist_room_join(froomlist.roomlist, room);
-			break;
-		case PURPLE_ROOMLIST_ROOMTYPE_CATEGORY:
-			if (!purple_roomlist_room_get_expanded_once(room)) {
-				purple_roomlist_expand_category(froomlist.roomlist, room);
-				purple_roomlist_room_set_expanded_once(room, TRUE);
-			}
-			break;
-	}
-	gnt_tree_set_expanded(GNT_TREE(widget), room, TRUE);
+	purple_roomlist_join_room(froomlist.roomlist, room);
 }
 
 static void
 roomlist_selection_changed(GntWidget *widget, gpointer old, gpointer current, gpointer null)
 {
-	GList *iter, *field;
 	PurpleRoomlistRoom *room = current;
 	GntTextView *tv = GNT_TEXT_VIEW(froomlist.details);
-	gboolean first = TRUE;
 
 	gnt_text_view_clear(tv);
 
 	if (!room)
 		return;
 
-	for (iter = purple_roomlist_room_get_fields(room),
-			field = purple_roomlist_get_fields(froomlist.roomlist);
-			iter && field;
-			iter = iter->next, field = field->next) {
-		PurpleRoomlistField *f = field->data;
-		char *label = NULL;
-
-		if (purple_roomlist_field_get_hidden(f)) {
-			continue;
-		}
-
-		if (!first)
-			gnt_text_view_append_text_with_flags(tv, "\n", GNT_TEXT_FLAG_NORMAL);
-
-		gnt_text_view_append_text_with_flags(tv,
-				purple_roomlist_field_get_label(f), GNT_TEXT_FLAG_BOLD);
-		gnt_text_view_append_text_with_flags(tv, ": ", GNT_TEXT_FLAG_BOLD);
-
-		switch (purple_roomlist_field_get_field_type(f)) {
-			case PURPLE_ROOMLIST_FIELD_BOOL:
-				label = g_strdup(iter->data ? "True" : "False");
-				break;
-			case PURPLE_ROOMLIST_FIELD_INT:
-				label = g_strdup_printf("%d", GPOINTER_TO_INT(iter->data));
-				break;
-			case PURPLE_ROOMLIST_FIELD_STRING:
-				label = g_strdup(iter->data);
-				break;
-		}
-		gnt_text_view_append_text_with_flags(tv, label, GNT_TEXT_FLAG_NORMAL);
-		g_free(label);
-		first = FALSE;
-	}
-
-	if (purple_roomlist_room_get_room_type(room) == PURPLE_ROOMLIST_ROOMTYPE_CATEGORY) {
-		if (!first)
-			gnt_text_view_append_text_with_flags(tv, "\n", GNT_TEXT_FLAG_NORMAL);
-		gnt_text_view_append_text_with_flags(tv,
-				_("Hit 'Enter' to find more rooms of this category."),
-				GNT_TEXT_FLAG_NORMAL);
-	}
+	gnt_text_view_append_text_with_flags(tv,
+	                                     purple_roomlist_room_get_name(room),
+	                                     GNT_TEXT_FLAG_BOLD);
 }
 
 static void
@@ -347,18 +296,16 @@ fl_set_fields(PurpleRoomlist *list, GList *fields)
 static void
 fl_add_room(PurpleRoomlist *roomlist, PurpleRoomlistRoom *room)
 {
-	gboolean category;
+	gchar *category = NULL;
 	if (froomlist.roomlist != roomlist)
 		return;
 
-	category = (purple_roomlist_room_get_room_type(room) == PURPLE_ROOMLIST_ROOMTYPE_CATEGORY);
 	gnt_tree_remove(GNT_TREE(froomlist.tree), room);
 	gnt_tree_add_row_after(GNT_TREE(froomlist.tree), room,
 			gnt_tree_create_row(GNT_TREE(froomlist.tree),
-				purple_roomlist_room_get_name(room),
-				category ? "<" : ""),
-			purple_roomlist_room_get_parent(room), NULL);
-	gnt_tree_set_expanded(GNT_TREE(froomlist.tree), room, !category);
+				purple_roomlist_room_get_name(room), ""),
+		NULL, NULL);
+	gnt_tree_set_expanded(GNT_TREE(froomlist.tree), room, category == NULL);
 }
 
 static PurpleRoomlistUiOps ui_ops =

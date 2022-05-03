@@ -793,11 +793,11 @@ fb_cb_api_threads(FbApi *api, GSList *thrds, gpointer data)
 			g_string_append(gstr, alias);
 		}
 
-		room = purple_roomlist_room_new(PURPLE_ROOMLIST_ROOMTYPE_ROOM,
-		                                tid, NULL);
-		purple_roomlist_room_add_field(list, room, thrd->topic);
-		purple_roomlist_room_add_field(list, room, gstr->str);
+		room = purple_roomlist_room_new(tid, thrd->topic);
+		purple_roomlist_room_add_field(room, "topic", g_strdup(thrd->topic));
+		purple_roomlist_room_add_field(room, "users", g_strdup(gstr->str));
 		purple_roomlist_room_add(list, room);
+		g_object_unref(room);
 	}
 
 	purple_roomlist_set_in_progress(list, FALSE);
@@ -1473,10 +1473,8 @@ fb_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
 {
 	FbApi *api;
 	FbData *fata;
-	GList *flds = NULL;
 	PurpleAccount *acct;
 	PurpleRoomlist *list;
-	PurpleRoomlistField *fld;
 
 	fata = purple_connection_get_protocol_data(gc);
 	list = fb_data_get_roomlist(fata);
@@ -1486,17 +1484,6 @@ fb_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
 	acct = purple_connection_get_account(gc);
 	list = purple_roomlist_new(acct);
 	fb_data_set_roomlist(fata, list);
-
-	fld = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING,
-	                                _("Topic"), "topic", FALSE);
-	flds = g_list_prepend(flds, fld);
-
-	fld = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING,
-	                                _("Users"), "users", FALSE);
-	flds = g_list_prepend(flds, fld);
-
-	flds = g_list_reverse(flds);
-	purple_roomlist_set_fields(list, flds);
 
 	purple_roomlist_set_in_progress(list, TRUE);
 	fb_api_threads(api);

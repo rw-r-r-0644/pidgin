@@ -554,13 +554,14 @@ void irc_msg_list(struct irc_conn *irc, const char *name, const char *from, char
 			purple_roomlist_set_in_progress(irc->roomlist, TRUE);
 		}
 
-		room = purple_roomlist_room_new(PURPLE_ROOMLIST_ROOMTYPE_ROOM, args[1], NULL);
-		purple_roomlist_room_add_field(irc->roomlist, room, args[1]);
-		purple_roomlist_room_add_field(irc->roomlist, room, GINT_TO_POINTER(strtol(args[2], NULL, 10)));
 		topic = irc_mirc2txt(args[3]);
-		purple_roomlist_room_add_field(irc->roomlist, room, topic);
+		room = purple_roomlist_room_new(args[1], topic);
 		g_free(topic);
+
+		purple_roomlist_room_set_user_count(room, strtol(args[2], NULL, 10));
+		purple_roomlist_room_add_field(room, "channel", args[1]);
 		purple_roomlist_room_add(irc->roomlist, room);
+		g_object_unref(room);
 	}
 }
 

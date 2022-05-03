@@ -576,30 +576,11 @@ ggp_chat_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
 {
 	ggp_chat_session_data *sdata = ggp_chat_get_sdata(gc);
 	PurpleRoomlist *roomlist;
-	GList *fields = NULL;
 	int i;
 
 	purple_debug_info("gg", "ggp_chat_roomlist_get_list\n");
 
 	roomlist = purple_roomlist_new(purple_connection_get_account(gc));
-
-	fields = g_list_append(fields, purple_roomlist_field_new(
-		PURPLE_ROOMLIST_FIELD_STRING, _("Conference identifier"), "id",
-		TRUE));
-
-	fields = g_list_append(fields, purple_roomlist_field_new(
-		PURPLE_ROOMLIST_FIELD_STRING, _("Start Date"), "date",
-		FALSE));
-
-	fields = g_list_append(fields, purple_roomlist_field_new(
-		PURPLE_ROOMLIST_FIELD_INT, _("User Count"), "users",
-		FALSE));
-
-	fields = g_list_append(fields, purple_roomlist_field_new(
-		PURPLE_ROOMLIST_FIELD_STRING, _("Status"), "status",
-		FALSE));
-
-	purple_roomlist_set_fields(roomlist, fields);
 
 	for (i = sdata->chats_count - 1; i >= 0 ; i--) {
 		PurpleRoomlistRoom *room;
@@ -625,13 +606,14 @@ ggp_chat_roomlist_get_list(PurpleProtocolRoomlist *protocol_roomlist,
 		}
 
 		name = ggp_chat_get_name_from_id(chat->id);
-		room = purple_roomlist_room_new(PURPLE_ROOMLIST_ROOMTYPE_ROOM,
-			name, NULL);
-		purple_roomlist_room_add_field(roomlist, room, name);
-		purple_roomlist_room_add_field(roomlist, room, purple_date_format_full(localtime(&date)));
-		purple_roomlist_room_add_field(roomlist, room, GINT_TO_POINTER(count));
-		purple_roomlist_room_add_field(roomlist, room, status);
+		room = purple_roomlist_room_new(name, NULL);
+		purple_roomlist_room_set_user_count(room, (guint)count);
+		purple_roomlist_room_add_field(room, "id", g_strdup(name));
+		purple_roomlist_room_add_field(room, "date",
+		                               g_strdup(purple_date_format_full(localtime(&date))));
+		purple_roomlist_room_add_field(room, "status", g_strdup(status));
 		purple_roomlist_room_add(roomlist, room);
+		g_object_unref(room);
 	}
 
 	/* TODO
