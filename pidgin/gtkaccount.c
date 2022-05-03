@@ -36,6 +36,7 @@
 #include "pidgindialog.h"
 #include "minidialog.h"
 #include "pidginprotocolchooser.h"
+#include "pidginproxyoptions.h"
 
 enum
 {
@@ -92,8 +93,6 @@ typedef struct
 	char *protocol_id;
 	PurpleProtocol *protocol;
 
-	PurpleProxyType new_proxy_type;
-
 	GList *user_split_entries;
 	GList *protocol_opt_entries;
 
@@ -126,14 +125,7 @@ typedef struct
 	/* Protocol Options */
 	GtkWidget *protocol_frame;
 
-	/* Proxy Options */
-	GtkWidget *proxy_frame;
-	GtkWidget *proxy_vbox;
-	GtkWidget *proxy_dropdown;
-	GtkWidget *proxy_host_entry;
-	GtkWidget *proxy_port_entry;
-	GtkWidget *proxy_user_entry;
-	GtkWidget *proxy_pass_entry;
+	GtkWidget *proxy_options;
 
 	/* Voice & Video Options*/
 	GtkWidget *voice_frame;
@@ -159,7 +151,6 @@ static void set_account(GtkListStore *store, GtkTreeIter *iter,
 static void add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent);
 static void add_user_options(AccountPrefsDialog *dialog, GtkWidget *parent);
 static void add_account_options(AccountPrefsDialog *dialog);
-static void add_proxy_options(AccountPrefsDialog *dialog, GtkWidget *parent);
 static void add_voice_options(AccountPrefsDialog *dialog);
 
 static GtkWidget *
@@ -917,210 +908,6 @@ add_account_options(AccountPrefsDialog *dialog)
 	g_list_free_full(opts, (GDestroyNotify)purple_account_option_destroy);
 }
 
-static GtkWidget *
-make_proxy_dropdown(void)
-{
-	GtkWidget *dropdown;
-	GtkListStore *model;
-	GtkTreeIter iter;
-	GtkCellRenderer *renderer;
-
-	model = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_INT);
-	dropdown = gtk_combo_box_new_with_model(GTK_TREE_MODEL(model));
-
-	gtk_list_store_append(model, &iter);
-	gtk_list_store_set(model, &iter,
-			0, purple_running_gnome() ? _("Use GNOME Proxy Settings")
-			:_("Use Global Proxy Settings"),
-			1, PURPLE_PROXY_TYPE_USE_GLOBAL,
-			-1);
-
-	gtk_list_store_append(model, &iter);
-	gtk_list_store_set(model, &iter,
-			0, _("No Proxy"),
-			1, PURPLE_PROXY_TYPE_NONE,
-			-1);
-
-	gtk_list_store_append(model, &iter);
-	gtk_list_store_set(model, &iter,
-			0, _("SOCKS 4"),
-			1, PURPLE_PROXY_TYPE_SOCKS4,
-			-1);
-
-	gtk_list_store_append(model, &iter);
-	gtk_list_store_set(model, &iter,
-			0, _("SOCKS 5"),
-			1, PURPLE_PROXY_TYPE_SOCKS5,
-			-1);
-
-	gtk_list_store_append(model, &iter);
-	gtk_list_store_set(model, &iter,
-			0, _("Tor/Privacy (SOCKS5)"),
-			1, PURPLE_PROXY_TYPE_TOR,
-			-1);
-
-	gtk_list_store_append(model, &iter);
-	gtk_list_store_set(model, &iter,
-			0, _("HTTP"),
-			1, PURPLE_PROXY_TYPE_HTTP,
-			-1);
-
-	gtk_list_store_append(model, &iter);
-	gtk_list_store_set(model, &iter,
-			0, _("Use Environmental Settings"),
-			1, PURPLE_PROXY_TYPE_USE_ENVVAR,
-			-1);
-
-	renderer = gtk_cell_renderer_text_new();
-	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(dropdown), renderer, TRUE);
-	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(dropdown), renderer,
-			"text", 0, NULL);
-
-	return dropdown;
-}
-
-static void
-proxy_type_changed_cb(GtkWidget *menu, AccountPrefsDialog *dialog)
-{
-	GtkTreeIter iter;
-
-	if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(menu), &iter)) {
-		int int_value;
-		gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(menu)), &iter,
-			1, &int_value, -1);
-		dialog->new_proxy_type = int_value;
-	}
-
-	if (dialog->new_proxy_type == PURPLE_PROXY_TYPE_USE_GLOBAL ||
-		dialog->new_proxy_type == PURPLE_PROXY_TYPE_NONE ||
-		dialog->new_proxy_type == PURPLE_PROXY_TYPE_USE_ENVVAR) {
-
-		gtk_widget_hide(dialog->proxy_vbox);
-	}
-	else
-		gtk_widget_show_all(dialog->proxy_vbox);
-}
-
-static void
-port_popup_cb(GtkWidget *w, GtkMenu *menu, gpointer data)
-{
-	GtkWidget *item1;
-	GtkWidget *item2;
-
-	/* This is an easter egg.
-	   It means one of two things, both intended as humourus:
-	   A) your network is really slow and you have nothing better to do than
-	      look at butterflies.
-	   B)You are looking really closely at something that shouldn't matter. */
-	item1 = gtk_menu_item_new_with_label(_("If you look real closely"));
-
-	/* This is an easter egg. See the comment on the previous line in the source. */
-	item2 = gtk_menu_item_new_with_label(_("you can see the butterflies mating"));
-
-	gtk_widget_show(item1);
-	gtk_widget_show(item2);
-
-	/* Prepend these in reverse order so they appear correctly. */
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), item2);
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), item1);
-}
-
-static void
-add_proxy_options(AccountPrefsDialog *dialog, GtkWidget *parent)
-{
-	PurpleProxyInfo *proxy_info;
-	GtkWidget *vbox;
-	GtkWidget *vbox2;
-	GtkTreeIter iter;
-	GtkTreeModel *proxy_model;
-
-	if (dialog->proxy_frame != NULL)
-		gtk_widget_destroy(dialog->proxy_frame);
-
-	/* Main vbox */
-	dialog->proxy_frame = vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
-	gtk_container_add(GTK_CONTAINER(parent), vbox);
-	gtk_widget_show(vbox);
-
-	/* Proxy Type drop-down. */
-	dialog->proxy_dropdown = make_proxy_dropdown();
-
-	add_pref_box(dialog, vbox, _("Proxy _type:"), dialog->proxy_dropdown);
-
-	/* Setup the second vbox, which may be hidden at times. */
-	dialog->proxy_vbox = vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
-	gtk_box_pack_start(GTK_BOX(vbox), vbox2, FALSE, FALSE, 12);
-	gtk_widget_show(vbox2);
-
-	/* Host */
-	dialog->proxy_host_entry = gtk_entry_new();
-	add_pref_box(dialog, vbox2, _("_Host:"), dialog->proxy_host_entry);
-
-	/* Port */
-	dialog->proxy_port_entry = gtk_entry_new();
-	add_pref_box(dialog, vbox2, _("_Port:"), dialog->proxy_port_entry);
-
-	g_signal_connect(G_OBJECT(dialog->proxy_port_entry), "populate-popup",
-					 G_CALLBACK(port_popup_cb), NULL);
-
-	/* User */
-	dialog->proxy_user_entry = gtk_entry_new();
-
-	add_pref_box(dialog, vbox2, _("_Username:"), dialog->proxy_user_entry);
-
-	/* Password */
-	dialog->proxy_pass_entry = gtk_entry_new();
-	gtk_entry_set_visibility(GTK_ENTRY(dialog->proxy_pass_entry), FALSE);
-	add_pref_box(dialog, vbox2, _("Pa_ssword:"), dialog->proxy_pass_entry);
-
-	if (dialog->account != NULL &&
-		(proxy_info = purple_account_get_proxy_info(dialog->account)) != NULL) {
-		const char *value;
-		int int_val;
-
-		dialog->new_proxy_type = purple_proxy_info_get_proxy_type(proxy_info);
-
-		if ((value = purple_proxy_info_get_hostname(proxy_info)) != NULL)
-			gtk_entry_set_text(GTK_ENTRY(dialog->proxy_host_entry), value);
-
-		if ((int_val = purple_proxy_info_get_port(proxy_info)) != 0) {
-			char buf[11];
-
-			g_snprintf(buf, sizeof(buf), "%d", int_val);
-
-			gtk_entry_set_text(GTK_ENTRY(dialog->proxy_port_entry), buf);
-		}
-
-		if ((value = purple_proxy_info_get_username(proxy_info)) != NULL)
-			gtk_entry_set_text(GTK_ENTRY(dialog->proxy_user_entry), value);
-
-		if ((value = purple_proxy_info_get_password(proxy_info)) != NULL)
-			gtk_entry_set_text(GTK_ENTRY(dialog->proxy_pass_entry), value);
-
-	} else
-		dialog->new_proxy_type = PURPLE_PROXY_TYPE_USE_GLOBAL;
-
-	proxy_model = gtk_combo_box_get_model(
-		GTK_COMBO_BOX(dialog->proxy_dropdown));
-	if (gtk_tree_model_get_iter_first(proxy_model, &iter)) {
-		int int_val;
-		do {
-			gtk_tree_model_get(proxy_model, &iter, 1, &int_val, -1);
-			if (int_val == dialog->new_proxy_type) {
-				gtk_combo_box_set_active_iter(
-					GTK_COMBO_BOX(dialog->proxy_dropdown), &iter);
-				break;
-			}
-		} while(gtk_tree_model_iter_next(proxy_model, &iter));
-	}
-
-	proxy_type_changed_cb(dialog->proxy_dropdown, dialog);
-
-	/* Connect signals. */
-	g_signal_connect(G_OBJECT(dialog->proxy_dropdown), "changed",
-					 G_CALLBACK(proxy_type_changed_cb), dialog);
-}
-
 static void
 add_voice_options(AccountPrefsDialog *dialog)
 {
@@ -1372,63 +1159,8 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 		}
 	}
 
-	/* Set the proxy stuff. */
-	proxy_info = purple_account_get_proxy_info(account);
-
-	/* Create the proxy info if it doesn't exist. */
-	if (proxy_info == NULL) {
-		proxy_info = purple_proxy_info_new();
-		purple_account_set_proxy_info(account, proxy_info);
-	} else {
-		/* Add a reference to make sure the proxy info stays around. */
-		g_object_ref(proxy_info);
-	}
-
-	/* Set the proxy info type. */
-	purple_proxy_info_set_proxy_type(proxy_info, dialog->new_proxy_type);
-
-	/* Host */
-	value = gtk_entry_get_text(GTK_ENTRY(dialog->proxy_host_entry));
-
-	if (*value != '\0')
-		purple_proxy_info_set_hostname(proxy_info, value);
-	else
-		purple_proxy_info_set_hostname(proxy_info, NULL);
-
-	/* Port */
-	value = gtk_entry_get_text(GTK_ENTRY(dialog->proxy_port_entry));
-
-	if (*value != '\0')
-		purple_proxy_info_set_port(proxy_info, atoi(value));
-	else
-		purple_proxy_info_set_port(proxy_info, 0);
-
-	/* Username */
-	value = gtk_entry_get_text(GTK_ENTRY(dialog->proxy_user_entry));
-
-	if (*value != '\0')
-		purple_proxy_info_set_username(proxy_info, value);
-	else
-		purple_proxy_info_set_username(proxy_info, NULL);
-
-	/* Password */
-	value = gtk_entry_get_text(GTK_ENTRY(dialog->proxy_pass_entry));
-
-	if (*value != '\0')
-		purple_proxy_info_set_password(proxy_info, value);
-	else
-		purple_proxy_info_set_password(proxy_info, NULL);
-
-	/* If there are no values set then proxy_info NULL */
-	if ((purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_TYPE_USE_GLOBAL) &&
-		(purple_proxy_info_get_hostname(proxy_info) == NULL) &&
-		(purple_proxy_info_get_port(proxy_info) == 0) &&
-		(purple_proxy_info_get_username(proxy_info) == NULL) &&
-		(purple_proxy_info_get_password(proxy_info) == NULL))
-	{
-		purple_account_set_proxy_info(account, NULL);
-		g_clear_object(&proxy_info);
-	}
+	proxy_info = pidgin_proxy_options_get_info(PIDGIN_PROXY_OPTIONS(dialog->proxy_options));
+	purple_account_set_proxy_info(account, proxy_info);
 
 	/* Voice and Video settings */
 	if (dialog->voice_frame) {
@@ -1459,8 +1191,6 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 
 	/* We no longer need the data from the dialog window */
 	account_win_destroy_cb(NULL, NULL, dialog);
-
-	g_clear_object(&proxy_info);
 }
 
 static void
@@ -1488,7 +1218,6 @@ pidgin_account_dialog_show_continue(PidginAccountDialogType type,
 	GtkWidget *win;
 	GtkWidget *main_vbox;
 	GtkWidget *vbox;
-	GtkWidget *dbox;
 	GtkWidget *notebook;
 	GtkWidget *button;
 
@@ -1564,13 +1293,15 @@ pidgin_account_dialog_show_continue(PidginAccountDialogType type,
 	/* Setup the page with 'Advanced' (protocol options). */
 	add_account_options(dialog);
 
-	/* Setup the page with 'Proxy'. */
-	dbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
-	gtk_container_set_border_width(GTK_CONTAINER(dbox), 12);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), dbox,
-			gtk_label_new_with_mnemonic(_("P_roxy")));
-	gtk_widget_show(dbox);
-	add_proxy_options(dialog, dbox);
+	/* Setup the proxy options page. */
+	dialog->proxy_options = pidgin_proxy_options_new();
+	if(PURPLE_IS_ACCOUNT(dialog->account)) {
+		pidgin_proxy_options_set_info(PIDGIN_PROXY_OPTIONS(dialog->proxy_options),
+		                              purple_account_get_proxy_info(dialog->account));
+	}
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), dialog->proxy_options,
+	                         gtk_label_new_with_mnemonic(_("Proxy")));
+	gtk_widget_show(dialog->proxy_options);
 
 	add_voice_options(dialog);
 
