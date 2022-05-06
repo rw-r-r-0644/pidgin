@@ -32,6 +32,7 @@
     <file compressed="true">Protocols/chooser.ui</file>
     <file compressed="true">Roomlist/roomlist.ui</file>
     <file compressed="true">Status/box.ui</file>
+    <file compressed="true">Status/editor.ui</file>
     <file compressed="true">Status/manager.ui</file>
     <file compressed="true">Whiteboard/whiteboard.ui</file>
     <file compressed="true">Xfer/xfer.ui</file>

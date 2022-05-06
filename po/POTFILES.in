@@ -368,6 +368,8 @@ pidgin/pidginprotocolstore.c
 pidgin/pidginproxyoptions.c
 pidgin/pidginscrollbook.c
 pidgin/pidginstatusbox.c
+pidgin/pidginstatuseditor.c
+pidgin/pidginstatusmanager.c
 pidgin/pidginstatusprimitivechooser.c
 pidgin/pidginstatusprimitivestore.c
 pidgin/pidginstylecontext.c
@@ -413,6 +415,7 @@ pidgin/resources/Prefs/vv.ui
 pidgin/resources/Privacy/dialog.ui
 pidgin/resources/Protocols/chooser.ui
 pidgin/resources/Roomlist/roomlist.ui
+pidgin/resources/Status/editor.ui
 pidgin/resources/Status/manager.ui
 pidgin/resources/Whiteboard/whiteboard.ui
 pidgin/resources/Xfer/xfer.ui

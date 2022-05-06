@@ -54,3 +54,28 @@ GtkWidget *
 pidgin_status_primitive_chooser_new(void) {
 	return g_object_new(PIDGIN_TYPE_STATUS_PRIMITIVE_CHOOSER, NULL);
 }
+
+PurpleStatusPrimitive
+pidgin_status_primitive_chooser_get_selected(PidginStatusPrimitiveChooser *chooser) {
+    const gchar *active_id = NULL;
+
+    g_return_val_if_fail(PIDGIN_IS_STATUS_PRIMITIVE_CHOOSER(chooser),
+                         PURPLE_STATUS_UNSET);
+
+    active_id = gtk_combo_box_get_active_id(GTK_COMBO_BOX(chooser));
+
+    return purple_primitive_get_type_from_id(active_id);
+}
+
+void
+pidgin_status_primitive_chooser_set_selected(PidginStatusPrimitiveChooser *chooser,
+                                             PurpleStatusPrimitive primitive)
+{
+    const gchar *active_id = NULL;
+
+    g_return_if_fail(PIDGIN_IS_STATUS_PRIMITIVE_CHOOSER(chooser));
+
+    active_id = purple_primitive_get_id_from_type(primitive);
+
+    gtk_combo_box_set_active_id(GTK_COMBO_BOX(chooser), active_id);
+}

@@ -22,8 +22,8 @@
 
 #include "pidginstatusmanager.h"
 
-#include "gtksavedstatuses.h"
 #include "pidginiconname.h"
+#include "pidginstatuseditor.h"
 
 enum {
 	RESPONSE_USE,
@@ -37,7 +37,8 @@ enum {
 	COLUMN_ICON_NAME,
 	COLUMN_TYPE,
 	COLUMN_MESSAGE,
-	COLUMN_STATUS
+	COLUMN_STATUS,
+	COLUMN_EDITOR
 };
 
 struct _PidginStatusManager {
@@ -53,9 +54,75 @@ struct _PidginStatusManager {
 
 G_DEFINE_TYPE(PidginStatusManager, pidgin_status_manager, GTK_TYPE_DIALOG)
 
+/* Ugh, prototypes :,( */
+static void pidgin_status_editor_destroy_cb(GtkWidget *widget, gpointer data);
+
 /******************************************************************************
  * Helpers
  *****************************************************************************/
+static void
+pidgin_status_manager_show_editor(PidginStatusManager *manager) {
+	PurpleSavedStatus *status = NULL;
+	GtkWidget *editor = NULL;
+	GtkTreeIter iter;
+
+	if(gtk_tree_selection_count_selected_rows(manager->selection) == 0) {
+		return;
+	}
+
+	gtk_tree_selection_get_selected(manager->selection, NULL, &iter);
+	gtk_tree_model_get(GTK_TREE_MODEL(manager->model), &iter,
+		COLUMN_STATUS, &status,
+		COLUMN_EDITOR, &editor,
+		-1);
+
+	if(status == NULL) {
+		g_clear_object(&editor);
+
+		return;
+	}
+
+	if(!PIDGIN_IS_STATUS_EDITOR(editor)) {
+		editor = pidgin_status_editor_new(status);
+
+		gtk_window_set_transient_for(GTK_WINDOW(editor), GTK_WINDOW(manager));
+
+		gtk_list_store_set(manager->model, &iter, COLUMN_EDITOR, editor, -1);
+		g_signal_connect_object(editor, "destroy",
+		                        G_CALLBACK(pidgin_status_editor_destroy_cb),
+		                        manager, 0);
+
+		gtk_widget_show(editor);
+	} else {
+		gtk_window_present_with_time(GTK_WINDOW(editor), GDK_CURRENT_TIME);
+	}
+}
+
+static void
+pidgin_status_manager_remove_selected(PidginStatusManager *manager) {
+	PurpleSavedStatus *status = NULL;
+	GtkWidget *editor = NULL;
+	GtkTreeIter iter;
+
+	if(gtk_tree_selection_count_selected_rows(manager->selection) == 0) {
+		return;
+	}
+
+	gtk_tree_selection_get_selected(manager->selection, NULL, &iter);
+	gtk_tree_model_get(GTK_TREE_MODEL(manager->model), &iter,
+		COLUMN_STATUS, &status,
+		COLUMN_EDITOR, &editor,
+		-1);
+
+	if(GTK_IS_WIDGET(editor)) {
+		gtk_widget_destroy(editor);
+
+		g_clear_object(&editor);
+	}
+
+	purple_savedstatus_delete_by_status(status);
+}
+
 static PurpleSavedStatus *
 pidgin_status_manager_get_selected_status(PidginStatusManager *manager) {
 	PurpleSavedStatus *status = NULL;
@@ -129,6 +196,7 @@ pidgin_status_manager_response_cb(GtkDialog *dialog, gint response_id,
 {
 	PidginStatusManager *manager = data;
 	PurpleSavedStatus *status = NULL;
+	GtkWidget *editor = NULL;
 
 	switch(response_id) {
 		case RESPONSE_USE:
@@ -138,19 +206,17 @@ pidgin_status_manager_response_cb(GtkDialog *dialog, gint response_id,
 
 			break;
 		case RESPONSE_ADD:
-			pidgin_status_editor_show(FALSE, NULL);
+			editor = pidgin_status_editor_new(NULL);
+			gtk_window_set_transient_for(GTK_WINDOW(editor),
+			                             GTK_WINDOW(manager));
+			gtk_widget_show(editor);
 			break;
 		case RESPONSE_MODIFY:
-			status = pidgin_status_manager_get_selected_status(manager);
-
-			pidgin_status_editor_show(TRUE, status);
+			pidgin_status_manager_show_editor(manager);
 
 			break;
 		case RESPONSE_REMOVE:
-			status = pidgin_status_manager_get_selected_status(manager);
-
-			purple_savedstatus_delete_by_status(status);
-
+			pidgin_status_manager_remove_selected(manager);
 			break;
 		case GTK_RESPONSE_CLOSE:
 			gtk_widget_destroy(GTK_WIDGET(dialog));
@@ -168,13 +234,9 @@ pidgin_status_manager_row_activated_cb(G_GNUC_UNUSED GtkTreeView *tree_view,
 	GtkTreeIter iter;
 
 	if(gtk_tree_model_get_iter(GTK_TREE_MODEL(manager->model), &iter, path)) {
-		PurpleSavedStatus *status = NULL;
+		gtk_tree_selection_select_iter(manager->selection, &iter);
 
-		gtk_tree_model_get(GTK_TREE_MODEL(manager->model), &iter,
-		                   COLUMN_STATUS, &status,
-		                   -1);
-
-		pidgin_status_editor_show(TRUE, status);
+		pidgin_status_manager_show_editor(manager);
 	}
 }
 
@@ -232,6 +294,37 @@ pidgin_status_manager_savedstatus_updated_cb(G_GNUC_UNUSED PurpleSavedStatus *st
 	PidginStatusManager *manager = data;
 
 	pidgin_status_manager_refresh(manager);
+}
+
+static void
+pidgin_status_editor_destroy_cb(GtkWidget *widget, gpointer data) {
+	PidginStatusManager *manager = data;
+	GtkTreeIter iter;
+
+	if(!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(manager->model), &iter)) {
+		return;
+	}
+
+	do {
+		GtkWidget *editor = NULL;
+
+		gtk_tree_model_get(GTK_TREE_MODEL(manager->model), &iter,
+			COLUMN_EDITOR, &editor,
+			-1);
+
+		/* Check if editor is the widget being destroyed. */
+		if(editor == widget) {
+			/* It is, so set it back to NULL and unreference the copy we just
+			 * got.
+			 */
+			gtk_list_store_set(manager->model, &iter, COLUMN_EDITOR, NULL, -1);
+			g_clear_object(&editor);
+
+			break;
+		}
+
+		g_clear_object(&editor);
+	} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(manager->model), &iter));
 }
 
 /******************************************************************************

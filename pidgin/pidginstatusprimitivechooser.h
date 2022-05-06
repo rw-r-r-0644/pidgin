@@ -59,6 +59,29 @@ G_DECLARE_FINAL_TYPE(PidginStatusPrimitiveChooser,
  */
 GtkWidget *pidgin_status_primitive_chooser_new(void);
 
+/**
+ * pidgin_status_primitive_chooser_get_selected:
+ * @chooser: The instance.
+ *
+ * Gets the [enum@Purple.StatusPrimitive] that is selected.
+ *
+ * Returns: The selected primitive status.
+ *
+ * Since: 3.0.0
+ */
+PurpleStatusPrimitive pidgin_status_primitive_chooser_get_selected(PidginStatusPrimitiveChooser *chooser);
+
+/**
+ * pidgin_status_primitive_chooser_set_selected:
+ * @chooser: The instance.
+ * @primitive: The [enum@Purple.StatusPrimitive] to set.
+ *
+ * Sets @primitive as the active item.
+ *
+ * Since: 3.0.0
+ */
+void pidgin_status_primitive_chooser_set_selected(PidginStatusPrimitiveChooser *chooser, PurpleStatusPrimitive primitive);
+
 G_END_DECLS
 
 #endif /* PIDGIN_STATUS_PRIMITIVE_CHOOSER_H */
