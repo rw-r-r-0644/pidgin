@@ -25,7 +25,9 @@
 #include "pidgin/pidginiconname.h"
 
 struct _PidginPresenceIcon {
-	GtkImage parent;
+	GtkBox parent;
+
+	GtkWidget *icon;
 
 	PurplePresence *presence;
 	gchar *fallback;
@@ -41,7 +43,7 @@ enum {
 };
 static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
-G_DEFINE_TYPE(PidginPresenceIcon, pidgin_presence_icon, GTK_TYPE_IMAGE)
+G_DEFINE_TYPE(PidginPresenceIcon, pidgin_presence_icon, GTK_TYPE_BOX)
 
 /******************************************************************************
  * Implementation
@@ -52,7 +54,8 @@ pidgin_presence_icon_update(PidginPresenceIcon *icon) {
 
 	icon_name = pidgin_icon_name_from_presence(icon->presence, icon->fallback);
 
-	gtk_image_set_from_icon_name(GTK_IMAGE(icon), icon_name, icon->icon_size);
+	gtk_image_set_from_icon_name(GTK_IMAGE(icon->icon), icon_name,
+	                             icon->icon_size);
 }
 
 static void
@@ -121,13 +124,13 @@ pidgin_presence_icon_finalize(GObject *obj) {
 
 static void
 pidgin_presence_icon_init(PidginPresenceIcon *presenceicon) {
-	/* Use the icon name fallback that we're expecting. */
-	g_object_set(G_OBJECT(presenceicon), "use-fallback", TRUE, NULL);
+	gtk_widget_init_template(GTK_WIDGET(presenceicon));
 }
 
 static void
 pidgin_presence_icon_class_init(PidginPresenceIconClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 	obj_class->finalize = pidgin_presence_icon_finalize;
 	obj_class->get_property = pidgin_presence_icon_get_property;
@@ -168,6 +171,14 @@ pidgin_presence_icon_class_init(PidginPresenceIconClass *klass) {
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
 
 	g_object_class_install_properties(obj_class, N_PROPERTIES, properties);
+
+	gtk_widget_class_set_template_from_resource(
+	    widget_class,
+	    "/im/pidgin/Pidgin3/presenceicon.ui"
+	);
+
+	gtk_widget_class_bind_template_child(widget_class, PidginPresenceIcon,
+	                                     icon);
 }
 
 /******************************************************************************

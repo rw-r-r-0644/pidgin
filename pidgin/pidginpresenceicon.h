@@ -42,7 +42,7 @@
 
 #define PIDGIN_TYPE_PRESENCE_ICON (pidgin_presence_icon_get_type())
 G_DECLARE_FINAL_TYPE(PidginPresenceIcon, pidgin_presence_icon,
-                     PIDGIN, PRESENCE_ICON, GtkImage)
+                     PIDGIN, PRESENCE_ICON, GtkBox)
 
 G_BEGIN_DECLS
 
