@@ -1485,11 +1485,12 @@ pidgin_accounts_request_authorization(PurpleAccount *account,
 {
 	char *buffer;
 	PurpleConnection *gc;
+	PurpleProtocol *protocol = NULL;
 	GtkWidget *alert;
 	PidginMiniDialog *dialog;
-	GdkPixbuf *protocol_icon;
 	struct auth_request *aa;
 	const char *our_name;
+	const gchar *protocol_icon = NULL;
 	gboolean have_valid_alias;
 	char *escaped_remote_user;
 	char *escaped_alias;
@@ -1526,8 +1527,6 @@ pidgin_accounts_request_authorization(PurpleAccount *account,
 	g_free(escaped_our_name);
 	g_free(escaped_message);
 
-	protocol_icon = pidgin_create_protocol_icon(account, PIDGIN_PROTOCOL_ICON_SMALL);
-
 	aa = g_new0(struct auth_request, 1);
 	aa->auth_cb = auth_cb;
 	aa->deny_cb = deny_cb;
@@ -1537,8 +1536,13 @@ pidgin_accounts_request_authorization(PurpleAccount *account,
 	aa->account = account;
 	aa->add_buddy_after_auth = !on_list;
 
-	dialog = pidgin_mini_dialog_new_with_custom_icon(
-		_("Authorize buddy?"), NULL, protocol_icon);
+	protocol = purple_account_get_protocol(account);
+	if(PURPLE_IS_PROTOCOL(protocol)) {
+		protocol_icon = purple_protocol_get_icon_name(protocol);
+	}
+
+	dialog = pidgin_mini_dialog_new(_("Authorize buddy?"), NULL,
+	                                protocol_icon);
 	alert = GTK_WIDGET(dialog);
 
 	pidgin_mini_dialog_enable_description_markup(dialog);

@@ -60,11 +60,6 @@ G_DECLARE_FINAL_TYPE(PidginMiniDialog, pidgin_mini_dialog, PIDGIN, MINI_DIALOG, 
  *     <entry>(<type>char *</type>)The #GtkIconTheme name of an icon for the
  *       dialog, or %NULL for no icon.</entry>
  *   </row>
- *   <row><entry><literal>"custom-icon"</literal></entry>
- *     <entry>(<type>GdkPixbuf *</type>) The custom icon to use instead of a
- *       #GtkIconTheme one (overrides the <literal>"icon-name"</literal>
- *       property).</entry>
- *   </row>
  *   </tbody></tgroup>
  * </informaltable>
  */
@@ -99,17 +94,6 @@ typedef void (*PidginMiniDialogCallback)(PidginMiniDialog *mini_dialog,
  */
 PidginMiniDialog *pidgin_mini_dialog_new(const gchar *title,
 	const gchar *description, const gchar *icon_name);
-
-/**
- * pidgin_mini_dialog_new_with_custom_icon:
- *
- * Creates a new #PidginMiniDialog with a custom icon. This is a shortcut for creating the dialog
- * with g_object_new() then setting each property yourself.
- *
- * Returns: a new #PidginMiniDialog.
- */
-PidginMiniDialog *pidgin_mini_dialog_new_with_custom_icon(const gchar *title,
-	const gchar *description, GdkPixbuf *custom_icon);
 
 /**
  * pidgin_mini_dialog_new_with_buttons:
@@ -185,16 +169,6 @@ void pidgin_mini_dialog_set_link_callback(PidginMiniDialog *mini_dialog, GCallba
  */
 void pidgin_mini_dialog_set_icon_name(PidginMiniDialog *mini_dialog,
 	const gchar *icon_name);
-
-/**
- * pidgin_mini_dialog_set_custom_icon:
- * @mini_dialog: a mini-dialog
- * @custom_icon: the pixbuf to use as a custom icon
- *
- * Shortcut for setting a mini-dialog's custom icon via GObject properties.
- */
-void pidgin_mini_dialog_set_custom_icon(PidginMiniDialog *mini_dialog,
-	GdkPixbuf *custom_icon);
 
 /**
  * pidgin_mini_dialog_add_button:

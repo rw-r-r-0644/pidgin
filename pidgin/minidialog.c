@@ -30,7 +30,6 @@ enum {
 	PROP_TITLE,
 	PROP_DESCRIPTION,
 	PROP_ICON_NAME,
-	PROP_CUSTOM_ICON,
 	PROP_ENABLE_DESCRIPTION_MARKUP,
 	PROP_LAST
 };
@@ -64,7 +63,7 @@ struct _mini_dialog_button_clicked_cb_data {
 static gboolean
 idle_destroy_cb(GtkWidget *mini_dialog)
 {
-	gtk_widget_destroy(mini_dialog);
+	gtk_widget_unparent(mini_dialog);
 	return FALSE;
 }
 
@@ -117,13 +116,12 @@ mini_dialog_add_button(PidginMiniDialog *self, const gchar *text,
 	callback_data->close_dialog_after_click = close_dialog_after_click;
 
 	button = gtk_button_new();
-	gtk_container_add(GTK_CONTAINER(button), label);
+	gtk_button_set_child(GTK_BUTTON(button), label);
 	g_signal_connect_data(G_OBJECT(button), "clicked",
 	                      G_CALLBACK(mini_dialog_button_clicked_cb),
 	                      callback_data, (GClosureNotify)g_free, 0);
 
-	gtk_box_pack_end(GTK_BOX(priv->buttons), button, FALSE, FALSE, 0);
-	gtk_widget_show_all(button);
+	gtk_box_prepend(GTK_BOX(priv->buttons), button);
 }
 
 static void
@@ -199,14 +197,9 @@ pidgin_mini_dialog_get_property(GObject *obj, guint param_id, GValue *value,
 			break;
 		case PROP_ICON_NAME:
 		{
-			const gchar *icon_name = NULL;
-			gtk_image_get_icon_name(priv->icon, &icon_name, NULL);
-			g_value_set_string(value, icon_name);
+			g_value_set_string(value, gtk_image_get_icon_name(priv->icon));
 			break;
 		}
-		case PROP_CUSTOM_ICON:
-			g_value_set_object(value, gtk_image_get_pixbuf(priv->icon));
-			break;
 		case PROP_ENABLE_DESCRIPTION_MARKUP:
 			g_value_set_boolean(value, priv->enable_description_markup);
 			break;
@@ -234,11 +227,7 @@ pidgin_mini_dialog_set_property(GObject *obj, guint param_id,
 			break;
 		case PROP_ICON_NAME:
 			gtk_image_set_from_icon_name(priv->icon,
-					g_value_get_string(value),
-					GTK_ICON_SIZE_SMALL_TOOLBAR);
-			break;
-		case PROP_CUSTOM_ICON:
-			gtk_image_set_from_pixbuf(priv->icon, g_value_get_object(value));
+			                             g_value_get_string(value));
 			break;
 		case PROP_ENABLE_DESCRIPTION_MARKUP:
 			priv->enable_description_markup = g_value_get_boolean(value);
@@ -289,11 +278,6 @@ pidgin_mini_dialog_class_init(PidginMiniDialogClass *klass)
 		"String specifying the GtkIconTheme name of the dialog's icon", NULL,
 		G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
 
-	properties[PROP_CUSTOM_ICON] = g_param_spec_object(
-		"custom-icon", "custom-icon",
-		"Pixbuf to use as the dialog's icon", GDK_TYPE_PIXBUF,
-		G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE);
-
 	properties[PROP_ENABLE_DESCRIPTION_MARKUP] = g_param_spec_boolean(
 		"enable-description-markup", "enable-description-markup",
 		"Use GMarkup in the description text", FALSE,
@@ -311,7 +295,10 @@ pidgin_mini_dialog_init(PidginMiniDialog *self)
 
 	gtk_orientable_set_orientation(GTK_ORIENTABLE(self), GTK_ORIENTATION_VERTICAL);
 
-	gtk_container_set_border_width(GTK_CONTAINER(self), 6);
+	gtk_widget_set_margin_top(GTK_WIDGET(self), 6);
+	gtk_widget_set_margin_bottom(GTK_WIDGET(self), 6);
+	gtk_widget_set_margin_start(GTK_WIDGET(self), 6);
+	gtk_widget_set_margin_end(GTK_WIDGET(self), 6);
 
 	priv->title_box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6));
 
@@ -320,16 +307,19 @@ pidgin_mini_dialog_init(PidginMiniDialog *self)
 	gtk_widget_set_valign(GTK_WIDGET(priv->icon), GTK_ALIGN_START);
 
 	priv->title = GTK_LABEL(gtk_label_new(NULL));
-	gtk_label_set_line_wrap(priv->title, TRUE);
+	gtk_label_set_wrap(priv->title, TRUE);
 	gtk_label_set_selectable(priv->title, TRUE);
 	gtk_label_set_xalign(priv->title, 0);
 	gtk_label_set_yalign(priv->title, 0);
 
-	gtk_box_pack_start(priv->title_box, GTK_WIDGET(priv->icon), FALSE, FALSE, 0);
-	gtk_box_pack_start(priv->title_box, GTK_WIDGET(priv->title), TRUE, TRUE, 0);
+	gtk_box_append(priv->title_box, GTK_WIDGET(priv->icon));
+
+	gtk_widget_set_halign(GTK_WIDGET(priv->title), GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand(GTK_WIDGET(priv->title), TRUE);
+	gtk_box_append(priv->title_box, GTK_WIDGET(priv->title));
 
 	priv->desc = GTK_LABEL(gtk_label_new(NULL));
-	gtk_label_set_line_wrap(priv->desc, TRUE);
+	gtk_label_set_wrap(priv->desc, TRUE);
 	gtk_label_set_xalign(priv->desc, 0);
 	gtk_label_set_yalign(priv->desc, 0);
 	gtk_label_set_selectable(priv->desc, TRUE);
@@ -342,12 +332,12 @@ pidgin_mini_dialog_init(PidginMiniDialog *self)
 
 	priv->buttons = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
 
-	gtk_box_pack_start(self_box, GTK_WIDGET(priv->title_box), FALSE, FALSE, 0);
-	gtk_box_pack_start(self_box, GTK_WIDGET(priv->desc), FALSE, FALSE, 0);
-	gtk_box_pack_start(self_box, GTK_WIDGET(self->contents), TRUE, TRUE, 0);
-	gtk_box_pack_start(self_box, GTK_WIDGET(priv->buttons), FALSE, FALSE, 0);
-
-	gtk_widget_show_all(GTK_WIDGET(self));
+	gtk_box_append(self_box, GTK_WIDGET(priv->title_box));
+	gtk_box_append(self_box, GTK_WIDGET(priv->desc));
+	gtk_widget_set_valign(GTK_WIDGET(self->contents), GTK_ALIGN_FILL);
+	gtk_widget_set_vexpand(GTK_WIDGET(self->contents), TRUE);
+	gtk_box_append(self_box, GTK_WIDGET(self->contents));
+	gtk_box_append(self_box, GTK_WIDGET(priv->buttons));
 }
 
 /******************************************************************************
@@ -362,19 +352,6 @@ pidgin_mini_dialog_new(const gchar *title,
 		"title", title,
 		"description", description,
 		"icon-name", icon_name,
-		NULL);
-	return mini_dialog;
-}
-
-PidginMiniDialog *
-pidgin_mini_dialog_new_with_custom_icon(const gchar *title,
-                                        const gchar *description,
-                                        GdkPixbuf *custom_icon)
-{
-	PidginMiniDialog *mini_dialog = g_object_new(PIDGIN_TYPE_MINI_DIALOG,
-		"title", title,
-		"description", description,
-		"custom-icon", custom_icon,
 		NULL);
 	return mini_dialog;
 }
@@ -450,28 +427,23 @@ pidgin_mini_dialog_set_icon_name(PidginMiniDialog *mini_dialog,
 	g_object_set(G_OBJECT(mini_dialog), "icon-name", icon_name, NULL);
 }
 
-void
-pidgin_mini_dialog_set_custom_icon(PidginMiniDialog *mini_dialog,
-                                   GdkPixbuf *custom_icon)
-{
-	g_return_if_fail(PIDGIN_IS_MINI_DIALOG(mini_dialog));
-
-	g_object_set(G_OBJECT(mini_dialog), "custom-icon", custom_icon, NULL);
-}
-
 guint
 pidgin_mini_dialog_get_num_children(PidginMiniDialog *mini_dialog)
 {
-	GList *tmp;
-	guint len;
+	GtkWidget *child = NULL;
 
 	g_return_val_if_fail(PIDGIN_IS_MINI_DIALOG(mini_dialog), 0);
 
-	tmp = gtk_container_get_children(GTK_CONTAINER(mini_dialog->contents));
-	len = g_list_length(tmp);
-	g_list_free(tmp);
+	/* This is a crappy work around until we can rewrite this. Right now, only
+	 * the contact list queries this to determine if the dialog should be
+	 * destroyed. So returning 1 to say keep us alive is adequate.
+	 */
+	child = gtk_widget_get_first_child(GTK_WIDGET(mini_dialog->contents));
+	if(child != NULL) {
+		return 1;
+	}
 
-	return len;
+	return 0;
 }
 
 void
