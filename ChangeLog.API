@@ -957,8 +957,9 @@ version 3.0.0 (??/??/????):
 		* PidginIconThemeLoaderClass
 		* pidgin_idle_get_ui_ops
 		* pidgin_load_accels
-		* pidgin_make_mini_dialog_with_custom_icon; use
-		  pidgin_mini_dialog_new_with_custom_icon instead.
+		* pidgin_make_mini_dialog_with_custom_icon
+		* pidgin_mini_dialog_new_with_custom_icon
+		* pidgin_mini_dialog_set_custom_icon
 		* pidgin_make_pretty_arrows
 		* pidgin_menu_position_func_helper
 		* pidgin_mini_dialog_links_supported
