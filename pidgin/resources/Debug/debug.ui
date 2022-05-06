@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
-
+<!--
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
 
@@ -15,9 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+along with this library; if not, see <https://www.gnu.org/licenses/>.
 -->
 <!--
                                ▀
@@ -46,8 +43,8 @@ With this:
 
     <child type="tag">
       <object class="GtkTextTag" id="tags.filtered_visible">
-        <property name="invisible">False</property>
-        <property name="invisible-set">True</property>
+        <property name="invisible">0</property>
+        <property name="invisible-set">1</property>
       </object>
     </child>
 
@@ -64,7 +61,7 @@ funky is going on. The raw text is below for pasting.
 
 -->
 <interface>
-  <requires lib="gtk+" version="3.22"/>
+  <requires lib="gtk" version="4.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
@@ -108,13 +105,13 @@ funky is going on. The raw text is below for pasting.
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.filtered_invisible">
-        <property name="invisible">True</property>
+        <property name="invisible">1</property>
       </object>
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.filtered_visible">
-        <property name="invisible">False</property>
-        <property name="invisible-set">True</property>
+        <property name="invisible">0</property>
+        <property name="invisible-set">1</property>
       </object>
     </child>
     <child type="tag">
@@ -125,7 +122,7 @@ funky is going on. The raw text is below for pasting.
     </child>
     <child type="tag">
       <object class="GtkTextTag" id="tags.paused">
-        <property name="invisible">True</property>
+        <property name="invisible">1</property>
       </object>
     </child>
   </object>
@@ -133,252 +130,141 @@ funky is going on. The raw text is below for pasting.
     <property name="tag-table">message-format</property>
   </object>
   <template class="PidginDebugWindow" parent="GtkWindow">
-    <property name="can-focus">False</property>
     <property name="title" translatable="yes">Debug Window</property>
-    <child>
+    <property name="child">
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkToolbar" id="toolbar">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="icon_size">2</property>
+          <object class="GtkBox" id="toolbar">
+            <style>
+              <class name="toolbar"/>
+            </style>
             <child>
-              <object class="GtkToolButton" id="save">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkButton" id="save">
                 <property name="tooltip-text" translatable="yes">Save</property>
-                <property name="is-important">True</property>
                 <property name="label" translatable="yes">_Save...</property>
-                <property name="use-underline">True</property>
+                <property name="use-underline">1</property>
                 <property name="icon-name">document-save</property>
                 <signal name="clicked" handler="save_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="clear">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkButton" id="clear">
                 <property name="tooltip-text" translatable="yes">Clear</property>
-                <property name="is-important">True</property>
                 <property name="label" translatable="yes">_Clear</property>
-                <property name="use-underline">True</property>
+                <property name="use-underline">1</property>
                 <property name="icon-name">edit-clear</property>
                 <signal name="clicked" handler="clear_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkSeparatorToolItem">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkSeparator">
+                <property name="orientation">vertical</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="pause">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkToggleButton" id="pause">
                 <property name="tooltip-text" translatable="yes">Pause</property>
-                <property name="is-important">True</property>
                 <property name="label" translatable="yes">_Pause</property>
-                <property name="use-underline">True</property>
+                <property name="use-underline">1</property>
                 <property name="icon-name">media-playback-pause</property>
                 <signal name="clicked" handler="pause_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkSeparatorToolItem">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkSeparator">
+                <property name="orientation">vertical</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="filter">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkToggleButton" id="filter">
                 <property name="tooltip-text" translatable="yes">Filter</property>
-                <property name="is-important">True</property>
                 <property name="label" translatable="yes">_Filter</property>
-                <property name="use-underline">True</property>
+                <property name="use-underline">1</property>
                 <property name="icon-name">edit-find</property>
                 <signal name="clicked" handler="regex_filter_toggled_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToolItem">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkSearchEntry" id="expression">
                 <child>
-                  <object class="GtkSearchEntry" id="expression">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="primary-icon-name">edit-find-symbolic</property>
-                    <property name="primary-icon-activatable">True</property>
-                    <property name="primary-icon-sensitive">True</property>
-                    <property name="primary-icon-tooltip-text" translatable="yes">Click for more options.</property>
-                    <signal name="icon-press" handler="regex_popup_cb" object="PidginDebugWindow" swapped="no"/>
-                    <signal name="key-release-event" handler="regex_key_release_cb" object="PidginDebugWindow" swapped="no"/>
-                    <signal name="search-changed" handler="regex_changed_cb" object="PidginDebugWindow" swapped="no"/>
+                  <object class="GtkEventControllerKey">
+                    <signal name="key-released" handler="regex_key_released_cb" object="PidginDebugWindow" swapped="no"/>
                   </object>
                 </child>
+                <property name="focusable">1</property>
+                <property name="primary-icon-tooltip-text" translatable="yes">Click for more options.</property>
+                <!--<signal name="icon-press" handler="regex_popup_cb" object="PidginDebugWindow" swapped="no"/>-->
+                <property name="sensitive">0</property>
+                <signal name="search-changed" handler="regex_changed_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkSeparatorToolItem">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
+              <object class="GtkSeparator">
+                <property name="orientation">vertical</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToolItem">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Level </property>
-                    <accessibility>
-                      <relation type="label-for" target="filterlevel"/>
-                    </accessibility>
-                  </object>
-                </child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">Level </property>
+                <accessibility>
+                  <relation type="label-for" target="filterlevel"/>
+                </accessibility>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToolItem">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <child>
-                  <object class="GtkComboBoxText" id="filterlevel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="tooltip-text" translatable="yes">Select the debug filter level.</property>
-                    <property name="active">0</property>
-                    <items>
-                      <item translatable="yes">All</item>
-                      <item translatable="yes">Misc</item>
-                      <item translatable="yes">Info</item>
-                      <item translatable="yes">Warning</item>
-                      <item translatable="yes">Error</item>
-                      <item translatable="yes">Fatal Error</item>
-                    </items>
-                    <signal name="changed" handler="filter_level_changed_cb" object="PidginDebugWindow" swapped="no"/>
-                  </object>
-                </child>
+            <object class="GtkComboBoxText" id="filterlevel">
+                <property name="tooltip-text" translatable="yes">Select the debug filter level.</property>
+                <property name="active">0</property>
+                <items>
+                  <item translatable="yes">All</item>
+                  <item translatable="yes">Misc</item>
+                  <item translatable="yes">Info</item>
+                  <item translatable="yes">Warning</item>
+                  <item translatable="yes">Error</item>
+                  <item translatable="yes">Fatal Error</item>
+                </items>
+                <signal name="changed" handler="filter_level_changed_cb" object="PidginDebugWindow" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkScrolledWindow">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="shadow-type">in</property>
-            <child>
+            <property name="vexpand">1</property>
+            <property name="focusable">1</property>
+            <property name="child">
               <object class="GtkTextView" id="textview">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="editable">False</property>
+                <property name="focusable">1</property>
+                <property name="editable">0</property>
                 <property name="wrap-mode">word</property>
                 <property name="buffer">buffer</property>
               </object>
-            </child>
+            </property>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
         </child>
       </object>
-    </child>
+    </property>
   </template>
   <object class="GtkPopover" id="popover">
-    <property name="can-focus">False</property>
-    <property name="relative-to">expression</property>
-    <child>
+    <property name="child">
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkCheckButton" id="popover_invert">
             <property name="label" translatable="yes">Invert</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">False</property>
-            <property name="draw-indicator">True</property>
+            <property name="focusable">1</property>
             <signal name="toggled" handler="regex_menu_cb" object="PidginDebugWindow" swapped="no"/>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkCheckButton" id="popover_highlight">
             <property name="label" translatable="yes">Highlight matches</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">False</property>
-            <property name="draw-indicator">True</property>
+            <property name="focusable">1</property>
             <signal name="toggled" handler="regex_menu_cb" object="PidginDebugWindow" swapped="no"/>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
         </child>
       </object>
-    </child>
+    </property>
   </object>
 </interface>
