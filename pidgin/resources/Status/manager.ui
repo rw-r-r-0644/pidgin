@@ -36,6 +36,8 @@ License along with this library; if not, see <https://www.gnu.org/licenses/>.
       <column type="gchararray"/>
       <!-- column-name status -->
       <column type="gpointer"/>
+      <!-- column-name editor -->
+      <column type="GObject"/>
     </columns>
   </object>
   <template class="PidginStatusManager" parent="GtkDialog">
