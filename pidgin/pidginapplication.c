@@ -451,7 +451,7 @@ pidgin_application_show_status_manager(GSimpleAction *simple,
 		g_object_add_weak_pointer(G_OBJECT(manager), (gpointer)&manager);
 	}
 
-	gtk_widget_show_all(manager);
+	gtk_widget_show(manager);
 }
 
 static GActionEntry app_entries[] = {
