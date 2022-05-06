@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
-
+<!--
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
 
@@ -15,121 +14,22 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+along with this library; if not, see <https://www.gnu.org/licenses/>.
 -->
 <interface>
-  <requires lib="gtk+" version="3.22"/>
-  <requires lib="gplugin-gtk" version="0.28"/>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="gplugin-gtk4" version="0.35"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
-  <object class="GPluginGtkStore" type-func="gplugin_gtk_store_get_type" id="raw_plugin_store"/>
-  <object class="GtkTreeModelSort" id="plugin_store">
-    <property name="model">raw_plugin_store</property>
-  </object>
   <template class="PidginPluginsDialog" parent="GtkDialog">
-    <property name="can-focus">False</property>
-    <property name="title" translatable="yes">Plugins</property>
+    <property name="title" translatable="1">Plugins</property>
     <property name="type-hint">dialog</property>
     <signal name="delete-event" handler="gtk_widget_destroy" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkBox">
-        <property name="can-focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox">
-            <property name="can-focus">False</property>
-            <property name="layout-style">end</property>
-            <child>
-              <object class="GtkButton" id="configure_plugin_button">
-                <property name="label" translatable="yes">Configure Plugin</property>
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <signal name="clicked" handler="pidgin_plugins_dialog_config_plugin_cb" object="PidginPluginsDialog" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Close</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <signal name="clicked" handler="gtk_widget_destroy" object="PidginPluginsDialog" swapped="yes"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="homogeneous">True</property>
-            <child>
-              <object class="GtkScrolledWindow">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="shadow-type">in</property>
-                <child>
-                  <object class="GPluginGtkView" type-func="gplugin_gtk_view_get_type" id="tree_view">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="model">plugin_store</property>
-                    <property name="headers-clickable">False</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection">
-                        <signal name="changed" handler="pidgin_plugins_dialog_selection_cb" object="PidginPluginsDialog" swapped="no"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GPluginGtkPluginInfo" type-func="gplugin_gtk_plugin_info_get_type" id="plugin_info">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
+    <child internal-child="content_area">
+      <object class="GPluginGtkView" id="view"/>
     </child>
+    <child internal-child="action_area"/>
   </template>
 </interface>
