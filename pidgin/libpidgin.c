@@ -153,14 +153,17 @@ mainloop_sighandler(GIOChannel *source, GIOCondition cond, gpointer data)
 
 static void
 purple_ui_add_protocol_theme_paths(PurpleProtocol *protocol) {
+	GdkDisplay *display = NULL;
 	GtkIconTheme *theme = NULL;
 	const gchar *path = NULL;
 
-	theme = gtk_icon_theme_get_default();
+	display = gdk_display_get_default();
+
+	theme = gtk_icon_theme_get_for_display(display);
 
 	path = purple_protocol_get_icon_search_path(protocol);
 	if(path != NULL) {
-		gtk_icon_theme_prepend_search_path(theme, path);
+		gtk_icon_theme_add_search_path(theme, path);
 	}
 
 	path = purple_protocol_get_icon_resource_path(protocol);
@@ -219,16 +222,18 @@ static void
 pidgin_ui_init(void)
 {
 	PurpleProtocolManager *protocol_manager = NULL;
+	GdkDisplay *display = NULL;
 	GtkIconTheme *theme = NULL;
 	GError *error = NULL;
 	gchar *path;
 
 	pidgin_debug_init();
 
-	theme = gtk_icon_theme_get_default();
+	display = gdk_display_get_default();
+	theme = gtk_icon_theme_get_for_display(display);
 
 	path = g_build_filename(PURPLE_DATADIR, "pidgin", "icons", NULL);
-	gtk_icon_theme_prepend_search_path(theme, path);
+	gtk_icon_theme_add_search_path(theme, path);
 	g_free(path);
 
 	/* Add a callback for when a protocol is registered to add its icon paths
