@@ -115,7 +115,7 @@ pidgin_status_manager_remove_selected(PidginStatusManager *manager) {
 		-1);
 
 	if(GTK_IS_WIDGET(editor)) {
-		gtk_widget_destroy(editor);
+		gtk_window_destroy(GTK_WINDOW(editor));
 
 		g_clear_object(&editor);
 	}
@@ -219,7 +219,7 @@ pidgin_status_manager_response_cb(GtkDialog *dialog, gint response_id,
 			pidgin_status_manager_remove_selected(manager);
 			break;
 		case GTK_RESPONSE_CLOSE:
-			gtk_widget_destroy(GTK_WIDGET(dialog));
+			gtk_window_destroy(GTK_WINDOW(dialog));
 			break;
 	}
 }
