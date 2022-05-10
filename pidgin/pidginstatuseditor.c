@@ -84,7 +84,7 @@ pidgin_status_editor_set_status(PidginStatusEditor *editor,
 		message = "";
 	}
 
-	gtk_entry_set_text(GTK_ENTRY(editor->title), title);
+	gtk_editable_set_text(GTK_EDITABLE(editor->title), title);
 	chooser = PIDGIN_STATUS_PRIMITIVE_CHOOSER(editor->primitive);
 	pidgin_status_primitive_chooser_set_selected(chooser, primitive);
 	talkatu_markup_set_html(TALKATU_BUFFER(editor->buffer), message, -1);
@@ -99,7 +99,7 @@ pidgin_status_editor_save_status(PidginStatusEditor *editor) {
 	gchar *message = NULL;
 	const gchar *title = NULL;
 
-	title = gtk_entry_get_text(GTK_ENTRY(editor->title));
+	title = gtk_editable_get_text(GTK_EDITABLE(editor->title));
 
 	chooser = PIDGIN_STATUS_PRIMITIVE_CHOOSER(editor->primitive);
 	primitive = pidgin_status_primitive_chooser_get_selected(chooser);
@@ -147,7 +147,7 @@ pidgin_status_editor_response_cb(GtkDialog *dialog, gint response_id,
 			break;
 	}
 
-	gtk_widget_destroy(GTK_WIDGET(dialog));
+	gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
 static void
@@ -156,7 +156,7 @@ pidgin_status_editor_title_changed_cb(GtkEditable *editable, gpointer data) {
 	gboolean title_changed = FALSE, sensitive = FALSE;
 	const gchar *title = NULL;
 
-	title = gtk_entry_get_text(GTK_ENTRY(editor->title));
+	title = gtk_editable_get_text(GTK_EDITABLE(editor->title));
 
 	if(editor->status != NULL) {
 		/* If we're editing a status, check if the title is the same. */
