@@ -166,32 +166,6 @@ pidgin_proxy_options_proxy_type_changed_cb(GtkComboBox *box, gpointer data) {
 	gtk_widget_set_sensitive(options->options, sensitive);
 }
 
-static void
-pidgin_proxy_options_ports_popup_cb(G_GNUC_UNUSED GtkEntry *entry,
-                                    GtkWidget *widget,
-                                    G_GNUC_UNUSED gpointer data)
-{
-	GtkWidget *item = NULL;
-
-	/* This is an easter egg. The items are in reverse order because they are
-	 * prepended to the menu.
-	 *
-	 * It means one of two things, both intended as humorous:
-	 * A) your network is really slow and you have nothing better to do than
-	 *    look at butterflies.
-	 * B) You are looking really closely at something that shouldn't matter.
-	 */
-
-	item = gtk_menu_item_new_with_label(_("you can see the butterflies mating"));
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(widget), item);
-	gtk_widget_show(item);
-
-	/* This is also an easter egg, see the previous comment. */
-	item = gtk_menu_item_new_with_label(_("If you look real closely"));
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(widget), item);
-	gtk_widget_show(item);
-}
-
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
@@ -324,8 +298,6 @@ pidgin_proxy_options_class_init(PidginProxyOptionsClass *klass) {
 
 	gtk_widget_class_bind_template_callback(widget_class,
 	                                        pidgin_proxy_options_proxy_type_changed_cb);
-	gtk_widget_class_bind_template_callback(widget_class,
-	                                        pidgin_proxy_options_ports_popup_cb);
 }
 
 /******************************************************************************
