@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
-
+<!--
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
 
@@ -15,21 +14,17 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+along with this library; if not, see <https://www.gnu.org/licenses/>.
 -->
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk" version="4.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
   <object class="GtkListStore" id="model">
     <columns>
-      <!-- column-name type -->
       <column type="PurpleProxyType"/>
-      <!-- column-name description -->
       <column type="gchararray"/>
     </columns>
     <data>
@@ -73,8 +68,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="page-increment">10</property>
   </object>
   <template class="PidginProxyOptions" parent="GtkBox">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
     <property name="margin-start">12</property>
     <property name="margin-end">12</property>
     <property name="margin-top">12</property>
@@ -83,29 +76,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="spacing">6</property>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="spacing">6</property>
         <child>
           <object class="GtkLabel" id="proxy_type_label">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="label" translatable="yes">Proxy _type:</property>
-            <property name="use-underline">True</property>
+            <property name="label" translatable="1">Proxy _type:</property>
+            <property name="use-underline">1</property>
             <property name="mnemonic-widget">proxy_type</property>
             <property name="xalign">0</property>
-            <property name="yalign">0.5</property>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkComboBox" id="proxy_type">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="hexpand">1</property>
+            <property name="halign">GTK_ALIGN_FILL</property>
             <property name="model">filter</property>
             <signal name="changed" handler="pidgin_proxy_options_proxy_type_changed_cb" object="PidginProxyOptions" swapped="no"/>
             <child>
@@ -115,193 +98,99 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               </attributes>
             </child>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
         </child>
       </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">0</property>
-      </packing>
     </child>
     <child>
       <object class="GtkBox" id="options">
-        <property name="visible">True</property>
-        <property name="sensitive">False</property>
-        <property name="can-focus">False</property>
+        <property name="sensitive">0</property>
         <property name="orientation">vertical</property>
         <property name="spacing">6</property>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
             <property name="spacing">6</property>
             <child>
               <object class="GtkLabel" id="host_label">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Host:</property>
-                <property name="use-underline">True</property>
+                <property name="label" translatable="1">_Host:</property>
+                <property name="use-underline">1</property>
                 <property name="mnemonic-widget">hostname</property>
                 <property name="xalign">0</property>
-                <property name="yalign">0.5</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkEntry" id="hostname">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="progress-pulse-step">0</property>
+                <property name="hexpand">1</property>
+                <property name="halign">GTK_ALIGN_FILL</property>
+                <property name="focusable">1</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
             <property name="spacing">6</property>
             <child>
               <object class="GtkLabel" id="port_label">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Port:</property>
-                <property name="use-underline">True</property>
+                <property name="label" translatable="1">_Port:</property>
+                <property name="use-underline">1</property>
                 <property name="mnemonic-widget">port</property>
                 <property name="xalign">0</property>
-                <property name="yalign">0.5</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkSpinButton" id="port">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="hexpand">1</property>
+                <property name="halign">GTK_ALIGN_FILL</property>
+                <property name="focusable">1</property>
                 <property name="input-hints">GTK_INPUT_HINT_NO_EMOJI | GTK_INPUT_HINT_NONE</property>
                 <property name="adjustment">port_adjustment</property>
-                <property name="numeric">True</property>
-                <signal name="populate-popup" handler="pidgin_proxy_options_ports_popup_cb" object="PidginProxyOptions" swapped="no"/>
+                <property name="numeric">1</property>
+                <property name="extra-menu">extra</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
             <property name="spacing">6</property>
             <child>
               <object class="GtkLabel" id="username_label">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Username:</property>
-                <property name="use-underline">True</property>
+                <property name="label" translatable="1">_Username:</property>
+                <property name="use-underline">1</property>
                 <property name="mnemonic-widget">username</property>
                 <property name="xalign">0</property>
-                <property name="yalign">0.5</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkEntry" id="username">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="hexpand">1</property>
+                <property name="halign">GTK_ALIGN_FILL</property>
+                <property name="focusable">1</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
             <property name="spacing">6</property>
             <child>
               <object class="GtkLabel" id="password_label">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Pa_ssword:</property>
-                <property name="use-underline">True</property>
+                <property name="label" translatable="1">Pa_ssword:</property>
+                <property name="use-underline">1</property>
                 <property name="mnemonic-widget">password</property>
                 <property name="xalign">0</property>
-                <property name="yalign">0.5</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkEntry" id="password">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="hexpand">1</property>
+                <property name="halign">GTK_ALIGN_FILL</property>
+                <property name="focusable">1</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">3</property>
-          </packing>
         </child>
       </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">1</property>
-      </packing>
     </child>
   </template>
   <object class="GtkSizeGroup">
@@ -313,4 +202,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <widget name="password_label"/>
     </widgets>
   </object>
+  <menu id="extra">
+    <item>
+      <!-- TRANSLATORS: This is an easter egg.
+           It means one of two things, both intended as humorous:
+           A) your network is really slow and you have nothing better to do than look at butterflies.
+           B) You are looking really closely at something that shouldn't matter.
+      -->
+      <attribute name="label" translatable="yes">If you look real closely</attribute>
+    </item>
+    <item>
+      <!-- TRANSLATORS: This is an easter egg.
+           It means one of two things, both intended as humorous:
+           A) your network is really slow and you have nothing better to do than look at butterflies.
+           B) You are looking really closely at something that shouldn't matter.
+      -->
+      <attribute name="label" translatable="yes">you can see the butterflies mating</attribute>
+    </item>
+  </menu>
 </interface>
