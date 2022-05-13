@@ -42,31 +42,13 @@
 #include "pidgincore.h"
 #include "pidgindebug.h"
 #include "pidginprefs.h"
+#include "pidginprefsinternal.h"
 #include <libsoup/soup.h>
 
 #define PREFS_OPTIMAL_ICON_SIZE 32
 
 /* 25MB */
 #define PREFS_MAX_DOWNLOADED_THEME_SIZE 26214400
-
-typedef struct _PidginPrefCombo PidginPrefCombo;
-
-typedef void (*PidginPrefsBindDropdownCallback)(GtkComboBox *combo_box,
-	PidginPrefCombo *combo);
-
-struct _PidginPrefCombo {
-	GtkWidget *combo;
-	PurplePrefType type;
-	const gchar *key;
-	union {
-		const char *string;
-		int integer;
-		gboolean boolean;
-	} value;
-	gint previously_active;
-	gint current_active;
-	PidginPrefsBindDropdownCallback cb;
-};
 
 struct _PidginPrefsWindow {
 	GtkDialog parent;
@@ -205,7 +187,7 @@ pidgin_prefs_labeled_spin_button(GtkWidget *box, const gchar *title,
 	return pidgin_add_widget_to_vbox(GTK_BOX(box), title, sg, spin, FALSE, NULL);
 }
 
-static void
+void
 pidgin_prefs_bind_spin_button(const char *key, GtkWidget *spin)
 {
 	GtkAdjustment *adjust;
@@ -246,7 +228,7 @@ pidgin_prefs_labeled_entry(GtkWidget *page, const gchar *title,
 	return pidgin_add_widget_to_vbox(GTK_BOX(page), title, sg, entry, TRUE, NULL);
 }
 
-static void
+void
 pidgin_prefs_bind_entry(const char *key, GtkWidget *entry)
 {
 	const gchar *value;
@@ -556,7 +538,7 @@ bind_dropdown_set(GtkComboBox *combo_box, gpointer data)
 	combo->cb(combo_box, combo);
 }
 
-static void
+void
 pidgin_prefs_bind_dropdown_from_list(PidginPrefCombo *combo, GList *menuitems)
 {
 	gchar *text;
@@ -634,7 +616,7 @@ pidgin_prefs_bind_dropdown_from_list(PidginPrefCombo *combo, GList *menuitems)
 			G_CALLBACK(bind_dropdown_set), combo);
 }
 
-static void
+void
 pidgin_prefs_bind_dropdown(PidginPrefCombo *combo)
 {
 	GtkTreeModel *store = NULL;
@@ -728,7 +710,7 @@ pidgin_prefs_checkbox(const char *text, const char *key, GtkWidget *page)
 	return button;
 }
 
-static void
+void
 pidgin_prefs_bind_checkbox(const char *key, GtkWidget *button)
 {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
