@@ -391,6 +391,7 @@ pidgin/plugins/xmppconsole/xmppconsole.c
 pidgin/prefs/pidginawaypage.c
 pidgin/prefs/pidgincredentialproviderrow.c
 pidgin/prefs/pidgincredentialspage.c
+pidgin/prefs/pidginnetworkpage.c
 pidgin/prefs/pidginprefs.c
 pidgin/resources/About/about.ui
 pidgin/resources/Accounts/actionsmenu.ui
@@ -412,6 +413,7 @@ pidgin/resources/Plugins/menu.ui
 pidgin/resources/Prefs/away.ui
 pidgin/resources/Prefs/credentialprovider.ui
 pidgin/resources/Prefs/credentials.ui
+pidgin/resources/Prefs/network.ui
 pidgin/resources/Prefs/prefs.ui
 pidgin/resources/Prefs/vv.ui
 pidgin/resources/Privacy/dialog.ui
