@@ -70,24 +70,6 @@ struct _PidginPrefsWindow {
 		GtkWidget *format_view;
 	} conversations;
 
-	/* Network page */
-	struct {
-		GtkWidget *stun_server;
-		GtkWidget *auto_ip;
-		GtkWidget *public_ip;
-		GtkWidget *public_ip_hbox;
-		GtkWidget *map_ports;
-		GtkWidget *ports_range_use;
-		GtkWidget *ports_range_hbox;
-		GtkWidget *ports_range_start;
-		GtkWidget *ports_range_end;
-		GtkWidget *turn_server;
-		GtkWidget *turn_port_udp;
-		GtkWidget *turn_port_tcp;
-		GtkWidget *turn_username;
-		GtkWidget *turn_password;
-	} network;
-
 	/* Proxy page */
 	struct {
 		GtkWidget *stack;
@@ -771,53 +753,6 @@ bind_conv_page(PidginPrefsWindow *win)
 }
 
 static void
-network_ip_changed(GtkEntry *entry, gpointer data)
-{
-	const gchar *text = gtk_entry_get_text(entry);
-	GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(entry));
-
-	if (text && *text) {
-		if (g_hostname_is_ip_address(text)) {
-			purple_network_set_public_ip(text);
-			gtk_style_context_add_class(context, "good-ip");
-			gtk_style_context_remove_class(context, "bad-ip");
-		} else {
-			gtk_style_context_add_class(context, "bad-ip");
-			gtk_style_context_remove_class(context, "good-ip");
-		}
-
-	} else {
-		purple_network_set_public_ip("");
-		gtk_style_context_remove_class(context, "bad-ip");
-		gtk_style_context_remove_class(context, "good-ip");
-	}
-}
-
-static gboolean
-network_stun_server_changed_cb(GtkWidget *widget,
-                               GdkEventFocus *event, gpointer data)
-{
-	GtkEntry *entry = GTK_ENTRY(widget);
-	purple_prefs_set_string("/purple/network/stun_server",
-		gtk_entry_get_text(entry));
-	purple_network_set_stun_server(gtk_entry_get_text(entry));
-
-	return FALSE;
-}
-
-static gboolean
-network_turn_server_changed_cb(GtkWidget *widget,
-                               GdkEventFocus *event, gpointer data)
-{
-	GtkEntry *entry = GTK_ENTRY(widget);
-	purple_prefs_set_string("/purple/network/turn_server",
-		gtk_entry_get_text(entry));
-	purple_network_set_turn_server(gtk_entry_get_text(entry));
-
-	return FALSE;
-}
-
-static void
 proxy_changed_cb(const char *name, PurplePrefType type,
 				 gconstpointer value, gpointer data)
 {
@@ -859,106 +794,6 @@ proxy_button_clicked_cb(GtkWidget *button, PidginPrefsWindow *win)
 
 	purple_notify_error(NULL, NULL, _("Cannot start proxy configuration program."), err->message, NULL);
 	g_error_free(err);
-}
-
-static void
-auto_ip_button_clicked_cb(GtkWidget *button, gpointer null)
-{
-	const char *ip;
-	PurpleStunNatDiscovery *stun;
-	char *auto_ip_text;
-	GList *list = NULL;
-
-	/* Make a lookup for the auto-detected IP ourselves. */
-	if (purple_prefs_get_bool("/purple/network/auto_ip")) {
-		/* Check if STUN discovery was already done */
-		stun = purple_stun_discover(NULL);
-		if ((stun != NULL) && (stun->status == PURPLE_STUN_STATUS_DISCOVERED)) {
-			ip = stun->publicip;
-		} else {
-			/* Attempt to get the IP from a NAT device using UPnP */
-			ip = purple_upnp_get_public_ip();
-			if (ip == NULL) {
-				/* Attempt to get the IP from a NAT device using NAT-PMP */
-				ip = purple_pmp_get_public_ip();
-				if (ip == NULL) {
-					/* Just fetch the first IP of the local system */
-					list = nice_interfaces_get_local_ips(FALSE);
-					if (list) {
-						ip = list->data;
-					} else {
-						ip = "0.0.0.0";
-					}
-				}
-			}
-		}
-	} else{
-		ip = _("Disabled");
-	}
-
-	auto_ip_text = g_strdup_printf(_("Use _automatically detected IP address: %s"), ip);
-	gtk_button_set_label(GTK_BUTTON(button), auto_ip_text);
-	g_free(auto_ip_text);
-	g_list_free_full(list, g_free);
-}
-
-static void
-bind_network_page(PidginPrefsWindow *win)
-{
-	GtkStyleContext *context;
-	GtkCssProvider *ip_css;
-	const gchar *res = "/im/pidgin/Pidgin3/Prefs/ip.css";
-
-	gtk_entry_set_text(GTK_ENTRY(win->network.stun_server),
-			purple_prefs_get_string("/purple/network/stun_server"));
-
-	pidgin_prefs_bind_checkbox("/purple/network/auto_ip",
-			win->network.auto_ip);
-	auto_ip_button_clicked_cb(win->network.auto_ip, NULL); /* Update label */
-
-	gtk_entry_set_text(GTK_ENTRY(win->network.public_ip),
-			purple_network_get_public_ip());
-
-	ip_css = gtk_css_provider_new();
-	gtk_css_provider_load_from_resource(ip_css, res);
-
-	context = gtk_widget_get_style_context(win->network.public_ip);
-	gtk_style_context_add_provider(context,
-	                               GTK_STYLE_PROVIDER(ip_css),
-	                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-	g_object_bind_property(win->network.auto_ip, "active",
-			win->network.public_ip_hbox, "sensitive",
-			G_BINDING_SYNC_CREATE|G_BINDING_INVERT_BOOLEAN);
-
-	pidgin_prefs_bind_checkbox("/purple/network/map_ports",
-			win->network.map_ports);
-
-	pidgin_prefs_bind_checkbox("/purple/network/ports_range_use",
-			win->network.ports_range_use);
-	g_object_bind_property(win->network.ports_range_use, "active",
-			win->network.ports_range_hbox, "sensitive",
-			G_BINDING_SYNC_CREATE);
-
-	pidgin_prefs_bind_spin_button("/purple/network/ports_range_start",
-			win->network.ports_range_start);
-	pidgin_prefs_bind_spin_button("/purple/network/ports_range_end",
-			win->network.ports_range_end);
-
-	/* TURN server */
-	gtk_entry_set_text(GTK_ENTRY(win->network.turn_server),
-			purple_prefs_get_string("/purple/network/turn_server"));
-
-	pidgin_prefs_bind_spin_button("/purple/network/turn_port",
-			win->network.turn_port_udp);
-
-	pidgin_prefs_bind_spin_button("/purple/network/turn_port_tcp",
-			win->network.turn_port_tcp);
-
-	pidgin_prefs_bind_entry("/purple/network/turn_username",
-			win->network.turn_username);
-	pidgin_prefs_bind_entry("/purple/network/turn_password",
-			win->network.turn_password);
 }
 
 static void
@@ -1551,7 +1386,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 #endif
 
 	bind_conv_page(win);
-	bind_network_page(win);
 	bind_proxy_page(win);
 #ifdef USE_VV
 	vv = vv_page(win);
@@ -1599,53 +1433,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.format_view);
-
-	/* Network page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, network.stun_server);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, network.auto_ip);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, network.public_ip);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.public_ip_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, network.map_ports);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.ports_range_use);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.ports_range_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.ports_range_start);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.ports_range_end);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, network.turn_server);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.turn_port_udp);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.turn_port_tcp);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.turn_username);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			network.turn_password);
-	gtk_widget_class_bind_template_callback(widget_class,
-			network_stun_server_changed_cb);
-	gtk_widget_class_bind_template_callback(widget_class,
-	                 auto_ip_button_clicked_cb);
-	gtk_widget_class_bind_template_callback(widget_class,
-			network_ip_changed);
-	gtk_widget_class_bind_template_callback(widget_class,
-			network_turn_server_changed_cb);
 
 	/* Proxy page */
 	gtk_widget_class_bind_template_child(
