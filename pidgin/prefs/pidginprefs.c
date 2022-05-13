@@ -55,21 +55,6 @@ struct _PidginPrefsWindow {
 	/* Stack */
 	GtkWidget *stack;
 
-	/* Conversations page */
-	struct {
-		GtkWidget *show_incoming_formatting;
-		struct {
-			GtkWidget *send_typing;
-		} im;
-		GtkWidget *use_smooth_scrolling;
-		struct {
-			GtkWidget *blink_im;
-		} win32;
-		GtkWidget *minimum_entry_lines;
-		GtkTextBuffer *format_buffer;
-		GtkWidget *format_view;
-	} conversations;
-
 #ifdef USE_VV
 	/* Voice/Video page */
 	struct {
@@ -685,55 +670,6 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 	prefs = NULL;
 }
 
-static void
-formatting_toggle_cb(TalkatuActionGroup *ag, GAction *action, const gchar *name, gpointer data)
-{
-	gboolean activated = talkatu_action_group_get_action_activated(ag, name);
-	if(g_ascii_strcasecmp(TALKATU_ACTION_FORMAT_BOLD, name) != 0) {
-		purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/conversations/send_bold",
-		                      activated);
-	} else if(g_ascii_strcasecmp(TALKATU_ACTION_FORMAT_ITALIC, name) != 0) {
-		purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/conversations/send_italic",
-		                      activated);
-	} else if(g_ascii_strcasecmp(TALKATU_ACTION_FORMAT_UNDERLINE, name) != 0) {
-		purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/conversations/send_underline",
-		                      activated);
-	} else if(g_ascii_strcasecmp(TALKATU_ACTION_FORMAT_STRIKETHROUGH, name) != 0) {
-		purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/conversations/send_strike",
-		                      activated);
-	}
-}
-
-static void
-bind_conv_page(PidginPrefsWindow *win)
-{
-	GSimpleActionGroup *ag = NULL;
-
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/show_incoming_formatting",
-			win->conversations.show_incoming_formatting);
-
-	pidgin_prefs_bind_checkbox("/purple/conversations/im/send_typing",
-			win->conversations.im.send_typing);
-
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/conversations/use_smooth_scrolling",
-			win->conversations.use_smooth_scrolling);
-
-#ifdef _WIN32
-	pidgin_prefs_bind_checkbox(PIDGIN_PREFS_ROOT "/win32/blink_im",
-			win->conversations.win32.blink_im);
-#else
-	gtk_widget_hide(win->conversations.win32.blink_im);
-#endif
-
-	pidgin_prefs_bind_spin_button(
-		PIDGIN_PREFS_ROOT "/conversations/minimum_entry_lines",
-		win->conversations.minimum_entry_lines);
-
-	ag = talkatu_buffer_get_action_group(TALKATU_BUFFER(win->conversations.format_buffer));
-	g_signal_connect_after(G_OBJECT(ag), "action-activated",
-	                       G_CALLBACK(formatting_toggle_cb), NULL);
-}
-
 #ifdef USE_VV
 static GList *
 get_vv_device_menuitems(PurpleMediaElementType type)
@@ -1249,7 +1185,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 	GtkWidget *vv;
 #endif
 
-	bind_conv_page(win);
 #ifdef USE_VV
 	vv = vv_page(win);
 	gtk_container_add_with_properties(GTK_CONTAINER(stack), vv, "name",
@@ -1273,29 +1208,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(widget_class, PidginPrefsWindow,
 	                                     stack);
 	gtk_widget_class_bind_template_callback(widget_class, delete_prefs);
-
-	/* Conversations page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.show_incoming_formatting);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.im.send_typing);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.use_smooth_scrolling);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.win32.blink_im);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.minimum_entry_lines);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.format_buffer);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			conversations.format_view);
 }
 
 static void
