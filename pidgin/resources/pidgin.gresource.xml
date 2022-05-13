@@ -24,6 +24,7 @@
     <file compressed="true">Plugins/dialog.ui</file>
     <file compressed="true">Plugins/menu.ui</file>
     <file compressed="true">Prefs/away.ui</file>
+    <file compressed="true">Prefs/conversation.ui</file>
     <file compressed="true">Prefs/credentials.ui</file>
     <file compressed="true">Prefs/credentialprovider.ui</file>
     <file compressed="true">Prefs/ip.css</file>
