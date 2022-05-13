@@ -31,7 +31,6 @@ struct _PidginPresenceIcon {
 
 	PurplePresence *presence;
 	gchar *fallback;
-	GtkIconSize icon_size;
 };
 
 enum {
@@ -54,8 +53,7 @@ pidgin_presence_icon_update(PidginPresenceIcon *icon) {
 
 	icon_name = pidgin_icon_name_from_presence(icon->presence, icon->fallback);
 
-	gtk_image_set_from_icon_name(GTK_IMAGE(icon->icon), icon_name,
-	                             icon->icon_size);
+	gtk_image_set_from_icon_name(GTK_IMAGE(icon->icon), icon_name);
 }
 
 static void
@@ -167,7 +165,7 @@ pidgin_presence_icon_class_init(PidginPresenceIconClass *klass) {
 		"icon-size", "icon-size",
 		"The GtkIconSize to use",
 		GTK_TYPE_ICON_SIZE,
-		GTK_ICON_SIZE_MENU,
+		GTK_ICON_SIZE_NORMAL,
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
 
 	g_object_class_install_properties(obj_class, N_PROPERTIES, properties);
@@ -271,9 +269,9 @@ pidgin_presence_icon_set_fallback(PidginPresenceIcon *icon,
 
 GtkIconSize
 pidgin_presence_icon_get_icon_size(PidginPresenceIcon *icon) {
-	g_return_val_if_fail(PIDGIN_IS_PRESENCE_ICON(icon), GTK_ICON_SIZE_INVALID);
+	g_return_val_if_fail(PIDGIN_IS_PRESENCE_ICON(icon), GTK_ICON_SIZE_INHERIT);
 
-	return icon->icon_size;
+	return gtk_image_get_icon_size(GTK_IMAGE(icon->icon));
 }
 
 void
@@ -282,7 +280,7 @@ pidgin_presence_icon_set_icon_size(PidginPresenceIcon *icon,
 {
 	g_return_if_fail(PIDGIN_IS_PRESENCE_ICON(icon));
 
-	icon->icon_size = icon_size;
+	gtk_image_set_icon_size(GTK_IMAGE(icon->icon), icon_size);
 
 	g_object_freeze_notify(G_OBJECT(icon));
 
