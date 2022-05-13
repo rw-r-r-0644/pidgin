@@ -29,6 +29,7 @@
     <file compressed="true">Prefs/ip.css</file>
     <file compressed="true">Prefs/network.ui</file>
     <file compressed="true">Prefs/prefs.ui</file>
+    <file compressed="true">Prefs/proxy.ui</file>
     <file compressed="true">Prefs/vv.ui</file>
     <file compressed="true">Privacy/dialog.ui</file>
     <file compressed="true">Protocols/chooser.ui</file>

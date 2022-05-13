@@ -393,6 +393,7 @@ pidgin/prefs/pidgincredentialproviderrow.c
 pidgin/prefs/pidgincredentialspage.c
 pidgin/prefs/pidginnetworkpage.c
 pidgin/prefs/pidginprefs.c
+pidgin/prefs/pidginproxyprefs.c
 pidgin/resources/About/about.ui
 pidgin/resources/Accounts/actionsmenu.ui
 pidgin/resources/Accounts/chooser.ui
@@ -415,6 +416,7 @@ pidgin/resources/Prefs/credentialprovider.ui
 pidgin/resources/Prefs/credentials.ui
 pidgin/resources/Prefs/network.ui
 pidgin/resources/Prefs/prefs.ui
+pidgin/resources/Prefs/proxy.ui
 pidgin/resources/Prefs/vv.ui
 pidgin/resources/Privacy/dialog.ui
 pidgin/resources/Protocols/chooser.ui
