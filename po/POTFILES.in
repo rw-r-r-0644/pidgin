@@ -388,6 +388,7 @@ pidgin/plugins/transparency.c
 pidgin/plugins/unity.c
 pidgin/plugins/xmppconsole/console.ui
 pidgin/plugins/xmppconsole/xmppconsole.c
+pidgin/prefs/pidginawaypage.c
 pidgin/prefs/pidgincredentialproviderrow.c
 pidgin/prefs/pidgincredentialspage.c
 pidgin/prefs/pidginprefs.c
@@ -408,6 +409,7 @@ pidgin/resources/Debug/plugininfo.ui
 pidgin/resources/Log/log-viewer.ui
 pidgin/resources/Plugins/dialog.ui
 pidgin/resources/Plugins/menu.ui
+pidgin/resources/Prefs/away.ui
 pidgin/resources/Prefs/credentialprovider.ui
 pidgin/resources/Prefs/credentials.ui
 pidgin/resources/Prefs/prefs.ui

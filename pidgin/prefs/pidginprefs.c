@@ -37,7 +37,6 @@
 #include "gtkblist.h"
 #include "gtkconv.h"
 #include "gtkdialogs.h"
-#include "gtksavedstatuses.h"
 #include "gtkutils.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
@@ -105,18 +104,6 @@ struct _PidginPrefsWindow {
 		GtkWidget *username;
 		GtkWidget *password;
 	} proxy;
-
-	/* Away page */
-	struct {
-		PidginPrefCombo idle_reporting;
-		GtkWidget *mins_before_away;
-		GtkWidget *idle_hbox;
-		GtkWidget *away_when_idle;
-		PidginPrefCombo auto_reply;
-		GtkWidget *startup_current_status;
-		GtkWidget *startup_hbox;
-		GtkWidget *startup_label;
-	} away;
 
 #ifdef USE_VV
 	/* Voice/Video page */
@@ -1048,63 +1035,6 @@ bind_proxy_page(PidginPrefsWindow *win)
 	}
 }
 
-static void
-set_idle_away(PurpleSavedStatus *status)
-{
-	purple_prefs_set_int("/purple/savedstatus/idleaway", purple_savedstatus_get_creation_time(status));
-}
-
-static void
-set_startupstatus(PurpleSavedStatus *status)
-{
-	purple_prefs_set_int("/purple/savedstatus/startup", purple_savedstatus_get_creation_time(status));
-}
-
-static void
-bind_away_page(PidginPrefsWindow *win)
-{
-	GtkWidget *menu;
-
-	/* Idle stuff */
-	win->away.idle_reporting.type = PURPLE_PREF_STRING;
-	win->away.idle_reporting.key = "/purple/away/idle_reporting";
-	pidgin_prefs_bind_dropdown(&win->away.idle_reporting);
-
-	pidgin_prefs_bind_spin_button("/purple/away/mins_before_away",
-			win->away.mins_before_away);
-
-	pidgin_prefs_bind_checkbox("/purple/away/away_when_idle",
-			win->away.away_when_idle);
-
-	/* TODO: Show something useful if we don't have any saved statuses. */
-	menu = pidgin_status_menu(purple_savedstatus_get_idleaway(), G_CALLBACK(set_idle_away));
-	gtk_widget_show_all(menu);
-	gtk_box_pack_start(GTK_BOX(win->away.idle_hbox), menu, FALSE, FALSE, 0);
-
-	g_object_bind_property(win->away.away_when_idle, "active",
-			menu, "sensitive",
-			G_BINDING_SYNC_CREATE);
-
-	/* Away stuff */
-	win->away.auto_reply.type = PURPLE_PREF_STRING;
-	win->away.auto_reply.key = "/purple/away/auto_reply";
-	pidgin_prefs_bind_dropdown(&win->away.auto_reply);
-
-	/* Signon status stuff */
-	pidgin_prefs_bind_checkbox("/purple/savedstatus/startup_current_status",
-			win->away.startup_current_status);
-
-	/* TODO: Show something useful if we don't have any saved statuses. */
-	menu = pidgin_status_menu(purple_savedstatus_get_startup(), G_CALLBACK(set_startupstatus));
-	gtk_widget_show_all(menu);
-	gtk_box_pack_start(GTK_BOX(win->away.startup_hbox), menu, FALSE, FALSE, 0);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(win->away.startup_label), menu);
-	pidgin_set_accessible_label(menu, GTK_LABEL(win->away.startup_label));
-	g_object_bind_property(win->away.startup_current_status, "active",
-			win->away.startup_hbox, "sensitive",
-			G_BINDING_SYNC_CREATE|G_BINDING_INVERT_BOOLEAN);
-}
-
 #ifdef USE_VV
 static GList *
 get_vv_device_menuitems(PurpleMediaElementType type)
@@ -1623,7 +1553,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 	bind_conv_page(win);
 	bind_network_page(win);
 	bind_proxy_page(win);
-	bind_away_page(win);
 #ifdef USE_VV
 	vv = vv_page(win);
 	gtk_container_add_with_properties(GTK_CONTAINER(stack), vv, "name",
@@ -1744,28 +1673,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 			proxy_button_clicked_cb);
 	gtk_widget_class_bind_template_callback(widget_class,
 			proxy_print_option);
-
-	/* Away page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			away.idle_reporting.combo);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			away.mins_before_away);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, away.away_when_idle);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, away.idle_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			away.auto_reply.combo);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			away.startup_current_status);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, away.startup_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, away.startup_label);
 }
 
 static void

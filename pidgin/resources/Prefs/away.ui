@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 
+
+Pidgin - Internet Messenger
+Copyright (C) Pidgin Developers <devel@pidgin.im>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <https://www.gnu.org/licenses/>.
+
+-->
+<interface>
+  <requires lib="gtk+" version="3.22"/>
+  <!-- interface-license-type gplv2 -->
+  <!-- interface-name Pidgin -->
+  <!-- interface-description Internet Messenger -->
+  <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
+  <object class="GtkListStore" id="auto_reply.store">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name value -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Never</col>
+        <col id="1">never</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">When away</col>
+        <col id="1">away</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">When both away and idle</col>
+        <col id="1">awayidle</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="idle_reporting.store">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name value -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Never</col>
+        <col id="1">none</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">From last sent message</col>
+        <col id="1">purple</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Based on keyboard or mouse use</col>
+        <col id="1">system</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkAdjustment" id="mins_before_adjustment">
+    <property name="lower">1</property>
+    <property name="upper">1440</property>
+    <property name="value">1</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <template class="PidginAwayPage" parent="HdyPreferencesPage">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <child>
+      <object class="HdyPreferencesGroup">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="title" translatable="yes">Idle</property>
+        <child>
+          <object class="GtkAlignment">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="left-padding">12</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label12">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">_Report idle time:</property>
+                        <property name="use-underline">True</property>
+                        <property name="mnemonic-widget">idle_reporting.combo</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="idle_reporting.combo">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="model">idle_reporting.store</property>
+                        <child>
+                          <object class="GtkCellRendererText"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label13">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">_Minutes before becoming idle:</property>
+                        <property name="use-underline">True</property>
+                        <property name="mnemonic-widget">mins_before_away</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="mins_before_away">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="adjustment">mins_before_adjustment</property>
+                        <property name="numeric">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="idle_hbox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkCheckButton" id="away_when_idle">
+                        <property name="label" translatable="yes">Change to this status when _idle:</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">False</property>
+                        <property name="use-underline">True</property>
+                        <property name="draw-indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="HdyPreferencesGroup">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="title" translatable="yes">Away</property>
+        <child>
+          <object class="GtkAlignment">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="left-padding">12</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label14">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">_Auto-reply:</property>
+                        <property name="use-underline">True</property>
+                        <property name="mnemonic-widget">auto_reply.combo</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="auto_reply.combo">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="model">auto_reply.store</property>
+                        <child>
+                          <object class="GtkCellRendererText"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="HdyPreferencesGroup">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="title" translatable="yes">Status at Startup</property>
+        <child>
+          <object class="GtkAlignment">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="left-padding">12</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="startup_current_status">
+                    <property name="label" translatable="yes">Use status from last _exit at startup</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="use-underline">True</property>
+                    <property name="draw-indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="startup_hbox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="startup_label">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Status to a_pply at startup:</property>
+                        <property name="use-underline">True</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+  </template>
+  <object class="GtkSizeGroup" id="sg">
+    <widgets>
+      <widget name="label12"/>
+      <widget name="label13"/>
+      <widget name="away_when_idle"/>
+      <widget name="label14"/>
+      <widget name="startup_current_status"/>
+      <widget name="startup_label"/>
+    </widgets>
+  </object>
+</interface>
