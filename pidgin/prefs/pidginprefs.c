@@ -70,23 +70,6 @@ struct _PidginPrefsWindow {
 		GtkWidget *format_view;
 	} conversations;
 
-	/* Proxy page */
-	struct {
-		GtkWidget *stack;
-		/* GNOME version */
-		GtkWidget *gnome_not_found;
-		GtkWidget *gnome_program;
-		gchar *gnome_program_path;
-		/* Non-GNOME version */
-		GtkWidget *socks4_remotedns;
-		PidginPrefCombo type;
-		GtkWidget *options;
-		GtkWidget *host;
-		GtkWidget *port;
-		GtkWidget *username;
-		GtkWidget *password;
-	} proxy;
-
 #ifdef USE_VV
 	/* Voice/Video page */
 	struct {
@@ -699,7 +682,6 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 	/* Unregister callbacks. */
 	purple_prefs_disconnect_by_handle(prefs);
 
-	g_free(prefs->proxy.gnome_program_path);
 	prefs = NULL;
 }
 
@@ -750,124 +732,6 @@ bind_conv_page(PidginPrefsWindow *win)
 	ag = talkatu_buffer_get_action_group(TALKATU_BUFFER(win->conversations.format_buffer));
 	g_signal_connect_after(G_OBJECT(ag), "action-activated",
 	                       G_CALLBACK(formatting_toggle_cb), NULL);
-}
-
-static void
-proxy_changed_cb(const char *name, PurplePrefType type,
-				 gconstpointer value, gpointer data)
-{
-	PidginPrefsWindow *win = data;
-	const char *proxy = value;
-
-	if (!purple_strequal(proxy, "none") && !purple_strequal(proxy, "envvar"))
-		gtk_widget_show_all(win->proxy.options);
-	else
-		gtk_widget_hide(win->proxy.options);
-}
-
-static void
-proxy_print_option(GtkWidget *entry, PidginPrefsWindow *win)
-{
-	if (entry == win->proxy.host) {
-		purple_prefs_set_string("/purple/proxy/host",
-				gtk_entry_get_text(GTK_ENTRY(entry)));
-	} else if (entry == win->proxy.port) {
-		purple_prefs_set_int("/purple/proxy/port",
-				gtk_spin_button_get_value_as_int(
-					GTK_SPIN_BUTTON(entry)));
-	} else if (entry == win->proxy.username) {
-		purple_prefs_set_string("/purple/proxy/username",
-				gtk_entry_get_text(GTK_ENTRY(entry)));
-	} else if (entry == win->proxy.password) {
-		purple_prefs_set_string("/purple/proxy/password",
-				gtk_entry_get_text(GTK_ENTRY(entry)));
-	}
-}
-
-static void
-proxy_button_clicked_cb(GtkWidget *button, PidginPrefsWindow *win)
-{
-	GError *err = NULL;
-
-	if (g_spawn_command_line_async(win->proxy.gnome_program_path, &err))
-		return;
-
-	purple_notify_error(NULL, NULL, _("Cannot start proxy configuration program."), err->message, NULL);
-	g_error_free(err);
-}
-
-static void
-bind_proxy_page(PidginPrefsWindow *win)
-{
-	PurpleProxyInfo *proxy_info;
-
-	if(purple_running_gnome()) {
-		gchar *path = NULL;
-
-		gtk_stack_set_visible_child_name(GTK_STACK(win->proxy.stack),
-				"gnome");
-
-		path = g_find_program_in_path("gnome-network-properties");
-		if (path == NULL)
-			path = g_find_program_in_path("gnome-network-preferences");
-		if (path == NULL) {
-			path = g_find_program_in_path("gnome-control-center");
-			if (path != NULL) {
-				char *tmp = g_strdup_printf("%s network", path);
-				g_free(path);
-				path = tmp;
-			}
-		}
-
-		win->proxy.gnome_program_path = path;
-		gtk_widget_set_visible(win->proxy.gnome_not_found,
-				path == NULL);
-		gtk_widget_set_visible(win->proxy.gnome_program,
-				path != NULL);
-	} else {
-		gtk_stack_set_visible_child_name(GTK_STACK(win->proxy.stack),
-				"nongnome");
-
-		/* This is a global option that affects SOCKS4 usage even with
-		 * account-specific proxy settings */
-		pidgin_prefs_bind_checkbox("/purple/proxy/socks4_remotedns",
-				win->proxy.socks4_remotedns);
-
-		win->proxy.type.type = PURPLE_PREF_STRING;
-		win->proxy.type.key = "/purple/proxy/type";
-		pidgin_prefs_bind_dropdown(&win->proxy.type);
-		proxy_info = purple_global_proxy_get_info();
-
-		purple_prefs_connect_callback(prefs, "/purple/proxy/type",
-				proxy_changed_cb, win);
-
-		if (proxy_info != NULL) {
-			if (purple_proxy_info_get_hostname(proxy_info)) {
-				gtk_entry_set_text(GTK_ENTRY(win->proxy.host),
-						purple_proxy_info_get_hostname(proxy_info));
-			}
-
-			if (purple_proxy_info_get_port(proxy_info) != 0) {
-				gtk_spin_button_set_value(
-						GTK_SPIN_BUTTON(win->proxy.port),
-						purple_proxy_info_get_port(proxy_info));
-			}
-
-			if (purple_proxy_info_get_username(proxy_info) != NULL) {
-				gtk_entry_set_text(GTK_ENTRY(win->proxy.username),
-						purple_proxy_info_get_username(proxy_info));
-			}
-
-			if (purple_proxy_info_get_password(proxy_info) != NULL) {
-				gtk_entry_set_text(GTK_ENTRY(win->proxy.password),
-						purple_proxy_info_get_password(proxy_info));
-			}
-		}
-
-		proxy_changed_cb("/purple/proxy/type", PURPLE_PREF_STRING,
-			purple_prefs_get_string("/purple/proxy/type"),
-			win);
-	}
 }
 
 #ifdef USE_VV
@@ -1386,7 +1250,6 @@ prefs_stack_init(PidginPrefsWindow *win)
 #endif
 
 	bind_conv_page(win);
-	bind_proxy_page(win);
 #ifdef USE_VV
 	vv = vv_page(win);
 	gtk_container_add_with_properties(GTK_CONTAINER(stack), vv, "name",
@@ -1433,33 +1296,6 @@ pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 	gtk_widget_class_bind_template_child(
 			widget_class, PidginPrefsWindow,
 			conversations.format_view);
-
-	/* Proxy page */
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.stack);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.gnome_not_found);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.gnome_program);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow,
-			proxy.socks4_remotedns);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.type.combo);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.options);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.host);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.port);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.username);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginPrefsWindow, proxy.password);
-	gtk_widget_class_bind_template_callback(widget_class,
-			proxy_button_clicked_cb);
-	gtk_widget_class_bind_template_callback(widget_class,
-			proxy_print_option);
 }
 
 static void
