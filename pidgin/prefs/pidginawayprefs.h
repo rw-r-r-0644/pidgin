@@ -24,8 +24,8 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef PIDGIN_AWAY_PAGE_H
-#define PIDGIN_AWAY_PAGE_H
+#ifndef PIDGIN_AWAY_PREFS_H
+#define PIDGIN_AWAY_PREFS_H
 
 #include <glib.h>
 
@@ -35,28 +35,28 @@
 G_BEGIN_DECLS
 
 /**
- * PidginAwayPage:
+ * PidginAwayPrefs:
  *
- * #PidginAwayPage is a widget for the preferences window to let users
+ * #PidginAwayPrefs is a widget for the preferences window to let users
  * choose and configure their away and idle settings.
  *
  * Since: 3.0.0
  */
-#define PIDGIN_TYPE_AWAY_PAGE (pidgin_away_page_get_type())
-G_DECLARE_FINAL_TYPE(PidginAwayPage, pidgin_away_page,
-                     PIDGIN, AWAY_PAGE, HdyPreferencesPage)
+#define PIDGIN_TYPE_AWAY_PREFS (pidgin_away_prefs_get_type())
+G_DECLARE_FINAL_TYPE(PidginAwayPrefs, pidgin_away_prefs,
+                     PIDGIN, AWAY_PREFS, HdyPreferencesPage)
 
 /**
- * pidgin_away_page_new:
+ * pidgin_away_prefs_new:
  *
- * Creates a new #PidginAwayPage instance.
+ * Creates a new #PidginAwayPrefs instance.
  *
- * Returns: (transfer full): The new #PidginAwayPage instance.
+ * Returns: (transfer full): The new #PidginAwayPrefs instance.
  *
  * Since: 3.0.0
  */
-GtkWidget *pidgin_away_page_new(void);
+GtkWidget *pidgin_away_prefs_new(void);
 
 G_END_DECLS
 
-#endif /* PIDGIN_AWAY_PAGE_H */
+#endif /* PIDGIN_AWAY_PREFS_H */

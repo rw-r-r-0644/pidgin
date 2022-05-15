@@ -60,7 +60,7 @@ libpidgin_SOURCES = [
 	'pidginstylecontext.c',
 	'pidgintalkatu.c',
 	'prefs/pidginprefs.c',
-	'prefs/pidginawaypage.c',
+	'prefs/pidginawayprefs.c',
 	'prefs/pidginconversationprefs.c',
 	'prefs/pidgincredentialproviderrow.c',
 	'prefs/pidgincredentialspage.c',
@@ -132,7 +132,7 @@ libpidgin_headers = [
 
 libpidgin_prefs_headers = [
 	'prefs/pidginprefs.h',
-	'prefs/pidginawaypage.h',
+	'prefs/pidginawayprefs.h',
 	'prefs/pidginconversationprefs.h',
 	'prefs/pidgincredentialproviderrow.h',
 	'prefs/pidgincredentialspage.h',

@@ -116,7 +116,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   </packing>
                 </child>
                 <child>
-                  <object class="PidginAwayPage">
+                  <object class="PidginAwayPrefs">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                   </object>
