@@ -233,7 +233,7 @@ pidgin_account_manager_response_cb(GtkDialog *dialog, gint response_id,
 		case GTK_RESPONSE_DELETE_EVENT:
 			/* fallthrough */
 		case GTK_RESPONSE_CLOSE:
-			gtk_widget_destroy(GTK_WIDGET(dialog));
+			gtk_window_destroy(GTK_WINDOW(dialog));
 			break;
 		default:
 			g_warning("not sure how you got here...");
