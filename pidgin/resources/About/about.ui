@@ -60,6 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="resizable">False</property>
     <property name="window-position">center</property>
     <property name="type-hint">dialog</property>
+    <signal name="response" handler="pidgin_about_dialog_response_cb" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can-focus">False</property>
@@ -87,7 +88,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <signal name="clicked" handler="pidgin_about_dialog_close" object="PidginAboutDialog" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -309,5 +309,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-7">close_button</action-widget>
+    </action-widgets>
   </template>
 </interface>

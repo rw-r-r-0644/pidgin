@@ -507,8 +507,14 @@ pidgin_about_dialog_load_build_configuration(PidginAboutDialog *about) {
  * Callbacks
  *****************************************************************************/
 static void
-pidgin_about_dialog_close(GtkWidget *b, gpointer data) {
-	gtk_widget_destroy(GTK_WIDGET(data));
+pidgin_about_dialog_response_cb(GtkDialog *dialog, gint response_id,
+                                G_GNUC_UNUSED gpointer data)
+{
+	switch(response_id) {
+		case GTK_RESPONSE_CLOSE:
+			gtk_widget_destroy(GTK_WIDGET(dialog));
+			break;
+	}
 }
 
 /******************************************************************************
@@ -525,26 +531,41 @@ pidgin_about_dialog_class_init(PidginAboutDialogClass *klass) {
 		"/im/pidgin/Pidgin3/About/about.ui"
 	);
 
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, close_button);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, application_name);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, stack);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     close_button);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     application_name);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     stack);
 
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, main_scrolled_window);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, main_buffer);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     main_scrolled_window);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     main_buffer);
 
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, developers_page);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, developers_store);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, developers_treeview);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     developers_page);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     developers_store);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     developers_treeview);
 
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, translators_page);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, translators_store);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, translators_treeview);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     translators_page);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     translators_store);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     translators_treeview);
 
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, build_info_page);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, build_info_store);
-	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog, build_info_treeview);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     build_info_page);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     build_info_store);
+	gtk_widget_class_bind_template_child(widget_class, PidginAboutDialog,
+	                                     build_info_treeview);
 
-	gtk_widget_class_bind_template_callback(widget_class, pidgin_about_dialog_close);
+	gtk_widget_class_bind_template_callback(widget_class,
+	                                        pidgin_about_dialog_response_cb);
 }
 
 static void
