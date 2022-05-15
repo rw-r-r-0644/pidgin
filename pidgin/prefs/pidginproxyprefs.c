@@ -56,32 +56,32 @@ static void
 proxy_changed_cb(const gchar *name, PurplePrefType type, gconstpointer value,
                  gpointer data)
 {
-	PidginProxyPrefs *page = data;
+	PidginProxyPrefs *prefs = data;
 	const char *proxy = value;
 
 	if (!purple_strequal(proxy, "none") && !purple_strequal(proxy, "envvar")) {
-		gtk_widget_show_all(page->options);
+		gtk_widget_show_all(prefs->options);
 	} else {
-		gtk_widget_hide(page->options);
+		gtk_widget_hide(prefs->options);
 	}
 }
 
 static void
 proxy_print_option(GtkWidget *entry, gpointer data)
 {
-	PidginProxyPrefs *page = data;
+	PidginProxyPrefs *prefs = data;
 
-	if (entry == page->host) {
+	if (entry == prefs->host) {
 		purple_prefs_set_string("/purple/proxy/host",
 				gtk_entry_get_text(GTK_ENTRY(entry)));
-	} else if (entry == page->port) {
+	} else if (entry == prefs->port) {
 		purple_prefs_set_int("/purple/proxy/port",
 				gtk_spin_button_get_value_as_int(
 					GTK_SPIN_BUTTON(entry)));
-	} else if (entry == page->username) {
+	} else if (entry == prefs->username) {
 		purple_prefs_set_string("/purple/proxy/username",
 				gtk_entry_get_text(GTK_ENTRY(entry)));
-	} else if (entry == page->password) {
+	} else if (entry == prefs->password) {
 		purple_prefs_set_string("/purple/proxy/password",
 				gtk_entry_get_text(GTK_ENTRY(entry)));
 	}
@@ -90,10 +90,10 @@ proxy_print_option(GtkWidget *entry, gpointer data)
 static void
 proxy_button_clicked_cb(GtkWidget *button, gpointer data)
 {
-	PidginProxyPrefs *page = data;
+	PidginProxyPrefs *prefs = data;
 	GError *err = NULL;
 
-	if (g_spawn_command_line_async(page->gnome_program_path, &err)) {
+	if (g_spawn_command_line_async(prefs->gnome_program_path, &err)) {
 		return;
 	}
 
@@ -156,16 +156,16 @@ pidgin_proxy_prefs_class_init(PidginProxyPrefsClass *klass)
 }
 
 static void
-pidgin_proxy_prefs_init(PidginProxyPrefs *page)
+pidgin_proxy_prefs_init(PidginProxyPrefs *prefs)
 {
 	PurpleProxyInfo *proxy_info;
 
-	gtk_widget_init_template(GTK_WIDGET(page));
+	gtk_widget_init_template(GTK_WIDGET(prefs));
 
 	if(purple_running_gnome()) {
 		gchar *path = NULL;
 
-		gtk_stack_set_visible_child_name(GTK_STACK(page->stack),
+		gtk_stack_set_visible_child_name(GTK_STACK(prefs->stack),
 				"gnome");
 
 		path = g_find_program_in_path("gnome-network-properties");
@@ -181,52 +181,52 @@ pidgin_proxy_prefs_init(PidginProxyPrefs *page)
 			}
 		}
 
-		page->gnome_program_path = path;
-		gtk_widget_set_visible(page->gnome_not_found, path == NULL);
-		gtk_widget_set_visible(page->gnome_program, path != NULL);
+		prefs->gnome_program_path = path;
+		gtk_widget_set_visible(prefs->gnome_not_found, path == NULL);
+		gtk_widget_set_visible(prefs->gnome_program, path != NULL);
 	} else {
-		gtk_stack_set_visible_child_name(GTK_STACK(page->stack),
+		gtk_stack_set_visible_child_name(GTK_STACK(prefs->stack),
 				"nongnome");
 
 		/* This is a global option that affects SOCKS4 usage even with
 		 * account-specific proxy settings */
 		pidgin_prefs_bind_checkbox("/purple/proxy/socks4_remotedns",
-				page->socks4_remotedns);
+				prefs->socks4_remotedns);
 
-		page->type.type = PURPLE_PREF_STRING;
-		page->type.key = "/purple/proxy/type";
-		pidgin_prefs_bind_dropdown(&page->type);
+		prefs->type.type = PURPLE_PREF_STRING;
+		prefs->type.key = "/purple/proxy/type";
+		pidgin_prefs_bind_dropdown(&prefs->type);
 		proxy_info = purple_global_proxy_get_info();
 
-		purple_prefs_connect_callback(page, "/purple/proxy/type",
-				proxy_changed_cb, page);
+		purple_prefs_connect_callback(prefs, "/purple/proxy/type",
+				proxy_changed_cb, prefs);
 
 		if (proxy_info != NULL) {
 			if (purple_proxy_info_get_hostname(proxy_info)) {
-				gtk_entry_set_text(GTK_ENTRY(page->host),
+				gtk_entry_set_text(GTK_ENTRY(prefs->host),
 						purple_proxy_info_get_hostname(proxy_info));
 			}
 
 			if (purple_proxy_info_get_port(proxy_info) != 0) {
 				gtk_spin_button_set_value(
-						GTK_SPIN_BUTTON(page->port),
+						GTK_SPIN_BUTTON(prefs->port),
 						purple_proxy_info_get_port(proxy_info));
 			}
 
 			if (purple_proxy_info_get_username(proxy_info) != NULL) {
-				gtk_entry_set_text(GTK_ENTRY(page->username),
+				gtk_entry_set_text(GTK_ENTRY(prefs->username),
 						purple_proxy_info_get_username(proxy_info));
 			}
 
 			if (purple_proxy_info_get_password(proxy_info) != NULL) {
-				gtk_entry_set_text(GTK_ENTRY(page->password),
+				gtk_entry_set_text(GTK_ENTRY(prefs->password),
 						purple_proxy_info_get_password(proxy_info));
 			}
 		}
 
 		proxy_changed_cb("/purple/proxy/type", PURPLE_PREF_STRING,
 			purple_prefs_get_string("/purple/proxy/type"),
-			page);
+			prefs);
 	}
 }
 
