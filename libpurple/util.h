@@ -37,8 +37,6 @@
 #include "purpleprotocol.h"
 
 
-typedef char *(*PurpleInfoFieldFormatCallback)(const char *field, size_t len);
-
 G_BEGIN_DECLS
 
 /**
@@ -286,39 +284,9 @@ purple_util_read_xml_from_config_file(const char *filename, const char *descript
 PurpleXmlNode *
 purple_util_read_xml_from_data_file(const char *filename, const char *description);
 
-/**
- * purple_mkstemp:
- * @path:   The returned path to the temp file.
- * @binary: Text or binary, for platforms where it matters.
- *
- * Creates a temporary file and returns a file pointer to it.
- *
- * This is like mkstemp(), but returns a file pointer and uses a
- * pre-set template. It uses the semantics of tempnam() for the
- * directory to use and allocates the space for the file path.
- *
- * The caller is responsible for closing the file and removing it when
- * done, as well as freeing the space pointed to by @path with
- * g_free().
- *
- * Returns: A file pointer to the temporary file, or %NULL on failure.
- */
-FILE *purple_mkstemp(char **path, gboolean binary);
-
-
 /**************************************************************************/
 /* Environment Detection Functions                                        */
 /**************************************************************************/
-
-/**
- * purple_program_is_valid:
- * @program: The file name of the application.
- *
- * Checks if the given program name is valid and executable.
- *
- * Returns: TRUE if the program is runable.
- */
-gboolean purple_program_is_valid(const char *program);
 
 /**
  * purple_running_gnome:
@@ -337,16 +305,6 @@ gboolean purple_running_gnome(void);
  * Returns: TRUE if running KDE, FALSE otherwise.
  */
 gboolean purple_running_kde(void);
-
-/**
- * purple_running_osx:
- *
- * Check if running OS X.
- *
- * Returns: TRUE if running OS X, FALSE otherwise.
- */
-gboolean purple_running_osx(void);
-
 
 /**************************************************************************/
 /* String Functions                                                       */
@@ -440,16 +398,6 @@ purple_str_has_caseprefix(const gchar *s, const gchar *p);
 gchar *purple_strdup_withhtml(const gchar *src);
 
 /**
- * purple_str_add_cr:
- * @str: The source string.
- *
- * Ensures that all linefeeds have a matching carriage return.
- *
- * Returns: The string with carriage returns.
- */
-char *purple_str_add_cr(const char *str);
-
-/**
  * purple_str_strip_char:
  * @str:     The string to strip characters from.
  * @thechar: The character to strip from the given string.
@@ -521,23 +469,6 @@ char *purple_utf8_ncr_encode(const char *in);
  */
 char *purple_utf8_ncr_decode(const char *in);
 
-
-/**
- * purple_strcasereplace:
- * @string: The string from which to replace stuff.
- * @delimiter: The substring you want replaced.
- * @replacement: The substring you want inserted in place
- *        of the delimiting substring.
- *
- * Given a string, this replaces one substring with another
- * ignoring case and returns a newly allocated string.
- *
- * Returns: A new string, after performing the substitution.
- *         free this with g_free().
- */
-gchar *purple_strcasereplace(const char *string, const char *delimiter,
-						   const char *replacement);
-
 /**
  * purple_strcasestr:
  * @haystack: The string to search in.
@@ -576,18 +507,6 @@ void purple_str_wipe(gchar *str);
 /**************************************************************************/
 
 void purple_got_protocol_handler_uri(const char *uri);
-
-/**
- * purple_url_decode:
- * @str: The string to translate.
- *
- * Decodes a URL into a plain string.
- *
- * This will change hex codes and such to their ascii equivalents.
- *
- * Returns: The resulting string.
- */
-const char *purple_url_decode(const char *str);
 
 /**
  * purple_url_encode:
@@ -683,18 +602,6 @@ gchar *purple_utf8_try_convert(const char *str);
 gchar *purple_utf8_strip_unprintables(const gchar *str);
 
 /**
- * purple_gai_strerror:
- * @errnum: The error code.
- *
- * Return the UTF-8 version of #gai_strerror. It calls #gai_strerror
- * then converts the result to UTF-8. This function is analogous to
- * g_strerror().
- *
- * Returns: The UTF-8 error message.
- */
-const gchar *purple_gai_strerror(gint errnum);
-
-/**
  * purple_utf8_strcasecmp:
  * @a: The first string.
  * @b: The second string.
@@ -745,18 +652,6 @@ gboolean purple_message_meify(char *message, gssize len);
  * Returns: The stripped string
  */
 char *purple_text_strip_mnemonic(const char *in);
-
-/**
- * purple_unescape_filename:
- * @str: The string to translate.
- *
- * Does the reverse of purple_escape_filename
- *
- * This will change hex codes and such to their ascii equivalents.
- *
- * Returns: The resulting string.
- */
-const char *purple_unescape_filename(const char *str);
 
 /**
  * purple_escape_filename:

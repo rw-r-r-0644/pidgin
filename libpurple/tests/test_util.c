@@ -39,15 +39,6 @@ test_util_filename_escape(void) {
 	g_assert_cmpstr("%21oo", ==, purple_escape_filename("!oo"));
 }
 
-static void
-test_util_filename_unescape(void) {
-	g_assert_cmpstr("bar", ==, purple_unescape_filename("bar"));
-	g_assert_cmpstr("@ar", ==, purple_unescape_filename("@ar"));
-	g_assert_cmpstr("!ar", ==, purple_unescape_filename("!ar"));
-	g_assert_cmpstr("!ar", ==, purple_unescape_filename("%21ar"));
-	g_assert_cmpstr("%ar", ==, purple_unescape_filename("%25ar"));
-}
-
 /******************************************************************************
  * text_strip tests
  *****************************************************************************/
@@ -239,8 +230,6 @@ main(gint argc, gchar **argv) {
 
 	g_test_add_func("/util/filename/escape",
 	                test_util_filename_escape);
-	g_test_add_func("/util/filename/unescape",
-	                test_util_filename_unescape);
 
 	g_test_add_func("/util/mnemonic/strip",
 	                test_util_text_strip_mnemonic);

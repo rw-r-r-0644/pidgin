@@ -437,6 +437,7 @@ version 3.0.0 (??/??/????):
 		  yourself. See GLib Main Event Loop docs.
 		* purple_fd_get_ip.  Use GSocket instead.
 		* purple_find_pounce
+		* purple_gai_strerror
 		* PurpleGetPublicAliasSuccessCallback
 		* PurpleGetPublicAliasFailureCallback
 		* purple_get_attention_type_from_code
@@ -463,6 +464,7 @@ version 3.0.0 (??/??/????):
 		  purple_mime_part_get_data_decoded,
 		  purple_mime_part_get_length, purple_mime_part_set_data, and
 		  purple_mime_decode_field. Use the GMime library, instead.
+		* purple_mkstemp
 		* purple_network_convert_idn_to_ascii. Use g_hostname_to_ascii,
 		  instead.
 		* purple_network_get_all_local_system_ips.  Use libnice instead.
@@ -492,6 +494,7 @@ version 3.0.0 (??/??/????):
 		* PurplePluginType
 		* PurplePluginPriority
 		* PurplePluginLoaderInfo
+		* PurplePluginProtocolInfo
 		* PurplePluginUiInfo
 		* purple_plugin_ipc_*
 		* purple_plugin_is_unloadable
@@ -563,7 +566,7 @@ version 3.0.0 (??/??/????):
 		* purple_presence_new_for_account
 		* purple_presence_new_for_buddy
 		* purple_print_utf8_to_console
-		* PurplePluginProtocolInfo
+		* purple_program_is_valid
 		* pidgin_protocol_option_menu_new
 		* purple_proxy_connect_socks5
 		* purple_proxy_connect_socks5_account
@@ -586,6 +589,7 @@ version 3.0.0 (??/??/????):
 		* purple_roomlist_get_fields
 		* purple_roomlist_get_protocol_data
 		* purple_roomlist_set_protocol_data
+		* purple_running_osx
 		* PurpleSetPublicAliasFailureCallback
 		* PurpleSetPublicAliasSuccessCallback
 		* purple_smiley_get_type
@@ -643,6 +647,8 @@ version 3.0.0 (??/??/????):
 		* purple_srv_cancel
 		* purple_srv_resolve_account
 		* purple_srv_txt_query_destroy
+		* purple_str_add_cr
+		* purple_strcasereplace
 		* PurpleStunNatType
 		* PurpleStunNatDiscovery.type
 		* PURPLE_SSL_DEFAULT_PORT
@@ -684,6 +690,8 @@ version 3.0.0 (??/??/????):
 		* purple_txt_cancel
 		* purple_txt_resolve_account
 		* PurpleType, use GType instead.
+		* purple_unescape_filename
+		* purple_url_decode
 		* purple_utf8_salvage.  Use g_utf8_make_valid instead.
 		* purple_utf8_strftime
 		* purple_util_write_data_to_file_absolute.  Use g_file_set_contents
