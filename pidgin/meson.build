@@ -64,7 +64,7 @@ libpidgin_SOURCES = [
 	'prefs/pidginconversationprefs.c',
 	'prefs/pidgincredentialproviderrow.c',
 	'prefs/pidgincredentialprefs.c',
-	'prefs/pidginnetworkpage.c',
+	'prefs/pidginnetworkprefs.c',
 	'prefs/pidginproxyprefs.c',
 ]
 
@@ -136,7 +136,7 @@ libpidgin_prefs_headers = [
 	'prefs/pidginconversationprefs.h',
 	'prefs/pidgincredentialproviderrow.h',
 	'prefs/pidgincredentialprefs.h',
-	'prefs/pidginnetworkpage.h',
+	'prefs/pidginnetworkprefs.h',
 	'prefs/pidginproxyprefs.h',
 ]
 

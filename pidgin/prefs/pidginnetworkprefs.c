@@ -27,10 +27,10 @@
 #include <handy.h>
 #include <nice.h>
 
-#include "pidginnetworkpage.h"
+#include "pidginnetworkprefs.h"
 #include "pidginprefsinternal.h"
 
-struct _PidginNetworkPage {
+struct _PidginNetworkPrefs {
 	HdyPreferencesPage parent;
 
 	GtkWidget *stun_server;
@@ -49,7 +49,8 @@ struct _PidginNetworkPage {
 	GtkWidget *turn_password;
 };
 
-G_DEFINE_TYPE(PidginNetworkPage, pidgin_network_page, HDY_TYPE_PREFERENCES_PAGE)
+G_DEFINE_TYPE(PidginNetworkPrefs, pidgin_network_prefs,
+              HDY_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers
@@ -146,7 +147,7 @@ auto_ip_button_clicked_cb(GtkWidget *button, gpointer null)
  * GObject Implementation
  *****************************************************************************/
 static void
-pidgin_network_page_class_init(PidginNetworkPageClass *klass)
+pidgin_network_prefs_class_init(PidginNetworkPrefsClass *klass)
 {
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
@@ -155,108 +156,107 @@ pidgin_network_page_class_init(PidginNetworkPageClass *klass)
 		"/im/pidgin/Pidgin3/Prefs/network.ui"
 	);
 
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, stun_server);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, auto_ip);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, public_ip);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, public_ip_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, map_ports);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, ports_range_use);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, ports_range_hbox);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, ports_range_start);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, ports_range_end);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, turn_server);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, turn_port_udp);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, turn_port_tcp);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, turn_username);
-	gtk_widget_class_bind_template_child(
-			widget_class, PidginNetworkPage, turn_password);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     stun_server);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     auto_ip);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     public_ip);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     public_ip_hbox);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     map_ports);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     ports_range_use);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     ports_range_hbox);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     ports_range_start);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     ports_range_end);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     turn_server);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     turn_port_udp);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     turn_port_tcp);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     turn_username);
+	gtk_widget_class_bind_template_child(widget_class, PidginNetworkPrefs,
+	                                     turn_password);
 	gtk_widget_class_bind_template_callback(widget_class,
-			network_stun_server_changed_cb);
+	                                        network_stun_server_changed_cb);
 	gtk_widget_class_bind_template_callback(widget_class,
-	                 auto_ip_button_clicked_cb);
+	                                        auto_ip_button_clicked_cb);
+	gtk_widget_class_bind_template_callback(widget_class, network_ip_changed);
 	gtk_widget_class_bind_template_callback(widget_class,
-			network_ip_changed);
-	gtk_widget_class_bind_template_callback(widget_class,
-			network_turn_server_changed_cb);
+	                                        network_turn_server_changed_cb);
 }
 
 static void
-pidgin_network_page_init(PidginNetworkPage *page)
+pidgin_network_prefs_init(PidginNetworkPrefs *prefs)
 {
 	GtkStyleContext *context;
 	GtkCssProvider *ip_css;
 
-	gtk_widget_init_template(GTK_WIDGET(page));
+	gtk_widget_init_template(GTK_WIDGET(prefs));
 
-	gtk_entry_set_text(GTK_ENTRY(page->stun_server),
+	gtk_entry_set_text(GTK_ENTRY(prefs->stun_server),
 			purple_prefs_get_string("/purple/network/stun_server"));
 
-	pidgin_prefs_bind_checkbox("/purple/network/auto_ip", page->auto_ip);
-	auto_ip_button_clicked_cb(page->auto_ip, NULL); /* Update label */
+	pidgin_prefs_bind_checkbox("/purple/network/auto_ip", prefs->auto_ip);
+	auto_ip_button_clicked_cb(prefs->auto_ip, NULL); /* Update label */
 
-	gtk_entry_set_text(GTK_ENTRY(page->public_ip),
+	gtk_entry_set_text(GTK_ENTRY(prefs->public_ip),
 			purple_network_get_public_ip());
 
 	ip_css = gtk_css_provider_new();
 	gtk_css_provider_load_from_resource(ip_css,
 	                                    "/im/pidgin/Pidgin3/Prefs/ip.css");
 
-	context = gtk_widget_get_style_context(page->public_ip);
+	context = gtk_widget_get_style_context(prefs->public_ip);
 	gtk_style_context_add_provider(context,
 	                               GTK_STYLE_PROVIDER(ip_css),
 	                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-	g_object_bind_property(page->auto_ip, "active",
-			page->public_ip_hbox, "sensitive",
+	g_object_bind_property(prefs->auto_ip, "active",
+			prefs->public_ip_hbox, "sensitive",
 			G_BINDING_SYNC_CREATE|G_BINDING_INVERT_BOOLEAN);
 
 	pidgin_prefs_bind_checkbox("/purple/network/map_ports",
-			page->map_ports);
+			prefs->map_ports);
 
 	pidgin_prefs_bind_checkbox("/purple/network/ports_range_use",
-			page->ports_range_use);
-	g_object_bind_property(page->ports_range_use, "active",
-			page->ports_range_hbox, "sensitive",
+			prefs->ports_range_use);
+	g_object_bind_property(prefs->ports_range_use, "active",
+			prefs->ports_range_hbox, "sensitive",
 			G_BINDING_SYNC_CREATE);
 
 	pidgin_prefs_bind_spin_button("/purple/network/ports_range_start",
-			page->ports_range_start);
+			prefs->ports_range_start);
 	pidgin_prefs_bind_spin_button("/purple/network/ports_range_end",
-			page->ports_range_end);
+			prefs->ports_range_end);
 
 	/* TURN server */
-	gtk_entry_set_text(GTK_ENTRY(page->turn_server),
+	gtk_entry_set_text(GTK_ENTRY(prefs->turn_server),
 			purple_prefs_get_string("/purple/network/turn_server"));
 
 	pidgin_prefs_bind_spin_button("/purple/network/turn_port",
-			page->turn_port_udp);
+			prefs->turn_port_udp);
 
 	pidgin_prefs_bind_spin_button("/purple/network/turn_port_tcp",
-			page->turn_port_tcp);
+			prefs->turn_port_tcp);
 
 	pidgin_prefs_bind_entry("/purple/network/turn_username",
-			page->turn_username);
+			prefs->turn_username);
 	pidgin_prefs_bind_entry("/purple/network/turn_password",
-			page->turn_password);
+			prefs->turn_password);
 }
 
 /******************************************************************************
  * API
  *****************************************************************************/
 GtkWidget *
-pidgin_network_page_new(void) {
-	return GTK_WIDGET(g_object_new(PIDGIN_TYPE_NETWORK_PAGE, NULL));
+pidgin_network_prefs_new(void) {
+	return GTK_WIDGET(g_object_new(PIDGIN_TYPE_NETWORK_PREFS, NULL));
 }
