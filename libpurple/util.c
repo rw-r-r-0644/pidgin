@@ -201,88 +201,6 @@ purple_util_read_xml_from_data_file(const char *filename, const char *descriptio
 	return purple_xmlnode_from_file(purple_data_dir(), filename, description, "util");
 }
 
-/*
- * Like mkstemp() but returns a file pointer, uses a pre-set template,
- * uses the semantics of tempnam() for the directory to use and allocates
- * the space for the filepath.
- *
- * Caller is responsible for closing the file and removing it when done,
- * as well as freeing the space pointed-to by "path" with g_free().
- *
- * Returns NULL on failure and cleans up after itself if so.
- */
-static const char *purple_mkstemp_templ = {"purpleXXXXXX"};
-
-FILE *
-purple_mkstemp(char **fpath, gboolean binary)
-{
-	const gchar *tmpdir;
-	int fd;
-	FILE *fp = NULL;
-
-	g_return_val_if_fail(fpath != NULL, NULL);
-
-	if((tmpdir = (gchar*)g_get_tmp_dir()) != NULL) {
-		if((*fpath = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", tmpdir, purple_mkstemp_templ)) != NULL) {
-			fd = g_mkstemp(*fpath);
-			if(fd == -1) {
-				purple_debug_error("purple_mkstemp", "Couldn't make \"%s\", error: %d",
-				                   *fpath, errno);
-			} else {
-				if((fp = fdopen(fd, "r+")) == NULL) {
-					close(fd);
-					purple_debug_error("purple_mkstemp", "Couldn't fdopen(), error: %d", errno);
-				}
-			}
-
-			if(!fp) {
-				g_free(*fpath);
-				*fpath = NULL;
-			}
-		}
-	} else {
-		purple_debug_error("purple_mkstemp", "g_get_tmp_dir() failed!");
-	}
-
-	return fp;
-}
-
-gboolean
-purple_program_is_valid(const char *program)
-{
-	GError *error = NULL;
-	char **argv;
-	gchar *progname;
-	gboolean is_valid = FALSE;
-
-	g_return_val_if_fail(program != NULL,  FALSE);
-	g_return_val_if_fail(*program != '\0', FALSE);
-
-	if (!g_shell_parse_argv(program, NULL, &argv, &error)) {
-		purple_debug_error("program_is_valid", "Could not parse program '%s': %s",
-		                   program, error->message);
-		g_error_free(error);
-		return FALSE;
-	}
-
-	if (argv == NULL) {
-		return FALSE;
-	}
-
-	progname = g_find_program_in_path(argv[0]);
-	is_valid = (progname != NULL);
-
-	if(purple_debug_is_verbose())
-		purple_debug_info("program_is_valid", "Tested program %s.  %s.\n", program,
-				is_valid ? "Valid" : "Invalid");
-
-	g_strfreev(argv);
-	g_free(progname);
-
-	return is_valid;
-}
-
-
 gboolean
 purple_running_gnome(void)
 {
@@ -327,16 +245,6 @@ purple_running_kde(void)
 	 * only a problem if you're running something !(KDE || GNOME) and
 	 * you run Purple from Konsole. This really shouldn't be a problem. */
 	return ((g_getenv("KDEDIR") != NULL) || g_getenv("KDEDIRS") != NULL);
-#else
-	return FALSE;
-#endif
-}
-
-gboolean
-purple_running_osx(void)
-{
-#if defined(__APPLE__)
-	return TRUE;
 #else
 	return FALSE;
 #endif
@@ -462,39 +370,6 @@ purple_str_has_caseprefix(const gchar *s, const gchar *p)
 	return (g_ascii_strncasecmp(s, p, strlen(p)) == 0);
 }
 
-char *
-purple_str_add_cr(const char *text)
-{
-	char *ret = NULL;
-	int count = 0, j;
-	guint i;
-
-	g_return_val_if_fail(text != NULL, NULL);
-
-	if (text[0] == '\n')
-		count++;
-	for (i = 1; i < strlen(text); i++)
-		if (text[i] == '\n' && text[i - 1] != '\r')
-			count++;
-
-	if (count == 0)
-		return g_strdup(text);
-
-	ret = g_malloc0(strlen(text) + count + 1);
-
-	i = 0; j = 0;
-	if (text[i] == '\n')
-		ret[j++] = '\r';
-	ret[j++] = text[i++];
-	for (; i < strlen(text); i++) {
-		if (text[i] == '\n' && text[i - 1] != '\r')
-			ret[j++] = '\r';
-		ret[j++] = text[i];
-	}
-
-	return ret;
-}
-
 void
 purple_str_strip_char(char *text, char thechar)
 {
@@ -539,54 +414,6 @@ purple_strreplace(const char *string, const char *delimiter,
 	split = g_strsplit(string, delimiter, 0);
 	ret = g_strjoinv(replacement, split);
 	g_strfreev(split);
-
-	return ret;
-}
-
-gchar *
-purple_strcasereplace(const char *string, const char *delimiter,
-					const char *replacement)
-{
-	gchar *ret;
-	int length_del, length_rep, i, j;
-
-	g_return_val_if_fail(string      != NULL, NULL);
-	g_return_val_if_fail(delimiter   != NULL, NULL);
-	g_return_val_if_fail(replacement != NULL, NULL);
-
-	length_del = strlen(delimiter);
-	length_rep = strlen(replacement);
-
-	/* Count how many times the delimiter appears */
-	i = 0; /* position in the source string */
-	j = 0; /* number of occurrences of "delimiter" */
-	while (string[i] != '\0') {
-		if (!g_ascii_strncasecmp(&string[i], delimiter, length_del)) {
-			i += length_del;
-			j += length_rep;
-		} else {
-			i++;
-			j++;
-		}
-	}
-
-	ret = g_malloc(j+1);
-
-	i = 0; /* position in the source string */
-	j = 0; /* position in the destination string */
-	while (string[i] != '\0') {
-		if (!g_ascii_strncasecmp(&string[i], delimiter, length_del)) {
-			strncpy(&ret[j], replacement, length_rep);
-			i += length_del;
-			j += length_rep;
-		} else {
-			ret[j] = string[i];
-			i++;
-			j++;
-		}
-	}
-
-	ret[j] = '\0';
 
 	return ret;
 }
@@ -766,50 +593,6 @@ void purple_got_protocol_handler_uri(const char *uri)
 	g_free(cmd);
 	if (params)
 		g_hash_table_destroy(params);
-}
-
-const char *
-purple_url_decode(const char *str)
-{
-	static char buf[BUF_LEN];
-	guint i, j = 0;
-	char *bum;
-	char hex[3];
-
-	g_return_val_if_fail(str != NULL, NULL);
-
-	/*
-	 * XXX - This check could be removed and buf could be made
-	 * dynamically allocated, but this is easier.
-	 */
-	if (strlen(str) >= BUF_LEN)
-		return NULL;
-
-	for (i = 0; i < strlen(str); i++) {
-
-		if (str[i] != '%')
-			buf[j++] = str[i];
-		else {
-			strncpy(hex, str + ++i, 2);
-			hex[2] = '\0';
-
-			/* i is pointing to the start of the number */
-			i++;
-
-			/*
-			 * Now it's at the end and at the start of the for loop
-			 * will be at the next character.
-			 */
-			buf[j++] = strtol(hex, NULL, 16);
-		}
-	}
-
-	buf[j] = '\0';
-
-	if (!g_utf8_validate(buf, -1, (const char **)&bum))
-		*bum = '\0';
-
-	return buf;
 }
 
 const char *
@@ -1067,55 +850,6 @@ purple_utf8_strip_unprintables(const gchar *str)
 	return workstr;
 }
 
-/*
- * This function is copied from g_strerror() but changed to use
- * gai_strerror().
- */
-const gchar *
-purple_gai_strerror(gint errnum)
-{
-	static GPrivate msg_private = G_PRIVATE_INIT(g_free);
-	char *msg;
-	int saved_errno = errno;
-
-	const char *msg_locale;
-
-	msg_locale = gai_strerror(errnum);
-	if (g_get_charset(NULL))
-	{
-		/* This string is already UTF-8--great! */
-		errno = saved_errno;
-		return msg_locale;
-	}
-	else
-	{
-		gchar *msg_utf8 = g_locale_to_utf8(msg_locale, -1, NULL, NULL, NULL);
-		if (msg_utf8)
-		{
-			/* Stick in the quark table so that we can return a static result */
-			GQuark msg_quark = g_quark_from_string(msg_utf8);
-			g_free(msg_utf8);
-
-			msg_utf8 = (gchar *)g_quark_to_string(msg_quark);
-			errno = saved_errno;
-			return msg_utf8;
-		}
-	}
-
-	msg = g_private_get(&msg_private);
-
-	if (!msg)
-	{
-		msg = g_new(gchar, 64);
-		g_private_set(&msg_private, msg);
-	}
-
-	sprintf(msg, "unknown error (%d)", errnum);
-
-	errno = saved_errno;
-	return msg;
-}
-
 char *
 purple_utf8_ncr_encode(const char *str)
 {
@@ -1347,11 +1081,6 @@ char *purple_text_strip_mnemonic(const char *in)
 
 	return out;
 }
-
-const char* purple_unescape_filename(const char *escaped) {
-	return purple_url_decode(escaped);
-}
-
 
 /* this is almost identical to purple_url_encode (hence purple_url_decode
  * being used above), but we want to keep certain characters unescaped
