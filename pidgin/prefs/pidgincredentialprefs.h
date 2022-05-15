@@ -24,8 +24,8 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef PIDGIN_CREDENTIALS_PAGE_H
-#define PIDGIN_CREDENTIALS_PAGE_H
+#ifndef PIDGIN_CREDENTIAL_PREFS_H
+#define PIDGIN_CREDENTIAL_PREFS_H
 
 #include <glib.h>
 
@@ -35,36 +35,36 @@
 G_BEGIN_DECLS
 
 /**
- * PIDGIN_TYPE_CREDENTIALS_PAGE:
+ * PIDGIN_TYPE_CREDENTIAL_PREFS:
  *
- * The standard _get_type macro for #PidginCredentialsPage.
+ * The standard _get_type macro for #PidginCredentialPrefs.
  *
  * Since: 3.0.0
  */
-#define PIDGIN_TYPE_CREDENTIALS_PAGE (pidgin_credentials_page_get_type())
-G_DECLARE_FINAL_TYPE(PidginCredentialsPage, pidgin_credentials_page,
-                     PIDGIN, CREDENTIALS_PAGE, HdyPreferencesPage)
+#define PIDGIN_TYPE_CREDENTIAL_PREFS (pidgin_credential_prefs_get_type())
+G_DECLARE_FINAL_TYPE(PidginCredentialPrefs, pidgin_credential_prefs,
+                     PIDGIN, CREDENTIAL_PREFS, HdyPreferencesPage)
 
 /**
- * PidginCredentialsPage:
+ * PidginCredentialPrefs:
  *
- * #PidginCredentialsPage is a widget for the preferences window to let users
+ * #PidginCredentialPrefs is a widget for the preferences window to let users
  * choose and configure their credential provider.
  *
  * Since: 3.0.0
  */
 
 /**
- * pidgin_credentials_page_new:
+ * pidgin_credential_prefs_new:
  *
- * Creates a new #PidginCredentialsPage instance.
+ * Creates a new #PidginCredentialPrefs instance.
  *
- * Returns: (transfer full): The new #PidginCredentialsPage instance.
+ * Returns: (transfer full): The new #PidginCredentialPrefs instance.
  *
  * Since: 3.0.0
  */
-GtkWidget *pidgin_credentials_page_new(void);
+GtkWidget *pidgin_credential_prefs_new(void);
 
 G_END_DECLS
 
-#endif /* PIDGIN_CREDENTIALS_PAGE_H */
+#endif /* PIDGIN_CREDENTIAL_PREFS_H */

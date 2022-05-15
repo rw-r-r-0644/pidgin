@@ -24,24 +24,24 @@
 
 #include <handy.h>
 
-#include "pidgincredentialspage.h"
+#include "pidgincredentialprefs.h"
 
 #include "pidgincredentialproviderrow.h"
 
-struct _PidginCredentialsPage {
+struct _PidginCredentialPrefs {
 	HdyPreferencesPage parent;
 
 	GtkWidget *credential_list;
 };
 
-G_DEFINE_TYPE(PidginCredentialsPage, pidgin_credentials_page,
+G_DEFINE_TYPE(PidginCredentialPrefs, pidgin_credential_prefs,
               HDY_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers
  *****************************************************************************/
 static void
-pidgin_credentials_page_create_row(PurpleCredentialProvider *provider,
+pidgin_credential_prefs_create_row(PurpleCredentialProvider *provider,
                                    gpointer data)
 {
 	GtkListBox *box = GTK_LIST_BOX(data);
@@ -52,7 +52,7 @@ pidgin_credentials_page_create_row(PurpleCredentialProvider *provider,
 }
 
 static gint
-pidgin_credentials_page_sort_rows(GtkListBoxRow *row1, GtkListBoxRow *row2,
+pidgin_credential_prefs_sort_rows(GtkListBoxRow *row1, GtkListBoxRow *row2,
                                   G_GNUC_UNUSED gpointer user_data)
 {
 	PidginCredentialProviderRow *pcprow = NULL;
@@ -85,9 +85,9 @@ pidgin_credentials_page_sort_rows(GtkListBoxRow *row1, GtkListBoxRow *row2,
 }
 
 static void
-pidgin_credential_page_list_row_activated_cb(GtkListBox *box,
-                                             GtkListBoxRow *row,
-                                             G_GNUC_UNUSED gpointer data)
+pidgin_credential_prefs_list_row_activated_cb(GtkListBox *box,
+                                              GtkListBoxRow *row,
+                                              G_GNUC_UNUSED gpointer data)
 {
 	PurpleCredentialManager *manager = NULL;
 	PurpleCredentialProvider *provider = NULL;
@@ -103,7 +103,7 @@ pidgin_credential_page_list_row_activated_cb(GtkListBox *box,
 		return;
 	}
 
-	purple_debug_warning("credentials-page", "failed to set the active "
+	purple_debug_warning("credential-prefs", "failed to set the active "
 			     "credential provider to '%s': %s",
 			     id, error ? error->message : "unknown error");
 
@@ -111,12 +111,12 @@ pidgin_credential_page_list_row_activated_cb(GtkListBox *box,
 }
 
 static void
-pidgin_credentials_page_set_active_provider(PidginCredentialsPage *page,
+pidgin_credential_prefs_set_active_provider(PidginCredentialPrefs *prefs,
                                             const gchar *new_id)
 {
 	GList *rows = NULL;
 
-	rows = gtk_container_get_children(GTK_CONTAINER(page->credential_list));
+	rows = gtk_container_get_children(GTK_CONTAINER(prefs->credential_list));
 	for (; rows; rows = g_list_delete_link(rows, rows)) {
 		PidginCredentialProviderRow *row = NULL;
 		PurpleCredentialProvider *provider = NULL;
@@ -132,73 +132,73 @@ pidgin_credentials_page_set_active_provider(PidginCredentialsPage *page,
 }
 
 static void
-pidgin_credentials_page_active_provider_changed_cb(const gchar *name,
+pidgin_credential_prefs_active_provider_changed_cb(const gchar *name,
                                                    PurplePrefType type,
                                                    gconstpointer value,
                                                    gpointer data)
 {
-	PidginCredentialsPage *page = PIDGIN_CREDENTIALS_PAGE(data);
+	PidginCredentialPrefs *prefs = PIDGIN_CREDENTIAL_PREFS(data);
 
-	pidgin_credentials_page_set_active_provider(page, (const gchar *)value);
+	pidgin_credential_prefs_set_active_provider(prefs, (const gchar *)value);
 }
 
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
 static void
-pidgin_credentials_page_finalize(GObject *obj) {
+pidgin_credential_prefs_finalize(GObject *obj) {
 	purple_prefs_disconnect_by_handle(obj);
 
-	G_OBJECT_CLASS(pidgin_credentials_page_parent_class)->finalize(obj);
+	G_OBJECT_CLASS(pidgin_credential_prefs_parent_class)->finalize(obj);
 }
 
 static void
-pidgin_credentials_page_init(PidginCredentialsPage *page) {
+pidgin_credential_prefs_init(PidginCredentialPrefs *prefs) {
 	PurpleCredentialManager *manager = NULL;
 	const gchar *active = NULL;
 
-	gtk_widget_init_template(GTK_WIDGET(page));
+	gtk_widget_init_template(GTK_WIDGET(prefs));
 
 	manager = purple_credential_manager_get_default();
 	purple_credential_manager_foreach(
 	    manager,
-	    pidgin_credentials_page_create_row,
-	    page->credential_list);
-	gtk_list_box_set_sort_func(GTK_LIST_BOX(page->credential_list),
-	                           pidgin_credentials_page_sort_rows, NULL, NULL);
+	    pidgin_credential_prefs_create_row,
+	    prefs->credential_list);
+	gtk_list_box_set_sort_func(GTK_LIST_BOX(prefs->credential_list),
+	                           pidgin_credential_prefs_sort_rows, NULL, NULL);
 
-	purple_prefs_connect_callback(page, "/purple/credentials/active-provider",
-	                              pidgin_credentials_page_active_provider_changed_cb,
-	                              page);
+	purple_prefs_connect_callback(prefs, "/purple/credentials/active-provider",
+	                              pidgin_credential_prefs_active_provider_changed_cb,
+	                              prefs);
 
 	active = purple_prefs_get_string("/purple/credentials/active-provider");
 	if(active != NULL) {
-		pidgin_credentials_page_set_active_provider(page, active);
+		pidgin_credential_prefs_set_active_provider(prefs, active);
 	}
 }
 
 static void
-pidgin_credentials_page_class_init(PidginCredentialsPageClass *klass) {
+pidgin_credential_prefs_class_init(PidginCredentialPrefsClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-	obj_class->finalize = pidgin_credentials_page_finalize;
+	obj_class->finalize = pidgin_credential_prefs_finalize;
 
 	gtk_widget_class_set_template_from_resource(
 	    widget_class,
 	    "/im/pidgin/Pidgin3/Prefs/credentials.ui"
 	);
 
-	gtk_widget_class_bind_template_child(widget_class, PidginCredentialsPage,
+	gtk_widget_class_bind_template_child(widget_class, PidginCredentialPrefs,
 	                                     credential_list);
 	gtk_widget_class_bind_template_callback(widget_class,
-	                                        pidgin_credential_page_list_row_activated_cb);
+	                                        pidgin_credential_prefs_list_row_activated_cb);
 }
 
 /******************************************************************************
  * API
  *****************************************************************************/
 GtkWidget *
-pidgin_credentials_page_new(void) {
-	return GTK_WIDGET(g_object_new(PIDGIN_TYPE_CREDENTIALS_PAGE, NULL));
+pidgin_credential_prefs_new(void) {
+	return GTK_WIDGET(g_object_new(PIDGIN_TYPE_CREDENTIAL_PREFS, NULL));
 }
