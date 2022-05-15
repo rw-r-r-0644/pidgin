@@ -24,8 +24,8 @@
 # error "only <pidgin.h> may be included directly"
 #endif
 
-#ifndef PIDGIN_NETWORK_PAGE_H
-#define PIDGIN_NETWORK_PAGE_H
+#ifndef PIDGIN_NETWORK_PREFS_H
+#define PIDGIN_NETWORK_PREFS_H
 
 #include <glib.h>
 
@@ -35,28 +35,28 @@
 G_BEGIN_DECLS
 
 /**
- * PidginNetworkPage:
+ * PidginNetworkPrefs:
  *
- * #PidginNetworkPage is a widget for the preferences window to let users
+ * #PidginNetworkPrefs is a widget for the preferences window to let users
  * choose and configure their network settings.
  *
  * Since: 3.0.0
  */
-#define PIDGIN_TYPE_NETWORK_PAGE (pidgin_network_page_get_type())
-G_DECLARE_FINAL_TYPE(PidginNetworkPage, pidgin_network_page,
-                     PIDGIN, NETWORK_PAGE, HdyPreferencesPage)
+#define PIDGIN_TYPE_NETWORK_PREFS (pidgin_network_prefs_get_type())
+G_DECLARE_FINAL_TYPE(PidginNetworkPrefs, pidgin_network_prefs,
+                     PIDGIN, NETWORK_PREFS, HdyPreferencesPage)
 
 /**
- * pidgin_network_page_new:
+ * pidgin_network_prefs_new:
  *
- * Creates a new #PidginNetworkPage instance.
+ * Creates a new #PidginNetworkPrefs instance.
  *
- * Returns: (transfer full): The new #PidginNetworkPage instance.
+ * Returns: (transfer full): The new #PidginNetworkPrefs instance.
  *
  * Since: 3.0.0
  */
-GtkWidget *pidgin_network_page_new(void);
+GtkWidget *pidgin_network_prefs_new(void);
 
 G_END_DECLS
 
-#endif /* PIDGIN_NETWORK_PAGE_H */
+#endif /* PIDGIN_NETWORK_PREFS_H */

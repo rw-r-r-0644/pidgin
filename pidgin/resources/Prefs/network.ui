@@ -44,7 +44,7 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <template class="PidginNetworkPage" parent="HdyPreferencesPage">
+  <template class="PidginNetworkPrefs" parent="HdyPreferencesPage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <child>
