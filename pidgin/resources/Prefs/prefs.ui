@@ -127,7 +127,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   </packing>
                 </child>
                 <child>
-                  <object class="PidginCredentialsPage">
+                  <object class="PidginCredentialPrefs">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                   </object>
