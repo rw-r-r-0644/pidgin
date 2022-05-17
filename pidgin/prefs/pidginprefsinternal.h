@@ -46,9 +46,6 @@ G_GNUC_INTERNAL
 void pidgin_prefs_bind_dropdown(PidginPrefCombo *combo);
 
 G_GNUC_INTERNAL
-void pidgin_prefs_bind_dropdown_from_list(PidginPrefCombo *combo, GList *menuitems);
-
-G_GNUC_INTERNAL
 void pidgin_prefs_bind_entry(const char *key, GtkWidget *entry);
 
 G_GNUC_INTERNAL
