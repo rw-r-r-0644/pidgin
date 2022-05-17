@@ -35,11 +35,6 @@ struct _PidginPrefCombo {
 	GtkWidget *combo;
 	PurplePrefType type;
 	const gchar *key;
-	union {
-		const char *string;
-		int integer;
-		gboolean boolean;
-	} value;
 };
 
 G_BEGIN_DECLS
