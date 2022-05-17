@@ -948,6 +948,7 @@ version 3.0.0 (??/??/????):
 		* pidgin_mini_dialog_links_supported
 		* pidgin_notify_emails_pending
 		* pidgin_notify_emails_present
+		* pidgin_parse_x_im_contact
 		* pidgin_pixbuf_button_from_stock
 		* pidgin_pixbuf_toolbar_button_from_stock
 		* pidgin_dialogs_plugins_info
