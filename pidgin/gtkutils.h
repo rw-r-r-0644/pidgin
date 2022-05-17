@@ -155,28 +155,6 @@ void pidgin_retrieve_user_info(PurpleConnection *conn, const char *name);
 void pidgin_retrieve_user_info_in_chat(PurpleConnection *conn, const char *name, int chatid);
 
 /**
- * pidgin_parse_x_im_contact:
- * @msg:          The MIME message.
- * @all_accounts: If TRUE, check all compatible accounts, online or
- *                     offline. If FALSE, check only online accounts.
- * @ret_account:  The best guess at a compatible protocol,
- *                     based on ret_protocol. If NULL, no account was found.
- * @ret_protocol: The returned protocol type.
- * @ret_username: The returned username.
- * @ret_alias:    The returned alias.
- *
- * Parses an application/x-im-contact MIME message and returns the
- * data inside.
- *
- * Returns: TRUE if the message was parsed for the minimum necessary data.
- *         FALSE otherwise.
- */
-gboolean pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
-									 PurpleAccount **ret_account,
-									 char **ret_protocol, char **ret_username,
-									 char **ret_alias);
-
-/**
  * pidgin_set_accessible_label:
  * @w: The widget that we want to name.
  * @l: A GtkLabel that we want to use as the ATK name for the widget.
