@@ -226,11 +226,6 @@ dropdown_set(GtkComboBox *combo_box, G_GNUC_UNUSED gpointer data)
 		return;
 	}
 
-	g_object_set_data(G_OBJECT(combo_box), "previously_active",
-		g_object_get_data(G_OBJECT(combo_box), "current_active"));
-	g_object_set_data(G_OBJECT(combo_box), "current_active",
-		GINT_TO_POINTER(gtk_combo_box_get_active(combo_box)));
-
 	type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(combo_box), "type"));
 	key = g_object_get_data(G_OBJECT(combo_box), "key");
 	if (type == PURPLE_PREF_INT) {
@@ -261,7 +256,6 @@ pidgin_prefs_dropdown_from_list_with_cb(GtkWidget *box, const gchar *title,
 	GtkTreeIter iter;
 	GtkTreeIter active;
 	GtkCellRenderer *renderer;
-	gpointer current_active;
 
 	g_return_val_if_fail(menuitems != NULL, NULL);
 
@@ -333,10 +327,6 @@ pidgin_prefs_dropdown_from_list_with_cb(GtkWidget *box, const gchar *title,
 	                               NULL);
 
 	gtk_combo_box_set_active_iter(GTK_COMBO_BOX(dropdown), &active);
-	current_active = GINT_TO_POINTER(gtk_combo_box_get_active(GTK_COMBO_BOX(
-		dropdown)));
-	g_object_set_data(G_OBJECT(dropdown), "current_active", current_active);
-	g_object_set_data(G_OBJECT(dropdown), "previously_active", current_active);
 
 	g_signal_connect(dropdown, "changed", G_CALLBACK(dropdown_set), NULL);
 
@@ -419,9 +409,6 @@ bind_dropdown_set(GtkComboBox *combo_box, gpointer data)
 	tree_model = gtk_combo_box_get_model(combo_box);
 	if (!gtk_combo_box_get_active_iter(combo_box, &iter))
 		return;
-
-	combo->previously_active = combo->current_active;
-	combo->current_active = gtk_combo_box_get_active(combo_box);
 
 	if (combo->type == PURPLE_PREF_INT) {
 		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE,
@@ -509,9 +496,6 @@ pidgin_prefs_bind_dropdown_from_list(PidginPrefCombo *combo, GList *menuitems)
 	}
 
 	gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combo->combo), &active);
-	combo->current_active = gtk_combo_box_get_active(
-			GTK_COMBO_BOX(combo->combo));
-	combo->previously_active = combo->current_active;
 
 	g_signal_connect(G_OBJECT(combo->combo), "changed",
 			G_CALLBACK(bind_dropdown_set), combo);
@@ -575,10 +559,6 @@ pidgin_prefs_bind_dropdown(PidginPrefCombo *combo)
 	} while (gtk_tree_model_iter_next(store, &iter));
 
 	gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combo->combo), &active);
-
-	combo->current_active = gtk_combo_box_get_active(
-			GTK_COMBO_BOX(combo->combo));
-	combo->previously_active = combo->current_active;
 
 	g_signal_connect(G_OBJECT(combo->combo), "changed",
 			G_CALLBACK(bind_dropdown_set), combo);
