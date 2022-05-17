@@ -40,8 +40,6 @@ struct _PidginPrefCombo {
 		int integer;
 		gboolean boolean;
 	} value;
-	gint previously_active;
-	gint current_active;
 };
 
 G_BEGIN_DECLS
