@@ -410,21 +410,6 @@ pidgin_prefs_dropdown(GtkWidget *box, const gchar *title, PurplePrefType type,
 }
 
 static void
-pidgin_prefs_bind_dropdown_from_list_cb(GtkComboBox *combo_box,
-	PidginPrefCombo *combo)
-{
-	if (combo->type == PURPLE_PREF_INT) {
-		purple_prefs_set_int(combo->key, combo->value.integer);
-	} else if (combo->type == PURPLE_PREF_STRING) {
-		purple_prefs_set_string(combo->key, combo->value.string);
-	} else if (combo->type == PURPLE_PREF_BOOLEAN) {
-		purple_prefs_set_bool(combo->key, combo->value.boolean);
-	} else {
-		g_return_if_reached();
-	}
-}
-
-static void
 bind_dropdown_set(GtkComboBox *combo_box, gpointer data)
 {
 	PidginPrefCombo *combo = data;
@@ -441,17 +426,18 @@ bind_dropdown_set(GtkComboBox *combo_box, gpointer data)
 	if (combo->type == PURPLE_PREF_INT) {
 		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE,
 			&combo->value.integer, -1);
-	}
-	else if (combo->type == PURPLE_PREF_STRING) {
+		purple_prefs_set_int(combo->key, combo->value.integer);
+	} else if (combo->type == PURPLE_PREF_STRING) {
 		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE,
 			&combo->value.string, -1);
-	}
-	else if (combo->type == PURPLE_PREF_BOOLEAN) {
+		purple_prefs_set_string(combo->key, combo->value.string);
+	} else if (combo->type == PURPLE_PREF_BOOLEAN) {
 		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE,
 			&combo->value.boolean, -1);
+		purple_prefs_set_bool(combo->key, combo->value.boolean);
+	} else {
+		g_return_if_reached();
 	}
-
-	combo->cb(combo_box, combo);
 }
 
 void
@@ -527,7 +513,6 @@ pidgin_prefs_bind_dropdown_from_list(PidginPrefCombo *combo, GList *menuitems)
 			GTK_COMBO_BOX(combo->combo));
 	combo->previously_active = combo->current_active;
 
-	combo->cb = pidgin_prefs_bind_dropdown_from_list_cb;
 	g_signal_connect(G_OBJECT(combo->combo), "changed",
 			G_CALLBACK(bind_dropdown_set), combo);
 }
@@ -595,7 +580,6 @@ pidgin_prefs_bind_dropdown(PidginPrefCombo *combo)
 			GTK_COMBO_BOX(combo->combo));
 	combo->previously_active = combo->current_active;
 
-	combo->cb = pidgin_prefs_bind_dropdown_from_list_cb;
 	g_signal_connect(G_OBJECT(combo->combo), "changed",
 			G_CALLBACK(bind_dropdown_set), combo);
 }

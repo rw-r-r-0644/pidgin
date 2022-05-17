@@ -31,9 +31,6 @@
 
 typedef struct _PidginPrefCombo PidginPrefCombo;
 
-typedef void (*PidginPrefsBindDropdownCallback)(GtkComboBox *combo_box,
-	PidginPrefCombo *combo);
-
 struct _PidginPrefCombo {
 	GtkWidget *combo;
 	PurplePrefType type;
@@ -45,7 +42,6 @@ struct _PidginPrefCombo {
 	} value;
 	gint previously_active;
 	gint current_active;
-	PidginPrefsBindDropdownCallback cb;
 };
 
 G_BEGIN_DECLS
