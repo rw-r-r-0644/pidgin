@@ -411,17 +411,17 @@ bind_dropdown_set(GtkComboBox *combo_box, gpointer data)
 		return;
 
 	if (combo->type == PURPLE_PREF_INT) {
-		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE,
-			&combo->value.integer, -1);
-		purple_prefs_set_int(combo->key, combo->value.integer);
+		gint value;
+		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE, &value, -1);
+		purple_prefs_set_int(combo->key, value);
 	} else if (combo->type == PURPLE_PREF_STRING) {
-		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE,
-			&combo->value.string, -1);
-		purple_prefs_set_string(combo->key, combo->value.string);
+		const gchar *value;
+		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE, &value, -1);
+		purple_prefs_set_string(combo->key, value);
 	} else if (combo->type == PURPLE_PREF_BOOLEAN) {
-		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE,
-			&combo->value.boolean, -1);
-		purple_prefs_set_bool(combo->key, combo->value.boolean);
+		gboolean value;
+		gtk_tree_model_get(tree_model, &iter, PREF_DROPDOWN_VALUE, &value, -1);
+		purple_prefs_set_bool(combo->key, value);
 	} else {
 		g_return_if_reached();
 	}
@@ -434,15 +434,18 @@ pidgin_prefs_bind_dropdown_from_list(PidginPrefCombo *combo, GList *menuitems)
 	GtkListStore *store = NULL;
 	GtkTreeIter iter;
 	GtkTreeIter active;
+	int configured_int_value = 0;
+	const char *configured_str_value = NULL;
+	gboolean configured_bool_value = FALSE;
 
 	g_return_if_fail(menuitems != NULL);
 
 	if (combo->type == PURPLE_PREF_INT) {
-		combo->value.integer = purple_prefs_get_int(combo->key);
+		configured_int_value = purple_prefs_get_int(combo->key);
 	} else if (combo->type == PURPLE_PREF_STRING) {
-		combo->value.string = purple_prefs_get_string(combo->key);
+		configured_str_value = purple_prefs_get_string(combo->key);
 	} else if (combo->type == PURPLE_PREF_BOOLEAN) {
-		combo->value.boolean = purple_prefs_get_bool(combo->key);
+		configured_bool_value = purple_prefs_get_bool(combo->key);
 	} else {
 		g_return_if_reached();
 	}
@@ -483,11 +486,11 @@ pidgin_prefs_bind_dropdown_from_list(PidginPrefCombo *combo, GList *menuitems)
 		}
 
 		if ((combo->type == PURPLE_PREF_INT &&
-			combo->value.integer == int_value) ||
+			configured_int_value == int_value) ||
 			(combo->type == PURPLE_PREF_STRING &&
-			purple_strequal(combo->value.string, str_value)) ||
+			purple_strequal(configured_str_value, str_value)) ||
 			(combo->type == PURPLE_PREF_BOOLEAN &&
-			(combo->value.boolean == bool_value))) {
+			(configured_bool_value == bool_value))) {
 
 			active = iter;
 		}
@@ -507,13 +510,16 @@ pidgin_prefs_bind_dropdown(PidginPrefCombo *combo)
 	GtkTreeModel *store = NULL;
 	GtkTreeIter iter;
 	GtkTreeIter active;
+	int pref_int_value = 0;
+	const char *pref_str_value = NULL;
+	gboolean pref_bool_value = FALSE;
 
 	if (combo->type == PURPLE_PREF_INT) {
-		combo->value.integer = purple_prefs_get_int(combo->key);
+		pref_int_value = purple_prefs_get_int(combo->key);
 	} else if (combo->type == PURPLE_PREF_STRING) {
-		combo->value.string = purple_prefs_get_string(combo->key);
+		pref_str_value = purple_prefs_get_string(combo->key);
 	} else if (combo->type == PURPLE_PREF_BOOLEAN) {
-		combo->value.boolean = purple_prefs_get_bool(combo->key);
+		pref_bool_value = purple_prefs_get_bool(combo->key);
 	} else {
 		g_return_if_reached();
 	}
@@ -533,7 +539,7 @@ pidgin_prefs_bind_dropdown(PidginPrefCombo *combo)
 			gtk_tree_model_get(store, &iter,
 			                   PREF_DROPDOWN_VALUE, &int_value,
 			                   -1);
-			if (combo->value.integer == int_value) {
+			if (pref_int_value == int_value) {
 				active = iter;
 				break;
 			}
@@ -542,7 +548,7 @@ pidgin_prefs_bind_dropdown(PidginPrefCombo *combo)
 			gtk_tree_model_get(store, &iter,
 			                   PREF_DROPDOWN_VALUE, &str_value,
 			                   -1);
-			if (purple_strequal(combo->value.string, str_value)) {
+			if (purple_strequal(pref_str_value, str_value)) {
 				active = iter;
 				break;
 			}
@@ -551,7 +557,7 @@ pidgin_prefs_bind_dropdown(PidginPrefCombo *combo)
 			gtk_tree_model_get(store, &iter,
 			                   PREF_DROPDOWN_VALUE, &bool_value,
 			                   -1);
-			if (combo->value.boolean == bool_value) {
+			if (pref_bool_value == bool_value) {
 				active = iter;
 				break;
 			}
