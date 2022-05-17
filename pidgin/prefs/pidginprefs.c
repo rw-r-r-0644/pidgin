@@ -585,25 +585,30 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 }
 
 #ifdef USE_VV
-static GList *
-get_vv_device_menuitems(PurpleMediaElementType type)
+static void
+populate_vv_device_menuitems(PurpleMediaElementType type, GtkListStore *store)
 {
-	GList *result = NULL;
-	GList *i;
+	PurpleMediaManager *manager = NULL;
+	GList *devices;
 
-	i = purple_media_manager_enumerate_elements(purple_media_manager_get(),
-			type);
-	for (; i; i = g_list_delete_link(i, i)) {
-		PurpleMediaElementInfo *info = i->data;
+	gtk_list_store_clear(store);
 
-		result = g_list_append(result,
-				purple_media_element_info_get_name(info));
-		result = g_list_append(result,
-				purple_media_element_info_get_id(info));
+	manager = purple_media_manager_get();
+	devices = purple_media_manager_enumerate_elements(manager, type);
+	for (; devices; devices = g_list_delete_link(devices, devices)) {
+		PurpleMediaElementInfo *info = devices->data;
+		GtkTreeIter iter;
+		const gchar *name, *id;
+
+		name = purple_media_element_info_get_name(info);
+		id = purple_media_element_info_get_id(info);
+
+		gtk_list_store_append(store, &iter);
+		gtk_list_store_set(store, &iter, PREF_DROPDOWN_TEXT, name,
+		                   PREF_DROPDOWN_VALUE, id, -1);
+
 		g_object_unref(info);
 	}
-
-	return result;
 }
 
 static GstElement *
@@ -974,23 +979,15 @@ static void
 bind_vv_dropdown(PidginPrefCombo *combo, PurpleMediaElementType element_type)
 {
 	const gchar *preference_key;
-	GList *devices;
+	GtkTreeModel *model;
 
 	preference_key = purple_media_type_to_preference_key(element_type);
-	devices = get_vv_device_menuitems(element_type);
-
-	if (g_list_find_custom(devices, purple_prefs_get_string(preference_key),
-		(GCompareFunc)strcmp) == NULL)
-	{
-		GList *next = g_list_next(devices);
-		if (next)
-			purple_prefs_set_string(preference_key, next->data);
-	}
+	model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo->combo));
+	populate_vv_device_menuitems(element_type, GTK_LIST_STORE(model));
 
 	combo->type = PURPLE_PREF_STRING;
 	combo->key = preference_key;
-	pidgin_prefs_bind_dropdown_from_list(combo, devices);
-	g_list_free_full(devices, g_free);
+	pidgin_prefs_bind_dropdown(combo);
 }
 
 static void
@@ -1016,19 +1013,23 @@ device_list_changed_cb(PurpleMediaManager *manager, GtkWidget *widget)
 {
 	PidginPrefCombo *combo;
 	PurpleMediaElementType media_type;
+	guint signal_id;
 	GtkTreeModel *model;
 
 	combo = g_object_get_data(G_OBJECT(widget), "vv_combo");
 	media_type = (PurpleMediaElementType)g_object_get_data(G_OBJECT(widget),
 			"vv_media_type");
 
-	/* Unbind original connections so we can repopulate the combo box. */
-	g_object_disconnect(combo->combo, "any-signal::changed",
-	                    G_CALLBACK(bind_dropdown_set), combo, NULL);
-	model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo->combo));
-	gtk_list_store_clear(GTK_LIST_STORE(model));
+	/* Block signals so pref doesn't get re-saved while changing UI. */
+	signal_id = g_signal_lookup("changed", GTK_TYPE_COMBO_BOX);
+	g_signal_handlers_block_matched(combo->combo, G_SIGNAL_MATCH_ID, signal_id,
+	                                0, NULL, NULL, NULL);
 
-	bind_vv_dropdown(combo, media_type);
+	model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo->combo));
+	populate_vv_device_menuitems(media_type, GTK_LIST_STORE(model));
+
+	g_signal_handlers_unblock_matched(combo->combo, G_SIGNAL_MATCH_ID,
+	                                  signal_id, 0, NULL, NULL, NULL);
 }
 
 static GtkWidget *
