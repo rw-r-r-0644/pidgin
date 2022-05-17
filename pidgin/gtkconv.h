@@ -26,8 +26,6 @@
 #ifndef _PIDGIN_CONVERSATION_H_
 #define _PIDGIN_CONVERSATION_H_
 
-typedef struct _PidginImPane       PidginImPane;
-typedef struct _PidginChatPane     PidginChatPane;
 typedef struct _PidginConversation PidginConversation;
 
 enum {
@@ -75,12 +73,10 @@ struct _PidginConversation
 	GtkWidget *editor;
 	GtkWidget *entry;
 
-	union
-	{
-		PidginImPane   *im;
-		PidginChatPane *chat;
-
-	} u;
+	guint32 typing_timer;
+	GtkWidget *count;
+	GtkWidget *list;
+	GtkWidget *topic_text;
 
 	time_t newday;
 	GtkWidget *infopane;
