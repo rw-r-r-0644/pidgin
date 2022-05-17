@@ -242,7 +242,6 @@ pidgin_prefs_dropdown_from_list(GtkWidget *box, const gchar *title,
 	GtkWidget *dropdown = NULL;
 	GtkWidget *label = NULL;
 	GtkListStore *store = NULL;
-	GtkTreeIter iter;
 	GtkTreeIter active;
 	GtkCellRenderer *renderer;
 	gint pref_int_value = 0;
@@ -269,9 +268,7 @@ pidgin_prefs_dropdown_from_list(GtkWidget *box, const gchar *title,
 
 	for (; menuitems != NULL; menuitems = g_list_next(menuitems)) {
 		const PurpleKeyValuePair *menu_item = menuitems->data;
-		gint int_value = 0;
-		const gchar *str_value = NULL;
-		gboolean bool_value = FALSE;
+		GtkTreeIter iter;
 
 		if (menu_item->key == NULL) {
 			break;
@@ -283,30 +280,25 @@ pidgin_prefs_dropdown_from_list(GtkWidget *box, const gchar *title,
 		                   -1);
 
 		if (type == PURPLE_PREF_INT) {
-			int_value = GPOINTER_TO_INT(menu_item->value);
-			gtk_list_store_set(store, &iter,
-			                   PREF_DROPDOWN_VALUE, int_value,
-			                   -1);
-		}
-		else if (type == PURPLE_PREF_STRING) {
-			str_value = (const char *)menu_item->value;
-			gtk_list_store_set(store, &iter,
-			                   PREF_DROPDOWN_VALUE, str_value,
-			                   -1);
-		}
-		else if (type == PURPLE_PREF_BOOLEAN) {
-			bool_value = (gboolean)GPOINTER_TO_INT(menu_item->value);
-			gtk_list_store_set(store, &iter,
-			                   PREF_DROPDOWN_VALUE, bool_value,
-			                   -1);
-		}
+			gint value = GPOINTER_TO_INT(menu_item->value);
+			gtk_list_store_set(store, &iter, PREF_DROPDOWN_VALUE, value, -1);
+			if (pref_int_value == value) {
+				active = iter;
+			}
 
-		if ((type == PURPLE_PREF_INT && pref_int_value == int_value) ||
-		    (type == PURPLE_PREF_STRING &&
-		     purple_strequal(pref_str_value, str_value)) ||
-		    (type == PURPLE_PREF_BOOLEAN && (pref_bool_value == bool_value)))
-		{
-			active = iter;
+		} else if (type == PURPLE_PREF_STRING) {
+			const gchar *value = (const gchar *)menu_item->value;
+			gtk_list_store_set(store, &iter, PREF_DROPDOWN_VALUE, value, -1);
+			if (purple_strequal(pref_str_value, value)) {
+				active = iter;
+			}
+
+		} else if (type == PURPLE_PREF_BOOLEAN) {
+			gboolean value = (gboolean)GPOINTER_TO_INT(menu_item->value);
+			gtk_list_store_set(store, &iter, PREF_DROPDOWN_VALUE, value, -1);
+			if (pref_bool_value == value) {
+				active = iter;
+			}
 		}
 	}
 
@@ -419,33 +411,26 @@ pidgin_prefs_bind_dropdown(PidginPrefCombo *combo)
 	}
 
 	do {
-		int int_value = 0;
-		const char *str_value = NULL;
-		gboolean bool_value = FALSE;
-
 		if (combo->type == PURPLE_PREF_INT) {
-			gtk_tree_model_get(store, &iter,
-			                   PREF_DROPDOWN_VALUE, &int_value,
-			                   -1);
-			if (pref_int_value == int_value) {
+			gint value = 0;
+			gtk_tree_model_get(store, &iter, PREF_DROPDOWN_VALUE, &value, -1);
+			if (pref_int_value == value) {
 				active = iter;
 				break;
 			}
-		}
-		else if (combo->type == PURPLE_PREF_STRING) {
-			gtk_tree_model_get(store, &iter,
-			                   PREF_DROPDOWN_VALUE, &str_value,
-			                   -1);
-			if (purple_strequal(pref_str_value, str_value)) {
+
+		} else if (combo->type == PURPLE_PREF_STRING) {
+			const gchar *value = NULL;
+			gtk_tree_model_get(store, &iter, PREF_DROPDOWN_VALUE, &value, -1);
+			if (purple_strequal(pref_str_value, value)) {
 				active = iter;
 				break;
 			}
-		}
-		else if (combo->type == PURPLE_PREF_BOOLEAN) {
-			gtk_tree_model_get(store, &iter,
-			                   PREF_DROPDOWN_VALUE, &bool_value,
-			                   -1);
-			if (pref_bool_value == bool_value) {
+
+		} else if (combo->type == PURPLE_PREF_BOOLEAN) {
+			gboolean value = FALSE;
+			gtk_tree_model_get(store, &iter, PREF_DROPDOWN_VALUE, &value, -1);
+			if (pref_bool_value == value) {
 				active = iter;
 				break;
 			}
