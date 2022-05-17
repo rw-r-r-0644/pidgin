@@ -57,24 +57,6 @@
 
 #define ADD_MESSAGE_HISTORY_AT_ONCE 100
 
-/*
- * A GTK Instant Message pane.
- */
-struct _PidginImPane
-{
-	guint32 typing_timer;
-};
-
-/*
- * GTK Chat panes.
- */
-struct _PidginChatPane
-{
-	GtkWidget *count;
-	GtkWidget *list;
-	GtkWidget *topic_text;
-};
-
 typedef enum
 {
 	PIDGIN_CONV_SET_TITLE			= 1 << 0,
@@ -359,16 +341,13 @@ info_cb(GtkWidget *widget, PidginConversation *gtkconv)
 					  purple_conversation_get_name(conv));
 	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
 		/* Get info of the person currently selected in the GtkTreeView */
-		PidginChatPane *gtkchat;
 		GtkTreeIter iter;
 		GtkTreeModel *model;
 		GtkTreeSelection *sel;
 		char *name;
 
-		gtkchat = gtkconv->u.chat;
-
-		model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));
-		sel   = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtkchat->list));
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
+		sel   = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtkconv->list));
 
 		if (gtk_tree_selection_get_selected(sel, NULL, &iter))
 			gtk_tree_model_get(GTK_TREE_MODEL(model), &iter, CHAT_USERS_NAME_COLUMN, &name, -1);
@@ -805,7 +784,6 @@ static gint
 gtkconv_chat_popup_menu_cb(GtkWidget *widget, PidginConversation *gtkconv)
 {
 	PurpleConversation *conv = gtkconv->active_conv;
-	PidginChatPane *gtkchat;
 	PurpleConnection *gc;
 	PurpleAccount *account;
 	GtkTreeSelection *sel;
@@ -815,13 +793,12 @@ gtkconv_chat_popup_menu_cb(GtkWidget *widget, PidginConversation *gtkconv)
 	gchar *who;
 
 	gtkconv = PIDGIN_CONVERSATION(conv);
-	gtkchat = gtkconv->u.chat;
 	account = purple_conversation_get_account(conv);
 	gc      = purple_account_get_connection(account);
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
 
-	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtkchat->list));
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtkconv->list));
 	if(!gtk_tree_selection_get_selected(sel, NULL, &iter))
 		return FALSE;
 
@@ -839,7 +816,6 @@ right_click_chat_cb(GtkWidget *widget, GdkEventButton *event,
 					PidginConversation *gtkconv)
 {
 	PurpleConversation *conv = gtkconv->active_conv;
-	PidginChatPane *gtkchat;
 	PurpleConnection *gc;
 	PurpleAccount *account;
 	GtkTreePath *path;
@@ -849,23 +825,22 @@ right_click_chat_cb(GtkWidget *widget, GdkEventButton *event,
 	gchar *who;
 	int x, y;
 
-	gtkchat = gtkconv->u.chat;
 	account = purple_conversation_get_account(conv);
 	gc      = purple_account_get_connection(account);
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
 
-	gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(gtkchat->list),
+	gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(gtkconv->list),
 								  event->x, event->y, &path, &column, &x, &y);
 
 	if (path == NULL)
 		return FALSE;
 
 	gtk_tree_selection_select_path(GTK_TREE_SELECTION(
-			gtk_tree_view_get_selection(GTK_TREE_VIEW(gtkchat->list))), path);
-	gtk_tree_view_set_cursor(GTK_TREE_VIEW(gtkchat->list),
+			gtk_tree_view_get_selection(GTK_TREE_VIEW(gtkconv->list))), path);
+	gtk_tree_view_set_cursor(GTK_TREE_VIEW(gtkconv->list),
 							 path, NULL, FALSE);
-	gtk_widget_grab_focus(GTK_WIDGET(gtkchat->list));
+	gtk_widget_grab_focus(GTK_WIDGET(gtkconv->list));
 
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(model), &iter, path);
 	gtk_tree_model_get(GTK_TREE_MODEL(model), &iter, CHAT_USERS_NAME_COLUMN, &who, -1);
@@ -920,8 +895,8 @@ gtkconv_cycle_focus(PidginConversation *gtkconv, GtkDirectionType dir)
 		GtkWidget *to;
 	} transitions[] = {
 		{gtkconv->entry, gtkconv->history},
-		{gtkconv->history, chat ? gtkconv->u.chat->list : gtkconv->entry},
-		{chat ? gtkconv->u.chat->list : NULL, gtkconv->entry},
+		{gtkconv->history, chat ? gtkconv->list : gtkconv->entry},
+		{chat ? gtkconv->list : NULL, gtkconv->entry},
 		{NULL, NULL}
 	}, *ptr;
 
@@ -1279,7 +1254,6 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 {
 	PidginConversation *gtkconv;
 	PurpleConversation *conv;
-	PidginChatPane *gtkchat;
 	PurpleConnection *gc;
 	GtkTreeModel *tm;
 	GtkListStore *ls;
@@ -1298,13 +1272,12 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 
 	conv    = PURPLE_CONVERSATION(chat);
 	gtkconv = PIDGIN_CONVERSATION(conv);
-	gtkchat = gtkconv->u.chat;
 	gc      = purple_conversation_get_connection(conv);
 
 	if (!gc || !purple_connection_get_protocol(gc))
 		return;
 
-	tm = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));
+	tm = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
 	ls = GTK_LIST_STORE(tm);
 
 	icon_name = get_chat_user_status_icon(chat, name, flags);
@@ -1349,7 +1322,6 @@ static void topic_callback(GtkWidget *w, PidginConversation *gtkconv)
 	PurpleProtocol *protocol = NULL;
 	PurpleConnection *gc;
 	PurpleConversation *conv = gtkconv->active_conv;
-	PidginChatPane *gtkchat;
 	char *new_topic;
 	const char *current_topic;
 
@@ -1362,8 +1334,7 @@ static void topic_callback(GtkWidget *w, PidginConversation *gtkconv)
 		return;
 
 	gtkconv = PIDGIN_CONVERSATION(conv);
-	gtkchat = gtkconv->u.chat;
-	new_topic = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtkchat->topic_text)));
+	new_topic = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtkconv->topic_text)));
 	current_topic = purple_chat_conversation_get_topic(PURPLE_CHAT_CONVERSATION(conv));
 
 	if(current_topic && !g_utf8_collate(new_topic, current_topic)){
@@ -1372,9 +1343,9 @@ static void topic_callback(GtkWidget *w, PidginConversation *gtkconv)
 	}
 
 	if (current_topic)
-		gtk_entry_set_text(GTK_ENTRY(gtkchat->topic_text), current_topic);
+		gtk_entry_set_text(GTK_ENTRY(gtkconv->topic_text), current_topic);
 	else
-		gtk_entry_set_text(GTK_ENTRY(gtkchat->topic_text), "");
+		gtk_entry_set_text(GTK_ENTRY(gtkconv->topic_text), "");
 
 	purple_protocol_chat_set_topic(PURPLE_PROTOCOL_CHAT(protocol), gc, purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv)),
 			new_topic);
@@ -1438,7 +1409,7 @@ update_chat_alias(PurpleBuddy *buddy, PurpleChatConversation *chat, PurpleConnec
 	g_return_if_fail(chat != NULL);
 
 	/* This is safe because this callback is only used in chats, not IMs. */
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->u.chat->list));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
 
 	if (!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter))
 		return;
@@ -1542,7 +1513,7 @@ buddy_cb_common(PurpleBuddy *buddy, PurpleChatConversation *chat, gboolean is_bu
 		return;
 
 	/* This is safe because this callback is only used in chats, not IMs. */
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(PIDGIN_CONVERSATION(conv)->u.chat->list));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(PIDGIN_CONVERSATION(conv)->list));
 
 	if (!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter))
 		return;
@@ -1603,7 +1574,6 @@ setup_chat_topic(PidginConversation *gtkconv, GtkWidget *vbox)
 	if (purple_protocol_get_options(protocol) & OPT_PROTO_CHAT_TOPIC)
 	{
 		GtkWidget *hbox, *label;
-		PidginChatPane *gtkchat = gtkconv->u.chat;
 
 		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 		gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -1611,18 +1581,18 @@ setup_chat_topic(PidginConversation *gtkconv, GtkWidget *vbox)
 		label = gtk_label_new(_("Topic:"));
 		gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-		gtkchat->topic_text = gtk_entry_new();
-		gtk_widget_set_size_request(gtkchat->topic_text, -1, BUDDYICON_SIZE_MIN);
+		gtkconv->topic_text = gtk_entry_new();
+		gtk_widget_set_size_request(gtkconv->topic_text, -1, BUDDYICON_SIZE_MIN);
 
 		if(!PURPLE_PROTOCOL_IMPLEMENTS(protocol, CHAT, set_topic)) {
-			gtk_editable_set_editable(GTK_EDITABLE(gtkchat->topic_text), FALSE);
+			gtk_editable_set_editable(GTK_EDITABLE(gtkconv->topic_text), FALSE);
 		} else {
-			g_signal_connect(G_OBJECT(gtkchat->topic_text), "activate",
+			g_signal_connect(G_OBJECT(gtkconv->topic_text), "activate",
 					G_CALLBACK(topic_callback), gtkconv);
 		}
 
-		gtk_box_pack_start(GTK_BOX(hbox), gtkchat->topic_text, TRUE, TRUE, 0);
-		g_signal_connect(G_OBJECT(gtkchat->topic_text), "key_press_event",
+		gtk_box_pack_start(GTK_BOX(hbox), gtkconv->topic_text, TRUE, TRUE, 0);
+		g_signal_connect(G_OBJECT(gtkconv->topic_text), "key_press_event",
 			             G_CALLBACK(entry_key_press_cb), gtkconv);
 	}
 }
@@ -1649,7 +1619,7 @@ pidgin_conv_userlist_query_tooltip(GtkWidget *widget, int x, int y,
 	if (!PURPLE_IS_CONNECTION(connection)) {
 		return FALSE;
 	}
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->u.chat->list));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
 
 	if (keyboard_mode) {
 		GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
@@ -1696,7 +1666,6 @@ pidgin_conv_userlist_query_tooltip(GtkWidget *widget, int x, int y,
 static void
 setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 {
-	PidginChatPane *gtkchat = gtkconv->u.chat;
 	GtkWidget *lbox, *list;
 	GtkListStore *ls;
 	GtkCellRenderer *rend;
@@ -1711,10 +1680,10 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 	gtk_widget_show(lbox);
 
 	/* Setup the label telling how many people are in the room. */
-	gtkchat->count = gtk_label_new(_("0 people in room"));
-	gtk_label_set_ellipsize(GTK_LABEL(gtkchat->count), PANGO_ELLIPSIZE_END);
-	gtk_box_pack_start(GTK_BOX(lbox), gtkchat->count, FALSE, FALSE, 0);
-	gtk_widget_show(gtkchat->count);
+	gtkconv->count = gtk_label_new(_("0 people in room"));
+	gtk_label_set_ellipsize(GTK_LABEL(gtkconv->count), PANGO_ELLIPSIZE_END);
+	gtk_box_pack_start(GTK_BOX(lbox), gtkconv->count, FALSE, FALSE, 0);
+	gtk_widget_show(gtkconv->count);
 
 	/* Setup the list of users. */
 
@@ -1769,11 +1738,11 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 	                                               NULL);
 
 	purple_signal_connect(blist_handle, "blist-node-added",
-						gtkchat, G_CALLBACK(buddy_added_cb), conv);
+						gtkconv, G_CALLBACK(buddy_added_cb), conv);
 	purple_signal_connect(blist_handle, "blist-node-removed",
-						gtkchat, G_CALLBACK(buddy_removed_cb), conv);
+						gtkconv, G_CALLBACK(buddy_removed_cb), conv);
 	purple_signal_connect(blist_handle, "blist-node-aliased",
-						gtkchat, G_CALLBACK(blist_node_aliased_cb), conv);
+						gtkconv, G_CALLBACK(blist_node_aliased_cb), conv);
 
 	gtk_tree_view_column_set_expand(col, TRUE);
 	g_object_set(rend, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
@@ -1783,7 +1752,7 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), FALSE);
 	gtk_widget_show(list);
 
-	gtkchat->list = list;
+	gtkconv->list = list;
 
 	gtk_box_pack_start(GTK_BOX(lbox),
 		pidgin_make_scrollable(list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_IN, -1, -1),
@@ -1934,19 +1903,9 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	gtkconv->convs = g_list_prepend(gtkconv->convs, conv);
 	gtkconv->send_history = g_list_append(NULL, NULL);
 
-	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		gtkconv->u.im = g_malloc0(sizeof(PidginImPane));
-	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		gtkconv->u.chat = g_malloc0(sizeof(PidginChatPane));
-	}
 	pane = setup_common_pane(gtkconv);
 
 	if (pane == NULL) {
-		if (PURPLE_IS_CHAT_CONVERSATION(conv))
-			g_free(gtkconv->u.chat);
-		else if (PURPLE_IS_IM_CONVERSATION(conv))
-			g_free(gtkconv->u.im);
-
 		g_free(gtkconv);
 		g_object_set_data(G_OBJECT(conv), "pidgin", NULL);
 		return;
@@ -1989,12 +1948,6 @@ pidgin_conversation_detach(PurpleConversation *conv) {
 		PidginConversation *gtkconv = PIDGIN_CONVERSATION(conv);
 
 		close_conv_cb(NULL, gtkconv);
-
-		if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-			g_free(gtkconv->u.chat);
-		} else if (PURPLE_IS_IM_CONVERSATION(conv)) {
-			g_free(gtkconv->u.im);
-		}
 
 		g_free(gtkconv);
 
@@ -2045,13 +1998,10 @@ pidgin_conv_destroy(PurpleConversation *conv)
 	gtk_widget_destroy(gtkconv->tab_cont);
 
 	if (PURPLE_IS_IM_CONVERSATION(conv)) {
-		if (gtkconv->u.im->typing_timer != 0)
-			g_source_remove(gtkconv->u.im->typing_timer);
-
-		g_free(gtkconv->u.im);
+		if (gtkconv->typing_timer != 0)
+			g_source_remove(gtkconv->typing_timer);
 	} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-		purple_signals_disconnect_by_handle(gtkconv->u.chat);
-		g_free(gtkconv->u.chat);
+		purple_signals_disconnect_by_handle(gtkconv);
 	}
 
 	gtkconv->send_history = g_list_first(gtkconv->send_history);
@@ -2156,7 +2106,6 @@ static void
 pidgin_conv_chat_add_users(PurpleChatConversation *chat, GList *cbuddies, gboolean new_arrivals)
 {
 	PidginConversation *gtkconv;
-	PidginChatPane *gtkchat;
 	GtkListStore *ls;
 	GList *l;
 
@@ -2164,7 +2113,6 @@ pidgin_conv_chat_add_users(PurpleChatConversation *chat, GList *cbuddies, gboole
 	int num_users;
 
 	gtkconv = PIDGIN_CONVERSATION(PURPLE_CONVERSATION(chat));
-	gtkchat = gtkconv->u.chat;
 
 	num_users = purple_chat_conversation_get_users_count(chat);
 
@@ -2173,9 +2121,9 @@ pidgin_conv_chat_add_users(PurpleChatConversation *chat, GList *cbuddies, gboole
 						num_users),
 			   num_users);
 
-	gtk_label_set_text(GTK_LABEL(gtkchat->count), tmp);
+	gtk_label_set_text(GTK_LABEL(gtkconv->count), tmp);
 
-	ls = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list)));
+	ls = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list)));
 
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(ls),  GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID,
 										 GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID);
@@ -2198,15 +2146,13 @@ pidgin_conv_chat_rename_user(PurpleChatConversation *chat, const char *old_name,
 			      const char *new_name, const char *new_alias)
 {
 	PidginConversation *gtkconv;
-	PidginChatPane *gtkchat;
 	PurpleChatUser *old_chatuser, *new_chatuser;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 
 	gtkconv = PIDGIN_CONVERSATION(PURPLE_CONVERSATION(chat));
-	gtkchat = gtkconv->u.chat;
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
 
 	if (!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter))
 		return;
@@ -2231,7 +2177,6 @@ static void
 pidgin_conv_chat_remove_users(PurpleChatConversation *chat, GList *users)
 {
 	PidginConversation *gtkconv;
-	PidginChatPane *gtkchat;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	GList *l;
@@ -2240,12 +2185,11 @@ pidgin_conv_chat_remove_users(PurpleChatConversation *chat, GList *users)
 	gboolean f;
 
 	gtkconv = PIDGIN_CONVERSATION(PURPLE_CONVERSATION(chat));
-	gtkchat = gtkconv->u.chat;
 
 	num_users = purple_chat_conversation_get_users_count(chat);
 
 	for (l = users; l != NULL; l = l->next) {
-		model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
 
 		if (!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter))
 			/* XXX: Break? */
@@ -2271,7 +2215,7 @@ pidgin_conv_chat_remove_users(PurpleChatConversation *chat, GList *users)
 			   ngettext("%d person in room", "%d people in room",
 						num_users), num_users);
 
-	gtk_label_set_text(GTK_LABEL(gtkchat->count), tmp);
+	gtk_label_set_text(GTK_LABEL(gtkconv->count), tmp);
 }
 
 static void
@@ -2279,7 +2223,6 @@ pidgin_conv_chat_update_user(PurpleChatUser *chatuser)
 {
 	PurpleChatConversation *chat;
 	PidginConversation *gtkconv;
-	PidginChatPane *gtkchat;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 
@@ -2288,9 +2231,8 @@ pidgin_conv_chat_update_user(PurpleChatUser *chatuser)
 
 	chat = purple_chat_user_get_chat(chatuser);
 	gtkconv = PIDGIN_CONVERSATION(PURPLE_CONVERSATION(chat));
-	gtkchat = gtkconv->u.chat;
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkchat->list));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtkconv->list));
 
 	if (!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter))
 		return;
@@ -2344,14 +2286,13 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 				PURPLE_IS_CHAT_CONVERSATION(conv))
 	{
 		const char *topic;
-		PidginChatPane *gtkchat = gtkconv->u.chat;
 
-		if (gtkchat->topic_text != NULL)
+		if (gtkconv->topic_text != NULL)
 		{
 			topic = purple_chat_conversation_get_topic(PURPLE_CHAT_CONVERSATION(conv));
 
-			gtk_entry_set_text(GTK_ENTRY(gtkchat->topic_text), topic ? topic : "");
-			gtk_widget_set_tooltip_text(gtkchat->topic_text,
+			gtk_entry_set_text(GTK_ENTRY(gtkconv->topic_text), topic ? topic : "");
+			gtk_widget_set_tooltip_text(gtkconv->topic_text,
 			                            topic ? topic : "");
 		}
 	}
@@ -2381,8 +2322,8 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 				markup = title;
 			}
 		} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
-			const char *topic = gtkconv->u.chat->topic_text
-				? gtk_entry_get_text(GTK_ENTRY(gtkconv->u.chat->topic_text))
+			const char *topic = gtkconv->topic_text
+				? gtk_entry_get_text(GTK_ENTRY(gtkconv->topic_text))
 				: NULL;
 			const char *title = purple_conversation_get_title(conv);
 			const char *name = purple_conversation_get_name(conv);
