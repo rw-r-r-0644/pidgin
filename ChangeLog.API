@@ -966,6 +966,8 @@ version 3.0.0 (??/??/????):
 		* pidgin_pounces_init
 		* pidgin_pounces_manager_hide
 		* pidgin_pounces_manager_show
+		* pidgin_prefs_labeled_entry
+		* pidgin_prefs_labeled_password
 		* pidgin_protocol_option_menu_get_selected
 		* pidgin_save_accels
 		* pidgin_save_accels_cb
