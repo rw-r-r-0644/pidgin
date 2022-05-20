@@ -646,6 +646,7 @@ pidgin_application_window_added(GtkApplication *application,
 static void
 pidgin_application_startup(GApplication *application) {
 	PurpleAccountManager *manager = NULL;
+	PurpleUiInfo *ui_info = NULL;
 	GtkCssProvider *provider = NULL;
 	GError *error = NULL;
 	GList *active_accounts = NULL;
@@ -701,7 +702,11 @@ pidgin_application_startup(GApplication *application) {
 
 	purple_core_set_ui_ops(pidgin_core_get_ui_ops());
 
-	if(!purple_core_init(PIDGIN_UI)) {
+	ui_info = purple_ui_info_new(PIDGIN_UI, PIDGIN_NAME, VERSION,
+	                             "https://pidgin.im",
+	                             "https://developer.pidgin.im", "pc");
+
+	if(!purple_core_init(ui_info)) {
 		fprintf(stderr,
 				_("Initialization of the libpurple core failed. Aborting!\n"
 				  "Please report this!\n"));

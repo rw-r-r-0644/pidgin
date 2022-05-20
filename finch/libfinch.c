@@ -39,12 +39,6 @@
 #include "config.h"
 #include "package_revision.h"
 
-static PurpleUiInfo *
-finch_ui_get_info(void) {
-	return purple_ui_info_new(_("Finch"), VERSION, "https://pidgin.im",
-	                          "https://developer.pidgin.im", "console");
-}
-
 static void
 finch_quit(void)
 {
@@ -56,7 +50,6 @@ static PurpleCoreUiOps core_ops =
 	finch_prefs_init,
 	finch_ui_init,
 	finch_quit,
-	finch_ui_get_info,
 };
 
 static PurpleCoreUiOps *
@@ -97,6 +90,7 @@ finch_plugins_init(void) {
 static int
 init_libpurple(int argc, char **argv)
 {
+	PurpleUiInfo *ui_info = NULL;
 	gboolean opt_nologin = FALSE;
 	gboolean opt_version = FALSE;
 	gboolean opt_debug = FALSE;
@@ -189,7 +183,11 @@ init_libpurple(int argc, char **argv)
 	purple_core_set_ui_ops(gnt_core_get_ui_ops());
 	purple_idle_set_ui(finch_idle_new());
 
-	if (!purple_core_init(FINCH_UI))
+	ui_info = purple_ui_info_new("finch", _("Finch"), VERSION,
+	                             "https://pidgin.im",
+	                             "https://developer.pidgin.im", "console");
+
+	if (!purple_core_init(ui_info))
 	{
 		fprintf(stderr,
 				"Initialization of the Purple core failed. Dumping core.\n"

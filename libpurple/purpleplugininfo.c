@@ -154,10 +154,12 @@ purple_plugin_info_constructed(GObject *object) {
 	}
 
 	if(priv->ui_requirement != NULL) {
-		if(!purple_strequal(priv->ui_requirement, purple_core_get_ui())) {
+		PurpleUiInfo *ui_info = purple_core_get_ui_info();
+		const gchar *ui_id = purple_ui_info_get_id(ui_info);
+		if(!purple_strequal(priv->ui_requirement, ui_id)) {
 			priv->error = g_strdup_printf(_("You are using %s, but this plugin "
 			                                "requires %s."),
-			                              purple_core_get_ui(),
+			                              ui_id,
 			                              priv->ui_requirement);
 			purple_debug_error("plugins",
 			                   "%s is not loadable: The UI requirement is not "

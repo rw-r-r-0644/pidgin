@@ -37,8 +37,7 @@ G_BEGIN_DECLS
 
 /**
  * purple_core_init:
- * @ui: The ID of the UI using the core. This should be a
- *           unique ID, registered with the purple team.
+ * @ui_info: (transfer full): The [class@UiInfo] of the UI using the core.
  *
  * Initializes the core of purple.
  *
@@ -46,7 +45,7 @@ G_BEGIN_DECLS
  *
  * Returns: %TRUE if successful, or %FALSE otherwise.
  */
-gboolean purple_core_init(const char *ui);
+gboolean purple_core_init(PurpleUiInfo *ui_info);
 
 /**
  * purple_core_quit:
@@ -87,16 +86,6 @@ gboolean purple_core_quit_cb(gpointer unused);
 const char *purple_core_get_version(void);
 
 /**
- * purple_core_get_ui:
- *
- * Returns the ID of the UI that is using the core, as passed to
- * purple_core_init().
- *
- * Returns: The ID of the UI that is currently using the core.
- */
-const char *purple_core_get_ui(void);
-
-/**
  * purple_get_core:
  *
  * This is used to connect to
@@ -128,9 +117,9 @@ PurpleCoreUiOps *purple_core_get_ui_ops(void);
  *
  * Returns a #PurpleUiInfo that contains information about the user interface.
  *
- * Returns: (transfer full): A #PurpleUiInfo instance.
+ * Returns: (transfer none): A #PurpleUiInfo instance.
  */
-PurpleUiInfo* purple_core_get_ui_info(void);
+PurpleUiInfo *purple_core_get_ui_info(void);
 
 G_END_DECLS
 

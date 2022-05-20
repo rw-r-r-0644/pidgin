@@ -252,10 +252,6 @@ static void jabber_iq_version_parse(JabberStream *js, const char *from,
 		}
 
 		jabber_iq_send(iq);
-
-		if(PURPLE_IS_UI_INFO(ui_info)) {
-			g_object_unref(G_OBJECT(ui_info));
-		}
 	}
 }
 
