@@ -388,10 +388,10 @@ pidgin/plugins/transparency.c
 pidgin/plugins/unity.c
 pidgin/plugins/xmppconsole/console.ui
 pidgin/plugins/xmppconsole/xmppconsole.c
-pidgin/prefs/pidginawaypage.c
+pidgin/prefs/pidginawayprefs.c
 pidgin/prefs/pidgincredentialproviderrow.c
-pidgin/prefs/pidgincredentialspage.c
-pidgin/prefs/pidginnetworkpage.c
+pidgin/prefs/pidgincredentialprefs.c
+pidgin/prefs/pidginnetworkprefs.c
 pidgin/prefs/pidginprefs.c
 pidgin/prefs/pidginproxyprefs.c
 pidgin/prefs/pidginvvprefs.c
