@@ -197,7 +197,7 @@ purple_account_manager_get_active(PurpleAccountManager *manager) {
 	for(l = manager->accounts; l != NULL; l = l->next) {
 		PurpleAccount *account = PURPLE_ACCOUNT(l->data);
 
-		if(purple_account_get_enabled(account, purple_core_get_ui())) {
+		if(purple_account_get_enabled(account)) {
 			active = g_list_append(active, account);
 		}
 	}
@@ -214,7 +214,7 @@ purple_account_manager_get_inactive(PurpleAccountManager *manager) {
 	for(l = manager->accounts; l != NULL; l = l->next) {
 		PurpleAccount *account = l->data;
 
-		if(!purple_account_get_enabled(account, purple_core_get_ui())) {
+		if(!purple_account_get_enabled(account)) {
 			inactive = g_list_append(inactive, account);
 		}
 	}

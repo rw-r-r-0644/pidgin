@@ -326,6 +326,7 @@ parse_account(PurpleXmlNode *node)
 	char *protocol_id = NULL;
 	char *name = NULL;
 	char *data;
+	gboolean enabled = FALSE;
 
 	child = purple_xmlnode_get_child(node, "id");
 	if(child != NULL) {
@@ -347,6 +348,11 @@ parse_account(PurpleXmlNode *node)
 			name = purple_xmlnode_get_data(child);
 	}
 
+	child = purple_xmlnode_get_child(node, "enabled");
+	if(child != NULL) {
+		enabled = atoi(purple_xmlnode_get_data(child));
+	}
+
 	if ((protocol_id == NULL) || (name == NULL))
 	{
 		g_free(id);
@@ -362,6 +368,7 @@ parse_account(PurpleXmlNode *node)
 		"id", id,
 		"username", name,
 		"protocol-id", protocol_id,
+		"enabled", enabled,
 		NULL);
 
 	g_free(id);
@@ -493,7 +500,7 @@ purple_accounts_delete(PurpleAccount *account)
 	 * account for all UIs rather than the just the current UI,
 	 * but it doesn't really matter.
 	 */
-	purple_account_set_enabled(account, purple_core_get_ui(), FALSE);
+	purple_account_set_enabled(account, FALSE);
 
 	purple_notify_close_with_handle(account);
 	purple_request_close_with_handle(account);
@@ -568,7 +575,7 @@ purple_accounts_restore_current_status(PurpleAccount *account,
                                        G_GNUC_UNUSED gpointer data) {
 	gboolean enabled = FALSE, online = FALSE;
 
-	enabled = purple_account_get_enabled(account, purple_core_get_ui());
+	enabled = purple_account_get_enabled(account);
 	online = purple_presence_is_online(purple_account_get_presence(account));
 
 	if(enabled && online) {

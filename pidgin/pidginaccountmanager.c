@@ -140,7 +140,7 @@ pidgin_account_manager_refresh_account(PidginAccountManager *manager,
 	}
 
 	gtk_list_store_set(manager->model, iter,
-	                   COLUMN_ENABLED, purple_account_get_enabled(account, PIDGIN_UI),
+	                   COLUMN_ENABLED, purple_account_get_enabled(account),
 	                   COLUMN_AVATAR, avatar,
 	                   COLUMN_USERNAME, purple_account_get_username(account),
 	                   COLUMN_PROTOCOL_ICON, protocol_icon,
@@ -302,7 +302,7 @@ pidgin_account_manager_enable_toggled_cb(G_GNUC_UNUSED GtkCellRendererToggle *re
 			purple_savedstatus_activate_for_account(status, account);
 		}
 
-		purple_account_set_enabled(account, PIDGIN_UI, !enabled);
+		purple_account_set_enabled(account, !enabled);
 
 		/* We don't update the model here, as it's updated via the notify
 		 * signal.

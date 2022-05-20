@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
 	                                               NULL, NULL, NULL);
 
 	/* It's necessary to enable the account first. */
-	purple_account_set_enabled(account, UI_ID, TRUE);
+	purple_account_set_enabled(account, TRUE);
 
 	/* Now, to connect the account(s), create a status and activate it. */
 	status = purple_savedstatus_new(NULL, PURPLE_STATUS_AVAILABLE);

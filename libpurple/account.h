@@ -387,14 +387,11 @@ void purple_account_set_remember_password(PurpleAccount *account, gboolean value
 /**
  * purple_account_set_enabled:
  * @account: The account.
- * @ui:      The UI.
  * @value:   %TRUE if it is enabled.
  *
- * Sets whether or not this account is enabled for the specified
- * UI.
+ * Sets whether or not this account is enabled.
  */
-void purple_account_set_enabled(PurpleAccount *account, const char *ui,
-			      gboolean value);
+void purple_account_set_enabled(PurpleAccount *account, gboolean value);
 
 /**
  * purple_account_set_proxy_info:
@@ -709,15 +706,12 @@ gboolean purple_account_get_remember_password(PurpleAccount *account);
 /**
  * purple_account_get_enabled:
  * @account: The account.
- * @ui:      The UI.
  *
- * Returns whether or not this account is enabled for the
- * specified UI.
+ * Returns whether or not this account is enabled.
  *
  * Returns: %TRUE if it enabled on this UI.
  */
-gboolean purple_account_get_enabled(PurpleAccount *account,
-				  const char *ui);
+gboolean purple_account_get_enabled(PurpleAccount *account);
 
 /**
  * purple_account_get_proxy_info:

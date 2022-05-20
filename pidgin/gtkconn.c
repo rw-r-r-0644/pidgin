@@ -126,7 +126,7 @@ pidgin_connection_report_disconnect(PurpleConnection *gc,
 		if (info != NULL)
 			g_hash_table_remove(auto_reconns, account);
 
-		purple_account_set_enabled(account, PIDGIN_UI, FALSE);
+		purple_account_set_enabled(account, FALSE);
 	}
 }
 

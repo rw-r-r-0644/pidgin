@@ -277,8 +277,8 @@ pidgin_application_disable_account(GSimpleAction *simple, GVariant *parameter,
 
 	account = purple_account_manager_find_by_id(manager, id);
 	if(PURPLE_IS_ACCOUNT(account)) {
-		if(purple_account_get_enabled(account, PIDGIN_UI)) {
-			purple_account_set_enabled(account, PIDGIN_UI, FALSE);
+		if(purple_account_get_enabled(account)) {
+			purple_account_set_enabled(account, FALSE);
 		}
 	}
 }
@@ -315,8 +315,8 @@ pidgin_application_enable_account(GSimpleAction *simple, GVariant *parameter,
 
 	account = purple_account_manager_find_by_id(manager, id);
 	if(PURPLE_IS_ACCOUNT(account)) {
-		if(!purple_account_get_enabled(account, PIDGIN_UI)) {
-			purple_account_set_enabled(account, PIDGIN_UI, TRUE);
+		if(!purple_account_get_enabled(account)) {
+			purple_account_set_enabled(account, TRUE);
 		}
 	}
 }

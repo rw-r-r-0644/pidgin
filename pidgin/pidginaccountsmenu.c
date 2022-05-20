@@ -46,7 +46,7 @@ static void
 pidgin_accounts_menu_enable_account(GtkMenuItem *item, gpointer data) {
 	PurpleAccount *account = PURPLE_ACCOUNT(data);
 
-	purple_account_set_enabled(account, PIDGIN_UI, TRUE);
+	purple_account_set_enabled(account, TRUE);
 }
 
 /******************************************************************************
@@ -136,7 +136,7 @@ static void
 pidgin_accounts_menu_foreach_cb(PurpleAccount *account, gpointer data) {
 	PidginAccountsMenu *menu = PIDGIN_ACCOUNTS_MENU(data);
 
-	if(purple_account_get_enabled(account, PIDGIN_UI)) {
+	if(purple_account_get_enabled(account)) {
 		pidgin_accounts_menu_add_enabled_account(menu, account);
 	} else {
 		pidgin_accounts_menu_add_disabled_account(menu, account);

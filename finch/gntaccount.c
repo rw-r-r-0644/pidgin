@@ -73,7 +73,7 @@ account_add(PurpleAccount *account)
 				purple_account_get_protocol_name(account)),
 			NULL, NULL);
 	gnt_tree_set_choice(GNT_TREE(accounts.tree), account,
-			purple_account_get_enabled(account, FINCH_UI));
+			purple_account_get_enabled(account));
 }
 
 static void
@@ -260,7 +260,7 @@ save_account_cb(AccountEditDialog *dialog)
 		saved_status = purple_savedstatus_get_current();
 		if (saved_status != NULL) {
 			purple_savedstatus_activate_for_account(saved_status, account);
-			purple_account_set_enabled(account, FINCH_UI, TRUE);
+			purple_account_set_enabled(account, TRUE);
 		}
 	}
 
@@ -737,7 +737,7 @@ account_toggled(GntWidget *widget, void *key, gpointer null)
 		purple_savedstatus_activate_for_account(purple_savedstatus_get_current(),
 												account);
 
-	purple_account_set_enabled(account, FINCH_UI, enabled);
+	purple_account_set_enabled(account, enabled);
 }
 
 static gboolean
@@ -918,7 +918,7 @@ void finch_accounts_init()
 	iter = purple_account_manager_get_all(manager);
 	if (iter) {
 		for (; iter; iter = iter->next) {
-			if (purple_account_get_enabled(iter->data, FINCH_UI))
+			if (purple_account_get_enabled(iter->data))
 				break;
 		}
 		if (!iter)

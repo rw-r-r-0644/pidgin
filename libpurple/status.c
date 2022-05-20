@@ -512,7 +512,7 @@ notify_status_update(PurplePresence *presence, PurpleStatus *old_status,
 				PURPLE_ACCOUNT_PRESENCE(presence));
 		PurpleAccountUiOps *ops = purple_accounts_get_ui_ops();
 
-		if (purple_account_get_enabled(account, purple_core_get_ui()))
+		if (purple_account_get_enabled(account))
 			purple_protocol_change_account_status(account, old_status, new_status);
 
 		if (ops != NULL && ops->status_changed != NULL)
