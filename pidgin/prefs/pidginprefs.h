@@ -1,4 +1,6 @@
-/* pidgin
+/*
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,9 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
@@ -27,12 +27,15 @@
 #ifndef PIDGIN_PREFS_H
 #define PIDGIN_PREFS_H
 
+#include <glib.h>
 #include <purple.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_PREFS_WINDOW (pidgin_prefs_window_get_type())
-G_DECLARE_FINAL_TYPE(PidginPrefsWindow, pidgin_prefs_window, PIDGIN, PREFS_WINDOW, GtkDialog)
+G_DECLARE_FINAL_TYPE(PidginPrefsWindow, pidgin_prefs_window, PIDGIN,
+                     PREFS_WINDOW, GtkDialog)
 
 /**
  * pidgin_prefs_init:
@@ -78,39 +81,6 @@ GtkWidget *pidgin_prefs_checkbox(const char *title, const char *key,
  */
 GtkWidget *pidgin_prefs_labeled_spin_button(GtkWidget *page,
 		const gchar *title, const char *key, int min, int max, GtkSizeGroup *sg);
-
-/**
- * pidgin_prefs_labeled_entry:
- * @page:  The page to which the entry will be added
- * @title: The text to be displayed as the entry label
- * @key:   The key of the string pref that will be represented by the entry
- * @sg:    If not NULL, the size group to which the entry will be added
- *
- * Add a new entry representing a string preference
- *
- * Returns: (transfer full) :An hbox containing both the label and the entry.  Can be used to set
- *          the widgets to sensitive or insensitive based on the value of a
- *          checkbox.
- */
-GtkWidget *pidgin_prefs_labeled_entry(GtkWidget *page, const gchar *title,
-										const char *key, GtkSizeGroup *sg);
-
-/**
- * pidgin_prefs_labeled_password:
- * @page:  The page to which the entry will be added
- * @title: The text to be displayed as the entry label
- * @key:   The key of the string pref that will be represented by the entry
- * @sg:    If not NULL, the size group to which the entry will be added
- *
- * Add a new entry representing a password (string) preference
- * The entry will use a password-style text entry (the text is substituted)
- *
- * Returns: (transfer full): An hbox containing both the label and the entry.  Can be used to set
- *          the widgets to sensitive or insensitive based on the value of a
- *          checkbox.
- */
-GtkWidget *pidgin_prefs_labeled_password(GtkWidget *page, const gchar *title,
-										const char *key, GtkSizeGroup *sg);
 
 /**
  * pidgin_prefs_dropdown:

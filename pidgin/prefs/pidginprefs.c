@@ -1,4 +1,6 @@
-/* pidgin
+/*
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -15,9 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
- *
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -29,28 +29,16 @@
 
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
-#include <nice.h>
-#include <talkatu.h>
 
 #include <purple.h>
 
-#include "gtkblist.h"
-#include "gtkconv.h"
-#include "gtkdialogs.h"
-#include "gtkutils.h"
-#include "pidgincore.h"
-#include "pidgindebug.h"
 #include "pidginprefs.h"
 #include "pidginprefsinternal.h"
+#include "gtkutils.h"
+#include "pidgincore.h"
 #ifdef USE_VV
 #include "pidginvvprefs.h"
 #endif
-#include <libsoup/soup.h>
-
-#define PREFS_OPTIMAL_ICON_SIZE 32
-
-/* 25MB */
-#define PREFS_MAX_DOWNLOADED_THEME_SIZE 26214400
 
 struct _PidginPrefsWindow {
 	GtkDialog parent;
@@ -62,12 +50,11 @@ struct _PidginPrefsWindow {
 /* Main dialog */
 static PidginPrefsWindow *prefs = NULL;
 
-/*
- * PROTOTYPES
- */
 G_DEFINE_TYPE(PidginPrefsWindow, pidgin_prefs_window, GTK_TYPE_DIALOG);
-static void delete_prefs(GtkWidget *, void *);
 
+/******************************************************************************
+ * Helpers
+ *****************************************************************************/
 static void
 update_spin_value(GtkWidget *w, GtkWidget *spin)
 {
@@ -126,24 +113,6 @@ entry_set(GtkEntry *entry, gpointer data)
 	purple_prefs_set_string(key, gtk_entry_get_text(entry));
 }
 
-GtkWidget *
-pidgin_prefs_labeled_entry(GtkWidget *page, const gchar *title,
-							 const char *key, GtkSizeGroup *sg)
-{
-	GtkWidget *entry;
-	const gchar *value;
-
-	value = purple_prefs_get_string(key);
-
-	entry = gtk_entry_new();
-	gtk_entry_set_text(GTK_ENTRY(entry), value);
-	g_signal_connect(G_OBJECT(entry), "changed",
-					 G_CALLBACK(entry_set), (char*)key);
-	gtk_widget_show(entry);
-
-	return pidgin_add_widget_to_vbox(GTK_BOX(page), title, sg, entry, TRUE, NULL);
-}
-
 void
 pidgin_prefs_bind_entry(const char *key, GtkWidget *entry)
 {
@@ -154,25 +123,6 @@ pidgin_prefs_bind_entry(const char *key, GtkWidget *entry)
 	gtk_entry_set_text(GTK_ENTRY(entry), value);
 	g_signal_connect(G_OBJECT(entry), "changed", G_CALLBACK(entry_set),
 			(char*)key);
-}
-
-GtkWidget *
-pidgin_prefs_labeled_password(GtkWidget *page, const gchar *title,
-							 const char *key, GtkSizeGroup *sg)
-{
-	GtkWidget *entry;
-	const gchar *value;
-
-	value = purple_prefs_get_string(key);
-
-	entry = gtk_entry_new();
-	gtk_entry_set_visibility(GTK_ENTRY(entry), FALSE);
-	gtk_entry_set_text(GTK_ENTRY(entry), value);
-	g_signal_connect(G_OBJECT(entry), "changed",
-					 G_CALLBACK(entry_set), (char*)key);
-	gtk_widget_show(entry);
-
-	return pidgin_add_widget_to_vbox(GTK_BOX(page), title, sg, entry, TRUE, NULL);
 }
 
 static void
@@ -462,7 +412,6 @@ delete_prefs(GtkWidget *asdf, void *gdsa)
 {
 	/* Close any request dialogs */
 	purple_request_close_with_handle(prefs);
-
 	purple_notify_close_with_handle(prefs);
 
 	/* Unregister callbacks. */
@@ -485,6 +434,9 @@ vv_test_switch_page_cb(GtkStack *stack, G_GNUC_UNUSED GParamSpec *pspec,
 }
 #endif
 
+/******************************************************************************
+ * GObject Implementation
+ *****************************************************************************/
 static void
 pidgin_prefs_window_class_init(PidginPrefsWindowClass *klass)
 {
@@ -507,13 +459,7 @@ pidgin_prefs_window_init(PidginPrefsWindow *win)
 #ifdef USE_VV
 	GtkWidget *vv = NULL;
 #endif
-	/* copy the preferences to tmp values...
-	 * I liked "take affect immediately" Oh well :-( */
-	/* (that should have been "effect," right?) */
 
-	/* Back to instant-apply! I win!  BU-HAHAHA! */
-
-	/* Create the window */
 	gtk_widget_init_template(GTK_WIDGET(win));
 
 #ifdef USE_VV
@@ -524,6 +470,9 @@ pidgin_prefs_window_init(PidginPrefsWindow *win)
 #endif
 }
 
+/******************************************************************************
+ * API
+ *****************************************************************************/
 void
 pidgin_prefs_show(void)
 {
