@@ -532,42 +532,6 @@ void purple_account_set_bool(PurpleAccount *account, const char *name,
 						   gboolean value);
 
 /**
- * purple_account_set_ui_int:
- * @account: The account.
- * @ui:      The UI name.
- * @name:    The name of the setting.
- * @value:   The setting's value.
- *
- * Sets a UI-specific integer setting for an account.
- */
-void purple_account_set_ui_int(PurpleAccount *account, const char *ui,
-							 const char *name, int value);
-
-/**
- * purple_account_set_ui_string:
- * @account: The account.
- * @ui:      The UI name.
- * @name:    The name of the setting.
- * @value:   The setting's value.
- *
- * Sets a UI-specific string setting for an account.
- */
-void purple_account_set_ui_string(PurpleAccount *account, const char *ui,
-								const char *name, const char *value);
-
-/**
- * purple_account_set_ui_bool:
- * @account: The account.
- * @ui:      The UI name.
- * @name:    The name of the setting.
- * @value:   The setting's value.
- *
- * Sets a UI-specific boolean setting for an account.
- */
-void purple_account_set_ui_bool(PurpleAccount *account, const char *ui,
-							  const char *name, gboolean value);
-
-/**
  * purple_account_is_connected:
  * @account: The account.
  *
@@ -1000,49 +964,6 @@ const char *purple_account_get_string(PurpleAccount *account,
  */
 gboolean purple_account_get_bool(PurpleAccount *account, const char *name,
 							   gboolean default_value);
-
-/**
- * purple_account_get_ui_int:
- * @account:       The account.
- * @ui:            The UI name.
- * @name:          The name of the setting.
- * @default_value: The default value.
- *
- * Returns a UI-specific integer setting for an account.
- *
- * Returns: The value.
- */
-int purple_account_get_ui_int(PurpleAccount *account, const char *ui,
-							const char *name, int default_value);
-
-/**
- * purple_account_get_ui_string:
- * @account:       The account.
- * @ui:            The UI name.
- * @name:          The name of the setting.
- * @default_value: The default value.
- *
- * Returns a UI-specific string setting for an account.
- *
- * Returns: The value.
- */
-const char *purple_account_get_ui_string(PurpleAccount *account,
-									   const char *ui, const char *name,
-									   const char *default_value);
-
-/**
- * purple_account_get_ui_bool:
- * @account:       The account.
- * @ui:            The UI name.
- * @name:          The name of the setting.
- * @default_value: The default value.
- *
- * Returns a UI-specific boolean setting for an account.
- *
- * Returns: The value.
- */
-gboolean purple_account_get_ui_bool(PurpleAccount *account, const char *ui,
-								  const char *name, gboolean default_value);
 
 /**
  * purple_account_add_buddy:

@@ -128,11 +128,7 @@ migrate_xmpp_encryption(PurpleAccount *account)
 static void
 parse_settings(PurpleXmlNode *node, PurpleAccount *account)
 {
-	const char *ui;
 	PurpleXmlNode *child;
-
-	/* Get the UI string, if these are UI settings */
-	ui = purple_xmlnode_get_attrib(node, "ui");
 
 	/* Read settings, one by one */
 	for (child = purple_xmlnode_get_child(node, "setting"); child != NULL;
@@ -167,24 +163,13 @@ parse_settings(PurpleXmlNode *node, PurpleAccount *account)
 			/* Ignore this setting */
 			continue;
 
-		if (ui == NULL)
-		{
-			if (type == PURPLE_PREF_STRING)
-				purple_account_set_string(account, name, data);
-			else if (type == PURPLE_PREF_INT)
-				purple_account_set_int(account, name, atoi(data));
-			else if (type == PURPLE_PREF_BOOLEAN)
-				purple_account_set_bool(account, name,
-									  (*data == '0' ? FALSE : TRUE));
-		} else {
-			if (type == PURPLE_PREF_STRING)
-				purple_account_set_ui_string(account, ui, name, data);
-			else if (type == PURPLE_PREF_INT)
-				purple_account_set_ui_int(account, ui, name, atoi(data));
-			else if (type == PURPLE_PREF_BOOLEAN)
-				purple_account_set_ui_bool(account, ui, name,
-										 (*data == '0' ? FALSE : TRUE));
-		}
+		if (type == PURPLE_PREF_STRING)
+			purple_account_set_string(account, name, data);
+		else if (type == PURPLE_PREF_INT)
+			purple_account_set_int(account, name, atoi(data));
+		else if (type == PURPLE_PREF_BOOLEAN)
+			purple_account_set_bool(account, name,
+								  (*data == '0' ? FALSE : TRUE));
 
 		g_free(data);
 	}
