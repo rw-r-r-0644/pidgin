@@ -394,6 +394,7 @@ pidgin/prefs/pidgincredentialspage.c
 pidgin/prefs/pidginnetworkpage.c
 pidgin/prefs/pidginprefs.c
 pidgin/prefs/pidginproxyprefs.c
+pidgin/prefs/pidginvvprefs.c
 pidgin/resources/About/about.ui
 pidgin/resources/Accounts/actionsmenu.ui
 pidgin/resources/Accounts/chooser.ui
