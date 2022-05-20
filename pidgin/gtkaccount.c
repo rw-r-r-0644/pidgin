@@ -944,7 +944,7 @@ account_register_cb(PurpleAccount *account, gboolean succeeded, void *user_data)
 
 		if (saved_status != NULL && purple_account_get_remember_password(account)) {
 			purple_savedstatus_activate_for_account(saved_status, account);
-			purple_account_set_enabled(account, PIDGIN_UI, TRUE);
+			purple_account_set_enabled(account, TRUE);
 		}
 	}
 	else
@@ -1149,7 +1149,7 @@ account_prefs_save(AccountPrefsDialog *dialog) {
 		saved_status = purple_savedstatus_get_current();
 		if (saved_status != NULL) {
 			purple_savedstatus_activate_for_account(saved_status, account);
-			purple_account_set_enabled(account, PIDGIN_UI, TRUE);
+			purple_account_set_enabled(account, TRUE);
 		}
 	}
 

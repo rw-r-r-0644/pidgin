@@ -91,7 +91,7 @@ ce_modify_account_cb(PurpleAccount *account)
 static void
 ce_enable_account_cb(PurpleAccount *account)
 {
-	purple_account_set_enabled(account, FINCH_UI, TRUE);
+	purple_account_set_enabled(account, TRUE);
 }
 
 static void
@@ -133,7 +133,7 @@ finch_connection_report_disconnect(PurpleConnection *gc, PurpleConnectionError r
 		g_free(act);
 		g_free(primary);
 		g_free(secondary);
-		purple_account_set_enabled(account, FINCH_UI, FALSE);
+		purple_account_set_enabled(account, FALSE);
 	}
 }
 

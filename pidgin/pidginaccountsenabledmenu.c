@@ -63,7 +63,7 @@ pidgin_accounts_enabled_menu_refresh_helper(PurpleAccount *account,
 {
 	GMenu *menu = data;
 
-	if(purple_account_get_enabled(account, PIDGIN_UI)) {
+	if(purple_account_get_enabled(account)) {
 		GMenu *submenu = NULL;
 		gchar *label = NULL;
 		const gchar *account_name = purple_account_get_username(account);

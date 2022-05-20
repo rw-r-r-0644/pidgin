@@ -3323,7 +3323,7 @@ generic_error_enable_cb(G_GNUC_UNUSED PidginMiniDialog *mini_dialog,
 {
 	PurpleAccount *account = user_data;
 	purple_account_clear_current_error(account);
-	purple_account_set_enabled(account, purple_core_get_ui(), TRUE);
+	purple_account_set_enabled(account, TRUE);
 }
 
 static void
@@ -3354,8 +3354,7 @@ add_generic_error_dialog(PurpleAccount *account,
 {
 	GtkWidget *mini_dialog;
 	const char *username = purple_account_get_username(account);
-	gboolean enabled =
-		purple_account_get_enabled(account, purple_core_get_ui());
+	gboolean enabled = purple_account_get_enabled(account);
 	char *primary;
 
 	if (enabled)
@@ -3438,7 +3437,7 @@ elsewhere_foreach_account(PidginMiniDialog *mini_dialog,
 static void
 enable_account(PurpleAccount *account)
 {
-	purple_account_set_enabled(account, purple_core_get_ui(), TRUE);
+	purple_account_set_enabled(account, TRUE);
 }
 
 static void

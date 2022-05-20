@@ -58,7 +58,7 @@ static void
 pidgin_account_actions_menu_disable_cb(GtkMenuItem *item, gpointer data) {
 	PidginAccountActionsMenu *menu = PIDGIN_ACCOUNT_ACTIONS_MENU(data);
 
-	purple_account_set_enabled(menu->account, PIDGIN_UI, FALSE);
+	purple_account_set_enabled(menu->account, FALSE);
 }
 
 static void

@@ -120,7 +120,7 @@ auth_no_pass_cb(PurpleConnection *gc, PurpleRequestFields *fields)
 	PURPLE_ASSERT_CONNECTION_IS_VALID(gc);
 
 	/* Disable the account as the user has cancelled connecting */
-	purple_account_set_enabled(purple_connection_get_account(gc), purple_core_get_ui(), FALSE);
+	purple_account_set_enabled(purple_connection_get_account(gc), FALSE);
 }
 #endif
 

@@ -62,6 +62,7 @@ typedef struct
 
 	char *buddy_icon_path;      /* The buddy icon's non-cached path.      */
 
+	gboolean enabled;
 	gboolean remember_pass;     /* Remember the password.                 */
 
 	/*
@@ -317,7 +318,7 @@ static void
 request_password_cancel_cb(PurpleAccount *account, PurpleRequestFields *fields)
 {
 	/* Disable the account as the user has cancelled connecting */
-	purple_account_set_enabled(account, purple_core_get_ui(), FALSE);
+	purple_account_set_enabled(account, FALSE);
 }
 
 
@@ -701,6 +702,7 @@ PurpleXmlNode *
 _purple_account_to_xmlnode(PurpleAccount *account)
 {
 	PurpleXmlNode *node, *child;
+	gchar *data = NULL;
 	const char *tmp;
 	PurpleProxyInfo *proxy_info;
 	PurpleAccountPrivate *priv = purple_account_get_instance_private(account);
@@ -717,6 +719,11 @@ _purple_account_to_xmlnode(PurpleAccount *account)
 
 	child = purple_xmlnode_new_child(node, "name");
 	purple_xmlnode_insert_data(child, purple_account_get_username(account), -1);
+
+	child = purple_xmlnode_new_child(node, "enabled");
+	data = g_strdup_printf("%d", priv->enabled);
+	purple_xmlnode_insert_data(child, data, -1);
+	g_clear_pointer(&data, g_free);
 
 	if ((tmp = purple_account_get_private_alias(account)) != NULL)
 	{
@@ -787,8 +794,7 @@ purple_account_set_property(GObject *obj, guint param_id, const GValue *value,
 			purple_account_set_private_alias(account, g_value_get_string(value));
 			break;
 		case PROP_ENABLED:
-			purple_account_set_enabled(account, purple_core_get_ui(),
-					g_value_get_boolean(value));
+			purple_account_set_enabled(account, g_value_get_boolean(value));
 			break;
 		case PROP_CONNECTION:
 			purple_account_set_connection(account, g_value_get_object(value));
@@ -833,8 +839,7 @@ purple_account_get_property(GObject *obj, guint param_id, GValue *value,
 			g_value_set_string(value, purple_account_get_private_alias(account));
 			break;
 		case PROP_ENABLED:
-			g_value_set_boolean(value, purple_account_get_enabled(account,
-					purple_core_get_ui()));
+			g_value_set_boolean(value, purple_account_get_enabled(account));
 			break;
 		case PROP_CONNECTION:
 			g_value_set_object(value, purple_account_get_connection(account));
@@ -1092,6 +1097,7 @@ purple_account_new(const gchar *username, const gchar *protocol_id) {
 		PURPLE_TYPE_ACCOUNT,
 		"username", username,
 		"protocol-id", protocol_id,
+		"enabled", FALSE,
 		NULL);
 
 	return account;
@@ -1119,7 +1125,7 @@ purple_account_connect(PurpleAccount *account)
 
 	username = purple_account_get_username(account);
 
-	if (!purple_account_get_enabled(account, purple_core_get_ui())) {
+	if (!purple_account_get_enabled(account)) {
 		purple_debug_info("account",
 				  "Account %s not enabled, not connecting.\n",
 				  username);
@@ -1620,21 +1626,19 @@ purple_account_set_remember_password(PurpleAccount *account, gboolean value)
 }
 
 void
-purple_account_set_enabled(PurpleAccount *account, const char *ui,
-			 gboolean value)
-{
+purple_account_set_enabled(PurpleAccount *account, gboolean value) {
 	PurpleConnection *gc;
 	PurpleAccountPrivate *priv;
 	gboolean was_enabled = FALSE;
 
 	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
-	g_return_if_fail(ui != NULL);
 
-	was_enabled = purple_account_get_enabled(account, ui);
+	priv = purple_account_get_instance_private(account);
 
-	purple_account_set_ui_bool(account, ui, "auto-login", value);
+	was_enabled = priv->enabled;
+	priv->enabled = value;
+
 	gc = purple_account_get_connection(account);
-
 	if(was_enabled && !value)
 		purple_signal_emit(purple_accounts_get_handle(), "account-disabled", account);
 	else if(!was_enabled && value)
@@ -1645,12 +1649,12 @@ purple_account_set_enabled(PurpleAccount *account, const char *ui,
 	if ((gc != NULL) && (_purple_connection_wants_to_die(gc)))
 		return;
 
-	priv = purple_account_get_instance_private(account);
-
 	if (value && purple_presence_is_online(priv->presence))
 		purple_account_connect(account);
 	else if (!value && !purple_account_is_disconnected(account))
 		purple_account_disconnect(account);
+
+	purple_accounts_schedule_save();
 }
 
 void
@@ -2076,12 +2080,14 @@ purple_account_get_remember_password(PurpleAccount *account)
 }
 
 gboolean
-purple_account_get_enabled(PurpleAccount *account, const char *ui)
-{
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
-	g_return_val_if_fail(ui      != NULL, FALSE);
+purple_account_get_enabled(PurpleAccount *account) {
+	PurpleAccountPrivate *priv = NULL;
 
-	return purple_account_get_ui_bool(account, ui, "auto-login", FALSE);
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), FALSE);
+
+	priv = purple_account_get_instance_private(account);
+
+	return priv->enabled;
 }
 
 PurpleProxyInfo *
