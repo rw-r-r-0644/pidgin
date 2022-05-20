@@ -39,20 +39,6 @@ typedef enum
 G_BEGIN_DECLS
 
 /**
- * pidgin_accounts_window_show:
- *
- * Shows the accounts window.
- */
-void pidgin_accounts_window_show(void);
-
-/**
- * pidgin_accounts_window_hide:
- *
- * Hides the accounts window.
- */
-void pidgin_accounts_window_hide(void);
-
-/**
  * pidgin_account_dialog_show:
  * @type:    The type of dialog.
  * @account: The associated account, or %NULL for an Add dialog.
