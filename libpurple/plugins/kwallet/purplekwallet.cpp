@@ -59,7 +59,6 @@ purple_kwallet_get_ui_name(void) {
 	ui_info = purple_core_get_ui_info();
 	if(PURPLE_IS_UI_INFO(ui_info)) {
 		ui_name = purple_ui_info_get_name(ui_info);
-		g_object_unref(G_OBJECT(ui_info));
 	}
 
 	if(ui_name.isEmpty()) {

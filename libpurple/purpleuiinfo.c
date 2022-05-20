@@ -25,6 +25,7 @@
 struct _PurpleUiInfo {
 	GObject parent;
 
+	gchar *id;
 	gchar *name;
 	gchar *version;
 	gchar *website;
@@ -34,6 +35,7 @@ struct _PurpleUiInfo {
 
 enum {
 	PROP_0,
+	PROP_ID,
 	PROP_NAME,
 	PROP_VERSION,
 	PROP_WEBSITE,
@@ -46,6 +48,12 @@ static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 /******************************************************************************
  * Helpers
  *****************************************************************************/
+static void
+purple_ui_info_set_id(PurpleUiInfo *info, const gchar *id) {
+	g_free(info->id);
+	info->id = g_strdup(id);
+}
+
 static void
 purple_ui_info_set_name(PurpleUiInfo *info, const gchar *name) {
 	g_free(info->name);
@@ -90,6 +98,9 @@ purple_ui_info_get_property(GObject *obj, guint param_id, GValue *value,
 	PurpleUiInfo *info = PURPLE_UI_INFO(obj);
 
 	switch(param_id) {
+		case PROP_ID:
+			g_value_set_string(value, purple_ui_info_get_id(info));
+			break;
 		case PROP_NAME:
 			g_value_set_string(value, purple_ui_info_get_name(info));
 			break;
@@ -118,6 +129,9 @@ purple_ui_info_set_property(GObject *obj, guint param_id, const GValue *value,
 	PurpleUiInfo *info = PURPLE_UI_INFO(obj);
 
 	switch(param_id) {
+		case PROP_ID:
+			purple_ui_info_set_id(info, g_value_get_string(value));
+			break;
 		case PROP_NAME:
 			purple_ui_info_set_name(info, g_value_get_string(value));
 			break;
@@ -148,6 +162,7 @@ static void
 purple_ui_info_finalize(GObject *obj) {
 	PurpleUiInfo *info = PURPLE_UI_INFO(obj);
 
+	g_clear_pointer(&info->id, g_free);
 	g_clear_pointer(&info->name, g_free);
 	g_clear_pointer(&info->version, g_free);
 	g_clear_pointer(&info->website, g_free);
@@ -166,9 +181,24 @@ purple_ui_info_class_init(PurpleUiInfoClass *klass) {
 	obj_class->finalize = purple_ui_info_finalize;
 
 	/**
-	 * PurpleUiInfo::name:
+	 * PurpleUiInfo:id:
+	 *
+	 * The identifier of the user interface.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_ID] =
+		g_param_spec_string("id", "id", "The identifier of the user interface",
+		                    NULL,
+		                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
+		                    G_PARAM_STATIC_STRINGS);
+
+	/**
+	 * PurpleUiInfo:name:
 	 *
 	 * The name of the user interface.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_NAME] =
 		g_param_spec_string("name", "name", "The name of the user interface",
@@ -177,9 +207,11 @@ purple_ui_info_class_init(PurpleUiInfoClass *klass) {
 		                    G_PARAM_STATIC_STRINGS);
 
 	/**
-	 * PurpleUiInfo::version:
+	 * PurpleUiInfo:version:
 	 *
-	 * The name of the user interface.
+	 * The version of the user interface.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_VERSION] =
 		g_param_spec_string("version", "version",
@@ -189,9 +221,11 @@ purple_ui_info_class_init(PurpleUiInfoClass *klass) {
 		                    G_PARAM_STATIC_STRINGS);
 
 	/**
-	 * PurpleUiInfo::website:
+	 * PurpleUiInfo:website:
 	 *
 	 * The website of the user interface.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_WEBSITE] =
 		g_param_spec_string("website", "website",
@@ -201,9 +235,11 @@ purple_ui_info_class_init(PurpleUiInfoClass *klass) {
 		                    G_PARAM_STATIC_STRINGS);
 
 	/**
-	 * PurpleUiInfo::support-website:
+	 * PurpleUiInfo:support-website:
 	 *
 	 * The support website of the user interface.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_SUPPORT_WEBSITE] =
 		g_param_spec_string("support-website", "support-website",
@@ -213,9 +249,11 @@ purple_ui_info_class_init(PurpleUiInfoClass *klass) {
 		                    G_PARAM_STATIC_STRINGS);
 
 	/**
-	 * PurpleUiInfo::client-type:
+	 * PurpleUiInfo:client-type:
 	 *
 	 * The client type of the user interface.
+	 *
+	 * Since: 3.0.0
 	 */
 	properties[PROP_CLIENT_TYPE] =
 		g_param_spec_string("client-type", "client-type",
@@ -231,17 +269,25 @@ purple_ui_info_class_init(PurpleUiInfoClass *klass) {
  * Public API
  *****************************************************************************/
 PurpleUiInfo *
-purple_ui_info_new(const gchar *name, const gchar *version,
-                   const gchar *website, const gchar *support_website,
-                   const gchar *client_type)
+purple_ui_info_new(const gchar *id, const gchar *name,
+                   const gchar *version, const gchar *website,
+                   const gchar *support_website, const gchar *client_type)
 {
 	return g_object_new(PURPLE_TYPE_UI_INFO,
+	                    "id", id,
 	                    "name", name,
 	                    "version", version,
 	                    "website", website,
 	                    "support-website", support_website,
 	                    "client-type", client_type,
 	                    NULL);
+}
+
+const gchar *
+purple_ui_info_get_id(PurpleUiInfo *info) {
+	g_return_val_if_fail(PURPLE_IS_UI_INFO(info), NULL);
+
+	return info->id;
 }
 
 const gchar *
@@ -278,4 +324,3 @@ purple_ui_info_get_client_type(PurpleUiInfo *info) {
 
 	return info->client_type;
 }
-

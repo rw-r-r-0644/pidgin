@@ -48,7 +48,8 @@ G_DECLARE_FINAL_TYPE(PurpleUiInfo, purple_ui_info, PURPLE, UI_INFO, GObject)
 
 /**
  * purple_ui_info_new:
- * @name: The name.
+ * @id: The identifier.
+ * @name: The name, which will be displayed.
  * @version: The version.
  * @website: The website.
  * @support_website: The support website.
@@ -61,11 +62,24 @@ G_DECLARE_FINAL_TYPE(PurpleUiInfo, purple_ui_info, PURPLE, UI_INFO, GObject)
  *
  * Since: 3.0.0
  */
-PurpleUiInfo *purple_ui_info_new(const gchar *name,
+PurpleUiInfo *purple_ui_info_new(const gchar *id,
+                                 const gchar *name,
                                  const gchar *version,
                                  const gchar *website,
                                  const gchar *support_website,
                                  const gchar *client_type);
+
+/**
+ * purple_ui_info_get_id:
+ * @info: The instance.
+ *
+ * Gets the identifier from @info.
+ *
+ * Returns: The identifier from @info.
+ *
+ * Since: 3.0.0
+ */
+const gchar *purple_ui_info_get_id(PurpleUiInfo *info);
 
 /**
  * purple_ui_info_get_name:

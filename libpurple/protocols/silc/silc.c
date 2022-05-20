@@ -720,10 +720,6 @@ silcpurple_get_quit_message(void)
 
 	quit_msg = g_strdup_printf(_("Download %s: %s"), ui_name, ui_website);
 
-	if (PURPLE_IS_UI_INFO(ui_info)) {
-		g_object_unref(G_OBJECT(ui_info));
-	}
-
 	return quit_msg;
 }
 

@@ -299,18 +299,11 @@ pidgin_quit(void)
 	g_application_quit(g_application_get_default());
 }
 
-static PurpleUiInfo *
-pidgin_ui_get_info(void) {
-	return purple_ui_info_new(PIDGIN_NAME, VERSION, "https://pidgin.im",
-	                          "https://developer.pidgin.im", "pc");
-}
-
 static PurpleCoreUiOps core_ops =
 {
 	pidgin_prefs_init,
 	pidgin_ui_init,
 	pidgin_quit,
-	pidgin_ui_get_info,
 };
 
 PurpleCoreUiOps *

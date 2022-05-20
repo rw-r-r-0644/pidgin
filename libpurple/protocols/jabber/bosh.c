@@ -81,10 +81,6 @@ jabber_bosh_init(void)
 	} else {
 		jabber_bosh_useragent = g_strdup("libpurple " VERSION);
 	}
-
-	if(ui_info) {
-		g_object_unref(G_OBJECT(ui_info));
-	}
 }
 
 void jabber_bosh_uninit(void)

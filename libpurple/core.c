@@ -49,7 +49,7 @@
 
 struct PurpleCore
 {
-	char *ui;
+	PurpleUiInfo *ui_info;
 
 	void *reserved;
 };
@@ -84,19 +84,14 @@ purple_core_print_version(void)
 		purple_core_get_version());
 
 	g_free(ui_full_name);
-
-	if(PURPLE_IS_UI_INFO(ui_info)) {
-		g_object_unref(G_OBJECT(ui_info));
-	}
 }
 
 gboolean
-purple_core_init(const char *ui)
-{
+purple_core_init(PurpleUiInfo *ui_info) {
 	PurpleCoreUiOps *ops;
 	PurpleCore *core;
 
-	g_return_val_if_fail(ui != NULL, FALSE);
+	g_return_val_if_fail(PURPLE_IS_UI_INFO(ui_info), FALSE);
 	g_return_val_if_fail(purple_get_core() == NULL, FALSE);
 
 	bindtextdomain(PACKAGE, PURPLE_LOCALEDIR);
@@ -106,7 +101,7 @@ purple_core_init(const char *ui)
 #endif
 
 	_core = core = g_new0(PurpleCore, 1);
-	core->ui = g_strdup(ui);
+	core->ui_info = ui_info;
 	core->reserved = NULL;
 
 	ops = purple_core_get_ui_ops();
@@ -258,7 +253,7 @@ purple_core_quit(void)
 
 	purple_signals_uninit();
 
-	g_free(core->ui);
+	g_clear_object(&core->ui_info);
 	g_free(core);
 
 #ifdef _WIN32
@@ -282,16 +277,6 @@ purple_core_get_version(void)
 	return VERSION;
 }
 
-const char *
-purple_core_get_ui(void)
-{
-	PurpleCore *core = purple_get_core();
-
-	g_return_val_if_fail(core != NULL, NULL);
-
-	return core->ui;
-}
-
 PurpleCore *
 purple_get_core(void)
 {
@@ -310,11 +295,7 @@ purple_core_get_ui_ops(void)
 	return _ops;
 }
 
-PurpleUiInfo* purple_core_get_ui_info() {
-	PurpleCoreUiOps *ops = purple_core_get_ui_ops();
-
-	if(NULL == ops || NULL == ops->get_ui_info)
-		return NULL;
-
-	return ops->get_ui_info();
+PurpleUiInfo *
+purple_core_get_ui_info() {
+	return _core->ui_info;
 }

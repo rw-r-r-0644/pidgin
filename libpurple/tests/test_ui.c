@@ -92,6 +92,7 @@ test_ui_init_history(GError **error) {
 
 void
 test_ui_purple_init(void) {
+	PurpleUiInfo *ui_info = NULL;
 	GError *error = NULL;
 
 #ifndef _WIN32
@@ -114,10 +115,13 @@ test_ui_purple_init(void) {
 	 */
 	purple_core_set_ui_ops(&test_core_uiops);
 
+	ui_info = purple_ui_info_new("test", "Test-UI", VERSION, PURPLE_WEBSITE,
+	                             PURPLE_WEBSITE, "test");
+
 	/* Now that all the essential stuff has been set, let's try to init the core. It's
 	 * necessary to provide a non-NULL name for the current ui to the core. This name
 	 * is used by stuff that depends on this ui, for example the ui-specific plugins. */
-	if (!purple_core_init("test-ui")) {
+	if (!purple_core_init(ui_info)) {
 		/* Initializing the core failed. Terminate. */
 		fprintf(stderr,
 				"libpurple initialization failed. Dumping core.\n"
