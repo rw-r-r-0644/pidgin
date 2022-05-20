@@ -75,7 +75,6 @@ typedef struct
 	gboolean disconnecting;     /* The account is currently disconnecting */
 
 	GHashTable *settings;       /* Protocol-specific settings.            */
-	GHashTable *ui_settings;    /* UI-specific settings.                  */
 
 	PurpleProxyInfo *proxy_info;  /* Proxy information.  This will be set */
 								/*   to NULL when the account inherits      */
@@ -470,23 +469,6 @@ delete_setting(void *data)
 	g_free(setting);
 }
 
-static GHashTable *
-get_ui_settings_table(PurpleAccount *account, const char *ui)
-{
-	GHashTable *table;
-	PurpleAccountPrivate *priv = purple_account_get_instance_private(account);
-
-	table = g_hash_table_lookup(priv->ui_settings, ui);
-
-	if (table == NULL) {
-		table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
-									  delete_setting);
-		g_hash_table_insert(priv->ui_settings, g_strdup(ui), table);
-	}
-
-	return table;
-}
-
 static PurpleConnectionState
 purple_account_get_state(PurpleAccount *account)
 {
@@ -679,25 +661,6 @@ setting_to_xmlnode(gpointer key, gpointer value, gpointer user_data)
 	}
 }
 
-static void
-ui_setting_to_xmlnode(gpointer key, gpointer value, gpointer user_data)
-{
-	const char *ui;
-	GHashTable *table;
-	PurpleXmlNode *node, *child;
-
-	ui    = (const char *)key;
-	table = (GHashTable *)value;
-	node  = (PurpleXmlNode *)user_data;
-
-	if (g_hash_table_size(table) > 0)
-	{
-		child = purple_xmlnode_new_child(node, "settings");
-		purple_xmlnode_set_attrib(child, "ui", ui);
-		g_hash_table_foreach(table, setting_to_xmlnode, child);
-	}
-}
-
 PurpleXmlNode *
 _purple_account_to_xmlnode(PurpleAccount *account)
 {
@@ -742,11 +705,6 @@ _purple_account_to_xmlnode(PurpleAccount *account)
 	{
 		child = purple_xmlnode_new_child(node, "settings");
 		g_hash_table_foreach(priv->settings, setting_to_xmlnode, child);
-	}
-
-	if (g_hash_table_size(priv->ui_settings) > 0)
-	{
-		g_hash_table_foreach(priv->ui_settings, ui_setting_to_xmlnode, node);
 	}
 
 	if ((proxy_info = purple_account_get_proxy_info(account)) != NULL)
@@ -874,8 +832,6 @@ purple_account_init(PurpleAccount *account)
 
 	priv->settings = g_hash_table_new_full(g_str_hash, g_str_equal,
 			g_free, delete_setting);
-	priv->ui_settings = g_hash_table_new_full(g_str_hash, g_str_equal,
-			g_free, (GDestroyNotify)g_hash_table_destroy);
 
 	priv->privacy_type = PURPLE_ACCOUNT_PRIVACY_ALLOW_ALL;
 }
@@ -994,7 +950,6 @@ purple_account_finalize(GObject *object)
 	g_free(priv->protocol_id);
 
 	g_hash_table_destroy(priv->settings);
-	g_hash_table_destroy(priv->ui_settings);
 
 	g_slist_free_full(priv->deny, g_free);
 	g_slist_free_full(priv->permit, g_free);
@@ -1850,78 +1805,6 @@ purple_account_set_bool(PurpleAccount *account, const char *name, gboolean value
 	purple_accounts_schedule_save();
 }
 
-void
-purple_account_set_ui_int(PurpleAccount *account, const char *ui,
-						const char *name, int value)
-{
-	PurpleAccountSetting *setting;
-	GHashTable *table;
-
-	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
-	g_return_if_fail(ui      != NULL);
-	g_return_if_fail(name    != NULL);
-
-	setting = g_new0(PurpleAccountSetting, 1);
-
-	setting->ui            = g_strdup(ui);
-	g_value_init(&setting->value, G_TYPE_INT);
-	g_value_set_int(&setting->value, value);
-
-	table = get_ui_settings_table(account, ui);
-
-	g_hash_table_insert(table, g_strdup(name), setting);
-
-	purple_accounts_schedule_save();
-}
-
-void
-purple_account_set_ui_string(PurpleAccount *account, const char *ui,
-						   const char *name, const char *value)
-{
-	PurpleAccountSetting *setting;
-	GHashTable *table;
-
-	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
-	g_return_if_fail(ui      != NULL);
-	g_return_if_fail(name    != NULL);
-
-	setting = g_new0(PurpleAccountSetting, 1);
-
-	setting->ui           = g_strdup(ui);
-	g_value_init(&setting->value, G_TYPE_STRING);
-	g_value_set_string(&setting->value, value);
-
-	table = get_ui_settings_table(account, ui);
-
-	g_hash_table_insert(table, g_strdup(name), setting);
-
-	purple_accounts_schedule_save();
-}
-
-void
-purple_account_set_ui_bool(PurpleAccount *account, const char *ui,
-						 const char *name, gboolean value)
-{
-	PurpleAccountSetting *setting;
-	GHashTable *table;
-
-	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
-	g_return_if_fail(ui      != NULL);
-	g_return_if_fail(name    != NULL);
-
-	setting = g_new0(PurpleAccountSetting, 1);
-
-	setting->ui         = g_strdup(ui);
-	g_value_init(&setting->value, G_TYPE_BOOLEAN);
-	g_value_set_boolean(&setting->value, value);
-
-	table = get_ui_settings_table(account, ui);
-
-	g_hash_table_insert(table, g_strdup(name), setting);
-
-	purple_accounts_schedule_save();
-}
-
 gboolean
 purple_account_is_connected(PurpleAccount *account)
 {
@@ -2585,81 +2468,6 @@ purple_account_get_bool(PurpleAccount *account, const char *name,
 	setting = g_hash_table_lookup(priv->settings, name);
 
 	if (setting == NULL)
-		return default_value;
-
-	g_return_val_if_fail(G_VALUE_HOLDS_BOOLEAN(&setting->value), default_value);
-
-	return g_value_get_boolean(&setting->value);
-}
-
-int
-purple_account_get_ui_int(PurpleAccount *account, const char *ui,
-						const char *name, int default_value)
-{
-	PurpleAccountSetting *setting;
-	PurpleAccountPrivate *priv;
-	GHashTable *table;
-
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), default_value);
-	g_return_val_if_fail(ui      != NULL, default_value);
-	g_return_val_if_fail(name    != NULL, default_value);
-
-	priv = purple_account_get_instance_private(account);
-
-	if ((table = g_hash_table_lookup(priv->ui_settings, ui)) == NULL)
-		return default_value;
-
-	if ((setting = g_hash_table_lookup(table, name)) == NULL)
-		return default_value;
-
-	g_return_val_if_fail(G_VALUE_HOLDS_INT(&setting->value), default_value);
-
-	return g_value_get_int(&setting->value);
-}
-
-const char *
-purple_account_get_ui_string(PurpleAccount *account, const char *ui,
-						   const char *name, const char *default_value)
-{
-	PurpleAccountSetting *setting;
-	PurpleAccountPrivate *priv;
-	GHashTable *table;
-
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), default_value);
-	g_return_val_if_fail(ui      != NULL, default_value);
-	g_return_val_if_fail(name    != NULL, default_value);
-
-	priv = purple_account_get_instance_private(account);
-
-	if ((table = g_hash_table_lookup(priv->ui_settings, ui)) == NULL)
-		return default_value;
-
-	if ((setting = g_hash_table_lookup(table, name)) == NULL)
-		return default_value;
-
-	g_return_val_if_fail(G_VALUE_HOLDS_STRING(&setting->value), default_value);
-
-	return g_value_get_string(&setting->value);
-}
-
-gboolean
-purple_account_get_ui_bool(PurpleAccount *account, const char *ui,
-						 const char *name, gboolean default_value)
-{
-	PurpleAccountSetting *setting;
-	PurpleAccountPrivate *priv;
-	GHashTable *table;
-
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), default_value);
-	g_return_val_if_fail(ui      != NULL, default_value);
-	g_return_val_if_fail(name    != NULL, default_value);
-
-	priv = purple_account_get_instance_private(account);
-
-	if ((table = g_hash_table_lookup(priv->ui_settings, ui)) == NULL)
-		return default_value;
-
-	if ((setting = g_hash_table_lookup(table, name)) == NULL)
 		return default_value;
 
 	g_return_val_if_fail(G_VALUE_HOLDS_BOOLEAN(&setting->value), default_value);
