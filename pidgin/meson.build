@@ -67,6 +67,11 @@ libpidgin_SOURCES = [
 	'prefs/pidginnetworkprefs.c',
 	'prefs/pidginproxyprefs.c',
 ]
+if enable_vv
+	libpidgin_SOURCES += [
+		'prefs/pidginvvprefs.c',
+	]
+endif
 
 libpidgin_headers = [
 	'gtkaccount.h',
@@ -139,6 +144,11 @@ libpidgin_prefs_headers = [
 	'prefs/pidginnetworkprefs.h',
 	'prefs/pidginproxyprefs.h',
 ]
+if enable_vv
+	libpidgin_prefs_headers += [
+		'prefs/pidginvvprefs.h',
+	]
+endif
 
 libpidgin_enum_headers = [
 	'gtkaccount.h',
