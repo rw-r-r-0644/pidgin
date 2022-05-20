@@ -37,6 +37,12 @@ struct _PidginPrefCombo {
 	const gchar *key;
 };
 
+enum {
+	PIDGIN_PREF_COMBO_TEXT,
+	PIDGIN_PREF_COMBO_VALUE,
+	PIDGIN_PREF_COMBO_N_COLUMNS
+};
+
 G_BEGIN_DECLS
 
 G_GNUC_INTERNAL
