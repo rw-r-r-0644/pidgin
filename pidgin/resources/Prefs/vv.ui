@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 
-
+<!--
 Pidgin - Internet Messenger
 Copyright (C) Pidgin Developers <devel@pidgin.im>
 
@@ -15,12 +14,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 -->
 <interface>
-  <requires lib="gtk+" version="3.22"/>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
@@ -67,50 +65,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <column type="gchararray"/>
     </columns>
   </object>
-  <template class="PidginVVPrefs" parent="HdyPreferencesPage">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
+  <template class="PidginVVPrefs" parent="AdwPreferencesPage">
     <child>
-      <object class="HdyPreferencesGroup">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+      <object class="AdwPreferencesGroup">
         <property name="title" translatable="yes">Audio</property>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
             <property name="margin-start">12</property>
             <property name="orientation">vertical</property>
             <property name="spacing">6</property>
             <child>
               <object class="GtkFrame">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label-xalign">0</property>
-                <property name="shadow-type">none</property>
-                <child>
+                <property name="child">
                   <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="margin-start">12</property>
                     <property name="spacing">6</property>
                     <child>
                       <object class="GtkLabel" id="label1">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes" context="Device for Audio Input">Device</property>
                         <property name="xalign">0</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkComboBox" id="voice.input.combo">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="id-column">1</property>
                         <property name="model">voice.input.store</property>
                         <child>
@@ -120,60 +97,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                           </attributes>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                   </object>
-                </child>
+                </property>
                 <child type="label">
                   <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes" context="Input for Audio">Input</property>
                     <attributes>
-                      <attribute name="weight" value="bold"/>
+                      <attribute name="weight" value="bold"></attribute>
                     </attributes>
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkFrame">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label-xalign">0</property>
-                <property name="shadow-type">none</property>
-                <child>
+                <property name="child">
                   <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="margin-start">12</property>
                     <property name="spacing">6</property>
                     <child>
                       <object class="GtkLabel" id="label2">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes" context="Device for Audio Output">Device</property>
                         <property name="xalign">0</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkComboBox" id="voice.output.combo">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="id-column">1</property>
                         <property name="model">voice.output.store</property>
                         <child>
@@ -183,195 +133,111 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                           </attributes>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                   </object>
-                </child>
+                </property>
                 <child type="label">
                   <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes" context="Output for Audio">Output</property>
                     <attributes>
-                      <attribute name="weight" value="bold"/>
+                      <attribute name="weight" value="bold"></attribute>
                     </attributes>
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
             <child>
               <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
                 <property name="spacing">6</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Volume:</property>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkVolumeButton" id="voice.volume">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="focus-on-click">False</property>
-                    <property name="receives-default">True</property>
-                    <property name="relief">none</property>
+                    <property name="focusable">1</property>
+                    <property name="focus-on-click">0</property>
+                    <property name="receives-default">1</property>
                     <property name="orientation">vertical</property>
                     <property name="adjustment">adjustment2</property>
                     <signal name="value-changed" handler="volume_changed_cb" swapped="no"/>
                     <child internal-child="plus_button">
                       <object class="GtkButton">
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">0</property>
+                        <property name="focusable">1</property>
+                        <property name="receives-default">1</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
-                        <property name="relief">none</property>
                       </object>
                     </child>
                     <child internal-child="minus_button">
                       <object class="GtkButton">
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
+                        <property name="visible">0</property>
+                        <property name="focusable">1</property>
+                        <property name="receives-default">1</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
-                        <property name="relief">none</property>
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
             </child>
             <child>
               <object class="GtkLabel" id="voice.threshold_label">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Silence threshold:</property>
                 <property name="xalign">0</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
             </child>
             <child>
               <object class="GtkScale" id="voice.threshold">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="focusable">1</property>
                 <property name="adjustment">adjustment1</property>
                 <property name="round-digits">0</property>
                 <property name="digits">0</property>
-                <property name="draw-value">False</property>
                 <signal name="value-changed" handler="threshold_value_changed_cb" object="PidginVVPrefs" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">4</property>
-              </packing>
             </child>
             <child>
               <object class="GtkToggleButton" id="voice.test">
                 <property name="label" translatable="yes">Test Audio</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
+                <property name="focusable">1</property>
+                <property name="receives-default">1</property>
                 <signal name="toggled" handler="toggle_voice_test_cb" object="PidginVVPrefs" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
-              </packing>
             </child>
             <child>
               <object class="GtkProgressBar" id="voice.level">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">False</property>
+                <property name="sensitive">0</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">6</property>
-              </packing>
             </child>
           </object>
         </child>
       </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">0</property>
-      </packing>
     </child>
     <child>
-      <object class="HdyPreferencesGroup">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
+      <object class="AdwPreferencesGroup">
         <property name="title" translatable="yes">Video</property>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
             <property name="margin-start">12</property>
             <property name="orientation">vertical</property>
             <property name="spacing">6</property>
             <child>
               <object class="GtkFrame">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label-xalign">0</property>
-                <property name="shadow-type">none</property>
-                <child>
+                <property name="child">
                   <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="margin-start">12</property>
                     <property name="spacing">6</property>
                     <child>
                       <object class="GtkLabel" id="label3">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes" context="Device for Video Input">Device</property>
                         <property name="xalign">0</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkComboBox" id="video.input.combo">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="id-column">1</property>
                         <property name="model">video.input.store</property>
                         <child>
@@ -381,60 +247,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                           </attributes>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                   </object>
-                </child>
+                </property>
                 <child type="label">
                   <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes" context="Input for Video">Input</property>
                     <attributes>
-                      <attribute name="weight" value="bold"/>
+                      <attribute name="weight" value="bold"></attribute>
                     </attributes>
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkFrame">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label-xalign">0</property>
-                <property name="shadow-type">none</property>
-                <child>
+                <property name="child">
                   <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="margin-start">12</property>
                     <property name="spacing">6</property>
                     <child>
                       <object class="GtkLabel" id="label4">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes" context="Device for Video Output">Device</property>
                         <property name="xalign">0</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkComboBox" id="video.output.combo">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
                         <property name="id-column">1</property>
                         <property name="model">video.output.store</property>
                         <child>
@@ -444,70 +283,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                           </attributes>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                   </object>
-                </child>
+                </property>
                 <child type="label">
                   <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes" context="Output for Video">Output</property>
                     <attributes>
-                      <attribute name="weight" value="bold"/>
+                      <attribute name="weight" value="bold"></attribute>
                     </attributes>
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
             <child>
               <object class="GtkAspectFrame" id="video.frame">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label-xalign">0</property>
-                <property name="shadow-type">none</property>
+                <property name="valign">fill</property>
+                <property name="vexpand">1</property>
                 <property name="ratio">1.33</property>
                 <child>
                   <placeholder/>
                 </child>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
             </child>
             <child>
               <object class="GtkToggleButton" id="video.test">
                 <property name="label" translatable="yes">Test Video</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
+                <property name="focusable">1</property>
+                <property name="receives-default">1</property>
                 <signal name="toggled" handler="toggle_video_test_cb" object="PidginVVPrefs" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
             </child>
           </object>
         </child>
       </object>
-      <packing>
-        <property name="expand">True</property>
-        <property name="fill">True</property>
-        <property name="position">1</property>
-      </packing>
     </child>
   </template>
   <object class="GtkSizeGroup" id="sg">
