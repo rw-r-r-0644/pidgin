@@ -22,6 +22,8 @@
 
 #include <glib/gi18n.h>
 
+#include <gtk/gtk.h>
+
 #include "pidginaccountsenabledmenu.h"
 
 #include "pidgincore.h"
@@ -29,47 +31,33 @@
 /******************************************************************************
  * Helpers
  *****************************************************************************/
-static GMenu *
-pidgin_accounts_enabled_menu_build_submenu(PurpleAccount *account) {
-	GMenu *menu = NULL, *section = NULL;
-	gchar *action_id = NULL;
-	const gchar *account_id = NULL;
-
-	menu = g_menu_new();
-	account_id = purple_account_get_id(account);
-
-	/* Add the "Edit Account" section. */
-	section = g_menu_new();
-	g_menu_append_section(menu, NULL, G_MENU_MODEL(section));
-
-	action_id = g_strdup_printf("app.edit-account::%s", account_id);
-	g_menu_append(section, _("Edit Account"), action_id);
-	g_free(action_id);
-
-	/* Add the "Disable Account" section. */
-	section = g_menu_new();
-	g_menu_append_section(menu, NULL, G_MENU_MODEL(section));
-
-	action_id = g_strdup_printf("app.disable-account::%s", account_id);
-	g_menu_append(section, _("Disable"), action_id);
-	g_free(action_id);
-
-	return menu;
-}
-
 static void
 pidgin_accounts_enabled_menu_refresh_helper(PurpleAccount *account,
                                             gpointer data)
 {
+	GApplication *application = g_application_get_default();
 	GMenu *menu = data;
 
 	if(purple_account_get_enabled(account)) {
+		PurpleConnection *connection = purple_account_get_connection(account);
 		GMenu *submenu = NULL;
 		gchar *label = NULL;
 		const gchar *account_name = purple_account_get_username(account);
 		const gchar *protocol_name = purple_account_get_protocol_name(account);
+		const gchar *account_id = purple_account_get_id(account);
+		const gchar *connection_id = NULL;
 
-		submenu = pidgin_accounts_enabled_menu_build_submenu(account);
+		submenu = gtk_application_get_menu_by_id(GTK_APPLICATION(application),
+		                                         "enabled-account");
+
+		if(PURPLE_IS_CONNECTION(connection)) {
+			connection_id = purple_connection_get_id(connection);
+		}
+
+		purple_menu_populate_dynamic_targets(submenu,
+		                                     "account", account_id,
+		                                     "connection", connection_id,
+		                                     NULL);
 
 		/* translators: This format string is intended to contain the account
 		 * name followed by the protocol name to uniquely identify a specific
@@ -113,6 +101,20 @@ pidgin_accounts_enabled_menu_disabled_cb(G_GNUC_UNUSED PurpleAccount *account,
 }
 
 static void
+pidgin_accounts_enabled_menu_connected_cb(G_GNUC_UNUSED PurpleAccount *account,
+                                          gpointer data)
+{
+	pidgin_accounts_enabled_menu_refresh(data);
+}
+
+static void
+pidgin_accounts_enabled_menu_disconnected_cb(G_GNUC_UNUSED PurpleAccount *account,
+                                             gpointer data)
+{
+	pidgin_accounts_enabled_menu_refresh(data);
+}
+
+static void
 pidgin_accounts_enabled_menu_weak_notify_cb(G_GNUC_UNUSED gpointer data,
                                             GObject *obj)
 {
@@ -144,6 +146,16 @@ pidgin_accounts_enabled_menu_new(void) {
 	                      menu);
 	purple_signal_connect(handle, "account-disabled", menu,
 	                      G_CALLBACK(pidgin_accounts_enabled_menu_disabled_cb),
+	                      menu);
+
+	/* For the account actions, we also need to know when an account is online
+	 * or offline.
+	 */
+	purple_signal_connect(handle, "account-signed-on", menu,
+	                      G_CALLBACK(pidgin_accounts_enabled_menu_connected_cb),
+	                      menu);
+	purple_signal_connect(handle, "account-signed-off", menu,
+	                      G_CALLBACK(pidgin_accounts_enabled_menu_disconnected_cb),
 	                      menu);
 
 	return menu;

@@ -258,4 +258,21 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
       </section>
     </submenu>
   </menu>
+
+  <menu id="enabled-account">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Edit Account</attribute>
+        <attribute name="action">app.edit-account</attribute>
+        <attribute name="dynamic-target">account</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Disable</attribute>
+        <attribute name="action">app.disable-account</attribute>
+        <attribute name="dynamic-target">account</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>
