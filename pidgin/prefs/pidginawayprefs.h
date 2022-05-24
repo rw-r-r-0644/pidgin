@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include <gtk/gtk.h>
-#include <handy.h>
+#include <adwaita.h>
 
 G_BEGIN_DECLS
 
@@ -44,7 +44,7 @@ G_BEGIN_DECLS
  */
 #define PIDGIN_TYPE_AWAY_PREFS (pidgin_away_prefs_get_type())
 G_DECLARE_FINAL_TYPE(PidginAwayPrefs, pidgin_away_prefs,
-                     PIDGIN, AWAY_PREFS, HdyPreferencesPage)
+                     PIDGIN, AWAY_PREFS, AdwPreferencesPage)
 
 /**
  * pidgin_away_prefs_new:
