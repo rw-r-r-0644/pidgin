@@ -9,6 +9,7 @@ PROGS = [
     'image',
     'keyvaluepair',
     'markup',
+    'menu',
     'protocol_action',
     'protocol_xfer',
     'purplepath',
