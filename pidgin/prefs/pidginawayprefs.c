@@ -22,7 +22,7 @@
 
 #include <purple.h>
 
-#include <handy.h>
+#include <adwaita.h>
 
 #include "pidginawayprefs.h"
 #include "gtksavedstatuses.h"
@@ -30,7 +30,7 @@
 #include "pidginprefsinternal.h"
 
 struct _PidginAwayPrefs {
-	HdyPreferencesPage parent;
+	AdwPreferencesPage parent;
 
 	PidginPrefCombo idle_reporting;
 	GtkWidget *mins_before_away;
@@ -42,7 +42,7 @@ struct _PidginAwayPrefs {
 	GtkWidget *startup_label;
 };
 
-G_DEFINE_TYPE(PidginAwayPrefs, pidgin_away_prefs, HDY_TYPE_PREFERENCES_PAGE)
+G_DEFINE_TYPE(PidginAwayPrefs, pidgin_away_prefs, ADW_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers
@@ -112,8 +112,7 @@ pidgin_away_prefs_init(PidginAwayPrefs *prefs)
 	/* TODO: Show something useful if we don't have any saved statuses. */
 	menu = pidgin_status_menu(purple_savedstatus_get_idleaway(),
 	                          G_CALLBACK(set_idle_away));
-	gtk_widget_show_all(menu);
-	gtk_box_pack_start(GTK_BOX(prefs->idle_hbox), menu, FALSE, FALSE, 0);
+	gtk_box_append(GTK_BOX(prefs->idle_hbox), menu);
 
 	g_object_bind_property(prefs->away_when_idle, "active",
 			menu, "sensitive",
@@ -131,8 +130,7 @@ pidgin_away_prefs_init(PidginAwayPrefs *prefs)
 	/* TODO: Show something useful if we don't have any saved statuses. */
 	menu = pidgin_status_menu(purple_savedstatus_get_startup(),
 	                          G_CALLBACK(set_startupstatus));
-	gtk_widget_show_all(menu);
-	gtk_box_pack_start(GTK_BOX(prefs->startup_hbox), menu, FALSE, FALSE, 0);
+	gtk_box_append(GTK_BOX(prefs->startup_hbox), menu);
 	gtk_label_set_mnemonic_widget(GTK_LABEL(prefs->startup_label), menu);
 	pidgin_set_accessible_label(menu, GTK_LABEL(prefs->startup_label));
 	g_object_bind_property(prefs->startup_current_status, "active",
