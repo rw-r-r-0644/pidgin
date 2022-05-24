@@ -85,7 +85,6 @@ pidgin_prefs_labeled_spin_button(GtkWidget *box, const gchar *title,
 		gtk_widget_set_size_request(spin, 60, -1);
 	g_signal_connect(G_OBJECT(adjust), "value-changed",
 					 G_CALLBACK(update_spin_value), GTK_WIDGET(spin));
-	gtk_widget_show(spin);
 
 	return pidgin_add_widget_to_vbox(GTK_BOX(box), title, sg, spin, FALSE, NULL);
 }
@@ -388,12 +387,10 @@ pidgin_prefs_checkbox(const char *text, const char *key, GtkWidget *page)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			purple_prefs_get_bool(key));
 
-	gtk_box_pack_start(GTK_BOX(page), button, FALSE, FALSE, 0);
+	gtk_box_append(GTK_BOX(page), button);
 
 	g_signal_connect(G_OBJECT(button), "clicked",
 			G_CALLBACK(set_bool_pref), (char *)key);
-
-	gtk_widget_show(button);
 
 	return button;
 }
