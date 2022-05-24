@@ -565,13 +565,14 @@ endif
 #######################################################################
 # Check for GPlugin
 #######################################################################
+gplugin_version = ['>=0.38.0', '<0.39.0']
 gplugin_dep = dependency('gplugin',
-	version : ['>=0.37.0', '<0.38.0'],
+	version : gplugin_version,
 	fallback : ['gplugin', 'gplugin_dep'])
 
 if get_option('gtkui')
 	gplugin_gtk_dep = dependency('gplugin-gtk3',
-		version : ['>=0.37.0', '<0.38.0'],
+		version : gplugin_version,
 		fallback : ['gplugin-gtk', 'gplugin_gtk3_dep'])
 endif
 
