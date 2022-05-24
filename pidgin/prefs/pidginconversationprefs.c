@@ -24,7 +24,7 @@
 
 #include <purple.h>
 
-#include <handy.h>
+#include <adwaita.h>
 #include <talkatu.h>
 
 #include "pidginconversationprefs.h"
@@ -32,7 +32,7 @@
 #include "pidginprefsinternal.h"
 
 struct _PidginConversationPrefs {
-	HdyPreferencesPage parent;
+	AdwPreferencesPage parent;
 
 	GtkWidget *show_incoming_formatting;
 	struct {
@@ -48,7 +48,7 @@ struct _PidginConversationPrefs {
 };
 
 G_DEFINE_TYPE(PidginConversationPrefs, pidgin_conversation_prefs,
-              HDY_TYPE_PREFERENCES_PAGE)
+              ADW_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers

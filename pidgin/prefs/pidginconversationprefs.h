@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include <gtk/gtk.h>
-#include <handy.h>
+#include <adwaita.h>
 
 G_BEGIN_DECLS
 
@@ -44,7 +44,7 @@ G_BEGIN_DECLS
  */
 #define PIDGIN_TYPE_CONVERSATION_PREFS (pidgin_conversation_prefs_get_type())
 G_DECLARE_FINAL_TYPE(PidginConversationPrefs, pidgin_conversation_prefs,
-                     PIDGIN, CONVERSATION_PREFS, HdyPreferencesPage)
+                     PIDGIN, CONVERSATION_PREFS, AdwPreferencesPage)
 
 /**
  * pidgin_conversation_prefs_new:
