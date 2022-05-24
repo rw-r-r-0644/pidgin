@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include <gtk/gtk.h>
-#include <handy.h>
+#include <adwaita.h>
 
 G_BEGIN_DECLS
 
@@ -44,7 +44,7 @@ G_BEGIN_DECLS
  */
 #define PIDGIN_TYPE_NETWORK_PREFS (pidgin_network_prefs_get_type())
 G_DECLARE_FINAL_TYPE(PidginNetworkPrefs, pidgin_network_prefs,
-                     PIDGIN, NETWORK_PREFS, HdyPreferencesPage)
+                     PIDGIN, NETWORK_PREFS, AdwPreferencesPage)
 
 /**
  * pidgin_network_prefs_new:
