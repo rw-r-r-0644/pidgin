@@ -114,7 +114,5 @@ pidgin_plugin_info_new(const char *first_property, ...) {
 	                           var_args);
 	va_end(var_args);
 
-	g_object_set(info, "ui-requirement", PIDGIN_UI, NULL);
-
 	return GPLUGIN_PLUGIN_INFO(info);
 }

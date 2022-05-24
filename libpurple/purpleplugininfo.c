@@ -27,7 +27,6 @@
 #include "purpleplugininfo.h"
 
 typedef struct {
-	gchar *ui_requirement;  /* ID of UI that is required to load the plugin */
 	gchar *error;           /* Why a plugin is not loadable                 */
 
 	PurplePluginInfoFlags flags; /* Flags for the plugin */
@@ -51,7 +50,6 @@ typedef struct {
 
 enum {
 	PROP_0,
-	PROP_UI_REQUIREMENT,
 	PROP_ACTIONS_CB,
 	PROP_EXTRA_CB,
 	PROP_PREF_FRAME_CB,
@@ -81,9 +79,6 @@ purple_plugin_info_set_property(GObject *obj, guint param_id,
 	priv = purple_plugin_info_get_instance_private(info);
 
 	switch (param_id) {
-		case PROP_UI_REQUIREMENT:
-			priv->ui_requirement = g_value_dup_string(value);
-			break;
 		case PROP_ACTIONS_CB:
 			priv->actions_cb = g_value_get_pointer(value);
 			break;
@@ -153,21 +148,6 @@ purple_plugin_info_constructed(GObject *object) {
 		priv->error = g_strdup(_("This plugin has not defined an ID."));
 	}
 
-	if(priv->ui_requirement != NULL) {
-		PurpleUiInfo *ui_info = purple_core_get_ui_info();
-		const gchar *ui_id = purple_ui_info_get_id(ui_info);
-		if(!purple_strequal(priv->ui_requirement, ui_id)) {
-			priv->error = g_strdup_printf(_("You are using %s, but this plugin "
-			                                "requires %s."),
-			                              ui_id,
-			                              priv->ui_requirement);
-			purple_debug_error("plugins",
-			                   "%s is not loadable: The UI requirement is not "
-			                   "met. (%s)\n",
-			                   id, priv->error);
-		}
-	}
-
 	version = gplugin_plugin_info_get_abi_version(ginfo);
 	if (PURPLE_PLUGIN_ABI_MAJOR_VERSION(version) != PURPLE_MAJOR_VERSION ||
 		PURPLE_PLUGIN_ABI_MINOR_VERSION(version) > PURPLE_MINOR_VERSION)
@@ -193,7 +173,6 @@ purple_plugin_info_finalize(GObject *object) {
 
 	priv = purple_plugin_info_get_instance_private(PURPLE_PLUGIN_INFO(object));
 
-	g_free(priv->ui_requirement);
 	g_free(priv->error);
 
 	G_OBJECT_CLASS(purple_plugin_info_parent_class)->finalize(object);
@@ -208,12 +187,6 @@ purple_plugin_info_class_init(PurplePluginInfoClass *klass) {
 
 	obj_class->get_property = purple_plugin_info_get_property;
 	obj_class->set_property = purple_plugin_info_set_property;
-
-	properties[PROP_UI_REQUIREMENT] = g_param_spec_string(
-		"ui-requirement", "UI Requirement",
-		"ID of UI that is required by this plugin",
-		NULL,
-		G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS);
 
 	properties[PROP_ACTIONS_CB] = g_param_spec_pointer(
 		"actions-cb", "Plugin actions",
