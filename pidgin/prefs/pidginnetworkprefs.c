@@ -24,14 +24,14 @@
 
 #include <purple.h>
 
-#include <handy.h>
+#include <adwaita.h>
 #include <nice.h>
 
 #include "pidginnetworkprefs.h"
 #include "pidginprefsinternal.h"
 
 struct _PidginNetworkPrefs {
-	HdyPreferencesPage parent;
+	AdwPreferencesPage parent;
 
 	GtkWidget *stun_server;
 	GtkWidget *auto_ip;
@@ -50,16 +50,16 @@ struct _PidginNetworkPrefs {
 };
 
 G_DEFINE_TYPE(PidginNetworkPrefs, pidgin_network_prefs,
-              HDY_TYPE_PREFERENCES_PAGE)
+              ADW_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers
  *****************************************************************************/
 static void
-network_ip_changed(GtkEntry *entry, gpointer data)
+network_ip_changed(GtkEditable *editable, gpointer data)
 {
-	const gchar *text = gtk_entry_get_text(entry);
-	GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(entry));
+	const gchar *text = gtk_editable_get_text(GTK_EDITABLE(editable));
+	GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(editable));
 
 	if (text && *text) {
 		if (g_hostname_is_ip_address(text)) {
@@ -78,28 +78,26 @@ network_ip_changed(GtkEntry *entry, gpointer data)
 	}
 }
 
-static gboolean
-network_stun_server_changed_cb(GtkWidget *widget,
-                               GdkEventFocus *event, gpointer data)
+static void
+network_stun_server_changed_cb(G_GNUC_UNUSED GtkEventControllerFocus *focus,
+                               gpointer data)
 {
-	GtkEntry *entry = GTK_ENTRY(widget);
-	purple_prefs_set_string("/purple/network/stun_server",
-		gtk_entry_get_text(entry));
-	purple_network_set_stun_server(gtk_entry_get_text(entry));
+	GtkEditable *editable = data;
 
-	return FALSE;
+	purple_prefs_set_string("/purple/network/stun_server",
+	                        gtk_editable_get_text(editable));
+	purple_network_set_stun_server(gtk_editable_get_text(editable));
 }
 
-static gboolean
-network_turn_server_changed_cb(GtkWidget *widget,
-                               GdkEventFocus *event, gpointer data)
+static void
+network_turn_server_changed_cb(G_GNUC_UNUSED GtkEventControllerFocus *focus,
+                               gpointer data)
 {
-	GtkEntry *entry = GTK_ENTRY(widget);
-	purple_prefs_set_string("/purple/network/turn_server",
-		gtk_entry_get_text(entry));
-	purple_network_set_turn_server(gtk_entry_get_text(entry));
+	GtkEditable *editable = data;
 
-	return FALSE;
+	purple_prefs_set_string("/purple/network/turn_server",
+	                        gtk_editable_get_text(editable));
+	purple_network_set_turn_server(gtk_editable_get_text(editable));
 }
 
 static void
@@ -201,14 +199,14 @@ pidgin_network_prefs_init(PidginNetworkPrefs *prefs)
 
 	gtk_widget_init_template(GTK_WIDGET(prefs));
 
-	gtk_entry_set_text(GTK_ENTRY(prefs->stun_server),
-			purple_prefs_get_string("/purple/network/stun_server"));
+	gtk_editable_set_text(GTK_EDITABLE(prefs->stun_server),
+	                      purple_prefs_get_string("/purple/network/stun_server"));
 
 	pidgin_prefs_bind_checkbox("/purple/network/auto_ip", prefs->auto_ip);
 	auto_ip_button_clicked_cb(prefs->auto_ip, NULL); /* Update label */
 
-	gtk_entry_set_text(GTK_ENTRY(prefs->public_ip),
-			purple_network_get_public_ip());
+	gtk_editable_set_text(GTK_EDITABLE(prefs->public_ip),
+	                      purple_network_get_public_ip());
 
 	ip_css = gtk_css_provider_new();
 	gtk_css_provider_load_from_resource(ip_css,
@@ -238,8 +236,8 @@ pidgin_network_prefs_init(PidginNetworkPrefs *prefs)
 			prefs->ports_range_end);
 
 	/* TURN server */
-	gtk_entry_set_text(GTK_ENTRY(prefs->turn_server),
-			purple_prefs_get_string("/purple/network/turn_server"));
+	gtk_editable_set_text(GTK_EDITABLE(prefs->turn_server),
+	                      purple_prefs_get_string("/purple/network/turn_server"));
 
 	pidgin_prefs_bind_spin_button("/purple/network/turn_port",
 			prefs->turn_port_udp);
