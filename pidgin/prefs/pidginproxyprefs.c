@@ -24,13 +24,13 @@
 
 #include <purple.h>
 
-#include <handy.h>
+#include <adwaita.h>
 
 #include "pidginproxyprefs.h"
 #include "pidginprefsinternal.h"
 
 struct _PidginProxyPrefs {
-	HdyPreferencesPage parent;
+	AdwPreferencesPage parent;
 
 	GtkWidget *stack;
 	/* GNOME version */
@@ -47,7 +47,7 @@ struct _PidginProxyPrefs {
 	GtkWidget *password;
 };
 
-G_DEFINE_TYPE(PidginProxyPrefs, pidgin_proxy_prefs, HDY_TYPE_PREFERENCES_PAGE)
+G_DEFINE_TYPE(PidginProxyPrefs, pidgin_proxy_prefs, ADW_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers
@@ -60,7 +60,7 @@ proxy_changed_cb(const gchar *name, PurplePrefType type, gconstpointer value,
 	const char *proxy = value;
 
 	if (!purple_strequal(proxy, "none") && !purple_strequal(proxy, "envvar")) {
-		gtk_widget_show_all(prefs->options);
+		gtk_widget_show(prefs->options);
 	} else {
 		gtk_widget_hide(prefs->options);
 	}
@@ -73,17 +73,17 @@ proxy_print_option(GtkWidget *entry, gpointer data)
 
 	if (entry == prefs->host) {
 		purple_prefs_set_string("/purple/proxy/host",
-				gtk_entry_get_text(GTK_ENTRY(entry)));
+		                        gtk_editable_get_text(GTK_EDITABLE(entry)));
 	} else if (entry == prefs->port) {
 		purple_prefs_set_int("/purple/proxy/port",
 				gtk_spin_button_get_value_as_int(
 					GTK_SPIN_BUTTON(entry)));
 	} else if (entry == prefs->username) {
 		purple_prefs_set_string("/purple/proxy/username",
-				gtk_entry_get_text(GTK_ENTRY(entry)));
+		                        gtk_editable_get_text(GTK_EDITABLE(entry)));
 	} else if (entry == prefs->password) {
 		purple_prefs_set_string("/purple/proxy/password",
-				gtk_entry_get_text(GTK_ENTRY(entry)));
+		                        gtk_editable_get_text(GTK_EDITABLE(entry)));
 	}
 }
 
@@ -202,9 +202,11 @@ pidgin_proxy_prefs_init(PidginProxyPrefs *prefs)
 				proxy_changed_cb, prefs);
 
 		if (proxy_info != NULL) {
-			if (purple_proxy_info_get_hostname(proxy_info)) {
-				gtk_entry_set_text(GTK_ENTRY(prefs->host),
-						purple_proxy_info_get_hostname(proxy_info));
+			const gchar *value = NULL;
+
+			value = purple_proxy_info_get_hostname(proxy_info);
+			if(value != NULL) {
+				gtk_editable_set_text(GTK_EDITABLE(prefs->host), value);
 			}
 
 			if (purple_proxy_info_get_port(proxy_info) != 0) {
@@ -213,14 +215,14 @@ pidgin_proxy_prefs_init(PidginProxyPrefs *prefs)
 						purple_proxy_info_get_port(proxy_info));
 			}
 
-			if (purple_proxy_info_get_username(proxy_info) != NULL) {
-				gtk_entry_set_text(GTK_ENTRY(prefs->username),
-						purple_proxy_info_get_username(proxy_info));
+			value = purple_proxy_info_get_username(proxy_info);
+			if(value != NULL) {
+				gtk_editable_set_text(GTK_EDITABLE(prefs->username), value);
 			}
 
-			if (purple_proxy_info_get_password(proxy_info) != NULL) {
-				gtk_entry_set_text(GTK_ENTRY(prefs->password),
-						purple_proxy_info_get_password(proxy_info));
+			value = purple_proxy_info_get_password(proxy_info);
+			if(value != NULL) {
+				gtk_editable_set_text(GTK_EDITABLE(prefs->password), value);
 			}
 		}
 

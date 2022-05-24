@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include <gtk/gtk.h>
-#include <handy.h>
+#include <adwaita.h>
 
 G_BEGIN_DECLS
 
@@ -44,7 +44,7 @@ G_BEGIN_DECLS
  */
 #define PIDGIN_TYPE_PROXY_PREFS (pidgin_proxy_prefs_get_type())
 G_DECLARE_FINAL_TYPE(PidginProxyPrefs, pidgin_proxy_prefs,
-                     PIDGIN, PROXY_PREFS, HdyPreferencesPage)
+                     PIDGIN, PROXY_PREFS, AdwPreferencesPage)
 
 /**
  * pidgin_proxy_prefs_new:
