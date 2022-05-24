@@ -84,54 +84,25 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
         <property name="can-focus">False</property>
         <property name="title" translatable="yes">Idle</property>
         <child>
-          <object class="GtkAlignment">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="left-padding">12</property>
+            <property name="margin-start">12</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">6</property>
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
                 <property name="spacing">6</property>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkLabel" id="label12">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="spacing">6</property>
-                    <child>
-                      <object class="GtkLabel" id="label12">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">_Report idle time:</property>
-                        <property name="use-underline">True</property>
-                        <property name="mnemonic-widget">idle_reporting.combo</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="idle_reporting.combo">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="model">idle_reporting.store</property>
-                        <child>
-                          <object class="GtkCellRendererText"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
+                    <property name="label" translatable="yes">_Report idle time:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">idle_reporting.combo</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -140,37 +111,15 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkComboBox" id="idle_reporting.combo">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="spacing">6</property>
+                    <property name="model">idle_reporting.store</property>
                     <child>
-                      <object class="GtkLabel" id="label13">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">_Minutes before becoming idle:</property>
-                        <property name="use-underline">True</property>
-                        <property name="mnemonic-widget">mins_before_away</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSpinButton" id="mins_before_away">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="adjustment">mins_before_adjustment</property>
-                        <property name="numeric">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
                     </child>
                   </object>
                   <packing>
@@ -179,37 +128,82 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
                     <property name="position">1</property>
                   </packing>
                 </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="spacing">6</property>
                 <child>
-                  <object class="GtkBox" id="idle_hbox">
+                  <object class="GtkLabel" id="label13">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="spacing">6</property>
-                    <child>
-                      <object class="GtkCheckButton" id="away_when_idle">
-                        <property name="label" translatable="yes">Change to this status when _idle:</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="use-underline">True</property>
-                        <property name="draw-indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
+                    <property name="label" translatable="yes">_Minutes before becoming idle:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">mins_before_away</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">2</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="mins_before_away">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="adjustment">mins_before_adjustment</property>
+                    <property name="numeric">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
               </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="idle_hbox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="away_when_idle">
+                    <property name="label" translatable="yes">Change to this status when _idle:</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="use-underline">True</property>
+                    <property name="draw-indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
             </child>
           </object>
         </child>
@@ -226,53 +220,24 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
         <property name="can-focus">False</property>
         <property name="title" translatable="yes">Away</property>
         <child>
-          <object class="GtkAlignment">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="left-padding">12</property>
+            <property name="margin-start">12</property>
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkLabel" id="label14">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="spacing">6</property>
-                    <child>
-                      <object class="GtkLabel" id="label14">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">_Auto-reply:</property>
-                        <property name="use-underline">True</property>
-                        <property name="mnemonic-widget">auto_reply.combo</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="auto_reply.combo">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="model">auto_reply.store</property>
-                        <child>
-                          <object class="GtkCellRendererText"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
+                    <property name="label" translatable="yes">_Auto-reply:</property>
+                    <property name="use-underline">True</property>
+                    <property name="mnemonic-widget">auto_reply.combo</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -280,7 +245,30 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
                     <property name="position">0</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkComboBox" id="auto_reply.combo">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="model">auto_reply.store</property>
+                    <child>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
             </child>
           </object>
         </child>
@@ -297,24 +285,39 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
         <property name="can-focus">False</property>
         <property name="title" translatable="yes">Status at Startup</property>
         <child>
-          <object class="GtkAlignment">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="left-padding">12</property>
+            <property name="margin-start">12</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">6</property>
             <child>
-              <object class="GtkBox">
+              <object class="GtkCheckButton" id="startup_current_status">
+                <property name="label" translatable="yes">Use status from last _exit at startup</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
+                <property name="draw-indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="startup_hbox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
                 <property name="spacing">6</property>
                 <child>
-                  <object class="GtkCheckButton" id="startup_current_status">
-                    <property name="label" translatable="yes">Use status from last _exit at startup</property>
+                  <object class="GtkLabel" id="startup_label">
                     <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Status to a_pply at startup:</property>
                     <property name="use-underline">True</property>
-                    <property name="draw-indicator">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -323,35 +326,14 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="startup_hbox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="spacing">6</property>
-                    <child>
-                      <object class="GtkLabel" id="startup_label">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Status to a_pply at startup:</property>
-                        <property name="use-underline">True</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
             </child>
           </object>
         </child>
