@@ -30,14 +30,14 @@
 
 #include <purple.h>
 
-#include <handy.h>
+#include <adwaita.h>
 
 #include "pidginvvprefs.h"
 #include "pidgincore.h"
 #include "pidginprefsinternal.h"
 
 struct _PidginVVPrefs {
-	HdyPreferencesPage parent;
+	AdwPreferencesPage parent;
 
 	struct {
 		PidginPrefCombo input;
@@ -54,13 +54,12 @@ struct _PidginVVPrefs {
 		PidginPrefCombo input;
 		PidginPrefCombo output;
 		GtkWidget *frame;
-		GtkWidget *sink_widget;
 		GtkWidget *test;
 		GstElement *pipeline;
 	} video;
 };
 
-G_DEFINE_TYPE(PidginVVPrefs, pidgin_vv_prefs, HDY_TYPE_PREFERENCES_PAGE)
+G_DEFINE_TYPE(PidginVVPrefs, pidgin_vv_prefs, ADW_TYPE_PREFERENCES_PAGE)
 
 /******************************************************************************
  * Helpers
@@ -339,13 +338,13 @@ enable_video_test(PidginVVPrefs *prefs)
 	g_object_get(sink, "widget", &video, NULL);
 	gtk_widget_show(video);
 
-	g_clear_pointer(&prefs->video.sink_widget, gtk_widget_destroy);
 	gtk_widget_set_size_request(prefs->video.frame, 400, 300);
-	gtk_container_add(GTK_CONTAINER(prefs->video.frame), video);
-	prefs->video.sink_widget = video;
+	gtk_aspect_frame_set_child(GTK_ASPECT_FRAME(prefs->video.frame), video);
 
 	gst_element_set_state(GST_ELEMENT(prefs->video.pipeline),
 	                      GST_STATE_PLAYING);
+
+	g_object_unref(video);
 }
 
 static void
