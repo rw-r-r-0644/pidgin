@@ -329,22 +329,6 @@ load_text_and_set_caret(PidginXmppConsole *console, const gchar *pre_text,
 }
 
 static void
-popover_closed_cb(GtkPopover *popover, gpointer data)
-{
-	GtkToggleToolButton *button = GTK_TOGGLE_TOOL_BUTTON(data);
-
-	gtk_toggle_tool_button_set_active(button, FALSE);
-}
-
-static void
-toggle_button_toggled_cb(GtkToolButton *button, gpointer data)
-{
-	GtkPopover *popover = GTK_POPOVER(data);
-
-	gtk_popover_popup(popover);
-}
-
-static void
 iq_clicked_cb(GtkWidget *w, gpointer data)
 {
 	PidginXmppConsole *console = data;
@@ -525,10 +509,6 @@ pidgin_xmpp_console_class_init(PidginXmppConsoleClass *klass) {
 	                                     tags.value);
 	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
 	                                     tags.xmlns);
-
-	gtk_widget_class_bind_template_callback(widget_class,
-	                                        toggle_button_toggled_cb);
-	gtk_widget_class_bind_template_callback(widget_class, popover_closed_cb);
 
 	/* Popover for <iq/> button. */
 	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,

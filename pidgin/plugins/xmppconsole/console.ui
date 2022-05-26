@@ -167,11 +167,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <property name="can_focus">False</property>
             <property name="toolbar_style">text</property>
             <child>
-              <object class="GtkToggleToolButton" id="iq">
+              <object class="GtkToolItem">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label">&lt;iq/&gt;</property>
-                <signal name="toggled" handler="toggle_button_toggled_cb" object="iq.popover" swapped="no"/>
+                <child>
+                  <object class="GtkMenuButton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label">&lt;iq/&gt;</property>
+                    <property name="popover">iq.popover</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -179,11 +185,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               </packing>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="presence">
+              <object class="GtkToolItem">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label">&lt;presence/&gt;</property>
-                <signal name="toggled" handler="toggle_button_toggled_cb" object="presence.popover" swapped="no"/>
+                <child>
+                  <object class="GtkMenuButton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label">&lt;presence/&gt;</property>
+                    <property name="popover">presence.popover</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -191,11 +203,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               </packing>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="message">
+              <object class="GtkToolItem">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label">&lt;message/&gt;</property>
-                <signal name="toggled" handler="toggle_button_toggled_cb" object="message.popover" swapped="no"/>
+                <child>
+                  <object class="GtkMenuButton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label">&lt;message/&gt;</property>
+                    <property name="popover">message.popover</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -235,9 +253,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   </template>
   <object class="GtkPopover" id="iq.popover">
     <property name="can_focus">False</property>
-    <property name="relative_to">iq</property>
     <property name="position">right</property>
-    <signal name="closed" handler="popover_closed_cb" object="iq" swapped="no"/>
     <child>
       <object class="GtkGrid">
         <property name="visible">True</property>
@@ -314,9 +330,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   </object>
   <object class="GtkPopover" id="message.popover">
     <property name="can_focus">False</property>
-    <property name="relative_to">message</property>
     <property name="position">right</property>
-    <signal name="closed" handler="popover_closed_cb" object="message" swapped="no"/>
     <child>
       <object class="GtkGrid">
         <property name="visible">True</property>
@@ -465,9 +479,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   </object>
   <object class="GtkPopover" id="presence.popover">
     <property name="can_focus">False</property>
-    <property name="relative_to">presence</property>
     <property name="position">right</property>
-    <signal name="closed" handler="popover_closed_cb" object="presence" swapped="no"/>
     <child>
       <object class="GtkGrid">
         <property name="visible">True</property>
