@@ -84,10 +84,6 @@ G_DEFINE_DYNAMIC_TYPE(PidginXmppConsole, pidgin_xmpp_console, GTK_TYPE_WINDOW)
 
 static PidginXmppConsole *console = NULL;
 
-static const gchar *xmpp_prpls[] = {
-	"prpl-jabber", "prpl-gtalk", NULL
-};
-
 /******************************************************************************
  * Helpers
  *****************************************************************************/
@@ -95,18 +91,10 @@ static gboolean
 xmppconsole_is_xmpp_account(PurpleAccount *account)
 {
 	const gchar *prpl_name;
-	int i;
 
 	prpl_name = purple_account_get_protocol_id(account);
 
-	i = 0;
-	while (xmpp_prpls[i] != NULL) {
-		if (purple_strequal(xmpp_prpls[i], prpl_name))
-			return TRUE;
-		i++;
-	}
-
-	return FALSE;
+	return purple_strequal("prpl-jabber", prpl_name);
 }
 
 static void
@@ -761,35 +749,23 @@ xmpp_console_query(GError **error)
 static gboolean
 xmpp_console_load(GPluginPlugin *plugin, GError **error)
 {
-	int i;
-	gboolean any_registered = FALSE;
+	PurpleProtocolManager *manager = NULL;
+	PurpleProtocol *xmpp = NULL;
 
 	pidgin_xmpp_console_register_type(G_TYPE_MODULE(plugin));
 
-	i = 0;
-	while (xmpp_prpls[i] != NULL) {
-		PurpleProtocol *xmpp;
-		PurpleProtocolManager *manager;
-
-		manager = purple_protocol_manager_get_default();
-		xmpp = purple_protocol_manager_find(manager, xmpp_prpls[i]);
-		i++;
-
-		if (!xmpp)
-			continue;
-		any_registered = TRUE;
-
-		purple_signal_connect(xmpp, "jabber-receiving-xmlnode", plugin,
-		                      G_CALLBACK(purple_xmlnode_received_cb), NULL);
-		purple_signal_connect(xmpp, "jabber-sending-text", plugin,
-		                      G_CALLBACK(purple_xmlnode_sent_cb), NULL);
-	}
-
-	if (!any_registered) {
+	manager = purple_protocol_manager_get_default();
+	xmpp = purple_protocol_manager_find(manager, "prpl-jabber");
+	if (!PURPLE_IS_PROTOCOL(xmpp)) {
 		g_set_error_literal(error, PLUGIN_DOMAIN, 0,
 		                    _("No XMPP protocol is loaded."));
 		return FALSE;
 	}
+
+	purple_signal_connect(xmpp, "jabber-receiving-xmlnode", plugin,
+	                      G_CALLBACK(purple_xmlnode_received_cb), NULL);
+	purple_signal_connect(xmpp, "jabber-sending-text", plugin,
+	                      G_CALLBACK(purple_xmlnode_sent_cb), NULL);
 
 	purple_signal_connect(purple_connections_get_handle(), "signing-on",
 		plugin, G_CALLBACK(signing_on_cb), NULL);
