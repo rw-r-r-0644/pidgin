@@ -1,5 +1,6 @@
 /*
  * Purple - XMPP debugging tool
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -16,25 +17,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301 USA
- *
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <glib/gi18n-lib.h>
 
 #include <gdk/gdkkeysyms.h>
-
+#include <gtk/gtk.h>
 #include <purple.h>
-
 #include <pidgin.h>
+
+#include "xmppconsole.h"
 
 #define PLUGIN_ID      "gtk-xmpp"
 #define PLUGIN_DOMAIN  (g_quark_from_static_string(PLUGIN_ID))
 
-typedef struct {
+struct _PidginXmppConsole {
+	GtkWindow parent;
+
 	PurpleConnection *gc;
-	GtkWidget *window;
 	GtkWidget *hbox;
 	GtkWidget *dropdown;
 	GtkTextBuffer *buffer;
@@ -77,14 +78,19 @@ typedef struct {
 		GtkEntry *subject;
 		GtkEntry *thread;
 	} message;
-} XmppConsole;
+};
 
-XmppConsole *console = NULL;
+G_DEFINE_DYNAMIC_TYPE(PidginXmppConsole, pidgin_xmpp_console, GTK_TYPE_WINDOW)
+
+static PidginXmppConsole *console = NULL;
 
 static const gchar *xmpp_prpls[] = {
 	"prpl-jabber", "prpl-gtalk", NULL
 };
 
+/******************************************************************************
+ * Helpers
+ *****************************************************************************/
 static gboolean
 xmppconsole_is_xmpp_account(PurpleAccount *account)
 {
@@ -104,7 +110,9 @@ xmppconsole_is_xmpp_account(PurpleAccount *account)
 }
 
 static void
-purple_xmlnode_append_to_buffer(PurpleXmlNode *node, gint indent_level, GtkTextIter *iter, GtkTextTag *tag)
+xmppconsole_append_xmlnode(PidginXmppConsole *console, PurpleXmlNode *node,
+                           gint indent_level, GtkTextIter *iter,
+                           GtkTextTag *tag)
 {
 	PurpleXmlNode *c;
 	gboolean need_end = FALSE, pretty = TRUE;
@@ -170,7 +178,7 @@ purple_xmlnode_append_to_buffer(PurpleXmlNode *node, gint indent_level, GtkTextI
 		for (c = node->child; c; c = c->next)
 		{
 			if (c->type == PURPLE_XMLNODE_TYPE_TAG) {
-				purple_xmlnode_append_to_buffer(c, indent_level + 1, iter, tag);
+				xmppconsole_append_xmlnode(console, c, indent_level + 1, iter, tag);
 			} else if (c->type == PURPLE_XMLNODE_TYPE_DATA && c->data_sz > 0) {
 				gtk_text_buffer_insert_with_tags(console->buffer, iter, c->data, c->data_sz,
 				                                 tag, NULL);
@@ -207,11 +215,13 @@ purple_xmlnode_received_cb(PurpleConnection *gc, PurpleXmlNode **packet, gpointe
 {
 	GtkTextIter iter;
 
-	if (!console || console->gc != gc)
+	if (console == NULL || console->gc != gc) {
 		return;
+	}
 
 	gtk_text_buffer_get_end_iter(console->buffer, &iter);
-	purple_xmlnode_append_to_buffer(*packet, 0, &iter, console->tags.incoming);
+	xmppconsole_append_xmlnode(console, *packet, 0, &iter,
+	                           console->tags.incoming);
 }
 
 static void
@@ -220,21 +230,23 @@ purple_xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer null)
 	GtkTextIter iter;
 	PurpleXmlNode *node;
 
-	if (!console || console->gc != gc)
+	if (console == NULL || console->gc != gc) {
 		return;
+	}
 	node = purple_xmlnode_from_str(*packet, -1);
 
 	if (!node)
 		return;
 
 	gtk_text_buffer_get_end_iter(console->buffer, &iter);
-	purple_xmlnode_append_to_buffer(node, 0, &iter, console->tags.outgoing);
+	xmppconsole_append_xmlnode(console, node, 0, &iter,
+	                           console->tags.outgoing);
 	purple_xmlnode_free(node);
 }
 
 static gboolean
-message_send_cb(GtkWidget *widget, GdkEventKey *event, gpointer p)
-{
+message_send_cb(GtkWidget *widget, GdkEventKey *event, gpointer data) {
+	PidginXmppConsole *console = data;
 	PurpleProtocol *protocol = NULL;
 	PurpleConnection *gc;
 	gchar *text;
@@ -263,8 +275,8 @@ message_send_cb(GtkWidget *widget, GdkEventKey *event, gpointer p)
 }
 
 static void
-entry_changed_cb(GtkTextBuffer *buffer, void *data)
-{
+entry_changed_cb(GtkTextBuffer *buffer, gpointer data) {
+	PidginXmppConsole *console = data;
 	GtkTextIter start, end;
 	char *xmlstr, *str;
 	GtkTextIter iter;
@@ -320,7 +332,8 @@ entry_changed_cb(GtkTextBuffer *buffer, void *data)
 }
 
 static void
-load_text_and_set_caret(const gchar *pre_text, const gchar *post_text)
+load_text_and_set_caret(PidginXmppConsole *console, const gchar *pre_text,
+                        const gchar *post_text)
 {
 	GtkTextIter where;
 	GtkTextMark *mark;
@@ -360,7 +373,7 @@ toggle_button_toggled_cb(GtkToolButton *button, gpointer data)
 static void
 iq_clicked_cb(GtkWidget *w, gpointer data)
 {
-	XmppConsole *console = (XmppConsole *)data;
+	PidginXmppConsole *console = data;
 	const gchar *to;
 	char *stanza;
 
@@ -369,7 +382,7 @@ iq_clicked_cb(GtkWidget *w, gpointer data)
 	        "<iq %s%s%s id='console%x' type='%s'>", to && *to ? "to='" : "",
 	        to && *to ? to : "", to && *to ? "'" : "", g_random_int(),
 	        gtk_combo_box_text_get_active_text(console->iq.type));
-	load_text_and_set_caret(stanza, "</iq>");
+	load_text_and_set_caret(console, stanza, "</iq>");
 	gtk_widget_grab_focus(console->entry);
 	g_free(stanza);
 
@@ -382,7 +395,7 @@ iq_clicked_cb(GtkWidget *w, gpointer data)
 static void
 presence_clicked_cb(GtkWidget *w, gpointer data)
 {
-	XmppConsole *console = (XmppConsole *)data;
+	PidginXmppConsole *console = data;
 	const gchar *to, *status, *priority;
 	gchar *type, *show;
 	char *stanza;
@@ -426,7 +439,7 @@ presence_clicked_cb(GtkWidget *w, gpointer data)
 	                         *priority ? priority : "",
 	                         *priority ? "</priority>" : "");
 
-	load_text_and_set_caret(stanza, "</presence>");
+	load_text_and_set_caret(console, stanza, "</presence>");
 	gtk_widget_grab_focus(console->entry);
 	g_free(stanza);
 	g_free(type);
@@ -444,7 +457,7 @@ presence_clicked_cb(GtkWidget *w, gpointer data)
 static void
 message_clicked_cb(GtkWidget *w, gpointer data)
 {
-	XmppConsole *console = (XmppConsole *)data;
+	PidginXmppConsole *console = data;
 	const gchar *to, *body, *thread, *subject;
 	char *stanza;
 
@@ -470,7 +483,7 @@ message_clicked_cb(GtkWidget *w, gpointer data)
 	        *thread ? "<thread>" : "", *thread ? thread : "",
 	        *thread ? "</thread>" : "");
 
-	load_text_and_set_caret(stanza, "</message>");
+	load_text_and_set_caret(console, stanza, "</message>");
 	gtk_widget_grab_focus(console->entry);
 	g_free(stanza);
 
@@ -488,8 +501,9 @@ signing_on_cb(PurpleConnection *gc)
 {
 	PurpleAccount *account;
 
-	if (!console)
+	if (console == NULL) {
 		return;
+	}
 
 	account = purple_connection_get_account(gc);
 	if (!xmppconsole_is_xmpp_account(account))
@@ -513,8 +527,9 @@ signed_off_cb(PurpleConnection *gc)
 {
 	int i;
 
-	if (!console)
+	if (console == NULL) {
 		return;
+	}
 
 	i = g_list_index(console->accounts, gc);
 	if (i == -1)
@@ -534,49 +549,128 @@ signed_off_cb(PurpleConnection *gc)
 }
 
 static void
-console_destroy(GtkWidget *window, gpointer nul)
-{
-	g_list_free(console->accounts);
-	g_free(console);
-	console = NULL;
-}
+dropdown_changed_cb(GtkComboBox *widget, gpointer data) {
+	PidginXmppConsole *console = data;
 
-static void
-dropdown_changed_cb(GtkComboBox *widget, gpointer nul)
-{
-	if (!console)
-		return;
-
-	console->gc = g_list_nth_data(console->accounts, gtk_combo_box_get_active(GTK_COMBO_BOX(console->dropdown)));
+	console->gc = g_list_nth_data(console->accounts,
+	                              gtk_combo_box_get_active(widget));
 	gtk_text_buffer_set_text(console->buffer, "", 0);
 }
 
+/******************************************************************************
+ * GObject Implementation
+ *****************************************************************************/
 static void
-create_console(PurplePluginAction *action)
-{
-	GtkBuilder *builder;
+pidgin_xmpp_console_finalize(GObject *obj) {
+	PidginXmppConsole *console = PIDGIN_XMPP_CONSOLE(obj);
+
+	g_clear_pointer(&console->accounts, g_list_free);
+
+	G_OBJECT_CLASS(pidgin_xmpp_console_parent_class)->finalize(obj);
+}
+
+static void
+pidgin_xmpp_console_class_finalize(PidginXmppConsoleClass *klass) {
+}
+
+static void
+pidgin_xmpp_console_class_init(PidginXmppConsoleClass *klass) {
+	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+
+	obj_class->finalize = pidgin_xmpp_console_finalize;
+
+	gtk_widget_class_set_template_from_resource(
+	        widget_class,
+	        "/im/pidgin/Pidgin3/Plugin/XMPPConsole/console.ui"
+	);
+
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     hbox);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     dropdown);
+	gtk_widget_class_bind_template_callback(widget_class, dropdown_changed_cb);
+
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     buffer);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     tags.info);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     tags.incoming);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     tags.outgoing);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     tags.bracket);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     tags.tag);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     tags.attr);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     tags.value);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     tags.xmlns);
+
+	gtk_widget_class_bind_template_callback(widget_class,
+	                                        toggle_button_toggled_cb);
+	gtk_widget_class_bind_template_callback(widget_class, popover_closed_cb);
+
+	/* Popover for <iq/> button. */
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     iq.popover);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     iq.to);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     iq.type);
+	gtk_widget_class_bind_template_callback(widget_class, iq_clicked_cb);
+
+	/* Popover for <presence/> button. */
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     presence.popover);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     presence.to);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     presence.type);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     presence.show);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     presence.status);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     presence.priority);
+	gtk_widget_class_bind_template_callback(widget_class, presence_clicked_cb);
+
+	/* Popover for <message/> button. */
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     message.popover);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     message.to);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     message.type);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     message.body);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     message.subject);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     message.thread);
+	gtk_widget_class_bind_template_callback(widget_class, message_clicked_cb);
+
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     entry);
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
+	                                     entry_buffer);
+	gtk_widget_class_bind_template_callback(widget_class, message_send_cb);
+
+	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole, sw);
+	gtk_widget_class_bind_template_callback(widget_class, entry_changed_cb);
+}
+
+static void
+pidgin_xmpp_console_init(PidginXmppConsole *console) {
 	GList *connections;
 	GtkCssProvider *entry_css;
 	GtkStyleContext *context;
 
-	if (console) {
-		gtk_window_present(GTK_WINDOW(console->window));
-		return;
-	}
+	gtk_widget_init_template(GTK_WIDGET(console));
 
-	console = g_new0(XmppConsole, 1);
-
-	builder = gtk_builder_new_from_resource(
-	        "/im/pidgin/Pidgin3/Plugin/XMPPConsole/console.ui");
-	gtk_builder_set_translation_domain(builder, GETTEXT_PACKAGE);
-	console->window = GTK_WIDGET(
-	        gtk_builder_get_object(builder, "PidginXmppConsole"));
-	gtk_builder_add_callback_symbol(builder, "console_destroy",
-	                                G_CALLBACK(console_destroy));
-
-	console->hbox = GTK_WIDGET(gtk_builder_get_object(builder, "hbox"));
-	console->dropdown =
-	        GTK_WIDGET(gtk_builder_get_object(builder, "dropdown"));
 	for (connections = purple_connections_get_all(); connections; connections = connections->next) {
 		PurpleConnection *gc = connections->data;
 		if (xmppconsole_is_xmpp_account(purple_connection_get_account(gc))) {
@@ -589,27 +683,6 @@ create_console(PurplePluginAction *action)
 		}
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(console->dropdown), 0);
-	gtk_builder_add_callback_symbol(builder, "dropdown_changed_cb",
-	                                G_CALLBACK(dropdown_changed_cb));
-
-	console->buffer =
-	        GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "buffer"));
-	console->tags.info =
-	        GTK_TEXT_TAG(gtk_builder_get_object(builder, "tags.info"));
-	console->tags.incoming =
-	        GTK_TEXT_TAG(gtk_builder_get_object(builder, "tags.incoming"));
-	console->tags.outgoing =
-	        GTK_TEXT_TAG(gtk_builder_get_object(builder, "tags.outgoing"));
-	console->tags.bracket =
-	        GTK_TEXT_TAG(gtk_builder_get_object(builder, "tags.bracket"));
-	console->tags.tag =
-	        GTK_TEXT_TAG(gtk_builder_get_object(builder, "tags.tag"));
-	console->tags.attr =
-	        GTK_TEXT_TAG(gtk_builder_get_object(builder, "tags.attr"));
-	console->tags.value =
-	        GTK_TEXT_TAG(gtk_builder_get_object(builder, "tags.value"));
-	console->tags.xmlns =
-	        GTK_TEXT_TAG(gtk_builder_get_object(builder, "tags.xmlns"));
 
 	if (console->count == 0) {
 		GtkTextIter start, end;
@@ -618,50 +691,6 @@ create_console(PurplePluginAction *action)
 		gtk_text_buffer_apply_tag(console->buffer, console->tags.info, &start, &end);
 	}
 
-	/* Popover for <iq/> button. */
-	console->iq.popover =
-	        GTK_POPOVER(gtk_builder_get_object(builder, "iq.popover"));
-	console->iq.to = GTK_ENTRY(gtk_builder_get_object(builder, "iq.to"));
-	console->iq.type =
-	        GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "iq.type"));
-
-	/* Popover for <presence/> button. */
-	console->presence.popover = GTK_POPOVER(
-	        gtk_builder_get_object(builder, "presence.popover"));
-	console->presence.to =
-	        GTK_ENTRY(gtk_builder_get_object(builder, "presence.to"));
-	console->presence.type = GTK_COMBO_BOX_TEXT(
-	        gtk_builder_get_object(builder, "presence.type"));
-	console->presence.show = GTK_COMBO_BOX_TEXT(
-	        gtk_builder_get_object(builder, "presence.show"));
-	console->presence.status =
-	        GTK_ENTRY(gtk_builder_get_object(builder, "presence.status"));
-	console->presence.priority =
-	        GTK_ENTRY(gtk_builder_get_object(builder, "presence.priority"));
-
-	/* Popover for <message/> button. */
-	console->message.popover =
-	        GTK_POPOVER(gtk_builder_get_object(builder, "message.popover"));
-	console->message.to =
-	        GTK_ENTRY(gtk_builder_get_object(builder, "message.to"));
-	console->message.type = GTK_COMBO_BOX_TEXT(
-	        gtk_builder_get_object(builder, "message.type"));
-	console->message.body =
-	        GTK_ENTRY(gtk_builder_get_object(builder, "message.body"));
-	console->message.subject =
-	        GTK_ENTRY(gtk_builder_get_object(builder, "message.subject"));
-	console->message.thread =
-	        GTK_ENTRY(gtk_builder_get_object(builder, "message.thread"));
-
-	gtk_builder_add_callback_symbols(
-	        builder, "toggle_button_toggled_cb",
-	        G_CALLBACK(toggle_button_toggled_cb), "popover_closed_cb",
-	        G_CALLBACK(popover_closed_cb), "iq_clicked_cb",
-	        G_CALLBACK(iq_clicked_cb), "presence_clicked_cb",
-	        G_CALLBACK(presence_clicked_cb), "message_clicked_cb",
-	        G_CALLBACK(message_clicked_cb), NULL);
-
-	console->entry = GTK_WIDGET(gtk_builder_get_object(builder, "entry"));
 	entry_css = gtk_css_provider_new();
 	gtk_css_provider_load_from_data(entry_css,
 	                                "textview." GTK_STYLE_CLASS_ERROR " text {background-color:#ffcece;}",
@@ -669,23 +698,28 @@ create_console(PurplePluginAction *action)
 	context = gtk_widget_get_style_context(console->entry);
 	gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(entry_css),
 	                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-	console->entry_buffer = GTK_TEXT_BUFFER(
-	        gtk_builder_get_object(builder, "entry_buffer"));
-	gtk_builder_add_callback_symbol(builder, "message_send_cb",
-	                                G_CALLBACK(message_send_cb));
 
-	console->sw = GTK_WIDGET(gtk_builder_get_object(builder, "sw"));
-	gtk_builder_add_callback_symbol(builder, "entry_changed_cb",
-	                                G_CALLBACK(entry_changed_cb));
+	entry_changed_cb(console->entry_buffer, console);
 
-	entry_changed_cb(console->entry_buffer, NULL);
-
-	gtk_widget_show_all(console->window);
-	if (console->count < 2)
+	if (console->count < 2) {
 		gtk_widget_hide(console->hbox);
+	}
 
-	gtk_builder_connect_signals(builder, console);
-	g_object_unref(builder);
+	gtk_widget_show(GTK_WIDGET(console));
+}
+
+/******************************************************************************
+ * Plugin implementation
+ *****************************************************************************/
+static void
+create_console(PurplePluginAction *action)
+{
+	if (console == NULL) {
+		console = g_object_new(PIDGIN_TYPE_XMPP_CONSOLE, NULL);
+		g_object_add_weak_pointer(G_OBJECT(console), (gpointer)&console);
+	}
+
+	gtk_window_present(GTK_WINDOW(console));
 }
 
 static GList *
@@ -730,6 +764,8 @@ xmpp_console_load(GPluginPlugin *plugin, GError **error)
 	int i;
 	gboolean any_registered = FALSE;
 
+	pidgin_xmpp_console_register_type(G_TYPE_MODULE(plugin));
+
 	i = 0;
 	while (xmpp_prpls[i] != NULL) {
 		PurpleProtocol *xmpp;
@@ -766,8 +802,9 @@ xmpp_console_load(GPluginPlugin *plugin, GError **error)
 static gboolean
 xmpp_console_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
-	if (console)
-		gtk_widget_destroy(console->window);
+	if (console) {
+		gtk_widget_destroy(GTK_WIDGET(console));
+	}
 	return TRUE;
 }
 
