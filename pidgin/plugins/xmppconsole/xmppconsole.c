@@ -36,8 +36,6 @@ struct _PidginXmppConsole {
 	GtkWindow parent;
 
 	PurpleConnection *gc;
-	GtkWidget *hbox;
-	GtkWidget *dropdown;
 	GtkTextBuffer *buffer;
 	struct {
 		GtkTextTag *info;
@@ -52,8 +50,6 @@ struct _PidginXmppConsole {
 	GtkWidget *entry;
 	GtkTextBuffer *entry_buffer;
 	GtkWidget *sw;
-	int count;
-	GList *accounts;
 
 	struct {
 		GtkPopover *popover;
@@ -87,16 +83,6 @@ static PidginXmppConsole *console = NULL;
 /******************************************************************************
  * Helpers
  *****************************************************************************/
-static gboolean
-xmppconsole_is_xmpp_account(PurpleAccount *account)
-{
-	const gchar *prpl_name;
-
-	prpl_name = purple_account_get_protocol_id(account);
-
-	return purple_strequal("prpl-jabber", prpl_name);
-}
-
 static void
 xmppconsole_append_xmlnode(PidginXmppConsole *console, PurpleXmlNode *node,
                            gint indent_level, GtkTextIter *iter,
@@ -485,98 +471,40 @@ message_clicked_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-signing_on_cb(PurpleConnection *gc)
-{
-	PurpleAccount *account;
-
-	if (console == NULL) {
-		return;
-	}
-
-	account = purple_connection_get_account(gc);
-	if (!xmppconsole_is_xmpp_account(account))
-		return;
-
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(console->dropdown),
-		purple_account_get_username(account));
-	console->accounts = g_list_append(console->accounts, gc);
-	console->count++;
-
-	if (console->count == 1) {
-		console->gc = gc;
-		gtk_text_buffer_set_text(console->buffer, "", 0);
-		gtk_combo_box_set_active(GTK_COMBO_BOX(console->dropdown), 0);
-	} else
-		gtk_widget_show_all(console->hbox);
-}
-
-static void
-signed_off_cb(PurpleConnection *gc)
-{
-	int i;
-
-	if (console == NULL) {
-		return;
-	}
-
-	i = g_list_index(console->accounts, gc);
-	if (i == -1)
-		return;
-
-	gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(console->dropdown), i);
-	console->accounts = g_list_remove(console->accounts, gc);
-	console->count--;
-
-	if (gc == console->gc) {
-		GtkTextIter end;
-		gtk_text_buffer_get_end_iter(console->buffer, &end);
-		gtk_text_buffer_insert_with_tags(console->buffer, &end, _("Logged out."), -1,
-		                                 console->tags.info, NULL);
-		console->gc = NULL;
-	}
-}
-
-static void
 dropdown_changed_cb(GtkComboBox *widget, gpointer data) {
 	PidginXmppConsole *console = data;
+	PidginAccountChooser *chooser = PIDGIN_ACCOUNT_CHOOSER(widget);
+	PurpleAccount *account = NULL;
 
-	console->gc = g_list_nth_data(console->accounts,
-	                              gtk_combo_box_get_active(widget));
-	gtk_text_buffer_set_text(console->buffer, "", 0);
+	account = pidgin_account_chooser_get_selected(chooser);
+	if(PURPLE_IS_ACCOUNT(account)) {
+		console->gc = purple_account_get_connection(account);
+		gtk_text_buffer_set_text(console->buffer, "", 0);
+	} else {
+		GtkTextIter start, end;
+		console->gc = NULL;
+		gtk_text_buffer_set_text(console->buffer, _("Not connected to XMPP"), -1);
+		gtk_text_buffer_get_bounds(console->buffer, &start, &end);
+		gtk_text_buffer_apply_tag(console->buffer, console->tags.info, &start, &end);
+	}
 }
 
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
 static void
-pidgin_xmpp_console_finalize(GObject *obj) {
-	PidginXmppConsole *console = PIDGIN_XMPP_CONSOLE(obj);
-
-	g_clear_pointer(&console->accounts, g_list_free);
-
-	G_OBJECT_CLASS(pidgin_xmpp_console_parent_class)->finalize(obj);
-}
-
-static void
 pidgin_xmpp_console_class_finalize(PidginXmppConsoleClass *klass) {
 }
 
 static void
 pidgin_xmpp_console_class_init(PidginXmppConsoleClass *klass) {
-	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-
-	obj_class->finalize = pidgin_xmpp_console_finalize;
 
 	gtk_widget_class_set_template_from_resource(
 	        widget_class,
 	        "/im/pidgin/Pidgin3/Plugin/XMPPConsole/console.ui"
 	);
 
-	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
-	                                     hbox);
-	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
-	                                     dropdown);
 	gtk_widget_class_bind_template_callback(widget_class, dropdown_changed_cb);
 
 	gtk_widget_class_bind_template_child(widget_class, PidginXmppConsole,
@@ -653,31 +581,10 @@ pidgin_xmpp_console_class_init(PidginXmppConsoleClass *klass) {
 
 static void
 pidgin_xmpp_console_init(PidginXmppConsole *console) {
-	GList *connections;
 	GtkCssProvider *entry_css;
 	GtkStyleContext *context;
 
 	gtk_widget_init_template(GTK_WIDGET(console));
-
-	for (connections = purple_connections_get_all(); connections; connections = connections->next) {
-		PurpleConnection *gc = connections->data;
-		if (xmppconsole_is_xmpp_account(purple_connection_get_account(gc))) {
-			console->count++;
-			console->accounts = g_list_append(console->accounts, gc);
-			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(console->dropdown),
-						  purple_account_get_username(purple_connection_get_account(gc)));
-			if (!console->gc)
-				console->gc = gc;
-		}
-	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(console->dropdown), 0);
-
-	if (console->count == 0) {
-		GtkTextIter start, end;
-		gtk_text_buffer_set_text(console->buffer, _("Not connected to XMPP"), -1);
-		gtk_text_buffer_get_bounds(console->buffer, &start, &end);
-		gtk_text_buffer_apply_tag(console->buffer, console->tags.info, &start, &end);
-	}
 
 	entry_css = gtk_css_provider_new();
 	gtk_css_provider_load_from_data(entry_css,
@@ -688,10 +595,6 @@ pidgin_xmpp_console_init(PidginXmppConsole *console) {
 	                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
 	entry_changed_cb(console->entry_buffer, console);
-
-	if (console->count < 2) {
-		gtk_widget_hide(console->hbox);
-	}
 
 	gtk_widget_show(GTK_WIDGET(console));
 }
@@ -766,11 +669,6 @@ xmpp_console_load(GPluginPlugin *plugin, GError **error)
 	                      G_CALLBACK(purple_xmlnode_received_cb), NULL);
 	purple_signal_connect(xmpp, "jabber-sending-text", plugin,
 	                      G_CALLBACK(purple_xmlnode_sent_cb), NULL);
-
-	purple_signal_connect(purple_connections_get_handle(), "signing-on",
-		plugin, G_CALLBACK(signing_on_cb), NULL);
-	purple_signal_connect(purple_connections_get_handle(), "signed-off",
-		plugin, G_CALLBACK(signed_off_cb), NULL);
 
 	return TRUE;
 }

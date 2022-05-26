@@ -21,10 +21,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <interface>
   <requires lib="gtk+" version="3.18"/>
+  <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
   <!-- interface-description Internet Messenger -->
   <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
+  <object class="PidginAccountStore" id="accounts"/>
+  <object class="PidginAccountFilterConnected" id="connected_accounts">
+    <property name="child-model">accounts</property>
+  </object>
+  <object class="PidginAccountFilterProtocol" id="connected_xmpp_accounts">
+    <property name="child-model">connected_accounts</property>
+    <property name="protocol-id">prpl-jabber</property>
+  </object>
   <object class="GtkTextBuffer" id="entry_buffer">
     <signal name="changed" handler="entry_changed_cb" object="PidginXmppConsole" swapped="no"/>
   </object>
@@ -93,7 +102,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkBox" id="hbox">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="margin_left">6</property>
@@ -111,9 +120,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               </packing>
             </child>
             <child>
-              <object class="GtkComboBoxText" id="dropdown">
+              <object class="PidginAccountChooser">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="model">connected_xmpp_accounts</property>
+                <property name="active">0</property>
                 <signal name="changed" handler="dropdown_changed_cb" object="PidginXmppConsole" swapped="no"/>
               </object>
               <packing>
