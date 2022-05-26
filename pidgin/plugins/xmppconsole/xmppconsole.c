@@ -80,7 +80,6 @@ typedef struct {
 } XmppConsole;
 
 XmppConsole *console = NULL;
-static void *xmpp_console_handle = NULL;
 
 static const gchar *xmpp_prpls[] = {
 	"prpl-jabber", "prpl-gtalk", NULL
@@ -731,8 +730,6 @@ xmpp_console_load(GPluginPlugin *plugin, GError **error)
 	int i;
 	gboolean any_registered = FALSE;
 
-	xmpp_console_handle = plugin;
-
 	i = 0;
 	while (xmpp_prpls[i] != NULL) {
 		PurpleProtocol *xmpp;
@@ -746,12 +743,10 @@ xmpp_console_load(GPluginPlugin *plugin, GError **error)
 			continue;
 		any_registered = TRUE;
 
-		purple_signal_connect(xmpp, "jabber-receiving-xmlnode",
-			xmpp_console_handle,
-			G_CALLBACK(purple_xmlnode_received_cb), NULL);
-		purple_signal_connect(xmpp, "jabber-sending-text",
-			xmpp_console_handle,
-			G_CALLBACK(purple_xmlnode_sent_cb), NULL);
+		purple_signal_connect(xmpp, "jabber-receiving-xmlnode", plugin,
+		                      G_CALLBACK(purple_xmlnode_received_cb), NULL);
+		purple_signal_connect(xmpp, "jabber-sending-text", plugin,
+		                      G_CALLBACK(purple_xmlnode_sent_cb), NULL);
 	}
 
 	if (!any_registered) {
