@@ -45,9 +45,6 @@ typedef enum {
  **************************************************************************/
 /**
  * PidginBuddyList:
- * @notebook:          The notebook that switches between the real buddy list
- *                     and the helpful instructions page
- * @main_vbox:         This vbox contains the menu and notebook
  * @vbox:              This is the vbox that everything important gets packed
  *                     into.  Your plugin might want to pack something in it
  *                     itself.  Go, plugins!
@@ -55,20 +52,8 @@ typedef enum {
  * @treemodel:         This is the treemodel.
  * @text_column:       Column
  * @refresh_timer:     The timer for refreshing every 30 seconds
- * @contact_rect:      This is the bounding rectangle of the contact node and
- *                     its children.  This is used for auto-expand on mouseover.
- * @mouseover_contact: This is the contact currently mouse-over expanded
  * @selected_node:     The currently selected node
  * @scrollbook:        Scrollbook for alerts
- * @headline:          Widget for headline notifications
- * @headline_label:    Label for headline notifications
- * @headline_image:    Image for headline notifications
- * @headline_callback: Callback for headline notifications
- * @headline_data:     User data for headline notifications
- * @headline_destroy:  Callback to use for destroying the headline-data
- * @statusbox:         The status selector dropdown
- * @empty_avatar:      A 32x32 transparent pixbuf
- * @priv:              Pointer to opaque private data
  *
  * Like, everything you need to know about the gtk buddy list
  */
@@ -87,9 +72,6 @@ struct _PidginBuddyList {
 	GtkWidget *menu;
 
 	guint refresh_timer;
-
-	GdkRectangle contact_rect;
-	PurpleBlistNode *mouseover_contact;
 
 	PurpleBlistNode *selected_node;
 

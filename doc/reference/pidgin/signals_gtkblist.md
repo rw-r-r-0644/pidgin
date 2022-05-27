@@ -3,37 +3,6 @@ Slug: blist-signals
 
 ## Buddy List Signals
 
-### gtkblist-hiding
-
-```c
-void user_function(PurpleBuddyList *blist, gpointer user_data);
-```
-
-Emitted when the buddy list is about to be hidden.
-
-**Parameters:**
-
-**blist**
-: The buddy list.
-
-**user_data**
-: User data set when the signal handler was connected.
-
-### gtkblist-unhiding
-
-```c
-void user_function(PurpleBuddyList *blist, gpointer user_data);
-```
-Emitted when the buddy list is about to be unhidden.
-
-**Parameters:**
-
-**blist**
-: The buddy list.
-
-**user_data**
-: User data set when the signal handler was connected.
-
 ### gtkblist-created
 
 ```c
@@ -73,26 +42,3 @@ tooltip for a non-priority buddy.
 
 **user_data**
 : User data set when the signal handler was connected.
-
-### drawing-buddy
-
-```c
-char *user_function(PurpleBuddy *buddy, gpointer user_data);
-```
-
-Emitted to allow plugins to handle markup within a buddy's name or to override
-the default of no formatting for names shown in the buddy list.
-
-**Parameters:**
-
-**buddy**
-: A pointer to the PupleBuddy that will be displayed.
-
-**user_data**
-: User data set when the signal handler was connected.
-
-**Returns:**
-
-The text to display (must be allocated), or `NULL` if no changes to the default
-behavior are desired.
-
