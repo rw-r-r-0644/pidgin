@@ -51,6 +51,7 @@
 #include "pidgininactiveaccountsmenu.h"
 #include "pidginmooddialog.h"
 #include "pidginpluginsdialog.h"
+#include "pidginpluginsmenu.h"
 #include "pidginstatusmanager.h"
 #include "pidginprefs.h"
 
@@ -133,6 +134,12 @@ pidgin_application_populate_dynamic_menus(PidginApplication *application) {
 	target = gtk_application_get_menu_by_id(GTK_APPLICATION(application),
 	                                        "enabled-accounts");
 	g_menu_append_section(target, NULL, G_MENU_MODEL(source));
+
+	/* Link the PluginsMenu into its proper location. */
+	model = pidgin_plugins_menu_new();
+	target = gtk_application_get_menu_by_id(GTK_APPLICATION(application),
+	                                        "plugins-menu");
+	g_menu_append_section(target, NULL, model);
 }
 
 /******************************************************************************

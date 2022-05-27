@@ -34,9 +34,6 @@ struct _PidginContactList {
 
 	GtkWidget *accounts;
 	GtkWidget *accounts_menu;
-
-	GtkWidget *plugins;
-	GtkWidget *plugins_menu;
 };
 
 G_DEFINE_TYPE(PidginContactList, pidgin_contact_list,
@@ -60,8 +57,6 @@ pidgin_contact_list_init(PidginContactList *contact_list) {
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(contact_list->accounts),
 	                          contact_list->accounts_menu);
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(contact_list->plugins),
-	                          contact_list->plugins_menu);
 }
 
 static void
@@ -83,10 +78,6 @@ pidgin_contact_list_class_init(PidginContactListClass *klass) {
 	                                     accounts);
 	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
 	                                     accounts_menu);
-	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
-	                                     plugins);
-	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
-	                                     plugins_menu);
 }
 
 /******************************************************************************

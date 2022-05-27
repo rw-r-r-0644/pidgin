@@ -69,14 +69,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                 <property name="use-underline">True</property>
               </object>
             </child>
-            <child>
-              <object class="GtkMenuItem" id="plugins">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Plugins</property>
-                <property name="use-underline">True</property>
-              </object>
-            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -88,10 +80,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </child>
   </template>
   <object class="PidginAccountsMenu" id="accounts_menu">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-  </object>
-  <object class="PidginPluginsMenu" id="plugins_menu">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
   </object>

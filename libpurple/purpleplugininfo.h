@@ -25,6 +25,8 @@
 
 #include <glib.h>
 
+#include <gio/gio.h>
+
 #include <gplugin.h>
 #include <gplugin-native.h>
 
@@ -380,6 +382,30 @@ gboolean purple_plugin_info_get_unloaded(PurplePluginInfo *info);
  * Since: 3.0.0
  */
 void purple_plugin_info_set_unloaded(PurplePluginInfo *info, gboolean unloaded);
+
+/**
+ * purple_plugin_info_get_action_group:
+ * @info: The instance.
+ *
+ * Gets the [class:Gio.ActionGroup] from @info if one is set.
+ *
+ * Returns: (transfer full): The action group.
+ *
+ * Since: 3.0.0
+ */
+GActionGroup *purple_plugin_info_get_action_group(PurplePluginInfo *info);
+
+/**
+ * purple_plugin_info_get_action_menu:
+ * @info: The instance.
+ *
+ * Gets the [class:Gio.MenuModel] from @info if one is set.
+ *
+ * Returns: (transfer full): The menu model.
+ *
+ * Since: 3.0.0
+ */
+GMenuModel *purple_plugin_info_get_action_menu(PurplePluginInfo *info);
 
 G_END_DECLS
 

@@ -22,7 +22,6 @@
     <file compressed="true">Debug/plugininfo.ui</file>
     <file compressed="true">Log/log-viewer.ui</file>
     <file compressed="true">Plugins/dialog.ui</file>
-    <file compressed="true">Plugins/menu.ui</file>
     <file compressed="true">Prefs/away.ui</file>
     <file compressed="true">Prefs/conversation.ui</file>
     <file compressed="true">Prefs/credentials.ui</file>
