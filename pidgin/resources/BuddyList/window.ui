@@ -50,56 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkMenuItem">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Sh_ow</property>
-                        <property name="use-underline">True</property>
-                        <child type="submenu">
-                          <object class="GtkMenu">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="show_offline_buddies">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="action-name">blist.show-offline-buddies</property>
-                                <property name="label" translatable="yes">_Offline Buddies</property>
-                                <property name="use-underline">True</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="show_empty_groups">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="action-name">blist.show-empty-groups</property>
-                                <property name="label" translatable="yes">_Empty Groups</property>
-                                <property name="use-underline">True</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="show_idle_times">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="action-name">blist.show-idle-times</property>
-                                <property name="label" translatable="yes">Idle _Times</property>
-                                <property name="use-underline">True</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="show_protocol_icons">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="action-name">blist.show-protocol-icons</property>
-                                <property name="label" translatable="yes">_Protocol Icons</property>
-                                <property name="use-underline">True</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkMenuItem" id="sort_buddies">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>

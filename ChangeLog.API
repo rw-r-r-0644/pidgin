@@ -802,9 +802,12 @@ version 3.0.0 (??/??/????):
 		* conversation-dragging (gtkconv signal)
 		* conversation-timestamp (gtkconv signal)
 		* conversation-hiding (gtkconv signal)
+		* drawing-buddy (gtkblist signal)
 		* GtkIMHtml.clipboard_html_string
 		* GtkIMHtml.clipboard_text_string
 		* GtkIMHtmlFontDetail
+		* gtkblist-hiding (gtkblist signal)
+		* gtkblist-unhiding (gtkblist signal)
 		* gtk_imhtml_animation_free
 		* gtk_imhtml_animation_new
 		* gtk_imhtml_image_add_to

@@ -42,41 +42,6 @@
  */
 
 /**
- * PIDGIN_ACTION_SHOW_BUDDY_ICONS:
- *
- * A constant that represents the show-buddy-icons action.
- */
-#define PIDGIN_ACTION_SHOW_BUDDY_ICONS ("show-buddy-icons")
-
-/**
- * PIDGIN_ACTION_SHOW_EMPTY_GROUPS:
- *
- * A constant that represents the show-empty-groups action.
- */
-#define PIDGIN_ACTION_SHOW_EMPTY_GROUPS ("show-empty-groups")
-
-/**
- * PIDGIN_ACTION_SHOW_IDLE_TIMES:
- *
- * A constant that represents the show-idle-times action.
- */
-#define PIDGIN_ACTION_SHOW_IDLE_TIMES ("show-idle-times")
-
-/**
- * PIDGIN_ACTION_SHOW_OFFLINE_BUDDIES:
- *
- * A constant that represents the show-offline-buddies action.
- */
-#define PIDGIN_ACTION_SHOW_OFFLINE_BUDDIES ("show-offline-buddies")
-
-/**
- * PIDGIN_ACTION_SHOW_PROTOCOL_ICONS:
- *
- * A constant that represents the show-protocol-icons action.
- */
-#define PIDGIN_ACTION_SHOW_PROTOCOL_ICONS ("show-protocol-icons")
-
-/**
  * PIDGIN_ACTION_SORT_METHOD:
  *
  * A constant that represents the sort-method action to change the sorting
