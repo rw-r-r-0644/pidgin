@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <interface>
-  <requires lib="gtk+" version="3.18"/>
+  <requires lib="gtk" version="4.0"/>
   <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
@@ -92,210 +92,127 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="tag_table">tags.table</property>
   </object>
   <template parent="GtkWindow" class="PidginXmppConsole">
-    <property name="can_focus">False</property>
     <property name="title" translatable="yes">XMPP Console</property>
     <property name="default_width">580</property>
     <property name="default_height">400</property>
-    <child>
+    <property name="child">
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_left">6</property>
+            <property name="margin-start">6</property>
             <property name="spacing">6</property>
             <child>
               <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Account:</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="PidginAccountChooser">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
                 <property name="model">connected_xmpp_accounts</property>
                 <property name="active">0</property>
+                <property name="halign">fill</property>
+                <property name="hexpand">1</property>
                 <signal name="changed" handler="dropdown_changed_cb" object="PidginXmppConsole" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkScrolledWindow">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="shadow_type">etched-in</property>
-            <child>
+            <property name="valign">fill</property>
+            <property name="vexpand">1</property>
+            <property name="focusable">1</property>
+            <property name="child">
               <object class="GtkTextView">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="editable">False</property>
+                <property name="focusable">1</property>
+                <property name="editable">0</property>
                 <property name="wrap_mode">word</property>
                 <property name="buffer">buffer</property>
               </object>
-            </child>
+            </property>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
         </child>
         <child>
-          <object class="GtkToolbar">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="toolbar_style">text</property>
+          <object class="GtkBox">
+            <style>
+              <class name="toolbar"/>
+            </style>
             <child>
-              <object class="GtkToolItem">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkMenuButton">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label">&lt;iq/&gt;</property>
-                    <property name="popover">iq.popover</property>
-                  </object>
-                </child>
+              <object class="GtkMenuButton">
+                <property name="label">&lt;iq/&gt;</property>
+                <property name="popover">iq.popover</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">False</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToolItem">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkMenuButton">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label">&lt;presence/&gt;</property>
-                    <property name="popover">presence.popover</property>
-                  </object>
-                </child>
+              <object class="GtkMenuButton">
+                <property name="label">&lt;presence/&gt;</property>
+                <property name="popover">presence.popover</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">False</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkToolItem">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkMenuButton">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label">&lt;message/&gt;</property>
-                    <property name="popover">message.popover</property>
-                  </object>
-                </child>
+              <object class="GtkMenuButton">
+                <property name="label">&lt;message/&gt;</property>
+                <property name="popover">message.popover</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">False</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkScrolledWindow" id="sw">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="shadow_type">etched-in</property>
-            <child>
+            <property name="focusable">1</property>
+            <property name="child">
               <object class="GtkTextView" id="entry">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="focusable">1</property>
                 <property name="wrap_mode">word</property>
                 <property name="buffer">entry_buffer</property>
-                <signal name="key-press-event" handler="message_send_cb" object="PidginXmppConsole" swapped="no"/>
+                <child>
+                  <object class="GtkEventControllerKey">
+                    <signal name="key-pressed" handler="message_send_cb" object="PidginXmppConsole" swapped="no"/>
+                  </object>
+                </child>
               </object>
-            </child>
+            </property>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">3</property>
-          </packing>
         </child>
       </object>
-    </child>
+    </property>
   </template>
   <object class="GtkPopover" id="iq.popover">
-    <property name="can_focus">False</property>
     <property name="position">right</property>
-    <child>
+    <property name="child">
       <object class="GtkGrid">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="column_spacing">6</property>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">To:</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Type:</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkEntry" id="iq.to">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="activates_default">True</property>
+            <property name="focusable">1</property>
+            <property name="activates_default">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkComboBoxText" id="iq.type">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="active">0</property>
             <items>
               <item>get</item>
@@ -303,163 +220,138 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               <item>result</item>
               <item>error</item>
             </items>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton">
             <property name="label" translatable="yes">Insert</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="can_default">True</property>
-            <property name="has_default">True</property>
-            <property name="receives_default">True</property>
+            <property name="focusable">1</property>
+            <property name="receives_default">1</property>
             <signal name="clicked" handler="iq_clicked_cb" swapped="no"/>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">2</property>
+              <property name="column-span">2</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
-            <property name="width">2</property>
-          </packing>
         </child>
       </object>
-    </child>
+    </property>
   </object>
   <object class="GtkPopover" id="message.popover">
-    <property name="can_focus">False</property>
     <property name="position">right</property>
-    <child>
+    <property name="child">
       <object class="GtkGrid">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="column_spacing">6</property>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">To:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Type:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Body:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">2</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Subject:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">3</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">3</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Thread:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">4</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">4</property>
-          </packing>
         </child>
         <child>
           <object class="GtkEntry" id="message.to">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="activates_default">True</property>
+            <property name="focusable">1</property>
+            <property name="activates_default">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkEntry" id="message.body">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="activates_default">True</property>
+            <property name="focusable">1</property>
+            <property name="activates_default">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">2</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkEntry" id="message.subject">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="activates_default">True</property>
+            <property name="focusable">1</property>
+            <property name="activates_default">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">3</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">3</property>
-          </packing>
         </child>
         <child>
           <object class="GtkEntry" id="message.thread">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="activates_default">True</property>
+            <property name="focusable">1</property>
+            <property name="activates_default">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">4</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">4</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton">
             <property name="label" translatable="yes">Insert</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="can_default">True</property>
-            <property name="has_default">True</property>
-            <property name="receives_default">True</property>
+            <property name="focusable">1</property>
+            <property name="receives_default">1</property>
             <signal name="clicked" handler="message_clicked_cb" swapped="no"/>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">5</property>
+              <property name="column-span">2</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">5</property>
-            <property name="width">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkComboBoxText" id="message.type">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="active">0</property>
             <items>
               <item>chat</item>
@@ -468,97 +360,81 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               <item>normal</item>
               <item>error</item>
             </items>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">1</property>
-          </packing>
         </child>
       </object>
-    </child>
+    </property>
   </object>
   <object class="GtkPopover" id="presence.popover">
-    <property name="can_focus">False</property>
     <property name="position">right</property>
-    <child>
+    <property name="child">
       <object class="GtkGrid">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="column_spacing">6</property>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">To:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Type:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Show:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">2</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Status:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">3</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">3</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Priority:</property>
             <property name="xalign">0</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">4</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">4</property>
-          </packing>
         </child>
         <child>
           <object class="GtkEntry" id="presence.to">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="focusable">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkComboBoxText" id="presence.type">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="active">0</property>
             <items>
               <item>default</item>
@@ -570,16 +446,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               <item>probe</item>
               <item>error</item>
             </items>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkComboBoxText" id="presence.show">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="active">0</property>
             <items>
               <item>default</item>
@@ -588,52 +462,47 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               <item>xa</item>
               <item>chat</item>
             </items>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">2</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkEntry" id="presence.status">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="activates_default">True</property>
+            <property name="focusable">1</property>
+            <property name="activates_default">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">3</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">3</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton">
             <property name="label" translatable="yes">Insert</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="can_default">True</property>
-            <property name="has_default">True</property>
-            <property name="receives_default">True</property>
+            <property name="focusable">1</property>
+            <property name="receives_default">1</property>
             <signal name="clicked" handler="presence_clicked_cb" swapped="no"/>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">5</property>
+              <property name="column-span">2</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">5</property>
-            <property name="width">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkSpinButton" id="presence.priority">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="focusable">1</property>
             <property name="adjustment">presence.priority_adjustment</property>
-            <property name="numeric">True</property>
+            <property name="numeric">1</property>
+            <layout>
+              <property name="column">1</property>
+              <property name="row">4</property>
+            </layout>
           </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">4</property>
-          </packing>
         </child>
       </object>
-    </child>
+    </property>
   </object>
 </interface>
