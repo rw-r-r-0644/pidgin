@@ -140,7 +140,6 @@ enum {
 	GDK_WINDOW_STATE_MAXIMIZED)
 
 static GdkVisibilityState gtk_blist_visibility = GDK_VISIBILITY_UNOBSCURED;
-static gboolean gtk_blist_focused = FALSE;
 static gboolean editing_blist = FALSE;
 
 static GList *pidgin_blist_sort_methods = NULL;
@@ -3566,60 +3565,10 @@ static int
 blist_focus_cb(GtkWidget *widget, GdkEventFocus *event, PidginBuddyList *gtkblist)
 {
 	if(event->in) {
-		gtk_blist_focused = TRUE;
 		gtk_window_set_urgency_hint(GTK_WINDOW(gtkblist->window), FALSE);
-	} else {
-		gtk_blist_focused = FALSE;
 	}
 	return 0;
 }
-
-#if 0
-static GtkWidget *
-kiosk_page()
-{
-	GtkWidget *ret = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
-	GtkWidget *label;
-	GtkWidget *entry;
-	GtkWidget *bbox;
-	GtkWidget *button;
-
-	label = gtk_label_new(NULL);
-	gtk_box_pack_start(GTK_BOX(ret), label, TRUE, TRUE, 0);
-
-	label = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(label), _("<b>Username:</b>"));
-	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
-	gtk_box_pack_start(GTK_BOX(ret), label, FALSE, FALSE, 0);
-	entry = gtk_entry_new();
-	gtk_box_pack_start(GTK_BOX(ret), entry, FALSE, FALSE, 0);
-
-	label = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(label), _("<b>Password:</b>"));
-	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
-	gtk_box_pack_start(GTK_BOX(ret), label, FALSE, FALSE, 0);
-	entry = gtk_entry_new();
-	gtk_entry_set_visibility(GTK_ENTRY(entry), FALSE);
-	gtk_box_pack_start(GTK_BOX(ret), entry, FALSE, FALSE, 0);
-
-	label = gtk_label_new(" ");
-	gtk_box_pack_start(GTK_BOX(ret), label, FALSE, FALSE, 0);
-
-	bbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
-	button = gtk_button_new_with_mnemonic(_("_Login"));
-	gtk_box_pack_start(GTK_BOX(ret), bbox, FALSE, FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(bbox), button);
-
-
-	label = gtk_label_new(NULL);
-	gtk_box_pack_start(GTK_BOX(ret), label, TRUE, TRUE, 0);
-
-	gtk_container_set_border_width(GTK_CONTAINER(ret), 12);
-
-	gtk_widget_show_all(ret);
-	return ret;
-}
-#endif
 
 /* builds the blist layout according to to the current theme */
 static void
