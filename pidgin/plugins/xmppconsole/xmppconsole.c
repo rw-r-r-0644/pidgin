@@ -219,15 +219,20 @@ purple_xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer null)
 }
 
 static gboolean
-message_send_cb(GtkWidget *widget, GdkEventKey *event, gpointer data) {
+message_send_cb(G_GNUC_UNUSED GtkEventControllerKey *event, guint keyval,
+                G_GNUC_UNUSED guint keycode,
+                G_GNUC_UNUSED GdkModifierType state,
+                gpointer data)
+{
 	PidginXmppConsole *console = data;
 	PurpleProtocol *protocol = NULL;
 	PurpleConnection *gc;
 	gchar *text;
 	GtkTextIter start, end;
 
-	if (event->keyval != GDK_KEY_KP_Enter && event->keyval != GDK_KEY_Return)
+	if (keyval != GDK_KEY_KP_Enter && keyval != GDK_KEY_Return) {
 		return FALSE;
+	}
 
 	gc = console->gc;
 
@@ -295,9 +300,9 @@ entry_changed_cb(GtkTextBuffer *buffer, gpointer data) {
 	node = purple_xmlnode_from_str(xmlstr, -1);
 	style = gtk_widget_get_style_context(console->entry);
 	if (node) {
-		gtk_style_context_remove_class(style, GTK_STYLE_CLASS_ERROR);
+		gtk_style_context_remove_class(style, "error");
 	} else {
-		gtk_style_context_add_class(style, GTK_STYLE_CLASS_ERROR);
+		gtk_style_context_add_class(style, "error");
 	}
 	g_free(str);
 	g_free(xmlstr);
@@ -568,8 +573,8 @@ pidgin_xmpp_console_init(PidginXmppConsole *console) {
 
 	entry_css = gtk_css_provider_new();
 	gtk_css_provider_load_from_data(entry_css,
-	                                "textview." GTK_STYLE_CLASS_ERROR " text {background-color:#ffcece;}",
-	                                -1, NULL);
+	                                "textview.error text {background-color:#ffcece;}",
+	                                -1);
 	context = gtk_widget_get_style_context(console->entry);
 	gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(entry_css),
 	                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -657,7 +662,7 @@ static gboolean
 xmpp_console_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
 	if (console) {
-		gtk_widget_destroy(GTK_WIDGET(console));
+		gtk_window_destroy(GTK_WINDOW(console));
 	}
 	return TRUE;
 }
