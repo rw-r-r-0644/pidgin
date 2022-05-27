@@ -1,5 +1,6 @@
 /*
- * pidgin
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -16,8 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined(PIDGIN_GLOBAL_HEADER_INSIDE) && !defined(PIDGIN_COMPILATION)
@@ -34,18 +34,15 @@ G_BEGIN_DECLS
 /**
  * PidginPluginsMenu:
  *
- * #PidginPluginsMenu is a #GtkMenu that provides an interface to users to open
- * the plugin manager as well as activate plugin actions.
- *
- * It manages itself as plugins are loaded and unloaded and can be added as a
- * submenu to any #GtkMenuItem.
+ * #PidginPluginsMenu is a [class@Gio.MenuModel] that automatically updates
+ * itself when plugins are loaded and unloaded.
  *
  * Since: 3.0.0
  */
 
 #define PIDGIN_TYPE_PLUGINS_MENU (pidgin_plugins_menu_get_type())
 G_DECLARE_FINAL_TYPE(PidginPluginsMenu, pidgin_plugins_menu, PIDGIN,
-                     PLUGINS_MENU, GtkMenu)
+                     PLUGINS_MENU, GMenuModel)
 
 /**
  * pidgin_plugins_menu_new:
@@ -54,7 +51,7 @@ G_DECLARE_FINAL_TYPE(PidginPluginsMenu, pidgin_plugins_menu, PIDGIN,
  *
  * Returns: (transfer full): The new #PidginPluginsMenu instance.
  */
-GtkWidget *pidgin_plugins_menu_new(void);
+GMenuModel *pidgin_plugins_menu_new(void);
 
 G_END_DECLS
 

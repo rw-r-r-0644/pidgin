@@ -1,5 +1,6 @@
 /*
- * pidgin
+ * Pidgin - Internet Messenger
+ * Copyright (C) Pidgin Developers <devel@pidgin.im>
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -16,243 +17,214 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "pidginpluginsmenu.h"
+
+#include "pidginapplication.h"
 
 #include <gplugin.h>
 
 #include <purple.h>
 
 struct _PidginPluginsMenu {
-	GtkMenu parent;
+	GMenuModel parent;
 
-	GtkWidget *separator;
-
-	GSimpleActionGroup *action_group;
-
-	GHashTable *plugin_items;
+	GQueue *plugins;
 };
 
-#define PIDGIN_PLUGINS_MENU_ACTION_PREFIX "plugins-menu"
+G_DEFINE_TYPE(PidginPluginsMenu, pidgin_plugins_menu, G_TYPE_MENU_MODEL)
 
 /******************************************************************************
  * Helpers
  *****************************************************************************/
 static void
-pidgin_plugins_menu_action_activated(GSimpleAction *simple, GVariant *parameter,
-                                     gpointer data)
-{
-	PurplePluginAction *action = (PurplePluginAction *)data;
+pidgin_plugins_menu_add_item(gpointer data, gpointer user_data) {
+	PidginPluginsMenu *menu = user_data;
+	GPluginPlugin *plugin = data;
+	GPluginPluginInfo *info = NULL;
 
-	if(action != NULL && action->callback != NULL) {
-		action->callback(action);
+	info = gplugin_plugin_get_info(plugin);
+	if(PURPLE_IS_PLUGIN_INFO(info)) {
+		GActionGroup *group = NULL;
+
+		group = purple_plugin_info_get_action_group(PURPLE_PLUGIN_INFO(info));
+		if(G_IS_ACTION_GROUP(group)) {
+			GApplication *application = g_application_get_default();
+			const gchar *prefix;
+
+			prefix = gplugin_plugin_info_get_id(info);
+			pidgin_application_add_action_group(PIDGIN_APPLICATION(application),
+			                                    prefix, group);
+			g_object_unref(group);
+
+			g_queue_push_tail(menu->plugins, g_object_ref(plugin));
+		}
 	}
+
+	g_clear_object(&info);
 }
 
 static void
-pidgin_plugins_menu_add_plugin_actions(PidginPluginsMenu *menu,
-                                       PurplePlugin *plugin)
-{
-	GPluginPluginInfo *info = NULL;
-	PurplePluginActionsCb actions_cb = NULL;
-	GList *actions = NULL;
-	GtkWidget *submenu = NULL, *item = NULL;
-	gint i = 0;
+pidgin_plugins_menu_refresh(PidginPluginsMenu *menu) {
+	GPluginManager *manager = NULL;
+	GSList *loaded = NULL;
+	gint removed = 0, added = 0;
 
-	info = gplugin_plugin_get_info(GPLUGIN_PLUGIN(plugin));
+	removed = g_queue_get_length(menu->plugins);
+	g_queue_clear_full(menu->plugins, g_object_unref);
 
-	actions_cb = purple_plugin_info_get_actions_cb(PURPLE_PLUGIN_INFO(info));
-	if(actions_cb == NULL) {
-		g_object_unref(G_OBJECT(info));
+	manager = gplugin_manager_get_default();
+	loaded = gplugin_manager_find_plugins_with_state(manager,
+	                                                 GPLUGIN_PLUGIN_STATE_LOADED);
 
-		return;
-	}
+	g_slist_foreach(loaded, pidgin_plugins_menu_add_item, menu);
 
-	actions = actions_cb(plugin);
-	if(actions == NULL) {
-		g_object_unref(G_OBJECT(info));
+	added = g_queue_get_length(menu->plugins);
 
-		return;
-	}
-
-	submenu = gtk_menu_new();
-
-	for(i = 0; actions != NULL; i++) {
-		PurplePluginAction *action = NULL;
-		GSimpleAction *gaction = NULL;
-		GtkWidget *action_item = NULL;
-		gchar *action_base_name = NULL;
-		gchar *action_full_name = NULL;
-
-		action = (PurplePluginAction *)actions->data;
-		if(action == NULL) {
-			action_item = gtk_separator_menu_item_new();
-			gtk_widget_show(action_item);
-			gtk_menu_shell_append(GTK_MENU_SHELL(submenu), action_item);
-
-			actions = g_list_delete_link(actions, actions);
-
-			continue;
-		}
-
-		if(action->label == NULL) {
-			actions = g_list_delete_link(actions, actions);
-
-			g_warn_if_reached();
-
-			continue;
-		}
-
-		action_base_name = g_strdup_printf("%s-%d",
-		                                   gplugin_plugin_info_get_id(info),
-		                                   i);
-		action_full_name = g_strdup_printf("%s.%s",
-		                                   PIDGIN_PLUGINS_MENU_ACTION_PREFIX,
-		                                   action_base_name);
-
-		/* create the menu item with the full action name */
-		action_item = gtk_menu_item_new_with_label(action->label);
-		gtk_actionable_set_action_name(GTK_ACTIONABLE(action_item),
-		                               action_full_name);
-		gtk_widget_show(action_item);
-		g_free(action_full_name);
-
-		/* add our action item to the menu */
-		gtk_menu_shell_append(GTK_MENU_SHELL(submenu), action_item);
-
-		/* now create the gaction with the base name */
-		gaction = g_simple_action_new(action_base_name, NULL);
-		g_free(action_base_name);
-
-		/* now connect to the activate signal of the action using
-		 * g_signal_connect_data with a destroy notify to free the plugin action
-		 * when the signal handler is removed.
-		 */
-		g_signal_connect_data(G_OBJECT(gaction), "activate",
-		                      G_CALLBACK(pidgin_plugins_menu_action_activated),
-		                      action,
-		                      (GClosureNotify)purple_plugin_action_free,
-		                      0);
-
-		/* finally add the action to the action group and remove our ref */
-		g_action_map_add_action(G_ACTION_MAP(menu->action_group),
-		                        G_ACTION(gaction));
-		g_object_unref(G_OBJECT(gaction));
-
-		actions = g_list_delete_link(actions, actions);
-	}
-
-	item = gtk_menu_item_new_with_label(gplugin_plugin_info_get_name(info));
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
-	gtk_widget_show(item);
-
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-
-	g_hash_table_insert(menu->plugin_items,
-	                    g_object_ref(G_OBJECT(plugin)),
-	                    item);
-
-	g_object_unref(G_OBJECT(info));
-
-	/* make sure that our separator is visible */
-	gtk_widget_show(menu->separator);
-}
-
-static void
-pidgin_plugins_menu_remove_plugin_actions(PidginPluginsMenu *menu,
-                                          PurplePlugin *plugin)
-{
-	GPluginPluginInfo *info = NULL;
-	PurplePluginActionsCb actions_cb = NULL;
-	GList *actions = NULL;
-	gint i = 0;
-
-	/* try remove the menu item from plugin from the hash table.  If we didn't
-	 * remove anything, we have nothing to do so bail.
-	 */
-	if(!g_hash_table_remove(menu->plugin_items, plugin)) {
-		return;
-	}
-
-	info = gplugin_plugin_get_info(GPLUGIN_PLUGIN(plugin));
-
-	actions_cb = purple_plugin_info_get_actions_cb(PURPLE_PLUGIN_INFO(info));
-	if(actions_cb == NULL) {
-		g_object_unref(G_OBJECT(info));
-
-		return;
-	}
-
-	actions = actions_cb(plugin);
-	if(actions == NULL) {
-		g_object_unref(G_OBJECT(info));
-
-		return;
-	}
-
-	/* now walk through the actions and remove them from the action group. */
-	for(i = 0; actions != NULL; i++) {
-		gchar *name = NULL;
-
-		name = g_strdup_printf("%s-%d", gplugin_plugin_info_get_id(info), i);
-
-		g_action_map_remove_action(G_ACTION_MAP(menu->action_group), name);
-		g_free(name);
-
-		actions = g_list_delete_link(actions, actions);
-	}
-
-	g_object_unref(G_OBJECT(info));
-
-	/* finally, if this was the last item in the list, hide the separator. */
-	if(g_hash_table_size(menu->plugin_items) == 0) {
-		gtk_widget_hide(menu->separator);
-	}
+	/* Tell our listeners that our menu has changed. */
+	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, removed, added);
 }
 
 /******************************************************************************
  * Callbacks
  *****************************************************************************/
 static void
-pidgin_plugins_menu_plugin_loaded_cb(GObject *manager, GPluginPlugin *plugin,
+pidgin_plugins_menu_plugin_loaded_cb(G_GNUC_UNUSED GObject *manager,
+                                     G_GNUC_UNUSED GPluginPlugin *plugin,
                                      gpointer data)
 {
-	pidgin_plugins_menu_add_plugin_actions(PIDGIN_PLUGINS_MENU(data), plugin);
+	pidgin_plugins_menu_refresh(PIDGIN_PLUGINS_MENU(data));
 }
 
 static void
-pidgin_plugins_menu_plugin_unloaded_cb(GObject *manager, GPluginPlugin *plugin,
+pidgin_plugins_menu_plugin_unloaded_cb(G_GNUC_UNUSED GObject *manager,
+                                       GPluginPlugin *plugin,
                                        gpointer data)
 {
-	pidgin_plugins_menu_remove_plugin_actions(PIDGIN_PLUGINS_MENU(data),
-	                                          plugin);
+	GApplication *application = NULL;
+	GPluginPluginInfo *info = NULL;
+	const gchar *prefix;
+
+	/* Remove the action group that the plugin added. */
+	info = gplugin_plugin_get_info(plugin);
+	if(GPLUGIN_IS_PLUGIN_INFO(info)) {
+		prefix = gplugin_plugin_info_get_id(info);
+
+		if(prefix != NULL) {
+			application = g_application_get_default();
+			pidgin_application_add_action_group(PIDGIN_APPLICATION(application),
+			                                    prefix, NULL);
+		}
+	}
+
+	/* Refresh the list */
+	pidgin_plugins_menu_refresh(PIDGIN_PLUGINS_MENU(data));
+}
+
+/******************************************************************************
+ * GMenuModel Implementation
+ *****************************************************************************/
+static gboolean
+pidgin_plugins_menu_is_mutable(GMenuModel *model) {
+	return TRUE;
+}
+
+static gint
+pidgin_plugins_menu_get_n_items(GMenuModel *model) {
+	PidginPluginsMenu *menu = PIDGIN_PLUGINS_MENU(model);
+
+	return g_queue_get_length(menu->plugins);
+}
+
+static void
+pidgin_plugins_menu_get_item_attributes(GMenuModel *model, gint index,
+                                        GHashTable **attributes)
+{
+	PidginPluginsMenu *menu = PIDGIN_PLUGINS_MENU(model);
+	GPluginPlugin *plugin = NULL;
+	GPluginPluginInfo *info = NULL;
+	GVariant *value = NULL;
+
+	/* Create our hash table of attributes to return. */
+	*attributes = g_hash_table_new_full(g_str_hash, g_str_equal, NULL,
+	                                    (GDestroyNotify)g_variant_unref);
+
+	/* Get the plugin the caller is interested in. */
+	plugin = g_queue_peek_nth(menu->plugins, index);
+	if(plugin == NULL) {
+		return;
+	}
+
+	/* Grab the plugin info and set the label attribute to the name of the
+	 * plugin and set the action name space to the plugin's id.
+	 */
+	info = gplugin_plugin_get_info(plugin);
+	value = g_variant_new_string(gplugin_plugin_info_get_name(info));
+	g_hash_table_insert(*attributes, G_MENU_ATTRIBUTE_LABEL,
+	                    g_variant_ref_sink(value));
+
+	value = g_variant_new_string(gplugin_plugin_info_get_id(info));
+	g_hash_table_insert(*attributes, G_MENU_ATTRIBUTE_ACTION_NAMESPACE,
+	                    g_variant_ref_sink(value));
+
+	g_object_unref(info);
+}
+
+static void
+pidgin_plugins_menu_get_item_links(GMenuModel *model, gint index,
+                                   GHashTable **links)
+{
+	PidginPluginsMenu *menu = PIDGIN_PLUGINS_MENU(model);
+	PurplePluginInfo *purple_info = NULL;
+	GPluginPlugin *plugin = NULL;
+	GPluginPluginInfo *info = NULL;
+	GMenuModel *actions_model = NULL;
+
+	*links = g_hash_table_new_full(g_str_hash, g_str_equal, NULL,
+	                               g_object_unref);
+
+	plugin = g_queue_peek_nth(menu->plugins, index);
+	if(!GPLUGIN_IS_PLUGIN(plugin)) {
+		return;
+	}
+
+	info = gplugin_plugin_get_info(plugin);
+	purple_info = PURPLE_PLUGIN_INFO(info);
+
+	actions_model = purple_plugin_info_get_action_menu(purple_info);
+	if(G_IS_MENU_MODEL(actions_model)) {
+		g_hash_table_insert(*links, G_MENU_LINK_SUBMENU, actions_model);
+	}
+
+	g_object_unref(info);
 }
 
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
-G_DEFINE_TYPE(PidginPluginsMenu, pidgin_plugins_menu, GTK_TYPE_MENU)
+static void
+pidgin_plugins_menu_finalize(GObject *obj) {
+	PidginPluginsMenu *menu = PIDGIN_PLUGINS_MENU(obj);
+
+	g_queue_free_full(menu->plugins, g_object_unref);
+
+	G_OBJECT_CLASS(pidgin_plugins_menu_parent_class)->finalize(obj);
+}
+
+static void
+pidgin_plugins_menu_constructed(GObject *obj) {
+	G_OBJECT_CLASS(pidgin_plugins_menu_parent_class)->constructed(obj);
+
+	pidgin_plugins_menu_refresh(PIDGIN_PLUGINS_MENU(obj));
+}
 
 static void
 pidgin_plugins_menu_init(PidginPluginsMenu *menu) {
 	GPluginManager *manager = NULL;
 
-	/* initialize our template */
-	gtk_widget_init_template(GTK_WIDGET(menu));
-
-	/* create our internal action group and assign it to ourself */
-	menu->action_group = g_simple_action_group_new();
-	gtk_widget_insert_action_group(GTK_WIDGET(menu),
-	                               PIDGIN_PLUGINS_MENU_ACTION_PREFIX,
-	                               G_ACTION_GROUP(menu->action_group));
-
-	/* create our storage for the items */
-	menu->plugin_items = g_hash_table_new_full(g_direct_hash, g_direct_equal,
-	                                           g_object_unref,
-	                                           (GDestroyNotify)gtk_widget_destroy);
+	menu->plugins = g_queue_new();
 
 	/* Connect to the plugin manager's signals so we can stay up to date. */
 	manager = gplugin_manager_get_default();
@@ -267,22 +239,22 @@ pidgin_plugins_menu_init(PidginPluginsMenu *menu) {
 
 static void
 pidgin_plugins_menu_class_init(PidginPluginsMenuClass *klass) {
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
+	GMenuModelClass *model_class = G_MENU_MODEL_CLASS(klass);
 
-	gtk_widget_class_set_template_from_resource(
-	    widget_class,
-	    "/im/pidgin/Pidgin3/Plugins/menu.ui"
-	);
+	obj_class->finalize = pidgin_plugins_menu_finalize;
+	obj_class->constructed = pidgin_plugins_menu_constructed;
 
-	gtk_widget_class_bind_template_child(widget_class, PidginPluginsMenu,
-	                                     separator);
+	model_class->is_mutable = pidgin_plugins_menu_is_mutable;
+	model_class->get_n_items = pidgin_plugins_menu_get_n_items;
+	model_class->get_item_attributes = pidgin_plugins_menu_get_item_attributes;
+	model_class->get_item_links = pidgin_plugins_menu_get_item_links;
 }
 
 /******************************************************************************
  * Public API
  *****************************************************************************/
-GtkWidget *
+GMenuModel *
 pidgin_plugins_menu_new(void) {
-	return GTK_WIDGET(g_object_new(PIDGIN_TYPE_PLUGINS_MENU, NULL));
+	return g_object_new(PIDGIN_TYPE_PLUGINS_MENU, NULL);
 }
-

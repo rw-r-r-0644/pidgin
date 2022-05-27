@@ -235,9 +235,7 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
           <attribute name="accel">&lt;Primary&gt;U</attribute>
         </item>
       </section>
-      <section>
-        <attribute name="id">plugins-menu</attribute>
-      </section>
+      <section id="plugins-menu"/>
     </submenu>
     <submenu>
       <attribute name="label" translatable="yes">_Help</attribute>

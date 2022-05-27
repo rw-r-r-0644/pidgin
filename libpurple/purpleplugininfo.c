@@ -46,6 +46,9 @@ typedef struct {
 	/* TRUE if a plugin has been unloaded at least once. Auto-load
 	 * plugins that have been unloaded once will not be auto-loaded again. */
 	gboolean unloaded;
+
+	GActionGroup *action_group;
+	GMenuModel *menu_model;
 } PurplePluginInfoPrivate;
 
 enum {
@@ -55,12 +58,47 @@ enum {
 	PROP_PREF_FRAME_CB,
 	PROP_PREF_REQUEST_CB,
 	PROP_FLAGS,
+	PROP_ACTION_GROUP,
+	PROP_ACTION_MENU,
 	N_PROPERTIES,
 };
 static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
 G_DEFINE_TYPE_WITH_PRIVATE(PurplePluginInfo, purple_plugin_info,
                            GPLUGIN_TYPE_PLUGIN_INFO);
+
+/**************************************************************************
+ * Helpers
+ **************************************************************************/
+static void
+purple_plugin_info_set_action_group(PurplePluginInfo *info,
+                                    GActionGroup *group)
+{
+	PurplePluginInfoPrivate *priv = NULL;
+
+	g_return_if_fail(PURPLE_IS_PLUGIN_INFO(info));
+
+	priv = purple_plugin_info_get_instance_private(info);
+
+	if(g_set_object(&priv->action_group, group)) {
+		g_object_notify_by_pspec(G_OBJECT(info), properties[PROP_ACTION_GROUP]);
+	}
+}
+
+static void
+purple_plugin_info_set_action_menu(PurplePluginInfo *info,
+                                   GMenuModel *menu_model)
+{
+	PurplePluginInfoPrivate *priv = NULL;
+
+	g_return_if_fail(PURPLE_IS_PLUGIN_INFO(info));
+
+	priv = purple_plugin_info_get_instance_private(info);
+
+	if(g_set_object(&priv->menu_model, menu_model)) {
+		g_object_notify_by_pspec(G_OBJECT(info), properties[PROP_ACTION_MENU]);
+	}
+}
 
 /**************************************************************************
  * GObject Implementation
@@ -94,6 +132,14 @@ purple_plugin_info_set_property(GObject *obj, guint param_id,
 		case PROP_FLAGS:
 			priv->flags = g_value_get_flags(value);
 			break;
+		case PROP_ACTION_GROUP:
+			purple_plugin_info_set_action_group(info,
+			                                    g_value_get_object(value));
+			break;
+		case PROP_ACTION_MENU:
+			purple_plugin_info_set_action_menu(info,
+			                                   g_value_get_object(value));
+			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
 			break;
@@ -125,6 +171,14 @@ purple_plugin_info_get_property(GObject *obj, guint param_id, GValue *value,
 			break;
 		case PROP_FLAGS:
 			g_value_set_flags(value, purple_plugin_info_get_flags(info));
+			break;
+		case PROP_ACTION_GROUP:
+			g_value_take_object(value,
+			                    purple_plugin_info_get_action_group(info));
+			break;
+		case PROP_ACTION_MENU:
+			g_value_take_object(value,
+			                    purple_plugin_info_get_action_menu(info));
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(obj, param_id, pspec);
@@ -213,6 +267,32 @@ purple_plugin_info_class_init(PurplePluginInfoClass *klass) {
 		"The flags for the plugin",
 		PURPLE_TYPE_PLUGIN_INFO_FLAGS,
 		0,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	/**
+	 * PurplePluginInfo::action-group:
+	 *
+	 * A [class@Gio.ActionGroup] of actions that this plugin provides.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_ACTION_GROUP] = g_param_spec_object(
+		"action-group", "action-group",
+		"The action group for this plugin",
+		G_TYPE_ACTION_GROUP,
+		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+
+	/**
+	 * PurplePluginInfo::action-menu:
+	 *
+	 * A [class@Gio.MenuModel] for activating actions.
+	 *
+	 * Since: 3.0.0
+	 */
+	properties[PROP_ACTION_MENU] = g_param_spec_object(
+		"action-menu", "action-menu",
+		"The menu model for this plugin",
+		G_TYPE_MENU_MODEL,
 		G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
 	g_object_class_install_properties(obj_class, N_PROPERTIES, properties);
@@ -325,4 +405,34 @@ purple_plugin_info_set_unloaded(PurplePluginInfo *info, gboolean unloaded) {
 	priv = purple_plugin_info_get_instance_private(info);
 
 	priv->unloaded = unloaded;
+}
+
+GActionGroup *
+purple_plugin_info_get_action_group(PurplePluginInfo *info) {
+	PurplePluginInfoPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PLUGIN_INFO(info), NULL);
+
+	priv = purple_plugin_info_get_instance_private(info);
+
+	if(G_IS_ACTION_GROUP(priv->action_group)) {
+		return g_object_ref(priv->action_group);
+	}
+
+	return NULL;
+}
+
+GMenuModel *
+purple_plugin_info_get_action_menu(PurplePluginInfo *info) {
+	PurplePluginInfoPrivate *priv = NULL;
+
+	g_return_val_if_fail(PURPLE_IS_PLUGIN_INFO(info), NULL);
+
+	priv = purple_plugin_info_get_instance_private(info);
+
+	if(G_IS_MENU_MODEL(priv->menu_model)) {
+		return g_object_ref(priv->menu_model);
+	}
+
+	return NULL;
 }

@@ -132,9 +132,22 @@ unidle_action_ok(void *ignored, PurpleRequestFields *fields)
 	idled_accts = g_list_remove(idled_accts, acct);
 }
 
-
 static void
-idle_action(PurplePluginAction *action)
+signing_off_cb(PurpleConnection *gc, void *data)
+{
+	PurpleAccount *account;
+
+	account = purple_connection_get_account(gc);
+	idled_accts = g_list_remove(idled_accts, account);
+}
+
+/******************************************************************************
+ * Actions
+ *****************************************************************************/
+static void
+purple_idle_set_account_idle_time(G_GNUC_UNUSED GSimpleAction *action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  gpointer data)
 {
 	/* Use the super fancy request API */
 
@@ -155,7 +168,7 @@ idle_action(PurplePluginAction *action)
 	request = purple_request_fields_new();
 	purple_request_fields_add_group(request, group);
 
-	purple_request_fields(action->plugin,
+	purple_request_fields(data,
 			N_("I'dle Mak'er"),
 			_("Set Account Idle Time"),
 			NULL,
@@ -166,7 +179,9 @@ idle_action(PurplePluginAction *action)
 }
 
 static void
-unidle_action(PurplePluginAction *action)
+purple_idle_unset_account_idle_time(G_GNUC_UNUSED GSimpleAction *action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    gpointer data)
 {
 	PurpleRequestFields *request;
 	PurpleRequestFieldGroup *group;
@@ -188,7 +203,7 @@ unidle_action(PurplePluginAction *action)
 	request = purple_request_fields_new();
 	purple_request_fields_add_group(request, group);
 
-	purple_request_fields(action->plugin,
+	purple_request_fields(data,
 			N_("I'dle Mak'er"),
 			_("Unset Account Idle Time"),
 			NULL,
@@ -199,7 +214,9 @@ unidle_action(PurplePluginAction *action)
 }
 
 static void
-idle_all_action(PurplePluginAction *action)
+purple_idle_set_all_accounts_idle_time(G_GNUC_UNUSED GSimpleAction *action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       gpointer data)
 {
 	PurpleRequestFields *request;
 	PurpleRequestFieldGroup *group;
@@ -213,7 +230,7 @@ idle_all_action(PurplePluginAction *action)
 	request = purple_request_fields_new();
 	purple_request_fields_add_group(request, group);
 
-	purple_request_fields(action->plugin,
+	purple_request_fields(data,
 			N_("I'dle Mak'er"),
 			_("Set Idle Time for All Accounts"),
 			NULL,
@@ -224,7 +241,9 @@ idle_all_action(PurplePluginAction *action)
 }
 
 static void
-unidle_all_action(PurplePluginAction *action)
+purple_idle_unset_all_accounts_idle_time(G_GNUC_UNUSED GSimpleAction *action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer data)
 {
 	/* freeing the list here will cause segfaults if the user idles an account
 	 * after the list is freed */
@@ -233,47 +252,46 @@ unidle_all_action(PurplePluginAction *action)
 	idled_accts = NULL;
 }
 
-static GList *
-actions(PurplePlugin *plugin)
-{
-	GList *l = NULL;
-	PurplePluginAction *act = NULL;
-
-	act = purple_plugin_action_new(_("Set Account Idle Time"),
-			idle_action);
-	l = g_list_append(l, act);
-
-	act = purple_plugin_action_new(_("Unset Account Idle Time"),
-			unidle_action);
-	l = g_list_append(l, act);
-
-	act = purple_plugin_action_new(_("Set Idle Time for All Accounts"),
-			idle_all_action);
-	l = g_list_append(l, act);
-
-	act = purple_plugin_action_new(
-			_("Unset Idle Time for All Idled Accounts"), unidle_all_action);
-	l = g_list_append(l, act);
-
-	return l;
-}
-
-static void
-signing_off_cb(PurpleConnection *gc, void *data)
-{
-	PurpleAccount *account;
-
-	account = purple_connection_get_account(gc);
-	idled_accts = g_list_remove(idled_accts, account);
-}
-
+/******************************************************************************
+ * GPlugin Exports
+ *****************************************************************************/
 static GPluginPluginInfo *
 idle_query(GError **error)
 {
+	GSimpleActionGroup *group = NULL;
+	GActionEntry entries[] = {
+		{
+			.name = "set-account-idle-time",
+			.activate = purple_idle_set_account_idle_time,
+		}, {
+			.name = "unset-account-idle-time",
+			.activate = purple_idle_unset_account_idle_time,
+		}, {
+			.name = "set-all-accounts-idle-time",
+			.activate = purple_idle_set_all_accounts_idle_time,
+		}, {
+			.name = "unset-all-accounts-idle-time",
+			.activate = purple_idle_unset_all_accounts_idle_time,
+		}
+	};
+	GMenu *menu = NULL;
 	const gchar * const authors[] = {
 		"Eric Warmenhoven <eric@warmenhoven.org>",
 		NULL
 	};
+
+	group = g_simple_action_group_new();
+	g_action_map_add_action_entries(G_ACTION_MAP(group), entries,
+	                                G_N_ELEMENTS(entries), NULL);
+
+	menu = g_menu_new();
+	g_menu_append(menu, _("Set Account Idle Time"), "set-account-idle-time");
+	g_menu_append(menu, _("Unset Account Idle Time"),
+	              "unset-account-idle-time");
+	g_menu_append(menu, _("Set Idle Time for All Accounts"),
+	              "set-all-accounts-idle-time");
+	g_menu_append(menu, _("Unset Idle Time for All Idled Accounts"),
+	              "unset-all-accounts-idle-time");
 
 	return purple_plugin_info_new(
 		"id",           IDLE_PLUGIN_ID,
@@ -287,7 +305,8 @@ idle_query(GError **error)
 		"authors",      authors,
 		"website",      PURPLE_WEBSITE,
 		"abi-version",  PURPLE_ABI_VERSION,
-		"actions-cb",   actions,
+		"action-group", group,
+		"action-menu",  menu,
 		NULL
 	);
 }
@@ -305,7 +324,7 @@ idle_load(GPluginPlugin *plugin, GError **error)
 static gboolean
 idle_unload(GPluginPlugin *plugin, gboolean shutdown, GError **error)
 {
-	unidle_all_action(NULL);
+	purple_idle_unset_all_accounts_idle_time(NULL, NULL, NULL);
 
 	return TRUE;
 }
