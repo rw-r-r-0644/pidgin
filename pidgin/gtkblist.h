@@ -124,16 +124,6 @@ void pidgin_blist_uninit(void);
 PidginBuddyList *pidgin_blist_get_default_gtk_blist(void);
 
 /**
- * pidgin_blist_make_buddy_menu:
- * @menu:  The menu to populate
- * @buddy: The buddy whose menu to get
- * @sub:   %TRUE if this is a sub-menu, %FALSE otherwise
- *
- * Populates a menu with the items shown on the buddy list for a buddy.
- */
-void pidgin_blist_make_buddy_menu(GtkWidget *menu, PurpleBuddy *buddy, gboolean sub);
-
-/**
  * pidgin_blist_refresh:
  * @list:   This is the core list that gets updated from
  *
@@ -266,14 +256,6 @@ gboolean pidgin_blist_joinchat_is_showable(void);
  * Shows the join chat dialog.
  */
 void pidgin_blist_joinchat_show(void);
-
-/**
- * pidgin_append_blist_node_privacy_menu:
- *
- * Appends the privacy menu items for a PurpleBlistNode
- */
-/* TODO Rename these. */
-void pidgin_append_blist_node_privacy_menu(GtkWidget *menu, PurpleBlistNode *node);
 
 /**
  * pidgin_append_blist_node_proto_menu:

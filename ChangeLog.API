@@ -816,9 +816,11 @@ version 3.0.0 (??/??/????):
 		* gtk_imhtml_image_scale
 		* pidgin_accounts_window_hide
 		* pidgin_accounts_window_show, use pidgin_account_manager_new instead.
+		* pidgin_append_blist_node_privacy_menu
 		* pidgin_blist_draw_tooltip
 		* pidgin_blist_get_theme
 		* pidgin_blist_layout_get_type
+		* pidgin_blist_make_buddy_menu
 		* pidgin_blist_set_headline
 		* pidgin_blist_set_theme
 		* pidgin_blist_theme_get_background_color
