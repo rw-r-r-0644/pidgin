@@ -44,7 +44,6 @@
 #include "gtkprivacy.h"
 #include "gtkrequest.h"
 #include "gtkroomlist.h"
-#include "gtksavedstatuses.h"
 #include "gtkutils.h"
 #include "gtkwhiteboard.h"
 #include "pidginapplication.h"
@@ -265,7 +264,6 @@ pidgin_ui_init(void)
 	pidgin_connection_init();
 	pidgin_request_init();
 	pidgin_blist_init();
-	pidgin_status_init();
 	pidgin_conversations_init();
 	pidgin_commands_init();
 	pidgin_privacy_init();
@@ -286,7 +284,6 @@ pidgin_quit(void)
 	pidgin_notify_uninit();
 	pidgin_commands_uninit();
 	pidgin_conversations_uninit();
-	pidgin_status_uninit();
 	pidgin_blist_uninit();
 	pidgin_request_uninit();
 	pidgin_connection_uninit();

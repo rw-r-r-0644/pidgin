@@ -1013,6 +1013,12 @@ version 3.0.0 (??/??/????):
 		* pidgin_status_box_pulse_connecting
 		* pidgin_status_box_set_buddy_icon
 		* pidgin_status_box_set_network_available
+		* pidgin_status_editor_show, use pidgin_status_editor_new instead.
+		* pidgin_status_get_handle
+		* pidgin_status_init
+		* pidgin_status_uninit
+		* pidgin_status_window_hide
+		* pidgin_status_window_show, use pidgin_status_manager_new instead.
 		* All PIDGIN_STOCK_* macros
 		* PIDGIN_IS_STOCK_ICON_THEME
 		* PIDGIN_IS_STOCK_ICON_THEME_CLASS

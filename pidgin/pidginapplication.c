@@ -52,6 +52,7 @@
 #include "pidginmooddialog.h"
 #include "pidginpluginsdialog.h"
 #include "pidginpluginsmenu.h"
+#include "pidginstatuseditor.h"
 #include "pidginstatusmanager.h"
 #include "pidginprefs.h"
 
@@ -361,7 +362,8 @@ pidgin_application_new_status(G_GNUC_UNUSED GSimpleAction *simple,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer data)
 {
-	pidgin_status_editor_show(FALSE, NULL);
+	GtkWidget *editor = pidgin_status_editor_new(NULL);
+	gtk_widget_show(editor);
 }
 
 static void
