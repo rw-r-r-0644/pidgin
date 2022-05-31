@@ -273,4 +273,139 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
       </item>
     </section>
   </menu>
+
+  <menu id="custom-icon">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Set Custom Icon</attribute>
+        <attribute name="action">menu.set-custom-icon</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Remove Custom Icon</attribute>
+        <attribute name="action">menu.remove-custom-icon</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="group">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Add _Buddy...</attribute>
+        <attribute name="action">menu.add-buddy</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Add C_hat...</attribute>
+        <attribute name="action">menu.add-chat</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Delete</attribute>
+        <attribute name="action">menu.remove</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Rename</attribute>
+        <attribute name="action">menu.alias</attribute>
+      </item>
+    </section>
+    <section id="group-custom-icon"/>
+    <section id="group-extended"/>
+  </menu>
+
+  <menu id="chat">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Join</attribute>
+        <attribute name="action">menu.join-chat</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Auto-Join</attribute>
+        <attribute name="action">menu.auto-join-chat</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Persistent</attribute>
+        <attribute name="action">menu.persistent-chat</attribute>
+      </item>
+    </section>
+    <section id="chat-proto"/>
+    <section id="chat-extended"/>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Edit Settings...</attribute>
+        <attribute name="action">menu.chat-settings</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Alias...</attribute>
+        <attribute name="action">menu.alias</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Remove</attribute>
+        <attribute name="action">menu.remove</attribute>
+      </item>
+    </section>
+    <section id="chat-custom-icon"/>
+  </menu>
+
+  <menu id="contact">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Alias...</attribute>
+        <attribute name="action">menu.alias</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Remove</attribute>
+        <attribute name="action">menu.remove</attribute>
+      </item>
+    </section>
+    <section id="contact-custom-icon"/>
+    <section id="contact-extended"/>
+  </menu>
+
+  <menu id="voice-video">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Audio Call</attribute>
+        <attribute name="action">menu.buddy-audio-call</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Video Call</attribute>
+        <attribute name="action">menu.buddy-video-call</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="buddy">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Get _Info</attribute>
+        <attribute name="action">menu.buddy-get-info</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">I_M</attribute>
+        <attribute name="action">menu.buddy-im</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Send File...</attribute>
+        <attribute name="action">menu.buddy-send-file</attribute>
+      </item>
+    </section>
+    <section id="buddy-voice-video"/>
+    <section id="buddy-proto"/>
+    <section id="buddy-extended"/>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Block</attribute>
+        <attribute name="action">menu.buddy-block</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Alias...</attribute>
+        <attribute name="action">menu.alias</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Remove</attribute>
+        <attribute name="action">menu.remove</attribute>
+      </item>
+    </section>
+    <section id="buddy-custom-icon"/>
+  </menu>
 </interface>
