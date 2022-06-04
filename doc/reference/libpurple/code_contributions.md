@@ -244,7 +244,7 @@ publish, so if you do not selectively push commits, all of your draft commits
 will be published. You can name this additional clone whatever you like, but
 using something like `pidgin-clean` is a fairly common practice. This makes it
 easy for you to know that this clone is only meant for landing review requests,
-and other admistrative work like updating the ChangeLog and COPYRIGHT files.
+and other administrative work like updating the ChangeLog and COPYRIGHT files.
 
 When you are ready to land a review request you need to make sure you are on
 the proper branch. In most cases this will be the branch named ***default***
@@ -308,7 +308,7 @@ before the patch was applied. The `--no-backup` argument says to not save the
 changes that you are reverting and the `--all` argument tells Mercurial to
 revert all files.
 
-### Cleaning up a Landed of Discarded Review Request
+### Cleaning up a Landed or Discarded Review Request
 
 Whether or not your pull request has been accepted, you probably want to clean
 it up from your local repository. To do so, you need to update to a branch
