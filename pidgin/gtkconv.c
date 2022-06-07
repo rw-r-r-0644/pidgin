@@ -1670,7 +1670,6 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 	GtkListStore *ls;
 	GtkCellRenderer *rend;
 	GtkTreeViewColumn *col;
-	int ul_width;
 	void *blist_handle = purple_blist_get_handle();
 	PurpleConversation *conv = gtkconv->active_conv;
 
@@ -1703,13 +1702,6 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 			"icon-name", CHAT_USERS_ICON_NAME_COLUMN, NULL);
 	gtk_tree_view_column_set_sizing(col, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(list), col);
-	ul_width = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/chat/userlist_width");
-	gtk_widget_set_size_request(lbox, ul_width, -1);
-
-	/* Hack to prevent completely collapsed userlist coming back with a 1 pixel width.
-	 * I would have liked to use the GtkPaned "max-position", but for some reason that didn't work */
-	if (ul_width == 0)
-		gtk_paned_set_position(GTK_PANED(hpaned), 999999);
 
 	g_signal_connect(G_OBJECT(list), "button_press_event",
 					 G_CALLBACK(right_click_chat_cb), gtkconv);
