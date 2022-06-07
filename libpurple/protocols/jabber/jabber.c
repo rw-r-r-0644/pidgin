@@ -702,6 +702,9 @@ jabber_login_callback(GObject *source_object, GAsyncResult *res, gpointer data)
 		purple_connection_error(js->gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
 		                        _("Unable to connect"));
 
+		purple_connection_error(js->gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+		                        _("Unable to connect"));
+
 		return;
 	}
 
