@@ -86,19 +86,29 @@ purple_conversation_manager_find_internal(PurpleConversationManager *manager,
 	GHashTableIter iter;
 	gpointer key;
 
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT(account), NULL);
+
 	g_hash_table_iter_init(&iter, manager->conversations);
 	while(g_hash_table_iter_next(&iter, &key, NULL)) {
 		PurpleConversation *conversation = PURPLE_CONVERSATION(key);
 
-		if(purple_strequal(purple_conversation_get_name(conversation), name)) {
-			if(purple_conversation_get_account(conversation) == account) {
-				if(func != NULL && !func(conversation, userdata)) {
-					continue;
-				}
+		if(name != NULL) {
+			const gchar *conv_name = purple_conversation_get_name(conversation);
 
-				return conversation;
+			if(!purple_strequal(conv_name, name)) {
+				continue;
 			}
 		}
+
+		if(purple_conversation_get_account(conversation) != account) {
+			continue;
+		}
+
+		if(func != NULL && !func(conversation, userdata)) {
+			continue;
+		}
+
+		return conversation;
 	}
 
 	return NULL;
