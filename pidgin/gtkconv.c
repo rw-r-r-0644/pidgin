@@ -115,14 +115,6 @@ close_conv_cb(GtkButton *button, PidginConversation *gtkconv)
 	return TRUE;
 }
 
-static gboolean
-lbox_size_allocate_cb(GtkWidget *w, GtkAllocation *allocation, gpointer data)
-{
-	purple_prefs_set_int(PIDGIN_PREFS_ROOT "/conversations/chat/userlist_width", allocation->width == 1 ? 0 : allocation->width);
-
-	return FALSE;
-}
-
 static void
 send_history_add(PidginConversation *gtkconv, const char *message)
 {
@@ -1709,7 +1701,6 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 					 G_CALLBACK(activate_list_cb), gtkconv);
 	g_signal_connect(G_OBJECT(list), "popup-menu",
 			 G_CALLBACK(gtkconv_chat_popup_menu_cb), gtkconv);
-	g_signal_connect(G_OBJECT(lbox), "size-allocate", G_CALLBACK(lbox_size_allocate_cb), gtkconv);
 
 	gtk_widget_set_has_tooltip(list, TRUE);
 	g_signal_connect(list, "query-tooltip",
