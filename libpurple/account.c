@@ -1159,7 +1159,6 @@ purple_account_unregister(PurpleAccount *account,
 void
 purple_account_disconnect(PurpleAccount *account)
 {
-	PurpleConnection *gc;
 	PurpleAccountPrivate *priv;
 	const char *username;
 
@@ -1175,8 +1174,6 @@ purple_account_disconnect(PurpleAccount *account)
 
 	priv->disconnecting = TRUE;
 
-	gc = purple_account_get_connection(account);
-	g_object_unref(gc);
 	purple_account_set_connection(account, NULL);
 
 	priv->disconnecting = FALSE;
@@ -1559,6 +1556,8 @@ purple_account_set_connection(PurpleAccount *account, PurpleConnection *gc)
 	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
 
 	priv = purple_account_get_instance_private(account);
+
+	g_clear_object(&priv->gc);
 	priv->gc = gc;
 
 	g_object_notify_by_pspec(G_OBJECT(account), properties[PROP_CONNECTION]);

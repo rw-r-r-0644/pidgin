@@ -745,7 +745,6 @@ purple_connection_init(PurpleConnection *gc) {
 static void
 purple_connection_constructed(GObject *object) {
 	PurpleConnection *gc = PURPLE_CONNECTION(object);
-	PurpleAccount *account;
 
 	G_OBJECT_CLASS(purple_connection_parent_class)->constructed(object);
 
@@ -757,9 +756,7 @@ purple_connection_constructed(GObject *object) {
 		g_free(uuid);
 	}
 
-	g_object_get(gc, "account", &account, NULL);
-	purple_account_set_connection(account, gc);
-	g_object_unref(account);
+	purple_account_set_connection(gc->account, gc);
 
 	purple_signal_emit(purple_connections_get_handle(), "signing-on", gc);
 }
