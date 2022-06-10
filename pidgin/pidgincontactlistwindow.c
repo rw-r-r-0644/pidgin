@@ -20,11 +20,11 @@
  * along with this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "pidgincontactlist.h"
+#include "pidgincontactlistwindow.h"
 
 #include "pidginactiongroup.h"
 
-struct _PidginContactList {
+struct _PidginContactListWindow {
 	GtkApplicationWindow parent;
 
 	GtkWidget *vbox;
@@ -36,14 +36,14 @@ struct _PidginContactList {
 	GtkWidget *accounts_menu;
 };
 
-G_DEFINE_TYPE(PidginContactList, pidgin_contact_list,
+G_DEFINE_TYPE(PidginContactListWindow, pidgin_contact_list_window,
               GTK_TYPE_APPLICATION_WINDOW)
 
 /******************************************************************************
  * GObject Implementation
  *****************************************************************************/
 static void
-pidgin_contact_list_init(PidginContactList *contact_list) {
+pidgin_contact_list_window_init(PidginContactListWindow *contact_list) {
 	GSimpleActionGroup *group = NULL;
 
 	gtk_widget_init_template(GTK_WIDGET(contact_list));
@@ -60,7 +60,7 @@ pidgin_contact_list_init(PidginContactList *contact_list) {
 }
 
 static void
-pidgin_contact_list_class_init(PidginContactListClass *klass) {
+pidgin_contact_list_window_class_init(PidginContactListWindowClass *klass) {
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
 	gtk_widget_class_set_template_from_resource(
@@ -68,15 +68,15 @@ pidgin_contact_list_class_init(PidginContactListClass *klass) {
 	    "/im/pidgin/Pidgin3/BuddyList/window.ui"
 	);
 
-	gtk_widget_class_bind_template_child(widget_class, PidginContactList, vbox);
-
-	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	gtk_widget_class_bind_template_child(widget_class, PidginContactListWindow,
+	                                     vbox);
+	gtk_widget_class_bind_template_child(widget_class, PidginContactListWindow,
 	                                     menu_bar);
-	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	gtk_widget_class_bind_template_child(widget_class, PidginContactListWindow,
 	                                     sort_buddies);
-	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	gtk_widget_class_bind_template_child(widget_class, PidginContactListWindow,
 	                                     accounts);
-	gtk_widget_class_bind_template_child(widget_class, PidginContactList,
+	gtk_widget_class_bind_template_child(widget_class, PidginContactListWindow,
 	                                     accounts_menu);
 }
 
@@ -84,20 +84,20 @@ pidgin_contact_list_class_init(PidginContactListClass *klass) {
  * Public API
  *****************************************************************************/
 GtkWidget *
-pidgin_contact_list_new(void) {
-	return GTK_WIDGET(g_object_new(PIDGIN_TYPE_CONTACT_LIST, NULL));
+pidgin_contact_list_window_new(void) {
+	return g_object_new(PIDGIN_TYPE_CONTACT_LIST_WINDOW, NULL);
 }
 
 GtkWidget *
-pidgin_contact_list_get_vbox(PidginContactList *contact_list) {
-	g_return_val_if_fail(PIDGIN_IS_CONTACT_LIST(contact_list), NULL);
+pidgin_contact_list_window_get_vbox(PidginContactListWindow *window) {
+	g_return_val_if_fail(PIDGIN_IS_CONTACT_LIST_WINDOW(window), NULL);
 
-	return contact_list->vbox;
+	return window->vbox;
 }
 
 GtkWidget *
-pidgin_contact_list_get_menu_sort_item(PidginContactList *contact_list) {
-	g_return_val_if_fail(PIDGIN_IS_CONTACT_LIST(contact_list), NULL);
+pidgin_contact_list_window_get_menu_sort_item(PidginContactListWindow *window) {
+	g_return_val_if_fail(PIDGIN_IS_CONTACT_LIST_WINDOW(window), NULL);
 
-	return contact_list->sort_buddies;
+	return window->sort_buddies;
 }
