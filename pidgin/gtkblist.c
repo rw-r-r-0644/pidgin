@@ -42,7 +42,7 @@
 #include "pidgin/pidginactiongroup.h"
 #include "pidgin/pidgincellrendererexpander.h"
 #include "pidgin/pidginclosebutton.h"
-#include "pidgin/pidgincontactlist.h"
+#include "pidgin/pidgincontactlistwindow.h"
 #include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
 #include "pidgin/pidginmooddialog.h"
@@ -3739,7 +3739,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	gtkblist = PIDGIN_BUDDY_LIST(list);
 	priv = pidgin_buddy_list_get_instance_private(gtkblist);
 
-	gtkblist->window = pidgin_contact_list_new();
+	gtkblist->window = pidgin_contact_list_window_new();
 	g_signal_connect(G_OBJECT(gtkblist->window), "focus-in-event",
 			 G_CALLBACK(blist_focus_cb), gtkblist);
 	g_signal_connect(G_OBJECT(gtkblist->window), "focus-out-event",
@@ -3748,7 +3748,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	/* the main vbox is already packed and shown via glade, we just need a
 	 * reference to it to pack the rest of our widgets here.
 	 */
-	gtkblist->vbox = pidgin_contact_list_get_vbox(PIDGIN_CONTACT_LIST(gtkblist->window));
+	gtkblist->vbox = pidgin_contact_list_window_get_vbox(PIDGIN_CONTACT_LIST_WINDOW(gtkblist->window));
 
 	g_signal_connect(G_OBJECT(gtkblist->window), "delete_event", G_CALLBACK(gtk_blist_delete_cb), NULL);
 	g_signal_connect(G_OBJECT(gtkblist->window), "visibility_notify_event", G_CALLBACK(gtk_blist_visibility_cb), NULL);
@@ -5258,7 +5258,7 @@ pidgin_blist_update_sort_methods(void)
 	GMenu *menu = NULL;
 	GList *l;
 
-	if(gtkblist == NULL || !PIDGIN_IS_CONTACT_LIST(gtkblist->window)) {
+	if(gtkblist == NULL || !PIDGIN_IS_CONTACT_LIST_WINDOW(gtkblist->window)) {
 		return;
 	}
 
@@ -5286,7 +5286,7 @@ pidgin_blist_update_sort_methods(void)
 	}
 
 	/* replace the old submenu with a new one */
-	sort_item = pidgin_contact_list_get_menu_sort_item(PIDGIN_CONTACT_LIST(gtkblist->window));
+	sort_item = pidgin_contact_list_window_get_menu_sort_item(PIDGIN_CONTACT_LIST_WINDOW(gtkblist->window));
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(sort_item),
 	                          gtk_menu_new_from_model(G_MENU_MODEL(menu)));
 	g_object_unref(menu);
