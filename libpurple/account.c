@@ -943,6 +943,7 @@ purple_account_finalize(GObject *object)
 		g_free(priv->current_error);
 	}
 
+	g_free(priv->id);
 	g_free(priv->username);
 	g_free(priv->alias);
 	g_free(priv->user_info);
