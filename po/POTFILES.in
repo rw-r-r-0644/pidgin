@@ -258,6 +258,8 @@ libpurple/purplekeyvaluepair.c
 libpurple/purplemarkup.c
 libpurple/purplemessage.c
 libpurple/purplenoopcredentialprovider.c
+libpurple/purplenotification.c
+libpurple/purplenotificationmanager.c
 libpurple/purpleoptions.c
 libpurple/purplepath.c
 libpurple/purpleplugininfo.c

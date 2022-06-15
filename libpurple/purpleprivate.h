@@ -321,6 +321,24 @@ void purple_history_manager_startup(void);
 void purple_history_manager_shutdown(void);
 
 /**
+ * purple_notification_manager_startup:
+ *
+ * Starts up the notification manager by creating the default instance.
+ *
+ * Since: 3.0.0
+ */
+void purple_notification_manager_startup(void);
+
+/**
+ * purple_notification_manager_shutdown:
+ *
+ * Shuts down the notification manager by destroying the default instance.
+ *
+ * Since: 3.0.0
+ */
+void purple_notification_manager_shutdown(void);
+
+/**
  * purple_whiteboard_manager_startup:
  *
  * Starts up the whiteboard manager by creating the default instance.
