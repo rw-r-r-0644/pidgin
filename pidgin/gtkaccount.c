@@ -80,7 +80,6 @@ typedef struct
 	/* Login Options */
 	GtkWidget *login_frame;
 	GtkWidget *protocol_menu;
-	gchar *password;
 	GtkWidget *username_entry;
 	GdkRGBA username_entry_hint_color;
 	GtkWidget *alias_entry;
@@ -928,8 +927,6 @@ account_win_destroy_cb(GtkWidget *w, GdkEvent *event,
 
 	purple_signals_disconnect_by_handle(dialog);
 
-	purple_str_wipe(dialog->password);
-
 	g_free(dialog);
 	return FALSE;
 }
@@ -1173,10 +1170,9 @@ account_prefs_response_cb(GtkDialog *dialog, gint response_id, gpointer data) {
 	}
 }
 
-static void
-pidgin_account_dialog_show_continue(PidginAccountDialogType type,
-                                    PurpleAccount *account,
-                                    const gchar *password)
+void
+pidgin_account_dialog_show(PidginAccountDialogType type,
+                           PurpleAccount *account)
 {
 	AccountPrefsDialog *dialog;
 	GtkWidget *win;
@@ -1192,7 +1188,6 @@ pidgin_account_dialog_show_continue(PidginAccountDialogType type,
 	}
 
 	dialog->account = account;
-	dialog->password = g_strdup(password);
 	dialog->type = type;
 	dialog->sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
@@ -1271,55 +1266,6 @@ pidgin_account_dialog_show_continue(PidginAccountDialogType type,
 	gtk_widget_show(win);
 	if (!account)
 		gtk_widget_grab_focus(dialog->protocol_menu);
-}
-
-static void
-pidgin_account_dialog_read_password_cb(GObject *obj, GAsyncResult *res,
-                                       gpointer data)
-{
-	PurpleCredentialManager *manager = PURPLE_CREDENTIAL_MANAGER(obj);
-	PidginAccountDialogShowData *d = (PidginAccountDialogShowData *)data;
-	GError *error = NULL;
-	gchar *password;
-
-	password = purple_credential_manager_read_password_finish(manager, res,
-	                                                          &error);
-
-	if(error != NULL) {
-		purple_debug_warning("gtkaccount", "failed to read password: %s",
-		                     error->message);
-
-		g_error_free(error);
-	}
-
-	pidgin_account_dialog_show_continue(d->type, d->account, password);
-
-	g_free(password);
-	g_free(d);
-}
-
-void
-pidgin_account_dialog_show(PidginAccountDialogType type, PurpleAccount *account)
-{
-	PurpleCredentialManager *manager = NULL;
-
-	manager = purple_credential_manager_get_default();
-
-	if(PURPLE_IS_ACCOUNT(account)) {
-		/* this is kind of dangerous, but it's no worse than the old version.
-		 * Regardless this dialog needs a lot of TLC.
-		 */
-		PidginAccountDialogShowData *data = NULL;
-		data = g_new0(PidginAccountDialogShowData, 1);
-		data->account = account;
-		data->type = type;
-
-		purple_credential_manager_read_password_async(manager, account, NULL,
-		                                              pidgin_account_dialog_read_password_cb,
-		                                              data);
-	} else {
-		pidgin_account_dialog_show_continue(type, account, NULL);
-	}
 }
 
 /**************************************************************************
