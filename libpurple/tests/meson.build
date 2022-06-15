@@ -10,6 +10,8 @@ PROGS = [
     'keyvaluepair',
     'markup',
     'menu',
+    'notification',
+    'notification_manager',
     'protocol_action',
     'protocol_xfer',
     'purplepath',

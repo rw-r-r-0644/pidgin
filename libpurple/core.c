@@ -137,6 +137,8 @@ purple_core_init(PurpleUiInfo *ui_info) {
 		}
 	}
 
+	purple_notification_manager_startup();
+
 	purple_cmds_init();
 	purple_protocol_manager_startup();
 
@@ -244,6 +246,7 @@ purple_core_quit(void)
 	purple_protocol_manager_shutdown();
 	purple_cmds_uninit();
 
+	purple_notification_manager_shutdown();
 	purple_history_manager_shutdown();
 
 	/* Everything after util_uninit cannot try to write things to the
