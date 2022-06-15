@@ -1745,9 +1745,8 @@ setup_chat_userlist(PidginConversation *gtkconv, GtkWidget *hpaned)
 static GtkWidget *
 setup_common_pane(PidginConversation *gtkconv)
 {
-	GtkWidget *vbox, *input;
+	GtkWidget *vbox, *input, *hpaned;
 	PurpleConversation *conv = gtkconv->active_conv;
-	gboolean chat = PURPLE_IS_CHAT_CONVERSATION(conv);
 
 	/* Setup the top part of the pane */
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
@@ -1773,23 +1772,17 @@ setup_common_pane(PidginConversation *gtkconv)
 	gtkconv->history = talkatu_history_new();
 	gtk_container_add(GTK_CONTAINER(gtkconv->history_sw), gtkconv->history);
 
-	if (chat) {
-		GtkWidget *hpaned;
+	/* Add the topic */
+	setup_chat_topic(gtkconv, vbox);
 
-		/* Add the topic */
-		setup_chat_topic(gtkconv, vbox);
+	/* Add the talkatu history */
+	hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_box_pack_start(GTK_BOX(vbox), hpaned, TRUE, TRUE, 0);
+	gtk_widget_show(hpaned);
+	gtk_paned_pack1(GTK_PANED(hpaned), gtkconv->history_sw, TRUE, TRUE);
 
-		/* Add the talkatu history */
-		hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-		gtk_box_pack_start(GTK_BOX(vbox), hpaned, TRUE, TRUE, 0);
-		gtk_widget_show(hpaned);
-		gtk_paned_pack1(GTK_PANED(hpaned), gtkconv->history_sw, TRUE, TRUE);
-
-		/* Now add the userlist */
-		setup_chat_userlist(gtkconv, hpaned);
-	} else {
-		gtk_box_pack_start(GTK_BOX(vbox), gtkconv->history_sw, TRUE, TRUE, 0);
-	}
+	/* Now add the userlist */
+	setup_chat_userlist(gtkconv, hpaned);
 	gtk_widget_show_all(gtkconv->history_sw);
 
 	g_object_set_data(G_OBJECT(gtkconv->history), "gtkconv", gtkconv);
