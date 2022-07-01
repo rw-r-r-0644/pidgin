@@ -41,7 +41,7 @@ static guint signals[N_SIGNALS] = { 0, };
 struct _PurpleNotificationManager {
 	GObject parent;
 
-	GHashTable *notifications;
+	GListStore *notifications;
 
 	guint unread_count;
 };
@@ -139,15 +139,14 @@ purple_notification_manager_finalize(GObject *obj) {
 
 	manager = PURPLE_NOTIFICATION_MANAGER(obj);
 
-	g_clear_pointer(&manager->notifications, g_hash_table_destroy);
+	g_clear_object(&manager->notifications);
 
 	G_OBJECT_CLASS(purple_notification_manager_parent_class)->finalize(obj);
 }
 
 static void
 purple_notification_manager_init(PurpleNotificationManager *manager) {
-	manager->notifications = g_hash_table_new_full(g_str_hash, g_str_equal,
-	                                               NULL, g_object_unref);
+	manager->notifications = g_list_store_new(PURPLE_TYPE_NOTIFICATION);
 }
 
 static void
@@ -288,20 +287,20 @@ void
 purple_notification_manager_add(PurpleNotificationManager *manager,
                                 PurpleNotification *notification)
 {
-	const gchar *id = NULL;
-
 	g_return_if_fail(PURPLE_IS_NOTIFICATION_MANAGER(manager));
 	g_return_if_fail(PURPLE_IS_NOTIFICATION(notification));
 
-	id = purple_notification_get_id(notification);
+	if(g_list_store_find(manager->notifications, notification, NULL)) {
+		const gchar *id = purple_notification_get_id(notification);
 
-	if(g_hash_table_lookup(manager->notifications, (gpointer)id) != NULL) {
 		g_warning("double add detected for notification %s", id);
 
 		return;
 	}
 
-	g_hash_table_insert(manager->notifications, (gpointer)id, notification);
+	g_list_store_insert_sorted(manager->notifications, notification,
+	                           (GCompareDataFunc)purple_notification_compare,
+	                           NULL);
 
 	/* Connect to the notify signal for the read property only so we can
 	 * propagate out changes for any notification.
@@ -319,49 +318,43 @@ purple_notification_manager_add(PurpleNotificationManager *manager,
 	g_signal_emit(G_OBJECT(manager), signals[SIG_ADDED], 0, notification);
 }
 
-gboolean
+void
 purple_notification_manager_remove(PurpleNotificationManager *manager,
-                                   const gchar *id)
+                                   PurpleNotification *notification)
 {
-	gpointer data = NULL;
-	gboolean ret = FALSE;
+	guint position;
 
-	g_return_val_if_fail(PURPLE_IS_NOTIFICATION_MANAGER(manager), FALSE);
-	g_return_val_if_fail(id != NULL, FALSE);
+	g_return_if_fail(PURPLE_IS_NOTIFICATION_MANAGER(manager));
+	g_return_if_fail(PURPLE_IS_NOTIFICATION(notification));
 
-	data = g_hash_table_lookup(manager->notifications, id);
-	if(PURPLE_IS_NOTIFICATION(data)) {
+	if(g_list_store_find(manager->notifications, notification, &position)) {
 		/* Reference the notification so we can emit the signal after it's been
 		 * removed from the hash table.
 		 */
-		g_object_ref(G_OBJECT(data));
-
-		if(g_hash_table_remove(manager->notifications, id)) {
-			g_signal_emit(G_OBJECT(manager), signals[SIG_REMOVED], 0,
-			              data);
-
-			ret = TRUE;
-		}
+		g_object_ref(notification);
 
 		/* Remove the notify signal handler for the read state incase someone
 		 * else added a reference to the notification which would then mess
 		 * with our unread count accounting.
 		 */
-		g_signal_handlers_disconnect_by_func(data,
+		g_signal_handlers_disconnect_by_func(notification,
 		                                     G_CALLBACK(purple_notification_manager_notify_cb),
 		                                     manager);
 
 		/* If the notification is not read, we need to decrement the unread
 		 * count.
 		 */
-		if(!purple_notification_get_read(PURPLE_NOTIFICATION(data))) {
+		if(!purple_notification_get_read(notification)) {
 			purple_notification_manager_decrement_unread_count(manager);
 		}
 
-		g_object_unref(G_OBJECT(data));
-	}
+		g_list_store_remove(manager->notifications, position);
 
-	return ret;
+		g_signal_emit(G_OBJECT(manager), signals[SIG_REMOVED], 0, notification);
+
+		g_object_unref(notification);
+
+	}
 }
 
 guint

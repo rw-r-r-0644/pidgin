@@ -135,6 +135,8 @@ GDateTime *purple_notification_get_created_timestamp(PurpleNotification *notific
  * Timestamp is internally converted to UTC so you don't need to do that ahead
  * of time.
  *
+ * If @timestamp is %NULL, the current time will be used.
+ *
  * Since: 3.0.0
  */
 void purple_notification_set_created_timestamp(PurpleNotification *notification, GDateTime *timestamp);
@@ -242,6 +244,21 @@ void purple_notification_set_interactive(PurpleNotification *notification, gbool
  * Since: 3.0.0
  */
 gpointer purple_notification_get_data(PurpleNotification *notification);
+
+/**
+ * purple_notification_compare:
+ * @a: The first notification to compare.
+ * @b: The second notification to compare.
+ *
+ * A comparison function for PurpleNotification that is suitable as a
+ * GCompareFunc.
+ *
+ * Returns: -1 if @a's created timestamp occurred before @b, 0 if they were
+ *          created at the same time, or 1 if @b was created before @a.
+ *
+ * Since: 3.0.0
+ */
+gint purple_notification_compare(gconstpointer a, gconstpointer b);
 
 G_END_DECLS
 

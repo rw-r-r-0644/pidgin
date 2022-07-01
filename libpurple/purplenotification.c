@@ -542,3 +542,26 @@ purple_notification_get_data(PurpleNotification *notification) {
 
 	return notification->data;
 }
+
+gint
+purple_notification_compare(gconstpointer a, gconstpointer b) {
+	PurpleNotification *notification_a = NULL, *notification_b = NULL;
+
+	if(a == NULL && b == NULL) {
+		return 0;
+	}
+
+	if(a == NULL) {
+		return -1;
+	}
+
+	if(b == NULL) {
+		return 1;
+	}
+
+	notification_a = (PurpleNotification *)a;
+	notification_b = (PurpleNotification *)b;
+
+	return g_date_time_compare(notification_a->created_timestamp,
+	                           notification_b->created_timestamp);
+}
