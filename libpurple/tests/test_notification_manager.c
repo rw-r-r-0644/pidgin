@@ -66,8 +66,6 @@ test_purple_notification_manager_add_remove(void) {
 	PurpleNotificationManager *manager = NULL;
 	PurpleNotification *notification = NULL;
 	gint added_called = 0, removed_called = 0;
-	gboolean removed = FALSE;
-	const gchar *id = NULL;
 	guint unread_count = 0;
 
 	manager = g_object_new(PURPLE_TYPE_NOTIFICATION_MANAGER, NULL);
@@ -85,7 +83,6 @@ test_purple_notification_manager_add_remove(void) {
 	/* Create the notification and store it's id. */
 	notification = purple_notification_new(PURPLE_NOTIFICATION_TYPE_GENERIC,
 	                                       NULL, NULL, NULL);
-	id = purple_notification_get_id(notification);
 
 	/* Add the notification to the manager. */
 	purple_notification_manager_add(manager, notification);
@@ -98,8 +95,7 @@ test_purple_notification_manager_add_remove(void) {
 	g_assert_cmpint(unread_count, ==, 1);
 
 	/* Remove the notification. */
-	removed = purple_notification_manager_remove(manager, id);
-	g_assert_true(removed);
+	purple_notification_manager_remove(manager, notification);
 	g_assert_cmpint(removed_called, ==, 1);
 
 	/* Verify that the unread count is now 0. */
@@ -139,7 +135,6 @@ static void
 test_purple_notification_manager_double_remove(void) {
 	PurpleNotificationManager *manager = NULL;
 	PurpleNotification *notification = NULL;
-	const gchar *id = NULL;
 	gint removed_called = 0;
 
 	manager = g_object_new(PURPLE_TYPE_NOTIFICATION_MANAGER, NULL);
@@ -155,12 +150,10 @@ test_purple_notification_manager_double_remove(void) {
 	 */
 	g_object_ref(notification);
 
-	id = purple_notification_get_id(notification);
-
 	purple_notification_manager_add(manager, notification);
 
-	g_assert_true(purple_notification_manager_remove(manager, id));
-	g_assert_false(purple_notification_manager_remove(manager, id));
+	purple_notification_manager_remove(manager, notification);
+	purple_notification_manager_remove(manager, notification);
 
 	g_assert_cmpint(removed_called, ==, 1);
 

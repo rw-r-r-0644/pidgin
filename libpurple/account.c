@@ -33,6 +33,8 @@
 #include "purpleaccountpresence.h"
 #include "purpleconversationmanager.h"
 #include "purplecredentialmanager.h"
+#include "purplenotification.h"
+#include "purplenotificationmanager.h"
 #include "purpleprivate.h"
 #include "purpleprotocolclient.h"
 #include "purpleprotocolmanager.h"
@@ -100,6 +102,7 @@ typedef struct
 	void *registration_cb_user_data;
 
 	PurpleConnectionErrorInfo *current_error;	/* Errors */
+	PurpleNotification *error_notification;
 } PurpleAccountPrivate;
 
 typedef struct
@@ -520,6 +523,7 @@ _purple_account_set_current_error(PurpleAccount *account,
 {
 	PurpleConnectionErrorInfo *old_err;
 	PurpleAccountPrivate *priv;
+	PurpleNotificationManager *manager = NULL;
 
 	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
 	priv = purple_account_get_instance_private(account);
@@ -529,7 +533,19 @@ _purple_account_set_current_error(PurpleAccount *account,
 	if(new_err == old_err)
 		return;
 
-	priv->current_error = new_err;
+	manager = purple_notification_manager_get_default();
+
+	if(PURPLE_IS_NOTIFICATION(priv->error_notification)) {
+		purple_notification_manager_remove(manager, priv->error_notification);
+		g_clear_object(&priv->error_notification);
+	}
+
+	if(new_err != NULL) {
+		priv->error_notification =
+			purple_notification_new(PURPLE_NOTIFICATION_TYPE_CONNECTION_ERROR,
+			                        account, new_err, NULL);
+		purple_notification_manager_add(manager, priv->error_notification);
+	}
 
 	purple_signal_emit(purple_accounts_get_handle(),
 	                   "account-error-changed",
@@ -942,6 +958,8 @@ purple_account_finalize(GObject *object)
 		g_free(priv->current_error->description);
 		g_free(priv->current_error);
 	}
+
+	g_clear_object(&priv->error_notification);
 
 	g_free(priv->id);
 	g_free(priv->username);

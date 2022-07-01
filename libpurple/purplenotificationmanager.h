@@ -69,16 +69,13 @@ void purple_notification_manager_add(PurpleNotificationManager *manager, PurpleN
 /**
  * purple_notification_manager_remove:
  * @manager: The instance.
- * @id: The identifier of the notification to remove.
+ * @notification: The notification to remove.
  *
  * Removes @notification from @manager.
  *
- * Returns: %TRUE if @notification was successfully removed from @manager,
- *          %FALSE otherwise.
- *
  * Since: 3.0.0
  */
-gboolean purple_notification_manager_remove(PurpleNotificationManager *manager, const gchar *id);
+void purple_notification_manager_remove(PurpleNotificationManager *manager, PurpleNotification *notification);
 
 /**
  * purple_notification_manager_get_unread_count:
