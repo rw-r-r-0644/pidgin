@@ -533,6 +533,8 @@ _purple_account_set_current_error(PurpleAccount *account,
 	if(new_err == old_err)
 		return;
 
+	priv->current_error = new_err;
+
 	manager = purple_notification_manager_get_default();
 
 	if(PURPLE_IS_NOTIFICATION(priv->error_notification)) {
