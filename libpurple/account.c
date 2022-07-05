@@ -541,9 +541,22 @@ _purple_account_set_current_error(PurpleAccount *account,
 	}
 
 	if(new_err != NULL) {
+		PurpleProtocol *protocol = NULL;
+
 		priv->error_notification =
 			purple_notification_new(PURPLE_NOTIFICATION_TYPE_CONNECTION_ERROR,
 			                        account, new_err, NULL);
+
+		protocol = purple_account_get_protocol(account);
+		if(PURPLE_IS_PROTOCOL(protocol)) {
+			const gchar *icon_name = purple_protocol_get_icon_name(protocol);
+
+			if(icon_name != NULL) {
+				purple_notification_set_icon_name(priv->error_notification,
+				                                  icon_name);
+			}
+		}
+
 		purple_notification_manager_add(manager, priv->error_notification);
 	}
 

@@ -89,6 +89,19 @@ void purple_notification_manager_remove(PurpleNotificationManager *manager, Purp
  */
 guint purple_notification_manager_get_unread_count(PurpleNotificationManager *manager);
 
+/**
+ * purple_notification_manager_get_model:
+ * @manager: The instance.
+ *
+ * Gets a [iface@Gio.ListModel] of all the [class@Notification]'s in
+ * @manager.
+ *
+ * Returns: (transfer full): The model.
+ *
+ * Since: 3.0.0
+ */
+GListModel *purple_notification_manager_get_model(PurpleNotificationManager *manager);
+
 G_END_DECLS
 
 #endif /* PURPLE_NOTIFICATION_MANAGER_H */

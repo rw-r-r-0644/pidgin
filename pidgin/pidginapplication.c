@@ -263,6 +263,24 @@ pidgin_application_add_group(GSimpleAction *simple, GVariant *parameter,
 }
 
 static void
+pidgin_application_connect_account(GSimpleAction *simple, GVariant *parameter,
+                                   gpointer data)
+{
+	PurpleAccount *account = NULL;
+	PurpleAccountManager *manager = NULL;
+	const gchar *id = NULL;
+
+	id = g_variant_get_string(parameter, NULL);
+
+	manager = purple_account_manager_get_default();
+
+	account = purple_account_manager_find_by_id(manager, id);
+	if(PURPLE_IS_ACCOUNT(account)) {
+		purple_account_connect(account);
+	}
+}
+
+static void
 pidgin_application_debug(GSimpleAction *simple, GVariant *parameter,
                          gpointer data)
 {
@@ -449,6 +467,10 @@ static GActionEntry app_entries[] = {
 	}, {
 		.name = "add-group",
 		.activate = pidgin_application_add_group,
+	}, {
+		.name = "connect-account",
+		.activate = pidgin_application_connect_account,
+		.parameter_type = "s",
 	}, {
 		.name = "debug",
 		.activate = pidgin_application_debug,

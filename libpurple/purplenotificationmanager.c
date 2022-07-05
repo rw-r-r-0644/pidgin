@@ -363,3 +363,14 @@ purple_notification_manager_get_unread_count(PurpleNotificationManager *manager)
 
 	return manager->unread_count;
 }
+
+GListModel *
+purple_notification_manager_get_model(PurpleNotificationManager *manager) {
+	g_return_val_if_fail(PURPLE_IS_NOTIFICATION_MANAGER(manager), NULL);
+
+	if(manager->notifications == NULL) {
+		return NULL;
+	}
+
+	return G_LIST_MODEL(g_object_ref(manager->notifications));
+}
