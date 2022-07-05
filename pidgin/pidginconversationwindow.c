@@ -85,7 +85,7 @@ pidgin_conversation_window_selection_changed(GtkTreeSelection *selection,
 	}
 
 	if(!changed) {
-		gtk_stack_set_visible_child_name(GTK_STACK(window->stack), "__empty__");
+		gtk_stack_set_visible_child_name(GTK_STACK(window->stack), "__conversations__");
 	}
 }
 
@@ -198,6 +198,7 @@ pidgin_conversation_window_init(PidginConversationWindow *window) {
 	gtk_tree_store_append(window->model, &iter, NULL);
 	gtk_tree_store_set(window->model, &iter,
 	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_MARKUP, _("Conversations"),
+	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_NAME, "__conversations__",
 	                   -1);
 	window->conversation_path = gtk_tree_model_get_path(GTK_TREE_MODEL(window->model),
 	                                                    &iter);
