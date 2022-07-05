@@ -1492,21 +1492,27 @@ pidgin_append_blist_node_proto_menu(GtkWidget *menu, PurpleConnection *gc,
 }
 
 static gboolean
-gtk_blist_key_press_cb(GtkWidget *tv, GdkEventKey *event, gpointer data)
+pidgin_blist_key_press_cb(G_GNUC_UNUSED GtkEventControllerKey *controller,
+                          guint keyval, G_GNUC_UNUSED guint keycode,
+                          GdkModifierType state, gpointer data)
 {
+	PidginBuddyList *blist = PIDGIN_BUDDY_LIST(data);
+	GtkTreeView *tv = NULL;
+	GtkTreeModel *model = NULL;
 	PurpleBlistNode *node;
-	GtkTreeIter iter, parent;
+	GtkTreeIter iter;
 	GtkTreeSelection *sel;
-	GtkTreePath *path;
 
-	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(tv));
+	tv = GTK_TREE_VIEW(blist->treeview);
+	sel = gtk_tree_view_get_selection(tv);
+
 	if(!gtk_tree_selection_get_selected(sel, NULL, &iter))
 		return FALSE;
 
-	gtk_tree_model_get(GTK_TREE_MODEL(gtkblist->treemodel), &iter, NODE_COLUMN, &node, -1);
+	model = GTK_TREE_MODEL(blist->treemodel);
+	gtk_tree_model_get(model, &iter, NODE_COLUMN, &node, -1);
 
-	if(event->state & GDK_CONTROL_MASK &&
-			(event->keyval == 'o' || event->keyval == 'O')) {
+	if(state & GDK_CONTROL_MASK && (keyval == 'o' || keyval == 'O')) {
 		PurpleBuddy *buddy;
 
 		if(PURPLE_IS_CONTACT(node)) {
@@ -1519,7 +1525,10 @@ gtk_blist_key_press_cb(GtkWidget *tv, GdkEventKey *event, gpointer data)
 		if(buddy)
 			pidgin_retrieve_user_info(purple_account_get_connection(purple_buddy_get_account(buddy)), purple_buddy_get_name(buddy));
 	} else {
-		switch (event->keyval) {
+		GtkTreeIter parent;
+		GtkTreePath *path = NULL;
+
+		switch (keyval) {
 			case GDK_KEY_F2:
 				/* FIXME: gk 2022-05-27 */
 				/*
@@ -1528,19 +1537,19 @@ gtk_blist_key_press_cb(GtkWidget *tv, GdkEventKey *event, gpointer data)
 				break;
 
 			case GDK_KEY_Left:
-				path = gtk_tree_model_get_path(GTK_TREE_MODEL(gtkblist->treemodel), &iter);
-				if (gtk_tree_view_row_expanded(GTK_TREE_VIEW(tv), path)) {
+				path = gtk_tree_model_get_path(model, &iter);
+				if (gtk_tree_view_row_expanded(tv, path)) {
 					/* Collapse the Group */
-					gtk_tree_view_collapse_row(GTK_TREE_VIEW(tv), path);
+					gtk_tree_view_collapse_row(tv, path);
 					gtk_tree_path_free(path);
 					return TRUE;
 				} else {
 					/* Select the Parent */
-					if (gtk_tree_model_get_iter(GTK_TREE_MODEL(gtkblist->treemodel), &iter, path)) {
-						if (gtk_tree_model_iter_parent(GTK_TREE_MODEL(gtkblist->treemodel), &parent, &iter)) {
+					if (gtk_tree_model_get_iter(model, &iter, path)) {
+						if (gtk_tree_model_iter_parent(model, &parent, &iter)) {
 							gtk_tree_path_free(path);
-							path = gtk_tree_model_get_path(GTK_TREE_MODEL(gtkblist->treemodel), &parent);
-							gtk_tree_view_set_cursor(GTK_TREE_VIEW(tv), path, NULL, FALSE);
+							path = gtk_tree_model_get_path(model, &parent);
+							gtk_tree_view_set_cursor(tv, path, NULL, FALSE);
 							gtk_tree_path_free(path);
 							return TRUE;
 						}
@@ -1550,25 +1559,25 @@ gtk_blist_key_press_cb(GtkWidget *tv, GdkEventKey *event, gpointer data)
 				break;
 
 			case GDK_KEY_Right:
-				path = gtk_tree_model_get_path(GTK_TREE_MODEL(gtkblist->treemodel), &iter);
-				if (!gtk_tree_view_row_expanded(GTK_TREE_VIEW(tv), path)) {
+				path = gtk_tree_model_get_path(model, &iter);
+				if (!gtk_tree_view_row_expanded(tv, path)) {
 					/* Expand the Group */
 					if (PURPLE_IS_CONTACT(node)) {
 						pidgin_blist_expand_contact_cb(NULL, node);
 						gtk_tree_path_free(path);
 						return TRUE;
 					} else if (!PURPLE_IS_BUDDY(node)) {
-						gtk_tree_view_expand_row(GTK_TREE_VIEW(tv), path, FALSE);
+						gtk_tree_view_expand_row(tv, path, FALSE);
 						gtk_tree_path_free(path);
 						return TRUE;
 					}
 				} else {
 					/* Select the First Child */
-					if (gtk_tree_model_get_iter(GTK_TREE_MODEL(gtkblist->treemodel), &parent, path)) {
-						if (gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(gtkblist->treemodel), &iter, &parent, 0)) {
+					if (gtk_tree_model_get_iter(model, &parent, path)) {
+						if (gtk_tree_model_iter_nth_child(model, &iter, &parent, 0)) {
 							gtk_tree_path_free(path);
-							path = gtk_tree_model_get_path(GTK_TREE_MODEL(gtkblist->treemodel), &iter);
-							gtk_tree_view_set_cursor(GTK_TREE_VIEW(tv), path, NULL, FALSE);
+							path = gtk_tree_model_get_path(model, &iter);
+							gtk_tree_view_set_cursor(tv, path, NULL, FALSE);
 							gtk_tree_path_free(path);
 							return TRUE;
 						}
@@ -3729,6 +3738,7 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	void *handle;
 	GtkTreeViewColumn *column;
 	GtkWidget *sep;
+	GtkEventController *key_controller = NULL;
 	GtkTreeSelection *selection;
 
 	if (gtkblist && gtkblist->window) {
@@ -3808,7 +3818,11 @@ static void pidgin_blist_show(PurpleBuddyList *list)
 	g_signal_connect(G_OBJECT(gtkblist->treeview), "row-collapsed",
 	                 G_CALLBACK(gtk_blist_row_collapsed_cb), gtkblist);
 	g_signal_connect(G_OBJECT(gtkblist->treeview), "button-press-event", G_CALLBACK(gtk_blist_button_press_cb), NULL);
-	g_signal_connect(G_OBJECT(gtkblist->treeview), "key-press-event", G_CALLBACK(gtk_blist_key_press_cb), NULL);
+	key_controller = gtk_event_controller_key_new(gtkblist->treeview);
+	g_signal_connect(G_OBJECT(key_controller), "key-pressed",
+	                 G_CALLBACK(pidgin_blist_key_press_cb), gtkblist);
+	g_object_set_data_full(G_OBJECT(gtkblist->treeview), "key-controller",
+	                       key_controller, g_object_unref);
 	g_signal_connect(G_OBJECT(gtkblist->treeview), "popup-menu", G_CALLBACK(pidgin_blist_popup_menu_cb), NULL);
 
 	/* Enable CTRL+F searching */
