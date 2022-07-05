@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 
+
+Pidgin - Internet Messenger
+Copyright (C) Pidgin Developers <devel@pidgin.im>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <https://www.gnu.org/licenses/>.
+
+-->
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <requires lib="libhandy" version="0.0"/>
+  <!-- interface-license-type gplv2 -->
+  <!-- interface-name Pidgin -->
+  <!-- interface-description Internet Messenger -->
+  <!-- interface-copyright Pidgin Developers <devel@pidgin.im> -->
+  <template class="PidginNotificationConnectionError" parent="HdyActionRow">
+    <property name="visible">True</property>
+    <property name="can-focus">True</property>
+    <property name="activatable">False</property>
+    <property name="subtitle-lines">3</property>
+    <child>
+      <object class="GtkButton" id="reconnect">
+        <property name="label" translatable="yes">Reconnect</property>
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
+        <property name="halign">center</property>
+        <property name="valign">center</property>
+        <property name="action-name">app.connect-account</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="reenable">
+        <property name="label" translatable="yes">Re-enable</property>
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
+        <property name="halign">center</property>
+        <property name="valign">center</property>
+        <property name="action-name">app.enable-account</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="modify">
+        <property name="label" translatable="yes">Modify Account</property>
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
+        <property name="halign">center</property>
+        <property name="valign">center</property>
+        <property name="action-name">app.edit-account</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="remove">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
+        <property name="halign">center</property>
+        <property name="valign">center</property>
+        <property name="relief">none</property>
+        <signal name="clicked" handler="pidgin_notification_connection_error_remove_cb" object="PidginNotificationConnectionError" swapped="no"/>
+        <child>
+          <object class="GtkImage">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="icon-name">edit-delete-symbolic</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

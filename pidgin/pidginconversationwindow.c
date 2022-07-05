@@ -28,6 +28,7 @@
 
 enum {
 	PIDGIN_CONVERSATION_WINDOW_COLUMN_OBJECT,
+	PIDGIN_CONVERSATION_WINDOW_COLUMN_NAME,
 	PIDGIN_CONVERSATION_WINDOW_COLUMN_ICON,
 	PIDGIN_CONVERSATION_WINDOW_COLUMN_MARKUP,
 };
@@ -47,6 +48,8 @@ struct _PidginConversationWindow {
 	GtkTreeStore *model;
 
 	GtkWidget *stack;
+
+	GtkWidget *notification_list;
 
 	GtkTreePath *conversation_path;
 };
@@ -69,14 +72,14 @@ pidgin_conversation_window_selection_changed(GtkTreeSelection *selection,
 	gboolean changed = FALSE;
 
 	if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-		gchar *markup = NULL;
+		gchar *name = NULL;
 
 		gtk_tree_model_get(model, &iter,
-		                   PIDGIN_CONVERSATION_WINDOW_COLUMN_MARKUP, &markup,
+		                   PIDGIN_CONVERSATION_WINDOW_COLUMN_NAME, &name,
 		                   -1);
 
-		gtk_stack_set_visible_child_name(GTK_STACK(window->stack), markup);
-		g_free(markup);
+		gtk_stack_set_visible_child_name(GTK_STACK(window->stack), name);
+		g_free(name);
 
 		changed = TRUE;
 	}
@@ -187,6 +190,13 @@ pidgin_conversation_window_init(PidginConversationWindow *window) {
 	/* Add our toplevels to the tree store. */
 	gtk_tree_store_append(window->model, &iter, NULL);
 	gtk_tree_store_set(window->model, &iter,
+	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_OBJECT, window->notification_list,
+	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_NAME, "__notifications__",
+	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_MARKUP, _("Notifications"),
+	                   -1);
+
+	gtk_tree_store_append(window->model, &iter, NULL);
+	gtk_tree_store_set(window->model, &iter,
 	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_MARKUP, _("Conversations"),
 	                   -1);
 	window->conversation_path = gtk_tree_model_get_path(GTK_TREE_MODEL(window->model),
@@ -228,6 +238,8 @@ pidgin_conversation_window_class_init(PidginConversationWindowClass *klass) {
 
 	gtk_widget_class_bind_template_child(widget_class, PidginConversationWindow,
 	                                     stack);
+	gtk_widget_class_bind_template_child(widget_class, PidginConversationWindow,
+	                                     notification_list);
 
 	gtk_widget_class_bind_template_callback(widget_class,
 	                                        pidgin_conversation_window_selection_changed);
@@ -299,6 +311,7 @@ pidgin_conversation_window_add(PidginConversationWindow *window,
 	gtk_tree_store_prepend(window->model, &iter, &parent);
 	gtk_tree_store_set(window->model, &iter,
 	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_OBJECT, conversation,
+	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_NAME, markup,
 	                   PIDGIN_CONVERSATION_WINDOW_COLUMN_MARKUP, markup,
 	                   -1);
 
