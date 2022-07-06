@@ -637,7 +637,6 @@ signed_on_cb(PurpleConnection *gc,
              gpointer unused)
 {
 	PurpleAccount *account = purple_connection_get_account(gc);
-	purple_account_clear_current_error(account);
 
 	purple_signal_emit(purple_accounts_get_handle(), "account-signed-on",
 	                   account);

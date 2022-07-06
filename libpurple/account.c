@@ -1112,6 +1112,8 @@ purple_account_connect(PurpleAccount *account)
 
 	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
 
+	purple_account_clear_current_error(account);
+
 	username = purple_account_get_username(account);
 
 	if (!purple_account_get_enabled(account)) {
