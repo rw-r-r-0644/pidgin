@@ -342,6 +342,7 @@ version 3.0.0 (??/??/????):
 		* purple_account_get_ui_int
 		* purple_account_get_ui_string
 		* purple_account_get_ui_bool
+		* purple_account_notify_added
 		* purple_account_set_check_mail
 		* purple_account_set_current_error
 		* purple_account_set_password.  Use

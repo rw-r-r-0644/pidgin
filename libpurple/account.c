@@ -1227,22 +1227,6 @@ purple_account_is_disconnecting(PurpleAccount *account)
 }
 
 void
-purple_account_notify_added(PurpleAccount *account, const char *remote_user,
-                          const char *id, const char *alias,
-                          const char *message)
-{
-	PurpleAccountUiOps *ui_ops;
-
-	g_return_if_fail(PURPLE_IS_ACCOUNT(account));
-	g_return_if_fail(remote_user != NULL);
-
-	ui_ops = purple_accounts_get_ui_ops();
-
-	if (ui_ops != NULL && ui_ops->notify_added != NULL)
-		ui_ops->notify_added(account, remote_user, id, alias, message);
-}
-
-void
 purple_account_request_add(PurpleAccount *account, const char *remote_user,
                          const char *id, const char *alias,
                          const char *message)
