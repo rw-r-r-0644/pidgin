@@ -965,24 +965,6 @@ make_info(PurpleAccount *account, PurpleConnection *gc, const char *remote_user,
 }
 
 static void
-notify_added(PurpleAccount *account, const char *remote_user,
-			const char *id, const char *alias,
-			const char *msg)
-{
-	char *buffer;
-	PurpleConnection *gc;
-
-	gc = purple_account_get_connection(account);
-
-	buffer = make_info(account, gc, remote_user, id, alias, msg);
-
-	purple_notify_info(NULL, NULL, buffer, NULL,
-		purple_request_cpar_from_connection(gc));
-
-	g_free(buffer);
-}
-
-static void
 free_add_user_data(AddUserData *data)
 {
 	g_free(data->username);
@@ -1167,7 +1149,6 @@ finch_request_close(void *uihandle)
 
 static PurpleAccountUiOps ui_ops =
 {
-	.notify_added = notify_added,
 	.request_add = request_add,
 	.request_authorize = finch_request_authorize,
 	.close_account_request = finch_request_close,

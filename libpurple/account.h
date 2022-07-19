@@ -214,24 +214,6 @@ void purple_account_disconnect(PurpleAccount *account);
 gboolean purple_account_is_disconnecting(PurpleAccount *account);
 
 /**
- * purple_account_notify_added:
- * @account:     The account that was added.
- * @remote_user: The name of the user that added this account.
- * @id:          The optional ID of the local account. Rarely used.
- * @alias:       The optional alias of the user.
- * @message:     The optional message sent from the user adding you.
- *
- * Notifies the user that the account was added to a remote user's
- * buddy list.
- *
- * This will present a dialog informing the user that he was added to the
- * remote user's buddy list.
- */
-void purple_account_notify_added(PurpleAccount *account, const char *remote_user,
-                               const char *id, const char *alias,
-                               const char *message);
-
-/**
  * purple_account_request_add:
  * @account:     The account that was added.
  * @remote_user: The name of the user that added this account.

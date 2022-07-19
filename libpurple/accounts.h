@@ -35,8 +35,6 @@ typedef struct _PurpleAccountUiOps  PurpleAccountUiOps;
 
 /**
  * PurpleAccountUiOps:
- * @notify_added:          A buddy who is already on this account's buddy list
- *                         added this account to their buddy list.
  * @status_changed:        This account's status changed.
  * @request_add:           Someone we don't have on our list added us; prompt
  *                         to add them.
@@ -62,12 +60,6 @@ typedef struct _PurpleAccountUiOps  PurpleAccountUiOps;
  */
 struct _PurpleAccountUiOps
 {
-	void (*notify_added)(PurpleAccount *account,
-	                     const char *remote_user,
-	                     const char *id,
-	                     const char *alias,
-	                     const char *message);
-
 	void (*status_changed)(PurpleAccount *account,
 	                       PurpleStatus *status);
 

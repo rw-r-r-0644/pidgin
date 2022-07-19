@@ -1321,26 +1321,6 @@ make_info(PurpleAccount *account, PurpleConnection *gc, const char *remote_user,
 }
 
 static void
-pidgin_accounts_notify_added(PurpleAccount *account, const char *remote_user,
-                               const char *id, const char *alias,
-                               const char *msg)
-{
-	char *buffer;
-	PurpleConnection *gc;
-	GtkWidget *alert;
-
-	gc = purple_account_get_connection(account);
-
-	buffer = make_info(account, gc, remote_user, id, alias, msg);
-	alert = pidgin_mini_dialog_new_with_buttons(
-		buffer, NULL, "dialog-information", NULL,
-		_("Close"), NULL, NULL);
-	pidgin_blist_add_alert(alert);
-
-	g_free(buffer);
-}
-
-static void
 pidgin_accounts_request_add(PurpleAccount *account, const char *remote_user,
                               const char *id, const char *alias,
                               const char *msg)
@@ -1582,7 +1562,6 @@ pidgin_accounts_request_close(void *ui_handle)
 
 static PurpleAccountUiOps ui_ops =
 {
-	.notify_added = pidgin_accounts_notify_added,
 	.request_add = pidgin_accounts_request_add,
 	.request_authorize = pidgin_accounts_request_authorization,
 	.close_account_request = pidgin_accounts_request_close,
