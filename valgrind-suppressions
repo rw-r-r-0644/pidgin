@@ -8,14 +8,6 @@
    fun:_XReply
 }
 {
-   NSS
-   Memcheck:Cond
-   obj:/usr/lib/libsoftokn3.so
-   obj:/usr/lib/libsoftokn3.so
-   obj:/usr/lib/libsoftokn3.so
-   obj:/usr/lib/libsoftokn3.so
-}
-{
    X oddness 2
    Memcheck:Param
    writev(vector[...])
@@ -77,14 +69,6 @@
    fun:XRenderComposite
 }
 {
-   TCL leak
-   Memcheck:Leak
-   fun:malloc
-   fun:TclpAlloc
-   fun:Tcl_Alloc
-   fun:Tcl_StaticPackage
-}
-{
    FontConfig Maybe
    Memcheck:Leak
    fun:malloc
@@ -118,38 +102,6 @@
    fun:_X11TransWrite
    obj:/usr/X11R6/lib/libX11.so.6.2
    fun:_XSetClipRectangles
-}
-{
-   New conversation windows
-   Memcheck:Cond
-   obj:/usr/lib/libgtk-x11-2.0.so.0.400.14
-   obj:/usr/lib/libgtk-x11-2.0.so.0.400.14
-   obj:/usr/lib/libgtk-x11-2.0.so.0.400.14
-   obj:/usr/lib/libgtk-x11-2.0.so.0.400.14
-}
-{
-   New conversation windows 2
-   Memcheck:Cond
-   obj:/usr/lib/libgtk-x11-2.0.so.0.400.14
-   obj:/usr/lib/libgtk-x11-2.0.so.0.400.14
-   obj:/usr/lib/libgtk-x11-2.0.so.0.400.14
-   obj:/usr/lib/libgobject-2.0.so.0.400.8
-}
-{
-   NSS Init
-   Memcheck:Leak
-   fun:malloc
-   fun:PR_Malloc
-   fun:PR_CreateStack
-   fun:_PR_InitFdCache
-   fun:_PR_InitIO
-   fun:_PR_ImplicitInitialization
-   fun:PR_Init
-   fun:rsa_nss_init
-   fun:GE_plugin_load
-   fun:purple_plugin_load
-   fun:purple_plugins_load_saved
-   fun:main
 }
 {
    libfontconfig leaks
@@ -198,12 +150,4 @@
    fun:rsvg_handle_get_pixbuf_sub
    fun:rsvg_handle_get_pixbuf
    obj:*
-}
-{
-   TODO temporary: gg prpl bug, fixit
-   Memcheck:Addr4
-   fun:memcpy
-   fun:ggp_resolver_purple_cb
-   fun:purple_dnsquery_resolved
-   ...
 }
