@@ -80,6 +80,7 @@ pidgin_plugins_menu_refresh(PidginPluginsMenu *menu) {
 	                                                 GPLUGIN_PLUGIN_STATE_LOADED);
 
 	g_slist_foreach(loaded, pidgin_plugins_menu_add_item, menu);
+	g_slist_free_full(loaded, g_object_unref);
 
 	added = g_queue_get_length(menu->plugins);
 
