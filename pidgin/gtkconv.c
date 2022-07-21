@@ -45,7 +45,6 @@
 #include "gtkprivacy.h"
 #include "gtkutils.h"
 #include "pidginavatar.h"
-#include "pidginclosebutton.h"
 #include "pidgincolor.h"
 #include "pidginconversationwindow.h"
 #include "pidgincore.h"

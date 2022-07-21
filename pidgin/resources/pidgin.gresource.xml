@@ -41,7 +41,6 @@
     <file compressed="true">Status/manager.ui</file>
     <file compressed="true">Whiteboard/whiteboard.ui</file>
     <file compressed="true">Xfer/xfer.ui</file>
-    <file compressed="true">closebutton.ui</file>
     <file compressed="true">gtk/menus.ui</file>
     <file compressed="true">presenceicon.ui</file>
     <file compressed="true">proxyoptions.ui</file>

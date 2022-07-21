@@ -41,7 +41,6 @@
 #include "pidgin/pidginaccountstore.h"
 #include "pidgin/pidginactiongroup.h"
 #include "pidgin/pidgincellrendererexpander.h"
-#include "pidgin/pidginclosebutton.h"
 #include "pidgin/pidgincontactlistwindow.h"
 #include "pidgin/pidgincore.h"
 #include "pidgin/pidgindebug.h"
