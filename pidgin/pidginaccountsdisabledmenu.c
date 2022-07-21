@@ -22,22 +22,22 @@
 
 #include <glib/gi18n.h>
 
-#include "pidgininactiveaccountsmenu.h"
+#include "pidginaccountsdisabledmenu.h"
 
-struct _PidginInactiveAccountsMenu {
+struct _PidginAccountsDisabledMenu {
 	GMenuModel parent;
 
 	GList *accounts;
 };
 
-G_DEFINE_TYPE(PidginInactiveAccountsMenu, pidgin_inactive_accounts_menu,
+G_DEFINE_TYPE(PidginAccountsDisabledMenu, pidgin_accounts_disabled_menu,
               G_TYPE_MENU_MODEL)
 
 /******************************************************************************
  * Callbacks
  *****************************************************************************/
 static void
-pidgin_inactive_accounts_menu_refresh(PidginInactiveAccountsMenu *menu) {
+pidgin_accounts_disabled_menu_refresh(PidginAccountsDisabledMenu *menu) {
 	PurpleAccountManager *manager = NULL;
 	gint removed = 0, added = 0;
 
@@ -62,27 +62,27 @@ pidgin_inactive_accounts_menu_refresh(PidginInactiveAccountsMenu *menu) {
 }
 
 static void
-pidgin_inactive_accounts_menu_changed_cb(G_GNUC_UNUSED PurpleAccount *account,
+pidgin_accounts_disabled_menu_changed_cb(G_GNUC_UNUSED PurpleAccount *account,
                                          gpointer data)
 {
-	PidginInactiveAccountsMenu *menu = data;
+	PidginAccountsDisabledMenu *menu = data;
 
-	pidgin_inactive_accounts_menu_refresh(menu);
+	pidgin_accounts_disabled_menu_refresh(menu);
 }
 
 /******************************************************************************
  * GMenuModel Implementation
  *****************************************************************************/
 static gboolean
-pidgin_inactive_accounts_menu_is_mutable(GMenuModel *model) {
+pidgin_accounts_disabled_menu_is_mutable(GMenuModel *model) {
 	return TRUE;
 }
 
 static gboolean
-pidgin_inactive_accounts_menu_get_n_items(GMenuModel *model) {
-	PidginInactiveAccountsMenu *menu = NULL;
+pidgin_accounts_disabled_menu_get_n_items(GMenuModel *model) {
+	PidginAccountsDisabledMenu *menu = NULL;
 
-	menu = PIDGIN_INACTIVE_ACCOUNTS_MENU(model);
+	menu = PIDGIN_ACCOUNTS_DISABLED_MENU(model);
 
 	if(menu->accounts == NULL) {
 		return 1;
@@ -92,17 +92,17 @@ pidgin_inactive_accounts_menu_get_n_items(GMenuModel *model) {
 }
 
 static void
-pidgin_inactive_accounts_menu_get_item_attributes(GMenuModel *model,
+pidgin_accounts_disabled_menu_get_item_attributes(GMenuModel *model,
                                                   gint index,
                                                   GHashTable **attributes)
 {
-	PidginInactiveAccountsMenu *menu = NULL;
+	PidginAccountsDisabledMenu *menu = NULL;
 	PurpleAccount *account = NULL;
 	PurpleProtocol *protocol = NULL;
 	GVariant *value = NULL;
 	const gchar *account_name = NULL, *protocol_name = NULL;
 
-	menu = PIDGIN_INACTIVE_ACCOUNTS_MENU(model);
+	menu = PIDGIN_ACCOUNTS_DISABLED_MENU(model);
 
 	/* Create our hash table of attributes to return. */
 	*attributes = g_hash_table_new_full(g_str_hash, g_str_equal, NULL,
@@ -156,7 +156,7 @@ pidgin_inactive_accounts_menu_get_item_attributes(GMenuModel *model,
 }
 
 static void
-pidgin_inactive_accounts_menu_get_item_links(GMenuModel *model, gint index,
+pidgin_accounts_disabled_menu_get_item_links(GMenuModel *model, gint index,
                                              GHashTable **links)
 {
 	*links = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
@@ -167,51 +167,51 @@ pidgin_inactive_accounts_menu_get_item_links(GMenuModel *model, gint index,
  * GObject Implementation
  *****************************************************************************/
 static void
-pidgin_inactive_accounts_menu_dispose(GObject *obj) {
+pidgin_accounts_disabled_menu_dispose(GObject *obj) {
 	purple_signals_disconnect_by_handle(obj);
 
-	G_OBJECT_CLASS(pidgin_inactive_accounts_menu_parent_class)->dispose(obj);
+	G_OBJECT_CLASS(pidgin_accounts_disabled_menu_parent_class)->dispose(obj);
 }
 
 static void
-pidgin_inactive_accounts_menu_constructed(GObject *obj) {
-	G_OBJECT_CLASS(pidgin_inactive_accounts_menu_parent_class)->constructed(obj);
+pidgin_accounts_disabled_menu_constructed(GObject *obj) {
+	G_OBJECT_CLASS(pidgin_accounts_disabled_menu_parent_class)->constructed(obj);
 
-	pidgin_inactive_accounts_menu_refresh(PIDGIN_INACTIVE_ACCOUNTS_MENU(obj));
+	pidgin_accounts_disabled_menu_refresh(PIDGIN_ACCOUNTS_DISABLED_MENU(obj));
 }
 
 static void
-pidgin_inactive_accounts_menu_init(PidginInactiveAccountsMenu *menu) {
+pidgin_accounts_disabled_menu_init(PidginAccountsDisabledMenu *menu) {
 	gpointer handle = NULL;
 
 	/* Wire up the purple signals we care about. */
 	handle = purple_accounts_get_handle();
 	purple_signal_connect(handle, "account-enabled", menu,
-	                      G_CALLBACK(pidgin_inactive_accounts_menu_changed_cb),
+	                      G_CALLBACK(pidgin_accounts_disabled_menu_changed_cb),
 	                      menu);
 	purple_signal_connect(handle, "account-disabled", menu,
-	                      G_CALLBACK(pidgin_inactive_accounts_menu_changed_cb),
+	                      G_CALLBACK(pidgin_accounts_disabled_menu_changed_cb),
 	                      menu);
 }
 
 static void
-pidgin_inactive_accounts_menu_class_init(PidginInactiveAccountsMenuClass *klass) {
+pidgin_accounts_disabled_menu_class_init(PidginAccountsDisabledMenuClass *klass) {
 	GObjectClass *obj_class = G_OBJECT_CLASS(klass);
 	GMenuModelClass *model_class = G_MENU_MODEL_CLASS(klass);
 
-	obj_class->constructed = pidgin_inactive_accounts_menu_constructed;
-	obj_class->dispose = pidgin_inactive_accounts_menu_dispose;
+	obj_class->constructed = pidgin_accounts_disabled_menu_constructed;
+	obj_class->dispose = pidgin_accounts_disabled_menu_dispose;
 
-	model_class->is_mutable = pidgin_inactive_accounts_menu_is_mutable;
-	model_class->get_n_items = pidgin_inactive_accounts_menu_get_n_items;
-	model_class->get_item_attributes = pidgin_inactive_accounts_menu_get_item_attributes;
-	model_class->get_item_links = pidgin_inactive_accounts_menu_get_item_links;
+	model_class->is_mutable = pidgin_accounts_disabled_menu_is_mutable;
+	model_class->get_n_items = pidgin_accounts_disabled_menu_get_n_items;
+	model_class->get_item_attributes = pidgin_accounts_disabled_menu_get_item_attributes;
+	model_class->get_item_links = pidgin_accounts_disabled_menu_get_item_links;
 }
 
 /******************************************************************************
  * Public API
  *****************************************************************************/
 GMenuModel *
-pidgin_inactive_accounts_menu_new(void) {
-	return g_object_new(PIDGIN_TYPE_INACTIVE_ACCOUNTS_MENU, NULL);
+pidgin_accounts_disabled_menu_new(void) {
+	return g_object_new(PIDGIN_TYPE_ACCOUNTS_DISABLED_MENU, NULL);
 }
