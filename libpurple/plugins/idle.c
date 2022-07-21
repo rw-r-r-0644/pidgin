@@ -103,7 +103,7 @@ idle_all_action_ok(void *ignored, PurpleRequestFields *fields)
 	int tm = purple_request_fields_get_integer(fields, "mins");
 
 	manager = purple_account_manager_get_default();
-	list = purple_account_manager_get_active(manager);
+	list = purple_account_manager_get_enabled(manager);
 	for(iter = list; iter; iter = iter->next) {
 		acct = (PurpleAccount *)(iter->data);
 

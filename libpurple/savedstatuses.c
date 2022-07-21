@@ -878,7 +878,7 @@ purple_savedstatus_set_idleaway(gboolean idleaway) {
 	}
 
 	manager = purple_account_manager_get_default();
-	accounts = purple_account_manager_get_active(manager);
+	accounts = purple_account_manager_get_enabled(manager);
 	for (node = accounts; node != NULL; node = node->next) {
 		PurpleAccount *account;
 		PurplePresence *presence;
@@ -1111,7 +1111,7 @@ purple_savedstatus_activate(PurpleSavedStatus *saved_status) {
 	                     purple_savedstatus_get_creation_time(saved_status));
 
 	manager = purple_account_manager_get_default();
-	accounts = purple_account_manager_get_active(manager);
+	accounts = purple_account_manager_get_enabled(manager);
 	for(node = accounts; node != NULL; node = node->next) {
 		PurpleAccount *account;
 
