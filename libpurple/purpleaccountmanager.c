@@ -206,13 +206,6 @@ purple_account_manager_get_enabled(PurpleAccountManager *manager) {
 }
 
 GList *
-purple_account_manager_get_active(PurpleAccountManager *manager) {
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT_MANAGER(manager), NULL);
-
-	return purple_account_manager_get_enabled(manager);
-}
-
-GList *
 purple_account_manager_get_disabled(PurpleAccountManager *manager) {
 	GList *disabled = NULL, *l = NULL;
 
@@ -227,13 +220,6 @@ purple_account_manager_get_disabled(PurpleAccountManager *manager) {
 	}
 
 	return disabled;
-}
-
-GList *
-purple_account_manager_get_inactive(PurpleAccountManager *manager) {
-	g_return_val_if_fail(PURPLE_IS_ACCOUNT_MANAGER(manager), NULL);
-
-	return purple_account_manager_get_disabled(manager);
 }
 
 void
