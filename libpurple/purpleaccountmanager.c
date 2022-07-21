@@ -189,8 +189,8 @@ purple_account_manager_get_all(PurpleAccountManager *manager) {
 }
 
 GList *
-purple_account_manager_get_active(PurpleAccountManager *manager) {
-	GList *active = NULL, *l = NULL;
+purple_account_manager_get_enabled(PurpleAccountManager *manager) {
+	GList *enabled = NULL, *l = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT_MANAGER(manager), NULL);
 
@@ -198,16 +198,23 @@ purple_account_manager_get_active(PurpleAccountManager *manager) {
 		PurpleAccount *account = PURPLE_ACCOUNT(l->data);
 
 		if(purple_account_get_enabled(account)) {
-			active = g_list_append(active, account);
+			enabled = g_list_append(enabled, account);
 		}
 	}
 
-	return active;
+	return enabled;
 }
 
 GList *
-purple_account_manager_get_inactive(PurpleAccountManager *manager) {
-	GList *inactive = NULL, *l = NULL;
+purple_account_manager_get_active(PurpleAccountManager *manager) {
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT_MANAGER(manager), NULL);
+
+	return purple_account_manager_get_enabled(manager);
+}
+
+GList *
+purple_account_manager_get_disabled(PurpleAccountManager *manager) {
+	GList *disabled = NULL, *l = NULL;
 
 	g_return_val_if_fail(PURPLE_IS_ACCOUNT_MANAGER(manager), NULL);
 
@@ -215,13 +222,19 @@ purple_account_manager_get_inactive(PurpleAccountManager *manager) {
 		PurpleAccount *account = l->data;
 
 		if(!purple_account_get_enabled(account)) {
-			inactive = g_list_append(inactive, account);
+			disabled = g_list_append(disabled, account);
 		}
 	}
 
-	return inactive;
+	return disabled;
 }
 
+GList *
+purple_account_manager_get_inactive(PurpleAccountManager *manager) {
+	g_return_val_if_fail(PURPLE_IS_ACCOUNT_MANAGER(manager), NULL);
+
+	return purple_account_manager_get_disabled(manager);
+}
 
 void
 purple_account_manager_reorder(PurpleAccountManager *manager,

@@ -113,6 +113,19 @@ void purple_account_manager_reorder(PurpleAccountManager *manager, PurpleAccount
 GList *purple_account_manager_get_all(PurpleAccountManager *manager);
 
 /**
+ * purple_account_manager_get_enabled:
+ * @manager: The account manager instance.
+ *
+ * Gets the list of all enabled accounts.
+ *
+ * Returns: (transfer container) (element-type PurpleAccount): The list of all
+ *          enabled accounts.
+ *
+ * Since: 3.0.0
+ */
+GList *purple_account_manager_get_enabled(PurpleAccountManager *manager);
+
+/**
  * purple_account_manager_get_active:
  * @manager: The account manager instance.
  *
@@ -122,8 +135,24 @@ GList *purple_account_manager_get_all(PurpleAccountManager *manager);
  *          active accounts.
  *
  * Since: 3.0.0
+ *
+ * Deprecated: 3.0.0: Use purple_account_manager_get_enabled() instead.
  */
+G_DEPRECATED_FOR(purple_account_manager_get_enabled)
 GList *purple_account_manager_get_active(PurpleAccountManager *manager);
+
+/**
+ * purple_account_manager_get_disabled:
+ * @manager: The account manager instance.
+ *
+ * Gets the list of all disabled accounts.
+ *
+ * Returns: (transfer container) (element-type PurpleAccount): The list of all
+ *          disabled accounts.
+ *
+ * Since: 3.0.0
+ */
+GList *purple_account_manager_get_disabled(PurpleAccountManager *manager);
 
 /**
  * purple_account_manager_get_inactive:
@@ -135,7 +164,10 @@ GList *purple_account_manager_get_active(PurpleAccountManager *manager);
  *          inactive accounts.
  *
  * Since: 3.0.0
+ *
+ * Deprecated: 3.0.0: Use purple_account_manager_get_disabled() instead.
  */
+G_DEPRECATED_FOR(purple_account_manager_get_disabled)
 GList *purple_account_manager_get_inactive(PurpleAccountManager *manager);
 
 /**
