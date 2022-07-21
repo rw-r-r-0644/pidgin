@@ -310,7 +310,7 @@ create_transient_status(PurpleStatusPrimitive primitive,
 		GList *active_accts = NULL;
 
 		manager = purple_account_manager_get_default();
-		active_accts = purple_account_manager_get_active(manager);
+		active_accts = purple_account_manager_get_enabled(manager);
 
 		while(active_accts != NULL) {
 			PurpleAccount *account = PURPLE_ACCOUNT(active_accts->data);
