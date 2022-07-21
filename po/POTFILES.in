@@ -349,7 +349,6 @@ pidgin/pidginattachment.c
 pidgin/pidginavatar.c
 pidgin/pidgin.c
 pidgin/pidgincellrendererexpander.c
-pidgin/pidginclosebutton.c
 pidgin/pidgincolor.c
 pidgin/pidgincommands.c
 pidgin/pidgincontactlistwindow.c
@@ -405,7 +404,6 @@ pidgin/resources/Accounts/menu.ui
 pidgin/resources/Avatar/avatar.ui
 pidgin/resources/Avatar/menu.ui
 pidgin/resources/BuddyList/window.ui
-pidgin/resources/closebutton.ui
 pidgin/resources/Conversations/infopane.ui
 pidgin/resources/Conversations/invite_dialog.ui
 pidgin/resources/Conversations/window.ui
