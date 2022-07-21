@@ -44,11 +44,11 @@
 #include "gtkxfer.h"
 #include "pidginabout.h"
 #include "pidginaccountmanager.h"
+#include "pidginaccountsdisabledmenu.h"
 #include "pidginaccountsenabledmenu.h"
 #include "pidginconversationwindow.h"
 #include "pidgincore.h"
 #include "pidgindebug.h"
-#include "pidgininactiveaccountsmenu.h"
 #include "pidginmooddialog.h"
 #include "pidginpluginsdialog.h"
 #include "pidginpluginsmenu.h"
@@ -124,10 +124,10 @@ pidgin_application_populate_dynamic_menus(PidginApplication *application) {
 	GMenu *source = NULL, *target = NULL;
 	GMenuModel *model = NULL;
 
-	/* Link the InactiveAccountsMenu into its proper location. */
-	model = pidgin_inactive_accounts_menu_new();
+	/* Link the AccountsDisabledMenu into its proper location. */
+	model = pidgin_accounts_disabled_menu_new();
 	target = gtk_application_get_menu_by_id(GTK_APPLICATION(application),
-	                                        "inactive-accounts");
+	                                        "disabled-accounts");
 	g_menu_append_section(target, NULL, model);
 
 	/* Link the AccountsEnabledMenu into its proper location. */
