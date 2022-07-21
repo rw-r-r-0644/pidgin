@@ -2396,7 +2396,7 @@ reconstruct_accounts_menu(void) {
 	gnt_menuitem_set_submenu(acc, GNT_MENU(sub));
 
 	manager = purple_account_manager_get_default();
-	iter = purple_account_manager_get_active(manager);
+	iter = purple_account_manager_get_enabled(manager);
 
 	for (; iter; iter = g_list_delete_link(iter, iter)) {
 		PurpleAccount *account = iter->data;
