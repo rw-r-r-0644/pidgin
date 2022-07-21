@@ -136,7 +136,7 @@ pidgin_connection_network_connected(void) {
 	GList *l = NULL;
 
 	manager = purple_account_manager_get_default();
-	l = purple_account_manager_get_active(manager);
+	l = purple_account_manager_get_enabled(manager);
 
 	while(l != NULL) {
 		PurpleAccount *account = (PurpleAccount*)l->data;
@@ -154,7 +154,7 @@ pidgin_connection_network_disconnected(void) {
 	GList *l = NULL;
 
 	manager = purple_account_manager_get_default();
-	l = purple_account_manager_get_active(manager);
+	l = purple_account_manager_get_enabled(manager);
 
 	while(l != NULL) {
 		PurpleAccount *a = (PurpleAccount*)l->data;

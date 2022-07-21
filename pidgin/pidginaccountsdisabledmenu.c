@@ -50,7 +50,7 @@ pidgin_accounts_disabled_menu_refresh(PidginAccountsDisabledMenu *menu) {
 	/* Grab the manager and get all the disabled accounts. */
 	manager = purple_account_manager_get_default();
 	g_list_free(menu->accounts);
-	menu->accounts = purple_account_manager_get_inactive(manager);
+	menu->accounts = purple_account_manager_get_disabled(manager);
 
 	/* Similar to the aboved note about removed items, if every account is
 	 * enabled, we add an item saying "no disabled accounts".

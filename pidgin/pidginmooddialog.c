@@ -144,7 +144,7 @@ pidgin_mood_get_global_moods(void) {
 	mood_counts = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 
 	manager = purple_account_manager_get_default();
-	accounts = purple_account_manager_get_active(manager);
+	accounts = purple_account_manager_get_enabled(manager);
 	for (; accounts ; accounts = g_list_delete_link(accounts, accounts)) {
 		PurpleAccount *account = (PurpleAccount *) accounts->data;
 		if (purple_account_is_connected(account)) {
@@ -210,7 +210,7 @@ pidgin_mood_get_global_status(void) {
 	const gchar *found_mood = NULL;
 
 	manager = purple_account_manager_get_default();
-	accounts = purple_account_manager_get_active(manager);
+	accounts = purple_account_manager_get_enabled(manager);
 	for (; accounts ; accounts = g_list_delete_link(accounts, accounts)) {
 		PurpleAccount *account = (PurpleAccount *) accounts->data;
 

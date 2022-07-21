@@ -792,7 +792,7 @@ pidgin_application_startup(GApplication *application) {
 	}
 
 	manager = purple_account_manager_get_default();
-	active_accounts = purple_account_manager_get_active(manager);
+	active_accounts = purple_account_manager_get_enabled(manager);
 	if(active_accounts == NULL) {
 		g_action_group_activate_action(G_ACTION_GROUP(application),
 		                               "manage-accounts", NULL);
