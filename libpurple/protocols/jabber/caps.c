@@ -947,7 +947,7 @@ void jabber_caps_broadcast_change()
 	GList *node, *accounts;
 
 	manager = purple_account_manager_get_default();
-	accounts = purple_account_manager_get_active(manager);
+	accounts = purple_account_manager_get_enabled(manager);
 
 	for (node = accounts; node; node = node->next) {
 		PurpleAccount *account = node->data;
