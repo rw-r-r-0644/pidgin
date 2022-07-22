@@ -18,7 +18,7 @@ along with this library; if not, see <https://www.gnu.org/licenses/>.
 -->
 <interface>
   <requires lib="gtk" version="4.0"/>
-  <requires lib="libhandy" version="1.2"/>
+  <requires lib="Adw" version="1.0"/>
   <requires lib="pidgin" version="3.0"/>
   <!-- interface-license-type gplv2 -->
   <!-- interface-name Pidgin -->
@@ -118,7 +118,7 @@ along with this library; if not, see <https://www.gnu.org/licenses/>.
                   </packing>
                 </child>
                 <child>
-                  <object class="HdyStatusPage">
+                  <object class="AdwStatusPage">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="icon-name">mail-send-symbolic</property>
