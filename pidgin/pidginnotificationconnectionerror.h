@@ -31,7 +31,7 @@
 
 #include <gtk/gtk.h>
 
-#include <handy.h>
+#include <adwaita.h>
 
 #include <purple.h>
 
@@ -48,7 +48,7 @@ G_BEGIN_DECLS
 
 #define PIDGIN_TYPE_NOTIFICATION_CONNECTION_ERROR (pidgin_notification_connection_error_get_type())
 G_DECLARE_FINAL_TYPE(PidginNotificationConnectionError, pidgin_notification_connection_error,
-                     PIDGIN, NOTIFICATION_CONNECTION_ERROR, HdyActionRow)
+                     PIDGIN, NOTIFICATION_CONNECTION_ERROR, AdwActionRow)
 
 /**
  * pidgin_notification_connection_error_new:
